@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.2 Повідомлення管理
+  1.2 Повідомлення (Message)管理
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="proc.html">
@@ -10,35 +10,36 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
-
-<A href="../index.html">この章のЗмістにもどる</A><BR>
-<A href="proc.html">前頁:1.1 Процеси та потоки / タスク管理にもどる</A><BR>
-<A href="taskcomm.html">次頁:1.3 Процеси та потоки/タスク間同期通信管理にすすむ</A><BR>
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+</DIV>
+<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="proc.html">Попередня сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Повернутися)</A><BR>
+<A href="taskcomm.html">Наступна сторінка: 1.3 Процес (Process)/Задача (Task)間同期通信管理 (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aap">1.2 Повідомлення管理</A></H2>
+<H2><A name="aap">1.2 Повідомлення (Message)管理</A></H2>
 
-<H3><A name="aaq">1.2.1 Процеси та потоки間Повідомлення</A></H3>
+<H3><A name="aaq">1.2.1 Процес (Process)間Повідомлення (Message)</A></H3>
 
 <P>
-  Процеси та потокиにはПовідомленняキューが付属しており、
-  このПовідомленняキューを経由してПроцеси та потоки間Повідомлення通信が行なわれる。
-  この機能は、Процеси та потоки間でのアプリケーションПовідомленняの通信だけではなく、
-  子Процеси та потокиの終了Повідомлення等のシステムでの用途にも使用される。
-  このため、いくつかのПовідомленняの形式はシステムで定義されている。
+  Процес (Process)  Повідомлення (Message)キュー 付属しており, 
+  こ Повідомлення (Message)キュー 経由してПроцес (Process)間Повідомлення (Message)通信 行なわれる. 
+  こ 機能 , Процес (Process)間  додатокПовідомлення (Message) 通信だけ  なく, 
+  子Процес (Process) 終了Повідомлення (Message)等 Система (System)  用途  також 使用される. 
+  こ ため, いくつか Повідомлення (Message) Формат / Синтаксис Система (System) 定義されている. 
 </P>
 
 <P>
-  Повідомленняは、Процеси та потокиに付属しているПовідомленняキューに送られ、
-  送信先はそのПроцеси та потоки ID により指定される。
-  また送信元も送信Процеси та потокиのПроцеси та потоки ID により識別される。
+  Повідомлення (Message) , Процес (Process) 付属しているПовідомлення (Message)キュー 送られ, 
+  送信先 そ Процес (Process) ID  より指定される. 
+  また送信元 також 送信Процес (Process) Процес (Process) ID  より識別される. 
 </P>
 <P>
-  1 つのПовідомленняは以下の構造を持ち、<CODE>msg_type</CODE> により 1 〜 31 の 31 種のタイプに分けられている。
-  さらに各タイプにビット対応したタイプマスクにより、
-  Повідомленняの受信 / クリアにおいて、対象とするПовідомленняのタイプ ( 複数 )
-  を指定できるようになっている。
+  1 つ Повідомлення (Message) 以下 構造 持ち, <CODE>msg_type</CODE>  より 1 〜 31   31 種 Тип (Type) 分けられている. 
+  さら 各Тип (Type) ビット対応したТип (Type)マスク より, 
+  Повідомлення (Message) 受信 / クリア おいて, 対象 та するПовідомлення (Message) Тип (Type) ( 複数 )
+   指定 きるよう なっている. 
 </P>
 
 <PRE>
@@ -46,82 +47,82 @@ typedef union {
     struct {
         W   pid;
         W   code;
-    } ABORT;        /* Процеси та потокиの異常終了Повідомлення */
+    } ABORT;        /* Процес (Process) 異常終了Повідомлення (Message) */
     struct {
         W   pid;
         W   code;
-    } EXIT;         /* Процеси та потокиの正常終了Повідомлення */
+    } EXIT;         /* Процес (Process) 正常終了Повідомлення (Message) */
     struct {
         W   pid;
         W   code;
-    } TERM;         /* Процеси та потокиの強制終了Повідомлення */
+    } TERM;         /* Процес (Process) 強制終了Повідомлення (Message) */
     struct {
         W   code;
-    } TMOUT;        /* タイムアウトПовідомлення */
+    } TMOUT;        /* タイムアウトПовідомлення (Message) */
     struct {
         W   code;
-    } SYSEVT;       /* システムイベントПовідомлення */
+    } SYSEVT;       /* Система (System)Подія (Event)Повідомлення (Message) */
     struct {
         UB  msg_str[32];
-    } ANYMSG;       /* その他一般 */
+    } ANYMSG;       /* そ 他一般 */
 } MSGBODY;
 </PRE>
 
 <PRE>
 typedef struct message {
-    W       msg_type;   /* Повідомленняタイプ */
-    W       msg_size;   /* Повідомлення本体サイズ(バイト) */
-    MSGBODY msg_body;   /* Повідомлення本体 */
+    W       msg_type;   /* Повідомлення (Message)Тип (Type) */
+    W       msg_size;   /* Повідомлення (Message)本体Розмір (Size)(バイト) */
+    MSGBODY msg_body;   /* Повідомлення (Message)本体 */
 } MESSAGE;
 </PRE>
 
 <P>
-  Процеси та потокиのПовідомленняキューには他Процеси та потокиからのПовідомлення以外にも自Процеси та потокиから送信したПовідомленняも
-  ( 送信先が自Процеси та потокиの場合 ) 入り、
-  この種のПовідомленняとしてはタイムアウトПовідомленняがある。
-  なお、子Процеси та потокиが終了した場合の終了ПовідомленняもこのПовідомленняキューに入る。
+  Процес (Process) Повідомлення (Message)キュー  他Процес (Process)から Повідомлення (Message)以外  також 自Процес (Process)から送信したПовідомлення (Message) також 
+  ( 送信先 自Процес (Process) 場合 ) 入り, 
+  こ 種 Повідомлення (Message) та して タイムアウトПовідомлення (Message) ある. 
+  なお, 子Процес (Process) 終了した場合 終了Повідомлення (Message) також こ Повідомлення (Message)キュー 入る. 
 </P>
 
 <P>
-  Повідомленняキューは FIFO であり、必ず送信順に入れられる。
-  送信時に相手のПовідомленняキューがフルの場合は、
-  キューに空きができるまで待つか、エラーリターンするかを指定できる。
+  Повідомлення (Message)キュー  FIFO  あり, 必ず送信順 入れられる. 
+  送信時 相手 Повідомлення (Message)キュー フル 場合 , 
+  キュー 空き  きるま 待つか, エラーリターンするか 指定 きる. 
 </P>
 
 <P>
-  通常は、受信したПовідомленняはПовідомленняキューに蓄えられ、
-  Повідомленняの受信要求により取り出すが、
-  Повідомленняハンドラを定義することにより、
-  指定したタイプのПовідомленняを受信した場合に、
-  非同期な処理を行なうことが可能である。
-  これは一種の割り込み処理として使用される。
+  通常 , 受信したПовідомлення (Message) Повідомлення (Message)キュー 蓄えられ, 
+  Повідомлення (Message) 受信要求 より取り出す , 
+  Повідомлення (Message)ハンドラ 定義するこ та  より, 
+  指定したТип (Type) Повідомлення (Message) 受信した場合 , 
+  非同期な処理 行なうこ та  可能 ある. 
+  これ 一種 割り込み処理 та して使用される. 
 </P>
 
-<H3><A name="aar">1.2.2 Повідомленняの種類</A></H3>
+<H3><A name="aar">1.2.2 Повідомлення (Message) 種類</A></H3>
 
 <P>
-  Повідомленняは 1 〜 31 のタイプ番号により 31 種のタイプに分類され、
-  そのうち 1 〜 はシステムでその用途が規定されており、
-  6 〜 23 がシステム予約で、システム及び外殻により用途が規定される。
-  残りの 24 〜 31 がアプリケーションで使用可能となっている。
+  Повідомлення (Message)  1 〜 31  Тип (Type)番号 より 31 種 Тип (Type) 分類され, 
+  そ うち 1 〜  Система (System) そ 用途 規定されており, 
+  6 〜 23  Система (System)予約 , Система (System)及び外殻 より用途 規定される. 
+  残り  24 〜 31  додаток 使用可能 та なっている. 
 </P>
 
 <P>
-  Повідомленняタイプは以下のように定義される。
+  Повідомлення (Message)Тип (Type) 以下 よう 定義される. 
 </P>
 
 <PRE>
-    #define MS_ABORT    ( 1)    /* Процеси та потоки異常終了 */
-    #define MS_EXIT     ( 2)    /* Процеси та потоки正常終了 */
-    #define MS_TERM     ( 3)    /* Процеси та потоки強制終了 */
+    #define MS_ABORT    ( 1)    /* Процес (Process)異常終了 */
+    #define MS_EXIT     ( 2)    /* Процес (Process)正常終了 */
+    #define MS_TERM     ( 3)    /* Процес (Process)強制終了 */
     #define MS_TMOUT    ( 4)    /* タイムアウト     */
-    #define MS_SYSEVT   ( 5)    /* システムイベント(強制終了) */
+    #define MS_SYSEVT   ( 5)    /* Система (System)Подія (Event)(強制終了) */
 
-    #define MS_SYS1     ( 6)    /* システム予約 */
-    #define MS_SYS2     ( 7)    /* システム予約 */
-    #define MS_SYS3     ( 8)    /* システム予約 */
-    #define MS_SYS4     ( 9)    /* システム予約 */
-    #define MS_SYS5     (10)    /* システム予約 */
+    #define MS_SYS1     ( 6)    /* Система (System)予約 */
+    #define MS_SYS2     ( 7)    /* Система (System)予約 */
+    #define MS_SYS3     ( 8)    /* Система (System)予約 */
+    #define MS_SYS4     ( 9)    /* Система (System)予約 */
+    #define MS_SYS5     (10)    /* Система (System)予約 */
     #define MS_MNG0     (11)    /* 外殻予約 */
     #define MS_MNG1     (12)    /* 外殻予約 */
     #define MS_MNG2     (13)    /* 外殻予約 */
@@ -136,7 +137,7 @@ typedef struct message {
     #define MS_MNG11    (22)    /* 外殻予約 */
     #define MS_MNG12    (23)    /* 外殻予約 */
 
-    #define MS_TYPE0    (24)    /* アプリケーションПовідомлення */
+    #define MS_TYPE0    (24)    /* додатокПовідомлення (Message) */
     #define MS_TYPE1    (25)
     #define MS_TYPE2    (26)
     #define MS_TYPE3    (27)
@@ -145,32 +146,32 @@ typedef struct message {
     #define MS_TYPE6    (30)
     #define MS_TYPE7    (31)
 
-    #define MS_MIN      ( 1)    /* 最小Повідомленняタイプ */
-    #define MS_MAX      (31)    /* 最大Повідомленняタイプ */
+    #define MS_MIN      ( 1)    /* 最小Повідомлення (Message)Тип (Type) */
+    #define MS_MAX      (31)    /* 最大Повідомлення (Message)Тип (Type) */
 </PRE>
 
 <P>
-  各Повідомленняタイプにはビット対応のタイプマスクが対応づけられており、
-  タイプマスクの OR のパターンにより、
-  対象とするПовідомленняのタイプを複数指定することができる。
+  各Повідомлення (Message)Тип (Type)  ビット対応 Тип (Type)マスク 対応づけられており, 
+  Тип (Type)マスク  OR  パターン より, 
+  対象 та するПовідомлення (Message) Тип (Type) 複数指定するこ та   きる. 
 </P>
 <P>
-  Повідомленняタイプマスクは以下のように定義される。
+  Повідомлення (Message)Тип (Type)マスク 以下 よう 定義される. 
 </P>
 
 <PRE>
     #define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
 
-    #define MM_ABORT    MSGMASK(MS_ABORT)   /* Процеси та потоки異常終了   */
-    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Процеси та потоки正常終了   */
-    #define MM_TERM     MSGMASK(MS_TERM)    /* Процеси та потокиの強制終了 */
+    #define MM_ABORT    MSGMASK(MS_ABORT)   /* Процес (Process)異常終了   */
+    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Процес (Process)正常終了   */
+    #define MM_TERM     MSGMASK(MS_TERM)    /* Процес (Process) 強制終了 */
     #define MM_TMOUT    MSGMASK(MS_TMOUT)   /* タイムアウト */
-    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* システムイベント(強制終了) */
-    #define MM_SYS1     MSGMASK(MS_SYS1)    /* システム予約 */
-    #define MM_SYS2     MSGMASK(MS_SYS2)    /* システム予約 */
-    #define MM_SYS3     MSGMASK(MS_SYS3)    /* システム予約 */
-    #define MM_SYS4     MSGMASK(MS_SYS4)    /* システム予約 */
-    #define MM_SYS5     MSGMASK(MS_SYS5)    /* システム予約 */
+    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* Система (System)Подія (Event)(強制終了) */
+    #define MM_SYS1     MSGMASK(MS_SYS1)    /* Система (System)予約 */
+    #define MM_SYS2     MSGMASK(MS_SYS2)    /* Система (System)予約 */
+    #define MM_SYS3     MSGMASK(MS_SYS3)    /* Система (System)予約 */
+    #define MM_SYS4     MSGMASK(MS_SYS4)    /* Система (System)予約 */
+    #define MM_SYS5     MSGMASK(MS_SYS5)    /* Система (System)予約 */
     #define MM_MNG0     MSGMASK(MS_MNG0)    /* 外殻予約 */
     #define MM_MNG1     MSGMASK(MS_MNG1)    /* 外殻予約 */
     #define MM_MNG2     MSGMASK(MS_MNG2)    /* 外殻予約 */
@@ -185,7 +186,7 @@ typedef struct message {
     #define MM_MNG11    MSGMASK(MS_MNG11)   /* 外殻予約 */
     #define MM_MNG12    MSGMASK(MS_MNG12)   /* 外殻予約 */
 
-    #define MM_TYPE0    MSGMASK(MS_TYPE0)   /* アプリケーションПовідомлення */
+    #define MM_TYPE0    MSGMASK(MS_TYPE0)   /* додатокПовідомлення (Message) */
     #define MM_TYPE1    MSGMASK(MS_TYPE1)
     #define MM_TYPE2    MSGMASK(MS_TYPE2)
     #define MM_TYPE3    MSGMASK(MS_TYPE3)
@@ -199,167 +200,167 @@ typedef struct message {
 </PRE>
 
 <P>
-  システムПовідомленняは、システムで自動的に発生するПовідомленняであり、
-  以下に示す内容となる。
-  これらは、基本的にПовідомленняキューのオーバーフローの影響を受けず、
-  捨てられることはないようになっている。
-  なお、1 〜 7 のПовідомленняタイプを持つПовідомленняをアプリケーションが送信することは特に禁止されていない。
+  Система (System)Повідомлення (Message) , Система (System) 自動的 発生するПовідомлення (Message) あり, 
+  以下 示す内容 та なる. 
+  これら , 基本的 Повідомлення (Message)キュー オーバーフロー 影響 受けず, 
+  捨てられるこ та  ないよう なっている. 
+  なお, 1 〜 7  Повідомлення (Message)Тип (Type) 持つПовідомлення (Message) додаток 送信するこ та  特 禁止されていない. 
 </P>
 
 <DL>
- <DT><CODE>MS_ABORT</CODE> -- 子Процеси та потокиの異常終了Повідомлення
+ <DT><CODE>MS_ABORT</CODE> -- 子Процес (Process) 異常終了Повідомлення (Message)
  <DD><P>
-     Процеси та потокиがシステムエラーにより異常終了させられた場合に、
-     親Процеси та потокиに対して子Процеси та потокиより自動的に送信される以下の内容のПовідомленняである。
+     Процес (Process) Система (System)エラー より異常終了させられた場合 , 
+     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
      </P>
 <PRE>
-        W   1       /* タイプ = MS_ABORT */
-        W   8       /* 本体のバイト数 */
-        W   pid     /* 終了した子Процеси та потокиのПроцеси та потоки ID  */
-        W   code    /* システムエラーコード */
+        W   1       /* Тип (Type) = MS_ABORT */
+        W   8       /* 本体 バイト数 */
+        W   pid     /* 終了した子Процес (Process) Процес (Process) ID  */
+        W   code    /* Система (System)Коди помилок */
 </PRE>
      <P>
-     <CODE>code</CODE> は発生したシステムエラーのコードであり、
-     <CODE>MH_TERM</CODE> Повідомленняハンドラによる異常終了の場合は、0 となる。
+     <CODE>code</CODE>  発生したСистема (System)エラー Код (Code) あり, 
+     <CODE>MH_TERM</CODE> Повідомлення (Message)ハンドラ よる異常終了 場合 , 0  та なる. 
      </P>
 
- <DT><CODE>MS_EXIT</CODE> -- 子Процеси та потокиの正常終了Повідомлення
+ <DT><CODE>MS_EXIT</CODE> -- 子Процес (Process) 正常終了Повідомлення (Message)
  <DD><P>
-     Процеси та потокиが <CODE>ext_prc()</CODE> システムコールにより正常終了した場合に、
-     親Процеси та потокиに対して子Процеси та потокиより自動的に送信される以下の内容のПовідомленняである。
+     Процес (Process)  <CODE>ext_prc()</CODE> Системні виклики より正常終了した場合 , 
+     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
      </P>
 <PRE>
-        W   2          /* タイプ = MS_EXIT */
-        W   8          /* 本体のバイト数 */
-        W   pid        /* 終了した子Процеси та потокиのПроцеси та потоки ID  */
-        W   code       /* ext_prc ()で指定した終了コード */
+        W   2          /* Тип (Type) = MS_EXIT */
+        W   8          /* 本体 バイト数 */
+        W   pid        /* 終了した子Процес (Process) Процес (Process) ID  */
+        W   code       /* ext_prc () 指定した終了Код (Code) */
 </PRE>
- <DT><CODE>MS_TERM</CODE> -- 子Процеси та потокиの強制終了Повідомлення
+ <DT><CODE>MS_TERM</CODE> -- 子Процес (Process) 強制終了Повідомлення (Message)
  <DD><P>
-     Процеси та потокиが <CODE>ter_prc()</CODE> システムコールにより他から強制終了させられた場合に、
-     親Процеси та потокиに対して子Процеси та потокиより自動的に送信される以下の内容のПовідомленняである。
+     Процес (Process)  <CODE>ter_prc()</CODE> Системні виклики より他から強制終了させられた場合 , 
+     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
      </P>
 <PRE>
-        W   3           /* タイプ = MS_TERM */
-        W   8           /* 本体のバイト数 */
-        W   pid         /* 終了した子Процеси та потокиのПроцеси та потоки ID  */
-        W   code        /* ter_prc()で指定した終了コード */
+        W   3           /* Тип (Type) = MS_TERM */
+        W   8           /* 本体 バイト数 */
+        W   pid         /* 終了した子Процес (Process) Процес (Process) ID  */
+        W   code        /* ter_prc() 指定した終了Код (Code) */
 </PRE>
- <DT><CODE>MS_TMOUT</CODE> -- 自Процеси та потокиのタイムアウトПовідомлення
+ <DT><CODE>MS_TMOUT</CODE> -- 自Процес (Process) タイムアウトПовідомлення (Message)
  <DD><P>
-     <CODE>req_tmg()</CODE> システムコールにより要求したタイムアウトПовідомленняであり、
-     指定した時間後に、自Процеси та потокиに対して自動的に送信される以下の内容のПовідомленняである。
+     <CODE>req_tmg()</CODE> Системні виклики より要求したタイムアウトПовідомлення (Message) あり, 
+     指定した時間後 , 自Процес (Process) 対して自動的 送信される以下 内容 Повідомлення (Message) ある. 
      </P>
 <PRE>
-        W   4           /* タイプ = MS_TMOUT */
-        W   4           /* 本体のバイト数 */
-        W   code        /* req_tmg ()で指定したコード */
+        W   4           /* Тип (Type) = MS_TMOUT */
+        W   4           /* 本体 バイト数 */
+        W   code        /* req_tmg () 指定したКод (Code) */
 </PRE>
 </DL>
 
-<H3><A name="aas">1.2.3 Повідомленняハンドラ</A></H3>
+<H3><A name="aas">1.2.3 Повідомлення (Message)ハンドラ</A></H3>
 
 <P>
-  Повідомленняハンドラとは、
-  受信したПовідомленняを現在実行中の処理と非同期に処理するための関数であり、
-  Повідомленняのタイプと、対応する関数を指定することにより定義される。
-  従って、Повідомленняの各タイプに対応した最大 31 種のПовідомленняハンドラを同時に定義可能である。
+  Повідомлення (Message)ハンドラ та  , 
+  受信したПовідомлення (Message) 現在実行中 処理 та 非同期 処理するため 関数 あり, 
+  Повідомлення (Message) Тип (Type) та , 対応する関数 指定するこ та  より定義される. 
+  従って, Повідомлення (Message) 各Тип (Type) 対応した最大 31 種 Повідомлення (Message)ハンドラ 同時 定義可能 ある. 
 </P>
 
 <P>
-  Повідомленняハンドラは以下に示す形で起動されて実行される。
+  Повідомлення (Message)ハンドラ 以下 示す形 起動されて実行される. 
 </P>
 
 <UL>
  <LI><P>
-     対応するタイプのПовідомленняを受信した場合、
-     Повідомленняハンドラは、メインタスクの現在の処理に割り込む形で実行される。
+     対応するТип (Type) Повідомлення (Message) 受信した場合, 
+     Повідомлення (Message)ハンドラ , メインЗадача (Task) 現在 処理 割り込む形 実行される. 
      </P>
  <LI><P>
-     何らかのシステムコールによる待ち状態の時にПовідомленняが送信された場合にもПовідомленняハンドラは起動され、
-     そのПроцеси та потокиのメインタスクが実行状態となる。<BR>
-     この場合、メインタスクが実行中の長い待ちを伴ったシステムコールは無条件に中断され、
-     その結果は保証されない。
-     即ち、Повідомленняハンドラが終了した時点で、
-     中断されたシステムコールは <CODE>ER_MINTR</CODE> のエラーとして戻る。
+     何らか Системні виклики よる待ち状態 時 Повідомлення (Message) 送信された場合  також Повідомлення (Message)ハンドラ 起動され, 
+     そ Процес (Process) メインЗадача (Task) 実行状態 та なる. <BR>
+     こ 場合, メインЗадача (Task) 実行中 長い待ち 伴ったСистемні виклики 無条件 中断され, 
+     そ 結果 保証されない. 
+     即ち, Повідомлення (Message)ハンドラ 終了した時点 , 
+     中断されたСистемні виклики  <CODE>ER_MINTR</CODE>  エラー та して戻る. 
      </P>
  <LI><P>
-     Повідомленняハンドラは通常のПроцеси та потокиコードの一部として動作し、
-     実行できるシステムコール等の制限はない。
+     Повідомлення (Message)ハンドラ 通常 Процес (Process)Код (Code) 一部 та して動作し, 
+     実行 きるСистемні виклики等 制限 ない. 
      </P>
- <LI><P>Повідомленняハンドラが終了した場合は、
-     通常、割り込まれた位置からそのメインタスクの実行が再開されるが、
-     Повідомленняハンドラから直接 <CODE>longjmp ()</CODE> により、
-     そのメインタスクの任意の位置 ( <CODE>setjmp</CODE> で指定された位置 )
-     に実行を移行することも可能である。
-     </P>
-    <LI><P>
-     Повідомленняハンドラはネスティングしない。
-     即ち、新たなПовідомленняハンドラの起動
-     ( 別のПовідомленняタイプのものも含む ) は、
-     現在処理中のПовідомленняハンドラの終了まで待たされる。
+ <LI><P>Повідомлення (Message)ハンドラ 終了した場合 , 
+     通常, 割り込まれた位置からそ メインЗадача (Task) 実行 再開される , 
+     Повідомлення (Message)ハンドラから直接 <CODE>longjmp ()</CODE>  より, 
+     そ メインЗадача (Task) 任意 位置 ( <CODE>setjmp</CODE>  指定された位置 )
+      実行 移行するこ та  також 可能 ある. 
      </P>
     <LI><P>
-     Повідомленняハンドラが起動された場合、
-     その起動の原因となったПовідомленняはПовідомленняキューから取り出され、
-     取り出されたПовідомленняのポインタがハンドラのパラメータとして渡される。
+     Повідомлення (Message)ハンドラ ネスティングしない. 
+     即ち, 新たなПовідомлення (Message)ハンドラ 起動
+     ( 別 Повідомлення (Message)Тип (Type)  також   також 含む )  , 
+     現在処理中 Повідомлення (Message)ハンドラ 終了ま 待たされる. 
      </P>
     <LI><P>
-     Повідомленняハンドラは、必ず <CODE>ret_msg ()</CODE>
-     システムコールによって終了しなくてはいけない。
+     Повідомлення (Message)ハンドラ 起動された場合, 
+     そ 起動 原因 та なったПовідомлення (Message) Повідомлення (Message)キューから取り出され, 
+     取り出されたПовідомлення (Message) Вказівник (Pointer) ハンドラ Параметри та して渡される. 
+     </P>
+    <LI><P>
+     Повідомлення (Message)ハンドラ , 必ず <CODE>ret_msg ()</CODE>
+     Системні виклики よって終了しなくて いけない. 
      </P>
 </UL>
 
 <P>
-  Повідомленняハンドラは、以下に示す形の関数として定義される。
+  Повідомлення (Message)ハンドラ , 以下 示す形 関数 та して定義される. 
 </P>
 
 <PRE>
     VOID msg_hdr(W pid, MESSAGE *r_msg)
     {
-    /*  pid は 送信したПроцеси та потокиの ID 。(自Процеси та потокиの場合は 0) */
-    /*  r_msg は受信したПовідомленняへのポインタである。 */
+    /*  pid   送信したПроцес (Process)  ID . (自Процес (Process) 場合  0) */
+    /*  r_msg  受信したПовідомлення (Message)へ Вказівник (Pointer) ある.  */
 
-        受信Повідомленняの処理
+        受信Повідомлення (Message) 処理
 
-        ret_msg (0);            /* 終了 (割り込んだ位置に戻る場合) */
+        ret_msg (0);            /* 終了 (割り込んだ位置 戻る場合) */
 
-        または
+        また 
 
-        ret_msg (1);            /* 終了 (任意の位置に移行する場合) */
+        ret_msg (1);            /* 終了 (任意 位置 移行する場合) */
         longjmp (reent, code);  /* reent へジャンプする */
     }
 </PRE>
 
 <P>
-  特殊なПовідомленняハンドラとして以下のシステム定義のものが存在し、使用することができる。
+  特殊なПовідомлення (Message)ハンドラ та して以下 Система (System)定義  також   存在し, 使用するこ та   きる. 
 </P>
 
 <DL>
  <DT><CODE>MH_NONE</CODE> :
  <DD><P>
-     何もせずに、Повідомленняは無視される。
-     この場合は、例外的に待ちを含むシステムコールは中断されない。
-     これは、単にある特定のタイプのПовідомленняをキューにも入れずに完全に無視するために使用される。
+     何 також せず , Повідомлення (Message) 無視される. 
+     こ 場合 , 例外的 待ち 含むСистемні виклики 中断されない. 
+     これ , 単 ある特定 Тип (Type) Повідомлення (Message) キュー  також 入れず 完全 無視するため 使用される. 
      </P>
  <DT><CODE>MH_BREAK</CODE> :
  <DD><P>
-     何もせずに、Повідомленняは無視される。
-     この場合は、待ちを含むシステムコールは中断され、
-     <CODE>ER_MINTR</CODE> エラーが戻る。
-     これは、タイムアウト等の処理に使用される。
+     何 також せず , Повідомлення (Message) 無視される. 
+     こ 場合 , 待ち 含むСистемні виклики 中断され, 
+     <CODE>ER_MINTR</CODE> エラー 戻る. 
+     これ , タイムアウト等 処理 使用される. 
      </P>
  <DT><CODE>MH_TERM</CODE> :
  <DD><P>
-     自Процеси та потокиを異常終了し、
-     <CODE>MS_ABORT</CODE> Повідомлення 
-     ( エラーコードは 0 ) を親Процеси та потокиに送信する。
+     自Процес (Process) 異常終了し, 
+     <CODE>MS_ABORT</CODE> Повідомлення (Message) 
+     ( Коди помилок  0 )  親Процес (Process) 送信する. 
      </P>
 </DL>
 
-<H3><A name="aat">1.2.4 データ／定数の定義</A></H3>
+<H3><A name="aat">1.2.4 データ／定数 定義</A></H3>
 
-<H4>□ Процеси та потокиПовідомлення定義</H4>
+<H4>□ Процес (Process)Повідомлення (Message)定義</H4>
 
 <PRE>
 typedef union {
@@ -381,33 +382,33 @@ typedef union {
     struct {            /* MS_SYSEVT */
         W   code;
     } SYSEVT;
-    struct {            /* その他一般 */
+    struct {            /* そ 他一般 */
         UB  msg_str[32];
     } ANYMSG;
 } MSGBODY;
 
 typedef struct message {
-    W       msg_type;       /* Повідомленняタイプ */
-    W       msg_size;       /* Повідомлення本体サイズ(バイト) */
-    MSGBODY msg_body;       /* Повідомлення本体 */
+    W       msg_type;       /* Повідомлення (Message)Тип (Type) */
+    W       msg_size;       /* Повідомлення (Message)本体Розмір (Size)(バイト) */
+    MSGBODY msg_body;       /* Повідомлення (Message)本体 */
 } MESSAGE;
 
 #define MSGSIZE(msgsz)          (offsetof(MESSAGE,msg_body) + msgsz)
 </PRE>
 
-<H4>□ Повідомленняタイプ</H4>
+<H4>□ Повідомлення (Message)Тип (Type)</H4>
 
 <PRE>
-#define MS_ABORT    ( 1)        /* Процеси та потоки異常終了 */
-#define MS_EXIT     ( 2)        /* Процеси та потоки正常終了 */
-#define MS_TERM     ( 3)        /* Процеси та потоки強制終了 */
+#define MS_ABORT    ( 1)        /* Процес (Process)異常終了 */
+#define MS_EXIT     ( 2)        /* Процес (Process)正常終了 */
+#define MS_TERM     ( 3)        /* Процес (Process)強制終了 */
 #define MS_TMOUT    ( 4)        /* タイムアウト */
-#define MS_SYSEVT   ( 5)        /* システムイベント ( 強制終了 ) */
-#define MS_SYS1     ( 6)        /* システム予約 */
-#define MS_SYS2     ( 7)        /* システム予約 */
-#define MS_SYS3     ( 8)        /* システム予約 */
-#define MS_SYS4     ( 9)        /* システム予約 */
-#define MS_SYS5     (10)        /* システム予約 */
+#define MS_SYSEVT   ( 5)        /* Система (System)Подія (Event) ( 強制終了 ) */
+#define MS_SYS1     ( 6)        /* Система (System)予約 */
+#define MS_SYS2     ( 7)        /* Система (System)予約 */
+#define MS_SYS3     ( 8)        /* Система (System)予約 */
+#define MS_SYS4     ( 9)        /* Система (System)予約 */
+#define MS_SYS5     (10)        /* Система (System)予約 */
 #define MS_MNG0     (11)        /* 外殻予約 */
 #define MS_MNG1     (12)        /* 外殻予約 */
 #define MS_MNG2     (13)        /* 外殻予約 */
@@ -422,7 +423,7 @@ typedef struct message {
 #define MS_MNG11    (22)        /* 外殻予約 */
 #define MS_MNG12    (23)        /* 外殻予約 */
 
-#define MS_TYPE0    (24)        /* アプリケーションПовідомлення */
+#define MS_TYPE0    (24)        /* додатокПовідомлення (Message) */
 #define MS_TYPE1    (25)
 #define MS_TYPE2    (26)
 #define MS_TYPE3    (27)
@@ -431,11 +432,11 @@ typedef struct message {
 #define MS_TYPE6    (30)
 #define MS_TYPE7    (31)
 
-#define MS_MIN      ( 1)        /* 最小Повідомленняタイプ */
-#define MS_MAX      (31)        /* 最大Повідомленняタイプ */
+#define MS_MIN      ( 1)        /* 最小Повідомлення (Message)Тип (Type) */
+#define MS_MAX      (31)        /* 最大Повідомлення (Message)Тип (Type) */
 </PRE>
 
-<H4>□ Повідомленняタイプマスク</H4>
+<H4>□ Повідомлення (Message)Тип (Type)マスク</H4>
 
 <PRE>
 #define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
@@ -477,510 +478,510 @@ typedef struct message {
 #define MM_NULL     (0)             /* 空マスク */
 </PRE>
 
-<H4>□ Повідомленняオプション</H4>
+<H4>□ Повідомлення (Message)オプション</H4>
 
 <PRE>
 #define WAIT        0x0000          /* 待つ */
 #define NOWAIT      0x0001          /* 待たない */
 #define CONFM       0x0002          /* 受信(確認)待ち */
-#define CHECK       0x0002          /* Повідомленняチェック */
-#define WAIEVT      0x0004          /* Повідомленняおよびイベント待ち */
+#define CHECK       0x0002          /* Повідомлення (Message)チェック */
+#define WAIEVT      0x0004          /* Повідомлення (Message)およびПодія (Event)待ち */
 </PRE>
 
-<H4>□ デフォールトПовідомленняハンドラ</H4>
+<H4>□ デフォールトПовідомлення (Message)ハンドラ</H4>
 <PRE>
 #define MH_NONE     ((FUNCP)1)      /* 無視 */
 #define MH_BREAK    ((FUNCP)2)      /* 処理中断 */
-#define MH_TERM     ((FUNCP)3)      /* Процеси та потоки終了 */
+#define MH_TERM     ((FUNCP)3)      /* Процес (Process)終了 */
 </PRE>
 
-<H3><A name="aau">1.2.5 システムコール</A></H3>
+<H3><A name="aau">1.2.5 Системні виклики</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">snd_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення送信</TD></TR>
+<TR><TD>Повідомлення (Message)送信</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 
 <PRE>
 ERR snd_msg(W pid, MESSAGE* msg, W opt)
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 
 <PRE>
-W        pid    送信先Процеси та потоки ID
-                   &gt; 0   任意のПроцеси та потоки
-                   = 0   自Процеси та потоки
-                   =-1   親Процеси та потоки
-MESSAGE* msg    送信Повідомлення
+W        pid    送信先Процес (Process) ID
+                   &gt; 0   任意 Процес (Process)
+                   = 0   自Процес (Process)
+                   =-1   親Процес (Process)
+MESSAGE* msg    送信Повідомлення (Message)
 W        opt    送信待ち属性 ( NOWAIT ‖ WAIT ‖ CONFM )
 </PRE>
 
 <DL>
  <DT><CODE>NOWAIT</CODE> :
  <DD><P>
-     Повідомленняを送信先Процеси та потокиのПовідомленняキューに入れた時点で正常終了する。
-     送信先のПовідомленняキューに空きがない時はエラー終了する。
+     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れた時点 正常終了する. 
+     送信先 Повідомлення (Message)キュー 空き ない時 エラー終了する. 
      </P>
  <DT><CODE>WAIT</CODE> :
  <DD><P>
-     Повідомленняを送信先Процеси та потокиのПовідомленняキューに入れた時点で正常終了する。
-     Повідомленняキューに空きがない時は空きができるまで待つ。
-     待っている間に送信先Процеси та потокиが終了した場合はエラー終了する。
+     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れた時点 正常終了する. 
+     Повідомлення (Message)キュー 空き ない時 空き  きるま 待つ. 
+     待っている間 送信先Процес (Process) 終了した場合 エラー終了する. 
      </P>
  <DT><CODE>CONFM</CODE> :
  <DD><P>
-     Повідомленняを送信先Процеси та потокиのПовідомленняキューに入れ、
-     送信先Процеси та потокиが送信したПовідомленняを受信、
-     またはПовідомленняキューからクリアした時点で正常終了する。
-     それまで待つ。
+     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れ, 
+     送信先Процес (Process) 送信したПовідомлення (Message) 受信, 
+     また Повідомлення (Message)キューからクリアした時点 正常終了する. 
+     それま 待つ. 
      </P>
      <P>
-     <CODE>rcv_msg()</CODE> で <CODE>CHECK</CODE>
-     指定によりヘッダ部分のみを得た場合には、
-     受信したとみなされない。
-     <CODE>NOCLR</CODE> 指定により受信した場合は、
-     キューに残っていても受信したとみなされる。
-     待っている間に送信先Процеси та потокиが終了した場合はエラー終了する。
-     送信先が自Процеси та потокиの場合、<CODE>CONFM</CODE> 指定はエラーとなる。
+     <CODE>rcv_msg()</CODE>   <CODE>CHECK</CODE>
+     指定 よりヘッダ部分 み 得た場合  , 
+     受信した та みなされない. 
+     <CODE>NOCLR</CODE> 指定 より受信した場合 , 
+     キュー 残っていて також 受信した та みなされる. 
+     待っている間 送信先Процес (Process) 終了した場合 エラー終了する. 
+     送信先 自Процес (Process) 場合, <CODE>CONFM</CODE> 指定 エラー та なる. 
      </P>
 </DL>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0    正常
-＜0    エラー(エラーコード)
+＜0    エラー(Коди помилок)
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 <P>
-  <CODE>pid</CODE> で指定したПроцеси та потокиにПовідомленняを送信する。
+  <CODE>pid</CODE>  指定したПроцес (Process) Повідомлення (Message) 送信する. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : アドレス(msg)のアクセスは許されていない。
-ER_MINTR    : Повідомленняハンドラが起動されたため待ち処理が中断された。
-ER_NOPRC    : Процеси та потоки(pid)は存在していない。
-              Повідомленняキューの空き待ち、または確認待ちの間に送信先のПроцеси та потокиが終了した。
-ER_NOSPC    : システムのメモリ領域が不足した
-              (送信先のПовідомленняキューがフル(NOWAIT指定時))。
-ER_PAR      : パラメータが不正である(オプション,Повідомленняタイプが不正)。
-ER_SELF     : 自Процеси та потокиを指定した(pid = 0 または自Процеси та потокиのPID)(CONFM指定時)。
-ER_SZOVR    : Повідомлення本体のサイズがシステムの制限を越えた、または0以下である。
+ER_ADR      : アドレス(msg) アクセス 許されていない. 
+ER_MINTR    : Повідомлення (Message)ハンドラ 起動されたため待ち処理 中断された. 
+ER_NOPRC    : Процес (Process)(pid) 存在していない. 
+              Повідомлення (Message)キュー 空き待ち, また 確認待ち 間 送信先 Процес (Process) 終了した. 
+ER_NOSPC    : Система (System) Пам'ять (Memory)領域 不足した
+              (送信先 Повідомлення (Message)キュー フル(NOWAIT指定時)). 
+ER_PAR      : Параметри 不正 ある(オプション,Повідомлення (Message)Тип (Type) 不正). 
+ER_SELF     : 自Процес (Process) 指定した(pid = 0 また 自Процес (Process) PID)(CONFM指定時). 
+ER_SZOVR    : Повідомлення (Message)本体 Розмір (Size) Система (System) 制限 越えた, また 0以下 ある. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rcv_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення受信</TD></TR>
+<TR><TD>Повідомлення (Message)受信</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
 WERR    rcv_msg(W t_mask, MESSAGE* msg, W msgsz, W opt)
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <PRE>
-W        t_mask 受信対象Повідомленняタイプマスク
-MESSAGE* msg    受信Повідомлення格納領域
-W        msgsz  受信Повідомлення格納領域全体のバイトサイズ
-                Повідомленняのヘッダ部分も含むため msgsz ≧ 8でなくてはいけない。
+W        t_mask 受信対象Повідомлення (Message)Тип (Type)マスク
+MESSAGE* msg    受信Повідомлення (Message)格納領域
+W        msgsz  受信Повідомлення (Message)格納領域全体 バイトРозмір (Size)
+                Повідомлення (Message) ヘッダ部分 також 含むため msgsz ≧ 8 なくて いけない. 
 W        opt    受信属性 (WAIT ‖ NOWAIT ‖ WAIEVT) | (CLR ‖ NOCLR) | (CHECK)
 </PRE>
 <DL>
   <DT><CODE>WAIT</CODE> :
   <DD><P>
-      指定タイプのПовідомленняを受信していない時は、Повідомленняが来るまで待つ。
+      指定Тип (Type) Повідомлення (Message) 受信していない時 , Повідомлення (Message) 来るま 待つ. 
       </P>
   <DT><CODE>NOWAIT</CODE> :
   <DD><P>
-      指定タイプのПовідомленняを受信していない時は、エラー終了する。
+      指定Тип (Type) Повідомлення (Message) 受信していない時 , エラー終了する. 
       </P>
   <DT><CODE>WAIEVT</CODE> :
   <DD><P>
-      指定タイプのПовідомленняを受信していない時は、
-      指定タイプのПовідомленняが来るか、イベント発生まで待つ。
+      指定Тип (Type) Повідомлення (Message) 受信していない時 , 
+      指定Тип (Type) Повідомлення (Message) 来るか, Подія (Event)発生ま 待つ. 
       </P>
   <DT><CODE>CLR</CODE> :
   <DD><P>
-      Повідомленняを受信した後はそのПовідомленняをキューから取り除く。
+      Повідомлення (Message) 受信した後 そ Повідомлення (Message) キューから取り除く. 
       </P>
   <DT><CODE>NOCLR</CODE> :
   <DD><P>
-      Повідомленняを受信した後もそのПовідомленняをキューに残しておく。
+      Повідомлення (Message) 受信した後 також そ Повідомлення (Message) キュー 残しておく. 
       </P>
   <DT><CODE>CHECK</CODE>
   <DD><P>
-      Повідомленняの有無をチェックする。
+      Повідомлення (Message) 有無 チェックする. 
       </P>
 </DL>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
-＞0   正常(受信Повідомленняの送信元Процеси та потоки ID)
-＝0   正常(受信Повідомленняの送信元は自Процеси та потоки)
-＜0   エラー(エラーコード)
+＞0   正常(受信Повідомлення (Message) 送信元Процес (Process) ID)
+＝0   正常(受信Повідомлення (Message) 送信元 自Процес (Process))
+＜0   エラー(Коди помилок)
 </PRE>
  
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 <P>
-  自Процеси та потоки宛の指定したタイプのПовідомленняを受信する。
+  自Процес (Process)宛 指定したТип (Type) Повідомлення (Message) 受信する. 
 </P>
 <P>
-  受信したПовідомленняが指定した領域に入り切らない場合は、
-  <CODE>msgsz</CODE> の範囲内のみ
-  <CODE>msg</CODE> の領域に格納されてエラー終了する。
-  この時は、<CODE>CLR</CODE> 指定があってもПовідомленняはバッファに残る。
-  ただし、<CODE>msgsz &lt; 8</CODE> の時は <CODE>msg</CODE>
-  の領域には何も格納されない。
-  Повідомленняの全体が格納できなかった場合は、
-  格納されたПовідомленняのヘッダ部分から実際のПовідомленняサイズが判断できるので、
-  そのПовідомленняが格納可能な十分な大きさの領域を用意して再度本システムコールを実行することになる。
+  受信したПовідомлення (Message) 指定した領域 入り切らない場合 , 
+  <CODE>msgsz</CODE>  範囲内 み
+  <CODE>msg</CODE>  領域 格納されてエラー終了する. 
+  こ 時 , <CODE>CLR</CODE> 指定 あって також Повідомлення (Message) バッファ 残る. 
+  ただし, <CODE>msgsz &lt; 8</CODE>  時  <CODE>msg</CODE>
+   領域  何 також 格納されない. 
+  Повідомлення (Message) 全体 格納 きなかった場合 , 
+  格納されたПовідомлення (Message) ヘッダ部分から実際 Повідомлення (Message)Розмір (Size) 判断 きる  , 
+  そ Повідомлення (Message) 格納可能な十分な大きさ 領域 用意して再度本Системні виклики 実行するこ та  なる. 
 </P>
 <P>
-  <CODE>CHECK</CODE> 指定の時は、
-  次のような動作になる。
+  <CODE>CHECK</CODE> 指定 時 , 
+  次 ような動作 なる. 
 </P>
 
 <OL>
   <LI><P>
-      Повідомленняが何も存在しない場合、<CODE>WAIT</CODE> または
-      <CODE>WAIEVT</CODE> 指定時は待ち、
-      <CODE>NOWAIT</CODE> 指定時はエラー終了する。
+      Повідомлення (Message) 何 також 存在しない場合, <CODE>WAIT</CODE> また 
+      <CODE>WAIEVT</CODE> 指定時 待ち, 
+      <CODE>NOWAIT</CODE> 指定時 エラー終了する. 
       </P>
  <LI><P>
-      指定したタイプのПовідомленняが存在している場合は、
-      <CODE>msg</CODE> にПовідомленняを格納し正常終了する。
-      <CODE>CLR</CODE> 指定であればキューから取り除き、
-      <CODE>NOCLR</CODE> 指定であればキューに残す。
+      指定したТип (Type) Повідомлення (Message) 存在している場合 , 
+      <CODE>msg</CODE>  Повідомлення (Message) 格納し正常終了する. 
+      <CODE>CLR</CODE> 指定 あればキューから取り除き, 
+      <CODE>NOCLR</CODE> 指定 あればキュー 残す. 
       </P>
  <LI><P>
-      指定したタイプのПовідомленняが存在せず、
-      それ以外のПовідомленняが存在している場合は、
-      Повідомленняの先頭 8 バイト ( <CODE>msg_type</CODE> と <CODE>msg_size</CODE> )
-      のみを <CODE>msg</CODE> に格納し正常終了する。
-      この場合、<CODE>CLR</CODE> 指定があってもПовідомленняはキューに残す。
+      指定したТип (Type) Повідомлення (Message) 存在せず, 
+      それ以外 Повідомлення (Message) 存在している場合 , 
+      Повідомлення (Message) 先頭 8 バイト ( <CODE>msg_type</CODE>  та  <CODE>msg_size</CODE> )
+       み  <CODE>msg</CODE>  格納し正常終了する. 
+      こ 場合, <CODE>CLR</CODE> 指定 あって також Повідомлення (Message) キュー 残す. 
       </P>
 </OL>
 <P>
-  <CODE>CHECK</CODE> 指定の時は、
-  指定したタイプ以外のПовідомленняが得られる可能性があるため、
-  受信したПовідомленняのタイプを必ずチェックする必要がある。
+  <CODE>CHECK</CODE> 指定 時 , 
+  指定したТип (Type)以外 Повідомлення (Message) 得られる可能性 あるため, 
+  受信したПовідомлення (Message) Тип (Type) 必ずチェックする必要 ある. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE> を指定は基本的な動作は
-  <CODE>WAIT</CODE> 指定と同じであるが、
-  Повідомленняが受信されていなくても、
-  <CODE>brk_msg()</CODE> によりイベント発生が通知されると待ちが解除される。
-  この場合、エラー ( <CODE>ER_NOME</CODE> ) 終了する。
+  <CODE>WAIEVT</CODE>  指定 基本的な動作 
+  <CODE>WAIT</CODE> 指定 та 同じ ある , 
+  Повідомлення (Message) 受信されていなくて також , 
+  <CODE>brk_msg()</CODE>  よりПодія (Event)発生 通知される та 待ち 解除される. 
+  こ 場合, エラー ( <CODE>ER_NOME</CODE> ) 終了する. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE> を指定した場合は、
-  <CODE>t_mask = 0</CODE> が指定できる。
-  この場合、Повідомленняの受信は行われず、イベント発生が通知されるまで待つ。
+  <CODE>WAIEVT</CODE>  指定した場合 , 
+  <CODE>t_mask = 0</CODE>  指定 きる. 
+  こ 場合, Повідомлення (Message) 受信 行われず, Подія (Event)発生 通知されるま 待つ. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE> を指定できるのは同時にはシステム全体で 1 つのタスクのみで、
-  複数のタスクが <CODE>WAIEVT</CODE> 指定で <CODE>rcv_msg()</CODE> を呼び出したときは、
-  最後に呼び出したタスクの
-  <CODE>WAIEVT</CODE> 指定のみが有効となる。
-  他のタスクは <CODE>WAIT</CODE> と同じ扱いとなる。
+  <CODE>WAIEVT</CODE>  指定 きる  同時  Система (System)全体  1 つ Задача (Task) み , 
+  複数 Задача (Task)  <CODE>WAIEVT</CODE> 指定  <CODE>rcv_msg()</CODE>  呼び出した та き , 
+  最後 呼び出したЗадача (Task) 
+  <CODE>WAIEVT</CODE> 指定 み 有効 та なる. 
+  他 Задача (Task)  <CODE>WAIT</CODE>  та 同じ扱い та なる. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE> は外殻 ( ウインドウマネージャ ) の 
-  <CODE>wget_evt()</CODE> の実現のために用意されたオプションである。
-  アプリケーションは <CODE>WAIEVT</CODE> を指定してはいけない。
+  <CODE>WAIEVT</CODE>  外殻 ( ウインドウマネージャ )   
+  <CODE>wget_evt()</CODE>  実現 ため 用意されたオプション ある. 
+  додаток  <CODE>WAIEVT</CODE>  指定して いけない. 
 </P>
           
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : アドレス(msg)のアクセスは許されていない。
-ER_MINTR    : Повідомленняハンドラが起動されたため待ち処理が中断された。
-ER_NONE     : 指定したタイプ(t_mask)のПовідомленняは存在しない(NOWAIT指定時)。
-ER_PAR      : パラメータが不正である
-              (msgsz が小さすぎる、
-               WAIEVT指定時以外 t_mask≦0、WAIEVT指定時 t_mask&lt;0)。
+ER_ADR      : アドレス(msg) アクセス 許されていない. 
+ER_MINTR    : Повідомлення (Message)ハンドラ 起動されたため待ち処理 中断された. 
+ER_NONE     : 指定したТип (Type)(t_mask) Повідомлення (Message) 存在しない(NOWAIT指定時). 
+ER_PAR      : Параметри 不正 ある
+              (msgsz  小さすぎる, 
+               WAIEVT指定時以外 t_mask≦0, WAIEVT指定時 t_mask&lt;0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">clr_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомленняクリア</TD></TR>
+<TR><TD>Повідомлення (Message)クリア</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
 ERR clr_msg(W t_mask, W last_mask)
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 
 <PRE>
-W   t_mask      クリア対象Повідомленняタイプマスク
-                = MM_ALL     全Повідомленняタイプ
+W   t_mask      クリア対象Повідомлення (Message)Тип (Type)マスク
+                = MM_ALL     全Повідомлення (Message)Тип (Type)
 
-W   last_mask   クリア終了Повідомленняタイプマスク
-                = MM_NULL    対象はПовідомленняキューの最後まで
-                = MM_ALL     Повідомленняを1つだけクリア
+W   last_mask   クリア終了Повідомлення (Message)Тип (Type)マスク
+                = MM_NULL    対象 Повідомлення (Message)キュー 最後ま 
+                = MM_ALL     Повідомлення (Message) 1つだけクリア
 </PRE>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0    正常
-＜0    エラー(エラーコード)
+＜0    エラー(Коди помилок)
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 <P>
-  自Процеси та потоки宛の指定したタイプの受信済みПовідомленняをクリアする。
+  自Процес (Process)宛 指定したТип (Type) 受信済みПовідомлення (Message) クリアする. 
 </P>
 <P>
-  自Процеси та потокиのПовідомленняキューに受信済みのПовідомленняのうち、
-  <CODE>t_mask</CODE> で指定したタイプのПовідомленняを
-  <CODE>last_mask</CODE> で指定したタイプのПовідомленняの直前までクリアする。
-  <CODE>last_mask</CODE> で指定したタイプのПовідомленняはクリアされないが、
-  <CODE>last_mask = MM_ALL</CODE> の時は、
-  特別にПовідомленняを 1 つだけクリアすることを意味する。
+  自Процес (Process) Повідомлення (Message)キュー 受信済み Повідомлення (Message) うち, 
+  <CODE>t_mask</CODE>  指定したТип (Type) Повідомлення (Message) 
+  <CODE>last_mask</CODE>  指定したТип (Type) Повідомлення (Message) 直前ま クリアする. 
+  <CODE>last_mask</CODE>  指定したТип (Type) Повідомлення (Message) クリアされない , 
+  <CODE>last_mask = MM_ALL</CODE>  時 , 
+  特別 Повідомлення (Message)  1 つだけクリアするこ та  意味する. 
 </P>
 <P>
-  <CODE>t_mask</CODE> と <CODE>last_mask</CODE> の指定例を以下に示す。
+  <CODE>t_mask</CODE>  та  <CODE>last_mask</CODE>  指定例 以下 示す. 
 </P>
 <TABLE>
   <TR><TH>t_mask</TH><TH>last_mask</TH><TH>動作</TH></TR>
-  <TR><TD>MM_ALL</TD><TD>MM_NULL  </TD><TD>受信済みの全Повідомленняをクリア</TD></TR>
-  <TR><TD>  −  </TD><TD>MM_ALL   </TD><TD><CODE>t_mask</CODE> で指定したПовідомленняを 1 つだけクリア</TD></TR>
-  <TR><TD>MM_ALL</TD><TD>MM_ALL   </TD><TD>先頭のПовідомленняを1つだけクリア</TD></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_NULL  </TD><TD>受信済み 全Повідомлення (Message) クリア</TD></TR>
+  <TR><TD>  −  </TD><TD>MM_ALL   </TD><TD><CODE>t_mask</CODE>  指定したПовідомлення (Message)  1 つだけクリア</TD></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_ALL   </TD><TD>先頭 Повідомлення (Message) 1つだけクリア</TD></TR>
 </TABLE>
 
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR  : パラメータが不正である(t_mask≦0、last_mask&lt;0)。
+ER_PAR  : Параметри 不正 ある(t_mask≦0, last_mask&lt;0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">req_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>タイムアウトПовідомлення要求</TD></TR>
+<TR><TD>タイムアウトПовідомлення (Message)要求</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
 ERR req_tmg(W time, W code)
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <PRE>
-W   time    Повідомлення送信時間(ミリ秒)
-W   code    タイムアウトПовідомленняのコード
+W   time    Повідомлення (Message)送信時間(ミリ秒)
+W   code    タイムアウトПовідомлення (Message) Код (Code)
 </PRE>
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 
 <PRE>
 ＝0    正常
-＜0    エラー(エラーコード)
+＜0    エラー(Коди помилок)
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 
 <P>
-  自Процеси та потоки宛に指定した時間後にタイムアウトПовідомлення
-  ( <CODE>MS_TMOUT</CODE> ) を送信することを要求する。
+  自Процес (Process)宛 指定した時間後 タイムアウトПовідомлення (Message)
+  ( <CODE>MS_TMOUT</CODE> )  送信するこ та  要求する. 
 </P>
 <P>
-  この機能は、
-  Повідомленняハンドラと組み合わせて特定の処理のタイムアウト監視などに使用される。
+  こ 機能 , 
+  Повідомлення (Message)ハンドラ та 組み合わせて特定 処理 タイムアウト監視など 使用される. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : システムのメモリ領域が不足した。
-ER_PAR      : パラメータが不正である(time≦0)。
+ER_NOSPC    : Система (System) Пам'ять (Memory)領域 不足した. 
+ER_PAR      : Параметри 不正 ある(time≦0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">can_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>タイムアウトПовідомлення取り消し</TD></TR>
+<TR><TD>タイムアウトПовідомлення (Message)取り消し</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
      ERR can_tmg()
 </PRE>
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <P>
      なし
 </P>
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0    正常
 </PRE>
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 <P>
-  自Процеси та потокиのタイムアウトПовідомлення要求をすべて取り消す。
-  タイムアウトПовідомлення要求がない場合は何もしない。
+  自Процес (Process) タイムアウトПовідомлення (Message)要求 すべて取り消す. 
+  タイムアウトПовідомлення (Message)要求 ない場合 何 також しない. 
 </P>
 
 <P>
-  すでに送信されてПовідомленняキューに入っているタイムアウトПовідомленняはクリアされない。
+  す  送信されてПовідомлення (Message)キュー 入っているタイムアウトПовідомлення (Message) クリアされない. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <P>
-  発生しない。
+  発生しない. 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">def_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомленняハンドラ定義</TD></TR>
+<TR><TD>Повідомлення (Message)ハンドラ定義</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
   ERR def_msg(W t_mask, FP msghdr)
 </PRE>
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <PRE>
-W   t_mask  対象Повідомленняタイプマスク
+W   t_mask  対象Повідомлення (Message)Тип (Type)マスク
 
-FP  msghdr  Повідомленняハンドラ開始アドレス
-            = NULL      Повідомленняハンドラの定義解除
-            = MH_NONE   システム定義ハンドラ(無視)
-            = MH_BREAK  システム定義ハンドラ(処理中断)
-            = MH_TERM   システム定義ハンドラ(Процеси та потоки終了)
+FP  msghdr  Повідомлення (Message)ハンドラ開始アドレス
+            = NULL      Повідомлення (Message)ハンドラ 定義解除
+            = MH_NONE   Система (System)定義ハンドラ(無視)
+            = MH_BREAK  Система (System)定義ハンドラ(処理中断)
+            = MH_TERM   Система (System)定義ハンドラ(Процес (Process)終了)
 </PRE>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0    正常
-＜0    エラー(エラーコード)
+＜0    エラー(Коди помилок)
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 <P>
-  指定したタイプのПовідомленняに対応するПовідомленняハンドラを定義する。
+  指定したТип (Type) Повідомлення (Message) 対応するПовідомлення (Message)ハンドラ 定義する. 
 </P>
 
 <P>
-  同じタイプのПовідомленняに対するПовідомленняハンドラがすでに定義されている場合には、
-  後から定義したПовідомленняハンドラが有効となる。
+  同じТип (Type) Повідомлення (Message) 対するПовідомлення (Message)ハンドラ す  定義されている場合  , 
+  後から定義したПовідомлення (Message)ハンドラ 有効 та なる. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 
 <PRE>
-ER_ADR  : アドレス(msg_hdr)のアクセスは許されていない。
-ER_PAR  : パラメータが不正である(t_mask≦0)。
+ER_ADR  : アドレス(msg_hdr) アクセス 許されていない. 
+ER_PAR  : Параметри 不正 ある(t_mask≦0). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ret_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомленняハンドラ終了</TD></TR>
+<TR><TD>Повідомлення (Message)ハンドラ終了</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
 ERR ret_msg(W ret)
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <PRE>
 W   ret リターン指定
 </PRE>
 <DL compact>
  <DT>＝0 :
- <DD>Повідомленняハンドラが割り込んだ位置から実行を再開し、
-     本システムコールからは戻らない。<BR>
-     待ちを含むシステムコールの実行中に割り込んだ場合、
-     そのシステムコールの実行は保証されずに、
-     Повідомленняハンドラが起動されたことを示すエラーコードがそのシステムコールから戻る。
+ <DD>Повідомлення (Message)ハンドラ 割り込んだ位置から実行 再開し, 
+     本Системні викликиから 戻らない. <BR>
+     待ち 含むСистемні виклики 実行中 割り込んだ場合, 
+     そ Системні виклики 実行 保証されず , 
+     Повідомлення (Message)ハンドラ 起動されたこ та  示すКоди помилок そ Системні викликиから戻る. 
  <DT>≠0 :
- <DD>Повідомленняハンドラが割り込んだ位置からは再開せずに、
-     本システムコールから戻って、
-     そのまま実行を続行する。
-     この場合、通常はハンドラの最後で <CODE>longjmp ()</CODE>
-     により制御を他へ移行することになる。
+ <DD>Повідомлення (Message)ハンドラ 割り込んだ位置から 再開せず , 
+     本Системні викликиから戻って, 
+     そ まま実行 続行する. 
+     こ 場合, 通常 ハンドラ 最後  <CODE>longjmp ()</CODE>
+      より制御 他へ移行するこ та  なる. 
 </DL>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
-リターンしない(ret = 0 の時)
-＝0     正常(ret≠ 0 の時)
+リターンしない(ret = 0  時)
+＝0     正常(ret≠ 0  時)
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 
 <P>
-  Повідомленняハンドラの実行を終了する。
+  Повідомлення (Message)ハンドラ 実行 終了する. 
 </P>
 <P>
-  Повідомленняハンドラの最後には必ず本システムコールを実行しなくてはいけない。
-  また、本システムコールはПовідомленняハンドラ内でのみ発行することができ、
-  それ以外の部分で発行された時はシステムエラーとなる。
+  Повідомлення (Message)ハンドラ 最後  必ず本Системні виклики 実行しなくて いけない. 
+  また, 本Системні виклики Повідомлення (Message)ハンドラ内  み発行するこ та   き, 
+  それ以外 部分 発行された時 Система (System)エラー та なる. 
 </P>
 <P>
-  Повідомленняハンドラの起動要求が多重に発生していた場合、
-  本システムコールの実行後に要求のあったПовідомленняハンドラが起動する。
+  Повідомлення (Message)ハンドラ 起動要求 多重 発生していた場合, 
+  本Системні виклики 実行後 要求 あったПовідомлення (Message)ハンドラ 起動する. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 
 <P>
-  発生しない。
+  発生しない. 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">brk_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>イベント発生通知</TD></TR>
+<TR><TD>Подія (Event)発生通知</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【形式】</H4>
+<H4>【Формат / Синтаксис】</H4>
 <PRE>
 ERR brk_msg()
 </PRE>
 
-<H4>【パラメータ】</H4>
+<H4>【Параметри】</H4>
 <P>
   なし
 </P>
 
-<H4>【リターン値】</H4>
+<H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0    正常
 </PRE>
 
-<H4>【解説】</H4>
+<H4>【Опис та функціонал】</H4>
 
 <P>
-  <CODE>WAIEVT</CODE> 指定による <CODE>rcv_msg()</CODE> の待ちを解除する。
-  <CODE>brk_msg()</CODE> を呼び出したとき <CODE>WAIEVT</CODE>
-  指定で待ちに入っているタスクが無ければ、
-  待ち解除の要求を記録する。
-  ただし、待ち解除の要求回数は記録されない。
+  <CODE>WAIEVT</CODE> 指定 よる <CODE>rcv_msg()</CODE>  待ち 解除する. 
+  <CODE>brk_msg()</CODE>  呼び出した та き <CODE>WAIEVT</CODE>
+  指定 待ち 入っているЗадача (Task) 無ければ, 
+  待ち解除 要求 記録する. 
+  ただし, 待ち解除 要求回数 記録されない. 
 </P>
 
-<H4>【エラーコード】</H4>
+<H4>【Коди помилок】</H4>
 <P>
-  発生しない。
+  発生しない. 
 </P>
 
 <HR>
-<A href="../index.html">この章のЗмістにもどる</A><BR>
-<A href="proc.html">前頁:1.1 Процеси та потоки / タスク管理にもどる</A><BR>
-<A href="taskcomm.html">次頁:1.3 Процеси та потоки/タスク間同期通信管理にすすむ</A><BR>
+<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="proc.html">Попередня сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Повернутися)</A><BR>
+<A href="taskcomm.html">Наступна сторінка: 1.3 Процес (Process)/Задача (Task)間同期通信管理 (Перейти)</A><BR>
 </BODY>
 </HTML>

@@ -2,23 +2,24 @@
 <HTML>
 <HEAD>
 <TITLE>
-  第1章 基本データタイプ
+  Глава 1 基本Типи даних
 </TITLE>
 <LINK REL="parent" HREF="index.html">
 <LINK REL="next" HREF="tron_code.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
-
-<A href="index.html">この章のЗмістにもどる</A><BR>
-<A href="tron_code.html">次頁:第2章 TRON コード体系にすすむ</A><BR>
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+</DIV>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="tron_code.html">Наступна сторінка: Глава 2 TRON Код (Code)体系 (Перейти)</A><BR>
 <HR>
-<H1><A name="aaa">第1章 基本データタイプ</A></H1>
+<H1><A name="aaa">Глава 1 基本Типи даних</A></H1>
 <HR>
 
 <P>
-  共通して使われる型の定義を以下に記述する。
+  共通して使われる型 定義 以下 記述する. 
 </P>
 
 <H4>基本データ型:ITRON共通</H4>
@@ -35,25 +36,25 @@ typedef char            VB;         /* 不定型 8ビットデータ */
 typedef short           VH;         /* 不定型16ビットデータ */
 typedef int             VW;         /* 不定型32ビットデータ */
 
-typedef void            *VP;        /* 不定型データへのポインタ */
+typedef void            *VP;        /* 不定型データへ Вказівник (Pointer) */
 
-typedef void            (*FP)();    /* 一般関数ポインタ */
+typedef void            (*FP)();    /* 一般関数Вказівник (Pointer) */
 </PRE>
 
 <P>
-  以上のデータ型はITRONと共通である。
+  以上 データ型 ITRON та 共通 ある. 
 </P>
 
-<H4><CODE>Volatile</CODE>: コンパイラによる最適化禁止指定</H4>
+<H4><CODE>Volatile</CODE>: コンパイラ よる最適化禁止指定</H4>
 
 <PRE>
-typedef volatile W      _W;     /* 最適化禁止の符号付き 8ビット整数 */
-typedef volatile H      _H;     /* 最適化禁止の符号付き16ビット整数 */
-typedef volatile B      _B;     /* 最適化禁止の符号付き32ビット整数 */
+typedef volatile W      _W;     /* 最適化禁止 符号付き 8ビット整数 */
+typedef volatile H      _H;     /* 最適化禁止 符号付き16ビット整数 */
+typedef volatile B      _B;     /* 最適化禁止 符号付き32ビット整数 */
 
-typedef volatile UW     _UW;    /* 最適化禁止の符号無し 8ビット整数 */
-typedef volatile UH     _UH;    /* 最適化禁止の符号無し16ビット整数 */
-typedef volatile UB     _UB;    /* 最適化禁止の符号無し32ビット整数 */
+typedef volatile UW     _UW;    /* 最適化禁止 符号無し 8ビット整数 */
+typedef volatile UH     _UH;    /* 最適化禁止 符号無し16ビット整数 */
+typedef volatile UB     _UB;    /* 最適化禁止 符号無し32ビット整数 */
 
 typedef volatile void   _void;
 </PRE>
@@ -61,30 +62,30 @@ typedef volatile void   _void;
 <H4>修飾型</H4>
 
 <PRE>
-#define CONST       const       /* 変数・関数の代入禁止指定 */
+#define CONST       const       /* 変数・関数 代入禁止指定 */
 
-#define LOCAL       static      /* <A href="#module">モジュール(*)</A>内でのみ使われる */
+#define LOCAL       static      /* <A href="#module">モジュール(*)</A>内  み使われる */
                                 /* 変数・関数 */
 
-#define EXPORT                  /* プログラム中の任意の箇所で参照  */
-                                /* 可能な変数・関数の定義          */
-                                /* 1個の変数・関数について EXPORT  */
-                                /* 宣言はプログラム中に1箇所だけ   */
+#define EXPORT                  /* プログラム中 任意 箇所 参照  */
+                                /* 可能な変数・関数 定義          */
+                                /* 1個 変数・関数 ついて EXPORT  */
+                                /* 宣言 プログラム中 1箇所だけ   */
                                 /* 記述                            */
-#define IMPORT      extern      /* プログラム中の任意の箇所で参照  */
-                                /* 可能な変数・関数の参照宣言      */
-                                /* 1モジュールに1個の参照宣言で    */
-                                /* EXPORT された変数・関数の使用が */
+#define IMPORT      extern      /* プログラム中 任意 箇所 参照  */
+                                /* 可能な変数・関数 参照宣言      */
+                                /* 1モジュール 1個 参照宣言     */
+                                /* EXPORT された変数・関数 使用  */
                                 /* 可能                            */
-#define VOID        void        /* 空の型 */
+#define VOID        void        /* 空 型 */
 </PRE>
 
 <DL>
  <DT><A name="module">* モジュール</A>
- <DD><P>プログラムはソースコードをコンパイル・リンクして作成されるが、
-     そのソースコードは通常、
-     複数のソースファイルに分割して記述されている。
-     以降、本書ではこのソースファイル 1 個の単位をモジュールと呼ぶ。
+ <DD><P>プログラム ソースКод (Code) コンパイル・リンクして作成される , 
+     そ ソースКод (Code) 通常, 
+     複数 ソースФайл (File) 分割して記述されている. 
+     以降, 本書  こ ソースФайл (File) 1 個 単位 モジュール та 呼ぶ. 
      </P>
 </DL>
 
@@ -95,7 +96,7 @@ typedef volatile void   _void;
 typedef float       FLOAT;      /* 単精度(32ビット)浮動小数点 */
 typedef double      DOUBLE;     /* 倍精度(64ビット)浮動小数点 */
 typedef int         BOOL;       /* TRUE or FALSE */
-typedef W           (*FUNCP)(); /* W 関数へのポインタ */
+typedef W           (*FUNCP)(); /* W 関数へ Вказівник (Pointer) */
 </PRE>
 
 
@@ -117,25 +118,25 @@ typedef W       ID;     /* ID番号 */
 <H4>時間</H4>
 <PRE>
 typedef W       MSEC;   /* ミリ秒 */
-typedef W       STIME;  /* システム時間 */
-                        /* 1985/01/01 00:00:00 GMT からの秒数 */
+typedef W       STIME;  /* Система (System)時間 */
+                        /* 1985/01/01 00:00:00 GMT から 秒数 */
 </PRE>
 
 
-<H4>文字コード</H4>
+<H4>文字Код (Code)</H4>
 <PRE>
-typedef UH      TC;         /* TRON 文字コード */
-#define TNULL   ((TC) 0)    /* 文字列終端の文字コード値 */
+typedef UH      TC;         /* TRON 文字Код (Code) */
+#define TNULL   ((TC) 0)    /* 文字列終端 文字Код (Code)値 */
 </PRE>
 
 
-<H4>エラーコード</H4>
+<H4>Коди помилок</H4>
 <P>
-  ビッグエンディアンの場合
+  ビッグエンディアン 場合
 </P>
 <PRE>
 typedef union {
-    W           err;            /* エラーコード */
+    W           err;            /* Коди помилок */
     struct {
             H   eclass;         /* エラークラス */
             UH  detail;         /* 詳細エラー   */
@@ -143,11 +144,11 @@ typedef union {
 } ErrCode;
 </PRE>
 <P>
-  リトルエンディアンの場合
+  リトルエンディアン 場合
 </P>
 <PRE>
 typedef union {
-    W           err;            /* エラーコード */
+    W           err;            /* Коди помилок */
     struct {
             UH  detail;         /* 詳細エラー   */
             H   eclass;         /* エラークラス */
@@ -156,18 +157,18 @@ typedef union {
 </PRE>
 
 <P>
-  システムコールの関数値は以下のいずれかである。
+  Системні виклики 関数値 以下 いずれか ある. 
 </P>
 <PRE>
-typedef W       ERR;        /* エラーコード                       */
-                            /* エラーまたは正常のみ戻す場合に使用 */
-typedef W       WERR;       /* システムコール関数値               */
-                            /* エラーまたは意味のある値を戻す     */
-                            /* 場合に使用                         */
+typedef W       ERR;        /* Коди помилок                       */
+                            /* エラーまた 正常 み戻す場合 使用 */
+typedef W       WERR;       /* Системні виклики関数値               */
+                            /* エラーまた 意味 ある値 戻す     */
+                            /* 場合 使用                         */
 </PRE>
 <P>
-  エラーコードとして通常は <CODE>ERR</CODE> を使用し、
-  詳細が必要な場合は <CODE>ErrCode</CODE> を使用する。
+  Коди помилок та して通常  <CODE>ERR</CODE>  使用し, 
+  詳細 必要な場合  <CODE>ErrCode</CODE>  使用する. 
 </P>
 
 <PRE>
@@ -204,25 +205,25 @@ typedef struct point {
 <PRE>
 typedef union rect {
     struct _rect {
-        H       left;       /* 左の座標値 */
-        H       top;        /* 上の座標値 */
-        H       right;      /* 右の座標値 */
-        H       bottom;     /* 下の座標値 */
+        H       left;       /* 左 座標値 */
+        H       top;        /* 上 座標値 */
+        H       right;      /* 右 座標値 */
+        H       bottom;     /* 下 座標値 */
     } c;
     struct {
-        PNT     lefttop;    /* 左上の点 */
-        PNT     rightbot;   /* 右下の点 */
+        PNT     lefttop;    /* 左上 点 */
+        PNT     rightbot;   /* 右下 点 */
     } p;
 } RECT;
 </PRE>
 
-<H4>ファイルへのリンク</H4>
+<H4>Файл (File)へ リンク</H4>
 <PRE>
-#define L_FSNM      20    /* Файлова система名の長さ(文字数) */
+#define L_FSNM      20    /* Файл (File)Система (System)名 長さ(文字数) */
 typedef struct {
     TC    fs_name[L_FSNM];
-                          /* Файлова система名 */
-    UH    f_id;           /* ファイルID  */
+                          /* Файл (File)Система (System)名 */
+    UH    f_id;           /* Файл (File)ID  */
     UH    atr1;           /* 属性データ1 */
     UH    atr2;           /* 属性データ2 */
     UH    atr3;           /* 属性データ3 */
@@ -231,12 +232,12 @@ typedef struct {
 } LINK;
 </PRE>
 
-<H4>Віконна система (Windowing System)</H4>
+<H4>Вікно (Window)</H4>
 <PRE>
-typedef W       WID;     /* Віконна система (Windowing System)ID */
+typedef W       WID;     /* Вікно (Window)ID */
 </PRE>
 <HR>
-<A href="index.html">この章のЗмістにもどる</A><BR>
-<A href="tron_code.html">次頁:第2章 TRON コード体系にすすむ</A><BR>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="tron_code.html">Наступна сторінка: Глава 2 TRON Код (Code)体系 (Перейти)</A><BR>
 </BODY>
 </HTML>
