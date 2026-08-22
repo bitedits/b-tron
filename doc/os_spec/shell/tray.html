@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.10 Системний трей та сповіщення (System Tray & Notifications)
+  3.10 Системний трей та сповіщення (Tray Manager Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="tip.html">
@@ -18,13 +18,167 @@
 <A href="tcpip.html">Наступна сторінка: 3.11 Менеджер мережі та TCP/IP (Перейти)</A><BR>
 <HR>
 
-<H2><A name="amr">3.10 Системний трей та сповіщення (System Tray & Notifications)</A></H2>
+<H2><A name="amr">3.10 Системний трей та сповіщення (Tray Manager Specification)</A></H2>
 
-<H3><A name="ams">3.10.1 Огляд системного трею</A></H3>
+<H3><A name="ams">3.10.1 Огляд підсистеми управління треєм</A></H3>
 
 <P>
-  Системний трей керує фоновими індикаторами статусу (стан бездротової мережі, рівень батареї, системний годинник, гучність) та надає інтерфейс для відображення спливаючих системних сповіщень.
+  Підсистема Менеджера трею (Tray Manager) відповідає за візуалізацію та управління фоновими статусними віджетами, системним годинником, індикаторами мережі, батареї та чергою сповіщень системної оболонки BTRON3.
 </P>
+
+<H3><A name="amt">3.10.2 Системні виклики Менеджера трею</A></H3>
+
+<!-- topn_tra -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">topn_tra</FONT></TD></TR>
+<TR><TD align="right">Open Tray</TD></TR>
+<TR><TD>Створення та відкриття системного трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+TRAYID  topn_tra(RECT *rect, W attr, TC *title)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+RECT   *rect    Екранні координати розміщення системного трею
+W       attr    Атрибути трею (Horizontal / Vertical, AutoHide)
+TC     *title   Назва трею у кодуванні TRON Code
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+> 0      Успішне виконання (Дескриптор трею TRAYID)
+< 0      Помилка (Код помилки)
+</PRE>
+
+<!-- tcls_tra -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tcls_tra</FONT></TD></TR>
+<TR><TD align="right">Close Tray</TD></TR>
+<TR><TD>Закриття системного трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tcls_tra(TRAYID trayid)
+</PRE>
+
+<!-- tpsh_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tpsh_dat</FONT></TD></TR>
+<TR><TD align="right">Push Data to Tray</TD></TR>
+<TR><TD>Додавання нового елемента / сповіщення у трей</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ITEMID  tpsh_dat(TRAYID trayid, TRAY_ITEM *item)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+TRAYID     trayid  Дескриптор відкритого системного трею
+TRAY_ITEM *item    Структура опису елемента трею (іконка, заголовок, підказка)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+> 0      Дескриптор елемента ITEMID
+< 0      Помилка (Код помилки)
+</PRE>
+
+<!-- tpop_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tpop_dat</FONT></TD></TR>
+<TR><TD align="right">Pop Data from Tray</TD></TR>
+<TR><TD>Вилучення останнього елемента з трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tpop_dat(TRAYID trayid, TRAY_ITEM *item)
+</PRE>
+
+<!-- tdel_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tdel_dat</FONT></TD></TR>
+<TR><TD align="right">Delete Tray Item</TD></TR>
+<TR><TD>Видалення елемента трею за ідентифікатором</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tdel_dat(TRAYID trayid, ITEMID itemid)
+</PRE>
+
+<!-- tsel_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tsel_dat</FONT></TD></TR>
+<TR><TD align="right">Select Tray Item</TD></TR>
+<TR><TD>Вибір або активація елемента у треї</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tsel_dat(TRAYID trayid, ITEMID itemid)
+</PRE>
+
+<!-- tmov_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tmov_dat</FONT></TD></TR>
+<TR><TD align="right">Move Tray Item</TD></TR>
+<TR><TD>Зміна позиції елемента у треї</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tmov_dat(TRAYID trayid, ITEMID itemid, W pos)
+</PRE>
+
+<!-- tget_sts -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tget_sts</FONT></TD></TR>
+<TR><TD align="right">Get Tray Status</TD></TR>
+<TR><TD>Зчитання загального стану системного трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tget_sts(TRAYID trayid, TRAY_STAT *stat)
+</PRE>
+
+<!-- tset_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tset_dat</FONT></TD></TR>
+<TR><TD align="right">Set Tray Item Data</TD></TR>
+<TR><TD>Налаштування параметрів елемента трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tset_dat(TRAYID trayid, ITEMID itemid, TRAY_ITEM *item)
+</PRE>
+
+<!-- tget_dat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">tget_dat</FONT></TD></TR>
+<TR><TD align="right">Get Tray Item Data</TD></TR>
+<TR><TD>Зчитання даних елемента системного трею</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     tget_dat(TRAYID trayid, ITEMID itemid, TRAY_ITEM *item)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+TRAYID     trayid  Дескриптор системного трею
+ITEMID     itemid  Ідентифікатор елемента трею
+TRAY_ITEM *item    Буфер для збереження даних елемента (Вихід)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0      Успішне виконання
+< 0      Помилка (Код помилки)
+</PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту специфікації BTRON3</A><BR>
