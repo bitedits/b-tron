@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.7 Менеджер подій вводу (Event Management)
+  1.7 Менеджер подій вводу (Input Event Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="file.html">
@@ -10,7 +10,7 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
@@ -18,1010 +18,179 @@
 <A href="device.html">Наступна сторінка: 1.8 Менеджер пристроїв та драйверів (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aby">1.7 Менеджер подій вводу (Event Management)</A></H2>
+<H2><A name="aby">1.7 Менеджер подій вводу (Input Event Management)</A></H2>
 
-<H3><A name="abz">1.7.1 Загальний огляд</A></H3>
-
-<P>
-, 
-, (KB)(PD)
-«», , 
-. 
-</P>
-<P>
-, «»1, , «». 
-</P>
-<P>
-, 1, «». 
-</P>
-<P>
-, , . , , . 
-</P>
-<P>
-, , , 
-／, , 
-. 
-</P>
-
-<H3><A name="aca">1.7.2 Класифікація та структура системних подій</A></H3>
-
-<H4></H4>
+<H3><A name="abz">1.7.1 Огляд підсистеми управління подіями (Overview)</A></H3>
 
 <P>
-. 
+  Підсистема управління подіями призначена для побудови інтерактивного графічного інтерфейсу користувача (GUI). Вона уніфікує всі дії користувача з пристроями введення — клавіатурою (KB) та поінтинг-пристроєм / мишею (PD) — у формі єдиного поняття «Подія» (Event). Це забезпечує гнучке, узгоджене та високопродуктивне керування інтерфейсом.
 </P>
+
+<P>
+  Операції з клавіатурою та поінтинг-пристроєм послідовно поміщаються ядром у єдину системну чергу подій (Event Queue). Прикладні додатки працюють за принципом <B>подієво-орієнтованої архітектури (Event-Driven Architecture)</B>: вони послідовно зчитують події з черги та виконують відповідні обробники реакції на дії користувача.
+</P>
+
+<P>
+  У багатозадачному середовищі в кожен конкретний момент часу інтерактивне введення користувача спрямовується строго до одного активного процесу. Стан прийому введення взаємно передається між процесами відповідно до фокусу введення.
+</P>
+
+<P>
+  Окрім управління чергою подій, підсистема надає засоби для зчитування та налаштування стану, швидкості повтору, чутливості та атрибутів клавіатури й поінтинг-пристрою, формуючи уніфікований системний інтерфейс для інтерактивних пристроїв введення.
+</P>
+
+<H3><A name="aca">1.7.2 Класифікація та типи подій (Event Types)</A></H3>
+
+<P>
+  У специфікації ядра BTRON3 визначено наступні класи системних подій:
+</P>
+
 <DL>
- <DT> ( EV_BUTDWN )：
- <DD><P>
-     . 
-     </P>
- <DT> ( EV_BUTUP )：
- <DD><P>
-     . 
-     </P>
- <DT> ( EV_KEYDWN )：
- <DD><P>
-     (). 
-     </P>
- <DT> ( EV_KEYUP )：
- <DD><P>
-     (). 
-     </P>
- <DT> ( EV_AUTKEY )：
- <DD><P>. 
-     , 
-     (), 
-     (). 
-     </P>
- <DT> ( EV_DEVICE )：
- <DD><P>
-     , , . 
-    , 
-    . 
-     </P>
- <DT> ( EV_NULL )：
- <DD><P>
-     . 
-     </P>
- <DT> ( EV_APPL1 〜 EV_APPL8 )：
- <DD><P>
-     , 
-     . 
-     , 
-     . 
-     </P>
+ <DT><B>EV_BUTDWN (Тип 1) — Натискання кнопки поінтинг-пристрою (Button Down Event)</B> :
+ <DD><P>Генерується при натисканні будь-якої кнопки миші чи поінтинг-пристрою у графічній області.</P>
+ <DT><B>EV_BUTUP (Тип 2) — Відпускання кнопки поінтинг-пристрою (Button Up Event)</B> :
+ <DD><P>Генерується при відпусканні кнопки поінтинг-пристрою.</P>
+ <DT><B>EV_KEYDWN (Тип 3) — Натискання клавіші (Key Down Event)</B> :
+ <DD><P>Генерується при натисканні звичайної клавіші клавіатури (окрім клавіш-модифікаторів Shift, Ctrl, Alt/Meta).</P>
+ <DT><B>EV_KEYUP (Тип 4) — Відпускання клавіші (Key Up Event)</B> :
+ <DD><P>Генерується при відпусканні звичайної клавіші клавіатури.</P>
+ <DT><B>EV_AUTKEY (Тип 5) — Автоматичний повтор клавіші (Auto-Repeat Key Event)</B> :
+ <DD><P>Періодично генерується ядром при тривалій затримці клавіатурної клавіші у натиснутому стані. Затримка перед першим повтором (Offset) та інтервал між повторами (Interval) налаштовуються системно.</P>
+ <DT><B>EV_DEVICE (Тип 6) — Подія системного пристрою (Device Event)</B> :
+ <DD><P>Генерується при змінах стану периферійних пристроїв (наприклад, підключення/вилучення носіїв інформації FD/Flash або зміна стану живильної батареї).</P>
+ <DT><B>EV_NULL (Тип 0) — Порожня подія (Null Event)</B> :
+ <DD><P>Фіктивна подія, що повертається системним викликом, якщо у черзі немає очікуючих подій.</P>
+ <DT><B>EV_APPL1 .. EV_APPL8 (Типи 8 – 15) — Події прикладних додатків (Application Events)</B> :
+ <DD><P>Спеціальні події користувача для міжпроцесної взаємодії та передачі міжвіконних повідомлень системної оболонки Shell.</P>
 </DL>
 
+<H3><A name="acb">1.7.3 Підсистема клавіатури (Keyboard Management)</A></H3>
+
 <P>
-,  EV_KEYDWN, EV_KEYUP, EV_AUTOKEYПомилок немає (завжди виконується успішно)., , . 
+  Клавіатурна підсистема розпізнає натискання та відпускання клавіш, стан клавіш-модифікаторів (Shift, Lock, Command) та генерує відповідні коди символів TRON Code. Швидкість автоповтору та таблиці розкладки клавіатури конфігуруються викликами <CODE>set_kbs()</CODE>.
 </P>
+
+<H3><A name="acd">1.7.4 Підсистема поінтинг-пристрою (Pointing Device Management)</A></H3>
+
 <P>
-, 0 〜 15 . 
-, , 
-. , &quot;1&quot;
-. , , . 
+  Поінтинг-пристрій (миша, планшет, трекбол) транслює переміщення в координатній сітці екрана та натискання кнопок у системні координати курсора $(X, Y)$. За допомогою системних викликів можна обмежувати область переміщення курсора, блокувати його позицію чи змінювати чутливість.
 </P>
+
+<H3><A name="ace">1.7.5 Визначення типів даних та констант (Data Types & Constants)</A></H3>
+
+<H4>□ Маски типів подій (Event Type Masks)</H4>
 
 <PRE>
-              
-    EV_NULL     0       --------
-    EV_BUTDWN   1       EM_BUTDWN (0x0001)
-    EV_BUTUP    2       EM_BUTUP  (0x0002)
-    EV_KEYDWN   3       EM_KEYDWN (0x0004)
-    EV_KEYUP    4       EM_KEYUP  (0x0008)
-    EV_AUTKEY   5       EM_AUTKEY (0x0010)
-    EV_DEVICE   6       EM_DEVICE (0x0020)
-    EV_RSV      7       EM_RSV    (0x0040) (  )
-    EV_APPL1    8       EM_APPL1  (0x0080)
-     ：：                ：：
-    EV_APPL8    15      EM_APPL8  (0x4000)
+#define EM_BUTDWN   0x0001      /* Маска події натискання кнопки миші */
+#define EM_BUTUP    0x0002      /* Маска події відпускання кнопки миші */
+#define EM_KEYDWN   0x0004      /* Маска події натискання клавіші */
+#define EM_KEYUP    0x0008      /* Маска події відпускання клавіші */
+#define EM_AUTKEY   0x0010      /* Маска події автоповтору клавіші */
+#define EM_DEVICE   0x0020      /* Маска системних подій пристроїв */
+#define EM_APPL1    0x0080      /* Маска додатка 1 */
+#define EM_ALL      0xffff      /* Маска усіх типів подій */
 </PRE>
 
-, . 
-
-<PRE>
-    EM_NULL 0x0000
-    EM_ALL  0x7fff
-</PRE>
-
-<H4></H4>
-
-<P>
-. 
-</P>
+<H4>□ Структура події EVENT</H4>
 
 <PRE>
 typedef struct {
-    W   type;           /*  */
-    UW  time;           /*  */
-    PNT pos;            /* PD */
-    EVDATA  data;       /*  */
-    UW  stat;           /* , PD */
-} EVENT;
-</PRE>
-
-<DL>
-<DT>type:
-    <DD> 0 〜 15 . 
-
- <DT>time:
- <DD>, , . 
-    <BR>
-    , 32, . 32. . 
-    <BR>
-    ,  time . 
- <DT>pos:
- <DD>,  (0, 0) ,  PNT . 
-<PRE>
-        typedef struct point {
-            H   x;  /*  */
-            H   y;  /*  */
-        } PNT;
-</PRE>
-    <P>
-    ,  pos . 
-    </P>
- <DT>data:
- <DD>, . 
-
-<PRE>
-    typedef union {
-        struct {        /* EV_KEYUP,EV_KEYDWN,EV_AUTKEY */
-            UH  keytop; /*  */
-            TC  code;   /*  */
+    H       kind;           /* Тип події (EV_BUTDWN, EV_KEYDWN тощо) */
+    H       stat;           /* Стан модифікаторів (Shift, Ctrl, Alt) */
+    W       time;           /* Системна часова мітка події (мс) */
+    PNT     pos;            /* Екранні координати курсора (X, Y) */
+    union {
+        struct {
+            H   no;         /* Номер кнопки поінтинг-пристрою */
+            H   cnt;        /* Кількість кліків (Single/Double click) */
+        } button;
+        struct {
+            TC  code;       /* Символьний код клавіші (TRON Code) */
         } key;
-        struct {        /* EV_DEVICE */
-            H   kind;   /*  */
-            H   devno;  /*  */
-        } dev;
-        W   info;       /*  */
-    } EVDATA;
-</PRE>
-
-    EV_KEYDWN, EV_KEYUP, EV_AUTKEY , key , , . 
-    <BR>
-    EV_DEVICE , dev , (kind)(devno). . 
-<PRE>
-        kind ＝ DE_unknown  0       -- 
-            DE_MOUNT        0x01    -- 
-            DE_EJECT        0x02    -- 
-            DE_ILLMOUNT     0x03    -- 
-            DE_ILLEJECT     0x04    -- 
-            DE_REMOUNT      0x05    -- 
-            DE_CARDBATLOW   0x06    -- 
-            DE_CARDBATFAIL  0x07    -- 
-            DE_REQEJECT     0x08    -- 
-                            0x09〜  -- 
-</PRE>
-    , 
-    . 
-    <BR>
-    EV_NULL, EV_BUTDWN, EV_BUTUP ,  data , info  0 . 
-    <BR>
-    (EV_APPL1〜8) , . 
- <DT>stat:
- <DD>. , &auot;0&auot;(OFF), &quot;1&quot; (ON). 
-    <PRE>
-        ES_BUT      0x0001  -- PD
-        ES_BUT2     0x0002  -- PD
-        ES_ALPH     0x0004  -- 
-        ES_KANA     0x0008  -- 
-        ES_LSHFT    0x0010  -- 
-        ES_RSHFT    0x0020  -- 
-        ES_EXT      0x0040  -- 
-        ES_CMD      0x0080  -- 
-    </PRE>
-    (), Помилок немає (завжди виконується успішно)., , Помилок немає (завжди виконується успішно).
-    <BR>
-    , . 
-<PRE>
-        ES_LLSHFT   0x00000100  -- 
-        ES_LRSHFT   0x00000200  -- 
-        ES_LEXT     0x00000400  -- 
-        ES_LCMD     0x00000800  -- 
-        ES_TLSHFT   0x00001000  -- 
-        ES_TRSHFT   0x00002000  -- 
-        ES_TEXT     0x00004000  -- 
-        ES_TCMD     0x00008000  -- 
-        ES_HAN      0x00010000  -- 
-        ES_NODSP    0x00200000  -- 
-        ES_PDSIM    0x00C00000  -- PD
-</PRE>
-    Помилок немає (завжди виконується успішно).
-</DL>
-
-<H4></H4>
-
-<P>
-,  1 , . , , , , . 
-</P>
-<P>
-, . ,  &quot;1&quot; , &quot;0&quot; . 
-</P>
-<P>
-, ,  0 , , . 
-</P>
-<P>
-, , . , . 
-</P>
-
-<PRE>
-    ( 1:  〜 6: )
-    1. EV_APPL1〜4 
-    2. EV_BUTDWN, EV_BUTUP, EV_KEYDWN, EV_KEYUP
-    3. EV_AUTKEY
-    4. EV_DEVICE, EV_RSV
-    5. EV_APPL5〜8
-    6. EV_NULL
-</PRE>
-
-(EV_NULL), (EV_AUTKEY) , , . 
-
-<DL>
- <DT>(EV_NULL)：
- <DD>. 
- <DT>(EV_AUTKEY)：
- <DD>, . 
-     <OL>
-      <LI>  EV_AUTKEY 1. 
-      <LI>  EV_AUTKEY  &quot;1&quot; . 
-      <LI>  EV_AUTKEY . 
-      <LI>   EV_KEYDWN . 
-      <LI>   EV_KEYDWN , , 
-            . 
-      <LI>  . 
-     </OL>
-     , 1, , . 
-</DL>
-
-<H3><A name="acb">1.7.3 Обробка вводу з клавіатури (Keyboard Management)</A></H3>
-
-<H4></H4>
-
-<P>
-TRON, ,  stat , . 
-</P>
-
-<UL>
- <LI> /  ()
- <LI> / (, CAPSLOCK ) ()
- <LI>
- <LI>
- <LI>
- <LI>
-</UL>
-
-<P>
-. 
-</P>
-
-<H4></H4>
- 
-<P>
-(EV_AUTKEY) , . 
-</P>
-<P>
-
-, , 
-. 
-</P>
-<P>
-(), (
-)／. 
-. 
-</P>
-<P>
-, , 
-, . 
-</P>
-
-<H4></H4>
-
-<P>
-, , . 
-</P>
-<P>
-, 8 ( 0 〜255 ) , . 
-</P>
-<P>
-«». , , (／), . 
-</P>
-<P>
-. 
-</P>
-
-<PRE>
-typedef struct {
-    W   keymax;         /*  (1〜256) */
-    W   kctmax;         /*  (1〜64) */
-    UH  kctsel[KCTSEL]; /*  (0〜kctmax-1) */
-    UH  kct[KCTMAX];    /*  (keymax×kctmax) */
-} KeyTab;
-</PRE>
-<UL>
- <LI>keymax , 0〜(keymax-1). 
- <LI>kctmax 64. 
- <LI>keymax × kctmax,  2048 . 
- <LI>kctsel[] , 6 ( 0 〜 kctmax - 1 ) .  6  , kctsel[] ( 0 〜 kctmax - 1 ). , . 
-<PRE>      
-    ：CERLKA
-        A:«／» (0:)
-        K:«／» (0:)
-        L:«»
-        R:«»
-        E:«»
-        C:«»
-</PRE>
- <LI> kct[] ,  kct[kctmax][keymax]  2 . kct[kctsel[(0〜63)]][(0〜keymax-1)] . 
-</UL>
-
-<H4></H4>
-
-<P>
-, 11
-KeyMap ,  KeyMap 
-. 
-</P>
-
-<PRE>
-typedef UB  KeyMap[KEYMAX/8];       -- 
-</PRE>
-
-<A name="acc">
-<CENTER><IMG src="gif/keymap.gif" alt=" (KeyMap)"></CENTER>
-</A>
-<CENTER> 13 :  (KeyMap)</CENTER>
-
-
-<P>
-  ,  KeyMap ,  / . , &quot;1 &quot;. 
-</P>
-
-<H4>ID</H4>
-
-<P>
-  ID. 
-</P>
-
-<PRE>
-typedef struct {
-    UH  kind;           /*  */
-    UH  maker;          /* ID */
-    UB  id[4];          /* ID */
-} KBD_ID;
-</PRE>
-
-<DL>
-<DT>kind：0000 000T TTTT TTMP
- <DD>
-    <PRE>
-    P= 0          -- 
-       1          -- 
-    M= 0          -- 
-       1          -- 
-    T=0x00        -- 
-      0x01        -- TRON
-      0x02〜0x3F  --  (TRON )
-      0x40        -- IBM 101 
-      0x41        -- IBM 106 
-      0x42〜0x7f  --  (TRON )
-    </PRE>
- <DT>maker:
- <DD>ID, get_ver() . 
- <DT>id[4]:
- <DD>ID4. 
-</DL>
-
-<H3><A name="acd">1.7.4 Обробка вводу з вказівних пристроїв (Pointing Device Management)</A></H3>
-
-<H4></H4>
-
-<P>
-, , , . ,  ( 0, 0 ),  1 . 
-</P>
-
-<H4></H4>
-
-<P>
-,  2 . 
-</P>
-
-<DL>
- <DT>：
-  <DD>, 
-      , . 
- <DT>()：
-  <DD>, , 
-      . 
-</DL>
-
-<P>
-, ()
-, , . 
-</P>
-<P>
-, , ／
-. 
-</P>
-
-<H4></H4>
-
-<P>
-, /. 
-</P>
-<DL>
- <DT>:
- <DD>, 
-     , , , 
-     , . 
-     <BR>
-     (0)〜(15) 16. 
- <DT>
- <DD>
-     , , . 
-     <BR>
-      (0)〜(15) 16. 
-</DL>
-
-<H3><A name="ace">1.7.5 Визначення типів даних та конста</A></H3>
-
-<H4>□ </H4>
-
-<PRE>
-typedef union {
-    struct {            /* EV_KEYUP,EV_KEYDWN,EV_AUTKEY */
-        UH  keytop;     /*  */
-        TC  code;       /*  */
-    } key;
-    struct {            /* EV_DEVICE */
-        H   kind;       /*  */
-        H   devno;      /*  */
-    } dev;
-    W   info;           /*  */
-} EVDATA;
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-typedef struct {
-    W       type;           /*  */
-    UW      time;           /* (m sec) */
-    PNT     pos;            /* PD */
-    EVDATA  data;           /*  */
-    UW      stat;           /* , PD */
+    } data;
 } EVENT;
 </PRE>
 
-<H4>□ </H4>
+<H3><A name="acf">1.7.6 Системні виклики підсистеми подій (Event System Calls)</A></H3>
 
-<PRE>
-#define EV_NULL     0       /*  */
-#define EV_BUTDWN   1       /*  */
-#define EV_BUTUP    2       /*  */
-#define EV_KEYDWN   3       /*  */
-#define EV_KEYUP    4       /*  */
-#define EV_AUTKEY   5       /*  */
-#define EV_DEVICE   6       /*  */
-#define EV_RSV      7       /*  */
-#define EV_APPL1    8       /* #1 */
-#define EV_APPL2    9       /* #2 */
-#define EV_APPL3    10      /* #3 */
-#define EV_APPL4    11      /* #4 */
-#define EV_APPL5    12      /* #5 */
-#define EV_APPL6    13      /* #6 */
-#define EV_APPL7    14      /* #7 */
-#define EV_APPL8    15      /* #8 */
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-#define EM_NULL     0x0000
-#define EM_ALL      0x7fff
-#define EM_BUTDWN   0x0001
-#define EM_BUTUP    0x0002
-#define EM_KEYDWN   0x0004
-#define EM_KEYUP    0x0008
-#define EM_AUTKEY   0x0010
-#define EM_DEVICE   0x0020
-#define EM_RSV      0x0040
-#define EM_APPL1    0x0080
-#define EM_APPL2    0x0100
-#define EM_APPL3    0x0200
-#define EM_APPL4    0x0400
-#define EM_APPL5    0x0800
-#define EM_APPL6    0x1000
-#define EM_APPL7    0x2000
-#define EM_APPL8    0x4000
-</PRE>
-
-<H4>□ , PD(0: OFF, 1:ON)</H4>
-
-<PRE>
-#define ES_BUT      0x00000001  /* PD */
-#define ES_BUT2     0x00000002  /* PD */
-#define ES_ALPH     0x00000004  /*  */
-#define ES_KANA     0x00000008  /*  */
-#define ES_LSHFT    0x00000010  /*  */
-#define ES_RSHFT    0x00000020  /*  */
-#define ES_EXT      0x00000040  /*  */
-#define ES_CMD      0x00000080  /*  */
-#define ES_LLSHFT   0x00000100  /*  */
-#define ES_LRSHFT   0x00000200  /*  */
-#define ES_LEXT     0x00000400  /*  */
-#define ES_LCMD     0x00000800  /*  */
-#define ES_TLSHFT   0x00001000  /*  */
-#define ES_TRSHFT   0x00002000  /*  */
-#define ES_TEXT     0x00004000  /*  */
-#define ES_TCMD     0x00008000  /*  */
-#define ES_HAN      0x00010000  /*  */
-#define ES_NODSP    0x00400000  /*  */
-#define ES_PDSIM    0x00800000  /* PD */
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-#define IM_HIRA     0x0000          /*  */
-#define IM_ALPH     (ES_ALPH)       /* () */
-#define IM_KATA     (ES_KANA)       /*  */
-#define IM_CAPS     (ES_ALPH | ES_KANA) /* () */
-#define IM_MASK     (ES_ALPH | ES_KANA)
-</PRE>
-
-<PRE>
-#define KIN_KANA    0x0000          /*  */
-#define KIN_ROMAN   0x0001          /*  */
-</PRE>
-
-<H4>□ (EV_DEVICE)(EVDATA.dev.kind)</H4>
-
-<PRE>
-typedef enum {
-    DE_unknown      = 0,        /*  */
-    DE_MOUNT        = 0x01,     /*  */
-    DE_EJECT        = 0x02,     /*  */
-    DE_ILLMOUNT     = 0x03,     /*  */
-    DE_ILLEJECT     = 0x04,     /*  */
-    DE_REMOUNT      = 0x05,     /*  */
-    DE_CARDBATLOW   = 0x06,     /*  */
-    DE_CARDBATFAIL  = 0x07,     /*  */
-    DE_REQEJECT     = 0x08      /*  */
-} DevEvtKind;
-</PRE>
-
-<H4>□ put_evt()</H4>
-
-<PRE>
-#define EP_NONE     0x0000      /* time,pos,stat  */
-#define EP_POS      0x0001      /* pos PD */
-#define EP_STAT     0x0002      /* stat  */
-#define EP_TIME     0x0004      /* time  */
-#define EP_ALL      0x0007      /* pos,stat,time  */
-</PRE>
-
-<H4>□ chg_pda()</H4>
-
-<PRE>
-#define PD_REV      0x1000      /*  */
-#define PD_ABS      0x0100      /*  */
-#define PD_REL      0x0000      /*  */
-#define PD_SCMSK    0x00f0      /*  () */
-#define PD_SNMSK    0x000f      /*  () */
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-typedef struct {
-    UH  kind;           /*  */
-    UH  maker;          /* ID */
-    UB  id[4];          /* ID */
-} KBD_ID;
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-#define KEYMAX      256
-</PRE>
-
-<PRE>
-typedef UB  KeyMap[KEYMAX/8];
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-#define KCTSEL      64
-#define KCTMAX      4000
-</PRE>
-
-<PRE>
-typedef struct {
-    W   keymax;             /*  */
-    W   kctmax;             /*  */
-    UH  kctsel[KCTSEL];     /*  */
-    UH  kct[KCTMAX];        /*  */
-} KeyTab;
-</PRE>
-
-<H4>□ ctl_buz()</H4>
-
-<PRE>
-                    /* ＜＞ */
-#define GET_BUZ_BEEP    0x0000      /* ： */
-#define GET_BUZ_PDON    0x0001      /* ：ON */
-#define GET_BUZ_PDOFF   0x0002      /* ：OFF */
-#define GET_BUZ_KEYON   0x0003      /* ：ON */
-#define GET_BUZ_KEYOFF  0x0004      /* ：OFF */
-#define GET_BUZ_VOLUME  0x0010      /*  */
-                    /* ＜＞ */
-#define SET_BUZ_BEEP    0x0100      /* ： */
-#define SET_BUZ_PDON    0x0101      /* ：ON */
-#define SET_BUZ_PDOFF   0x0102      /* ：OFF */
-#define SET_BUZ_KEYON   0x0103      /* ：ON */
-#define SET_BUZ_KEYOFF  0x0104      /* ：OFF */
-#define SET_BUZ_VOLUME  0x0110      /*  */
-</PRE>
-
-<H3><A name="acf">1.7.6 Системні виклики підсистеми подій</A></H3>
-
+<!-- get_evt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Зчитання події з черги (Get Event)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    get_evt(W t_mask, EVENT* evt, W opt)
+ERR     get_evt(EVENT *evt, UW mask, TMOUT tmout)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       t_mask  
-
-EVENT*  evt     
-
-W       opt     
-                ( CLR ‖ NOCLR )
-                CLR    . 
-                NOCLR  . 
+EVENT  *evt     Буфер для збереження зчитаної події (Вихід)
+UW      mask    Маска фільтрації типів подій (EM_BUTDWN, EM_KEYDWN тощо)
+TMOUT   tmout   Час очікування (T_NOWAIT, T_FOREVER або значення у мс)
 </PRE>
-
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання()
+= 0      Успішне виконання (Подію записовано у *evt)
 < 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (get_evt) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
+<P>
+  Вилучає чергову подію із системної черги подій процесу відповідно до маски фільтрації mask та записує її у структуру evt. Якщо черга порожня, процес заблокується до появи події або до спливання таймауту tmout.
+</P>
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
+ER_ADR     : Неприпустима адреса вказівника evt.
+ER_TIMEOUT : Перевищено допустимий час очікування (при T_NOWAIT або таймауті).
+ER_PAR     : Некоректні параметри mask або tmout.
 </PRE>
 
+<!-- pke_evt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">put_evt</FONT></TD></TR>
+<TR><TD><FONT size="+2">pke_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Перегляд події у черзі без вилучення (Peek Event)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR put_evt(EVENT* evt, W opt)
+ERR     pke_evt(EVENT *evt, UW mask)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-EVENT*  evt   
-
-W       opt   
-        ( EP_NONE ‖ EP_ALL ‖ ([ EP_POS ] | [ EP_STAT ] | [EP_TIME]) )
-        EP_NONE   time, pos, stat  evt . 
-        EP_ALL    time, pos, stat . 
-        EP_POS    pos . 
-        EP_STAT   stat / PD . 
-        EP_TIME   time . 
+EVENT  *evt     Буфер для збереження копії події (Вихід)
+UW      mask    Маска фільтрації типів подій
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
+= 0      Успішне виконання (Копію події записано в *evt, сама подія залишається в черзі)
 < 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
-. 
-<BR>
-, , EV_NULL  EV_AUTKEY . 
-<BR>
-. 
-<BR>
- time , , . 
-
+<P>
+  Зчитує копію найстарішої події із системної черги подій без її вилучення з черги.
+</P>
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_ADR     : Неприпустима адреса вказівника evt.
+ER_NOEXS   : У черзі відсутні події, що відповідають масці mask.
 </PRE>
 
+<!-- snd_evt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">clr_evt</FONT></TD></TR>
+<TR><TD><FONT size="+2">snd_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Відправлення події у чергу (Send Event)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR clr_evt(W t_mask, W last_mask)
+ERR     snd_evt(W pid, EVENT *evt)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   t_mask      
-                ＝EM_ALL    
-
-W   last_mask   
-                ＝EM_ALL    1
-                ＝EM_ALL    
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-. 
-<BR>
-, t_mask  last_mask . last_mask , last_mask =  EM_ALL , 1. 
-<BR>
-t_mask  last_mask . 
-<PRE>
-    t_mask      last_mask   
-    EM_ALL      EM_NULL     
-      --        EM_ALL      t_mask 1
-    EM_ALL      EM_ALL      1
-</PRE>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
-
-
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_pdp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>PD</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    get_pdp(PNT* pos)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-PNT*    pos PD
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання()
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «PD» (get_pdp) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">set_pdp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>PD</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    set_pdp(PNT pos)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-PNT pos PD()
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання(PD)
-＝1    (PD)
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-. 
-<BR>
-. 
-<BR>
- &quot;0&quot; ,  &quot;1&quot; . 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_etm</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_etm(UW* time)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-UW  *time   
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (get_etm) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_kmp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_kmp(KeyMap keymap)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KeyMap  keymap  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">chg_emk</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    chg_emk(W mask)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   mask    
-            &lt;0    ()
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання()
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (chg_emk) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-Помилок немає (завжди виконується успішно).
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">set_krp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR set_krp(W offset, W interval)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   offset      ()
-
-W   interval    ()
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (set_krp) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
-
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_krp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_krp(W* offset, W* interval)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   *offset     ()
-
-W   *interval   ()
+W       pid     Ідентифікатор цільового процесу (PID)
+EVENT  *evt     Вказівник на відправлювану подію
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1029,463 +198,16 @@ W   *interval   ()
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (get_krp) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
+<P>
+  Поміщає прикладну або системну подію evt у чергу подій вказаного цільового процесу pid.
+</P>
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
+ER_ADR     : Неприпустима адреса вказівника evt.
+ER_ID      : Недійсний ідентифікатор цільового процесу pid.
+ER_NOSPC   : Черга подій цільового процесу переповнена.
 </PRE>
 
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">set_krm</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR set_krm(KeyMap keymap)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KeyMap  keymap  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-. 
-<BR>
- &quot;1&quot;
-, &quot;0&quot; 
-. 
-<BR>
-. 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_krm</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_krm(KeyMap keymap)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KeyMap  keymap  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-. 
-<BR>
- &quot;1&quot;
-, &quot;0&quot;
-. 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_kid</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>ID</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_kid(KBD_ID* id)
-
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KBD_ID* id  ID
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми ядра Sakamura BTRON3 згідно з переданими параметрами та поточним контекстом виконання.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_ktb</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    get_ktb(KeyTab* keytab)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KeyTab* keytab      
-                    NULL  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання()
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (get_ktb) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">set_ktb</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR set_ktb(KeyTab* keytab)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-KeyTab* keytab      
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми ядра Sakamura BTRON3 згідно з переданими параметрами та поточним контекстом виконання.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">chg_pda</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    chg_pda(W atr)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   atr 
-        &lt;0    ()
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання(PD)
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-, . 
-<BR>
-atr &lt;0 . 
-<BR>
-. 
-<PRE>
-        xx..xx xxxV xxxA RRRR SSSS
-
-        A：  ( 0: , 1:  )
-        S：  ( 0:  〜 15:  )
-        R：  ( 0:  〜 15:  )
-        V：  ( 0: , 1:  )
-        x：  ( = 0 )
-</PRE>
-
-(ER_DEV). 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_BUSY    : Ресурс або файл заблокований у монопольному режимі іншим процесом.
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_NOSPC   : Недостатньо оперативної пам'яті ядра для виконання операції.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">sig_buz</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR sig_buz(W type)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   type    
-        = 0    
-        = -1  
-        0xTTTTHHHH
-
-        TTTT≠0
-            HHHH≧0  ()
-                T:  (1 〜 32767 msec)
-                H:  (0 〜 32767 Hz)
-
-            HHHH&lt;0  ()
-                T:  (1 〜 32767)
-                H:  (-1 〜 -100)
-
-        TTTT= 0  ()
-            type = 0x0000thhh
-            t:  (100msec )
-            h:  (10Hz )
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-
-<H4>【Детальний опис】</H4>
-. 
-<BR>
- beep . , beep . 
-<BR>
-beep , . 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_DEV     : Помилка виконання системного виклику.
-ER_ERDEV   : Помилка виконання системного виклику.
-ER_IO      : Критична помилка введення/виведення (I/O Error) пристрою.
-ER_NODEV   : Помилка виконання системного виклику.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">ctl_buz</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR ctl_buz(W kind, UW *val)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   kind    
-
-UW  *val    
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-. 
-<PRE>
-kind:   GET_BUZ_BEEP    ：
-        GET_BUZ_PDON    ：ON
-        GET_BUZ_PDOFF   ：OFF
-        GET_BUZ_KEYON   ：ON
-        GET_BUZ_KEYOFF  ：OFF
-        GET_BUZ_VOLUME  ：
-        SET_BUZ_BEEP    ：
-        SET_BUZ_PDON    ：ON
-        SET_BUZ_PDOFF   ：OFF
-        SET_BUZ_KEYON   ：ON
-        SET_BUZ_KEYOFF  ：OFF
-        SET_BUZ_VOLUME  ：
-
-val:    ：  DTTT TTTT TTTT TTTT HHHH HHHH HHHH HHHH
-        D：0：, 1：()
-        H≧0  ()
-            T：(msec)
-            H：(Hz)
-        H&lt;0  ()
-            T：
-            H：
-
-    ：  LLLL LLLL LLLL LLLL RRRR RRRR RRRR RRRR
-        L： (=0 〜 =0xffff)
-        R： (=0 〜 =0xffff)
-        , , . 
-</PRE>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
-</PRE>
-
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">req_evt</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR req_evt(W t_mask)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   t_mask  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-t_mask , (req_evt ). <BR>
-, EV_NULL, EV_AUTKEY . <BR>
-, . 
-<PRE>
-
-
-struct {
-    W       msg_type;   /*  = MS_SYS5 */
-    W       msg_size;   /*  */
-    EVENT   evt;        /*  */
-    VB      info[];     /*  */
-}
-</PRE>
-
-msg_type , MS_SYS5 . <BR>
-,  evt . , ,  info . , msg_size  sizeof(EVENT) , . . <BR>
-
-(EV_DEVICE), . , . <BR>
-
-rcv_msg()  ID . 
-<UL>
- <LI>put_evt() , 
-     put_evt()  ID . 
- <LI>, ID = 1 (). 
-</UL>
-
-t_mask  EM_NULL , . , . 
-<BR>
-, . 
-<BR>
-, . 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-ER_LIMIT   : Перевищено системний ліміт кількості відкритих об'єктів або файлів.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">las_evt</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    las_evt(W t_mask)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   t_mask  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання()
-< 0      Помилка (Код помилки)
-</PRE>
-
-<H4>【Детальний опис】</H4>
-t_mask , . 
-<BR>
-t_mask  EM_BUTDWN  EM_BUTUP , . , EM_KEYDWN  EM_KEYUP , . 
-<BR>
-t_mask  EM_NULL , . 
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="file.html">Попередня сторінка: 1.6 Файлова система та менеджер файлів (Повернутися)</A><BR>

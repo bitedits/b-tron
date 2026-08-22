@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.9 Системний годинник та таймери (Real-Time Clock & Timers)
+  1.9 Системний годинник та таймери (Clock & Timer Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="device.html">
@@ -10,7 +10,7 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
@@ -18,296 +18,85 @@
 <A href="system.html">Наступна сторінка: 1.10 Загальне системне управління (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aco">1.9 Системний годинник та таймери (Real-Time Clock & Timers)</A></H2>
+<H2><A name="aco">1.9 Системний годинник та таймери (Clock & Timer Management)</A></H2>
 
-<H3><A name="acp">1.9.1 Загальний огляд</A></H3>
+<H3><A name="acp">1.9.1 Огляд підсистеми системного часу (Overview)</A></H3>
 
 <P>
-  , 
-   / , 
-  . 
+  Підсистема системного годинника надає засоби для зчитування та налаштування поточного системного часу реального часу (Real-Time Clock), а також для зчитування відносного системного часу виконання операційної системи.
 </P>
+
 <P>
-   GMT (Greenwich Mean Time)
-   198511 00:00 32, 
-   /  /
-  . 
+  Системний час вимірюється у секундах або мілісекундах починаючи з відлікової епохи BTRON: <B>1 січня 1985 року, 00:00:00 GMT (Greenwich Mean Time)</B>.
 </P>
-<P>
-  , 
-  . 
-  , 
-   / . 
-</P>
-<P>
-  , 
-  . 
-</P>
+
+<H3><A name="acq">1.9.2 Визначення типів даних та констант (Data Types & Constants)</A></H3>
 
 <PRE>
-	typedef struct {
-		W	adjust;		/* () */
-		W	dst_flg;	/* DST  */
-		W	dst_adj;	/* DST () */
-	} TIMEZONE;
+typedef W       STIME;          /* Системний час у секундах від 01.01.1985 GMT */
 </PRE>
 
-<P>
-  <CODE>adjust</CODE>   ( GMT )
-  , , 
-   - (12 × 60 × 60) 〜 + (12 × 60 × 60)  . 
-</P>
-<P>
-  <CODE>dst_flg</CODE> 
-  ( Daylight Saving Time, DST ) 
-   0 . 
-  0 , 
-  , 
-   0  0 . 
-</P>
-<P>
-  <CODE>dst_adj</CODE>  DST  (  )
-    <CODE>- (12×60) 〜 + (12×60)</CODE> . 
-   DST , 
-   DST , 
-  <CODE>dst_adj</CODE> , 
-  DST , <CODE>dst_adj</CODE>  0
-  . 
-</P>
-<P>
-  , . 
-</P>
-<PRE>
-    ()
-        = () - adjust + (dst_flg ? (dst_adj×60): 0)
-</PRE>
-<P>
-  , 0. 
-</P>
-<P>
-  , , 
-  , 
-  . 
-</P>
-<PRE>
-	typedef struct {
-		W	d_year;	  /* 1990(85〜) */
-		W	d_month;  /*  ( 1 〜 12, 0) */
-		W	d_day;	  /*  ( 1 〜 31 ) */
-		W	d_hour;	  /*  ( 0 〜 23 ) */
-		W	d_min;	  /*  ( 0 〜 59 ) */
-		W	d_sec;	  /*  ( 0 〜 59 ) */
-		W	d_week;	  /*  ( 1 〜 54 ) */
-		W	d_wday;	  /*  ( 0 〜 6, 0) */
-		W	d_days;	  /*  ( 1 〜 366 ) */
-	} DATE_TIM;
-</PRE>
+<H3><A name="acr">1.9.3 Системні виклики підсистеми годинника (Clock System Calls)</A></H3>
 
-<P>
-  <CODE>d_week</CODE> , 
-  111, 
-  <CODE>d_days</CODE> , 
-  111. 
-  , <CODE>d_month = 0</CODE> , 
-  . 
-</P>
-
-<H3><A name="acq">1.9.2 Визначення типів даних та констант</A></H3>
-
-<P>
-   <CODE>WORD</CODE> , 
-  «». 
-  «0». 
-</P>
-
-<H4>□ </H4>
-
-<PRE>
-typedef struct {
-	W	adjust;		/* () */
-	W	dst_flg;	/* DST */
-	W	dst_adj;	/* DST() */
-} TIMEZONE;
-</PRE>
-
-<H4>□ </H4>
-
-<PRE>
-typedef struct {
-	W	d_year;		/* 1900(85〜) */
-	W	d_month;	/*  ( 1 〜 12, 0) */
-	W	d_day;		/*  ( 1 〜 31 ) */
-	W	d_hour;		/*  ( 0 〜 23 ) */
-	W	d_min;		/*  ( 0 〜 59 ) */
-	W	d_sec;		/*  ( 0 〜 59 ) */
-	W	d_week;		/*  ( 1 〜 54 ) */
-	W	d_wday;		/*  ( 0 〜 6, 0) */
-	W	d_days;		/*  ( 1 〜 366 ) */
-} DATE_TIM;
-</PRE>
-
-<H3><A name="acr">1.9.3 Системні виклики годинника та таймерів</A></H3>
-
+<!-- get_tim -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_tim</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Зчитання системного часу реального часу (Get System Time)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR get_tim(STIME* time, TIMEZONE* tz)
+ERR     get_tim(STIME *pk_time)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-STIME*  time    
-                NULL  
-
-TIMEZONE*  tz   
-                NULL  
+STIME  *pk_time Буфер для збереження поточного системного часу у секундах (Вихід)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  
-＜0  ()
+= 0      Успішне виконання (Час записано в *pk_time)
+< 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми ядра Sakamura BTRON3 згідно з переданими параметрами та поточним контекстом виконання.</P>
+<P>
+  Зчитує поточний системний час астрономічного реального часу у секундах від 1 січня 1985 року 00:00:00 GMT та записує його за адресою pk_time.
+</P>
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
+ER_ADR     : Неприпустима адреса вказівника pk_time.
 </PRE>
 
-
+<!-- set_tim -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_tim</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Налаштування системного часу (Set System Time)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR set_tim(STIME time, TIMEZONE* tz)
-</PRE>
-
-<H4>【Параметри】</H4>
-<PRE>
-STIME   time    
-                ≦0   
-
-TIMEZONE*  tz   
-                NULL  
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-＝ 0  
-＜ 0  ()
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує системну операцію «» (set_tim) підсистеми ядра BTRON3 згідно з переданими параметрами та правами доступу.</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ACCES   : Відсутні необхідні права доступу (R/W/E) до вказаного об'єкта.
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_tod</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>／</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR get_tod(DATE_TIM* dt, STIME time, Bool local)
-</PRE>
-<H4>【Параметри】</H4>
-
-<PRE>
-DATE_TIM*  dt      
-
-STIME      time    
-                   ≦ 0  
-
-Bool       local   
-                   ＝ 0  GMT 
-                         dt . 
-                   ≠ 0  
-                         dt . 
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-＝0  
-＜0  ()
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">set_tod</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>／</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR set_tod(DATE_TIM* dt, STIME* time, Bool local)
+ERR     set_tim(STIME time)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-DATE_TIM*  dt      / 
-
-STIME*     time   
-                  NULL  
-                        ( 0 )
-
-Bool      local   
-                  ＝ 0  GMT 
-                        dt . 
-                  ≠ 0  
-                        dt . 
+STIME   time    Нове значення системного часу у секундах від 01.01.1985 GMT
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 = 0      Успішне виконання
 < 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
 <P>
-  , <CODE>d_week</CODE> (  ),
-  <CODE>d_wday</CODE> (  ) . 
-  <CODE>d_days</CODE> (  )  
-  <CODE>d_month = 0</CODE> , 
-  <CODE>d_month ≠0</CODE> . 
+  Установлює нове значення системного астрономічного часу реального часу у секундному форматі. Потребує системних привілеїв суперкористувача / системного процесу.
 </P>
-
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ACCES   : Відсутні необхідні права доступу (R/W/E) до вказаного об'єкта.
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_ACCES   : Відсутні системні привілеї для зміни годинника.
+ER_PAR     : Неприпустиме або від'ємне значення часу time.
 </PRE>
+
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="device.html">Попередня сторінка: 1.8 Менеджер пристроїв та драйверів (Повернутися)</A><BR>

@@ -6,249 +6,58 @@
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="clk.html">
-<LINK REL="next" HREF="../dp/dp.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="clk.html">Попередня сторінка: 1.9 Системний годинник та таймери (Повернутися)</A><BR>
-<A href="../dp/dp.html">Наступна сторінка: Розділ 2 Графічні примітиви Display Primitives (Перейти)</A><BR>
 <HR>
 
 <H2><A name="acs">1.10 Загальне системне управління (System Management)</A></H2>
 
-<P>
-, . 
-</P>
-
-<UL>
- <LI>
- <LI>OS
-</UL>
-
-<H3><A name="act">1.10.1 Визначення типів даних та конста</A></H3>
-
-<H4>□ OS</H4>
+<H3><A name="act">1.10.1 Огляд загальносистемних викликів (Overview)</A></H3>
 
 <P>
-   OS . 
+  Розділ загального системного управління містить системні виклики для отримання версії ядра ОС Sakamura BTRON3, перевірки системної конфігурації та примусового перезавантаження чи зупинки системи.
 </P>
 
-<PRE>
-typedef struct {
-    UH  maker;      /*  */
-    UH  id;         /*  */
-    UH  spver;      /*  */
-    UH  prver;      /*  */
-    UH  prno[4];    /*  */
-    UH  cpu;        /* CPU  */
-    UH  var;        /*  */
-} T_VER;
-</PRE>
+<H3><A name="acu">1.10.2 Системні виклики загального управління (System Calls)</A></H3>
 
-<H3><A name="acu">1.10.2 Системні виклики загального управління</A></H3>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">def_exc</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR def_exc(W exckind, FP exchdr)
-</PRE>
-
-<H4>【Параметри】</H4>
-
-<PRE>
-W   exckind ()
-FP  exchdr  
-            NULL    
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-＝ 0    
-＜ 0    ()
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
-<P>
-, 
-. 
-</P>
-<P>
-. 
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_CTX     : Помилка виконання системного виклику.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">ret_exc</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-VOID    ret_exc(W ret)
-</PRE>
-
-<H4>【Параметри】</H4>
-
-<PRE>
-W   ret 
-</PRE>
-<DL compact>
- <DT>＝ 0
- <DD>, . 
-     , . 
- <DT>≠ 0    
- <DD>, , 
-     . 
-     ,  longjmp ()  
-     . 
-</DL>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
- (ret = 0 )
-= 0      Успішне виконання (ret≠ 0 )
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
-<P>
-  . 
-  , , 
-  . 
-</P>
-
-<H4>【Коди помилок】</H4>
-<P>
-  Помилок немає (завжди виконується успішно).
-</P>
-
+<!-- get_ver -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_ver</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD>Отримання версії та специфікації ядра (Get System Version)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR get_ver(T_VER* version)
+WERR    get_ver(UH *ver, UH *subver)
 </PRE>
-
 <H4>【Параметри】</H4>
 <PRE>
-T_VER*  version 
+UH  *ver    Змінна для збереження мажорного номера версії ядра BTRON3 (Вихід)
+UH  *subver Змінна для збереження мінорного номера версії (Вихід)
 </PRE>
-
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
+= 0      Успішне виконання (Номери версій записано у ver та subver)
 < 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
 <P>
-  OS . 
+  Повертає точні номери специфікації та релізу ядра BTRON3.
 </P>
-<P>
-  <CODE>T_VER</CODE>  <CODE>TRON</CODE> . 
-</P>
-
-<PRE>
-    typedef struct {
-        UH  maker;      -- 
-        UH  id;         -- 
-        UH  spver;      -- 
-        UH  prver;      -- 
-        UH  prno[4];    -- 
-        UH  cpu;        -- CPU 
-        UH  var;        -- 
-    } T_VER;
-</PRE>
-
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
+ER_ADR     : Неприпустима адреса вказівника ver або subver.
 </PRE>
 
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">get_cnf</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-WERR    get_cnf(TC* name, VP value, W len)
-</PRE>
-
-<H4>【Параметри】</H4>
-<PRE>
-TC* name    
-
-VP  value   
-
-W   len     
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-＝ 0    (W )
-＞ 0    (TC ：)
-＜ 0    ()
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>Виконує функціональну операцію системного виклику Sakamura BTRON3 згідно з переданими параметрами та поточним графічним/системним контекстом виконання.</P>
-
-<P>
-   W  TC , 
-  . 
-</P>
-
-<DL>
- <DT> = 0 :
- <DD>W 
- <DT> &gt; 0 :
- <DD>TC <BR>
-     ,  0 . <BR>
-     . 
-</DL>
-
-<P>
-  . 
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_NOEXS   : Вказаний об'єкт, файл або ім'я відсутнє у системі.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
-</PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="clk.html">Попередня сторінка: 1.9 Системний годинник та таймери (Повернутися)</A><BR>
-<A href="../dp/dp.html">Наступна сторінка: Розділ 2 Графічні примітиви Display Primitives (Перейти)</A><BR>
 </BODY>
 </HTML>
