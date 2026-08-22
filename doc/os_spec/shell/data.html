@@ -2,754 +2,128 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.6 
+  3.6 Менеджер даних та датабоксів (Data Manager & Data Box)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
-<LINK REL="previous" HREF="tray.html">
-<LINK REL="next" HREF="tip.html">
+<LINK REL="previous" HREF="parts.html">
+<LINK REL="next" HREF="font_mgr.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
 <DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)
+  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
-<A href="tray.html">Попередня сторінка: 3.5  (Повернутися)</A><BR>
-<A href="tip.html">Наступна сторінка: 3.7  (Перейти)</A><BR>
+<A href="parts.html">Попередня сторінка: 3.5 Елементи інтерфейсу та віджети (Повернутися)</A><BR>
+<A href="font_mgr.html">Наступна сторінка: 3.7 Менеджер шрифтів (Перейти)</A><BR>
 <HR>
 
-<H2><A name="akc">3.6 </A></H2>
+<H2><A name="akc">3.6 Менеджер даних та датабоксів (Data Manager & Data Box)</A></H2>
 
-<H3><A name="akd">3.6.1 </A></H3>
+<H3><A name="akd">3.6.1 Огляд підсистеми Менеджера даних</A></H3>
 
-<H4><A name="ake">3.6.1.1 </A></H4>
+<H4><A name="ake">3.6.1.1 Архітектура Датабоксів (Data Box Concept)</A></H4>
 
 <P>
-  、 1 、
-  HMI 、
-  「」、
-  。
-  。
+  Менеджер даних (Data Manager) відокремлює фіксовані системні та прикладні графічні/текстові ресурси від виконуваного коду програм і централізовано зберігає їх у спеціальних ресурсових контейнерах — **Датабоксах (Data Boxes)**.
 </P>
+
 <P>
-  、 2 。
+  Датабокси поділяються на 2 основні типи:
 </P>
+
 <UL>
- <LI> 
-      <P>
-      、
-      。
-      </P>
- <LI>
-      <P>
-      ()、
-      ()。
-      </P>
+ <LI><B>Системний датабокс (System Data Box)</B>: Єдиний глобальний системний контейнер, що містить системні шрифти, стандартні піктограми, системні курсори, палітри та шаблони вікон.
+ <LI><B>Прикладний датабокс (Application Data Box)</B>: Контейнер ресурсів конкретного додатка, що зберігає власні меню, діалогові вікна, малюнки та локалізований текст.
 </UL>
- 1、。
 
-<H4><A name="akf">3.6.1.2 ID／</A></H4>
+<H4><A name="akf">3.6.1.2 Типи даних у датабоксах (Data Types)</A></H4>
 
 <P>
-   1 、
-  ID。
-  ID、
-   1  ( &gt; 0 )
-  。
-</P>
-<P>
-  ID。
+  Кожен ресурс у датабоксі ідентифікується за парами: **Ідентифікатор типу даних (Data Type ID)** та **Унікальний номер (Data Number > 0)**.
 </P>
 
-<TABLE>
-  <TR><TD><CODE>PTR_DATA  </CODE></TD><TD>( 1)</TD><TD></TD></TR>
-  <TR><TD><CODE>PICT_DATA </CODE></TD><TD>( 2)</TD><TD></TD></TR>
-  <TR><TD><CODE>PAT_DATA  </CODE></TD><TD>( 3)</TD><TD></TD></TR>
-  <TR><TD><CODE>BMAP_DATA </CODE></TD><TD>( 4)</TD><TD></TD></TR>
-  <TR><TD><CODE>FIG_DATA  </CODE></TD><TD>( 5)</TD><TD></TD></TR>
-  <TR><TD><CODE>TEXT_DATA </CODE></TD><TD>( 6)</TD><TD></TD></TR>
-  <TR><TD><CODE>PARTS_DATA</CODE></TD><TD>( 7)</TD><TD></TD></TR>
-  <TR><TD><CODE>MENU_DATA </CODE></TD><TD>( 8)</TD><TD></TD></TR>
-  <TR><TD><CODE>GMENU_DATA</CODE></TD><TD>( 9)</TD><TD></TD></TR>
-  <TR><TD><CODE>PANEL_DATA</CODE></TD><TD>(10)</TD><TD></TD></TR>
-  <TR><TD colspan="3"></TD></TR>
-  <TR><TD><CODE>USER_DATA </CODE></TD><TD>(64〜)</TD><TD></TD></TR>
+<TABLE border=1 cellSpacing=0 cellPadding=4>
+  <TR><TH>Тип даних ID</TH><TH>Значення</TH><TH>Опис ресурсу</TH></TR>
+  <TR><TD><CODE>PTR_DATA</CODE></TD><TD>1</TD><TD>Растрові маски вказівників курсора</TD></TR>
+  <TR><TD><CODE>PICT_DATA</CODE></TD><TD>2</TD><TD>Графічні піктограми системних об'єктів</TD></TR>
+  <TR><TD><CODE>PAT_DATA</CODE></TD><TD>3</TD><TD>Візерунки штриховки та растрові патерни</TD></TR>
+  <TR><TD><CODE>BMAP_DATA</CODE></TD><TD>4</TD><TD>Растрові зображення BitMap</TD></TR>
+  <TR><TD><CODE>FIG_DATA</CODE></TD><TD>5</TD><TD>Векторні графічні сегменти</TD></TR>
+  <TR><TD><CODE>TEXT_DATA</CODE></TD><TD>6</TD><TD>Текстові масиви TRON Code</TD></TR>
+  <TR><TD><CODE>PARTS_DATA</CODE></TD><TD>7</TD><TD>Описи елементів інтерфейсу (віджетів)</TD></TR>
+  <TR><TD><CODE>MENU_DATA</CODE></TD><TD>8</TD><TD>Описи системних меню</TD></TR>
+  <TR><TD><CODE>PANEL_DATA</CODE></TD><TD>10</TD><TD>Описи діалогових панелей</TD></TR>
+  <TR><TD><CODE>USER_DATA</CODE></TD><TD>64+</TD><TD>Прикладні ресурси додатків користувача</TD></TR>
 </TABLE>
 
-<P>
-  、
-  ()、
-  64 ID。
-</P>
-<P>
-  ID、
-  。
-</P>
+<H3><A name="akj">3.6.2 Системні виклики Менеджера даних</A></H3>
 
-<H4><A name="akg">3.6.1.3 </A></H4>
-
-<P>
-  、
-  、
-  (  )
-  。、
-   (  ) 々。
-  、。
-</P>
-<P>
-  、ID、
-  、
-  、
-  、
-  。
-  、、
-  。
-  、ID、、
-  。
-</P>
-<P>
-  、
-  。
-  。
-  、、。
-</P>
-<P>
-  、
-  、
-  。
-  、
-  。
-  、。
-</P>
-
-<H4><A name="akh">3.6.1.4 </A></H4>
-
-<P>
-  1。
-  「」。
-</P>
-<P>
-  、1 、 1 、
-  1 、
-  。
-</P>
-<P>
-  1、
-  、
-  、
-  、
-  、。
-</P>
-<P>
-  、
-  。
-</P>
-
-<A name="aki">
-  <CENTER><IMG src="gif/struct.gif" alt=""></CENTER>
-</A>
-<CENTER> 108 : </CENTER>
-
-<P>
-  、
-  ID、
-  。
-</P>
-<P>
-  、
-  ID、
-  。
-</P>
-
-<P>
-  16。
-</P>
-
-<PRE>
-    typedef struct {
-        H   ntyp;       /* ID */
-        H   ixsize;     /*  */
-        H   resv[6];    /*  */
-    } DBOX_HDR;
-</PRE>
-
-<P>
-  、。
-</P>
-
-<PRE>
-    typedef struct {
-        W   npos;        /*  */
-        W   typ;         /* ID */
-        UW  attr;        /* () */
-        W   nd;          /*  */
-        DNUM_INX dix[1]; /*  (nd ) */
-    } DTYP_INX;
-</PRE>
-
-<UL>
-
- <LI> 、。
- <LI> 、 。
-</UL>
-<PRE>
-        attr: xxxx .. xxxx xxxL
-</PRE>
-<DL>
- <DT><CODE>L:</CODE> 
- <DD>1、 、。 。<BR>
-     0、 、。
- <DT><CODE>x:</CODE>
- <DD> (0)
-</DL>
-
-<P>
-  20、
-  、
-  、
-  。
-</P>
-
-<PRE>
-    typedef struct {
-        W   id;         /*  */
-        W   pos;        /*  */
-        W   size;       /*  */
-        W   info[2];    /*  */
-    } DNUM_INX;
-</PRE>
-
-<P>
-  1 、
-   32K 。
-  、、
-   1 。
-</P>
-<P>
-  、
-  、
-  、。
-</P>
-
-<H3><A name="akj">3.6.2 ／</A></H3>
-
-<H4><A name="akk">3.6.2.1 ／</A></H4>
-
-<H5>□ ID</H5>
-
-<PRE>
-#define PTR_DATA    1   /*  */
-#define PICT_DATA   2   /*  */
-#define PAT_DATA    3   /*  */
-#define BMAP_DATA   4   /*  */
-#define FIG_DATA    5   /*  */
-#define TEXT_DATA   6   /*  */
-#define PARTS_DATA  7   /*  */
-#define MENU_DATA   8   /*  */
-#define GMENU_DATA  9   /*  */
-#define PANEL_DATA  10  /*  */
-#define USER_DATA   64  /*  */
-</PRE>
-
-<H5>□ </H5>
-
-<PRE>
-typedef struct {
-    H   ntyp;       /* ID */
-    H   ixsize;     /*  */
-    H   resv[6];
-} DBOX_HDR;
-</PRE>
-
-<PRE>
-typedef struct {
-    W   id;         /*  */
-    W   pos;        /*  */
-    W   size;       /*  */
-    W   info[2];    /*  */
-} DNUM_INX;
-</PRE>
-
-<PRE>
-typedef struct {
-    W   npos;           /*  */
-    W   typ;            /* ID */
-    UW  attr;           /* () */
-    W   nd;             /*  */
-    DNUM_INX dix[1];    /*  (nd ) */
-} DTYP_INX;
-</PRE>
-
-<H4><A name="akl">3.6.2.2 </A></H4>
-
-<H5>□  (<CODE>PTR_DATA</CODE>)</H5>
-
-<P>
-  、、
-  <CODE>hotpt</CODE> 、
-   <CODE>PTRIMAGE</CODE>
-  。
-</P>
-<PRE>
-    W       p_size          --  ()
-    COLOR   fgcol           -- 
-    COLOR   bgcol           -- 
-    PNT     hotpt           -- 
-    B       data[P_SIZE]    -- 
-    B       mask[P_SIZE]    -- 
-</PRE>
-
-<P>
-  <CODE>P_SIZE</CODE> 、。
-</P>
-
-<PRE>
-    16 x 16  :  32
-    24 x 24  :  96
-    32 x 32  : 128
-    48 x 48  : 288
-</PRE>
-
-<P>
-  0〜99、。
-</P>
-
-<PRE>
-        0  : (PS_SELECT): 
-        1  : (PS_MODIFY): 
-        2  : (PS_MOVE)  : 
-        3  : (PS_VMOVE) : ()
-        4  : (PS_HMOVE) : ()
-        5  : (PS_GRIP)  : 
-        6  : (PS_VGRIP) : ()
-        7  : (PS_HGRIP) : ()
-        8  : (PS_RSIZ)  : 
-        9  : (PS_VRSIZ) : ()
-        10 : (PS_HRSIZ) : ()
-        11 : (PS_PICK)  : 
-        12 : (PS_VPICK) : ()
-        13 : (PS_HPICK) : ()
-        14 : (PS_BUSY)  : ()
-        15 : (PS_MENU)  : 
-        16〜99  : ()
-</PRE>
-
-<H5>□  (<CODE>PICT_DATA</CODE>)</H5>
-
-<P>
-  。
-</P>
-
-<P>
-  0〜99、
-  。
-</P>
-
-<H5>□  (<CODE>PAT_DATA</CODE>)</H5>
-
-<P>
-  、
-  
-  <CODE>PATTERN</CODE> 、
-  2。
-</P>
-
-<A name="akm">
-  <CENTER><IMG src="gif/pat_data.gif" alt=""></CENTER>
-</A>
-<CENTER> 109 : </CENTER>
-
-<P>
-  <CODE>off_xxxx</CODE> 、
-  、 、
-  、、
-  、
-   <CODE>PAT</CODE> 。
-  、<CODE>dopn_dat()</CODE> 、
-  <CODE>ddef_dat()</CODE>、<CODE>ddef_ldt()</CODE> 。
-</P>
-<P>
-  0〜99、。
-</P>
-
-<H5>□  (<CODE>BMAP_DATA</CODE>)</H5>
-
-<P>
-  、
-   <CODE>C_BMP</CODE> 、
-  。
-</P>
-
-<A name="akn">
-  <CENTER><IMG src="gif/bmap_data.gif" alt=""></CENTER>
-</A>
-<CENTER> 110 : </CENTER>
-
-<P>
-  <CODE>off_xxxx</CODE> 、
-  、 、
-  、、
-  、
-   <CODE>C_BMP</CODE> 。
-  、<CODE>dopn_dat()</CODE> 、
-  <CODE>ddef_dat(), ddef_ldt()</CODE>
-  。
-</P>
-
-<H5>□  (<CODE>FIG_DATA</CODE>)</H5>
-
-<P>
-  TAD 。
-</P>
-
-<H5>□  (TEXT_DATA)</H5>
-
-<P>
-  <CODE>TEXT_DATA</CODE> 、
-   <CODE>TNULL (0)</CODE> 。
-</P>
-
-<H5>□ </H5>
-
-<P>
-  、、
-   HMI 。
-</P>
-
-<H3><A name="ako">3.6.3 </A></H3>
-
-<P>
-  、。
-  、。
-</P>
-<P>
-  、、、
-  、
-  、、、
-  。
-</P>
-
+<!-- opn_dtb -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">dopn_dat</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-W   dopn_dat(LINK *lnk)
-</PRE>
-
-<H4>【Параметри】</H4>
-
-<PRE>
-LINK    *lnk    
-</PRE>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання(ID)
-＜0    
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>
-  <CODE>lnk</CODE> 、
-  。
-  、ID ( &gt; 0 ) 。
-  ID  ( <CODE>dcls_dat</CODE> ) 。
-</P>
-<P>
-  、
-  、
-  。
-  <CODE>lnk = NULL</CODE> 、
-  、 0 。
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-EX_ADR      : (lnk)。
-EX_DATA     : 。
-EX_DFMT     : 。
-EX_SDATA    : 。
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">dcls_dat</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR dcls_dat(W fid)
-</PRE>
-
-<H4>【Параметри】</H4>
-
-<PRE>
-W   fid ID
-</PRE>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання
-＜0    
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  <CODE>fid</CODE> 、
-  。
-  、、
-  。
-</P>
-<P>
-  <CODE>fid = 0</CODE> 、
-  、
-  、 <CODE>fid = 0</CODE> 
-  <CODE>dcls_dat()</CODE> 。
-</P>
-<P>
-  、
-  、
-  <CODE>dcls_dat()</CODE> 。
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-EX_FD   : ID。
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">dget_dtp</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD><FONT size="+2">opn_dtb</FONT></TD></TR>
+<TR><TD align="right">Open Data Box</TD></TR>
+<TR><TD>Відкриття датабоксу ресурсів</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR dget_dtp(W type, W dnum, void **datap)
+DTBID   opn_dtb(LINK *lnk, W mode)
 </PRE>
-
 <H4>【Параметри】</H4>
-
 <PRE>
-W       type    
-W       dnum    
-void    **datap 
+LINK   *lnk     Посилання на файл датабоксу (NULL — Системний датабокс)
+W       mode    Режим відкриття датабоксу
 </PRE>
-
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання
-＜0    
+> 0      Успішне виконання (Дескриптор датабоксу DTBID)
+< 0      Помилка (Код помилки)
 </PRE>
-
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>type</CODE> ID、
-  <CODE>dnum</CODE> 、
-   <CODE>*datap</CODE> 。
-</P>
-<P>
-  、、
-  、
-  。
-  、。
+  Відкриває файл ресурсового датабоксу lnk та завантажує його індексну таблицю у спільну оперативну пам'ять ядра.
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-
-EX_ADR  : (datap)。
-EX_DFMT : 。
-EX_DNUM : (type, dnum)。
-EX_PAR  : 。
-
+ER_ACCES   : Відсутні права доступу до файла датабоксу.
+ER_ADR     : Неприпустима адреса вказівника lnk.
+ER_NOEXS   : Зазначений файл датабоксу відсутній.
 </PRE>
 
+<!-- get_dat -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">dget_siz</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
+<TR><TD><FONT size="+2">get_dat</FONT></TD></TR>
+<TR><TD align="right">Get Data Item</TD></TR>
+<TR><TD>Отримання вказівника на ресурс з датабоксу</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-W   dget_siz(B *addr)
-</PRE>
-<H4>【Параметри】</H4>
-
-<PRE>
-B   *addr   
-</PRE>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання()
-＜0    
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>
-  <CODE>addr</CODE> 。
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-
-EX_AKEY : 。
-
-</PRE>
-
-
-
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">dget_num</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>／ID</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-W   dget_num(B *addr, W *type)
+VP      get_dat(UH type, H no)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-B   *addr   
-W   *type   ID
+UH      type    Тип даних ID (PICT_DATA, BMAP_DATA, PANEL_DATA тощо)
+H       no      Унікальний номер ресурсу
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання()
-＜0    
+!= NULL  Успішне виконання (Адреса ресурсу у спільній пам'яті)
+= NULL   Помилка (Ресурс з вказаним типом та номером відсутній)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>addr</CODE> 、
-  ID <CODE>type</CODE> 。
-  <CODE>type = NULL</CODE> 、ID。
+  Шукає ресурс за типом type та номером no серед усіх відкритих датабоксів процесу та повертає вказівник на його структуру у пам'яті.
 </P>
-
 <H4>【Коди помилок】</H4>
 <PRE>
-
-EX_ADR  : (type)。
-EX_AKEY : 。
-
+ER_PAR     : Неіснуючий тип даних type або від'ємний номер no.
 </PRE>
 
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">ddef_dat</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR ddef_dat(W type, W dnum, void *ptr, W size)
-</PRE>
-
-<H4>【Параметри】</H4>
-<PRE>
-W       type    
-W       dnum    
-void    *ptr    
-W       size    
-</PRE>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання
-＜0    
-</PRE>
-
-<H4>【Детальний опис】</H4>
-<P>
-  <CODE>ptr</CODE>  <CODE>size</CODE> 、
-  <CODE>type</CODE> ID、
-  <CODE>dnum</CODE> 。
-</P>
-<P>
-  、
-  、、
-  、。
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-EX_ADR  : (ptr)。
-EX_DFMT : 。
-EX_DNUM : (type, dnum)。
-EX_PAR  : 。
-
-</PRE>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">ddef_ldt</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD></TD></TR>
-</TABLE></TD></TR></TABLE>
-
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR ddef_ldt(W type, W dnum, void *ptr, W size)
-</PRE>
-
-<H4>【Параметри】</H4>
-
-<PRE>
-W       type    
-W       dnum    
-void    *ptr    
-W       size    
-</PRE>
-
-<H4>【Значення, що повертається】</H4>
-<PRE>
->= 0     Успішне виконання
-＜0    
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  <CODE>ptr</CODE>  <CODE>size</CODE> 、
-  <CODE>type</CODE> ID、<CODE>dnum</CODE>
-  。
-</P>
-<P>
-  、
-  、
-  、
-  。
-</P>
-<P>
-  、
-  、、
-  、。
-</P>
-
-<H4>【Коди помилок】</H4>
-<PRE>
-
-EX_ADR  : (ptr)。
-EX_DFMT : 。
-EX_PAR  : 。
-
-</PRE>
 <HR>
-<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
-<A href="tray.html">Попередня сторінка: 3.5  (Повернутися)</A><BR>
-<A href="tip.html">Наступна сторінка: 3.7  (Перейти)</A><BR>
+<A href="../index.html">Повернутися до змісту специфікації BTRON3</A><BR>
+<A href="parts.html">Попередня сторінка: 3.5 Елементи інтерфейсу та віджети (Повернутися)</A><BR>
+<A href="font_mgr.html">Наступна сторінка: 3.7 Менеджер шрифтів (Перейти)</A><BR>
 </BODY>
 </HTML>
