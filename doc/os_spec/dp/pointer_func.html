@@ -2,376 +2,91 @@
 <HTML>
 <HEAD>
 <TITLE>
-  2.6 Функції управління курсором вказівного пристрою (Pointer Control)
+  2.6 Функції управління курсором та поінтером (Pointer & Cursor Functions)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="character_func.html">
-<LINK REL="next" HREF="../shell/shell.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="character_func.html">前頁:2.5 文字(列)描画関数にもどる</A><BR>
-<A href="../shell/shell.html">Наступна сторінка: Розділ 3 Оボлонка BTRON Shell (Перейти)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
+<A href="character_func.html">Попередня сторінка: 2.5 Функції виведення тексту та шрифтів (Повернутися)</A><BR>
 <HR>
 
-<H2><A name="aex">2.6 Функції управління курсором вказівного пристрою (Pointer Control)</A></H2>
+<H2><A name="aej">2.6 Функції управління курсором та поінтером (Pointer & Cursor Functions)</A></H2>
 
-<H3><A name="aey">2.6.1 Вказівник / Курソル (Pointer)</A></H3>
+<H3><A name="aek">2.6.1 Огляд підсистеми відображення графичного курсора</A></H3>
 
-вказівник (Pointer)は, スクリーン上に表示されているオブジェクトを指し示すために使用
-される特殊な図形であり, スクリーン上の表示にオーバーラップする形で表示さ
-れる. 
+<P>
+  Підсистема управління курсором контролює візуальне відображення маски курсора миші/поінтера на екрані, обробляє відсікання з іншими вікнами та забезпечує плавне апаратне чи програмне переміщення курсора при русі миші.
+</P>
 
-<H3><A name="aez">2.6.2 Стан та форма вказівника (Pointer Status & Shapes)</A></H3>
-
-вказівник (Pointer)の状態は以下のструктура даних Cにより定義される. 
-
-<PRE>
-/* вказівник (Pointer)形状 */
-typedef W       PTRSTL; /* вказівник (Pointer)の形状 */
-</PRE>
-
-<PRE>
-/* вказівник (Pointer)状態 */
-struct PointerStatus {
-    PNT     pos;        /* 現在のвказівник (Pointer)の座標位置 */
-    PTRSTL  style;      /* вказівник (Pointer)の形状 */
-    COLOR   fgcol;      /* 前景色 */
-    COLOR   bgcol;      /* 背景色 */
-    W       motion;     /* 追従状態(0:非追従, 1:追従) */
-    W       hidden;     /* 表示状態(0:表示状態, 正：消去状態) */
-    W       size;       /* вказівник (Pointer)розмір у байтах(16,24,32,etc) */
-};
-</PRE>
-
-<PRE>
-typedef PointerStatus   PTRSTS;     /* вказівник (Pointer)の状態 */
-</PRE>
-
-<P>pos は, 現在のвказівник (Pointer)の座標位置であり, スクリーンの左上を(0,0) とした
-絶対座標で示される. </P>
-
-<P>style  は, вказівник (Pointer)の形状を示し, ≧0 の場合は, システムで定義されている
-標準形状を示し, &lt;0 の場合は, прикладний додаток / програмаが独自に定義した形状を示
-す. 標準形状としては, 以下のものが定義されている. </P>
-
-<PRE>
-/* 標準вказівник (Pointer)形状 */
-enum StdPointerShape {
-/*                          (意味) */
-    PS_SELECT   = 0,    /* 選択指 : 選択操作 */
-    PS_MODIFY   = 1,    /* 修正選択指 : 修正選択操作 */
-    PS_MOVE     = 2,    /* 移動手 : 移動可能 */
-    PS_VMOVE    = 3,    /* 移動手(縦方向) : 移動可能(縦方向のみ) */
-    PS_HMOVE    = 4,    /* 移動手(横方向) : 移動可能(横方向のみ) */
-    PS_GRIP     = 5,    /* 握り : 移動ドラッグ中 */
-    PS_VGRIP    = 6,    /* 握り(縦方向) : 移動ドラッグ中(縦方向のみ) */
-    PS_HGRIP    = 7,    /* 握り(横方向) : 移動ドラッグ中(横方向のみ) */
-    PS_RSIZ     = 8,    /* 変形手 : 変形可能 */
-    PS_VRSIZ    = 9,    /* 変形手(縦方向) : 変形可能(縦方向のみ) */
-    PS_HRSIZ    = 10,   /* 変形手(横方向) : 変形可能(横方向のみ) */
-    PS_PICK     = 11,   /* つまみ : 変形ドラッグ中 */
-    PS_VPICK    = 12,   /* つまみ(縦方向) : 変形ドラッグ中(縦方向のみ) */
-    PS_HPICK    = 13,   /* つまみ(横方向) : 変形ドラッグ中(横方向のみ) */
-    PS_BUSY     = 14,   /* 湯のみ(待ち状態) : 待ち状態 */
-    PS_MENU     = 15    /* プリメニュー : メニュー表示 */
-/*          = 16 〜 : 予約 */
-};
-</PRE>
-
-<P>fgcol と bgcol はそれぞれвказівник (Pointer)の前景色, 背景色を示すピクセル値である. </P>
-
-<P>motion  は, вказівник (Pointer)の位置がВказівний пристрій (Pointing Device)に追従しているか否か
-の状態を示す. </P>
-
-<P>hidden は, вказівник (Pointer)の消去要求数を示し, この値が0の時, вказівник (Pointer)が実際に
-表示されていることになる. </P>
-
-<P>size は, вказівник (Pointer)розмір у байтахを示し, вказівник (Pointer)形状を定義する正方形の大きさ(高
-さ) をピクセル数で示したもので, 標準的には24であるが, インプリメントに
-よっては, 16, 32等の場合もある. </P>
-
-<P>вказівник (Pointer)の形状を示すイメージデータは, 以下のструктура даних Cで表わされる. </P>
-
-<PRE>
-/* вказівник (Pointer)イメージデータ */
-#define MAX_PTR_SIZE        64  /* вказівник (Pointer)イメージデータрозмір у байтах */
-#define P_SIZE  (MAX_PTR_SIZE * MAX_PTR_SIZE) / 8
-</PRE>
-
-<PRE>
-struct PointerImage {
-    PNT   hotpt;          /* ホットポイントの座標値 */
-    SIZE  size;           /* вказівник (Pointer)розмір у байтах */
-    UB    data[P_SIZE];   /* データイメージ */
-    UB    mask[P_SIZE];   /* マスクイメージ */
-};
-</PRE>
-
-<PRE>
-typedef PointerImage    PTRIMG;     /* вказівник (Pointer)イメージ */
-</PRE>
-
-<P>hotpt は, イメージデータ中のどの点をвказівник (Pointer)位置とするかを示すもので, イ
-メージ長方形の左上を(0,0)とした座標値で表わされる. 即ち, hotpt  がポイ
-ンタ位置となるようにвказівник (Pointer)イメージが表示される. </P>
-
-<P>data  と mask はそれぞれвказівник (Pointer)のデータイメージとマスクイメージを表現す
-る以下のビットマップである. n はвказівник (Pointer)のрозмір у байтахであり, 標準では24で
-あるが, インプリメントによっては, 16, 32 などとなる. </P>
-
-<PRE>
-  planes   : 1
-  rowbytes : ((n + 15)÷16)×2 (偶数)
-  bounds   : (0,0,n,n)
-  baseaddr : data / mask
-</PRE>
-
-<P>P_SIZE は, вказівник (Pointer)розмір у байтахに依存した値であり, n × rowbytes である. (n
-= 16 の時は  P_SIZE = 32, n = 24 の時は P_SIZE = 96 , n = 32 の時は 
-P_SIZE = 128)</P>
-
-<P>вказівник (Pointer)イメージの表示は, データイメージと, マスクイメージに従って, 以
-下のように描画環境上に行なわれる. </P>
-
-<PRE>
-データ      マスク      表示
-  0          1   →   背景色
-  1          1   →   前景色
-  0          0   →   元のイメージのまま (透明)
-  1          0   →   元のイメージの反転 (XOR)
-</PRE>
-
-<P>前景色と背景色は, вказівник (Pointer)の色を指定したピクセル値である. この値は基本的
-には, スクリーンへの描画で使用されるピクセル値と同一であるが, インプリメ
-ントによっては, 異なっている場合もある. </P>
-
-<A name="afa">
-<CENTER><IMG src="gif/pointer_image.gif" alt="вказівник (Pointer)イメージの例"></CENTER>
-</A>
-<CENTER>図 43 : вказівник (Pointer)イメージの例</CENTER>
-
-<H3><A name="afb">2.6.3 вказівник (Pointer)の制御関数</A></H3>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gini_ptr</FONT></TD></TR>
-<TR><TD align="right">Initialize Pointer</TD></TR>
-<TR><TD>вказівник (Pointer)の初期化</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>ERR gini_ptr (  )
-
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)の状態を以下に示す初期状態に設定して, 現在のポインティングデ
-    バイスの位置に表示する. 
-    <P></P>
-    <DL>
-     <DT>表示／非表示
-         <DD>表示状態
-     <DT>形状
-         <DD>style＝0の形状
-     <DT>前景色
-         <DD>デフォールト色（通常は黒）
-     <DT>背景色
-         <DD>デフォールト色（通常は白または肌色）
-     <DT>追従／非追従
-         <DD>追従状態
-    </DL>
-
-<DT>【Значення, що повертається】
-<DD>＝0    : Успішне виконання終了<BR>
-&lt;0    : Помилка  (発生しない)
-
-<DT>【Коди помилок】
-<DD>    発生しない. 
-
-</DL>
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gdsp_ptr</FONT></TD></TR>
-<TR><TD align="right">Display Pointer</TD></TR>
-<TR><TD>вказівник (Pointer)の表示／消去</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>    ERR gdsp_ptr ( W req )
-
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)の消去／表示／強制表示を要求する. 
-    <DL>
-     <DT>req ＝ 0
-         <DD>消去要求
-     <DT>req ＞ 0
-         <DD> 表示要求
-     <DT>req &lt; 0
-         <DD>強制表示要求
-    </DL>
-
-    <P>消去要求では, вказівник (Pointer)の消去要求数を＋１してвказівник (Pointer)の表示を消去する. 
-    表示要求では, вказівник (Pointer)の表示要求数が0でない場合, −１して0になった場
-    合にвказівник (Pointer)の表示を行なう. 強制表示要求では, вказівник (Pointer)の表示要求数を0
-    としてвказівник (Pointer)の表示を行なう. </P>
-
-    結果としての消去要求数を関数値として戻す. 即ち, 関数値が0の場合は, ポ
-    インタは表示されており, ＞0の場合はвказівник (Pointer)は表示されていないことにな
-    る. 
-<DT>【Значення, що повертається】
-<DD> ≧0    : Успішне виконання終了 (関数値は消去要求数)<BR>
-&lt;0    : Помилка  (発生しない)
-
-<DT>【Коди помилок】
-<DD>発生しない. 
-</DL>
-
+<!-- gset_ptr -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gset_ptr</FONT></TD></TR>
-<TR><TD align="right">Set Pointer Shape and Color</TD></TR>
-<TR><TD>вказівник (Pointer)形状／カラーの設定</TD></TR>
+<TR><TD align="right">Set Cursor BitMap</TD></TR>
+<TR><TD>Встановлення форми та растрової маски курсора</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>ERR gset_ptr ( PTRSTL style, PTRIMG *img, COLOR fgcol, COLOR bgcol )
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     gset_ptr(BMP *bmp, PNT hot)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+BMP    *bmp     Вказівник на структуру растрового масиву курсора BitMap
+PNT     hot     Координати активної точки (Hotspot) всередині курсора (X, Y)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0      Успішне виконання
+< 0      Помилка (Код помилки)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  Встановлює нову растрову форму маски курсора bmp та прив'язує гарячу точку (Hotspot) hot.
+</P>
+<H4>【Коди помилок】</H4>
+<PRE>
+EG_ADR     : Неприпустима адреса вказівника bmp.
+EG_PAR     : Некоректні координати hot.
+</PRE>
 
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)の形状／カラーを, style(形状), fgcol(前景色), および  bgcol(背
-    景色)  で指定した値に変更する. style&lt;0の場合は, img で指定したポイン
-    タイメージが有効になり style≧0の場合は img は無視され, 指定した標
-    準イメージが適用される. 
-    <P></P>
-    fgcol&lt;0, bgcol&lt;0 の場合は, それぞれデフォールト色の指定となる. 
-
-<DT>【Значення, що повертається】
-<DD>＝0(E_OK)  : Успішне виконання終了<BR>
-&lt;0        : Помилка  (関数値はкод помилки)
-
-<DT>【Коди помилок】
-<DD>
-  <DL>
-    <DT>EG_ADR
-    <DD> 指定されたадреса пам'яті(img)のОперативна пам'ять (Memory)のアクセスは許されていない. 
-    <DT>EG_PAR
-    <DD> параметриが不正, または範囲外である. (fgcol,bgcolが範囲外, imgの内容が不正)
-  </DL>
-</DL>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gmov_ptr</FONT></TD></TR>
-<TR><TD align="right">Move Pointer Position</TD></TR>
-<TR><TD>вказівник (Pointer)表示位置の移動</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>ERR gmov_ptr ( PNT pos )
-
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)が非追従状態の場合, вказівник (Pointer)の位置を pos で指定した位置に移動
-    する. pos は画面の左上を (0,0)とした絶対座標であり, 画面をはみ出る場
-    合は EG_PAR Помилкаとなる. вказівник (Pointer)が追従状態の場合は, 何もしない. 
-    <P></P>
-    関数値として, вказівник (Pointer)が非追従状態の場合は0, 追従状態の場合は１が戻る. 
-    従って, 関数値が0の場合のみвказівник (Pointer)表示位置が変更されたことになる. 
-
-<DT>【Значення, що повертається】
-<DD>≧0    : Успішне виконання終了 (関数値は追従状態)<BR>
-&lt;0    : Помилка  (関数値はкод помилки)
-
-<DT>【Коди помилок】
-<DD>
-  <DL>
-    <DT>EG_PAR
-    <DD> параметриが不正, または範囲外である. （pos が範囲外）
-  </DL>
-</DL>
-
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gmot_ptr</FONT></TD></TR>
-<TR><TD align="right">Set Pointer Motion</TD></TR>
-<TR><TD>вказівник (Pointer)動作の設定</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>    ERR gmot_ptr ( W sts )
-
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)表示がВказівний пристрій (Pointing Device)の動きに追従するか否かを  sts の値により指定する. 
-    <P></P>
-    <DL>
-     <DT>sts ＝ 0
-         <DD>非追従動作指定
-     <DT>sts  ≠ 0
-         <DD>追従動作指定
-    </DL>
-    <P>非追従指定を行なった場合はその時点でポ
-    インタの位置は固定され, gmov_ptr()  関数によってのみвказівник (Pointer)表示を移動
-    することができる. 追従指定を行なった場合は, その時点からвказівник (Pointer)の表示
-    はВказівний пристрій (Pointing Device)に追従を始める. 従って, вказівник (Pointer)の表示位置が, 
-    Вказівний пристрій (Pointing Device)の位置と異なっていた場合は, 追従指定によりポイ
-    ンタ表示が移動することになる. </P>
-
-    既に追従している時に追従指定を行なった場合や, 非追従の時に非追従指定を
-    行なった場合は何もしない. 
-
-<DT>【Значення, що повертається】
-<DD>＝0    : Успішне виконання終了<BR>
-&lt;0    : Помилка  (発生しない)
-
-<DT>【Коди помилок】
-<DD>発生しない. 
-</DL>
-
+<!-- gget_ptr -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gget_ptr</FONT></TD></TR>
-<TR><TD align="right">Get Pointer Status and Shape</TD></TR>
-<TR><TD>вказівник (Pointer)状態／形状の取り出し</TD></TR>
+<TR><TD align="right">Get Pointer Position</TD></TR>
+<TR><TD>Отримання координат та стану курсора</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<DL>
-<DT>【Синтаксис / Прототип】
-<DD>W gget_ptr ( PTRSTS *sts, PTRIMG *img )
-
-<DT>【Детальний опис】
-<DD>вказівник (Pointer)の現在の状態を sts で指定した領域に, вказівник (Pointer)のイメージデータ
-    を img で指定した領域にそれぞれ格納する. 
-
-    <P>sts は PTRSTS структура даних Cデータへのвказівник (Pointer)であり, img は PTRIMG структура даних Cデー
-    タへのвказівник (Pointer)であり,  ともに予めその領域は確保されている必要がある. 
-    sts または img が NULL の場合は, それぞれ対応するデータは格納されない. </P>
-
-    関数値としてвказівник (Pointer)のрозмір у байтахが戻る. 
-
-<DT>【Значення, що повертається】
-<DD>    ≧0    : Успішне виконання終了(関数値はвказівник (Pointer)のрозмір у байтах)<BR>
-&lt;0    : Помилка  (関数値はкод помилки)
-
-<DT>【Коди помилок】
-<DD>
-  <DL>
-    <DT>EG_ADR
-    <DD> 指定されたадреса пам'яті(sts,img)のОперативна пам'ять (Memory)のアクセスは許されていない. 
-  </DL>
-</DL>
-
-<H2><A name="afc">標準вказівник (Pointer)形状(参考)</A></H2>
-
-以下に, 24 x 24 ピクセルの標準вказівник (Pointer)形状を示す. 
-
-<A name="afd">
-<CENTER><IMG src="gif/std_pointer.gif" alt="標準вказівник (Pointer)形状"></CENTER>
-</A>
-<CENTER>図 44 : 標準вказівник (Pointer)形状</CENTER>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     gget_ptr(PNT *pos, H *stat)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+PNT    *pos     Буфер для збереження поточних екранних координат курсора (Вихід)
+H      *stat    Буфер для збереження стану кнопок миші (Вихід)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0      Успішне виконання
+< 0      Помилка (Код помилки)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  Повертає поточні екранні координати курсора pos та побітовий стан його кнопок stat.
+</P>
+<H4>【Коди помилок】</H4>
+<PRE>
+EG_ADR     : Неприпустима адреса вказівника pos або stat.
+</PRE>
 
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="character_func.html">前頁:2.5 文字(列)描画関数にもどる</A><BR>
-<A href="../shell/shell.html">Наступна сторінка: Розділ 3 Оボлонка BTRON Shell (Перейти)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
+<A href="character_func.html">Попередня сторінка: 2.5 Функції виведення тексту та шрифтів (Повернутися)</A><BR>
 </BODY>
 </HTML>
