@@ -14,52 +14,69 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../kernel/system.html">前頁:1.10 システム管理функціонал / підсистемаにもどる</A><BR>
-<A href="intro.html">次頁:2.1 Вступ (Introduction)にすすむ</A><BR>
+<A href="../kernel/system.html">Попередня сторінка: 1.10 Загальне системне управління (Повернутися)</A><BR>
+<A href="intro.html">Наступна сторінка: 2.1 Вступ (Перейти)</A><BR>
 <HR>
 
-<H1><A name="acv">Розділ 2: Графічні примітиви (Display Primitives)</A></H1>
-<HR>
-<DL>
- <DT><a href="dp.html#acv">Розділ 2: Графічні примітиви (Display Primitives)</A>
- <DD><DL>
-      <DT><a href="intro.html#acw">2.1 Вступ (Introduction)</A>
-      <DD><a href="intro.html#acx">2.1.1 ディスプレイプリミティブの概要</A>
-      <DT><a href="basic_concept.html#acy">2.2 Базові концепції (Basic Concepts)</A>
-      <DD><a href="basic_concept.html#acz">2.2.1 Координатна система, Точки, Пряモкутники</A><BR>
-          <a href="basic_concept.html#ada">2.2.2 ビットマップ</A><BR>
-          <a href="basic_concept.html#adh">2.2.3 カラー表現</A><BR>
-          <a href="basic_concept.html#adj">2.2.4 描画環境</A>
-      <DT><a href="basic_func.html#adu">2.3 Базові функції графічного порту (Basic Display Functions)</A>
-      <DD><a href="basic_func.html#adv">2.3.1 描画環境の生成／削除</A><BR>
-          <a href="basic_func.html#adw">2.3.2 カラーマップの操作</A><BR>
-          <a href="basic_func.html#adx">2.3.3 描画環境Запис (Record)のアクセス</A><BR>
-          <a href="basic_func.html#aea">2.3.4 座標変換</A>
-      <DT><a href="figure_func.html#aeb">2.4 Функції малювання геометричних фігур (Figure Functions)</A>
-      <DD><a href="figure_func.html#aec">2.4.1 直線／点の描画</A><BR>
-          <a href="figure_func.html#aee">2.4.2 長方形の描画</A><BR>
-          <a href="figure_func.html#aeg">2.4.3 角丸長方形の描画</A><BR>
-          <a href="figure_func.html#aeh">2.4.4 楕円(円)の描画</A><BR>
-          <a href="figure_func.html#aej">2.4.5 弧／扇形／弓形の描画</A><BR>
-          <a href="figure_func.html#aek">2.4.6 多角形(直線列)の描画</A><BR>
-          <a href="figure_func.html#aem">2.4.7 任意図形の描画</A><BR>
-          <a href="figure_func.html#aen">2.4.8 曲線の描画</A><BR>
-          <a href="figure_func.html#aeo">2.4.9 ビットマップの操作</A><BR>
-          <a href="figure_func.html#aer">2.4.10 ピッキング処理</A>
-      <DT><a href="character_func.html#aes">2.5 文字(列)描画関数</A>
-      <DD><a href="character_func.html#aet">2.5.1 描画環境Запис (Record)アクセス</A><BR>
-          <a href="character_func.html#aeu">2.5.2 文字(列)チェック関数</A><BR>
-          <a href="character_func.html#aev">2.5.3 文字(列)の描画関数</A>
-      <DT><a href="pointer_func.html#aex">2.6 Функції управління курсором вказівного пристрою (Pointer Control)</A>
-      <DD><a href="pointer_func.html#aey">2.6.1 Вказівник / Курソル (Pointer)</A><BR>
-          <a href="pointer_func.html#aez">2.6.2 Стан та форма вказівника (Pointer Status & Shapes)</A><BR>
-          <a href="pointer_func.html#afb">2.6.3 вказівник (Pointer)の制御関数</A><BR>
-          <a href="pointer_func.html#afc">標準вказівник (Pointer)形状(参考)</A>
-     </DL>
-</DL>
+<H2><A name="acx">Розділ 2: Графічні примітиви (Display Primitives)</A></H2>
+
+<H3>Зміст розділу 2</H3>
+
+<UL>
+  <LI><A href="intro.html">2.1 Вступ та огляд підсистеми (Introduction)</A>
+  <BR><BR>
+  <LI><A href="basic_concept.html#acy">2.2 Базові графічні концепції (Basic Concepts)</A>
+  <UL>
+    <LI><A href="basic_concept.html#acz">2.2.1 Координатна система, Точки, Прямокутники</A>
+    <LI><A href="basic_concept.html#ada">2.2.2 Регіони малювання (Regions)</A>
+    <LI><A href="basic_concept.html#adb">2.2.3 Атрибути малювання та растрові режими</A>
+    <LI><A href="basic_concept.html#adc">2.2.4 Шаблони заливки (Patterns)</A>
+    <LI><A href="basic_concept.html#add">2.2.5 Ієрархія бітових карт (Pixel Trees)</A>
+    <LI><A href="basic_concept.html#ade">2.2.6 Площини та шари малювання (Planes & Layers)</A>
+  </UL>
+  <BR>
+
+  <LI><A href="basic_func.html#adf">2.3 Базові функції графічного порту (Basic Display Functions)</A>
+  <UL>
+    <LI><A href="basic_func.html#adg">2.3.1 Огляд базових функцій</A>
+    <LI><A href="basic_func.html#adh">2.3.2 Управління графічним портом (Display Context)</A>
+    <LI><A href="basic_func.html#adi">2.3.3 Робота з регіонами (Region Operations)</A>
+    <LI><A href="basic_func.html#adj">2.3.4 Управління палітрою кольорів (Color Maps)</A>
+    <LI><A href="basic_func.html#adk">2.3.5 Визначення типів даних та констант</A>
+    <LI><A href="basic_func.html#adl">2.3.6 Системні виклики графічного порту</A>
+  </UL>
+  <BR>
+
+  <LI><A href="figure_func.html#adm">2.4 Функції малювання геометричних фігур (Figure Drawing Functions)</A>
+  <UL>
+    <LI><A href="figure_func.html#adn">2.4.1 Огляд векторного малювання</A>
+    <LI><A href="figure_func.html#ado">2.4.2 Малювання точок, ліній та ламаних</A>
+    <LI><A href="figure_func.html#adp">2.4.3 Малювання прямокутників та дуг</A>
+    <LI><A href="figure_func.html#adq">2.4.4 Малювання багатокутників та еліпсів</A>
+    <LI><A href="figure_func.html#adr">2.4.5 Операції над растровими бітовими картами (BitBlt)</A>
+    <LI><A href="figure_func.html#ads">2.4.6 Системні виклики малювання фігур</A>
+  </UL>
+  <BR>
+
+  <LI><A href="character_func.html#adt">2.5 Функції виводу тексту та системних шрифтів (Text & Font Functions)</A>
+  <UL>
+    <LI><A href="character_func.html#adu">2.5.1 Огляд текстового рендерингу</A>
+    <LI><A href="character_func.html#adv">2.5.2 Стилі, гарнітури та пропорції шрифтів</A>
+    <LI><A href="character_func.html#adw">2.5.3 Системні виклики виводу тексту</A>
+  </UL>
+  <BR>
+
+  <LI><A href="pointer_func.html#aex">2.6 Функції вказівника та курсора (Pointer & Cursor Functions)</A>
+  <UL>
+    <LI><A href="pointer_func.html#aey">2.6.1 Вказівник / Курсор (Pointer)</A>
+    <LI><A href="pointer_func.html#aez">2.6.2 Стан та форма вказівника (Pointer Status & Shapes)</A>
+    <LI><A href="pointer_func.html#afa">2.6.3 Системні виклики управління курсором</A>
+  </UL>
+</UL>
+
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../kernel/system.html">前頁:1.10 システム管理функціонал / підсистемаにもどる</A><BR>
-<A href="intro.html">次頁:2.1 Вступ (Introduction)にすすむ</A><BR>
+<A href="../kernel/system.html">Попередня сторінка: 1.10 Загальне системне управління (Повернутися)</A><BR>
+<A href="intro.html">Наступна сторінка: 2.1 Вступ (Перейти)</A><BR>
 </BODY>
 </HTML>

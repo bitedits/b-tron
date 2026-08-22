@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  Розділ 3: Оболонка BTRON (Shell Specification)
+  Розділ 3: Оболонка BTRON Shell (Shell Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="../dp/pointer_func.html">
@@ -14,149 +14,105 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../dp/pointer_func.html">前頁:2.6 Функції управління курсором вказівного пристрою (Pointer Control)にもどる</A><BR>
-<A href="window.html">次頁:3.1 ウィンドウマネージャにすすむ</A><BR>
+<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції вказівника та курсора (Повернутися)</A><BR>
+<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
 <HR>
 
-<H1><A name="afe">Розділ 3: Оболонка BTRON (Shell Specification)</A></H1>
-<HR>
-<DL>
- <DT><a href="shell.html#afe">Розділ 3: Оболонка BTRON (Shell Specification)</A>
- <DD><DL>
-      <DT><a href="window.html#aff">3.1 ウィンドウマネージャ</A>
-      <DD><a href="window.html#afg">3.1.1 ウィンドウマネージャのфункціонал / підсистема</A><BR>
-          <a href="window.html#afh">3.1.1.1 Загальний огляд</A><BR>
-          <a href="window.html#afi">3.1.1.2 ウィンドウ</A><BR>
-          <a href="window.html#afl">3.1.1.3 ウィンドウの表示</A><BR>
-          <a href="window.html#afu">3.1.1.4 ウィンドウの操作</A><BR>
-          <a href="window.html#afv">3.1.2 ウィンドウの管理</A><BR>
-          <a href="window.html#afw">3.1.2.1 ウィンドウとПроцес (Process)</A><BR>
-          <a href="window.html#afy">3.1.2.2 ウィンドウПодія (Event)</A><BR>
-          <a href="window.html#age">3.1.2.3 ウィンドウの再表示処理</A><BR>
-          <a href="window.html#agg">3.1.2.4 ウィンドウの表示管理</A><BR>
-          <a href="window.html#agi">3.1.2.5 ウィンドウの描画環境</A><BR>
-          <a href="window.html#agk">3.1.2.6 ウィンドウ情報Запис (Record)</A><BR>
-          <a href="window.html#agl">3.1.3 データ/定数の定義</A><BR>
-          <a href="window.html#agm">3.1.4 ウィンドウマネージャの関数</A>
-      <DT><a href="menu.html#agq">3.2 Менеджер меню (Menu Manager)</A>
-      <DD><a href="menu.html#agr">3.2.1 Менеджер меню (Menu Manager)のфункціонал / підсистема</A><BR>
-          <a href="menu.html#ags">3.2.1.1 概要</A><BR>
-          <a href="menu.html#agt">3.2.1.2 標準メニュー</A><BR>
-          <a href="menu.html#agv">3.2.1.3 標準メニューの操作</A><BR>
-          <a href="menu.html#agw">3.2.1.4 標準メニューのデータ構造</A><BR>
-          <a href="menu.html#ahc">3.2.1.5 汎用メニュー</A><BR>
-          <a href="menu.html#ahe">3.2.1.6 汎用メニューの操作</A><BR>
-          <a href="menu.html#ahf">3.2.1.7 汎用メニューのデータ構造</A><BR>
-          <a href="menu.html#ahj">3.2.2 データ／定数の定義</A><BR>
-          <a href="menu.html#ahk">3.2.3 Менеджер меню (Menu Manager)の関数</A>
-      <DT><a href="parts.html#ahn">3.3 Менеджер системних елементів (Parts Manager)</A>
-      <DD><a href="parts.html#aho">3.3.1 Менеджер системних елементів (Parts Manager)のфункціонал / підсистема</A><BR>
-          <a href="parts.html#ahp">3.3.1.1 概要</A><BR>
-          <a href="parts.html#ahq">3.3.1.2 パーツの種類</A><BR>
-          <a href="parts.html#ahr">3.3.1.3 パーツのデータ構造</A><BR>
-          <a href="parts.html#ahu">3.3.1.4 パーツの状態</A><BR>
-          <a href="parts.html#ahv">3.3.2 パーツの種類</A><BR>
-          <a href="parts.html#ahw">3.3.2.1 テキストボックス</A><BR>
-          <a href="parts.html#ahy">3.3.2.2 シークレットテキストボックス</A><BR>
-          <a href="parts.html#aia">3.3.2.3 数値ボックス</A><BR>
-          <a href="parts.html#aid">3.3.2.4 シリアルボックス</A><BR>
-          <a href="parts.html#aif">3.3.2.5 テキストオルタネートスイッチ</A><BR>
-          <a href="parts.html#aij">3.3.2.7 ピクトグラムオルタネートスイッチ</A><BR>
-          <a href="parts.html#ail">3.3.2.8 ピクトグラムモーメンタリスイッチ</A><BR>
-          <a href="parts.html#ain">3.3.2.9 スイッチセレクタ</A><BR>
-          <a href="parts.html#aip">3.3.2.10 スクロールセレクタ</A><BR>
-          <a href="parts.html#air">3.3.2.11 ボリューム</A><BR>
-          <a href="parts.html#aiv">3.3.3 データ／定数の定義</A><BR>
-          <a href="parts.html#aiw">3.3.4 Менеджер системних елементів (Parts Manager)の関数</A>
-      <DT><a href="panel.html#aix">3.4 Менеджер панелей (Panel Manager)</A>
-      <DD><a href="panel.html#aiy">3.4.1 Менеджер панелей (Panel Manager)のфункціонал / підсистема</A><BR>
-          <a href="panel.html#aiz">3.4.1.1 概要</A><BR>
-          <a href="panel.html#aja">3.4.1.2 パネル</A><BR>
-          <a href="panel.html#ajb">3.4.1.3 システムПовідомлення (Message)パネル</A><BR>
-          <a href="panel.html#ajd">3.4.1.4 パネルの表示形状</A><BR>
-          <a href="panel.html#ajg">3.4.1.5 パネルのデータ構造</A><BR>
-          <a href="panel.html#ajj">3.4.1.6 パネルの描画環境</A><BR>
-          <a href="panel.html#ajl">3.4.1.7 パネルの動作</A><BR>
-          <a href="panel.html#ajm">3.4.2 データ／定数の定義</A><BR>
-          <a href="panel.html#ajn">3.4.3 Менеджер панелей (Panel Manager)の関数</A>
-      <DT><a href="tray.html#ajo">3.5 トレーマネージャ</A>
-      <DD><a href="tray.html#ajp">3.5.1 トレーマネージャのфункціонал / підсистема</A><BR>
-          <a href="tray.html#ajq">3.5.1.1 概要</A><BR>
-          <a href="tray.html#ajr">3.5.1.2 トレー</A><BR>
-          <a href="tray.html#ajt">3.5.1.3 トレーの格納データ</A><BR>
-          <a href="tray.html#ajz">3.5.1.4 トレーの操作</A><BR>
-          <a href="tray.html#aka">3.5.2 データ／定数の定義</A><BR>
-          <a href="tray.html#akb">3.5.3 トレーマネージャの関数</A>
-      <DT><a href="data.html#akc">3.6 データマネージャ</A>
-      <DD><a href="data.html#akd">3.6.1 データマネージャのфункціонал / підсистема</A><BR>
-          <a href="data.html#ake">3.6.1.1 概要</A><BR>
-          <a href="data.html#akf">3.6.1.2 データタイプID／データ番号</A><BR>
-          <a href="data.html#akg">3.6.1.3 データマネージャの動作</A><BR>
-          <a href="data.html#akh">3.6.1.4 データボックスの構造</A><BR>
-          <a href="data.html#akj">3.6.2 データ／定数の定義</A><BR>
-          <a href="data.html#akk">3.6.2.1 データ／定数の定義</A><BR>
-          <a href="data.html#akl">3.6.2.2 標準データ形式</A><BR>
-          <a href="data.html#ako">3.6.3 データマネージャの関数</A>
-      <DT><a href="tip.html#akp">3.7 テキスト入力プリミティブ</A>
-      <DD><a href="tip.html#akq">3.7.1 テキスト入力プリミティブのфункціонал / підсистема</A><BR>
-          <a href="tip.html#akr">3.7.1.1 概要</A><BR>
-          <a href="tip.html#aks">3.7.1.2 テキスト入力プリミティブ</A><BR>
-          <a href="tip.html#aku">3.7.1.3 テキスト入力ポート</A><BR>
-          <a href="tip.html#akw">3.7.1.4 カレット表示</A><BR>
-          <a href="tip.html#aky">3.7.2 データタイプ/定数の定義</A><BR>
-          <a href="tip.html#akz">3.7.3 テキスト入力プリミティブの関数</A>
-      <DT><a href="omgr.html#ala">3.8 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)</A>
-      <DD><a href="omgr.html#alb">3.8.1 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)のфункціонал / підсистема</A><BR>
-          <a href="omgr.html#alc">3.8.1.1 概要</A><BR>
-          <a href="omgr.html#ald">3.8.1.2 Віртуальний об'єкт (Virtual Object)／Реальний об'єкт (Real Object)／虚身</A><BR>
-          <a href="omgr.html#alf">3.8.1.3 Віртуальний об'єкт (Virtual Object)の表示</A><BR>
-          <a href="omgr.html#alm">3.8.1.4 Віртуальний об'єкт (Virtual Object)の操作</A><BR>
-          <a href="omgr.html#aln">3.8.2 Віртуальний об'єкт (Virtual Object)の移動／複写</A><BR>
-          <a href="omgr.html#alp">3.8.2.1 付箋</A><BR>
-          <a href="omgr.html#alr">3.8.3 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)の詳細</A><BR>
-          <a href="omgr.html#als">3.8.3.1 Віртуальний об'єкт (Virtual Object)</A><BR>
-          <a href="omgr.html#alv">3.8.3.2 付箋</A><BR>
-          <a href="omgr.html#alw">3.8.3.3 прикладний додаток / програмаプログラム管理</A><BR>
-          <a href="omgr.html#alx">3.8.3.4 прикладний додаток / програмаプログラムの起動</A><BR>
-          <a href="omgr.html#aly">3.8.3.5 メニュー管理</A><BR>
-          <a href="omgr.html#alz">3.8.4 データ／定数の定義</A><BR>
-          <a href="omgr.html#ama">3.8.5 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)の関数</A><BR>
-          <a href="omgr.html#amb">3.8.6 прикладний додаток / програма支援関数</A>
-      <DT><a href="font_mgr.html#amc">3.9 Менеджер шрифтів (Font Manager)</A>
-      <DD><a href="font_mgr.html#amd">3.9.1 Менеджер шрифтів (Font Manager)のфункціонал / підсистема</A><BR>
-          <a href="font_mgr.html#ame">3.9.1.1 概要</A><BR>
-          <a href="font_mgr.html#amg">3.9.1.2 フォント</A><BR>
-          <a href="font_mgr.html#amj">3.9.1.3 フォントデータ</A><BR>
-          <a href="font_mgr.html#aml">3.9.1.4 フォントのアクセス</A><BR>
-          <a href="font_mgr.html#amt">3.9.2 データ／定数の定義</A><BR>
-          <a href="font_mgr.html#amu">3.9.3 Менеджер шрифтів (Font Manager)の関数</A><BR>
-          <a href="font_mgr.html#amv">3.9.4 標準フォントデータ形式</A>
-      <DT><a href="tcpip.html#anc">3.10 TCP/IPマネージャ</A>
-      <DD><a href="tcpip.html#and">3.10.1 構成</A><BR>
-          <a href="tcpip.html#anh">3.10.2 TCP/IP</A><BR>
-          <a href="tcpip.html#ani">3.10.3 код помилки</A><BR>
-          <a href="tcpip.html#anj">3.10.4 системний виклик (System Call)</A><BR>
-      <DT><a href="printmgr.html#ann">3.11 印刷マネージャ</A>
-      <DD><a href="printmgr.html#ano">3.11.1 印刷マネージャのфункціонал / підсистема</A><BR>
-          <a href="printmgr.html#anq">3.11.2 印刷管理</A><BR>
-          <a href="printmgr.html#anr">3.11.2.1 レイアウト用紙と印刷用紙</A><BR>
-          <a href="printmgr.html#ant">3.11.2.2 印刷管理のфункціонал / підсистема</A><BR>
-          <a href="printmgr.html#anu">3.11.2.3 印刷параметри</A><BR>
-          <a href="printmgr.html#anv">3.11.3 スプール管理</A><BR>
-          <a href="printmgr.html#anw">3.11.3.1 スプール管理のфункціонал / підсистема</A><BR>
-          <a href="printmgr.html#anx">3.11.3.2 印刷登録状態</A><BR>
-          <a href="printmgr.html#any">3.11.3.3 印刷終了Повідомлення (Message)</A><BR>
-          <a href="printmgr.html#anz">3.11.4 プリンタ管理</A><BR>
-          <a href="printmgr.html#aoa">3.11.4.1 プリンタ管理のфункціонал / підсистема</A><BR>
-          <a href="printmgr.html#aob">3.11.4.2 プリンタ構成情報</A><BR>
-          <a href="printmgr.html#aoc">3.11.5 データ／定数の定義</A><BR>
-          <a href="printmgr.html#aod">3.11.6 印刷マネージャの関数</A><BR>
-     </DL>
-</DL>
+<H2><A name="afb">Розділ 3: Оболонка BTRON Shell (Shell Specification)</A></H2>
+
+<H3>Зміст розділу 3</H3>
+
+<UL>
+  <LI><A href="window.html#afc">3.1 Менеджер вікон (Window Manager)</A>
+  <UL>
+    <LI><A href="window.html#afd">3.1.1 Огляд функцій менеджера вікон</A>
+    <LI><A href="window.html#afe">3.1.2 Ієрархія та типи вікон (Window Hierarchy & Types)</A>
+    <LI><A href="window.html#aff">3.1.3 Структура та операції над вікнами</A>
+    <LI><A href="window.html#afg">3.1.4 Відображення та стани вікон</A>
+    <LI><A href="window.html#afh">3.1.5 Робота з контекстом малювання вікна</A>
+    <LI><A href="window.html#afi">3.1.6 Визначення типів даних та констант</A>
+    <LI><A href="window.html#afj">3.1.7 Системні виклики менеджера вікон</A>
+  </UL>
+  <BR>
+
+  <LI><A href="menu.html#afk">3.2 Менеджер меню (Menu Manager)</A>
+  <UL>
+    <LI><A href="menu.html#afl">3.2.1 Огляд функцій менеджера меню</A>
+    <LI><A href="menu.html#afm">3.2.2 Меню першого рівня та випадаючі меню</A>
+    <LI><A href="menu.html#afn">3.2.3 Визначення типів даних та констант</A>
+    <LI><A href="menu.html#afo">3.2.4 Системні виклики менеджера меню</A>
+  </UL>
+  <BR>
+
+  <LI><A href="omgr.html#afp">3.3 Менеджер віртуальних об'єктів (VObject Manager)</A>
+  <UL>
+    <LI><A href="omgr.html#afq">3.3.1 Огляд концепції Реальних/Віртуальних об'єктів</A>
+    <LI><A href="omgr.html#afr">3.3.2 Дескриптори та посилання об'єктів</A>
+    <LI><A href="omgr.html#afs">3.3.3 Визначення типів даних та констант</A>
+    <LI><A href="omgr.html#aft">3.3.4 Системні виклики менеджера об'єктів</A>
+  </UL>
+  <BR>
+
+  <LI><A href="panel.html#afu">3.4 Менеджер панелей (Panel Manager)</A>
+  <UL>
+    <LI><A href="panel.html#afv">3.4.1 Огляд функцій системних панелей</A>
+    <LI><A href="panel.html#afw">3.4.2 Стандартні панелі діалогів та налаштувань</A>
+    <LI><A href="panel.html#afx">3.4.3 Системні виклики менеджера панелей</A>
+  </UL>
+  <BR>
+
+  <LI><A href="parts.html#afy">3.5 Менеджер системних елементів (Parts Manager)</A>
+  <UL>
+    <LI><A href="parts.html#afz">3.5.1 Кнопки, перемикачі, смуги прокрутки (Scrollbars)</A>
+    <LI><A href="parts.html#aga">3.5.2 Текстові поля та списки вибору</A>
+    <LI><A href="parts.html#agb">3.5.3 Системні виклики елементів інтерфейсу</A>
+  </UL>
+  <BR>
+
+  <LI><A href="tray.html#agc">3.6 Менеджер системного буфера обміну (Tray Manager)</A>
+  <UL>
+    <LI><A href="tray.html#agd">3.6.1 Операції обміну даними Copy / Cut / Paste</A>
+    <LI><A href="tray.html#age">3.6.2 Системні виклики буфера обміну</A>
+  </UL>
+  <BR>
+
+  <LI><A href="tip.html#agf">3.7 Менеджер текстового введення TRON (Text Input Processor / TIP)</A>
+  <UL>
+    <LI><A href="tip.html#agg">3.7.1 Введення багатомлинних символів TRON Code</A>
+    <LI><A href="tip.html#agh">3.7.2 Системні виклики обробника введення</A>
+  </UL>
+  <BR>
+
+  <LI><A href="font_mgr.html#agi">3.8 Менеджер шрифтів оболонки (Font Manager)</A>
+  <UL>
+    <LI><A href="font_mgr.html#agj">3.8.1 Кліп-шрифти, векторні та растрові шрифти TRON</A>
+    <LI><A href="font_mgr.html#agk">3.8.2 Системні виклики менеджера шрифтів</A>
+  </UL>
+  <BR>
+
+  <LI><A href="printmgr.html#agl">3.9 Менеджер друку (Print Manager)</A>
+  <UL>
+    <LI><A href="printmgr.html#agm">3.9.1 Формування та черга завдань друку</A>
+    <LI><A href="printmgr.html#agn">3.9.2 Системні виклики друку</A>
+  </UL>
+  <BR>
+
+  <LI><A href="data.html#ago">3.10 Загальні структури даних оболонки (Shell Shared Data)</A>
+  <UL>
+    <LI><A href="data.html#agp">3.10.1 Константи, кольори та шрифтові атрибути оболонки</A>
+  </UL>
+  <BR>
+
+  <LI><A href="tcpip.html#agq">3.11 Мережевий стек TCP/IP (Network Stack)</A>
+  <UL>
+    <LI><A href="tcpip.html#agr">3.11.1 Сокети, мережеві інтерфейси та протоколи BTRON</A>
+    <LI><A href="tcpip.html#ags">3.11.2 Системні виклики сокетів TCP/IP</A>
+  </UL>
+</UL>
 
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../dp/pointer_func.html">前頁:2.6 Функції управління курсором вказівного пристрою (Pointer Control)にもどる</A><BR>
-<A href="window.html">次頁:3.1 ウィンドウマネージャにすすむ</A><BR>
+<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції вказівника та курсора (Повернутися)</A><BR>
+<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
 </BODY>
 </HTML>
