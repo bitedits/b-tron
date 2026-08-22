@@ -1,0 +1,5349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  3.1 Віконна система (Windowing System)マネージャ
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="shell.html">
+<LINK REL="next" HREF="menu.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="shell.html">前頁:第3章 外殻にもどる</A><BR>
+<A href="menu.html">次頁:3.2 Меню та командні інтерфейсиマネージャにすすむ</A><BR>
+<HR>
+
+<H2><A name="aff">3.1 Віконна система (Windowing System)マネージャ</A></H2>
+
+<H3><A name="afg">3.1.1 Віконна система (Windowing System)マネージャの機能</A></H3>
+
+<H4><A name="afh">3.1.1.1 概要</A></H4>
+
+<P>
+  Віконна система (Windowing System)マネージャは外殻の HMI 機能の中心的な機能であり、
+  画面表示上の操作環境の基本となる空間であるСистемні панелі (Panels)プレーン上に存在する複数のオーバラップしうるСистемні панелі (Panels)の生成 / 削除 / 表示 / 操作等に関する基本的な機能を提供している。
+</P>
+<P>
+  Віконна система (Windowing System)マネージャでは、
+  基本的にСистемні панелі (Panels)プレーン上のフローティングСистемні панелі (Panels) ( ウインドウ )
+  の管理のみを行ない、
+  ダイアローグタイプのСистемні панелі (Panels)やシステムСистемні панелі (Panels)は独立したСистемні панелі (Panels)マネージャにより管理されることになる。
+  </P>
+<P>
+  Віконна система (Windowing System)には必ず対応するアプリケーションПроцеси та потокиが存在し、
+  そのアプリケーションПроцеси та потокиがВіконна система (Windowing System)マネージャで提供している機能を一定のルールに従って使用することにより、
+  実際のВіконна система (Windowing System)の表示 / 操作が行なわれ、
+  全体としてのВіконна система (Windowing System)システムが実現されることになる。
+  従って、Віконна система (Windowing System)を使用するすべてのアプリケーションは、
+  アプリケーションテンプレートとして規定されたプログラム構造を持たなくてはいけない。
+</P>
+<P>
+  Віконна система (Windowing System)マネージャは、タイトル、
+  スクロールバーを含んだВіконна система (Windowing System)枠部分のみの表示を行ない、
+  Віконна система (Windowing System)内部の表示は、
+  対応するアプリケーションПроцеси та потокиが自分で行なうことになる。
+  このための描画環境はВіконна система (Windowing System)マネージャにより用意される。
+</P>
+<P>
+  Віконна система (Windowing System)システムの実現方法には幾つかの方式があるが、
+  ここでは基本的に特殊ハードウェアサポートが無いことを前提としており、
+  またВіконна система (Windowing System)が重なって隠れた部分の表示イメージは、
+  原則的に保存されないことを前提としている。
+</P>
+<P>
+  これにより、最小限のハードウェアと、
+  メモリによるВіконна система (Windowing System)システムの実現を可能としているが、
+  実際のインプリメントにおいて、
+  特殊なハードウェアを使用したり、
+  隠れたイメージを自動的に保存 / 再現することを禁止しているわけではない。
+</P>
+<P>
+  なお、Віконна система (Windowing System)マネージャが管理する表示画面は、
+  最下部のシステムПовідомленняСистемні панелі (Panels)を除いた部分となる。
+  ただし、フルスクリーンモードの場合は、
+  システムПовідомленняСистемні панелі (Panels)を含めたスクリーン全部に、Віконна система (Windowing System)が表示される。
+</P>
+
+<H4><A name="afi">3.1.1.2 Віконна система (Windowing System)</A></H4>
+
+<H5>Віконна система (Windowing System)のタイプ</H5>
+
+<P>
+  Віконна система (Windowing System)はユーザがアプリーケションを操作する上での環境としての、
+  画面上の 1 つの独立した矩形領域である。
+  この矩形領域は基本的に自由に移動 / 変形が可能であり、
+  前後関係を持って互いにオーバーラップされて表示される。
+</P>
+<P>
+  Віконна система (Windowing System)には、以下に示す 4 種類があり、
+  単にВіконна система (Windowing System)と言った場合は、
+  通常Віконна система (Windowing System)を意味する。
+</P>
+
+<DL>
+ <DT>通常Віконна система (Windowing System)
+ <DD><P>
+     一般のアプリケーションが使用する通常のВіконна система (Windowing System)。
+     </P>
+ <DT>前面Віконна система (Windowing System)
+ <DD><P>
+     フロントエンド機能を提供する特殊なアプリケーションが使用するВіконна система (Windowing System)であり、常に最前面に置かれる。
+     </P>
+ <DT>Системні панелі (Panels)Віконна система (Windowing System)
+ <DD><P>
+     ダイアローグタイプのСистемні панелі (Panels)として使用される特殊なВіконна система (Windowing System)で通常Віконна система (Windowing System)の上で前面Віконна система (Windowing System)の下に表示される。
+     このタイプのВіконна система (Windowing System)はСистемні панелі (Panels)マネージャによって使用され、
+     一般のアプリケーションが直接使用することはない。
+     また、適用可能な操作も非常に限定される。
+     </P>
+ <DT>内部Віконна система (Windowing System)
+ <DD><P>
+     独立した描画環境をВіконна система (Windowing System)として取り扱うために内部的に使用される特殊な擬似的なВіконна система (Windowing System)である。
+     このタイプのВіконна система (Windowing System)は、
+     実身 / 仮身マネージャにより使用され、
+     一般のアプリケーションが直接使用することはない。
+     また、適用可能な操作も非常に限定される。
+     </P>
+</DL>
+
+<P>
+  通常Віконна система (Windowing System)は、さらに以下の 2 種類に分類される。
+</P>
+
+<DL>
+ <DT>主Віконна система (Windowing System)
+ <DD><P>
+     アプリケーションの表示 / 操作の中心となるВіконна система (Windowing System)。
+     </P>
+ <DT>従属Віконна система (Windowing System)
+ <DD><P>
+     主Віконна система (Windowing System)の表示/操作の補助のために使用されるВіконна система (Windowing System)であり、
+     論理的に主Віконна система (Windowing System)と同一のВіконна система (Windowing System)として取り扱われる。
+     従属Віконна система (Windowing System)は常に主Віконна система (Windowing System)の前面に表示される。
+     </P>
+</DL>
+
+<P>
+  なお、前面Віконна система (Windowing System)は、
+  存在する全ての主Віконна система (Windowing System)に共有される従属Віконна система (Windowing System)として取り扱われ、
+  現在入力受付状態のВіконна система (Windowing System)を主Віконна система (Windowing System)とした場合の従属Віконна система (Windowing System)と同様に取り扱われる。
+</P>
+
+<H5>入力受付状態</H5>
+
+<P>
+  ある時点で、
+  ユーザからのインタラクティブな操作が可能なВіконна система (Windowing System)を入力受付状態のВіконна система (Windowing System)と呼び、入力受付状態でないВіконна система (Windowing System)を入力不可状態のВіконна система (Windowing System)と呼ぶ。
+</P>
+<P>
+  入力受付状態は主Віконна система (Windowing System)間で任意に切り換えることができ、
+  ある時点で 1 つの主Віконна система (Windowing System)のみが入力受付状態となりうる。
+  主Віконна система (Windowing System)を新たにオープンした時点では、
+  その主Віконна система (Windowing System)に入力受付状態が切り換わる。
+</P>
+<P>
+  主Віконна система (Windowing System)が入力受付状態の場合は、
+  それに従属するすべての従属Віконна система (Windowing System)も入力受付状態となる。
+  主Віконна система (Windowing System)が入力不可状態の場合は、
+  それに従属するすべての従属Віконна система (Windowing System)の表示は消去され見えない状態となる。
+  この状態を不可視状態と呼ぶ。
+  従って、従属Віконна система (Windowing System)は、
+  対応する主Віконна система (Windowing System)が入力受付状態の場合のみ表示されて「見える」存在となる。
+</P>
+<P>
+  前面Віконна система (Windowing System)は、
+  ユーザからインタラクティブな操作に対してフロントエンドとしての一種の前処理を行なうため、
+  その意味で常に入力受付状態を主Віконна система (Windowing System)と共有していると言える。
+  即ち、
+  ユーザーからインタラクティブな操作は、
+  常に前面Віконна система (Windowing System)を経由して、
+  入力受付状態の主Віконна система (Windowing System)に送られることになる。
+</P>
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)は、ダイアローグタイプのСистемні панелі (Panels)として使用され、
+  Системні панелі (Panels)Віконна система (Windowing System)がオープンされている間は、
+  入力受付状態を主Віконна система (Windowing System)から横取りして占有することになる。
+  Системні панелі (Panels)Віконна система (Windowing System)がクローズされた時点で、
+  入力受付状態は元の主Віконна система (Windowing System)に戻される。
+  複数のСистемні панелі (Panels)Віконна система (Windowing System)がオープンされた場合は、
+  最後にオープンされたСистемні панелі (Panels)Віконна система (Windowing System)が入力受付状態を占有し、
+  Системні панелі (Panels)Віконна система (Windowing System)のクローズにより順番に元のВіконна система (Windowing System)に入力受付状態が戻ることになる。
+</P>
+<P>
+  内部Віконна система (Windowing System)に対しては、入力受付状態は定義されない。
+</P>
+
+<A name="afj">
+<CENTER><IMG src="gif/diagram.gif" alt="入力受付状態の遷移"></CENTER>
+</A>
+<CENTER>図 45 : 入力受付状態の遷移</CENTER>
+
+
+<H5>Віконна система (Windowing System)の前後関係</H5>
+
+<P>
+  Віконна система (Windowing System)の表示上の前後関係は、最前面から順番に以下のようになる。
+</P>
+
+<BLOCKQUOTE>
+<PRE>
+最前面 (1) 前面Віконна система (Windowing System)
+  ｜  (2) Системні панелі (Panels)Віконна система (Windowing System)
+  ｜  (3) 入力受付状態の従属Віконна система (Windowing System)
+  ｜  (4) 入力受付状態の主Віконна система (Windowing System)
+  ↓  (5) 入力不可状態の主Віконна система (Windowing System)
+</PRE>
+</BLOCKQUOTE>
+
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)が複数オープンされている場合は、
+  オープンされた順番に最前面に表示され、
+  最前面に表示されているСистемні панелі (Panels)Віконна система (Windowing System)が入力受付状態を占有する。
+  Системні панелі (Panels)Віконна система (Windowing System)間の前後関係の変更はできない。
+</P>
+
+<P>
+  前面Віконна система (Windowing System)が複数オープンされている場合の前後関係は以下のようになる。
+</P>
+
+<UL>
+    <LI><P>
+        オープンした時には一番前面に表示される。
+        </P>
+    <LI><P>
+        移動 / 変形を行なった場合、
+        その対象とした前面Віконна система (Windowing System)が一番前面に表示される。
+        この場合、他の前面Віконна система (Windowing System)の前後関係は変化しない。
+        </P>
+</UL>
+
+<P>
+  入力受付状態の従属Віконна система (Windowing System)が複数オープンされている場合の前後関係は前面Віконна система (Windowing System)と同様である。
+  なお、入力不可状態、即ち不可視状態になった場合は、
+  従属Віконна система (Windowing System)間の前後関係は保持され、
+  再び入力受付状態となった場合に、以前の前後関係が再現される。
+</P>
+
+<UL>
+ <LI><P>
+     オープンした時には一番前面に表示される。
+     </P>
+ <LI><P>
+     移動 / 変形を行なった場合、
+     その対象とした従属Віконна система (Windowing System)が一番前面に表示される。
+     この場合、他の従属Віконна система (Windowing System)の前後関係は変化しない。
+     </P>
+</UL>
+
+<P>
+  主Віконна система (Windowing System)の間では、
+  入力受付状態の主Віконна система (Windowing System)が一番前面に表示される。
+  即ち、
+  新たに入力受付状態となった主Віконна система (Windowing System)が一番前面に表示される。
+  この場合、他の主Віконна система (Windowing System)の前後関係は変化しない。
+</P>
+<P>
+  なお、内部Віконна система (Windowing System)に対しては、前後関係は定義されない。
+</P>
+
+<H5>Віконна система (Windowing System)の親子関係</H5>
+
+<P>
+  通常、
+  主Віконна система (Windowing System)は仮身に対してアプリケーションを実行することにより生成されることが多い。
+  この場合、
+  元となった仮身が存在していた主Віконна система (Windowing System)を生成された主Віконна система (Windowing System)の親Віконна система (Windowing System)と呼ぶ。
+</P>
+<P>
+  従って、
+  主Віконна система (Windowing System)全体はその親子関係により木構造となっていることになる。
+  主Віконна система (Windowing System)の親子関係は画面上の表示には一切反映されないが、
+  主Віконна система (Windowing System)を閉じた場合は、
+  その元となった仮身に戻ることになり、
+  その結果、
+  親Віконна система (Windowing System)に入力受付状態が切換わることになる。
+</P>
+<P>
+  主Віконна система (Windowing System)の親Віконна система (Windowing System)は、
+  Віконна система (Windowing System)のオープン時に指定されるが、
+  オープン後も変更することが可能である。
+  また、Віконна система (Windowing System)が閉じられた場合、
+  そのすべての子Віконна система (Windowing System)の親Віконна система (Windowing System)は閉じたВіконна система (Windowing System)の親Віконна система (Windowing System)に自動的に変更される。
+</P>
+<P>
+  主Віконна система (Windowing System)以外のВіконна система (Windowing System)に対しては、親Віконна система (Windowing System)は定義されない。
+</P>
+<P>
+  親を持つВіконна система (Windowing System)にはその生成の元となった仮身の表示上の領域が定義され、
+  この領域を生成元と呼ぶ。生成元は、親Віконна система (Windowing System)内の相対座標により定義される。
+</P>
+<P>
+  生成元も、Віконна система (Windowing System)のオープン時に指定されるが、
+  オープン後も変更することが可能である。
+  また、Віконна система (Windowing System)が閉じられた場合、
+  そのすべての子Віконна система (Windowing System)の生成元は閉じたВіконна система (Windowing System)の生成元と同じものに自動的に変更される。
+</P>
+<P>
+  なお、仮身の移動等に伴う、
+  親Віконна система (Windowing System)および生成元の変更は、実身 / 仮身マネージャにより行なわれる。
+</P>
+
+<A name="afk">
+<CENTER><IMG src="gif/relation.gif" alt="Віконна система (Windowing System)の親子関係"></CENTER>
+</A>
+<CENTER>図 46 : Віконна система (Windowing System)の親子関係</CENTER>
+
+<H5>Віконна система (Windowing System)のモード</H5>
+
+<P>
+  主Віконна система (Windowing System)には、
+  全面モードと通常モードが定義され、
+  交互に切り換えが可能となる。
+</P>
+
+<P>
+  全面モードでは、
+  主Віконна система (Windowing System)は画面一杯に拡がって表示され、
+  通常モードに戻すことにより、元の位置、大きさの表示に戻る。
+</P>
+
+<P>
+  全面モードで表示されている状態で、
+  Віконна система (Windowing System)の移動 / 変形を行なった場合は、
+  そのВіконна система (Windowing System)の全面モード状態は解除され、
+  通常モードの表示と見なされることになる。
+</P>
+
+<P>
+  主Віконна система (Windowing System)以外のВіконна система (Windowing System)に対しては、このモードは定義されない。
+</P>
+
+<P>
+  全面モード、通常モードの他に、
+  システムПовідомленняСистемні панелі (Panels)を含めたスクリーン全部に主Віконна система (Windowing System)を表示することができるフルスクリーンモードがある。
+  この場合、システムПовідомленняСистемні панелі (Panels)は隠れて見えなくなる。
+</P>
+
+<H4><A name="afl">3.1.1.3 Віконна система (Windowing System)の表示</A></H4>
+
+<H5>Віконна система (Windowing System)の標準形状</H5>
+
+<P>
+  ここでは、通常Віконна система (Windowing System)、
+  および前面Віконна система (Windowing System)の標準的な表示形状に関して説明しているが、
+  表示形状の詳細はインプリメントに依存する。
+  内部Віконна система (Windowing System)、Системні панелі (Panels)Віконна система (Windowing System)に関しては、
+  Віконна система (Windowing System)マネージャでは表示を行なわないため表示形状は定義されない。
+</P>
+
+<P>
+  Віконна система (Windowing System)は、
+  標準的に下図のように右下に影が付いた境界線により囲まれた矩形領域として表示される。
+</P>
+
+<A name="afm">
+<CENTER><IMG src="gif/border.gif" alt="Віконна система (Windowing System)の標準的な境界線"></CENTER>
+</A>
+<CENTER>図 47 : Віконна система (Windowing System)の標準的な境界線</CENTER>
+
+<P>
+  Віконна система (Windowing System)には、通常、最上部にタイトルバーが存在する。
+  タイトルバーはピクトグラムと任意のタイトル文字列からなるが、
+  ピクトグラムは無い場合もある。
+  このタイトルバーの表示は虚身Віконна система (Windowing System)の状態では灰色化表示となる。
+</P>
+
+<P>
+  Віконна система (Windowing System)の大きさがアプリケーションにより固定されていて変形不可の場合は、
+  作業領域の境界は上辺はタイトルバーのすぐ下であり、
+  タイトルバーとの間に細線で作業領域の境界線が引かれる。
+  下、左、右辺はВіконна система (Windowing System)の境界線が作業領域の境界線となる。
+</P>
+
+<P>
+  これに対し、変形可能なВіконна система (Windowing System)では、
+  作業領域の境界は下、左、
+  右辺においてВіконна система (Windowing System)の境界線から半文字幅程度内側の部分となり、
+  細線で作業領域の境界線が引かれる。
+</P>
+
+<P>
+  タイトルバーを含む、
+  作業領域の境界線とВіконна система (Windowing System)の境界線間の部分を総称してВіконна система (Windowing System)の枠と呼ぶ。
+</P>
+
+<P>
+  変形可能なВіконна система (Windowing System)の場合は、
+  枠の 4 隅の部分はハンドルでありВіконна система (Windowing System)変形の手掛かりとなる。
+  また、スクロールバーが存在する場合は、右、下、
+  ( さらに 3 方向の場合は左 ) の枠上に表示され、
+  ハンドルとスクロールバーを除く枠の他の部分は、
+  Віконна система (Windowing System)移動の手掛かりとなる。
+</P>
+
+<P>
+  入力受付状態のВіконна система (Windowing System)では、
+  枠部分は灰色パターンで埋められ、
+  スクロールバーは、正常に表示される。
+  この時タイトルバーは、角の丸い矩形で囲まれ、
+  パターンで埋められない。
+</P>
+
+<P>
+  入力不可状態のВіконна система (Windowing System)では、
+  枠部分は白くなり、スクロールバーは不能状態表示となり、
+  灰色部分は境界線を残して白くなりトンボは表示されない。
+  また作業領域内の各Компоненти графічного інтерфейсу類の表示も不能状態表示となる。
+</P>
+
+<A name="afn">
+<CENTER><IMG src="gif/fixed_win.gif" alt="変形不可のВіконна система (Windowing System)の標準的な形状"></CENTER>
+</A>
+<CENTER>図 48 : 変形不可のВіконна система (Windowing System)の標準的な形状</CENTER>
+
+
+<A name="afo">
+<CENTER><IMG src="gif/reshape_win.gif" alt="変形可能なВіконна система (Windowing System)の標準的な形状"></CENTER>
+</A>
+<CENTER>図 49 : 変形可能なВіконна система (Windowing System)の標準的な形状</CENTER>
+
+
+<A name="afp">
+<CENTER><IMG src="gif/nobar_win.gif" alt="変形可能で左スクロールバーのないВіконна система (Windowing System)の標準的な形状"></CENTER>
+</A>
+<CENTER>図 50 : 変形可能で左スクロールバーのないВіконна система (Windowing System)の標準的な形状</CENTER>
+
+
+<A name="afq">
+<CENTER><IMG src="gif/notbar_win.gif" alt="タイトルバーのないВіконна система (Windowing System)の標準的な形状"></CENTER>
+</A>
+<CENTER>図 51 : タイトルバーのないВіконна система (Windowing System)の標準的な形状</CENTER>
+
+
+<A name="afr">
+<CENTER><IMG src="gif/std_bar.gif" alt="入力受付状態の標準的なタイトルバー表示"></CENTER>
+</A>
+<CENTER>図 52 : 入力受付状態の標準的なタイトルバー表示</CENTER>
+
+
+<H5>Віконна система (Windowing System)の属性</H5>
+
+<P>
+  Віконна система (Windowing System)には、そのタイプ、
+  表示形状を表わすための以下に示す属性があり、
+  Віконна система (Windowing System)の生成時に指定することができる。
+  Віконна система (Windowing System)の属性は生成後は変更することはできない。
+  内部Віконна система (Windowing System)、Системні панелі (Panels)Віконна система (Windowing System)に対してはВіконна система (Windowing System)属性は定義されない。
+</P>
+
+<A name="afs">
+<CENTER><IMG src="gif/win_atr.gif" alt="Віконна система (Windowing System)の属性"></CENTER>
+</A>
+<CENTER>図 53 : Віконна система (Windowing System)の属性</CENTER>
+<P></P>
+
+<TABLE border="1">
+    <TR><TD rowspan="2"><CODE>WA_FRONT</CODE></TD><TD>0 = 通常Віконна система (Windowing System)</TD><TD rowspan="2">&nbsp;</TD></TR>
+    <TR><TD>1 = 前面Віконна система (Windowing System)</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_SUBW</CODE></TD><TD>0 = 主Віконна система (Windowing System)</TD><TD rowspan="2">( <CODE>WA_FRONT</CODE> = 0の時のみ有効)</TD></TR>
+    <TR><TD>1 = 従属Віконна система (Windowing System)</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_SIZE</CODE></TD><TD>0 = ドラッグ変形不可のВіконна система (Windowing System)</TD><TD rowspan="2">&nbsp;</TD></TR>
+    <TR><TD>1 = ドラッグ変形可能のВіконна система (Windowing System)</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_HHDL</CODE></TD><TD>0 = 左右ドラッグ変形不可</TD><TD rowspan="10">( <CODE>WA_SIZE</CODE> = 1の時のみ有効)</TD></TR>
+    <TR><TD>1 = 左右ドラッグ変形可能</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_VHDL</CODE></TD><TD>0 = 上下ドラッグ変形不可</TD></TR>
+    <TR><TD>1 = 上下ドラッグ変形可能</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_RBAR</CODE></TD><TD>0 = 右スクロールバーの無</TD></TR>
+    <TR><TD>1 = 右スクロールバーの有</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_BBAR</CODE></TD><TD>0 = 下スクロールバーの無</TD></TR>
+    <TR><TD>1 = 下スクロールバーの有</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_LBAR</CODE></TD><TD>0 = 左スクロールバーの無</TD></TR>
+    <TR><TD>1 = 左スクロールバーの有</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_TITL</CODE></TD><TD>0 = タイトルバー有のВіконна система (Windowing System)</TD><TD rowspan="2">&nbsp;</TD></TR>
+    <TR><TD>1 = タイトルバー無のВіконна система (Windowing System)</TD></TR>
+    <TR><TD rowspan="2"><CODE>WA_BGDSP</CODE></TD><TD>0 = 入力不可状態の時は表示を更新しない</TD><TD rowspan="2">&nbsp;</TD></TR>
+    <TR><TD>1 = 入力不可状態の時も表示を更新する</TD></TR>
+</TABLE>
+
+<DL compact>
+ <Dt>※
+ <DD><CODE>WA_SIZE, WA_TITL</CODE> によりВіконна система (Windowing System)の形状は決定される。
+ <DT>※
+ <DD><CODE>WA_HHDL, WA_VHDL</CODE> が両方とも 1 の場合は任意方向へのドラッグ変形が可能なことを意味する。両方とも 0 の場合はハンドルが存在しないことになる。
+ <DT>※
+ <DD><CODE>WA_BGDSP</CODE> 指定のВіконна система (Windowing System)にのみ、Системні панелі (Panels)の消去時に再表示要求が送られる。
+</DL>
+
+<H5>Віконна система (Windowing System)の表示属性</H5>
+
+<P>
+  Віконна система (Windowing System)の生成時に以下に示す表示属性を指定することができる。
+  Віконна система (Windowing System)の表示属性は生成後は変更することはできない。
+  内部Віконна система (Windowing System)、Системні панелі (Panels)Віконна система (Windowing System)に対しては表示属性は定義されない。
+  なお、カラーの実際の適用、および解釈方法はインプリメントに依存する。
+</P>
+
+<PRE>
+typedef struct {
+    UW      frame;      /* 境界線幅/パターンデータ番号 */
+    UW      tlbg;       /* タイトル背景パターンデータ番号 */
+    UW      barpat;     /* スクロールバーのパターン部のパターン番号 */
+    UW      barbg;      /* スクロールバーの白部分のパターン番号 */
+    COLOR   tlcol;      /* タイトル文字色(負のときは default) */
+} WDDISP;
+</PRE>
+
+<P>
+  <CODE>frame</CODE> の内容は以下の通りである。
+</P>
+
+<A name="aft">
+<CENTER><IMG src="gif/frame_cont.gif" alt="frameの内容"></CENTER>
+</A>
+<CENTER>図 54 : <CODE>frame</CODE> の内容</CENTER>
+
+<P>
+  <CODE>tlbg, barpat, barbg</CODE> はそれぞれ、
+  &quot;<CODE>PAT_DATA</CODE>&quot;
+  タイプとして登録してあるデータ番号で指定し、
+  0 はデフォールトを意味する。
+</P>
+<P>
+  <CODE>tlcol</CODE> は、タイトル表示の色を指定し、
+  &lt; 0の場合は、デフォールトを意味する。
+</P>
+<P>
+  デフォールト値はВіконна система (Windowing System)マネージャにより適当な値が規定されているが、
+  デフォールト値自体も変更可能である。
+  デフォールト値を変更した場合は、
+  変更以後に生成された全てのデフォールト属性を持つВіконна система (Windowing System)に反映される。
+</P>
+<P>
+  さらに、Віконна система (Windowing System)の作業領域の背景パターンを、
+  Віконна система (Windowing System)の生成時に指定することができる。
+  背景パターンは、基本的にディスプレイプリミティブで定義されるパターンデータの形式で指定される。
+</P>
+<P>
+  なお、背景パターンはВіконна система (Windowing System)の生成後も変更することができる。
+</P>
+
+<H5>ポインタの形状</H5>
+
+<P>
+  PD がプレスされていない状態の場合、
+  ポインタの形状は PD の位置により、
+  その位置での可能な操作を意味する以下の形状に自動的に変更される。
+  ただし PD がプレスされている状態では、
+  ポインタの形状はその位置により変更はされない。
+</P>
+
+<P>
+  「命令」キーが押された状態では、
+  ポインタの形状は、
+  その位置に無関係に常に「プリМеню та командні інтерфейси」の形状に変更される。</P>
+
+<P>
+  「命令」キーが押されていない状態では、
+  ポインタの位置に応じて、
+  以下に示すようにポインタ形状が変更される。
+</P>
+
+<TABLE border="1">
+    <TR><TD rowspan="9">入力受付状態のВіконна система (Windowing System)内</TD>
+        <TD rowspan="3">ハンドル部分</TD>
+        <TD>Віконна система (Windowing System)属性として左右変形のみ可</TD><TD>横方向の変形手</TD>
+        <TD rowspan="3">※ PD をプレスしてВіконна система (Windowing System)のドラッグ変形を行なっている間は、「つまみ」の形状となる。</TD></TR>
+    <TR><TD>Віконна система (Windowing System)属性として上下変形のみ可</TD><TD>縦方向の変形手</TD></TR>
+    <TR><TD>Віконна система (Windowing System)属性として任意の変形が可</TD><TD>変形手</TD></TR>
+    <TR><TD rowspan="2">スクロールバーの見えている部分</TD>
+        <TD>右/左のスクロールバー</TD><TD>縦方向の移動手</TD>
+            <TD rowspan="2">※ PD をプレスしてジャンプスクロールのドラッグを行なっている間は、「握り」の形状となる。</TD></TR>
+    <TR><TD>下のスクロールバー</TD><TD>横方向の移動手</TD></TR>
+    <TR><TD colspan="2">スクロールバーの見えていない灰色部分</TD><TD>選択指</TD><TD>&nbsp;</TD></TR>
+    <TR><TD colspan="2">ピクトグラムの部分</TD><TD>選択指</TD>
+        <TD rowspan="2">※ PD をプレスしてВіконна система (Windowing System)のドラッグ移動を行なっている間は、「握り」の形状となる。</TD></TR>
+    <TR><TD colspan="2">上記以外のВіконна система (Windowing System)の枠部分</TD><TD>移動手</TD></TR>
+    <TR><TD colspan="2">Віконна система (Windowing System)の作業領域内</TD><TD>形状は変更しない。</TD><TD>&nbsp;</TD></TR>
+    <TR><TD colspan="3">入力受付状態のВіконна система (Windowing System)外</TD><TD>選択指</TD><TD>&nbsp;</TD></TR>
+</TABLE>
+
+<P>
+  入力不可状態のВіконна система (Windowing System)で、
+  PD  をプレスした場合はそのВіконна система (Windowing System)に入力受付状態が移行するが、
+  プレス位置が上記の場合は、
+  ポインタの形状も入力受付状態の移行と同時に変化する。
+</P>
+
+<P>
+  このポインタ形状の変更は、
+  Віконна система (Windowing System)マネージャがВіконна система (Windowing System)イベントの処理の一貫として自動的に行なわれるため、
+  アプリケーションは、作業領域外にポインタが存在する場合は、
+  そのポインタ形状を変更してはいけない。
+  逆に、アプリケーションは、
+  入力受付状態のВіконна система (Windowing System)の作業領域内にポインタが存在する場合、
+  そのポインタ形状を常に自分で設定しなくてはいけない
+  (外側からポインタが作業領域内に移動してきた場合、
+  そのポインタ形状は保証されない)。
+</P>
+
+<H4><A name="afu">3.1.1.4 Віконна система (Windowing System)の操作</A></H4>
+
+<P>
+  以下に示すВіконна система (Windowing System)の操作はアプリケーションを含めた全体として実現すべきВіконна система (Windowing System)の操作であり、
+  アプリケーションはВіконна система (Windowing System)マネージャで用意されている機能を使用してВіконна система (Windowing System)操作を実現することになる。
+</P>
+
+<P>
+  Віконна система (Windowing System)の入力受付状態とВіконна система (Windowing System)の表示戦略はインプリメントに依存する。
+  下記は、インプリメントの一例である。
+</P>
+
+<H5>Віконна система (Windowing System)の生成</H5>
+
+<UL>
+ <LI><P>
+     以下の操作により、
+     選択した仮身がВіконна система (Windowing System)に開かれ、
+     その仮身の位置にВіконна система (Windowing System)は生成されて最前面に表示される。
+     </P>
+     <UL>
+      <LI><P>
+          実行Меню та командні інтерфейсиによりアプリケーションを起動する。
+          </P>
+      <LI><P>
+          ピクトグラムをダブルクリックする。
+          </P>
+     </UL>
+ <LI><P>
+     小物Меню та командні інтерфейсиによりある種の小物アプリケーションを起動することにより、
+     小物Віконна система (Windowing System)が開かれて最前面に表示される。
+     小物によっては、
+     前面Віконна система (Windowing System)が開かれる場合がある。
+     </P>
+ <LI><P>
+     従属Віконна система (Windowing System)は、
+     既に開かれている主Віконна система (Windowing System)のアプリケーションにより直接開かれる。
+     </P>
+ <LI><P>
+     生成されたВіконна система (Windowing System)は、常に入力受付状態となる。
+     </P>
+</UL>
+
+
+<H5>入力受付状態の変更</H5>
+
+<UL>
+    <LI><P>
+        Віконна система (Windowing System)内でクリック ( プレス )
+        によりそのВіконна система (Windowing System)は入力受付状態となり、
+        最前面に表示される。
+        </P>
+    <LI><P>
+        Віконна система (Windowing System)の生成元である仮身 ( 影付き )
+        に対しВіконна система (Windowing System)に開く操作を行なった場合、
+        新たなВіконна система (Windowing System)は生成されず、
+        既に存在している対応するВіконна система (Windowing System)が入力受付状態となり、
+        最前面に表示される。
+        </P>
+    <LI><P>
+        表示管理Меню та командні інтерфейсиにより指定することにより、
+        そのВіконна система (Windowing System)は入力受付状態となり、最前面に表示される。
+        </P>
+    <LI><P>
+        他のВіконна система (Windowing System)が入力受付状態となることにより、
+        そのВіконна система (Windowing System)は入力受付状態でなくなる。
+        </P>
+</UL>
+
+<H5>移動</H5>
+
+<UL>
+ <LI><P>
+     Віконна система (Windowing System)枠のハンドルと、
+     スクロールバー以外の部分をドラッグすることによりВіконна система (Windowing System)は移動できる。
+     </P>
+ <LI><P>
+     枠をプレスした時点で、
+     ポインタは一瞬「移動手」となる。
+     Віконна система (Windowing System)が既に入力受付状態であった場合は、
+     枠上にポインタが移動した時点で、「移動手」となる。
+     </P>
+ <LI><P>
+     ドラッグ中はポインタは「握り」となり、
+     Віконна система (Windowing System)枠の影がドラッグに合わせて移動する。
+     </P>
+ <LI><P>
+     ポインタをシステムПовідомленняСистемні панелі (Panels)上に移動すると、
+     影は消去される。ポインタをシステムПовідомленняСистемні панелі (Panels)以外に移動すると、
+     再び影が表示される。
+     </P>
+ <LI><P>
+     リリースにより、ポインタは「移動手」となり、
+     その位置にВіконна система (Windowing System)が移動し、
+     入力受付状態となり最前面に表示される。
+     システムПовідомленняСистемні панелі (Panels)上でリリースした場合は、
+     Віконна система (Windowing System)の移動は取り消される。
+     </P>
+ <LI><P>
+     なお、
+     移動によりВіконна система (Windowing System)の一部が画面からはみ出ることもある。
+     </P>
+</UL>
+
+
+<H5>変形</H5>
+
+<UL>
+ <LI><P>
+     Віконна система (Windowing System)枠のハンドルをドラッグすることによりВіконна система (Windowing System)は変形できる。
+     4 つの変形ハンドルは、
+     それぞれの対角点を固定して得られる矩形にВіконна система (Windowing System)を変形する。
+     </P>
+ <LI><P>
+     ハンドルをプレスした時点で、
+     ポインタは一瞬「変形手」となる。
+     Віконна система (Windowing System)が既に入力受付状態であった場合は、
+     枠上にポインタが移動した時点で、「変形手」となる。
+     </P>
+ <LI><P>
+     ドラッグ中はポインタは「つまみ」となり、
+     Віконна система (Windowing System)枠の影がドラッグに合わせて変形する。
+     </P>
+ <LI><P>
+     変形の最大の大きさを越えた場合は、
+     その大きさで影は追従しなくなる。
+     </P>
+ <LI><P>
+     ポインタをシステムПовідомленняСистемні панелі (Panels)上に移動すると、
+     影は消去される。
+     ポインタをシステムПовідомленняСистемні панелі (Panels)以外に移動すると、
+     再び影が表示される。
+     </P>
+ <LI><P>
+     リリースにより、ポインタは「変形手」となり、
+     その位置にВіконна система (Windowing System)が変形され、
+     入力受付状態となり最前面に表示される。
+     システムПовідомленняСистемні панелі (Panels)上でリリースした場合は、
+     Віконна система (Windowing System)の変形は取り消される。
+     </P>
+ <LI><P>
+     表示Меню та командні інтерфейсиの「全面モード」、
+     およびハンドルのダブルクリックにより、
+     全面モードと通常モードの交互の切り換えが行なわれる。
+     </P>
+</UL>
+
+<H5>消去</H5>
+
+<UL>
+ <LI><P>
+     以下の操作で、Віконна система (Windowing System)は消去される。
+     </P>
+    <UL>
+        <LI><P>
+            「終了」Меню та командні інтерфейсиを選択する。
+            </P>
+        <LI><P>
+            ピクトグラムをダブルクリックする。
+            </P>
+    </UL>
+ <LI><P>
+     仮身から開かれたВіконна система (Windowing System)の場合は、
+     Віконна система (Windowing System)が消去された後、
+     その仮身を含むВіконна система (Windowing System)が入力受付状態となる。
+     </P>
+</UL>
+
+
+<H5>□ Віконна система (Windowing System)属性</H5>
+
+<PRE>
+#define WA_FRONT  0x0001     /* 前面Віконна система (Windowing System) */
+#define WA_SUBW   0x0002     /* 従属Віконна система (Windowing System) */
+#define WA_SIZE   0x0004     /* 変形可 */
+#define WA_HHDL   0x0008     /* 左右変形可 */
+#define WA_VHDL   0x0010     /* 上下変形可 */
+#define WA_RBAR   0x0020     /* 右スクロールバー有 */
+#define WA_BBAR   0x0040     /* 下スクロールバー有 */
+#define WA_LBAR   0x0080     /* 左スクロールバー有 */
+#define WA_TITL   0x0100     /* タイトルバー無 */
+#define WA_BGDSP  0x0200     /* 入力不可状態の時も表示を更新 */
+#define WA_FULL   0x0400     /* 全面モード */
+#define WA_SFULL  0x0800     /* フルスクリーン */
+#define WA_STD    0          /* 正規座標でВіконна система (Windowing System)枠を指定 */
+#define WA_WORK   0x1000     /* 作業領域座標でВіконна система (Windowing System)枠を指定 */
+#define WA_FRAME  0x2000     /* 外枠座標でВіконна система (Windowing System)枠を指定 */
+#define WA_FMOVE  0x4000     /* オープン時、画面内に強制移動 */
+#define WA_NORMAL 0x007c     /* 通常 (変形可、右/下スクロールバー) */
+</PRE>
+
+<P><CODE>WA_SIZE</CODE> を指定していない場合は、
+  <CODE>WA_HHDL</CODE> で左右のВіконна система (Windowing System)枠が広くなり、
+  <CODE>WA_VHDL</CODE> で上下のВіконна система (Windowing System)枠が広くなる。</P>
+<P><CODE>WA_FULL</CODE> の指定により、
+  はじめから全面モードでВіконна система (Windowing System)を開くことができる。</P>
+<P><CODE>WA_STD、WA_WORK、WA_FRAME</CODE> の指定により、
+  入出力に使用する枠座標を指定することができる。これは、
+  <CODE>wopn_wnd, wget_sts, wmov_wnd, wmov_drg, wrsz_wnd, wrsz_drg</CODE>
+  に影響する。</P>
+<P><CODE>WA_FMOVE</CODE> の指定により、
+  <CODE>wopn_wnd</CODE> 時にВіконна система (Windowing System)が完全に画面からはみ出していた場合
+  (実際には 8〜16 ドット程度の余裕を持つ)、
+  最低でもВіконна система (Windowing System)の一部が画面に表示されるように移動される。</P>
+<P><CODE>WA_SFULL</CODE> の指定によるフルスクリーンのВіконна система (Windowing System)を、
+  複数開くことができるが、新しく開いたВіконна система (Windowing System)が常に上に位置し、
+  Віконна система (Windowing System)の配置を変更することはできない。</P>
+
+<H5>□ Віконна система (Windowing System)の表示属性</H5>
+
+<P>
+  Віконна система (Windowing System)の生成時に以下に示す表示属性を指定することができる。
+  Віконна система (Windowing System)の表示属性は生成後は変更することはできない。
+  内部Віконна система (Windowing System)、Системні панелі (Panels)Віконна система (Windowing System)に対しては表示属性は定義されない。
+  なお、カラーの実際の適用、および解釈方法はインプリメントに依存する。
+</P>
+
+<PRE>
+typedef struct {
+    UW     frame;    /* 境界線幅/パターンデータ番号 */
+    UW     tlbg;     /* タイトル背景パターンデータ番号 */
+    UW     barpat;   /* スクロールバーのパターン部のパターン番号 */
+    UW     barbg;    /* スクロールバーの白部分のパターン番号 */
+    COLOR  tlcol;    /* タイトル文字色(負のときは default) */
+} WDDISP;
+</PRE>
+
+<H3><A name="afv">3.1.2 Віконна система (Windowing System)の管理</A></H3>
+
+<H4><A name="afw">3.1.2.1 Віконна система (Windowing System)とПроцеси та потоки</A></H4>
+
+<P>
+  Віконна система (Windowing System)には必ずその管理Процеси та потокиが存在し、
+  管理Процеси та потокиによりそのВіконна система (Windowing System)の表示 / 操作処理が行なわれる。
+  Віконна система (Windowing System)を生成したПроцеси та потокиがそのВіконна система (Windowing System)の管理Процеси та потокиとなる。
+</P>
+
+<P>
+  Віконна система (Windowing System)に対する以下に示すような各種の操作は、
+  すべてВіконна система (Windowing System)の管理Процеси та потокиが自分で行なうことになる。
+</P>
+
+<UL>
+    <LI>Віконна система (Windowing System)の生成 / 削除
+    <LI>Віконна система (Windowing System)の移動 / 変形 / 全面モード切り換え
+    <LI>Віконна система (Windowing System)の作業領域の表示 / 操作
+    <LI>スクロールバーの表示値の設定 /変更
+</UL>
+
+<P>
+  1 つのПроцеси та потокиは、
+  複数のВіконна система (Windowing System)の管理Процеси та потокиとなることもできる。
+  また、
+  主Віконна система (Windowing System)とその従属Віконна система (Windowing System)は必ず同一の管理Процеси та потокиにより管理される。
+</P>
+<P>
+  入力受付状態の主Віконна система (Windowing System)またはСистемні панелі (Panels)Віконна система (Windowing System)の管理Процеси та потокиを、
+  アクティブПроцеси та потокиと呼び、ある時点で唯一存在することになる。
+  アクティブПроцеси та потокиは KB、PD からのイベントを順次取り出し、
+  その処理を行なうことになる。
+</P>
+<P>
+  入力受付状態でないВіконна система (Windowing System)の管理Процеси та потокиは、
+  通常は待機状態であり、
+  入力受付状態の切り換え待ちの状態となっている。
+  この場合、待機状態とならず、
+  Віконна система (Windowing System)内の表示を続行しても構わない。
+  ただし、
+  この場合は表示のみであり、
+  ユーザからの入力を受け取ることはできない。
+</P>
+<P>
+  従って、全体としてВіконна система (Windowing System)を処理しているПроцеси та потоки群は、
+  入力受付状態をお互いにパスしあい、
+  アクティブПроцеси та потокиを切り換えながら動作していることになる。
+  入力受付状態は、通常 PD の操作により切り換えられるが、
+  それ以外にもプログラムで切り換えることができる。
+</P>
+<P>
+  前面Віконна система (Windowing System)は、常に入力受付状態であるが、
+  イベントの取り扱いに関してはフロントエンドとしての動作をするため特殊な構造となっている。
+</P>
+<P>
+  前面Віконна система (Windowing System)の管理Процеси та потокиは前面Віконна система (Windowing System)を生成したПроцеси та потокиであるが、
+  実際の管理Процеси та потокиは現在のアクティブПроцеси та потокиと見なされて処理される。
+  即ち、前面Віконна система (Windowing System)に対する要求イベント等は、
+  生成した管理Процеси та потокиではなく、
+  現在のアクティブПроцеси та потокиに対して送られる。
+  Віконна система (Windowing System)は基本的にそのВіконна система (Windowing System)を生成したПроцеси та потокиにより管理され、
+  基本的にはПроцеси та потоки依存であるが、
+  自分が生成した以外のВіконна система (Windowing System)の管理情報等を参照する場合があるため、
+  Віконна система (Windowing System)ID自体はПроцеси та потокиグローバルであり、
+  またВіконна система (Windowing System)の管理情報もすべてのПроцеси та потокиからアクセスできる必要がある。
+</P>
+
+<A name="afx">
+<CENTER><IMG src="gif/active_process.gif" alt="アクティブПроцеси та потокиの遷移"></CENTER>
+</A>
+<CENTER>図 55 : アクティブПроцеси та потокиの遷移</CENTER>
+
+<H4><A name="afy">3.1.2.2 Віконна система (Windowing System)イベント</A></H4>
+
+<H5>Віконна система (Windowing System)イベント</H5>
+
+<P>
+  Віконна система (Windowing System)を使用するアプリケーションは、
+  KB や PD 等の操作に伴うイベントを順次取り出して対応する処理を行なうが、
+  イベントの取り出しは、核のイベント管理機能を直接使用するのではなく、
+  Віконна система (Windowing System)マネージャで提供しているВіконна система (Windowing System)イベント機能を使用する。
+</P>
+
+<P>
+  Віконна система (Windowing System)イベント機能では、
+  核のイベント管理機能に加えて以下のような機能が追加されている。
+</P>
+
+<UL>
+    <LI>PD の絶対座標位置から対応するВіконна система (Windowing System)の相対座標への変換
+    <LI>Віконна система (Windowing System)操作関連の拡張イベントのサポート
+    <LI>フロントエンド機能のサポート
+    <LI>アクティブПроцеси та потокиの切り換え機能
+    <LI>ポインタ形状の変更
+</UL>
+
+<P>
+  Віконна система (Windowing System)イベントの内容を以下に示す。
+</P>
+
+<A name="afz">
+<CENTER><IMG src="gif/window_event.gif" alt="Віконна система (Windowing System)イベント一覧"></CENTER>
+</A>
+<CENTER>図 56 : Віконна система (Windowing System)イベント一覧</CENTER>
+
+
+<P>
+  <CODE>EV_SWITCH</CODE>、<CODE>EV_REQUEST</CODE>、
+  および <CODE>EV_MENU</CODE> は、
+  Віконна система (Windowing System)イベントとして新たに追加されたイベントである。
+  これらのイベントはイベントタイプとして
+  <CODE>EV_APPL1〜3</CODE> を使用しているため、
+  アプリケーションは、
+  このタイプを使用してはいけない。
+  また、<CODE>EV_RSWITCH</CODE> 〜 <CODE>EV_NOMSG</CODE>
+  は擬似イベントとして追加されているものである。
+</P>
+<P>
+  Віконна система (Windowing System)イベントタイプとして以下のようなタイプが定義されており、
+  イベントのタイプに応じて、
+  <CODE>EVENT</CODE>、<CODE>SEVENT</CODE>、<CODE>REVENT</CODE>
+  の 4 つの形式を使い分けて使用する。
+</P>
+
+<PRE>
+typedef struct SEVENT {     /* 切換イベント形式 */
+    W       type;
+    UW      time;
+    PNT     pos;
+    H       cmd;            /* 位置コードコマンド */
+    H       wid;
+    UW      stat;
+} SEVENT;
+</PRE>
+
+<PRE>
+typedef struct REVENT {     /* 要求イベント形式 */
+    W       type;
+    RECT    r;              /* 対象矩形領域 (相対座標) */
+    H       cmd;
+    H       wid;            /* 対象Віконна система (Windowing System)ID */
+    W       src;            /* ソースPID/他 */
+} REVENT;
+</PRE>
+
+<PRE>
+typedef struct GEVENT {     /* 一般イベント形式 */
+    W       type;
+    H       data[4];        /* 任意のデータ */
+    H       cmd;
+    H       wid;
+    W       src;
+} GEVENT;
+</PRE>
+
+<PRE>
+typedef union _WEVENT {
+    EVENT   e;      /* 生イベント(核イベント) */
+    SEVENT  s;      /* 切換イベント形式 */
+    REVENT  r;      /* 要求イベント形式 */
+    GEVENT  g;      /* 一般イベント形式 */
+} WEVENT;
+</PRE>
+
+<P>
+  ○ EV_NULL
+</P>
+
+<P>
+  有効なイベントが何も存在していない場合に得られるイベントであり、
+  PD の位置するВіконна система (Windowing System) ID、
+  位置コード、および PD の現在位置
+  ( 対応するВіконна система (Windowing System)の相対座標 )
+  が設定されている。
+  PD の現在位置は、
+  イベントの取り出し時の指定により絶対座標のままとすることも可能である。
+  PD の位置にВіконна система (Windowing System)が存在しない場合はВіконна система (Windowing System) ID = 0、
+  システムПовідомленняСистемні панелі (Panels)上であれば -1 となる。
+</P>
+
+<P>
+  位置コードは PD の位置がВіконна система (Windowing System)のどの位置であるかを示す以下のコードである。
+</P>
+
+<TABLE border="1">
+    <TR><TD rowspan="11">位置コード</TD>
+        <TD><CODE>W_WORK (0)</CODE></TD><TD>作業領域内</TD><TD>&nbsp;</TD></TR>
+    <TR><TD><CODE>W_FRAM (1)</CODE></TD><TD>Віконна система (Windowing System)枠</TD><TD>&nbsp;</TD></TR>
+    <TR><TD><CODE>W_PICT (2)</CODE></TD><TD>ピクトグラム</TD>
+        <TD rowspan="9">対応する部分が存在しないВіконна система (Windowing System)の場合は、すべて<CODE>W_FRAM</CODE>となる。</TD></TR>
+    <TR><TD><CODE>W_TITL (3)</CODE></TD><TD>タイトル文字列</TD></TR>
+    <TR><TD><CODE>W_LTHD (4)</CODE></TD><TD>ハンドル (左上)
+</TD></TR>
+    <TR><TD><CODE>W_RTHD (5)</CODE></TD><TD>ハンドル (右上)</TD></TR>
+    <TR><TD><CODE>W_LBHD (6)</CODE></TD><TD>ハンドル (左下)</TD></TR>
+    <TR><TD><CODE>W_RBHD (7)</CODE></TD><TD>ハンドル (右下)</TD></TR>
+    <TR><TD><CODE>W_RBAR (8)</CODE></TD><TD nowrap>右スクロールバー</TD></TR>
+    <TR><TD><CODE>W_BBAR (9)</CODE></TD><TD nowrap>下スクロールバー</TD></TR>
+    <TR><TD><CODE>W_LBAR (10)</CODE></TD><TD nowrap>左スクロールバー</TD></TR>
+</TABLE>
+
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+
+<P>○ EV_BUTDWN</P>
+
+<P>
+  PD のプレスにより発生するイベントであり、
+  PD の位置するВіконна система (Windowing System) ID、位置コード、
+  および PD のプレス位置 ( 対応するВіконна система (Windowing System)の相対座標 ) が設定されている。
+  PD のプレス位置は、
+  イベントの取り出し時の指定により絶対座標のままとすることも可能である。
+</P>
+
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+<P>
+  PD のプレスは、その状態 / 位置により、
+  <CODE>EV_MENU</CODE>、<CODE>EV_SWITCH</CODE>
+  または <CODE>EV_BUTDWN</CODE> のイベントとして取り出される。
+</P>
+
+<DL>
+<DL>
+ <DT><CODE>EV_MENU</CODE>
+ <DD>Меню та командні інтерфейсиボタン、または命令キーが同時に押された時に得られる。
+
+ <DT><CODE>EV_BUTDWN</CODE>
+ <DD>対応するВіконна система (Windowing System)が現在入力受付状態の主Віконна система (Windowing System)または従属Віконна система (Windowing System)である場合に得られる。
+
+ <DT><CODE>EV_SWITCH</CODE>
+ <DD>対応するВіконна система (Windowing System)が現在入力不可状態のВіконна система (Windowing System)である場合に、
+     入力受付状態の切換えを行ない、
+     新たにアクティブПроцеси та потокиとなったПроцеси та потокиが <CODE>EV_SWITCH</CODE>
+     を得る。
+     イベント取り出し時の指定により、
+     入力受付状態の切換えを行なわず、<CODE>EV_BUTDWN</CODE>
+     として取り出すこともできる。
+</DL>
+</DL>
+
+<P>
+  ○ EV_BUTUP
+</P>
+
+<P>
+  PD のリリースにより発生するイベントであり、
+  PD の位置するВіконна система (Windowing System) ID、位置コード、
+  および PD のリリース位置 ( 対応するВіконна система (Windowing System)の相対座標 )
+  が設定されている。
+  PD のリリース位置は、
+  イベントの取り出し時の指定により絶対座標のままとすることも可能である。
+</P>
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+<P>
+  ○ EV_KEYDWN/EV_KEYUP/EV_AUTKEY
+</P>
+
+<P>
+  KB のプレス、リリース、連続プレスにより得られるイベントであり、
+  核のイベントマネージャで得られたイベントそのものである。
+  従って、PD 位置は絶対座標となる。
+</P>
+
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+<P>
+  ○ EV_DEVICE/EV_RSV
+</P>
+<P>
+  ○ EV_APPL4〜8
+</P>
+
+<P>
+  核のイベントマネージャで得られたイベントそのものである。
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+<P>
+  ○ EV_SWITCH
+</P>
+
+<P>
+  入力受付状態のВіконна система (Windowing System)の切換えが発生したことを示すイベントであり、
+  切換えの結果、
+  新たにアクティブПроцеси та потокиとなったПроцеси та потокиのみが得ることのできるイベントである。
+</P>
+<P>
+  このイベントを取り出した時点では、
+  既に <CODE>wid</CODE>
+  で示されるВіконна система (Windowing System)に入力受付状態は切り換わっており、
+  アプリケーションはそのВіконна система (Windowing System)に対する通常の処理を行なうことになる。
+  イベント内の <CODE>cmd</CODE> は以下の内容であり、
+  切り換えの状態または原因を示す。
+</P>
+
+<PRE>
+    cmd :  位置コード (W_WORK (0)〜W_LBAR (10))
+           W_SWITCH (128)
+           W_CLOSED (129)
+</PRE>
+
+<P>
+  位置コードの場合は、
+  PD のプレスにより入力受付状態の切換えが発生したことを意味し、
+  プレスした位置の位置コード、
+  および相対座標位置が入っている。
+  アプリケーションはこのイベントを
+  <CODE>EV_BUTDWN</CODE> として処理する必要がある。
+</P>
+
+<P>
+  <CODE>W_SWITCH</CODE> の場合は、
+  アプリケーションからの要求による入力受付状態の切り換え、
+  または、
+  Системні панелі (Panels)のクローズによる入力受付状態の切り換えが発生したことを意味し、
+  PD の位置に関する情報は存在しない。
+</P>
+<P>
+<CODE>src</CODE> は以下の内容であり、切り換えの原因を示す。
+</P>
+<PRE>
+    src :  0     Віконна система (Windowing System)の切り換え
+           1     Системні панелі (Panels)のクローズ
+</PRE>
+
+<P>
+  <CODE>W_CLOSED</CODE> の場合は、
+  子Віконна система (Windowing System)がクローズされたため親Віконна система (Windowing System)に入力受付状態が切換わったことを意味し、
+  この時点では、
+  既に子Віконна система (Windowing System)はクロージングアニメーションとともに削除されている。
+  <CODE>src</CODE> には、クローズした子Віконна система (Windowing System)のВіконна система (Windowing System)IDが入り、
+  <CODE>r</CODE> には、生成元の矩形領域が相対座標で入っている。
+</P>
+
+<P>○ EV_REQUEST</P>
+
+<P>
+  Віконна система (Windowing System)マネージャ、
+  または他のПроцеси та потокиからの各種の処理の要求およびそれに対する応答を示すイベントであり、
+  対象とするВіконна система (Windowing System)の管理Процеси та потокиが得るものであり、
+  アクティブПроцеси та потокиと非アクティブПроцеси та потокиの両方から取り出される。
+</P>
+
+<PRE>
+    cmd は要求する処理内容を示す以下のものである。
+    cmd :  W_REDISP (0)  -- Віконна система (Windowing System)の再表示要求
+           W_PASTE  (1)  -- データの貼り込み要求
+           W_DELETE (2)  -- Віконна система (Windowing System)のクローズ要求
+           W_FINISH (3)  -- 処理の終了要求
+           W_VOBJREQ(4)  -- 仮身の再表示要求
+           W_OPENED (5)  -- Віконна система (Windowing System)のオープン通知
+               :   :
+
+           W_ACK (0x40)+(要求コード) -- 要求に対するACK応答
+           W_NAK (0x80)+(要求コード) -- 要求に対するNACK応答
+</PRE>
+
+<P>
+  <CODE>W_REDISP</CODE> は、
+  Віконна система (Windowing System)の再表示を要求するもので、
+  Віконна система (Windowing System)の操作に伴って、
+  Віконна система (Windowing System)の再表示が必要になった場合にВіконна система (Windowing System)マネージャが発生するイベントである。
+  このイベントを得た場合は、
+  アプリケーションは対応するВіконна система (Windowing System)の再表示を速やかに行なわなくてはならない。
+</P>
+<PRE>
+        src =0 : 通常再表示要求
+            =1 : Системні панелі (Panels)再表示要求
+</PRE>
+
+<P>
+  <CODE>W_REDISP</CODE> 以外のものは、
+  Віконна система (Windowing System)マネージャとしては特別な処理を行なわず、
+  要求イベントの送付、
+  および応答イベントの送付を行なう。
+  要求イベントの <CODE>src</CODE>
+  にはВіконна система (Windowing System)マネージャにより要求したПроцеси та потоки ID が設定され、
+  応答イベントの宛先として使用される。
+</P>
+
+<P>
+  各要求イベントは、以下の意味を持つ。
+</P>
+
+<DL>
+ <DT><CODE>W_PASTE:</CODE>
+ <DD><P>
+     ドラッグによるデータの移動 / 複写のために使用され、
+     移動 / 複写先のВіконна система (Windowing System)に対して移動 / 複写元のПроцеси та потокиがこのイベントを送信する。<BR>
+     このイベントを受信したПроцеси та потокиは速やかに要求された貼り込み処理を行ない、
+     必ず、<CODE>W_ACK</CODE> または <CODE>W_NAK</CODE>
+     の応答を戻さなくてはいけない。
+     </P>
+ <DT><CODE>W_DELETE:</CODE>
+ <DD><P>
+     Віконна система (Windowing System)のクローズ要求のために使用される。
+     このイベントを受信したПроцеси та потокиは速やかにВіконна система (Windowing System)のクローズ処理を行ない、必ず <CODE>W_ACK</CODE> ( または <CODE>W_NAK</CODE> )
+    の応答を戻さなくてはいけない。
+    </P>
+ <DT><CODE>W_FINISH:</CODE>
+ <DD><P>
+     処理の終了要求のために使用される。
+     このイベントを受信したПроцеси та потокиは即座に処理を終了し、
+     必ず <CODE>W_ACK</CODE> ( または <CODE>W_NAK</CODE> )
+     の応答を戻さなくてはいけない。
+     </P>
+ <DT><CODE>W_VOBJREQ:</CODE>
+ <DD><P>
+     仮身に対する各種の操作 / 表示要求を行なうために使用され、
+     実身 / 仮身マネージャが送信する。
+     このイベントを受信したПроцеси та потокиは、
+     速やかに要求された処理を行なわなくてはいけない。
+     応答は不要である。詳細は、
+     「<a href="omgr.html#ala">3.8 実身／仮身マネージャ</A>」
+     を参照のこと。
+     </P>
+ <DT><CODE>W_OPENED:</CODE>
+ <DD><P>
+     子Процеси та потокиが親Процеси та потокиに対して、
+     新たにオープンしたВіконна система (Windowing System) ID を通知するために使用する。
+     一般に応答は不要である。
+     </P>
+</DL>
+
+<P>○ EV_MENU</P>
+
+<P>
+  Меню та командні інтерфейсиボタンがプレスされた場合、
+  もしくは PD
+  のプレス時に命令キーがプレスされていた場合に得られるイベントであり、
+  Меню та командні інтерфейсиの表示を行なうことを意味する。
+  PD 位置は絶対座標であるが、
+  対応するВіконна система (Windowing System) ID および位置コードが設定されている。
+</P>
+
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができる。
+</P>
+
+<P>
+  ○ EV_RSWITCH
+</P>
+
+<P>
+  擬似イベントであり、<CODE>EV_SWITCH</CODE>
+  と同様の意味を持ち、
+  得られるイベントの内容も、<CODE>type</CODE> 以外は <CODE>EV_SWITCH</CODE>
+  の場合と同一であるが、
+  入力受付状態が切り換わったことにより、
+  対応するВіконна система (Windowing System)の再表示が必要であることを意味している。
+</P>
+
+<P>
+  ○ EV_INACT
+</P>
+
+<P>
+  擬似イベントであり、
+  対応するВіконна система (Windowing System)が入力受付状態から入力不可状態に切り換わった場合に得られる。
+  イベントの内容には、
+  入力不可状態に切り換わったВіконна система (Windowing System) ID が ( <CODE>wid</CODE> )
+  に設定されている。
+</P>
+
+<P>
+  <CODE>src</CODE> は以下の内容であり、切り換えの原因を示す。
+</P>
+
+<PRE>
+    src :  0     Віконна система (Windowing System)の切り換え
+           1     Системні панелі (Panels)のオープン
+</PRE>
+
+<P>
+  このイベントは、<CODE>EV_SWITCH</CODE> と必ず対になって得られる
+  (ただし、<CODE>EV_SWITCH</CODE> の <CODE>W_CLOSED</CODE>
+  コマンドの場合は、<CODE>EV_INACT</CODE> は発生しない)。
+</P>
+
+<P>
+  このイベントは、アクティブПроцеси та потокиのみが得ることができ、
+  このイベントを得た以降は通常、アクティブПроцеси та потокиでなくなる。
+</P>
+
+<P>
+  ○ EV_MSG
+</P>
+
+<P>
+  擬似イベントであり、
+  通常のПроцеси та потоки間Повідомленняが得られたことを意味する。
+  イベントの内容には、
+  <CODE>type</CODE> の後にПовідомленняの先頭4バイトが設定されている。
+  Повідомлення自体はПовідомленняキューに残っているので、
+  <CODE>rcv_msg()</CODE> によりПовідомленняを取り出す必要がある。
+  このイベントは、
+  アクティブПроцеси та потокиと非アクティブПроцеси та потокиの両方から取り出される。
+</P>
+
+<P>
+  ○ EV_NOMSG
+</P>
+
+<P>
+  擬似イベントであり、
+  イベント、
+  またはПовідомленняが発生してない場合に得られ、
+  イベントの内容には <CODE>type</CODE> 以外は何も設定されない。
+  このイベントは、非アクティブПроцеси та потокиのみが得ることができ、
+  <CODE>EV_NULL</CODE> に相当する。
+</P>
+
+<H5>Віконна система (Windowing System)イベントの処理</H5>
+
+<P>
+  Віконна система (Windowing System)Обробка подійは、
+  要求したПроцеси та потокиがアクティブПроцеси та потокиか否かで大きくその内部処理が異なる。
+</P>
+
+<P>
+  アクティブПроцеси та потокиの場合は、核イベントを取り出し、
+  対応するВіконна система (Windowing System)のサーチ、相対座標への変換、Меню та командні інтерфейси指定のチェック、
+  ポインタ形状の変更、入力受付状態の切り換え等の処理を行なったのち、
+  必要に応じて後述するフロントエンド処理を行ない、
+  Віконна система (Windowing System)イベントとして戻す。
+</P>
+
+<P>
+  非アクティブПроцеси та потокиの場合は、Повідомленняを取り出し、
+  内部イベントПовідомленняとして得られた <CODE>EV_SWITCH</CODE>、
+  <CODE>EV_REQUEST</CODE> をВіконна система (Windowing System)イベントとして戻す。
+  この場合、他のПовідомленняも受信するため、
+  内部イベントПовідомлення以外のПовідомленняを受信した場合は、
+  その旨を戻すことになる。
+  またПовідомлення受信を待つか否かの指定を行なうことが可能で、
+  待たない指定を行なった場合でПовідомленняが何も無かった場合は、
+  その旨を戻す ( <CODE>EV_NOMSG</CODE> )。
+</P>
+
+<P>
+  入力受付状態でない ( 即ち非アクティブПроцеси та потоки ) 状態で、
+  Віконна система (Windowing System)の表示を更新する場合は、待たない指定を行なう必要がある。
+</P>
+
+<A name="aga">
+<CENTER><IMG src="gif/process_event.gif" alt="Віконна система (Windowing System)イベントの処理"></CENTER>
+</A>
+<CENTER>図 57 : Віконна система (Windowing System)イベントの処理</CENTER>
+
+
+<P>
+  内部イベントПовідомленняは入力受付状態の切り換え、
+  Віконна система (Windowing System)の再表示要求、フロントエンド処理等の際に、
+  Віконна система (Windowing System)イベントをВіконна система (Windowing System)の管理Процеси та потоки間で受け渡すために使用されるПовідомленняであり、
+  その詳細はВіконна система (Windowing System)マネージャのインプリメントに依存する。
+</P>
+
+<P>
+  内部イベントПовідомлення用に、<CODE>MS_MNG1</CODE> と <CODE>MS_MNG2</CODE>
+  の 2 つのПовідомленняタイプが使用されるため、
+  アプリケーションはこの 2 つのПовідомленняタイプを使用してはいけない。
+</P>
+
+<H5>フロントエンド機能</H5>
+
+<P>
+  フロントエンド機能は、
+  アクティブПроцеси та потокиが取り出す、
+  Віконна система (Windowing System)イベントを横取りして、
+  イベントの前処理等を行なう機能であり、
+  「キーボード表小物」等の特殊なアプリケーションにより使用される。
+  フロントエンド機能を使用する特殊なПроцеси та потокиをフロントエンドПроцеси та потокиと呼ぶ。
+</P>
+
+<P>
+  フロントエンドПроцеси та потокиは、
+  画面表示を必要とする場合、
+  前面Віконна система (Windowing System)を使用することができ、
+  各種のВіконна система (Windowing System)操作関数を特別な制限なしで使用することができる。
+  逆に前面Віконна система (Windowing System)以外のВіконна система (Windowing System)を使用することはできない。
+</P>
+
+<A name="agb">
+<CENTER><IMG src="gif/front_end.gif" alt="フロントエンド機能の基本構造"></CENTER>
+</A>
+<CENTER>図 58 : フロントエンド機能の基本構造</CENTER>
+
+<P>
+  フロントエンドПроцеси та потокиは <CODE>wdef_fep(1)</CODE> により定義され、
+  同時に最大 4 個まで定義できる。
+  フロントエンドПроцеси та потокиは、 すべての処理を終了した時点で
+  <CODE>wdef_fep(0)</CODE> により、
+  フロントエンドПроцеси та потокиでなくなるが、
+  そのПроцеси та потокиが終了した場合は自動的にフロントエンドПроцеси та потокиとしての定義から外される。
+</P>
+
+<P>
+  フロントエンドПроцеси та потокиが定義されている状態では、
+  フロントエンドПроцеси та потокиが実質的なアクティブПроцеси та потокиとして取り扱われ、
+  元のアクティブПроцеси та потокиは擬似アクティブПроцеси та потокиとなり、
+  非アクティブПроцеси та потокиと同様にПовідомлення待ち状態となる。
+  なお、
+  フロントエンドПроцеси та потокиの存在はВіконна система (Windowing System)の表示には一切影響しない。
+</P>
+
+<P>
+  複数のフロントエンドПроцеси та потокиが定義されている場合は、
+  最後に定義されたフロントエンドПроцеси та потокиが実質的なアクティブПроцеси та потокиとして取り扱われ、
+  他はすべて擬似アクティブПроцеси та потокиとなり、
+  Повідомлення待ち状態となる。
+</P>
+
+<P>
+  フロントエンドПроцеси та потокиが定義されている場合のВіконна система (Windowing System)イベントの流れの詳細を以下に示す。
+</P>
+
+<A name="agc">
+<CENTER><IMG src="gif/event_flow1.gif" alt="フロントエンドПроцеси та потокиへのイベント流れ(1)"></CENTER>
+</A>
+<CENTER>図 59 : フロントエンドПроцеси та потокиへのイベント流れ(1)</CENTER>
+
+
+<PRE>
+    (1) アクティブПроцеси та потокиがВіконна система (Windowing System)イベントを取り出す。
+    (2) フロントエンドПроцеси та потокиに取り出したイベントを渡す。
+    (3) フロントエンドПроцеси та потокиは渡されたイベントを取り出して処理する。
+    (4) フロントエンドПроцеси та потокиは処理後のイベントを戻す。
+    (5) アクティブПроцеси та потокиはフロントエンドПроцеси та потокиから戻された処理後
+        のイベントを取り出す。
+
+    (4)' フロントエンドПроцеси та потокиが、イベントを処理して戻す必要が無い場合。
+    (5)' アクティブПроцеси та потокиに「空」イベントを戻す。
+    (6)' アクティブПроцеси та потокиは「空」イベントを受け取ると、
+         再度Віконна система (Windowing System)イベントを取り出す。((1)に戻る)
+</PRE>
+
+<P>
+  複数のフロントエンドПроцеси та потокиが定義されている場合は、
+  最後に定義されたフロントエンドПроцеси та потокиに最初にイベントが渡される。
+  この場合のВіконна система (Windowing System)イベントの流れの詳細を以下に示す
+  ((4)'(5)'のパスは省略している)。
+</P>
+
+<A name="agd">
+<CENTER><IMG src="gif/event_flow2.gif" alt="フロントエンドПроцеси та потокиへのイベント流れ(2)"></CENTER>
+</A>
+<CENTER>図 60 : フロントエンドПроцеси та потокиへのイベント流れ(2)</CENTER>
+
+<P>
+  フロントエンドПроцеси та потокиの標準的な動作は以下に示すものとなる。
+</P>
+
+<OL>
+ <LI><P>
+     <CODE>wdef_fep(1)</CODE> によりフロントエンドПроцеси та потокиとなる。
+     </P>
+ <LI><P>
+     通常のПроцеси та потокиと同様に、<CODE>wget_evt (*evt, WAIT)</CODE> により、
+     イベントを取り出して、
+     その処理を行なうイベントループの構造となる。
+     <CODE>wpas_evt()</CODE>
+     によりイベントを戻す点のみが通常のПроцеси та потокиと異なることになる。
+     </P>
+ <LI><P>
+     得られたイベントの処理は、基本的に以下の 3 種類のいずれかとなる。
+     </P>
+     <OL>
+      <LI><P>
+          そのまま何もせずに <CODE>wpas_evt()</CODE> で戻す
+          </P>
+          <BLOCKQUOTE>
+          自分の前面Віконна система (Windowing System)以外に対する <CODE>EV_REQUEST</CODE>、
+          自分の前面Віконна система (Windowing System)以外での <CODE>EV_BUTDWN</CODE> 等
+          </BLOCKQUOTE>
+      <LI><P>
+          対応する処理を行なった後、得られたイベントをそのまま、
+          または変換して <CODE>wpas_evt()</CODE> で戻す
+          </P>
+          <DL>
+           <DT><CODE>EV_NULL</CODE>
+           <DD>ポインタ形状の変更、
+               ブリンク / ちらつき処理等を行なった後、
+               そのまま <CODE>EV_NULL</CODE> を戻す。
+          </DL>
+          <P>
+          キーボード小物の場合の例 :
+          </P>
+          <DL>
+           <DT><CODE>EV_KEYDWN </CODE>
+           <DD>対応するキー表示を反転し、
+               必要ならキーコードを変換して戻す。
+           <DT><CODE>EV_BUTDWN</CODE>
+           <DD>表示されているキー上の場合、
+               PD をトラックし、
+               リリース時点のキー表示に対応する
+               <CODE>EV_KEYDWN</CODE> を生成して戻す。
+          </DL>
+      <LI><P>
+          対応する処理を行ない、イベントを戻さない( (空)イベントを戻す)
+          </P>
+          <BLOCKQUOTE>
+          自分の前面Віконна система (Windowing System)に対する再表示要求等の <CODE>EV_REQUEST</CODE>、
+          自分の前面Віконна система (Windowing System)に対する PD プレスで、移動、変形操作 等 
+          </BLOCKQUOTE>
+     </OL>
+ <LI><P>
+     <CODE>wget_evt()</CODE>では、
+     Повідомленняキューのチェックは行なわれないため、
+     イベントループ内で自分でチェックする必要がある。
+     </P>
+ <LI><P>
+     処理を終了する場合は、<CODE>wdef_fep(0)</CODE> により、
+     フロントエンドПроцеси та потокиであることをやめる。
+     </P>
+</OL>
+
+<P>
+  フロントエンドПроцеси та потокиには、<CODE>wdef_fep(1)</CODE>
+  で定義される一般フロントエンドПроцеси та потокиと、
+  <CODE>wdef_fep(-1)</CODE>
+  で定義される特殊フロントエンドПроцеси та потокиの2つがある。
+</P>
+<P>
+  一般フロントエンドПроцеси та потокиに渡されるイベントは、
+  アクティブПроцеси та потокиが、
+  <CODE>RAWEVT / DRGEVT</CODE> 以外の指定で、
+  <CODE>wget_evt()</CODE>を実行して取り出したイベントのみであり、
+  他の関数 ( <CODE>mov_drg, wrsz_drg, wget_drg, wchk_dck</CODE> )
+  で内部的に取り出されたイベント、
+  および <CODE>RAWEVT / DRGEVT</CODE> 指定での <CODE>wget_evt()</CODE>
+  で取り出されたイベントは渡されない。
+</P>
+<P>
+  特殊フロントエンドПроцеси та потокиには、
+  他の関数
+   ( <CODE>wmov_drg,  wrsz_drg,  wget_drg,  wchk_dck</CODE> )
+  で内部的に取り出されたイベントも含めて、
+  すべてのイベントが渡される。
+  これは、イベントのレコーディングやプレイバックの特殊用途に使用される。
+</P>
+
+<H4><A name="age">3.1.2.3 Віконна система (Windowing System)の再表示処理</A></H4>
+
+<P>
+  Віконна система (Windowing System)の入力受付状態の切り換え、移動、変形、削除、
+  全面モードの解除等の操作を行なった場合、
+  他のВіконна система (Windowing System)にオーバーラップされて隠れていた部分が見えてきた場合のВіконна система (Windowing System)内容の再表示を行なう必要がある。
+</P>
+<P>
+  この場合、実際の再表示は、
+  そのВіконна система (Windowing System)の管理Процеси та потокиが行なうことになるが、
+  再表示が必要なВіконна система (Windowing System)、
+  およびそのВіконна система (Windowing System)内の再表示が必要な領域の管理はВіконна система (Windowing System)マネージャが行ない、
+  Віконна система (Windowing System)の管理Процеси та потокиに対して、
+  再表示要求イベントを発行する。
+</P>
+<P>
+  Віконна система (Windowing System)マネージャのインプリメントによっては隠れた部分のイメージを保持し、
+  再表示を自動的に行なうことも考えられるが、
+  この場合は管理Процеси та потоки側に再表示要求イベントが送られないことになるが、
+  基本的にすべてのアプリケーションは再表示要求イベントに対する再表示処理を行なう必要がある。
+</P>
+<P>
+  各Віконна система (Windowing System)は、
+  再表示が必要な領域を矩形の集合 ( 矩形リスト ) として保持しており、
+  Віконна система (Windowing System)の新たな再表示が必要になった時点で更新され、
+  Віконна система (Windowing System)に対しての再表示要求イベントが発行される。
+  この場合、
+  操作の対象となったВіконна система (Windowing System) ( 通常は入力受付状態のВіконна система (Windowing System) ) に対しては、
+  再表示領域は更新されるが、
+  再表示要求イベントは発行されず、
+  Віконна система (Windowing System)操作関数の関数値として再表示の必要性の有無が戻ることになる。
+</P>
+<P>
+  再表示要求イベントは、<CODE>src</CODE>
+  フィールドの値により以下のタイプに分類される。
+</P>
+
+<DL>
+ <DT><CODE>src = 0</CODE> : 通常再表示要求
+ <DD><P>
+     他のВіконна система (Windowing System)の移動/変形等により再表示が必要になった場合に発生する。
+     </P>
+ <DT><CODE>src = 1</CODE> : Системні панелі (Panels)再表示要求
+ <DD><P>
+     Системні панелі (Panels)Віконна система (Windowing System)が削除された場合に、
+     Системні панелі (Panels)に隠された部分の描画をСистемні панелі (Panels)表示中に行なった可能性があるВіконна система (Windowing System)に対して発生する。<BR>
+     この場合は、
+     Системні панелі (Panels)に隠された部分の描画を実際に行なわなかった場合は、
+     再表示を行なう必要はないが、
+     後述する <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE>
+     は実行する必要がある。
+     </P>
+</DL>
+
+<P>
+  アプリケーションは再表示要求イベントを受け取った場合、
+  またはВіконна система (Windowing System)操作の結果として、
+  対象Віконна система (Windowing System)の再表示が必要となった場合に、
+  以下の処理を行なう必要がある。
+</P>
+
+<UL>
+ <LI><P>
+     Віконна система (Windowing System)の描画環境の前置長方形リストは新しい配置のものが設定されており、
+     他のВіконна система (Windowing System)にはみでて描画できないことが保証されている。
+     </P>
+ <LI><P>
+     <CODE>wsta_dsp()</CODE> により再表示が必要な矩形領域を取り出すと共に、
+     再表示処理の開始を宣言する。
+     </P>
+ <LI><P>
+     <CODE>wsta_dsp()</CODE> で取り出した矩形領域の再描画を行なう。
+     この場合、作業領域全体の再描画を行なっても問題ないが、
+     処理の高速化のためには最低限の描画が望ましい。
+     </P>
+ <LI><P>
+     再表示が完了した場合は、<CODE>wend_dsp()</CODE> を実行し、
+     再表示の完了を宣言する。
+     </P>
+</UL>
+
+<P>
+  再表示領域の更新処理、
+  および <CODE>wsta_dsp()</CODE>、<CODE>wend_dsp()</CODE> に対する処理は、
+  Віконна система (Windowing System)マネージャにより以下のように行なわれる。
+</P>
+
+<UL>
+ <LI><P>
+     再表示領域が空の場合は、新たな再表示領域を設定し、
+     再表示要求イベントを発行する。
+     </P>
+ <LI><P>
+     再表示領域が空でなく、
+     再表示処理中状態でない場合は、
+     以前の再表示領域と新たな再表示領域をマージする。
+     再表示要求イベントは発行しない。
+     </P>
+ <LI><P>
+     再表示領域が空でなく、
+     再表示処理中状態の場合は、
+     再表示領域をペンディングとする。
+     既にペンディングの再表示領域が存在する場合は、
+     その領域と新たな再表示領域をマージする。
+     再表示要求イベントは発行しない。
+     </P>
+ <LI><P>
+     <CODE>wsta_dsp()</CODE> が実行された場合は、
+     再表示領域を戻し、その領域が空でない場合は、
+     再表示処理中状態とする。
+     </P>
+ <LI><P>
+     <CODE>wend_dsp()</CODE> が実行された場合で、
+     再表示処理中状態の場合は、再表示領域を空とする。
+     この時、ペンディングの再表示領域が存在する場合は、
+     その領域を再表示領域として設定し、<CODE>wend_dsp()</CODE>
+     の関数値として &quot;1&quot; を戻す。
+     ペンディングの再表示領域が存在しない場合は、
+     関数値として &quot;0&quot; を戻す。
+     再表示処理中状態でない場合は、
+     何もせずに関数値 &quot;0&quot; を戻す。
+     </P>
+</UL>
+
+<P>
+  複数のВіконна система (Windowing System)の再表示が必要な場合、
+  再表示要求イベントの送信順番は特に規定しないが、
+  実際の画面上で自然に見えることが望ましい。
+</P>
+
+<P>
+  Віконна система (Windowing System)に対するある種の操作を行なった場合は、
+  他のВіконна система (Windowing System)に再表示要求イベントが送信される可能性があるが、
+  アプリケーションは特にそのことを意識する必要はなく、
+  また他Віконна система (Windowing System)の再表示の完了を待つ必要もないが、
+  <CODE>wchk_dsp()</CODE> により、
+  他Віконна система (Windowing System)の再表示領域の有無をチェックすることができる。
+</P>
+
+<P>
+  内部Віконна система (Windowing System)に対しては再表示要求イベントは送られず、
+  内部Віконна система (Windowing System)を削除した場合には再表示要求イベントは発生しない。
+</P>
+
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)に対しては再表示要求イベントは送られないが、
+  Системні панелі (Panels)Віконна система (Windowing System)を削除した場合には、
+  以下に示す再表示要求イベントが発生する。
+</P>
+
+<UL>
+ <LI><P>
+     <CODE>CLR</CODE> 指定でСистемні панелі (Panels)Віконна система (Windowing System)が閉じられた場合 :<BR>
+     Системні панелі (Panels)で隠れていたВіконна система (Windowing System)に対して通常の再表示要求イベントが発生する。
+     </P>
+ <LI><P>
+     <CODE>NOCLR</CODE> 指定でСистемні панелі (Panels)Віконна система (Windowing System)が閉じられた場合:<BR>
+     Системні панелі (Panels)で隠れていたВіконна система (Windowing System)で、
+     <CODE>WA_BGDSP</CODE>
+     属性を指定したВіконна система (Windowing System)に対してСистемні панелі (Panels)再表示要求イベントが発生する。
+     </P>
+</UL>
+
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)の消去時にも通常の再表示要求イベントが発生する。
+</P>
+
+<P>
+  前面Віконна система (Windowing System)に対しては、
+  通常のВіконна система (Windowing System)と同様に再表示要求イベントが送られ、
+  前面Віконна система (Windowing System)の移動 / 変形 / 削除により、
+  再表示要求イベントが発生する。
+  ただし、
+  前面Віконна система (Windowing System)に対する再表示要求イベントは前面Віконна система (Windowing System)の管理Процеси та потокиではなく、
+  その時にアクティブПроцеси та потокиに対して送られる点が通常Віконна система (Windowing System)の場合と異なる。
+</P>
+
+<A name="agf">
+<CENTER><IMG src="gif/redraw.gif" alt="前面Віконна система (Windowing System)の再表示処理"></CENTER>
+</A>
+<CENTER>図 61 : 前面Віконна система (Windowing System)の再表示処理</CENTER>
+
+<H4><A name="agg">3.1.2.4 Віконна система (Windowing System)の表示管理</A></H4>
+
+<P>
+  Віконна система (Windowing System)の表示管理のための機能として、
+  「表示管理Меню та командні інтерфейси」によるВіконна система (Windowing System)の操作機能が提供される。
+</P>
+
+<A name="agh">
+<CENTER><IMG src="gif/disp_mng.gif" alt="表示管理Меню та командні інтерфейси"></CENTER>
+</A>
+<CENTER>図 62 : 表示管理Меню та командні інтерфейси</CENTER>
+
+<P>
+  入力受付状態の切り換えでは、<CODE>wswi_wnd()</CODE>
+  を実行した場合と同様の処理となり、
+  切り換わった先のВіконна система (Windowing System)に <CODE>W_SWICTH</CODE> イベントが送られ、
+  切り換わった元のВіконна система (Windowing System)には <CODE>EV_INACT</CODE> が送られる。
+</P>
+
+<H4><A name="agi">3.1.2.5 Віконна система (Windowing System)の描画環境</A></H4>
+
+<H5>Віконна система (Windowing System)の描画環境</H5>
+
+<P>
+  アプリケーションプログラムはВіконна система (Windowing System)マネージャにより生成されたВіконна система (Windowing System)内で表示を行なう必要があるが、
+  アプリケーションプログラムからは直接ディスプレイ関数を使用することにより実際の描画を行なう。
+</P>
+
+<P>
+  Віконна система (Windowing System)マネージャはВіконна система (Windowing System)毎に独立した描画環境を生成するので、
+  アプリケーションはВіконна система (Windowing System)に対応する描画環境 ID を取り出して、
+  その描画環境上でディスプレイ関数を実行して実際の描画を行なう。
+</P>
+
+<P>
+  Віконна система (Windowing System)生成時に同時に生成される描画環境には、以下の設定が行なわれている。
+</P>
+
+<UL>
+ <LI>ビットマップ
+     <P>
+     画面メモリを示すビットマップ<BR>     
+     座標系は作業領域の左上が ( 0, 0 )となる
+     </P>
+ <LI>フレーム長方形
+     <P>
+     作業領域の矩形
+     </P>
+ <LI>表示長方形<BR>
+     <P>
+     作業領域の矩形
+     </P>
+ <LI>前置長方形リスト<BR>
+     <P>
+     Віконна система (Windowing System)の配置に対応した矩形リスト
+     </P>
+ <LI>その他<BR>
+     <P>
+     描画環境の生成時の初期値
+     </P>
+</UL>
+
+<P>
+  上記のうち、ビットマップ、フレーム長方形、前置長方形リストは、
+  Віконна система (Windowing System)マネージャが管理しており、Віконна система (Windowing System)の移動/変形等に伴って変更されるため、
+  アプリケーションでは変更してはならない。
+  表示長方形、文字属性等のその他のデータはアプリケーションで自由に設定することができ、
+  Віконна система (Windowing System)マネージャにより変更されることはない。
+</P>
+
+<P>
+  不可視状態の従属Віконна система (Windowing System)に対応する描画環境では、
+  フレーム長方形が空 ( 0, 0, 0, 0 ) に設定され、
+  描画を行なっても、実際には無視されることになる。
+</P>
+
+<P>
+  Віконна система (Windowing System)のオープン時には、作業領域の左上が ( 0, 0 )
+  となるように描画環境の座標系が設定され、これを相対座標と呼ぶ。
+</P>
+
+<P>
+  作業領域内は、オープン時に指定した背景パターンで塗り潰される。
+</P>
+
+<P>
+  Віконна система (Windowing System)の移動では作業領域の左上の座標値は変化しないが、
+  Віконна система (Windowing System)の右下方向への変形以外のВіконна система (Windowing System)の変形およびスクロール処理では、
+  作業領域の左上の点はВіконна система (Windowing System)の変化に対応して変化することになる。
+  例えば、上方向へ 20 ドットスクロールした場合は、
+  作業領域の点 ( 0 , 0 ) は ( 0 , 20 ) となる。
+</P>
+
+<P>
+ また、Віконна система (Windowing System)を左上方向に ( 20, 20 ) 拡大した場合は、
+  以下の図のようになる。
+</P>
+
+<A name="agj">
+<CENTER><IMG src="gif/enlarge.gif" alt="Віконна система (Windowing System)拡大時の作業領域の座標"></CENTER>
+</A>
+<CENTER>図 63 : Віконна система (Windowing System)拡大時の作業領域の座標</CENTER>
+
+<P>
+  また、Віконна система (Windowing System)の全面モードの切り換えの場合は、
+  元の作業領域内のイメージの移動方法を含めて、
+  座標系の設定方法を指定できるようになっている。
+</P>
+
+<H5>ドラッグの描画環境</H5>
+
+<P>
+  アプリケーションによる描画は、
+  Віконна система (Windowing System)に 1 対 1 対応した描画環境を使用するが、
+  選択領域をドラッグした場合の「影」の描画は、
+  Віконна система (Windowing System)の作業領域をはみ出て描画する必要もあるため、
+  以下のような特別の方法を用いる。
+</P>
+
+<OL>
+ <LI><P>
+     <CODE>wsta_drg()</CODE> 関数により、
+     ドラッグ用の描画環境を得る。
+     この描画環境は、元のВіконна система (Windowing System)の描画環境と、
+     以下の設定が異なっている。
+     </P>
+      <UL>
+       <LI> フレーム長方形  -- 画面全体(システムПовідомленняСистемні панелі (Panels)は除く)
+       <LI> 表示長方形  -- 元のВіконна система (Windowing System)の作業領域の矩形(相対座標)
+       <LI> 前置長方形リスト -- 元のВіконна система (Windowing System)の前置長方形リストと同じ
+      </UL>
+     <P>
+     <CODE>wsta_drg()</CODE> 関数のパラメータとしてロック指定を行なった場合は、
+     他のВіконна система (Windowing System)の同時描画は禁止される。
+     元のВіконна система (Windowing System)をはみ出て描画する必要がある場合は、
+     ロック指定を必ず行なう必要がある。
+     </P>
+ <LI><P>
+     アプリケーションは、 得られた描画環境上で、
+     ドラッグ影の描画を行なう。
+     この描画環境上では、基本的にドラッグ影以外の描画を行なってはいけない。
+     ドラッグ描画のためのPDの位置を取り出すために <CODE>wget_drg()</CODE>
+     関数が用意されており、
+     描画環境レコードの座標系でのPDの座標位置を戻す。
+     </P>
+     <P>この場合、 元のВіконна система (Windowing System)をはみ出た描画を行なう必要がある場合は、
+     表示長方形を変更する必要がある。
+     なお、 描画環境の各種のパラメータは変更してもよい。
+     </P>
+ <LI><P>
+     ドラッグ影の描画を終了した場合は、<CODE>wend_drg()</CODE>
+     関数を実行する。
+     ロック指定を行なっていた場合は、
+     ロックは解除される。
+     また <CODE>wend_drg()</CODE> 実行後は、
+     <CODE>wsta_drg()</CODE> で得られた描画環境を使用した描画は保証されない。
+     </P>
+</OL>
+
+<P>
+  <CODE>wsta_drg()</CODE> により得られた描画環境の座標系は、
+  元になったВіконна система (Windowing System)の座標系が <CODE>wscr_wnd()</CODE> 関数、
+  または <CODE>wset_wrk()</CODE> 関数により相対的に移動した場合には、
+  自動的に座標系が一致するようにトラックされる。
+  即ち、元のВіконна система (Windowing System)のビットマップの座標系 ( <CODE>bounds</CODE> ) 
+  の移動量に従って、ドラッグ用の描画環境のビットマップの座標系
+  ( <CODE>bounds</CODE> )、
+  フレーム長方形、
+  および表示長方形が平行移動することになる。
+</P>
+
+<P>
+  これによりドラッグ影の描画中に元のВіконна система (Windowing System)の内容をスクロールしたり、
+  座標系を変更した場合にも、正しいドラッグ影の描画が保証されることになる。
+  ただし、サイズ変更、移動、および、全面モードの切り換えに関してはトラックされない。
+</P>
+
+<H4><A name="agk">3.1.2.6 Віконна система (Windowing System)情報レコード</A></H4>
+
+<P>
+Віконна система (Windowing System)情報レコードは、Віконна система (Windowing System)に関連する各種のデータを特定のシステムアプリケーションからアクセスするために用意されており、以下に標準的なデータを示すが、その詳細はインプリメントに依存する。
+</P>
+
+<P>一般項目 ( WI_GENERAL = 200 )</P>
+
+<DL>
+<DT><CODE>WI_FRAMESIZE (WI_GENERAL + 0)</CODE>
+<DD>スクリーン全体の領域。
+フルスクリーンモードの場合は、これが作業領域となる。(取得のみ)
+
+<DT><CODE>WI_WORKSIZE (WI_GENERAL + 1)</CODE>
+<DD>スクリーンからシステムПовідомленняСистемні панелі (Panels)の領域を除いた領域。(取得のみ)
+
+<DT><CODE>WI_WINLIST (WI_GENERAL + 2)</CODE>
+<DD>表示されている全Віконна система (Windowing System)のВіконна система (Windowing System)IDの配列。手前に位置するВіконна система (Windowing System)から順に並ぶ。(取得のみ)
+
+<DT><CODE>WI_FRONTLIST (WI_GENERAL + 3)</CODE>
+<DD>存在する全フロントエンドПроцеси та потокиのПроцеси та потокиIDの配列。(取得のみ)
+
+<DT><CODE>WI_MSGSTR (WI_GENERAL + 4)</CODE>
+<DD>システムПовідомленняСистемні панелі (Panels)の文字列（表示できる範囲のみ）。
+
+<DT><CODE>WI_MENUSTR (WI_GENERAL + 5)</CODE>
+<DD>Віконна система (Windowing System)の基本Меню та командні інтерфейси文字列。
+</DL>
+
+<P>イネーブルウェア項目 ( WI_ENABLEWARE = 300 )</P>
+
+<DL>
+<DT><CODE>WI_TITLEFONT (WI_ENABLEWARE + 0)</CODE>
+<DD>タイトルバーのУправління шрифтами (Font Manager)サイズ。
+
+<DT><CODE>WI_MENUFONT (WI_ENABLEWARE + 1)</CODE>
+<DD>Меню та командні інтерфейсиのУправління шрифтами (Font Manager)サイズ。
+
+<DT><CODE>WI_SBARWIDTH (WI_ENABLEWARE + 2)</CODE>
+<DD>スクロールバーの幅。
+
+<DT><CODE>WI_DRAGWIDTH (WI_ENABLEWARE + 3)</CODE>
+<DD>移動／変形時のラバーバンド幅。
+
+<DT><CODE>WI_DCLICKT (WI_ENABLEWARE + 4)</CODE>
+<DD>ダブルクリック間隔。
+
+<DT><CODE>WI_DCLICKW (WI_ENABLEWARE + 5)</CODE>
+<DD>ダブルクリック位置許容度。
+
+<DT><CODE>WI_CARETT (WI_ENABLEWARE + 6)</CODE>
+<DD>カレット点滅間隔。
+
+<DT><CODE>WI_CARETW (WI_ENABLEWARE + 7)</CODE>
+<DD>カレット幅の倍率。
+
+<DT><CODE>WI_SELECTT (WI_ENABLEWARE + 8)</CODE>
+<DD>選択枠点滅間隔。
+
+<DT><CODE>WI_SELECTW (WI_ENABLEWARE + 9)</CODE>
+<DD>選択枠線幅の倍率。
+</DL>
+
+<P>修飾項目 ( WI_ATTRIBUTE = 400 )</P>
+
+<DL>
+<DT><CODE>WI_WORKBACK (WI_ATTRIBUTE + 0)</CODE>
+<DD>背景画面のパターン構造体。
+
+<DT><CODE>WI_PANELBACK (WI_ATTRIBUTE + 1)</CODE>
+<DD>Системні панелі (Panels)背景のパターン構造体。
+</DL>
+
+<P>その他 ( WI_OTHER = 500 )</P>
+
+<DL>
+<DT><CODE>WI_LASTCARPOS (WI_OTHER + 0)</CODE>
+<DD>最後にカレットが表示された絶対座標。(取得のみ)
+
+<DT><CODE>WI_LASTCARTIME  (WI_OTHER + 1)</CODE>
+<DD>最後にカレットが表示されたシステム時刻。(取得のみ)
+</DL>
+
+<H3><A name="agl">3.1.3 データ/定数の定義</A></H3>
+
+<H4>□ Віконна система (Windowing System)イベント</H4>
+
+<PRE>
+typedef struct SEVENT { /* 切換イベント形式 */
+    W     type;
+    UW    time;
+    PNT   pos;
+    H     cmd;          /* 位置コード／コマンド */
+    H     wid;
+    UW    stat;
+} SEVENT;
+</PRE>
+
+<PRE>
+typedef struct REVENT { /* 要求イベント形式 */
+    W     type;
+    RECT  r;            /* 対象矩形領域 (相対座標) */
+    H     cmd;
+    H     wid;          /* 対象Віконна система (Windowing System)ID */
+    W     src;          /* ソースPID/他 */
+} REVENT;
+</PRE>
+
+<PRE>
+typedef struct GEVENT { /* 一般イベント形式 */
+    W     type;
+    H     data[4];      /* 任意のデータ */
+    H     cmd;
+    H     wid;
+    W     src;
+} GEVENT;
+</PRE>
+
+<PRE>
+typedef union _WEVENT {
+    EVENT   e;          /* 生イベント(核イベント) */
+    SEVENT  s;          /* 切換イベント形式 */
+    REVENT  r;          /* 要求イベント形式 */
+    GEVENT  g;          /* 一般イベント形式 */
+} WEVENT;
+</PRE>
+
+<H4>□ Віконна система (Windowing System)イベントタイプ</H4>
+
+<PRE>
+#define EV_SWITCH    8  /* 切換イベント */
+#define EV_REQUEST   9  /* 要求/応答イベント */
+#define EV_MENU     10  /* Меню та командні інтерфейсиイベント */
+#define EV_RSWITCH  16  /* 切換イベント(再表示要) */
+#define EV_INACT    17  /* 入力不可状態に切換わった */
+#define EV_MSG      18  /* 他のПовідомленняが得られた */
+#define EV_NOMSG    19  /* Повідомленняは得られなかった */
+</PRE>
+
+<H4>□ 位置コード／コマンド</H4>
+
+<PRE>
+#define W_WORK      0   /* 作業領域内 */
+#define W_FRAM      1   /* Віконна система (Windowing System)枠 */
+#define W_PICT      2   /* ピクトグラム */
+#define W_TITL      3   /* タイトル部 */
+#define W_LTHD      4   /* ハンドル (左上) */
+#define W_RTHD      5   /* ハンドル (右上) */
+#define W_LBHD      6   /* ハンドル (左下) */
+#define W_RBHD      7   /* ハンドル (右下) */
+#define W_RBAR      8   /* 右スクロールバー */
+#define W_BBAR      9   /* 下スクロールバー */
+#define W_LBAR      10  /* 左スクロールバー */
+</PRE>
+
+<PRE>
+#define W_SWITCH    128 /* 入力受付状態の移行 */
+#define W_CLOSED    129 /* Віконна система (Windowing System)のクローズ */
+</PRE>
+
+<H4>□ 要求イベント</H4>
+
+<PRE>
+#define W_REDISP    0   /* Віконна система (Windowing System)の再表示要求 */
+#define W_PASTE     1   /* データの貼り込み要求 */
+#define W_DELETE    2   /* Віконна система (Windowing System)のクローズ要求 */
+#define W_FINISH    3   /* 処理の終了要求 */
+#define W_OPENED    5   /* 子Віконна система (Windowing System)のオープン通知 */
+</PRE>
+
+<PRE>
+#define W_ACK       0x40    /* 要求に対する ACK 応答 */
+#define W_NAK       0x80    /* 要求に対する NACK 応答 */
+</PRE>
+
+<H4>□ Віконна система (Windowing System)削除</H4>
+
+<PRE>
+#define CLR     0       /* 表示をクリア */
+#define NOCLR   8       /* 表示をクリアしない */
+</PRE>
+
+<H4>□ Віконна система (Windowing System)イベント取得モード</H4>
+
+<PRE>
+#define WAIT        0   /* Віконна система (Windowing System)イベント待ち */
+#define NOWAIT      1   /* Віконна система (Windowing System)イベント待たない */
+#define NOMSG   0x0010  /* Повідомленняは取り出さない */
+#define RAWEVT  0x0020  /* Меню та командні інтерфейси用(絶対座標) */
+#define DRGEVT  0x0030  /* Компоненти графічного інтерфейсу用  (相対座標) */
+</PRE>
+
+<H4>□ 全面Віконна система (Windowing System)/スクロール</H4>
+
+<PRE>
+#define W_NORM      0   /* 通常モード */
+#define W_FULL      1   /* 全面モード */
+</PRE>
+
+<PRE>
+#define W_MOVE      0   /* 座標系を固定する(イメージを移動) */
+#define W_MOVEC     1   /* 座標系を固定する(イメージを移動) */
+#define W_HOLD      2   /* 座標系を移動する(イメージを固定) */
+</PRE>
+
+<PRE>
+#define W_SCRL      1   /* 座標系を移動する */
+</PRE>
+
+<PRE>
+#define W_VALID     1   /* スクロール表示は正当 */
+#define W_NOOVL     2   /* オーバーラップ時はスクロールしない */
+#define W_RDSET     4   /* 再表示領域を設定する */
+</PRE>
+
+<H4>□ Віконна система (Windowing System)の状態定義</H4>
+
+<PRE>
+typedef struct wdstat {
+    UW    attr;        /* Віконна система (Windowing System)の属性 */
+    W     parent;      /* 親Віконна система (Windowing System)ID/主Віконна система (Windowing System)ID */
+    W     pid;         /* 管理Процеси та потокиID (0:無し) */
+    RECT  r;           /* Віконна система (Windowing System)の表示位置 (絶対座標) */
+    RECT  wr;          /* 作業領域の位置 (相対座標) */
+    RECT  org;         /* 生成元の矩形領域 ((0,0,0,0):無し) */
+} WDSTAT;
+</PRE>
+
+<H4>□ PD</H4>
+
+<PRE>
+#define W_PRESS     0
+#define W_QPRESS    1
+#define W_CLICK     2
+#define W_DCLICK    3
+</PRE>
+
+<H3><A name="agm">3.1.4 Віконна система (Windowing System)マネージャの関数</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wopn_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の生成</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+WID wopn_wnd(UW attr, UW par, RECT *r, RECT *org, W pict, TC *tit, PAT *bgpat,
+            WDDISP * atr)
+
+</PRE>
+<H4>【パラメータ】</H4>
+<TABLE>
+ <TR><TD valign="top">UW    </TD><TD valign="top">attr  </TD>
+  <TD>Віконна система (Windowing System)属性</TD></TR>
+ <TR><TD valign="top">UW    </TD><TD valign="top">par   </TD>
+  <TD>主Віконна система (Windowing System)の場合には、親のВіконна система (Windowing System)IDを示し、
+      0 は親が存在しないことを意味する。
+      また従属Віконна система (Windowing System)の場合には、
+      主Віконна система (Windowing System) ID を示す。
+      主Віконна система (Windowing System)は同一Процеси та потокиにより管理されていなければならず、
+      そうでない場合はエラーとなる。</TD></TR>
+ <TR><TD valign="top">RECT  </TD><TD valign="top">*r    </TD>
+  <TD>Віконна система (Windowing System)の外枠の領域を指定した矩形領域であり、
+      絶対座標で指定される。
+      実行後には、実際に生成されたВіконна система (Windowing System)の作業領域の相対座標が格納される
+      (左上は常に ( 0, 0 ) となっている)。<BR>
+      <CODE>attr</CODE> によって、<CODE>WA_STD</CODE> 指定時には正規座標を、
+      <CODE>WA_WORK</CODE> 指定時には作業領域座標を、<CODE>WA_FRAME</CODE> 指定時には外枠座標を、
+      指定する。</TD></TR>
+ <TR><TD valign="top">RECT  </TD><TD valign="top">*org  </TD>
+  <TD>Віконна система (Windowing System)の生成元の矩形領域であり、親Віконна система (Windowing System)の相対座標で指定される。
+      存在しない場合は <CODE>NULL</CODE> とする。 主Віконна система (Windowing System)でない場合、および <CODE>par = 0</CODE>
+      の場合はこの指定は無視され、
+      生成元は存在しないものと見なされる。</TD></TR>
+<TR><TD valign="top">W     </TD><TD valign="top">pict  </TD>
+ <TD>タイトルバーのピクトグラムのデータ番号を示すもので、0 の場合はピクトグラムが存在しないことを意味する。</TD></TR>
+<TR><TD valign="top">TC    </TD><TD valign="top">*tit  </TD>
+ <TD>タイトルバーのタイトル文字列。</TD></TR>
+<TR><TD valign="top">PAT   </TD><TD valign="top">*bgpat</TD>
+ <TD>作業領域の背景パターンの指定であり、生成されたВіконна система (Windowing System)の作業領域は指定した背景パターンで塗り潰される。
+     <CODE>NULL</CODE> または内容が不正な場合は、デフォールトの背景パターンとなる。</TD></TR>
+ <TR><TD valign="top">WDDISP</TD><TD valign="top">*atr  </TD>
+  <TD>Віконна система (Windowing System)の表示属性の指定であり、<CODE>NULL</CODE> または内容が不正な場合は、
+      デフォールトの表示属性となる。
+</TABLE>
+
+<H4>【リターン値】</H4>
+≧ 0  正常(Віконна система (Windowing System)ID)<BR>
+＜ 0  エラー(エラーコード)
+
+<H4>【解説】</H4>
+
+<P>
+  指定したВіконна система (Windowing System)属性を持った、
+  通常Віконна система (Windowing System)または前面Віконна система (Windowing System)を新たに生成し、
+  そのВіконна система (Windowing System) ID ( &gt; 0 ) を関数値として戻す。
+  このВіконна система (Windowing System) ID は以後そのВіконна система (Windowing System)の操作の際に使用する。
+</P>
+<P>
+  生成したВіконна система (Windowing System)は、
+  必ず入力受付状態となり前面に表示される。
+  以前に入力受付状態であったВіконна система (Windowing System)は入力不可状態となり、
+  その管理Процеси та потокиに対して <CODE>EV_INACT</CODE> が送られる。
+  管理Процеси та потокиが自Процеси та потокиであった場合は、
+  自分自身に対して <CODE>EV_INACT</CODE> が送られることになる。
+  ただし、別のПроцеси та потокиがСистемні панелі (Panels)を表示している場合は、
+  Системні панелі (Panels)が削除されるのを待ってВіконна система (Windowing System)がオープンされる。
+  同じПроцеси та потокиがСистемні панелі (Panels)を表示している場合は、
+  <CODE>EX_WND</CODE> のエラーとなる。アクティブПроцеси та потокиのみが、
+  従属Віконна система (Windowing System)を生成することが可能であり、
+  そうでない場合は、<CODE>EX_WPRC</CODE> のエラーとなる。
+  従属Віконна система (Windowing System)の生成では、入力受付状態は変化しないため、
+  <CODE>EV_INACT</CODE> は発生しない。
+</P>
+<P>
+  また、前面Віконна система (Windowing System)の生成でも入力受付状態は変化しないため、
+  <CODE>EV_INACT</CODE> は発生しない。
+</P>
+<P>
+  フロントエンドПроцеси та потокиのみが前面Віконна система (Windowing System)を生成することが可能であり、
+  それ以外は <CODE>EX_WPRC</CODE> のエラーとなる。
+  また、フロントエンドПроцеси та потокиで前面Віконна система (Windowing System)以外をオープンした場合も、
+  エラーとなる。
+</P>
+<P>
+  スクロールバーのあるВіконна система (Windowing System)を生成した場合、
+  スクロールバーの設定値を表示状況に合わせて適宜変更する必要がある。
+</P>
+
+<P>
+  <CODE>atr</CODE> 
+  の指定は意味を持たない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r,org,title,bgpat,atr)のアクセスは許されていない。
+EX_NOSPC    : システムのメモリ領域が不足した。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない
+              (指定した親/主Віконна система (Windowing System)は存在していない、
+              主Віконна система (Windowing System)の管理Процеси та потокиが異なる)。
+EX_WPRC     : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (従属Віконна система (Windowing System)の生成でアクティブПроцеси та потокиでない、
+              フロントエンドПроцеси та потокиで前面Віконна система (Windowing System)以外をオープンした、
+              フロントエンドПроцеси та потоки以外で前面Віконна система (Windowing System)をオープンした)。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (同じПроцеси та потокиがСистемні панелі (Panels)を表示している、
+              フルスクリーンのВіконна система (Windowing System)が開かれている)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wopn_iwd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>内部Віконна система (Windowing System)のオープン</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+WID wopn_iwd(W gid)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   gid     描画環境
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(Віконна система (Windowing System)ID)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>gid</CODE> で指定した描画環境を内部Віконна система (Windowing System)としてオープンし、
+  そのВіконна система (Windowing System) ID を関数値として戻す。
+  内部Віконна система (Windowing System)は、<CODE>gid</CODE> で指定した描画環境を 1
+  つのВіконна система (Windowing System)として割り当てたものであり、
+  Віконна система (Windowing System)枠等の描画、領域の管理、
+  入力受付状態の切換え等は一切行なわれない。
+</P>
+<P>
+  内部Віконна система (Windowing System)に対しては、以下の関数のみ適用可能であり、
+  他はすべて <CODE>EX_WND</CODE> のエラーとなる。
+  また、<CODE>wget_evt()</CODE>、<CODE>wfnd_wnd()</CODE>
+  での位置のサーチの対象とはならない。
+</P>
+<PRE>
+    wcls_wnd()  内部Віконна система (Windowing System)のクローズ
+    wget_gid()  内部Віконна система (Windowing System)の描画環境IDの取り出し
+    wset_dat()  内部Віконна система (Windowing System)のユーザデータの設定
+    wget_dat()  内部Віконна система (Windowing System)のユーザデータの取り出し
+</PRE>
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_NOSPC    : システムのメモリ領域が不足した。
+EG_GID      :  gid で指定した描画環境は存在しない。
+EX_WPRC     : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (フロントエンドПроцеси та потокиである)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wopn_pwd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Системні панелі (Panels)Віконна система (Windowing System)のオープン</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+WID wopn_pwd(RECT *r)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+RECT    *r  外枠の絶対座標
+</PRE>
+
+<H4>【リターン値】</H4>
+≧ 0  正常(Віконна система (Windowing System)ID)<BR>
+＜ 0  エラー(エラーコード)
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>*r</CODE>
+  で指定した絶対座標の領域を外枠とするСистемні панелі (Panels)Віконна система (Windowing System)をオープンし、
+  そのВіконна система (Windowing System) ID を関数値として戻す。
+  Системні панелі (Panels)Віконна система (Windowing System)は、枠を含めた描画は一切行なわれず、
+  その存在の管理のみを行なうことになる。
+  なお、Системні панелі (Panels)Віконна система (Windowing System)の移動 / 変形はできない。
+</P>
+
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)はオープンされると入力受付状態を横取りした形で占有し、
+  Системні панелі (Panels)Віконна система (Windowing System)をオープンしたПроцеси та потокиがアクティブПроцеси та потокиとなる。
+  Системні панелі (Panels)Віконна система (Windowing System)をオープンしたПроцеси та потокиがアクティブПроцеси та потокиでなかった場合は、
+  元の入力受付状態のВіконна система (Windowing System)に対して <CODE>EV_INACT</CODE>
+  が送られ、<CODE>EV_INACT</CODE> が受信された後にСистемні панелі (Panels)Віконна система (Windowing System)がオープンされる。
+  Системні панелі (Panels)Віконна система (Windowing System)をオープンしたПроцеси та потокиが既にアクティブПроцеси та потокиであった場合は、
+  <CODE>EV_INACT</CODE> は送られない。
+  Системні панелі (Panels)Віконна система (Windowing System)をクローズした場合、
+  オープンした時に入力受付状態であったВіконна система (Windowing System)に入力受付状態が戻り、
+  <CODE>EV_INACT</CODE> を送った場合は、<CODE>EV_SWITCH</CODE>  ( <CODE>W_SWITCH</CODE> コマンド )
+  が送られる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(r,bgpat)のアクセスは許されていない。
+EX_NOSPC    : システムのメモリ領域が不足した。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (フロントエンドПроцеси та потокиである)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wcls_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の削除</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR wcls_wnd(W wid, W opt)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid Віконна система (Windowing System)ID
+W   opt ::= ( CLR ‖ NOCLR )
+</PRE>
+<DL>
+ <DT>CLR   (=0):
+ <DD>削除したВіконна система (Windowing System)(群)により隠されていた他Віконна система (Windowing System)の再表示要求イベントが発行され、その結果Віконна система (Windowing System)の表示は消去される。
+ <DT>NOCLR (≠0):
+ <DD>削除したВіконна система (Windowing System)(群)の表示はそのまま残り、再表示要求イベントは一切発行されない。
+</DL>
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)、
+  および指定したВіконна система (Windowing System)に従属する全ての従属Віконна система (Windowing System)を削除する。
+  削除したВіконна система (Windowing System)に属する全てのКомпоненти графічного інтерфейсуも同時に削除される。
+  内部Віконна система (Windowing System)の削除の場合を除いて、
+  Віконна система (Windowing System)に対応する描画環境も削除される。
+</P>
+<P>
+  入力受付状態の主Віконна система (Windowing System)を削除した場合、
+  親Віконна система (Windowing System)に対して <CODE>EV_SWITCH</CODE> ( <CODE>W_CLOSED</CODE> コマンド )
+  が送られ、親Віконна система (Windowing System)に入力受付状態が切換わる。
+  この時、
+  生成元が存在する場合には生成元に対してクロージングアニメーションが表示される。
+</P>
+<P>
+  親Віконна система (Windowing System)が存在しない入力受付状態のВіконна система (Windowing System)をクローズした場合は、
+  直前に入力受付状態であったВіконна система (Windowing System)に <CODE>EV_SWITCH</CODE>
+  が送られて入力受付状態が移行する。
+  直前に入力受付状態であったВіконна система (Windowing System)が既に存在しない場合は、
+  さらにその直前に入力受付状態であったВіконна система (Windowing System)というように、
+  入力受付状態の遷移を逆にたどってВіконна система (Windowing System)に入力受付状態が戻る。
+  なお、
+  この場合は生成元は存在しないものとみなされる。
+</P>
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)を削除した場合は、
+  Системні панелі (Panels)Віконна система (Windowing System)をオープンした時に入力受付状態であったВіконна система (Windowing System)に入力受付状態が切換わり、
+  その管理Процеси та потокиが異なるПроцеси та потокиの場合には、
+  <CODE>EV_SWITCH</CODE> ( <CODE>W_SWITCH</CODE> コマンド )
+  が送られる ( 同一Процеси та потокиの場合には、<CODE>EV_SWITCH</CODE> は送られない)。
+</P>
+<P>
+  削除したВіконна система (Windowing System)が、
+  入力受付状態でない主Віконна система (Windowing System)、従属Віконна система (Windowing System)、内部Віконна система (Windowing System)、
+  および前面Віконна система (Windowing System)の場合は、入力受付状態の切換えは発生しない。
+</P>
+<P>
+  削除したВіконна система (Windowing System)に子Віконна система (Windowing System)が存在する場合は、
+  その子Віконна система (Windowing System)の親Віконна система (Windowing System)および生成元は、
+  削除したВіконна система (Windowing System)の親Віконна система (Windowing System)および生成元にそれぞれ変更される。
+</P>
+<P>
+  削除するВіконна система (Windowing System)は入力受付状態でなくてもよい。
+  削除するВіконна система (Windowing System)の管理Процеси та потокиでない場合は、
+  <CODE>EX_WPRC</CODE> のエラーとなる。
+  また、Процеси та потокиが終了した場合は、
+  そのПроцеси та потокиがオープンした全てのВіконна система (Windowing System)は自動的に
+  <CODE>CLR</CODE> 指定でクローズされる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchg_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の全面/通常モード切換</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wchg_wnd(W wid, RECT *r, W mode)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<TABLE>
+ <TR><TD>W   wid</TD><TD>Віконна система (Windowing System)ID</TD></TR>
+ <TR><TD>RECT    *r</TD><TD>NULL でない場合は、切換えた新しい作業領域(相対座標) が r で指定した領域に格納される。</TD></TR>
+</TABLE>
+<PRE>
+W   mode    ::= ( W_MOVE ‖ W_MOVEC ‖ W_HOLD )
+</PRE>
+<DL>
+ <DT><CODE>W_MOVE</CODE>:
+ <DD>新作業領域の左上の点の座標値は、
+     元の作業領域の左上の点の座標値と同じ値となる
+     (ビットマップの境界が変更され、フレーム長方形は右下に拡大 / 縮小される。
+     表示長方形は一切変更されない)。
+     全面モードに切り換えた場合は、
+     元の作業領域の表示内容を新作業領域の左上隅に移動し右下の追加領域が背景パターンで塗り潰され、
+     通常モードに切り換えた場合は、
+     元の作業領域の左上隅の表示内容が新作業領域の表示内容となる。
+
+<A name="agn">
+<CENTER><IMG src="gif/w_move.gif" alt="W_MOVE"></CENTER>
+</A>
+<CENTER>図 64 : <CODE>W_MOVE</CODE></CENTER>
+
+ <DT><CODE>W_MOVEC</CODE>: 
+ <DD>
+     新作業領域の左上の点の座標値は、
+     元の作業領域の左上の点の座標値と同じ値となる
+     (ビットマップの境界が変更され、フレーム長方形は右下に拡大 / 縮小される。
+     表示長方形は一切変更されない)。
+     全面モードに切り換えた場合は、
+     新作業領域全体はВіконна система (Windowing System)の背景パターンで塗り潰され、
+     通常モードに切り換えた場合は、
+     元の作業領域の左上隅の表示内容が新作業領域の表示内容となる
+     (通常モードへの切り換えの場合は W_MOVE の場合と同じ)。
+
+<A name="ago">
+<CENTER><IMG src="gif/w_movec.gif" alt="W_MOVEC"></CENTER>
+</A>
+<CENTER>図 65 : <CODE>W_MOVEC</CODE></CENTER>
+
+
+ <DT><CODE>W_HOLD</CODE>:
+ <DD>
+     新作業領域の左上の点の座標値は、
+     元の作業領域の左上の点の座標値が変化しない値になる。
+     即ち、座標系は変更されない
+     (ビットマップの境界は変更されず、
+     フレーム長方形は 4 隅が拡大 / 縮小される。
+     表示長方形は一切変更されない)。
+     全面モードに切り換えた場合は、
+     元の作業領域の表示内容はそのまま残り、
+     周囲の追加領域がВіконна система (Windowing System)の背景パターンで塗り潰され、
+     通常モードに切り換えた場合は、
+     元の作業領域の対応する位置の表示内容が新作業領域の表示内容となる。
+
+<A name="agp">
+<CENTER><IMG src="gif/w_hold.gif" alt="W_HOLD"></CENTER>
+</A>
+<CENTER>図 66 : W_HOLD</CENTER>
+
+</DL>
+
+<P>
+  なお、
+  全面モードのВіконна система (Windowing System)を移動/変形した場合は、
+  通常モードとなる。
+</P>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  関数値 = 0 : 通常モードに切換わった(対象Віконна система (Windowing System)の再表示は不要)。
+             1 : 全面モードに切換わった(対象Віконна система (Windowing System)の再表示が必要)。
+             2 : 通常モードに切換わった(対象Віконна система (Windowing System)の再表示が必要)。
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の全面モード / 通常モードを切換える。
+  現在通常モードの場合は全面モードに切換え、
+  全面モードの場合は通常モードに切換える。
+</P>
+<P>
+  全面モードから通常モードに切り換えた場合で、
+  他のВіконна система (Windowing System)の再表示が必要な時は、
+  そのВіконна система (Windowing System)に対して再表示要求イベントが送られる。
+  通常、対象Віконна система (Windowing System)の再表示は不要であるが、
+  必要な場合もあり、その場合は再表示領域が設定されるので、
+  <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE> により再表示を行なう必要がある。
+</P>
+<P>
+  通常モードから全面モードに切り換えた場合は、
+  他Віконна система (Windowing System)の再表示は不要であるが、
+  対象Віконна система (Windowing System)の再表示は自分で行なう必要がある。
+  再表示要求イベントは送られないが、
+  再表示領域は設定されるので、<CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE>
+  により再表示を行なう必要がある。
+  全面モードにした場合でもその従属Віконна система (Windowing System)、
+  および前面Віконна система (Windowing System)はオーバーラップして表示されることになる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(mode が不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態の主Віконна система (Windowing System)でない)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wmov_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の移動</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wmov_wnd(W wid, RECT *newr)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W        wid     Віконна система (Windowing System)ID
+RECT    *newr    newr-&gt;lefttop で移動後の左上の点を指定
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常    0(再表示不要)
+            1(再表示必要)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の外枠の左上の点が 
+  <CODE>newr-&gt;lefttop</CODE>
+  で指定した絶対座標位置に一致するようにВіконна система (Windowing System)全体を移動する。
+  移動により作業領域の表示イメージも移動し、
+  最終的な新しいВіконна система (Windowing System)の外枠が <CODE>newr</CODE> で指定した領域に絶対座標値で格納される。
+</P>
+<P>
+  Віконна система (Windowing System)属性によって、<CODE>WA_STD</CODE> 指定時には正規座標が、
+  <CODE>WA_WORK</CODE> 指定時には作業領域座標が、
+  <CODE>WA_FRAME</CODE> 指定時には外枠座標が、格納される。
+</P>
+<P>
+  移動の結果、
+  他Віконна система (Windowing System)の再表示が必要になった場合は、
+  再表示要求イベントが発行される。
+  また移動したВіконна система (Windowing System)自体の再表示が必要な場合は、
+  関数値として &quot;1&quot; が戻り、
+  不要な場合は &quot;0&quot; が戻る。
+  対象Віконна система (Windowing System)への再表示要求イベントは発行されないが、
+  再表示領域は設定されるため、
+  関数値が &quot;1&quot; の場合は、
+  <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE> による再表示を行なう必要がある。
+</P>
+<P>
+  移動したВіконна система (Windowing System)が全面モードの場合は、
+  そのВіконна система (Windowing System)は通常モードとなる。
+</P>
+<P>
+  Віконна система (Windowing System)の移動では、ビットマップの境界のみが変更され、
+  フレーム長方形、表示長方形は一切変更されない。
+</P>
+<P>
+  対象Віконна система (Windowing System)が入力受付状態でない場合は、
+  <CODE>EX_WND</CODE> のエラーとなり、
+  管理Процеси та потокиでない場合は、<CODE>EX_WPRC</CODE>
+  のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(newr)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態でない)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wmov_drg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)のドラッグ移動</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wmov_drg(WEVENT *evt, RECT *newr)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<TABLE>
+ <TR><TD valign="top"><CODE>WEVENT</CODE></TD><TD valign="top"><CODE>*evt</CODE></TD>
+  <TD>ドラッグ移動のきっかけとなったВіконна система (Windowing System)イベント。</TD></TR>
+ <TR><TD valign="top"><CODE>RECT</CODE></TD><TD valign="top"><CODE>*newr</CODE></TD>
+  <TD><CODE>NULL</CODE> でない場合は、
+      移動したВіконна система (Windowing System)の新しい外枠の絶対座標が
+      <CODE>newr</CODE> で指定した領域に格納される。<BR>
+      Віконна система (Windowing System)属性によって、<CODE>WA_STD</CODE> 指定時には外枠座標が、
+      <CODE>WA_WORK</CODE> 指定時には作業領域座標が、
+      <CODE>WA_FRAME</CODE> 指定時には外枠座標が、格納される。
+      <CODE>WA_STD</CODE> 指定時に外枠座標が格納されるのは、
+      従来仕様との互換性のためである。</TD></TR>
+</TABLE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0 正常    0(再表示不要)
+           1(再表示必要)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE> evt-&gt;s.wid</CODE> で指定したВіконна система (Windowing System)をドラッグにより移動する。
+  <CODE>*evt</CODE> には、ドラッグの契機となった <CODE>EV_SWITCH</CODE>
+  または <CODE>EV_BUTDWN</CODE> または <CODE>EV_RSWITCH</CODE>  のВіконна система (Windowing System)イベントを指定する。
+  このイベントの位置コードは、<CODE>W_FRAM(1)</CODE>、
+  <CODE>W_LTHD(4)</CODE> 〜 <CODE>W_RBHD(7)</CODE> のいずれかでなくてはいけない。
+  イベントのタイプや、位置コードが不正の場合は <CODE>EX_PAR</CODE> のエラーとなる。
+</P>
+<P>
+  この関数の実行により、
+  ポインタの形状は「握り」となり、PD
+  のボタンが押されている間、Віконна система (Windowing System)枠の影が PD の移動に伴って移動する。
+  ボタンをリリースした位置にВіконна система (Windowing System)が移動し、
+  ポインタの形状はもとの「移動手」に戻る。
+</P>
+<P>
+  ポインタをシステムПовідомленняСистемні панелі (Panels)上に移動した場合は、
+  影は消去される。
+  ポインタをシステムПовідомленняСистемні панелі (Panels)以外に移動すると、
+  影は再び表示される。
+  ポインタをシステムПовідомленняСистемні панелі (Panels)上でリリースした場合は、
+  Віконна система (Windowing System)の移動は取り消される。
+</P>
+<P>
+  ドラッグ中、シフトキーが押されている間は、移動の方向が縦方向、
+  または横方向に拘束され、ドラッグの影は、
+  縦方向または横方向にのみ移動する。拘束の方向は、
+  PD の最初の位置から最初に移動した変位の長辺の方向となる。
+  縦方向に拘束されている状態では、
+  ポインタの形状は縦方向のものとなり、
+  横方向に拘束されている状態では、
+  ポインタの形状は横方向のものとなる。
+</P>
+<P>
+  シフトキーを離した場合は、拘束は解除される。
+  従って、シフトキーを押している状態で PD をリリースすることにより、
+  縦方向または横方向の移動を行なうことができる。
+  なお、移動の方向が拘束されている状態でも、
+  ポインタ自体の動きは拘束されない。
+</P>
+<P>
+  ドラッグ中に発生した <CODE>EV_KEYDWN</CODE>, <CODE>EV_KEYUP</CODE>, <CODE>EV_AUTKEY</CODE>
+  イベントは取り除かれて無視されるが、
+  その他のイベントが発生した場合はイベントキューに残される。
+  PD のリリース時により発生した <CODE>EV_BUTUP</CODE> イベントは取り除かれる。
+</P>
+<P>
+  移動の結果、他Віконна система (Windowing System)の再表示が必要になった場合は、
+  再表示要求イベントが発行される。
+  また移動したВіконна система (Windowing System)自体の再表示が必要な場合は、
+  関数値として &quot;1&quot; が戻り、
+  不要な場合は &quot;0&quot; が戻る。
+  対象Віконна система (Windowing System)への再表示要求イベントは発行されないが、
+  再表示領域は設定されるため、
+  関数値が &quot;1&quot; の場合は、<CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE>
+  による再表示を行なう必要がある。
+</P>
+<P>
+  移動したВіконна система (Windowing System)が全面モードの場合は、
+  そのВіконна система (Windowing System)は通常モードとなる。
+</P>
+<P>
+  Віконна система (Windowing System)の移動では、
+  ビットマップの境界のみが変更され、
+  フレーム長方形、表示長方形は一切変更されない。
+</P>
+<P>
+  対象Віконна система (Windowing System)が入力受付状態でない場合は、
+  <CODE>EX_WND</CODE> のエラーとなり、
+  管理Процеси та потокиでない場合は、
+  <CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_PAR      : パラメータが不正である
+              (イベントのタイプ、位置コードが不正)。
+EX_ADR      : アドレスのアクセスは許されていない(newr)。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態でない)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wrsz_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の変形</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wrsz_wnd(W wid, RECT *newr)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid Віконна система (Windowing System)ID
+REC *newr   変形する大きさ
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常    0(再表示不要)
+            1(再表示必要)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の外枠を 
+  <CODE>*newr</CODE> で指定した大きさに変形する。
+  <CODE>*newr</CODE> は絶対座標で指定され、
+  4 隅のいずれか 1 つは現在のВіконна система (Windowing System)の外枠の 4 隅と一致していなくてはいけない。
+  <CODE>*newr</CODE> がシステムで規定した最小サイズ以下の場合は、
+  最小サイズで実行される。
+  変形後のВіконна система (Windowing System)の外枠が <CODE>*newr</CODE> に格納される。
+</P>
+<P>
+  Віконна система (Windowing System)属性によって、<CODE>WA_STD</CODE> 指定時には外枠座標が、
+  <CODE>WA_WORK</CODE> 指定時には作業領域座標が、
+  <CODE>WA_FRAME</CODE> 指定時には外枠座標が、
+  格納される。<CODE>WA_STD</CODE> 指定時に外枠座標が格納されるのは、
+  従来仕様との互換性のためである。
+</P>
+<P>
+  変形の結果、他Віконна система (Windowing System)の再表示が必要になった場合は、
+  再表示要求イベントが発行される。
+  また変形したВіконна система (Windowing System)自体の再表示が必要な場合は、
+  関数値として &quot;1&quot; が戻り、
+  不要な場合は &quot;0&quot; が戻る。
+  対象Віконна система (Windowing System)への再表示要求イベントは発行されないが、
+  再表示領域は設定されるため、
+  関数値が &quot;1&quot; の場合は、
+  <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE> による再表示を行なう必要がある。
+</P>
+<P>
+  変形により拡張された作業領域の追加領域はВіконна система (Windowing System)の背景パターンで塗りつぶされる。
+  また元の作業領域に表示されていた部分の相対座標値は一切変化しない。
+</P>
+<P>
+  変形したВіконна система (Windowing System)が全面モードの場合は、
+  そのВіконна система (Windowing System)は通常モードとなる。
+</P>
+<P>
+  Віконна система (Windowing System)の変形では、
+  ビットマップの境界は変更されず、
+  フレーム長方形の 4 隅のいずれかが拡大 / 縮小されることになる。
+  表示長方形は一切変更されない。
+</P>
+<P>
+  対象Віконна система (Windowing System)が入力受付状態でない場合は、
+  <CODE>EX_WND</CODE> のエラーとなり、
+  管理Процеси та потокиでない場合は、<CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(newr)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である
+              (newr の4隅が全て一致していない,*newr が範囲外)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態でない)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wrsz_drg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)のドラッグ変形</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wrsz_drg(WEVENT *evt, RECT *limit, RECT *newr)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+
+<TABLE>
+<TR><TD valign="top"><CODE>WEVENT</CODE></TD><TD valign="top"><CODE>*evt</CODE></TD>
+ <TD>ドラッグ変形のきっかけとなったВіконна система (Windowing System)イベント。</TD></TR>
+<TR><TD valign="top"><CODE>RECT</CODE></TD><TD valign="top"><CODE>*limit</CODE></TD>
+ <TD><CODE>limit-&gt;lefttop</CODE> はВіконна система (Windowing System)の最小サイズ ( <CODE>lefttop.c.v</CODE> が縦、<CODE>lefttop.c.h</CODE> が横の大きさ )
+     を示し、<CODE>limit-&gt;rightbot</CODE> は同様に最大サイズを示す。
+     <CODE>limit</CODE> が <CODE>NULL</CODE> の場合は最小サイズはシステムの規定値、
+     最大サイズは特に制限無しと見なされる。</TD></TR>
+<TR><TD valign="top"><CODE>RECT</CODE></TD><TD valign="top"><CODE>*newr</CODE></TD>
+ <TD><CODE>newr</CODE> が <CODE>NULL</CODE> でない場合は、
+      変形したВіконна система (Windowing System)の新しい外枠の絶対座標が <CODE>newr</CODE> で指定した領域に格納される。
+     Віконна система (Windowing System)属性によって、<CODE>WA_STD</CODE> 指定時には正規座標が、
+     <CODE>WA_WORK</CODE> 指定時には作業領域座標が、
+     <CODE>WA_FRAME</CODE> 指定時には外枠座標が、
+     格納される。
+ </TD></TR>
+</TABLE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常    0(再表示不要)
+            1(再表示必要)
+＜ 0  エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+
+<P>
+  <CODE>evt-&gt;s.wid</CODE> で指定したВіконна система (Windowing System)をドラッグにより変形する。
+  <CODE>*evt</CODE> には、
+  ドラッグの契機となった <CODE>EV_SWITCH</CODE>, <CODE>EV_BUTDWN</CODE> または <CODE>EV_RSWITCH</CODE> のВіконна система (Windowing System)イベントを指定する。
+  このイベントの位置コードは、<CODE>W_LTHD(4)</CODE>〜<CODE>W_RBHD(7)</CODE> のいずれかでなくてはいけない。
+  イベントのタイプや、位置コードが不正の場合は <CODE>EX_PAR</CODE> のエラーとなる。
+</P>
+<P>
+  この関数の実行により、
+  ポインタの形状は「つまみ」となり、
+  PD のボタンが押されている間、Віконна система (Windowing System)枠の影が PD の移動に伴って変形する。
+  変形のしかたは、<CODE>*evt</CODE> で指定したイベントの位置コード、
+  およびВіконна система (Windowing System)の属性 ( <CODE>WA_HHDL</CODE> , <CODE>WA_VHDL</CODE> )
+  によって決まり、
+  さらに <CODE>*limit</CODE> で指定した最小サイズと最大サイズにより制限される。
+</P>
+<P>
+  ドラッグ中に最大サイズ以上になった場合は、
+  Віконна система (Windowing System)枠の影は、縦または横の最大サイズでクランプし、
+  PD の位置に追従しなくなる。
+  最小サイズ以下になった場合も同様にВіконна система (Windowing System)枠の影は、
+  縦または横の最小サイズでクランプし、
+  PD の位置に追従しなくなる。
+</P>
+<P>
+  ポインタをシステムПовідомленняСистемні панелі (Panels)上に移動した場合は、
+  影は消去される。ポインタをシステムПовідомленняСистемні панелі (Panels)以外に移動すると、
+  影は再び表示される。
+</P>
+<P>
+  PD のボタンをリリースした時点のВіконна система (Windowing System)枠の影の大きさにВіконна система (Windowing System)は変形し、
+  ポインタの形状はもとの「変形手」に戻る。
+</P>
+<P>
+  ポインタをシステムПовідомленняСистемні панелі (Panels)上でリリースした場合、
+  Віконна система (Windowing System)の変形は取り消される。
+</P>
+<P>
+  ドラッグ中、
+  シフトキーが押されている間は、変形の方向が縦方向、
+  または横方向に拘束され、ドラッグの影は、縦方向または横方向にのみ変形する。
+  拘束の方向は、PDの最初の位置から最初に移動した変位の長辺の方向となる。
+  縦方向に拘束されている状態では、ポインタの形状は縦方向のものとなり、
+  横方向に拘束されている状態では、ポインタの形状は横方向のものとなる。
+  ただし、上下左右ともに変形可のВіконна система (Windowing System)に対してのみ有効である。
+</P>
+<P>
+  シフトキーを離した場合は、拘束は解除される。
+  従って、シフトキーを押している状態で PD をリリースすることにより、
+  縦方向または横方向の変形を行なうことができる。
+  なお、変形の方向が拘束されている状態でも、
+  ポインタ自体の動きは拘束されない。
+</P>
+<P>
+  ドラッグ中に発生した <CODE>EV_KEYDWN</CODE>, <CODE>EV_KEYUP</CODE>, <CODE>EV_AUTKEY</CODE>
+  イベントは取り除かれて無視されるが、
+  その他のイベントが発生した場合はイベントキューに残される。
+  PD のリリース時により発生した <CODE>EV_BUTUP</CODE> イベントは取り除かれる。
+</P>
+<P>
+  変形の結果、他Віконна система (Windowing System)の再表示が必要になった場合は、
+  再表示要求イベントが発行される。
+  また変形したВіконна система (Windowing System)自体の再表示が必要な場合は、
+  関数値として &quot;1&quot; が戻り、不要な場合は &quot;0&quot; が戻る。
+  対象Віконна система (Windowing System)への再表示要求イベントは発行されないが、再表示領域は設定されるため、
+  関数値が &quot;1&quot; の場合は、
+  <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE> による再表示を行なう必要がある。
+</P>
+<P>
+  変形により拡張された作業領域の追加領域はВіконна система (Windowing System)の背景パターンで塗りつぶされる。
+  また元の作業領域に表示されていた部分の相対座標値は一切変化しない。
+</P>
+<P>
+  変形したВіконна система (Windowing System)が全面モードの場合は、そのВіконна система (Windowing System)は通常モードとなる。
+</P>
+<P>
+  Віконна система (Windowing System)の変形では、
+  ビットマップの境界は変更されず、
+  フレーム長方形の4隅のいずれかが拡大 / 縮小されることになる。
+  表示長方形は一切変更されない。
+</P>
+<P>
+  対象Віконна система (Windowing System)が入力受付状態でない場合は、
+  <CODE>EX_WND</CODE> のエラーとなり、
+  管理Процеси та потокиでない場合は、<CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(evt,newr,limit)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(イベントのタイプ、位置コードが不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態でない、ドラッグ変形不可)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wscr_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)のスクロール</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wscr_wnd(W wid, RECT *r, W dh, W dv, W mode)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid Віконна система (Windowing System)ID
+RECT    *r  スクロールする矩形領域
+W       dh  スクロールする水平距離(負の場合は左方向)
+W       dv  スクロールする垂直距離(負の場合は上方向)
+W       mode    ::= ( W_MOVE ‖ W_SCRL ) |  ( W_NOOVL ) | ( W_RDSET )
+</PRE>
+
+<DL>
+ <DT><CODE>W_MOVE</CODE> :
+ <DD>作業領域の枠の座標は変化しない(ビットマップ境界、フレーム長方形、および表示長方形は変更されない)。
+ <DT><CODE>W_SCRL</CODE> : 
+ <DD>作業領域の枠の座標は変化する(ビットマップ境界、フレーム長方形、
+     および表示長方形は、縦方向に <CODE>-dv</CODE>、横方向に <CODE>-dh</CODE> 移動する)。
+ <DT><CODE>W_NOOVL</CODE> :
+ <DD>スクロールによりオーバーラップしていたВіконна система (Windowing System)に隠されていた部分が出てくるような場合は、
+     イメージのスクロールは行なわない。
+     この場合でも、<CODE>W_SCRL</CODE> を指定した場合は座標系は移動する。
+ <DT><CODE>W_RDSET</CODE> :
+ <DD>スクロールにより発生した再表示が必要な領域をВіконна система (Windowing System)の再表示領域として設定し、
+     <CODE>wsta_dsp()</CODE> 〜 <CODE>wend_dsp()</CODE> により再表示が必要な領域を取り出せるようにする。
+     この指定を行なわない場合は、<CODE>wsta_dsp()</CODE> により再表示領域を取り出すことはできない。
+     <CODE>W_NOOVL</CODE> 指定で実際にイメージのスクロールが行なわれなかった場合は、
+     <CODE>W_RDSET</CODE> を指定しても再表示領域は設定されない。
+     <CODE>W_SCRL</CODE> を指定した場合の再表示領域は移動後の座標系で設定される。
+</DL>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0 正常    ::= ( W_VALID ) | ( W_NOOVL ) | ( W_RDSET )
+
+    W_VALID: 0=オーバーラップされて隠れていた部分がでてきた。
+                (スクロールしたイメージは正しくない)
+             1=オーバーラップされて隠れていた部分はでてきていない。
+                (スクロールしたイメージは正しい)
+    W_NOOVL: 0=スクロールした。
+             1=スクロールしなかった。(W_NOOVL 指定時のみ)
+    W_RDSET: 0=再表示領域は設定されていない。
+             1=再表示領域が設定された。(W_RDSET 指定時のみ)
+
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の作業領域内の
+  <CODE>*r</CODE> で指定した矩形領域の表示内容を
+  <CODE>dh</CODE> だけ右方向 ( 負の場合は左方向 )、
+  <CODE>dv</CODE> だけ下方向 ( 負の場合は上方向 ) に移動する。
+  <CODE>r = NULL</CODE> の場合は、
+  作業領域全体の移動を意味する。
+</P>
+<P>
+  スクロールにより新たに表示される領域は、
+  Віконна система (Windowing System)の背景パターンで塗り潰されるが、
+  アプリケーションが再表示を行なう必要がある。
+  また、スクロールバーの再表示も行なう必要がある。
+</P>
+<P>
+  対象Віконна система (Windowing System)は入力受付状態でなくてもよい。
+  管理Процеси та потокиでない場合は、<CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(modeが不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wsta_dsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の再表示開始</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wsta_dsp(W wid, RECT *r, RLIST *rlst)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W       wid     Віконна система (Windowing System)ID
+RECT    *r      再表示を必要とする領域を包含する最小の矩形領域が格納される。
+RLIST   *rlst   個々の矩形リストが格納される。
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常(関数値は再表示を必要とする矩形領域の数)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の再表示処理の開始を宣言し、
+  再表示を必要とする領域を包含する最小の矩形領域を <CODE>r</CODE>
+  で指定した領域に、個々の矩形リストを <CODE>rlst</CODE> で指定した領域に格納する。
+  <CODE>rlst</CODE> の領域はあらかじめリストになっている必要があり、
+  実際に設定された矩形の数が関数値として戻る。
+  設定される矩形はそのВіконна система (Windowing System)の相対座標で示される。
+</P>
+<P>
+  <CODE>r = NULL</CODE>、<CODE>rlst=NULL</CODE> の場合は、
+  それぞれ対応するデータは格納されないが、
+  再表示が必要な矩形領域の数が関数値として戻る。
+</P>
+<P>
+  再表示が必要な矩形領域が存在しない場合は、
+  関数値として 0 が戻り、<CODE>r</CODE> には ( 0, 0, 0, 0) が格納され、
+  <CODE>rlst</CODE> には何も格納されない。
+  また、<CODE>rlst</CODE> の要素数が足りない場合は、
+  その要素数分の矩形のみが格納される。
+</P>
+<P>
+  Віконна система (Windowing System)の操作に伴い再表示が必要になった場合、
+  および再表示要求イベントを受け取った場合は、
+  必ず <CODE>wsta_dsp()</CODE> を呼び、
+  関数値 1 以上の時は、再表示処理を行なわなくてはいけない。
+  再表示処理が終了した後は、
+  必ず <CODE>wend_dsp()</CODE> を実行しなくてはいけない。
+</P>
+<P>
+ 対象Віконна система (Windowing System)の管理Процеси та потокиでない場合は、
+  <CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r,rlst)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wend_dsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の再表示終了</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wend_dsp(W wid)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid Віконна система (Windowing System)ID
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0     正常(関数値は再表示要求の有無(0:無、1:有))
+＜ 0     エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の再表示処理の終了を宣言し、
+  Віконна система (Windowing System)の再表示領域をリセットする。
+</P>
+<P>
+  <CODE>wsta_dsp()</CODE> により再表示処理を開始した場合は、
+  必ず、この関数を実行する必要がある。
+  ただし、<CODE>wsta_dsp()</CODE> の関数値が 0 で、
+  再表示が不要な場合は、
+  特にこの関数を実行する必要はない。
+  また、<CODE>wsta_dsp()</CODE> による再表示処理が開始されていない場合は何も行なわない。
+</P>
+<P>
+  <CODE>wend_dsp()</CODE> を実行した時点で、新たな再表示要求が発生していた場合は、
+  関数値として &quot;1&quot; が戻る。
+  この場合は、再度、<CODE>wsta_dsp() 〜 wend_dsp()</CODE> による再表示処理を行なう必要がある。 
+  新たな再表示要求が発生していない場合は、
+  関数値として&quot;0&quot;が戻る。
+</P>
+<P>
+  対象Віконна система (Windowing System)の管理Процеси та потокиでない場合は、
+  <CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchk_dsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の再表示状態の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wchk_dsp(W wid)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid Віконна система (Windowing System)ID
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0     正常(関数値は再表示が必要なВіконна система (Windowing System)数)
+＜ 0     エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の再表示が必要な場合は関数値として
+  &quot;1&quot; を戻し、
+  不要な場合は &quot;0&quot; を戻す。
+  <CODE>wid = 0</CODE> の場合は、
+  再表示が必要なВіконна система (Windowing System)の個数を関数値として戻す。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wsta_drg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ドラッグ処理の開始</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+GID wsta_drg(W wid, W lock)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+W   lock    lock≠0 の場合は、他のВіконна система (Windowing System)の同時描画を禁止する。
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常(関数値はドラッグ描画用の描画環境ID)
+＜ 0  エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>wid</CODE>
+  で指定したВіконна система (Windowing System)に対するドラッグ「影」の描画用の描画環境を生成し、
+  ドラッグ「影」の描画を開始する。
+  関数値として生成したドラッグ描画用の描画環境 ID が戻る。
+</P>
+<P>
+  <CODE>lock</CODE> はロック指定パラメータであり、<CODE>lock ≠ 0</CODE> の場合は、
+  他のВіконна система (Windowing System)の同時描画は禁止される。
+  元のВіконна система (Windowing System)をはみ出て描画する必要がある場合は、
+  ロック指定を必ず行なう必要がある。
+</P>
+<P>
+  この関数は排他的に実行され、
+  既に他のПроцеси та потокиがドラッグ描画を実行していた場合は、
+  <CODE>EX_DRAG</CODE> のエラーとなる。
+</P>
+<P>
+  対象Віконна система (Windowing System)が入力受付状態でない場合は、
+  <CODE>EX_WND</CODE> のエラーとなり、
+  管理Процеси та потокиでない場合は、<CODE>EX_WPRC</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_DRAG     : ドラッグエラー(既に他のПроцеси та потокиが実行中である)。
+EX_NOSPC    : システムのメモリ領域が不足した。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (入力受付状態ではない)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wend_drg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ドラッグ処理の終了</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR wend_drg(void)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>wsta_drag()</CODE> により開始したドラッグ「影」の描画処理を終了し、
+  対応する描画環境を解放する。
+  ロック指定を行なっていた場合は、
+  他のВіконна система (Windowing System)の同時描画の禁止は解除される。
+  ドラッグ描画が行なわれていなかった場合は何もしない。
+</P>
+<P>
+  ドラッグ描画を終了した場合は、
+  必ず <CODE>wend_drg()</CODE> を実行しなくてはいけない。
+  なお、ドラッグ描画対象のВіконна система (Windowing System)が削除された場合、
+  または <CODE>wsta_drg()</CODE> を実行したПроцеси та потокиが終了した場合は、
+  自動的に <CODE>wend_drg()</CODE> の処理が行なわれる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_DRAG     : ドラッグエラー(ドラッグ描画を開始したПроцеси та потокиでない)。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_drg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>PDドラッグ位置の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+W   wget_drg(PNT *pos, WEVENT *evt)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+PNT     *pos    現在のPDの位置を、ドラッグ描画環境の相対座標値で取り出す。
+WEVENT  *evt    ドラッグのきっかけとなったВіконна система (Windowing System)イベント
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常(関数値は発生したВіконна система (Windowing System)イベントのタイプ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>wsta_drag()</CODE> により開始したドラッグ「影」の描画処理において、
+  現在の PD の位置を、
+  ドラッグ描画環境の相対座標値で取り出し、<CODE>pos</CODE> で指定した領域に格納する。
+</P>
+
+<P>
+  <CODE>EV_REQUEST</CODE>、<CODE>EV_SWITCH</CODE> を除くВіконна система (Windowing System)イベントが発生していた場合は、
+  そのイベントを取り出し、<CODE>evt</CODE> で指定した領域に格納して、
+  関数値として発生したВіконна система (Windowing System)イベントのタイプを戻す。
+</P>
+<P>
+  この場合、発生したイベントのタイプによっては、
+  PD 位置は、Віконна система (Windowing System)の相対座標となるため、
+  <CODE>pos</CODE> に戻される値と同一の値になるとは限らない。
+</P>
+<P>
+  <CODE>EV_REQUEST</CODE>、<CODE>EV_SWITCH</CODE> のみが発生していた場合、
+  またはВіконна система (Windowing System)イベントが発生していない場合は、
+  関数値として 0 ( <CODE>EV_NULL</CODE> ) を戻し、
+  <CODE>evt</CODE> の領域には <CODE>EV_NULL</CODE> が格納される。
+  格納されるイベントの、
+  Віконна система (Windowing System) ID、位置コード、
+  および発生時刻の値は設定されず、
+  PD 位置とメタキー状態のみ設定され、
+  PD 位置は <CODE>pos</CODE> に戻される値と同一となる。
+</P>
+<P>
+  ドラッグ描画が開始されていない場合、
+  あるいは、
+  ドラッグ描画を開始したПроцеси та потокиでない場合は、
+  <CODE>EX_DRAG</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(pos,evt)のアクセスは許されていない。
+EX_DRAG     : ドラッグエラー(ドラッグ描画を開始したПроцеси та потокиでない、
+              ドラッグ描画は開始されてない)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_evt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)イベントの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+W   wget_evt(WEVENT *evt, W mode)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+WVENT   *evt    取り出されたВіконна система (Windowing System)イベント
+W   mode    ::= ( WAIT ‖ NOMSG ‖ RAWEVT ‖ DRGEVT ) | [ NOWAIT ]
+
+    WAIT    0x0000  イベント発生まで待つ
+    NOWAIT  0x0001  イベントが発生していなくても即座にリターン
+    NOMSG   0x0010  Повідомленняは取り出さない
+    RAWEVT  0x0020  絶対座標でイベントを取り出す
+    DRGEVT  0x0030  相対座標でイベントを取り出す
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常(関数値はВіконна система (Windowing System)イベントのタイプ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  Віконна система (Windowing System)イベントを取り出し、
+  <CODE>evt</CODE> で指定した領域に格納する。
+  関数値として取り出したイベントのタイプを戻す。
+</P>
+
+<P>
+  <CODE>mode</CODE> により以下のように振る舞う。
+</P>
+    <DL>
+     <DT><CODE>WAIT</CODE> :
+     <DD><DL>
+          <DT>アクティブПроцеси та потокиの時:
+          <DD>イベントが発生するまで待って、イベントを取りだし、
+              対応するВіконна система (Windowing System)の相対座標に変換する。
+              <CODE>PD</CODE> のプレスが入力受付状態でないВіконна система (Windowing System)で発生した場合は、
+              <CODE>EV_SWITCH</CODE> を発生し、入力受付状態の切り換えを行なう。<BR>
+              フロントエンドПроцеси та потокиが存在する時は、以下の処理を行なう。<BR>
+              取り出したВіконна система (Windowing System)イベントのタイプに応じて以下の処理を行
+              なう(取り出したВіконна система (Windowing System)イベントには、
+              存在する全ての前面Віконна система (Windowing System)に対する要求イベント等も含まれる)。
+              <DL>
+               <DT><CODE>EV_NULL</CODE> 〜 <CODE>EV_RSV</CODE>, <CODE>EV_MENU</CODE>, <CODE>EV_APPL4〜8</CODE>:
+               <DD>最後に定義されたフロントエンドПроцеси та потокиに取り出したイベントを渡し、返答待ち状態となる。
+               <DT><CODE>EV_SWITCH</CODE>, <CODE>EV_RSWITCH</CODE>, <CODE>EV_INACT</CODE>:
+               <DD>そのままリターンする。<BR>
+                   ※ ( 前面Віконна система (Windowing System)に対しては、これらのイベントは発生しない ( 常に入力受付状態であるため ) )
+               <DT><CODE>EV_REQUEST</CODE> :
+               <DD>対象Віконна система (Windowing System)の管理Процеси та потокиが、
+                   フロントエンドПроцеси та потокиの場合は、
+                   そのフロントエンドПроцеси та потокиに取り出した要求イベントを送り、
+                   返答待ち状態となる。
+                   そうでない場合は、そのままリターンする。
+              </DL>
+              返答待ち状態になった場合は、
+              返答がフロントエンドПроцеси та потокиから得られた時点で、
+              返答のイベントを得られたイベントとしてリターンする。
+              返答のイベントが ( 空 ) の場合は、
+              リターンせずに、
+              再度Віконна система (Windowing System)イベントを取り出し、
+              上記の処理を繰り返す。
+          <DT>フロントエンドПроцеси та потокиの時 :
+          <DD>前回取り出したイベントに対する <CODE>wpas_evt()</CODE> がまだ実行されていない場合は、
+              ( 空 ) イベントをアクティブПроцеси та потокиに戻す ( <CODE>wpas_evt(NULL)</CODE> の処理 )。
+              待ち状態に入り、アクティブПроцеси та потоки、
+              または直前のフロントエンドПроцеси та потокиから渡されるイベントを待つ。
+              イベントが渡されたら、
+              そのイベントを得られたイベントとしてリターンする ( ( 空 ) イベントが得られることはない )。
+          <DT>非アクティブПроцеси та потокиの時 :
+          <DD>Повідомленняが既に存在している場合は、そのПовідомленняを取り出し、
+              存在していない場合はПовідомлення待ち状態となる。
+         </DL><BR>
+
+     <DT><CODE>NOWAIT</CODE>  : ( <CODE>WAIT|NOWAIT</CODE> としても同じ )<BR>
+         <DD>
+         <CODE>WAIT</CODE> 指定に対して、以下の点が異なる。
+         <UL>
+          <LI>アクティブПроцеси та потокиの時でイベントが発生していない場合には、
+              関数値として <CODE>EV_NULL</CODE> が返る。
+          <LI>非アクティブПроцеси та потокиの時でПовідомленняが存在していない場合には、
+              関数値として <CODE>EV_NOMSG</CODE> が返る。
+         </UL><BR>
+
+     <DT><CODE>NOMSG</CODE> :
+         <DL>
+          <DT>アクティブПроцеси та потокиの時:
+          <DD>イベントが発生するまで待って、イベントを取りだし、
+              対応するВіконна система (Windowing System)の相対座標に変換する。
+              PDの プレスが入力受付状態でないВіконна система (Windowing System)で発生した場合でも、
+              <CODE>EV_SWITCH</CODE>  を発生せず、<CODE>EV_BUTDWN</CODE>  として戻す
+              ( 入力受付状態の切換は行なわない ) 。
+              <CODE>W_REDISP</CODE> 以外の <CODE>EV_REQUEST</CODE> 及び、
+              <CODE>EV_MSG</CODE> は取り出さない。<BR>
+              フロントエンドПроцеси та потокиが存在する時は、
+        <CODE>WAIT</CODE>  指定と同じ処理を行なう。
+          <DT>フロントエンドПроцеси та потокиの時:
+          <DD><CODE>WAIT</CODE> 指定の場合と同じ。
+          <DT>非アクティブПроцеси та потокиの時:
+          <DD>待ち状態となる。
+         </DL><BR>
+
+     <DT><CODE>NOMSG|NOWAIT</CODE> :
+         <DD><CODE>NOMSG</CODE> 指定に対して、以下の点が異なる。
+         <UL>
+          <LI>アクティブПроцеси та потокиの時で、イベントが発生していない場合には、
+              関数値として <CODE>EV_NULL</CODE> が返る。
+          <LI>非アクティブПроцеси та потокиの時は、
+              関数値として <CODE>EV_NOMSG</CODE> が返る。
+         </UL><BR>
+
+     <DT><CODE>RAWEVT</CODE> :
+     <DD>
+         <DL>
+          <DT>アクティブПроцеси та потокиの時
+          <DT>フロントエンドПроцеси та потокиの時
+          <DD>
+              <CODE>EV_BUTDWN</CODE>, <CODE>EV_BUTUP</CODE>,
+              <CODE>EV_KEYDWN</CODE>, <CODE>EV_KEYUP</CODE>,
+              <CODE>EV_AUTKEY</CODE> のいずれかのイベントが発生するまで待って、
+              そのイベントをとりだし、その座標は絶対座標のままとする。
+              <CODE>wid</CODE>  は常に 0 となる。
+              PD のプレスが入力受付状態でないВіконна система (Windowing System)で発生した場合でも、
+              <CODE>EV_SWITCH</CODE> を発生せず、
+              <CODE>EV_BUTDWN</CODE> として戻す ( 入力受付状態の切換は行なわない )。
+          <DT>非アクティブПроцеси та потокиの時:
+          <DD>何もせずに、<CODE>EV_NOMSG</CODE> を関数値として戻す。
+         </DL><BR>
+
+    <DT><CODE>RAWEVT|NOWAIT</CODE> : 
+    <DD><CODE>RAWEVT</CODE> 指定に対して、以下の点が異なる。
+         <UL>
+          <LI>アクティブПроцеси та потокиの時で、
+              イベントが発生していない場合には、関数値として <CODE>EV_NULL</CODE> が返る。
+         </UL><BR>
+
+     <DT><CODE>DRGEVT</CODE> :
+     <DD>座標が対応するВіконна система (Windowing System)の相対座標となる以外は、
+         <CODE>RAWEVT</CODE> と同じ。<BR>
+         <CODE>NOMSG</CODE> および <CODE>RAWEVT</CODE>、<CODE>DRGEVT</CODE>指定はСистемні панелі (Panels)、
+         Меню та командні інтерфейси、Компоненти графічного інтерфейсу等の内部処理に使用され、通常のアプリケーションでは使用しない。<P></P>
+
+    <DT><CODE>DRGEVT|NOWAIT</CODE> :
+    <DD><CODE>DRGEVT</CODE> 指定に対して、以下の点が異なる。
+         <UL>
+          <LI>アクティブПроцеси та потокиの時で、
+              イベントが発生していない場合には、関数値として <CODE>EV_NULL</CODE> が返る。
+         </UL>
+    </DL>
+<P>
+  <CODE>WAIT</CODE>, <CODE>NOMSG</CODE>, <CODE>RAWEVT</CODE>, <CODE>DRGEVT</CODE>
+  を単独で指定した場合、
+  イベントがまったく発生していない場合には、
+  イベントが発生するかまたは表示の更新が必要になるまで待つ
+  (カレットの点滅等が必要な場合は、<CODE>EV_NULL</CODE>が発生する)。
+  一方、<CODE>WAIT, NOMSG, RAWEVT, DRGEVT</CODE>を<CODE>NOWAIT</CODE>とともに指定した場合は、
+  イベントがまったく発生していない場合でも <CODE>EV_NULL</CODE>
+  ( アクティブПроцеси та потокиの場合 ) または <CODE>EV_NOMSG</CODE> ( 非アクティブПроцеси та потокиの場合 ) が返り、
+  待つことはない。
+</P>
+
+<P>
+  <CODE>NOWAIT</CODE>指定は、
+  フロントエンドПроцеси та потокиでは無視される。
+</P>
+
+<P>
+  フロントエンドПроцеси та потокиでなく <CODE>mode</CODE> が <CODE>WAIT</CODE>
+  の場合には、内部イベントПовідомлення ( Віконна система (Windowing System)イベント ) を取り出すが、
+  この場合、
+  内部イベントПовідомлення以外のすべてのタイプのПовідомленняもチェックされ、
+  内部イベントПовідомлення以外のПовідомленняを受信していた場合には、
+  関数値として <CODE>EV_MSG</CODE> が戻り、
+  <CODE>evt</CODE> で指定した領域には
+  <CODE>type</CODE> の後にПовідомленняの先頭 8 バイト
+  ( タイプとサイズ ) が格納される。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (Віконна система (Windowing System)が1つも存在しない)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wugt_evt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)イベントの戻し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR wugt_evt(WEVENT *evt)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+WEVENT  *evt    Віконна система (Windowing System)イベント
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>*evt</CODE> に格納されているВіконна система (Windowing System)イベントを戻して、
+  次に <CODE>WAIT</CODE> または <CODE>lNOWAIT</CODE> のモードで実行される、
+  <CODE>wget_evt()</CODE> 関数で取り出すВіконна система (Windowing System)イベントとする。
+  他のモードで実行した場合は取り出されない。
+</P>
+<P>
+  戻したイベントは、通常のイベントに優先して取り出される。
+  また、取り出される順番は戻した順番である。
+  イベントの内容については一切チェックされない。
+</P>
+<P>
+  1 Процеси та потокиで最大16個のВіконна система (Windowing System)イベントをイベントキューに戻すことができる。
+  同時に使用できるПроцеси та потокиはВіконна система (Windowing System)数個までであり、
+  それ以上はエラー ( <CODE>EX_NOSPC</CODE> ) となる。
+</P>
+<P>
+  <CODE>wugt_evt()</CODE> で戻したイベントが、<CODE>wget_evt()</CODE> で取り出された場合、
+  フロントエンドПроцеси та потокиには渡されない。
+</P>
+<P>
+  この処理は1つのПроцеси та потоки内で行なわれるため、
+  戻したイベントは、他のПроцеси та потокиからの <CODE>wget_evt()</CODE>
+  では取り出されない点に注意が必要である。
+</P>
+<P>
+  Процеси та потокиが終了した場合は、
+  そのПроцеси та потокиによって戻されたイベントは自動的に捨てられる。
+</P>
+<P>
+  この関数は、Компоненти графічного інтерфейсуやСистемні панелі (Panels)の処理で期待外のイベントが得られた場合、
+  そのイベントを一旦戻して、
+  通常のイベントループに戻った後、
+  <CODE>wget_evt()</CODE> で取り出して処理するために使用される。
+</P>
+<P>
+  <CODE>wugt_evt()</CODE> は、
+  特殊な用途に使用される関数であり、
+  通常アプリケーションは使用しない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_NOSPC    : システムのメモリ領域が不足した
+              (戻したイベントが16個以上)。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wpas_evt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)イベントの回送</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+ERR wpas_evt(WEVENT *evt)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+WEVENT  *evt    Віконна система (Windowing System)イベント
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>*evt</CODE>  で指定したフロントエンド処理後のВіконна система (Windowing System)イベントを次のフロントエンドПроцеси та потокиまたは、
+  アクティブПроцеси та потокиに戻す。
+  <CODE>evt = NULL</CODE> の場合は、
+  戻すべきイベントが ( 空 ) であることを意味し、
+  次のフロントエンドПроцеси та потокиが存在していても、
+  必ずアクティブПроцеси та потокиに ( 空 ) イベントを戻す。
+</P>
+<P>
+  イベントのタイプは 0 〜 15 でなくてはならないが、
+  その内容は一切チェックされない。
+</P>
+
+<P>
+  この関数は、フロントエンドПроцеси та потокиのみが、実行可能である。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(イベントタイプが0〜15以外)。
+EX_ADR      : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+               (プロントエンドПроцеси та потокиでない)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wswi_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の入力受付状態の切換</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR wswi_wnd(W wid, WEVENT *evt)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   wid Віконна система (Windowing System)ID
+WEVENT  *evt    Віконна система (Windowing System)イベント
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)に
+  <CODE>EV_SWITCH</CODE> を送信して入力受付状態に切り換える。
+</P>
+<P>
+  <CODE>evt = NULL</CODE> の場合は、
+  <CODE>EV_SWITCH</CODE> イベントの <CODE>W_SWITCH</CODE>
+  コマンドが <CODE>wid</CODE> で指定したВіконна система (Windowing System)に対して送られる。
+</P>
+<P>
+  <CODE>evt ≠ NULL</CODE> の場合は、
+  <CODE>*evt</CODE> で指定した <CODE>EV_BUTDWN</CODE>
+  イベントを <CODE>EV_SWITCH</CODE> に変換して、
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)に対して送られる。
+  <CODE>evt-&gt;type ≠ EV_BUTDWN</CODE> または、
+  <CODE>evt-&gt;wid ≠ wid</CODE>
+  の時は <CODE>EX_PAR</CODE> のエラーとなる。
+</P>
+
+<P>
+  現在入力受付状態であったВіконна система (Windowing System)は入力不可状態となり、
+  続くВіконна система (Windowing System)イベントの取り出しでは、
+  <CODE>EV_INACT</CODE> が得られることになる。
+</P>
+
+<P>
+  アクティブПроцеси та потокиでない場合、
+  または指定したВіконна система (Windowing System)が既に入力受付状態の場合は、
+  <CODE>EX_WND</CODE> のエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(イベントのタイプが不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (アクティブПроцеси та потокиでない、既に入力受付状態である)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wsnd_evt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>要求イベントの送信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+W   wsnd_evt(WEVENT *evt)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+WEVENT  *evt    要求イベント
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0 正常(関数値は送付した要求イベントの数)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>evt</CODE> で指定した要求イベントを
+  <CODE>evt-&gt;r.wid</CODE> で指定したВіконна система (Windowing System)に対して送付する。
+  <CODE>evt-&gt;r.type</CODE> は <CODE>EV_REQUEST</CODE>
+  でなくてはいけない。
+  また <CODE>evt-&gt;r.cmd</CODE> は <CODE>W_REDISP</CODE>
+  であってはいけない。
+  送信時に <CODE>evt-&gt;r.src</CODE> に送信元のПроцеси та потоки ID
+  が設定される。
+  送付先のВіконна система (Windowing System) <CODE>ID = 0</CODE> の場合は、
+  すべてのВіконна система (Windowing System) ( 内部Віконна система (Windowing System)、Системні панелі (Panels)Віконна система (Windowing System)を除く )
+  に対して要求イベントが送付される。
+  Віконна система (Windowing System) <CODE>ID &lt; 0</CODE> の場合は、
+  <CODE>- wid</CODE>をПроцеси та потоки ID として、
+  指定したПроцеси та потокиに対し要求イベントを送付する。
+</P>
+<P>
+  関数値として、要求イベントを送付したВіконна система (Windowing System)の数を戻す。従って、wid =0以外の場合は常に関数値は&quot;1&quot;となる。</P>
+
+<P>Віконна система (Windowing System)間のデータの貼り込みは、wsnd_evt() により W_PASTE イベントを送付して行なわれる。</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(イベントのタイプ、内容が不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wrsp_evt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>要求イベントへの応答</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wrsp_evt(WEVENT *evt, W nak)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+WEVENT  *evt    要求イベント
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>evt</CODE> で指定した要求イベントに対する応答を <CODE>evt-&gt;r.src</CODE>
+  で指定したПроцеси та потокиに送信する。
+  <CODE>evt-&gt;r.type</CODE> は <CODE>EV_REQUEST</CODE>  でなくてはいけない。
+  また <CODE> evt-&gt;r.cmd</CODE>  は <CODE>W_REDISP</CODE>  であってはいけない。
+</P>
+<P>
+  <CODE>nak = 0</CODE> の時は、<CODE>ACK</CODE> レスポンスとして <CODE>evt-&gt;r.cmd</CODE>
+  に <CODE>W_ACK</CODE> が + されるが、<CODE>nak ≠ 0</CODE>  の場合は、<CODE>NACK</CODE> レスポンスとして
+  <CODE>evt-&gt;r.cmd</CODE>  に <CODE>W_NAK</CODE>  が + される。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(イベントのタイプが不正、応答先PIDが不正)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wwai_rsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>要求イベントへの応答待ち</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wwai_rsp(WEVENT *evt, W cmd, UW tmout)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+WEVENT  *evt    Віконна система (Windowing System)イベント
+W       cmd     要求コマンド。W_REDISP であってはいけない。
+UW      tmout   応答待ちのタイムアウトを msec 単位で指定するものであり、
+                =0の場合は、タイムアウト無しを意味する。
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は(W_ACK/W_NAK/0))
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>cmd</CODE> で指定した要求イベントに対する <CODE>ACK</CODE> 応答、
+  または <CODE>NAK</CODE> 応答を待ち、
+  得られた応答イベントを <CODE>evt</CODE> で指定した領域に格納する。
+  <CODE>evt = NULL</CODE> の場合は、
+  得られた応答イベントは格納されない。
+</P>
+<P>
+  関数値として、<CODE>ACK</CODE> 応答が得られた場合は <CODE>W_ACK</CODE>、
+  <CODE>NAK</CODE> 応答が得られた場合は <CODE>W_NAK</CODE>、
+  タイムアウトとなった場合は0が戻る。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(evt)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(cmdが不正)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wreq_dsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の再表示要求</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wreq_dsp(W wid)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid Віконна система (Windowing System)ID
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE>
+  で指定したВіконна система (Windowing System)の再表示領域を作業領域全体とし、
+  再表示要求イベントを送る。Віконна система (Windowing System)の枠部分も再表示される。
+</P>
+
+<P>
+  <CODE>wid = 0</CODE> の場合は、
+  すべてのВіконна система (Windowing System)(内部Віконна система (Windowing System)を除く)に対して再表示要求を行ない、
+  これは、画面全体を書き直す場合に使用される。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wfnd_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の位置サーチ</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wfnd_wnd(PNT *gpos, PNT *lpos, W *wid)
+</PRE>
+<H4>【パラメータ】</H4>
+
+<PRE>
+PNT *gpos   絶対座標の点。
+PNT *lpos   相対座標位置が格納される。
+W   *wid    Віконна система (Windowing System)IDが格納される。
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常(位置コード)
+        W_WORK (0)  -- 作業領域内
+        W_FRAM (1)  -- Віконна система (Windowing System)枠
+        W_PICT (2)  -- ピクトグラム (*)
+        W_TITL (3)  -- タイトル文字列 (*)
+        W_LTHD (4)  -- ハンドル (左上)(*)
+        W_RTHD (5)  -- ハンドル (右上) (*)
+        W_LBHD (6)  -- ハンドル (左下) (*)
+        W_RBHD (7)  -- ハンドル (右下) (*)
+        W_RBAR (8)  -- 右スクロールバー (*)
+        W_BBAR (9)  -- 下スクロールバー (*)
+        W_LBAR (10) -- 左スクロールバー (*)
+       (*) 対応する部分が存在しないВіконна система (Windowing System)の場合は、すべてW_FRAM となる。
+
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>gpos</CODE> で指定した絶対座標の点が、
+  どのВіконна система (Windowing System)のどの位置であるかを見付け、<CODE>wid</CODE> で指定した領域に対応するВіконна система (Windowing System)IDを、
+  <CODE>lpos</CODE> で指定した領域に、
+  そのВіконна система (Windowing System)での相対座標位置を格納する。
+  関数値として以下の位置コードを戻す。
+  <CODE>lpos = NULL</CODE> の場合は、相対座標位置は格納されない。
+</P>
+<P>
+  指定した点がВіконна система (Windowing System)にも属していない場合は <CODE>wid</CODE> には 0、
+  <CODE>lpos</CODE> には指定した <CODE>gpos</CODE> そのものが格納され、
+  関数値は0が戻る。
+  Системні панелі (Panels)Віконна система (Windowing System)もサーチの対象となり、
+  Системні панелі (Panels)Віконна система (Windowing System)の領域の位置コードは
+  <CODE>W_WORK</CODE> となる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(gpos,lpos,wid)のアクセスは許されていない。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_act</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>入力受付状態のВіконна система (Windowing System)の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+WID wget_act(W *pid)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   *pid    Процеси та потокиIDが格納される
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は入力受付状態のВіконна система (Windowing System)ID)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  現在、
+  入力受付状態である主Віконна система (Windowing System)のВіконна система (Windowing System) ID を関数値として戻す。
+  <CODE>pid</CODE> が <CODE>NULL</CODE> でない場合は、
+  その管理Процеси та потоки、即ちアクティブПроцеси та потокиのПроцеси та потоки ID を <CODE>pid</CODE> 
+  で指定した領域に格納する。
+  自Процеси та потокиが管理Процеси та потокиの場合は <CODE>*pid</CODE> には 0 が格納される。
+</P>
+<P>
+  Системні панелі (Panels)Віконна система (Windowing System)も対象となるため、
+  Системні панелі (Panels)Віконна система (Windowing System)が存在する場合は、
+  必ず、Системні панелі (Panels)Віконна система (Windowing System)のIDが戻ることになる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(pid)のアクセスは許されていない。
+EX_ADR      : 入力受付状態のВіконна система (Windowing System)がない、又は確定していない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_tit</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)タイトルの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wget_tit(W wid, W *pict, TC *title)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+W   *pict   ピクトグラムのデータ番号が格納される
+TC  *title  タイトル文字列が格納される
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は虚身Віконна система (Windowing System)状態(1:虚身Віконна система (Windowing System),0:正常))
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)のピクトグラムのデータ番号、
+  タイトル文字列を取り出し、それぞれ、<CODE>pict</CODE>、<CODE>title</CODE> で指定した領域に格納する。
+</P>
+<P>
+  <CODE>title</CODE> としては 96 + 1 文字分の領域を確保しておく必要がある。
+</P>
+<P>
+  関数値として、
+  虚身Віконна система (Windowing System)の場合は &quot;1&quot;、そうでない場合は&quot;0&quot;が戻る。
+  <CODE>title = NULL</CODE> または <CODE>pict = NULL</CODE> の場合は対応するデータは格納されない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(pict,title)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wset_tit</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)タイトルの変更</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wset_tit(W wid, W pict, TC *title, W mode)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+W   pict    ピクトグラムのデータ番号
+TC  *title  タイトル文字列
+W   mode    !=0 の場合は虚身Віконна система (Windowing System)
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)のピクトグラムを <CODE>pict</CODE> で指定したデータ番号に、
+  タイトル文字列を <CODE>title</CODE> で指定した文字列に変更して、再表示を行なう。
+</P>
+<P>
+  <CODE>mode = 0</CODE> の場合は、
+  通常の表示を行ない、<CODE> ≠ 0</CODE> の場合は、
+  虚身Віконна система (Windowing System)として表示する。
+</P>
+<P>
+  <CODE>pict &lt; 0</CODE> の場合は、
+  ピクトグラムの変更なし、<CODE>title = NULL</CODE> の場合はタイトル文字列の変更なしを意味する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(title)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_sts</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)状態の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wget_sts(W wid, WDSTAT *stat, WDDISP *atr)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid     Віконна система (Windowing System)ID
+WDSTAT  *stat   Віконна система (Windowing System)状態
+WDDISP  *atr    表示属性
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は入力受付状態(1:入力受付状態、0:入力不可状態))
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の現在の状態、
+  および表示属性を取り出し、それぞれ <CODE>stat</CODE>、<CODE>atr</CODE>
+  で指定した領域に格納する。
+  関数値として指定したВіконна система (Windowing System)が入力受付状態の時は 1、
+  入力不可状態の時は 0 を戻す。
+  <CODE>stat</CODE> または <CODE>atr</CODE> が <CODE>NULL</CODE>
+  の場合は、対応するデータは格納されない。
+</P>
+<P>
+  全面モードの場合に <CODE>stat-&gt;attr</CODE> に <CODE>WA_FULL</CODE> がセットされる。
+  また <CODE>stat-&gt;attr</CODE> によって、
+  <CODE>WA_STD</CODE> 指定時には正規座標が、
+  <CODE>WA_WORK</CODE> 指定時には作業領域座標が、
+  <CODE>WA_FRAME</CODE> 指定時には外枠座標が、
+  <CODE>stat-&gt;r</CODE> に格納される。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(stat,atr)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_gid</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の描画環境IDの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+GID wget_gid(W wid)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid Віконна система (Windowing System)ID
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は描画環境ID)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の描画環境 ID
+  を関数値として戻す。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wset_bgp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の背景パターンの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wset_bgp(W wid, PAT *pat)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+PAT *pat    設定する背景パターン
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の背景パターンを、
+  <CODE>pat</CODE> で指定したパターンに設定する。
+  設定するパターンは、
+  その時点のВіконна система (Windowing System)の描画環境のパターンサイズに合ったものと見なされる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(pat)のアクセスは許されていない。
+EX_NOSPC    : システムのメモリ領域が不足した。
+EX_PAR      : パラメータが不正である(pat の内容が不正)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_bgp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の背景パターンの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wget_bgp(W wid, PAT *pat, W size)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid     Віконна система (Windowing System)ID
+PAT     *pat    取り出す背景パターン格納場所
+W       size    pat の領域サイズ
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は背景パターンのサイズ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の背景パターンを、
+  <CODE>pat</CODE> で指定した領域に格納する。
+  <CODE>size</CODE> は <CODE>pat</CODE> で指定した領域のバイトサイズであり、
+  この領域が小さくて背景パターンを格納できない場合は、
+  <CODE>EX_PAR</CODE> のエラーとなる。関数値として、
+  実際に格納した背景パターンのサイズ ( バイト数 ) が戻る。
+  <CODE>pat = NULL</CODE> の場合は、
+  背景パターンの格納は行なわずに格納に必要なサイズが関数値として戻る。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(pat)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(sizeが小さすぎる)。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wera_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の背景パターンでの塗り潰し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wera_wnd(W wid, RECT *r)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid Віконна система (Windowing System)ID
+RECT    *r  矩形領域
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の <CODE>*r</CODE>
+  で指定した矩形領域をВіконна система (Windowing System)の背景パターンで塗り潰す。
+  <CODE>r=NULL</CODE> の場合は、
+  Віконна система (Windowing System)の作業領域全体を背景パターンで塗り潰す。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchg_dsp</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)のデフォールト表示属性の変更</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wchg_dsp(WDDISP *atr, PAT *bgpat)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+WDDISP  *atr    表示属性
+PAT     *bgpat  背景パターン
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  Віконна система (Windowing System)のデフォールト表示属性を <CODE>atr</CODE> で指定した内容に変更し、
+  デフォールトの背景パターンを <CODE>bgpat</CODE> で指定した内容に変更する。
+  <CODE>atr = NULL</CODE>、
+  または <CODE>bgpat = NULL</CODE> の場合はそれぞれ対応する属性を変更しないことを意味する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(atr, bgpat)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_bar</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>スクロールバーのКомпоненти графічного інтерфейсуIDの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_bar(W wid, W *rbar, W *bbar, W *lbar)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+W   *rbar   右スクロールバーのКомпоненти графічного інтерфейсуIDの格納場所
+W   *bbar   下スクロールバーのКомпоненти графічного інтерфейсуIDの格納場所
+W   *lbar   左スクロールバーのКомпоненти графічного інтерфейсуIDの格納場所
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)に付属する 3
+  種類のスクロールバーのКомпоненти графічного інтерфейсуIDを取り出して、
+  <CODE>rbar</CODE>, <CODE>bbar</CODE>, <CODE>lbar</CODE>
+  で指定した領域にそれぞれ格納する。
+  <CODE>rbar</CODE>, <CODE>bbar</CODE>, <CODE>lbar</CODE>
+  がそれぞれ <CODE>NULL</CODE> の場合は対応するКомпоненти графічного інтерфейсуIDは格納されない。
+</P>
+<P>
+  Віконна система (Windowing System)にスクロールバーが存在する場合は、
+  この関数により、
+  そのКомпоненти графічного інтерфейсуIDを取り出して、
+  スクロールバーの設定値を表示状況に合わせて適宜変更する必要がある。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(rbar,bbar,lbar)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_dat</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ユーザデータの取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_dat(W wid, W *dat)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid   Віконна система (Windowing System)ID
+W   *dat  ユーザデータの格納場所
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)のユーザデータを取り出し、
+  <CODE>dat</CODE> で指定した領域に格納する。
+</P>
+<P>
+  ユーザデータはВіконна система (Windowing System)の管理情報の一部としてアプケーションが任意に使用することができる1つの <CODE>W</CODE> データである。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(dat)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wset_dat</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ユーザデータの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+ERR wset_dat(W wid, W dat)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid  Віконна система (Windowing System)ID
+W   dat  ユーザデータ
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)のユーザデータを
+  <CODE>dat</CODE> の値に設定する。
+</P>
+
+<P>
+  ユーザデータはВіконна система (Windowing System)の管理情報の一部としてアプケーションが任意に使用することができる1つの <CODE>W</CODE> データである。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_wrk</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)作業領域の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_wrk(W wid, RECT *r)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid   Віконна система (Windowing System)ID
+RECT    *r    作業領域の格納場所
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の作業領域の相対座標値を取り出し、
+  <CODE>r</CODE> で指定した領域に格納する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wset_wrk</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)作業領域の変更</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wset_wrk(W wid, RECT *r)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid   Віконна система (Windowing System)ID
+RECT    *r    作業領域矩形
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の作業領域の左上の点の相対座標を、
+  <CODE>r</CODE> で指定した矩形の左上の点の座標値と一致するように変更し、
+  変更後の作業領域の相対座標値を <CODE>r</CODE> で指定した領域に格納する。
+  即ち、<CODE>r-&gt;lefttop</CODE> はそのままで、
+  <CODE>r-&gt;rightbot</CODE> のみが設定される。
+</P>
+<P>
+  作業領域座標の変更により、
+  対応する描画環境のビットマップ境界、
+  フレーム長方形、
+  および表示長方形の座標値が指定した位置になるように移動する。
+</P>
+<P>
+  Віконна система (Windowing System)の作業領域の表示は一切変化しない。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_org</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の生成元の取出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_org(W wid, W *parent, RECT *org)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid     Віконна система (Windowing System)ID
+W       *parent 親Віконна система (Windowing System)IDの格納場所
+RECT    *org    生成元矩形の格納場所
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の親Віконна система (Windowing System) ID、
+  生成元と取り出し、それぞれ <CODE>parent</CODE>、<CODE>org</CODE>
+  で指定した領域に格納する。
+  生成元は、親Віконна система (Windowing System)の相対座標で表わされる。
+</P>
+<P>
+  主Віконна система (Windowing System)以外の場合はエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレスのアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (主Віконна система (Windowing System)でない)。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wset_org</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)の生成元の設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR wset_org(W wid, W parent, RECT *org)
+</PRE>
+<H4>【パラメータ】</H4>
+
+<PRE>
+W       wid     Віконна система (Windowing System)ID
+W       parent  親Віконна система (Windowing System)ID
+RECT    *org    生成元矩形
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の親Віконна система (Windowing System) ID を、
+  <CODE>parent</CODE> の値に、生成元を、<CODE>*org</CODE> の値に設定する。
+  <CODE>parent &lt; 0</CODE> の場合には、<CODE>parent</CODE> の変更なし、
+  <CODE>org = NULL</CODE> の場合は、生成元の変更なしを意味する。
+  生成元は、親Віконна система (Windowing System)の相対座標で設定する。<CODE>parent = 0</CODE>
+  または <CODE>parent = wid</CODE>  の場合は
+  <CODE>org</CODE> の値に無関係に、
+  生成元を無くすことを意味する。
+</P>
+<P>
+  主Віконна система (Windowing System)以外の場合はエラーとなる。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(org)のアクセスは許されていない。
+EX_WID      : Віконна система (Windowing System)(wid)は存在していない。
+EX_WND      : Віконна система (Windowing System)(wid)のタイプ/状態では適用されない
+              (主Віконна система (Windowing System)でない)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wlst_wnd</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)のリストアップ</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wlst_wnd(W wid, W size, W *wids)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   wid     Віконна система (Windowing System)ID
+W   size    wids が示す領域のワード数
+W   *wids   wid 格納領域
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wid</CODE> で指定したВіконна система (Windowing System)の子Віконна система (Windowing System)のВіконна система (Windowing System) ID を取り出して、
+  <CODE>wids</CODE> で指定した領域に格納する。<CODE>wid = 0</CODE> の場合は、
+  現在存在しているすべてのВіконна система (Windowing System)を、<CODE>wid &lt; 0</CODE> の場合は、
+  <CODE>-wid</CODE> で指定した値をПроцеси та потоки ID として、
+  そのПроцеси та потокиの管理するВіконна система (Windowing System)のВіконна система (Windowing System) ID を取り出す。
+  <CODE>wids</CODE> は <CODE>size</CODE> で示されるワード数の配列領域である。
+  関数値として存在するВіконна система (Windowing System)の個数が戻る。
+</P>
+<P>
+  取り出されるВіконна система (Windowing System) ID には、
+  内部Віконна система (Windowing System)、
+  Системні панелі (Panels)Віконна система (Windowing System)も含まれる。
+</P>
+<P>
+  Віконна система (Windowing System)の個数よりも <CODE>size</CODE> が小さい場合は、<CODE>size</CODE> 個のВіконна система (Windowing System) ID のみが格納される。
+  <CODE>size ≦ 0</CODE> の場合または、<CODE>wids = NULL</CODE> の場合は、
+  単に存在するВіконна система (Windowing System)の数が戻るだけとなる。
+<P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(wids)のアクセスは許されていない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_dmn</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>表示管理Меню та командні інтерфейсиの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_dmn(TC **dmenu)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+TC  **dmenu 表示管理Меню та командні інтерфейсиの格納領域
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>dmenu</CODE>で指定した領域に「表示管理Меню та командні інтерфейси」項目リストへのポインタを設定する。
+  実際の項目リストは共有メモリ領域に作成され、
+  そのポインタが <CODE>dmenu</CODE> に設定される。
+  不能項目フラグ、選択フラグ等もその時点の「表示管理Меню та командні інтерфейси」の状態に合わせて設定される。
+</P>
+<P>
+  共有メモリ領域に作成されたМеню та командні інтерфейси項目は、次に <CODE>wget_dmn()</CODE> が実行されるまで存在が保証される。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(dmenu)のアクセスは許されていない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wexe_dmn</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>表示管理Меню та командні інтерфейсиの実行</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wexe_dmn(W item)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   item    Меню та командні інтерфейси項目番号
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値は切り換えた先のВіконна система (Windowing System)ID/0)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wget_dmn()</CODE> で得られた、
+  「表示管理Меню та командні інтерфейси」の <CODE>item</CODE> で指定した項目を実行する。
+  <CODE>item</CODE> の上位バイトは無視され、
+  下位バイトが 1 〜 の項目番号を示す。
+  項目番号が不正の場合は <CODE>EX_PAR</CODE> のエラーとなる。
+</P>
+<P>
+  関数値として、入力受付状態のВіконна система (Windowing System)が切り換わった場合は、
+  切り換えた先のВіконна система (Windowing System) ID が戻り、
+  切り換わらない場合は、0 が戻る。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_PAR      : パラメータが不正である(item)。
+EX_WPRC     : アクティブПроцеси та потокиでない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wdef_fep</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>フロントエンドПроцеси та потокиの登録</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wdef_fep(W onoff)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   onoff   フロントエンドПроцеси та потокиのオン/オフ
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  自Процеси та потокиをフロントエンドПроцеси та потокиとして登録、
+  またはフロントエンドПроцеси та потокиとしての登録を解消する。
+  <CODE>onoff &gt; 0</CODE> の場合は一般フロントエンドПроцеси та потокиとして、
+  <CODE>onoff &lt; 0</CODE> の場合は特殊フロントエンドПроцеси та потокиとして登録、
+  <CODE>onoff = 0</CODE> の場合は解消となる。
+  登録していない状態で、
+  解消しようとした場合は、何も行なわれない。
+</P>
+<P>
+  フロントエンドПроцеси та потокиは最大 4 つまで同時に登録可能であり、
+  登録した逆順にイベントが渡されてシーケンシャルに処理されいく。
+</P>
+<P>
+  フロントエンドПроцеси та потокиは終了すると、
+  自動的にフロントエンドПроцеси та потокиとしての登録は解消される。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_LIMIT    : システムの制限を超えた
+              (既に最大個数のフロントエンドПроцеси та потокиが登録されている)。
+EX_WPRC     : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (通常Віконна система (Windowing System)を開いたまま登録した、
+               前面Віконна система (Windowing System)を開いたまま登録解消した)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchk_dck</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ダブルクリック操作のチェック</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wchk_dck(UW first)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+UW  first   最初のPDのプレスで得られたイベントの発生時刻(time)
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(関数値はPD操作タイプ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  PD の操作がダブルクリック操作か否かをチェックし、
+  その結果を関数値として戻す。
+</P>
+
+<P>
+  関数値として以下のいずれかの値が戻る。
+</P>
+
+<DL>
+ <DT><CODE>W_PRESS</CODE> : プレス操作 :
+ <DD>イベントは何も取り除かれない。
+
+ <DT><CODE>W_QPRESS</CODE> : クイックプレス操作 :
+ <DD>EV_BUTUP および、続く EV_BUTDWN イベントは取り除かれる。
+
+ <DT><CODE>W_CLICK</CODE> : クリック操作 :
+ <DD>EV_BUTUP イベントは取り除かれる。
+
+ <DT><CODE>W_DCLICK</CODE> : ダブルクリック操作 :
+ <DD>EV_BUTUP、EV_BUTDWN、および2回目の EV_BUTUP イベントは取り除かれる。
+</DL>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_WPRC     : Віконна система (Windowing System)(wid)の管理Процеси та потокиでない
+              (アクティブПроцеси та потокиでない)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchg_dck</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ダブルクリック間隔の変更</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+W   wchg_dck(W time)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   time    ダブルクリック間隔(秒単位)
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(変更以前のダブルクリック間隔)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>wchk_dck()</CODE> で使用するダブルクリック間隔を <CODE>time</CODE> で指定した値に変更し、
+  変更以前の値を関数値として取り出す。
+  <CODE>time ≦ 0</CODE> の場合は変更せずに現在値を取り出す。
+</P>
+<P>
+  なお、
+  システムスタートアップ時にはダブルクリック間隔として適当なデフォールト値が設定されているものとする。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<P>
+  発生しない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wchg_ful</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>フルスクリーンモードの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wchg_ful(void)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+なし
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  この関数を実行した後、
+  同一Процеси та потокиから最初に開かれた主Віконна система (Windowing System)が、
+  自動的にフルスクリーンモードとなり、
+  システムПовідомленняСистемні панелі (Panels)領域を含めた全画面に表示される。
+  システムПовідомленняСистемні панелі (Panels)は隠れて見えなくなる。
+</P>
+<P>
+  フルスクリーンモードで開くことの出来るのは、
+  主Віконна система (Windowing System)のみである。
+</P>
+<P>
+  開かれたВіконна система (Windowing System)の属性は、
+  変形不可、枠、タイトルバー、スクロールバーなしとなる。
+  指定した表示位置は無視され、
+  画面全体が作業領域となり、移動、拡大、縮小は出来ない。
+</P>
+<P>
+  フルスクリーンモードのВіконна система (Windowing System)が開いている間は、
+  同一Процеси та потокиからも、
+  別の主Віконна система (Windowing System)を開くことは出来ない。
+  フルスクリーンВіконна система (Windowing System)の従属Віконна система (Windowing System)及び、
+  Системні панелі (Panels)は開くことが出来る。
+  また、フルスクリーンモードのВіконна система (Windowing System)から、
+  他のВіконна система (Windowing System)へ入力受付状態を移すことは出来ない。
+</P>
+<P>
+  Віконна система (Windowing System)が閉じるかПроцеси та потокиが終了すると、
+  自動的にフルスクリーンモードは解除される。
+</P>
+<P>
+  フルスクリーンモードで、
+  下記の関数を実行した場合、
+  エラーとなる場合がある。
+</P>
+
+<PRE>
+    wopn_wnd()
+        EX_WND  :  フルスクリーンモードのВіконна система (Windowing System)が開かれている。
+        (別の主Віконна система (Windowing System)を開こうとした場合)
+    wswi_wnd()
+        EX_WND  :  フルスクリーンモードのВіконна система (Windowing System)が開かれている。
+    wexe_dmn()
+        EX_PAR  :  フルスクリーンモードのВіконна система (Windowing System)が開かれている。
+        (フルスクリーンモードでは、表示管理Меню та командні інтерфейсиの項目は、
+        全て不能状態になる)
+    wmov_wnd(), wmov_drg(), wrsz_wnd(), wrsz_drg(), wchg_wnd()
+        EX_WND  :  Віконна система (Windowing System)のタイプ/状態では実行出来ない。
+         (フルスクリーンモードのВіконна система (Windowing System)に対して実行した場合)
+</PRE>
+
+<P>
+  Віконна система (Windowing System)属性に <CODE>WA_SFULL</CODE> を指定することでフルスクリーンВіконна система (Windowing System)を開く。
+  また、<CODE>WA_SFULL</CODE> によるフルスクリーンВіконна система (Windowing System)は複数開くことができるが、
+  <CODE>wchg_ful</CODE> によるフルスクリーンВіконна система (Windowing System)は 1 つしか開くことができない。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_LIMIT    : システムの制限を超えた(既に別のПроцеси та потокиが実行中)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wcnv_rec</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>枠座標の変換</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wcnv_rec(UW attr, RECT *r, UW opt)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+UW      attr    変換元の属性
+RECT    *r      枠座標へのポインタ
+UW      opt     変換先の枠座標指定
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>attr</CODE> のВіконна система (Windowing System)属性を持った、
+  <CODE>r</CODE> で示されるВіконна система (Windowing System)枠を、<CODE>opt</CODE> 
+  で指定した枠座標に変換する。結果は <CODE>r</CODE> に直接戻される。
+  <CODE>opt</CODE> には、<CODE>WA_STD, WA_WORK, WA_FRAME</CODE> のいずれか 1 つが指定できる。
+  たとえば <CODE>wcnv_rec(WA_SIZE|WA_WORK, r, WA_FRAME)</CODE> とすると、
+  <CODE>WA_SIZE</CODE> 属性を持つВіконна система (Windowing System)において、
+  <CODE>r</CODE> は作業領域座標から外枠座標に変換される。
+</P>
+<P>
+  なこのシステムコールはВіконна система (Windowing System)を開いていない状態でも実行することができる。
+  また、イネーブルウェアの設定によって実行結果は変化する。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      : アドレス(r)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(attr, optが不正)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_inf</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)情報レコードの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wget_inf(W item, VP buf, W size)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   item    Віконна система (Windowing System)情報レコード番号
+VP  buf     格納領域へのポインタ
+W   size    格納領域のバイトサイズ
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0 正常(レコードのバイトサイズ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>item</CODE>で示されるВіконна система (Windowing System)情報レコードを、<CODE>buf</CODE> で示される領域に取り出し、
+  レコード全体のバイトサイズを返す。
+  <CODE>buf</CODE> から <CODE>size</CODE> バイトがアクセスできる必要がある。
+  <CODE>buf</CODE> が <CODE>NULL</CODE> の場合や <CODE>size ≦ 0</CODE> の場合はレコードの内容は取り出されないが、
+  レコードの全体サイズを得ることができる ( エラーにはならない )。
+</P>
+<P>
+  領域が不足した場合
+  ( 関数値 &gt; <CODE>size</CODE> の場合 ) は <CODE>size</CODE> バイトまでが格納されるが、
+  この場合はレコードの種類 ( ポインタを含んでいる構造体など )
+  によっては取り出される内容は保証されない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(buf)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(itemが不正)。
+EX_NOSPT    : itemのВіконна система (Windowing System)情報レコードはサポートされていない。
+EX_NOSPC    : システムのメモリが不足した。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">wget_inf</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>Віконна система (Windowing System)情報レコードの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+
+<PRE>
+ERR wset_inf(W item, VP buf, W size)
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+W   item    Віконна система (Windowing System)情報レコード番号
+VP  buf     格納領域へのポインタ
+W   size    格納領域のバイトサイズ
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+≧ 0  正常(実際に書き込まれたバイトサイズ)
+＜ 0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>item</CODE> で示されるВіконна система (Windowing System)情報レコードを、
+  <CODE>buf</CODE> で示される内容で更新し、
+  実際に格納されたバイトサイズを返す。
+  <CODE>buf</CODE> から <CODE>size</CODE> バイトがアクセスできる必要がある。
+  <CODE>buf</CODE> が <CODE>NULL</CODE> の場合や <CODE>size ≦ 0</CODE> の場合は、
+  レコードの内容をシステムのディフォールト値に戻す。
+</P>
+<P>
+  <CODE>buf</CODE> で示される内容が不正な場合には、
+  <CODE>EX_PAR</CODE> のエラーが返る。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      : アドレス(buf)のアクセスは許されていない。
+EX_PAR      : パラメータが不正である(item, bufが不正)。
+EX_NOSPT    : itemのВіконна система (Windowing System)情報レコードはサポートされていない。
+              または、bufで示されるデータ形式はサポートされていない。
+EX_NOSPC    : システムのメモリが不足した。
+</PRE>
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="shell.html">前頁:第3章 外殻にもどる</A><BR>
+<A href="menu.html">次頁:3.2 Меню та командні інтерфейсиマネージャにすすむ</A><BR>
+</BODY>
+</HTML>

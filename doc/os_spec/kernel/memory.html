@@ -1,0 +1,773 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  1.5 Управління пам'яттю
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="gname.html">
+<LINK REL="next" HREF="file.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="gname.html">前頁:1.4 グローバル名管理にもどる</A><BR>
+<A href="file.html">次頁:1.6 ファイル管理にすすむ</A><BR>
+<HR>
+
+<H2><A name="abd">1.5 Управління пам'яттю</A></H2>
+
+<H3><A name="abe">1.5.1 Управління пам'яттю機能の概要</A></H3>
+
+<P>
+  データメモリ領域には以下に示す 3 種類があり、
+  それぞれの領域に対して指定した大きさのメモリブロックの獲得 /
+  解放等の機能を提供している。
+</P>
+
+<DL>
+ <DT>ローカルメモリ領域 :
+ <DD><P>
+     1 つのПроцеси та потоки内でのみ使用可能なメモリ領域であり、
+     他のПроцеси та потокиからはアクセスできない。<BR>
+     ローカルメモリとして確保した領域は、
+     Процеси та потоки終了時に自動的に解放される。
+     </P>
+ <DT>共有メモリ領域 :
+ <DD><P>
+     すべてのПроцеси та потокиから使用可能なメモリ領域である。<BR>
+     獲得したПроцеси та потокиの存在とは無関係に存在するが、
+     獲得したПроцеси та потокиの終了時に自動的に解放することもできる。
+     </P>
+ <DT>システムメモリ領域 :
+ <DD><P>
+     システム ( OS やДрайвери пристроївー等 )
+     からのみ使用可能なメモリ領域である。
+     アプリケーションПроцеси та потокиからは使用できない。<BR>
+     Процеси та потокиとは無関係に存在する。
+     </P>
+</DL>
+
+<P>
+  基本的にはブロック単位 ( 例えば 4KB 単位 )
+  でメモリを割り当てる機能のみを OS は提供する。
+  さらに細かく内部を分割するのはライブラリ、
+  またはアプリケーション自身で行う。
+  通常は、システムコールを直接使用せずにライブラリを利用する。
+  ライブラリの機能では不十分な場合のみシステムコールを直接利用する。
+</P>
+
+<P>
+  獲得したメモリブロックは連続した ( 論理 ) アドレスを持ち、
+  その先頭 ( 論理 ) アドレスがアプリケーションに戻される。
+  一度獲得したメモリブロックの ( 論理 )
+  アドレスは変更されることはないため、
+  得られたアドレスにより直接メモリブロックをアクセスすることができる。
+  獲得したメモリブロックへのデータの書込み / 読込みは自由にできるが、
+  原則として実行することはできない。
+</P>
+
+<P>
+  Управління пам'яттю機能のある CPU の場合には、
+  原則として、共有メモリ、システムメモリは負のアドレスとなり、
+  ローカルメモリは正のアドレスとなる。
+  CPU の種類によってはこの原則通りにならない場合がある。
+  また、Управління пам'яттю機能のない CPU の場合は、この限りではない。
+</P>
+
+<P>
+  メモリに対する排他アクセス制御の機能はないので、
+  必要であればセマフォなどを利用してアプリケーションで行う。
+</P>
+
+<H3><A name="abf">1.5.2 データ／定数の定義</A></H3>
+
+<H4>□ メモリ属性</H4>
+
+<PRE>
+#define M_COMMON        0x00000001      /* 共有 */
+#define M_SYSTEM        0x00000003      /* システムのみ */
+#define M_RESIDENT      0x00004000      /* 常駐 */
+</PRE>
+
+<H4>□ メモリ状態</H4>
+
+<PRE>
+typedef struct m_state {
+        W       blksz;          /* ブロックサイズ */
+        W       total;          /* 全ブロック数 */
+        W       free;           /* 残りブロック数 */
+} M_STATE;
+</PRE>
+
+<H3><A name="abg">1.5.3 システムコール</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">get_mbk</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>メモリブロックの獲得</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+ERR get_mbk( VP *adr, W nblk, UW atr )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+VP  *adr    獲得したメモリブロックの先頭アドレスを返す領域
+W   nblk    獲得するメモリブロック数( &gt; 0)
+UW  atr     メモリブロックの属性
+            [ (M_COMMON ‖ M_SYSTEM) ] | [M_RESIDENT] | [DELEXIT]
+</PRE>
+
+<DL>
+ <DT><CODE>M_COMMON</CODE> :
+ <DD><P>
+     共有メモリを指定する。<BR>
+     共有メモリは、すべてのПроцеси та потокиからアクセス可能。
+     </P>
+ <DT><CODE>M_SYSTEM</CODE>
+ <DD><P>
+     システムメモリを指定する。<BR>
+     システムメモリは、システム ( OS やДрайвери пристроївー等 )
+     からのみアクセス可能。
+     この指定は、アプリケーションПроцеси та потокиからは使用してはいけない。
+     </P>
+     <P>
+     <CODE>M_COMMON, M_SYSTEM</CODE> のいずれの指定もなければ、
+     ローカルメモリとなる。
+     ローカルメモリは、メモリブロックを獲得したПроцеси та потокиからのみアクセス可能。
+     </P>
+     <P>
+     ※ 共有 / システム / ローカルメモリの指定は、
+     Управління пам'яттю機能がない CPU の場合には特に意味を持たない。
+     いずれも同じ扱いとなってしまい、保護されない。
+     </P>
+ <DT><CODE>M_RESIDENT</CODE> :
+ <DD><P>
+     常駐を指定する。指定がなければ非常駐となる。
+     </P>
+     <P>
+     常駐指定されたメモリブロックは、
+     ディスクなどにスワップアウトされることなく常に主メモリ上に存在する。
+     </P>
+     <P>
+     ※ 仮想記憶を行っていないシステムの場合には、
+     特に意味を持たない(常駐と同等になる)。
+     </P>
+ <DT><CODE>DELEXIT</CODE> :
+ <DD><P>
+     Процеси та потоки終了時削除を指定する。
+     </P>
+     <P>
+     この指定があると、
+     メモリブロックを獲得したПроцеси та потокиが終了すると自動的にメモリブロックが解放される。
+     ただし、ローカルメモリの場合は、この指定の有無に関係なく、
+     Процеси та потокиの終了時に解放される。
+     </P>
+</DL>
+
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー(エラーコード)
+</pre>
+
+<h4>【解説】</h4>
+<p>
+  <code>nblk</code> 個の連続したメモリブロックを獲得し、
+  その先頭アドレスを <code>*adr</code> に返す。
+</p>
+
+<h4>【エラーコード】</h4>
+<pre>
+er_adr      : アドレス(adr)のアクセスは許されていない。
+er_nomem    : メモリ領域が不足した。
+er_nospc    : システムのメモリ領域が不足した。
+er_par      : パラメータが不正である。
+er_ctx      : 不正なコンテキストから呼び出した。
+</pre>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">rel_mbk</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>メモリブロックの解放</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR rel_mbk( VP adr )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+VP  adr     解放するメモリブロックのアドレス
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜ 0 エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>adr</CODE> で示すメモリブロックを解放する。
+  <CODE>adr</CODE> は
+  <CODE>get_mbk()</CODE>
+  で得たアドレスでなければならない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_MPTR     : メモリブロックのアドレスが不正である。
+ER_CTX      : 不正なコンテキストから呼び出した。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">mbk_sts</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>メモリ状態参照</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR mbk_sts( M_STATE *sts )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+M_STATE   sts   メモリ状態を返す領域
+</PRE>
+
+<PRE>
+typedef struct  m_state {
+    W   blksz;  /* ブロックサイズ */
+    W   total;  /* 全ブロック数 */
+    W   free;   /* 残りブロック数 */
+} M_STATE;
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+＝0    正常
+＜0    エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  現在のメモリ使用状況などを取得する。
+</P>
+<DL>
+ <DT><CODE>blksz</CODE> :
+ <DD>メモリ割り当ての単位( 1 ブロック)のバイト数。<BR>
+     一般には CPU のページサイズとなる。標準的には 4KB。
+ <DT><CODE>total</CODE> :
+ <DD>システム全体の総ブロック数。
+ <DT><CODE>free</CODE> :
+ <DD>システム全体の未使用ブロック数。
+</DL>
+
+<P>
+  仮想記憶を行っているシステムでは、
+  全ブロック数、残りブロック数が一意に決定できない場合がある。
+  したがって、具体的な意味はインプリメントに依存する。
+  ただし、<CODE>free ÷ total</CODE>
+  が残りメモリの割合の参考値となるような値とする。
+</P>
+<P>
+  インプリメントにより、
+  具体的な値が設定できない場合は、
+  全ブロック数、残りブロック数ともに <CODE>-1</CODE> を設定するものとする。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_ADR      : アドレス(sts)のアクセスは許されていない。
+</PRE>
+
+<H3><A name="abh">1.5.4 ライブラリ</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">malloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐ローカルメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：DELEXIT</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   malloc( size_t size )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  size    獲得したいメモリのバイト数(&gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  非常駐ローカルメモリから指定したサイズのメモリを割り当て、その先頭アドレスを戻す。
+</P>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">calloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐ローカルメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：DELEXIT</TD></TR>
+</TABLE></TD></TR></TABLE>
+    
+<H4>【形式】</H4>
+<PRE>
+void*   calloc( size_t nelem, size_t elsize )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  nelem   獲得したい要素数( &gt; 0)
+size_t  elsize  1要素のバイト数( &gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  非常駐ローカルメモリから <CODE>elsize</CODE> の大きさの
+  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て、その先頭アドレスを戻す。
+  割り当てた領域は 0 で初期化される。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">realloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐ローカルメモリの再獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：DELEXIT</TD></TR>
+</TABLE></TD></TR></TABLE>
+    
+<H4>【形式】</H4>
+<PRE>
+void*   realloc( void *ptr, size_t size )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    サイズ変更したい領域のアドレス
+                NULL を指定した場合は新規獲得
+size_t  size    獲得したいメモリのバイト数(≧0)
+                0 を指定した場合は解放
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  非常駐ローカルメモリ中の
+  <CODE>ptr</CODE> で指定される領域のサイズを
+  <CODE>size</CODE> に変更して再獲得し、その先頭アドレスを戻す。<BR>
+  <CODE>ptr</CODE> は、
+  <CODE>malloc(), calloc(), realloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">free</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐ローカルメモリの解放(ライブラリ)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void    free( void *ptr )
+</PRE>
+
+<H4>【パラメータ】</H4>
+
+<PRE>
+void    *ptr    解放したい領域のアドレス
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>ptr</CODE> で指定された非常駐ローカルメモリ内の領域を解放する。<BR>
+  <CODE>ptr</CODE> は、
+  <CODE>malloc(), calloc(), realloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Smalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐共有メモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_COMMON</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Smalloc( size_t size )
+</PRE>
+<H4>【パラメータ】</H4>
+
+<PRE>
+size_t  size    獲得したいメモリのバイト数(&gt; 0)
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  非常駐共有メモリから指定したサイズのメモリを割り当て、その先頭アドレスを戻す。
+</P>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Scalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐共有メモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_COMMON</TD></TR>
+</TABLE></TD></TR></TABLE>
+    
+<H4>【形式】</H4>
+<PRE>
+void*   Scalloc( size_t nelem, size_t elsize )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  nelem   獲得したい要素数(&gt; 0)
+size_t  elsize  1 要素のバイト数(&gt; 0)
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  非常駐共有メモリから <CODE>elsize</CODE> の大きさの
+  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て、その先頭アドレスを戻す。
+  割り当てた領域は 0 で初期化される。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Srealloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐共有メモリの再獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_COMMON</TD></TR>
+</TABLE></TD></TR></TABLE>
+    
+<H4>【形式】</H4>
+<PRE>
+void*   Srealloc( void *ptr, size_t size )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    サイズ変更したい領域のアドレス
+                NULL を指定した場合は新規獲得
+size_t  size    再獲得したいメモリのバイト数(≧0)
+                0 を指定した場合は解放
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  非常駐共有メモリ中の <CODE>ptr</CODE> で指定される領域のサイズを
+  <CODE>size</CODE> に変更して再獲得し、その先頭アドレスを戻す。<BR>
+  <CODE>ptr</CODE> は、同じПроцеси та потоки内で獲得したメモリ領域で、
+  <CODE>Smalloc(), Scalloc(), Srealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Sfree</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐共有メモリの解放(ライブラリ)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void    Sfree( void *ptr )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    解放したい領域のアドレス
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>ptr</CODE> で指定された非常駐共有メモリ内の領域を解放する。<BR>
+  <CODE>ptr</CODE> は、同じПроцеси та потоки内で獲得したメモリ領域で、
+  <CODE>Smalloc(), Scalloc(), Srealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Kmalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>常駐システムメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM | M_RESIDENT</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Kmalloc( size_t size )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  size    獲得したいメモリのバイト数(&gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  常駐システムメモリから指定したサイズのメモリを割り当て、その先頭アドレスを戻す。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Kcalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>常駐システムメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM | M_RESIDENT</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Kcalloc( size_t nelem, size_t elsize )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  nelem   獲得したい要素数(&gt; 0)
+size_t  elsize  1 要素のバイト数(&gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  常駐システムメモリから <CODE>elsize</CODE> の大きさの
+  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て、その先頭アドレスを戻す。
+  割り当てた領域は 0 で初期化される。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Krealloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>常駐システムメモリの再獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM | M_RESIDENT</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Krealloc( void *ptr, size_t size )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    サイズ変更したい領域のアドレス
+                NULL を指定した場合は新規獲得
+size_t  size    再獲得したいメモリのバイト数(≧0)
+                0 を指定した場合は解放
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  常駐システムメモリ中の <CODE>ptr</CODE>
+  で指定される領域のサイズを <CODE>size</CODE> に変更して再獲得し、その先頭ドレスを戻す。<BR>
+  <CODE>ptr</CODE> は、
+  <CODE>Kmalloc(), Kcalloc(), Krealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Kfree</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>常駐システムメモリの解放(ライブラリ)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+void    Kfree( void *ptr )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    解放したい領域のアドレス
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>ptr</CODE> で指定された常駐システムメモリ内の領域を解放する。<BR>
+  <CODE>ptr</CODE> は、<CODE>Kmalloc(), Kcalloc(), Krealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Vmalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐システムメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Vmalloc( size_t size )
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  size    獲得したいメモリのバイト数(&gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+
+<P>
+  非常駐システムメモリから指定したサイズのメモリを割り当て、その先頭アドレスを戻す。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Vcalloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐システムメモリの獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Vcalloc( size_t nelem, size_t elsize )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+size_t  nelem   獲得したい要素数(&gt; 0)
+size_t  elsize  1 要素のバイト数(&gt; 0)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  非常駐システムメモリから <CODE>elsize</CODE>
+  の大きさの <CODE>nelem</CODE> 個の要素を格納する領域を割り当て、その先頭アドレスを戻す。
+  割り当てた領域は 0 で初期化される。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Vrealloc</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐システムメモリの再獲得(ライブラリ)</TD></TR>
+<TR><TD>メモリ属性：M_SYSTEM</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void*   Vrealloc( void *ptr, size_t size )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    サイズ変更したい領域のアドレス
+                NULL を指定した場合は新規獲得
+size_t  size    再獲得したいメモリのバイト数(≧0)
+                0 を指定した場合は解放
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≠NULL  正常(獲得したメモリアドレス)
+＝NULL  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  非常駐システムメモリ中の <CODE>ptr</CODE> で指定される領域のサイズを
+  <CODE>size</CODE> に変更して再獲得し、その先頭アドレスを戻す。<BR>
+  <CODE>ptr</CODE> は、<CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">Vfree</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>非常駐システムメモリの解放(ライブラリ)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+void    Vfree( void *ptr )
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+void    *ptr    解放したい領域の先頭アドレス
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>ptr</CODE> で指定された非常駐システムメモリ内の領域を解放する。<BR>
+  <CODE>ptr</CODE> は、<CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
+  で返されたアドレスでなければならない。
+</P>
+<P>
+  ※ アプリケーションПроцеси та потокиからは使用できない。
+</P>
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="gname.html">前頁:1.4 グローバル名管理にもどる</A><BR>
+<A href="file.html">次頁:1.6 ファイル管理にすすむ</A><BR>
+</BODY>
+</HTML>

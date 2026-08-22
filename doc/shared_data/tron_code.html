@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  第2章 TRON コード体系
+</TITLE>
+<LINK REL="parent" HREF="index.html">
+<LINK REL="previous" HREF="data_type.html">
+<LINK REL="next" HREF="tad1.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="data_type.html">前頁:第1章 基本データタイプにもどる</A><BR>
+<A href="tad1.html">次頁:第3章 TAD詳細仕様書にすすむ</A><BR>
+<HR>
+<H1><A name="aas">第2章 TRON コード体系</A></H1>
+<HR>
+<H2><A name="aat">2.1 TRON 仕様コードの概要</A></H2>
+
+<H3><A name="aau">2.1.1 多国語対応</A></H3>
+
+<P>
+  TRON 仕様コードでは、
+  多国語文字を扱うことを考えるが、
+  国語によって 1 バイトコードで足りるものと、
+  足りないものがある。
+  このため、TRON 仕様では 1 バイトコードと 2 バイトコードを扱う。
+  しかし、
+  基本的には 1 バイトコードと 2 バイトコードを混在させて使うことは避け、
+  1 バイトコードで足りる国語については 1 バイトコードを使い、
+  不足する国語では 2 バイトコードを使用する。
+</P>
+
+<H3><A name="aav">2.1.2 文字セット</A></H3>
+
+<P>
+  従来、コードに割り当てられていない文字を外字として扱っていたが、
+  TRON 仕様コードではこの意味での外字はおこらないように、
+  全ての文字に対してコードを割り当てる方式を取る。
+  漢字の場合でも、45,000 文字程度で全てを網羅できる。
+  このようにして定めた、
+  一つの文字コードの集合を文字セットと呼ぶ。
+  会社のマークなどのパターンは、文字とは別扱いで、
+  イメージとして扱うようにする。
+  コードで区別すべき文字が必要となる場合は、新しく登録する。
+</P>
+
+<P>
+  本仕様書および JIS X 0208
+  で規定されていない独自の文字コードはデータの交換に用いてはならない。
+</P>
+
+
+<H3><A name="aaw">2.1.3 書体セット</A></H3>
+
+<P>
+  同じ文字に対していくつかの書体が存在する。
+  例えばゴシックと明朝のような場合である。
+  これらは同じ文字コードを割り当て、
+  書体が異なってもデータベース検索の場合に同一文字として扱うことができるようにする。
+  同じ文字セットの中に存在する複数の書体の異なる文字集合を書体セットと呼ぶ。
+</P>
+
+<H2><A name="aax">2.2 既存のコード体系との関連</A></H2>
+
+<H3><A name="aay">2.2.1 JIS X 0201</A></H3>
+
+<P>
+  JIS X 0201 では、7 ビットと 8 ビットの情報交換符号を規定している。
+  TRON 仕様コードでは 8 ビットおよび 16 ビットコード体系を取るので、
+  JIS X 0201 の 8 ビットコードの規定からの制限を考慮する。
+</P>
+
+<P>
+  8 ビットコード表で、C0 集合の 00/0 〜 01/15、
+  および 02/0、07/15 は制御コードとして使用する。 
+  また、C1 集合の 08/0 〜 09/15、および 10/0、15/15
+  は制御コード用であるが未定義領域とする。
+</P>
+
+<P>
+  また、日本の場合は、漢字、仮名、ラテン文字のいずれも使用するので、
+  1 バイトコードと 2 バイトコードを頻繁に切り換えるのは不適当である。
+  従って、日本語は全て 2 バイトコードで扱い、1 バイトコードでは扱わない。
+</P>
+
+<P>
+  TRON 仕様では半角、全角の概念はなく、
+  これらは文字指定付箋を用いて扱う。
+  文字指定付箋については<A href="tad2.html#adj">3.5.4文字指定付箋</A>を参照のこと。
+</P>
+
+<H3><A name="aaz">2.2.2 JIS X 0208</A></H3>
+
+<P>
+  JIS X 0208 では、8,836 字の領域を確保し、
+  そのうち  6,877 字を割り当てている。
+  このうち漢字は 6,353 字である ( JIS X 0208-1983 )。
+</P>
+
+<P>
+  TRON 仕様コードは JIS X 0208 に定義されている文字を準用する。
+  またコードの位置もそのまま用いる。
+</P>
+
+<H2><A name="aba">2.3 TRON仕様日本文字コード</A></H2>
+
+<H3><A name="abb">2.3.1 概要</A></H3>
+
+<P>
+  TRON 仕様日本文字コード体系は、
+  2 バイトの文字コード体系であり、
+  JIS X 0208 のスーパーセットとする。
+</P>
+
+<A name="abc">
+<CENTER><IMG src="gif/ja_code_system.gif" alt="TRON 仕様日本文字コード体
+系"></CENTER>
+</A>
+<CENTER>図 1 : TRON 仕様日本文字コード体系</CENTER>
+
+<H3><A name="abd">2.3.2 TRON 仕様日本文字コード</A></H3>
+
+<A name="abe">
+<CENTER><IMG src="gif/ja_code.gif" alt="TRON 仕様日本文字コード"></CENTER>
+</A>
+<CENTER>図 2 : TRON 仕様日本文字コード</CENTER>
+
+<H3><A name="abf">2.3.3 TRON 仕様日本文字コード説明</A></H3>
+
+<DL>
+<DT>(1)TRON 仕様で特別な意味を持つ制御コード
+<DD><P>
+    (00)(00)〜(00)(20),(00)(7F)のコードは制御コードとして割り当てる。
+    ( 制御コードの第 2 バイトは TRON 仕様 1 バイトコード系、
+    2 バイトコード系に共通である)
+    </P>
+    <P>
+    このうち、以下のコードは TRON 仕様で特別な意味を持ち、
+    無効コードを除き、特殊文字キーより発生可能なコードである。
+    </P>
+    <TABLE>
+     <TR><TD valign="top">(00)</TD><TD valign="top" nowrap>無効コード</TD>
+      <TD>このコードがあっても、あたかも無いように処理する
+          文字コードとしては無効であるが、
+          通常は文字列の終了を示す目的に使用する<BR></TD></TR>
+     <TR><TD valign="top">(09)</TD><TD valign="top" nowrap>タブ</TD>
+      <TD>次タブ位置または次フィールドへの遷移</TD></TR>
+     <TR><TD valign="top">(0A)</TD><TD valign="top" nowrap>改段落</TD>
+      <TD>通常の改行または段落替え<BR>
+          段落の概念を用いる場合、
+          段落内の改行は改行を用いる</TD></TR>
+     <TR><TD>(0B)</TD><TD nowrap>改コラム</TD><TD></TD></TR>
+     <TR><TD>(0C)</TD><TD nowrap>改ページ</TD><TD></TD></TR>
+     <TR><TD valign="top">(0D)</TD><TD valign="top" nowrap>改行</TD>
+      <TD>フィールド内の改行または段落内の改行</TD></TR>
+     <TR><TD valign="top">(20)</TD><TD valign="top" nowrap>セパレータ</TD>
+      <TD>語あるいは文節の区切れ</TD></TR>
+    </TABLE>
+
+    <P>フィールドの定義については<A href="tad2.html#acz">3.5.3行書式指定付箋</A>を参照のこと。
+    </P>
+
+
+<DT>(2)TRON 仕様文字コード
+<DD>
+    <TABLE>
+     <TR><TD>第1ブロック:</TD><TD>(21)(21)×(7E)(7E)</TD>
+         <TD>Aゾーン</TD><TD align="right">8,836文字</TD></TR>
+     <TR><TD colspan=4>
+     <TABLE>
+      <TR><TD colspan=5>JIX X 0208 に完全対応</TD></TR>
+      <TR><TD>第1バイト</TD><TD>: 0x21〜0x27</TD>
+       <TD>非漢字領域 </TD><TD align="right">(1〜7区)</TD>
+       <TD  align="right">453文字 /</TD><TD align="right">658文字</TD></TR>
+      <TR><TD></TD><TD></TD>
+       <TD colspan=4>(0x21 / 0x21  SP(漢字固定ピッチ))</TD></TR>
+      <TR><TD></TD><TD>: 0x28〜0x2F</TD>
+       <TD>予約領域</TD><TD align="right">(8〜15区)</TD>
+       <TD align="right">/</TD><TD align="right">752文字</TD></TR>
+      <TR><TD></TD><TD>: 0x30〜0x4F</TD>
+       <TD>第1水準漢字</TD><TD align="right">(16〜47区)</TD>
+       <TD align="right">2,965文字 /</TD><TD align="right">3,008文字</TD></TR>
+      <TR><TD></TD><TD>: 0x50〜0x74</TD>
+       <TD>第2水準漢字</TD><TD align="right">(48〜84区)</TD>
+       <TD align="right">3,388文字 /</TD><TD align="right">3,478文字</TD></TR>
+      <TR><TD></TD><TD>: 0x75〜0x7E</TD>
+       <TD>予約領域</TD><TD align="right">(85〜94区)</TD>
+          <TD align="right">/</TD><TD align="right"> 940文字</TD></TR>
+   </TABLE>
+       </TD></TR>
+   <TR><TD>第2ブロック:</TD><TD>(80)(21)×(FD)(7E)</TD>
+    <TD>Bゾーン</TD><TD align="right">11,844文字</TD></TR>
+   <TR><TD>第3ブロック:</TD><TD>(21)(80)×(7E)(FD)</TD>
+    <TD>Cゾーン</TD><TD align="right">11,844文字</TD></TR>
+   <TR><TD>第4ブロック:</TD><TD>(80)(80)×(FD)(FD)</TD>
+    <TD>Dゾーン</TD><TD align="right">15,876文字</TD></TR>
+   </TABLE>
+    <P>
+    Aゾーンには、JIS X 0208 を対応付ける。
+    </P>
+    <P>
+    Bゾーンは、JIS X 0208 で不足している文字のうち、
+    利用頻度の高い文字を集める。
+    この中には、漢字以外に記号、他文字属の一部も含む。
+    </P>
+    <P>
+    C, D ゾーンは、A , B ゾーンよりも頻度の低い文字を集める。
+    </P>
+
+ <DT>(3)言語指定コード
+ <DD><P>
+    言語指定コード (FE)(21)〜(FE)(7E)、(FE)(80)〜(FE)(FE)
+    </P>
+    <P>
+    言語および文字属の切り換え指定を行なう。
+	第 2 バイトが<CODE>0xFE</CODE>の場合、
+    さらに言語指定コードが続くことを示す。
+    2 バイトで表現しうる言語指定数は 220 である。
+    </P>
+  <DT>(4) TRON 仕様特殊コード
+ <DD><P>
+    TRON 仕様特殊コード (FF)(21)〜(FF)(7E) 94 文字
+    </P>
+    <P>
+    文章中に挿入される特殊コードとして用いる。
+    </P>
+  <DT>(5) TRON 仕様エスケープ
+ <DD><P>
+    TRON 仕様エスケープ (FF)(80)〜(FF)(FE)
+    </P>
+    <P>
+    文書中に埋め込まれる指定付箋挿入等の区切り記号として用いる。
+    区切り記号の後に付箋情報が続く
+    (付箋情報については
+    <A href="tad1.html#abn">3.3TADデータ構成の概要</A>を参照のこと)。
+    </P>
+    <P>
+    2 バイトで表現しうる TRON 仕様エスケープ数は 127 である。
+    </P>
+</DL>
+
+<H3><A name="abg">2.3.4 その他</A></H3>
+
+<UL>
+ <LI>(<CODE>0xFF</CODE>)/(<CODE>0xFF</CODE>) は数値として見た場合の -1 であり、
+      <CODE>EOF</CODE> として使用する。
+ <LI>インデント等の書式制御用の文字コードは使用しない。<BR>
+      <CODE>NL</CODE>,<CODE>HT</CODE>(<CODE>TAB</CODE>),
+      <CODE>SP</CODE>(3種),(<CODE>NULL</CODE>)
+      は文字コードとしてテキストに混在して使用する。
+ <LI>3 種のスペースは次のコードとする。
+      <TABLE>
+       <TR><TD colspan=3>日本語モードの場合：</TD></TR>
+       <TR><TD>漢字固定ピッチ</TD><TD>SP (<CODE>0x21</CODE>/<CODE>0x21</CODE>)</TD>
+        <TD>− 空白キー</TD></TR>
+       <TR><TD colspan=3>英語モードの場合：</TD></TR>
+       <TR><TD>英字固定ピッチ  </TD><TD>SP (<CODE>0x00</CODE>/<CODE>0xA0</CODE>)</TD>
+           <TD>− 空白キー</TD></TR>
+       <TR><TD>プロポーショナル</TD><TD>SP (<CODE>0x00</CODE>/<CODE>0x20</CODE>)</TD>
+           <TD>− 変換・逆変換キー</TD></TR>
+      </TABLE>
+</UL>
+<HR>
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="data_type.html">前頁:第1章 基本データタイプにもどる</A><BR>
+<A href="tad1.html">次頁:第3章 TAD詳細仕様書にすすむ</A><BR>
+</BODY>
+</HTML>

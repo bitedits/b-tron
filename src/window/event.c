@@ -1,5 +1,6 @@
 /*
  * B-TRON System Event Queue: event.c
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 
 #include <btron/event.h>

@@ -1,0 +1,1884 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  3.6 図形描画セグメント
+</TITLE>
+<LINK REL="parent" HREF="index.html">
+<LINK REL="previous" HREF="tad2.html">
+<LINK REL="next" HREF="fd_format.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="tad2.html">前頁:3.5 文章付箋セグメントにもどる</A><BR>
+<A href="fd_format.html">次頁:第4章 フロッピーディスク形式にすすむ</A><BR>
+<HR>
+
+<H2><A name="aec">3.6 図形描画セグメント</A></H2>
+
+
+<H3><A name="aed">3.6.1 概要</A></H3>
+
+<P>
+  図形描画セグメントは、
+  図形を表現するために図形データ中に埋め込まれるセグメントである。
+  標準図形描画セグメントとして、以下のものが定義されている。
+</P>
+
+<TABLE>
+<TR><TH>図形描画セグメント</TH><TH colspan=2>セグメントID</TH></TR>
+<TR><TD>図形要素セグメント          </TD><TD><CODE>TS_FPRIM</CODE></TD><TD><CODE>(0xB0)</CODE></TD></TR>
+<TR><TD>データ定義セグメント        </TD><TD><CODE>TS_FDEF</CODE></TD><TD><CODE>(0xB1)</CODE></TD></TR>
+<TR><TD>グループ定義セグメント      </TD><TD><CODE>TS_FGRP</CODE></TD><TD><CODE>(0xB2)</CODE></TD></TR>
+<TR><TD>マクロ定義／参照セグメント  </TD><TD><CODE>TS_FMAC</CODE></TD><TD><CODE>(0xB3)</CODE></TD></TR>
+<TR><TD>図形修飾セグメント          </TD><TD><CODE>TS_FATTR</CODE></TD><TD><CODE>(0xB4)</CODE></TD></TR>
+<TR><TD>図形ページ割付け指定付箋    </TD><TD><CODE>TS_FPAGE</CODE></TD><TD><CODE>(0xB5)</CODE></TD></TR>
+<TR><TD>(予約)                      </TD><TD><CODE>------</CODE></TD><TD><CODE>(0xB6〜0xBD)</CODE></TD></TR>
+<TR><TD>図形メモ指定付箋            </TD><TD><CODE>TS_FMEMO</CODE></TD><TD><CODE>(0xBE)</CODE></TD></TR>
+<TR><TD>図形アプリケーション指定付箋</TD><TD><CODE>TS_FAPPL</CODE></TD><TD><CODE>(0xBF)</CODE></TD></TR>
+</TABLE>
+
+<P>
+  図形描画セグメントは以下に示す構造を持ち、
+  サブIDにより詳細な内容が規定される。
+  なお、 サブID は、0〜127の範囲の値をTAD標準として使用し、
+  128〜255は未定義(アプリケーション依存)とする。
+  アプリケーション依存の図形描画セグメントには、
+  アプリケーションIDが含まれていないため、
+  異なるアプリケーション間での互換性は保証されない。
+</P>
+
+<A name="aee">
+<CENTER><IMG src="gif/figure_segment.gif" alt="図形描画セグメントの構造"></CENTER>
+</A>
+<CENTER>図 46 : 図形描画セグメントの構造</CENTER>
+
+
+<P>
+  図形描画セグメントも文章付箋セグメントと同様に、
+  基本レベルと拡張レベルにレベル分けされており、
+  原則的に図形を取り扱うアプリケーションは、
+  少なくとも基本レベルはサポートしているものとする。
+</P>
+
+<H3><A name="aef">3.6.2 図形要素セグメント</A></H3>
+
+<H4>概要</H4>
+
+<P>
+  図形要素セグメントは、
+  図形データとして表現される実際の図形を示すセグメントであり、
+  標準の図形要素として、以下のものがある。
+  これらの図形要素セグメントの基本的な考え方
+  (ハーフオープンプロパティ等)は、ディスプレイプリミティブでの規定に従う。
+</P>
+
+&lt;閉じた図形要素&gt;
+<PRE>
+長方形          -- 長方形
+角丸長方形      -- 角の丸い長方形
+楕円            -- 楕円および正円
+扇形            -- (楕)円弧と、その両端と中心を結ぶ線で囲まれた図形
+弓形            -- (楕)円弧と、その両端を結ぶ線で囲まれた図形
+多角形          -- 多角形、および角の丸い多角形
+曲線            -- 点列による曲線で囲まれた図形
+</PRE>
+&lt;開いた図形要素&gt;
+<PRE>
+直線            -- 直線
+楕円弧          -- 楕円弧および円弧
+折れ線          -- 連続した直線列
+曲線            -- 点列による曲線
+</PRE>
+&lt;点図形要素&gt;
+<PRE>
+マーカー列      -- 任意位置のマーカーの列
+</PRE>
+&lt;任意図形要素&gt;
+<PRE>
+任意図形        -- 外周点の列で指定した図形
+</PRE>
+<P>
+  図形要素セグメントには、以下の共通的なパラメータが存在する。
+  これらのパラメータは、図形要素セグメント毎に指定される。
+</P>
+&lt;描画モード&gt;
+<P>
+  描画モードは、描画の対象とするピクセルに、
+  書き込むべきピクセル値(src)と、
+  既に現在のピクセル値 (dest) と、
+  描画後のピクセル値 (result) との関係を規定するものであり、
+  以下に示すものが用意されている。
+</P>
+<PRE>
+        0       STORE   : (src)                         →  (result)
+        1       XOR     : (src) XOR (dest)              →  (result)
+        2       OR      : (src) OR  (dest)              →  (result)
+        3       AND     : (src) AND (dest)              →  (result)
+        4       CPYN    : (NOT (src))                   →  (result)
+        5       XORN    : (NOT (src)) XOR (dest)        →  (result)
+        6       ORN     : (NOT (src)) OR  (dest)        →  (result)
+        7       ANDN    : (NOT (src)) AND (dest)        →  (result)
+        8〜 予約
+</PRE>
+&lt;線属性&gt;
+<P>
+  開いた図形、
+  および閉じた図形の外周線に使用される線の属性を示す  UH の値。<BR>
+  任意図形には適用されない。</P>
+<PRE>
+    TTTT TTTT WWWW WWWW
+</PRE>
+<DL>
+ <DT>W : 線幅 (下位8ビット符号無し) (0〜255)
+ <DD>線の幅(太さ)を座標系単位の値で指定したもの。
+     水平と垂直の座標系単位が異なる場合は、 平均した単位を使用する
+     ものとする。
+     0の場合は、線は描画されない。
+ <DT>T : 線種ID (上位8ビット符号無し) (0〜255)
+ <DD>「線種定義セグメント」により定義された線種ID。
+</DL>
+&lt;線パターン&gt;
+<P>
+  開いた図形、
+  および閉じた図形の外周線に使用される描画パターンを示す UH の値。
+<BR>
+  線属性の線幅が0の場合、および任意図形には適用されない。
+</P>
+<PRE>
+    0       : 透明
+    0以外: 「<A href="tad3.html#aeia">パターン定義セグメント</A>」により定義されたID
+</PRE>
+&lt;塗り潰しパターン&gt;
+<P>
+  閉じた図形、
+  および任意図形の内部の塗り潰しに使用される描画パターンを示す UH の値。
+<BR>
+  開いた図形には適用されない。
+</P>
+<PRE>
+        0       : 透明
+        0以外: 「<A href="tad3.html#aeia">パターン定義セグメント</A>」により定義されたID
+</PRE>
+&lt;回転角&gt;
+<P>
+  長方形、楕円、楕円弧等の図形要素は、
+  その外接長方形により図形が定義される。
+  この外接長方形は、水平軸(横辺)が水平の長方形を、
+  その左上の点を中心として、
+  反時計周りに回転した図形として表現される。<BR>
+  回転角は、この回転角度を示す。UH の値で、360の剰余の値が有効となる。
+  <BR>
+  多角形、直線、折れ線、曲線、および任意図形には適用されない。
+</P>
+
+<H4>長方形セグメント:基本レベル</H4>
+
+<P>
+長方形を示す。
+</P>
+
+<PRE>
+LEN  :  18
+SUBID:  0
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角
+        RECT    frame           -- 外接長方形
+</PRE>
+<H4>角丸長方形セグメント:基本レベル</H4>
+<P>
+角丸長方形を示す。
+</P>
+<PRE>
+LEN  :  22
+SUBID:  1
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        UH      rh              -- 丸めの水平直径
+        UH      rv              -- 丸めの垂直直径
+        RECT    frame           -- 外接長方形
+</PRE>
+<DL>
+ <DT>rh, rv:
+ <DD>長方形の四隅の丸めのために使用される楕円弧の水平軸の直径、およ
+     び垂直軸の直径を示す。
+</DL>
+
+<H4>楕円セグメント:基本レベル</H4>
+<P>
+  楕円、または正円を示す。
+</P>
+<PRE>
+LEN  :  18
+SUBID:  2
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+</PRE>
+
+<H4>扇形セグメント:基本レベル</H4>
+
+<P>
+扇形を示す。<BR>
+扇形は(楕)円弧と、その両端と中心を結ぶ線で囲まれた図形である。
+</P>
+<PRE>
+LEN  :  26
+SUBID:  3
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+<DL>
+ <DD>start, end:
+ <DD>frame を外接長方形とする(楕)円において、中心と start  を結ぶ直
+     線と(楕) 円の交点から時計周りに、中心と end を結ぶ直線と(楕)円
+     の交点までの範囲が対象とする(楕)円弧となる。(start, end は(楕)
+     円上に存在する必要はない)。
+</DL>
+
+<H4>弓形セグメント:基本レベル</H4>
+<P>
+弓形を示す。<BR>
+弓形は(楕)円弧と、その両端結ぶ線で囲まれた図形である。
+</P>
+<PRE>
+LEN  :  26
+SUBID:  4
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+<DL>
+ <DT>start, end:
+ <DD>frame を外接長方形とする(楕)円において、中心と start  を結ぶ直
+     線と(楕) 円の交点から時計周りに、中心と end を結ぶ直線と(楕)円
+     の交点までの範囲が対象とする(楕)円弧となる。(start, end は(楕)
+     円上に存在する必要はない)。
+</DL>
+
+<H4>多角形セグメント:基本レベル</H4>
+<P>
+多角形を示す。
+</P>
+
+<PRE>
+LEN  :  〜
+SUBID:  5
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      round           -- 角の丸めの円の直径:拡張レベル
+        UH      np              -- 点数(＞2)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+<DL>
+ <DT>round:
+ <DD>多角形の各頂点を円弧により丸める場合の円の直径を示す。0の場合
+     は丸めない。
+ <DT>pt:
+ <DD>多角形の頂点の配列であり、pt[0]→pt[1]→pt[2]… pt[np-1]→pt[0]
+     の順番に頂点を結んだ多角形を意味する。
+</DL>
+
+<H4>直線セグメント:基本レベル</H4>
+<P>
+  直線を示す。
+</P>
+<PRE>
+LEN  :  14
+SUBID:  6
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+
+<H4>楕円弧セグメント:基本レベル</H4>
+
+<P>
+楕円弧、または円弧を示す。
+</P>
+<PRE>
+LEN  :  24
+SUBID:  7
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+<DL>
+ <DT>start, end:
+ <DD>frame を外接長方形とする(楕)円において、中心と start  を結ぶ直
+     線と(楕) 円の交点から時計周りに、中心と end を結ぶ直線と(楕)円
+     の交点までの範囲が対象とする(楕)円弧となる。(start, end は(楕)
+     円上に存在する必要はない)。
+</DL>
+
+<H4>折れ線セグメント:基本レベル</H4>
+
+<P>
+  折れ線(連続した直線列)を示す。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  8
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      round           -- 角の丸め:拡張レベル
+        UH      np              -- 点数 (＞1)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+<DL>
+ <DT>round:
+ <DD>直線列の各折れ点を円弧により丸める場合の円の直径を示す。0の場
+     合は丸めない。
+ <DT>pt:
+ <DD>直線列の頂点の配列であり、pt[0]→pt[1]→pt[2]… pt[np-1]  の順
+     番に頂点を結んだ直線列を意味する。
+</DL>
+
+<H4>曲線セグメント:拡張レベル</H4>
+<P>
+  点列による曲線を示す。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  9
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        H       type            -- 曲線のタイプ
+        UH      np              -- 点数 (＞0)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+
+<DL compact>
+ <DT>type:
+ <DD>曲線のタイプの指定。<BR>
+     0  : 折れ線<BR>
+     1  : 3次B−スプライン曲線<BR>
+     2〜: 予約<BR>
+     ＜0: 未定義(インプリメント依存)
+ <DT>f_pat:
+ <DD>閉じた曲線の場合に塗り潰すパターンを示す。
+     開いた曲線の場合は無視される。
+ <DT>pt:
+ <DD>曲線のパラメータとしての点の配列であり、 pt[0]→pt[1]→pt[2]…
+     pt[np-1] の順番となる。<BR>
+     pt[0] ≠ pt[np-1] の場合は開曲線であり、pt[0]= pt[np-1] の場合
+        は、pt[0]〜pt[np-2] の点を結ぶ閉曲線となる。<BR>
+        曲線のタイプによっては、指定点を通るとは限らない。<BR>
+        点の数が不足して曲線の描画できない場合は、点または直線が描画される。
+</DL>
+
+<H4>マーカー列セグメント:拡張レベル</H4>
+<P>
+  マーカ列を示す。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  10
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      marker          -- マーカーID
+        UH      np              -- 点数 (＞0)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+pt[] で指定した np 個の位置に marker で指定したマーカーを描画する。
+marker: 「マーカー定義セグメント」により定義されたマーカーID。
+</PRE>
+
+<H4>任意図形セグメント:基本レベル</H4>
+<P>
+外周点の列で指定した任意図形を示す。
+任意図形は、各垂直座標毎に水平座標の複数の点を指定することにより定義され、
+2つの隣接した水平座標値で囲まれた範囲が、任意図形の領域となる。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  11
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH  f_pat               -- 塗り潰しパターンID
+        UH  sy                  -- 垂直座標の開始値(最小値)
+        UH  nr                  -- 垂直座標数
+        H   bx                  -- 水平座標値のバイアス
+        ＜垂直座標値 sr 〜 sr+nr-1 にそれぞれ対応した、以下に示す
+                水平座標値列の要素が nr 個連続する＞
+        UH      nh              -- 水平座標の数
+        UH      h[nh]           -- 水平座標の値 (nh 個の要素)
+        :       :
+</PRE>
+<DL compact>
+ <DT>sy:
+ <DD>垂直座標の開始値(最小値)
+ <DT>nr:
+ <DD>垂直座標数 (垂直座標の終了値(最大値) − 開始値(最小値) + 1)
+ <DT>bx:
+ <DD>水平座標値のバイアス。
+ <DT>nh:
+ <DD>水平座標の数。0は存在しない事を意味し、続く h[]  は実際には存在しない。
+ <DT>h[]:
+ <DD>水平座標の値で、 nh 個の要素からなる配列。実際の水平座標値は、
+     この値に bx を加えたものとなる。
+</DL>
+
+<A name="aeg">
+<CENTER><IMG src="gif/any_fig_seg.gif" alt="任意図形セグメントの例"></CENTER>
+</A>
+<CENTER>図 47 : 任意図形セグメントの例</CENTER>
+
+<H3><A name="aeh">3.6.3 データ定義セグメント</A></H3>
+
+<H4>概要</H4>
+<P>
+  データ定義セグメントでは、
+  図形要素セグメントから参照される以下のデータの定義を行なう。
+</P>
+<UL>
+ <LI> カラーマップ
+ <LI> マスクデータ
+ <LI>  パターン
+ <LI> 線種
+ <LI> マーカー
+</UL>
+<P>
+  定義したデータは、定義以降に有効となり、
+  定義時に指定したIDにより参照されることになる。
+  同一のタイプのデータの同一のIDが既に定義されていた場合は、
+  新しい定義が有効となる。
+</P>
+<P>
+  データのタイプによっては、
+  デフォールトとして定義済みのいくつかのIDが存在するが、
+  そのIDを別の定義とすることも可能である。
+</P>
+<P>
+  定義したIDは、その図形データの中でのみ有効であり、
+  埋め込み図形データを含む場合は、
+  埋め込み図形データ内にも有効となる。
+  即ち、図形データがネスティングしている場合は、以下のようになる。
+</P>
+<BLOCKQUOTE>
+ 現在(一番内側)の図形データ内で定義されているIDが有効であるが、現在の
+ 埋め込み図形データ内で定義されていない場合は、一番近い外側の図形データ
+ 内で定義されているIDが有効となる。
+</BLOCKQUOTE>
+
+<H4>カラーマップ定義セグメント:基本レベル</H4>
+
+<P>
+  図形データ内で使用するカラーマップを定義する。
+  この定義以降に、インデックスによるカラー表現が使用された場合に、
+  このカラーマップが有効となる。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UH      nent            -- エントリ数
+        COLOR   col[nent]       -- カラーマップ (nent 個の要素)
+</PRE>
+<DL compact>
+ <DT>nent:
+ <DD>カラーマップのエントリ数を示す。
+ <DT>col[]:
+ <DD>各エントリに対応する絶対カラー表現を示す。
+</DL>
+
+<H4>マスクデータ定義セグメント:基本レベル</H4>
+
+<P>
+  パターン定義や、マーカー定義に使用される、マスクデータを定義する。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  1
+ATTR :  UB      type            -- マスク定義タイプ
+DATA :  UH      id              -- 定義するマスクID
+        ＜type＝0の場合＞
+        UH  hsize               -- 横のサイズ
+        UH  vsize               -- 縦のサイズ
+        UB      mask[]          -- マスクビットマップ
+</PRE>
+<DL>
+ <DT>type:
+ <DD>マスクデータタイプ<BR>
+     0: ビットマップ形式<BR>
+     1〜 予約
+ <DT>id:
+ <DD>定義するマスクデータのID(0〜)<BR>
+      以下のマスクIDは、デフォールトで定義されている。
+<PRE>
+        1        0   ％ メッシュマスク
+        2       12.5 ％ メッシュマスク
+        3       25   ％ メッシュマスク
+        4       50   ％ メッシュマスク
+        5       75   ％ メッシュマスク
+        6       87.5 ％ メッシュマスク
+        7      100   ％ メッシュマスク
+        8       縦線
+        9       横線
+        10      右上がり斜線
+        11      右下がり斜線
+        12      縦横クロスハッチ
+        13      斜線クロスハッチ
+</PRE>
+      <DT>hsize:
+      <DT>vsize:
+      <DD>マスクデータの横、縦の大きさを示す値。
+      <DT>mask:
+      <DD>マスクを示す hsize×vsize の大きさのビットマップデータ。
+          ビットマップデータは、以下に示すバイト配列であり、"1"のビット
+          がマスクとして有効となる。横のバイト数は常に偶数である。
+</DL>
+
+<A name="aei">
+<CENTER><IMG src="gif/mask_data.gif" alt="マスクデータの構成"></CENTER>
+</A>
+<CENTER>図 48 : マスクデータの構成</CENTER>
+
+<H4><A name="aeia">パターン定義セグメント:基本レベル</A></H4>
+
+<P>
+  線パターン、または塗り潰しパターンを定義する。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  2
+ATTR :  UB   type               -- パターン定義タイプ
+DATA :  UH   id                 -- 定義するパターンID
+        ＜type＝0の場合＞
+        UH   hsize              -- 横のサイズ
+        UH   vsize              -- 縦のサイズ
+        UH   ncol               -- 前景カラー数
+        COLOR fgcol[ncol]       -- 前景色 (ncol 個の要素)
+        COLOR bgcol             -- 背景色
+        UH   mask[ncol] -- マスクID(ncol 個の要素)
+</PRE>
+
+<DL>
+ <DT>type:
+ <DD>パターン定義タイプ<BR>
+     0: 色別ビットマップ形式<BR>
+     1〜 予約
+ <DT>id:
+ <DD>定義するパターンのID(1〜)<BR>
+     デフォールトで定義されているパターンデータは特に存在しないが、
+     パターンID＝0は、完全に透明なパターンを意味するため、定義できない。
+ <DT>hsize:
+ <DT>vsize:
+ <DD>パターンの横、縦の大きさを示す座標系単位の値。
+ <DT>ncol:
+ <DD>前景色の数。(＞0)
+ <DT>fgcol[]:
+ <DT>bgcol:
+ <DD>パターンデータを構成する前景色、背景色を示す。
+     fgcol, bgcol＜0の場合は、それぞれ透明を示す。
+ <DT>mask:
+ <DD>マスクを示すマスクIDである。0はマスクが存在しないことを意味する。
+      bgcol で塗り潰された、hsize×vsize の領域に対して、
+      mask[i]  で指定したマスクデータの &quot;1&quot;
+     のビットに対応する部分を、
+     fgcol[i] で指定した色で塗るという操作を、
+     i＝0〜ncol-1 まで繰り返して得られたものが実際のパターンとなる。
+     fgcol[i]＜0の場合は特別に、対応する mask[i] の &quot;0&quot;
+     のビットを透明にすることを意味する。<BR>
+     通常は、fgcol[i]＜0にする必要性はない。<BR>
+     bgcol＜0の場合は、fgcol[i]、mask[i]、
+     i＝0〜ncol-1 で塗られなかった部分が透明となる。
+
+<A name="aej">
+<CENTER><IMG src="gif/pattern.gif" alt="実際のパターンの生成"></CENTER>
+</A>
+<CENTER>図 49 : 実際のパターンの生成</CENTER>
+
+
+     マスクデータのサイズがパターンのサイズよりも大きい場合は、
+     パターンのサイズの部分のみが有効となる。
+     逆に小さい場合は、
+     マスクデータをパターンのサイズを覆うように敷きつめたものとして取り扱う。
+
+<A name="aek">
+<CENTER><IMG src="gif/ptn_msk_size.gif" alt="パターンサイズとマスクサイズ"></CENTER>
+</A>
+<CENTER>図 50 : パターンサイズとマスクサイズ</CENTER>
+
+</DL>
+
+<H4>線種定義セグメント:拡張レベル</H4>
+
+<PRE>
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      type            -- 線種定義タイプ
+DATA :  UH  id          -- 定義する線種ID
+        ＜type＝0 の場合＞
+        UH  nb          -- 線種定義バイト数
+        UB      mask[nb]        -- 線種定義バイト列
+</PRE>
+<DL>
+ <DT>type:
+ <DD>線種定義タイプ<BR>
+     0: ビットパターン形式<BR>
+     1〜 予約
+ <DT>id:
+ <DT>定義する線種ID(0〜255)<BR>
+     以下のIDはデフォールトとして定義されている。
+<PRE>
+    0       実線
+    1       破線
+    2       点線
+    3       一点鎖線
+    4       二点鎖線
+    5       長破線
+</PRE>
+ <DT>nb:
+ <DT>mask:
+ <DD>線種を定義する nb 個のバイト列である。
+     線幅＝1の場合の線種を、
+     (nb×8)周期のビット列パターンとして指定する。
+     即ち、mask[] の"1"のビットが描画され、"0"のビットは描画されない。
+</DL>
+
+<A name="aeja">
+<CENTER><IMG src="gif/line_def.gif" alt="線種定義データ"></CENTER>
+</A>
+<CENTER>図 51 : 線種定義データ</CENTER>
+
+<H4>マーカー定義セグメント:拡張レベル</H4>
+
+<PRE>
+LEN  :  〜
+SUBID:  4
+ATTR :  UB       type           -- マーカー定義タイプ
+DATA :  UH      id              -- 定義するマーカーID
+        ＜type＝0 の場合＞
+        UH      size            -- マーカーサイズ
+        COLOR   fgcol           -- マーカー色
+        ［UH    mask            -- マスクデータID］
+</PRE>
+
+<DL compact>
+ <DT>type:
+     <DD>マーカー定義タイプ<BR>
+     0: 色、ビットマップ指定形式<BR>
+     1〜 予約
+ <DT>id:
+ <DD>定義するマーカーのID(0〜)<BR>
+     以下のマーカーIDの場合は、マスクパターンがデフォールトとして
+     定義されているため、マスクデータIDは無効となり、省略すること
+     ができる。
+<PRE>
+    0       点      ・
+    1       プラス  ＋
+    2       星印    ＊
+    3       丸      ○
+    4       バツ    ×
+</PRE>
+ <DT>size:
+ <DD>マーカーの縦、横の大きさを示す座標系単位の値。
+     マーカーは必ず正方形であり、その中心点がマーカの描画位置にその
+     中心を合わせて描画される。
+ <DT>fgcol:
+ <DD>マーカーの色を示す。マーカーの背景は常に透明となる。
+ <DT>mask:
+ <DD>マーカーのパターンを示すマスクデータのID。
+     マーカーID＝0〜4の場合は省略できる。
+</DL>
+
+
+<H3><A name="aem">3.6.4 グループ定義セグメント</A></H3>
+
+<H4>グループ定義セグメント:拡張レベル</H4>
+
+<P>
+グループ定義開始セグメントと終了セグメントで囲んだセグメント群が1つのグル
+ープとしてまとまっていることを示す。グループは任意のネスティングが可能であ
+る。
+</P>
+<P>
+このグループ定義は、座標系、データ定義の有効範囲等には一切影響を与えないた
+め、主にアプリケーションによるデータの意味付けに利用される。座標系、データ
+定義が異なる場合は、埋め込み図形データとして定義する必要がある。
+</P>
+<PRE>
+LEN  :  4
+SUBID:  0                       -- グループ開始
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- グループID
+LEN  :  2
+SUBID:  1                       -- グループ終了
+ATTR :  UB      −              -- 未使用
+</PRE>
+<DL>
+ <DT>id:
+ <DD>グループに任意のIDを付けることができる。0はID無しを意味する。<BR>
+     IDを付けた場合は、グループのネスティングの範囲内では一意的で
+     なくてはいけない。
+</DL>
+
+
+<H3><A name="aen">3.6.5 マクロ定義／参照セグメント</A></H3>
+
+<H4>マクロ定義セグメント:拡張レベル</H4>
+
+<P>
+  マクロ定義開始セグメントと終了セグメントで囲んだ
+  セグメント群を1つのマクロとして定義する。
+  定義したマクロは後にマクロ参照付箋により参照することができる。<BR>
+  マクロは任意のネスティングが可能である。<BR>
+  定義したマクロIDのスコープは、データ定義セグメントの場合と同様である。
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  0                       -- マクロ定義開始
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- 定義するマクロID
+LEN  :  2
+SUBID:  1                       -- マクロ定義終了
+ATTR :  UB      −              -- 未使用
+id:      定義するマクロのID。(0〜)
+</PRE>
+
+<H4>マクロ参照セグメント:拡張レベル</H4>
+<P>
+  マクロを参照する。パラメータを持たないため、
+  マクロの参照は単なる置換を意味する。
+</P>
+<PRE>
+LEN  :  4
+SUBID:  2
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- 参照するマクロID
+</PRE>
+
+
+<H3><A name="aeo">3.6.6 図形修飾セグメント</A></H3>
+<P>
+  図形修飾セグメントは、直後に続く有効セグメントを修飾する機能を持つ。
+  有効セグメントとは、実際に図形描画を行なうセグメントを意味し、
+  その有効範囲は以下に示す通りとなる。
+</P>
+
+<PRE>
+通常の図形セグメント    -- そのセグメントのみ
+グループセグメント      -- グループ内全体
+マクロ参照セグメント    -- マクロ内全体
+埋め込み図形            -- 埋め込み図形全体
+埋め込み文章            -- 埋め込み文章全体
+画像セグメント          -- そのセグメントのみ
+</PRE>
+
+<H4>図形要素修飾セグメント:拡張レベル</H4>
+<PRE>
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      type            -- 修飾タイプ
+DATA :  ＜type＝0の場合＞
+        UH  arrow               -- 矢印属性
+</PRE>
+<DL>
+ <DT>type:
+ <DD>修飾タイプ<BR>
+     0: 直線の矢印属性<BR>
+     1〜 予約
+ <DT>arrow:
+     矢印属性:<BR>
+     連続した直後のセグメントが開いた図形の場合にのみ適用される。
+<PRE>
+     xxxx xxxx xxxx xxES
+     S: 開始点に矢印
+     E: 終了点に矢印
+</PRE>
+</DL>
+
+<H4>座標変換セグメント:拡張レベル</H4>
+<P>
+直後に続く有効セグメントの一時的な座標変換(傾斜、回転、移動)を行なう。
+</P>
+<PRE>
+LEN  :  6, 8, 10
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA :  H       dh              -- 水平座標移動量
+        H       dv              -- 垂直座標移動量
+        ［UH    hangle          -- 水平軸回転角度］
+        ［H     vangle          -- 垂直軸回転角度］
+</PRE>
+
+<DL compact>
+ <DT>dh,dv:
+ <DD>それぞれ、水平、垂直の座標値の移動量を示す。座標系はディスプレ
+     イプリミティブの座標系、即ち、水平軸は右方向の増大、垂直軸は下
+     方向に増大する座標系である。
+ <DT>hangle:
+ <DD>水平座標軸の水平を0度とした反時計周りの回転角度を示す。回転の
+     中心は、座標原点(0,0)である。省略可能。
+ <DT>vangle:
+ <DD>水平軸に直交する垂直座標系軸を0度とした反時計周りの角度（−9
+     0〜＋90）を示す。回転の中心は、座標原点(0,0)である。
+     この値が0でない場合は、直交座標系でないことを意味する。省略可能。
+</DL>
+
+<A name="aep">
+<CENTER><IMG src="gif/element.gif" alt="回転角度"></CENTER>
+</A>
+<CENTER>図 52 : 回転角度</CENTER>
+
+<P>
+この付箋の直後に続く有効セグメントの座標値 (x，y) を以下の一連の座標変換
+処理によって変換した結果 (x''', y''') の図形を意味する。
+</P>
+<OL>
+ <LI>垂直軸回転 (水平方向の傾斜)
+<PRE>
+        x' ＝ x ＋ y・tan(vangle)
+        y' ＝ y
+</PRE>
+ <LI>水平軸回転 (一般的な意味での回転)
+<PRE>
+        x'' ＝ x'・cos(hangle) ＋ y'・sin(hangle)
+        y'' ＝ −x'・sin(hangle) ＋ y'・cos(hangle)
+</PRE>
+ <LI>移動
+<PRE>
+        x''' ＝ x''＋ dh
+        y''' ＝ y''＋ dv
+</PRE>
+</OL>
+<P>
+直後の有効セグメントが、埋め込み図形、埋め込み文章、および画像セグメントの
+場合は、view 座標系に対する変換を意味する。即ち、draw から view への変換が
+なされたのち、上記の座標変換が行なわれる。
+</P>
+
+
+<H3><A name="aeq">3.6.7 図形ページ割り付け指定付箋</A></H3>
+
+<P>
+図形ページ割付け指定付箋は、
+図形データを指定した用紙上にページ単位でレイアウトを行なうための情報を保持する付箋である。
+図形ページ割付け指定付箋は、文章ページ割付け指定付箋と全く同一の内容を持ち、以
+下のように対応づけられる。
+</P>
+
+<TABLE>
+ <TR><TH>文章ページ割り付け指定付箋</TH>
+  <TH>図形ページ割り付け指定付箋</TH></TR>
+<TR><TD>(TS_TPAGE : 0xA0)         </TD><TD>(TS_FPAGE : 0xB5)</TD></TR>
+<TR><TD>0:用紙指定付箋            </TD><TD>0:用紙指定付箋</TD></TR>
+<TR><TD>1:マージン指定付箋        </TD><TD>1:マージン指定付箋</TD></TR>
+<TR><TD>2:コラム指定付箋          </TD><TD>2:− (未定義)</TD></TR>
+<TR><TD>3:用紙オーバーレイ定義付箋</TD><TD>3:用紙オーバーレイ定義付箋</TD></TR>
+<TR><TD>4:用紙オーバーレイ指定付箋</TD><TD>4:用紙オーバーレイ指定付箋</TD></TR>
+<TR><TD>5:枠あけ指定付箋          </TD><TD>5:− (未定義)</TD></TR>
+<TR><TD>6:ページ番号指定付箋      </TD><TD>6:ページ番号指定付箋</TD></TR>
+<TR><TD>7:条件改ページ指定付箋    </TD><TD>7:− (未定義)</TD></TR>
+<TR><TD>8:充填行指定付箋          </TD><TD>8:− (未定義)</TD></TR>
+</TABLE>
+
+<P>
+  図形ページ割り付け指定付箋が図形要素セグメントの後に存在している場合、
+  および、複数個存在した場合の処理は処理系に依存する。
+</P>
+
+
+<H3><A name="aer">3.6.8 図形メモ指定付箋</A></H3>
+
+<P>
+  図形メモ指定付箋は、ユーザが任意に設定したメモを保持する付箋である。
+  この内容は単なるメモとしての文字列であるが、
+  アプリケーションによっては、
+  メモ文字列の内容が所定の文字列と一致した場合には、
+  何らかの効果を持つ場合もある。
+  図形メモ指定付箋は表示に関する情報を保持していないため、
+  表示方法はアプリケーションに依存する。
+</P>
+
+<H4>図形メモ指定付箋:基本レベル</H4>
+
+<P>
+ユーザが設定したメモを保持する。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UB      memo[]          -- メモ文字列
+</PRE>
+
+
+<H3><A name="aes">3.6.9 図形アプリケーション指定付箋</A></H3>
+
+<P>
+  図形アプリケーション指定付箋は、
+  アプリケーションが独自に定義して使用する付箋であり、
+  その内容はアプリケーションにより規定される。
+  内容を定義しているアプリケーションIDが内部に含まれており、
+  同一データタイプIDを持つアプリケーションのみ、
+  その内容を理解できることになる。
+  図形アプリケーション指定付箋は表示に関する情報を保持していないため、
+  表示方法はアプリケーションに依存する。
+</P>
+
+<H4>図形アプリケーション指定付箋:基本レベル</H4>
+<P>
+  アプリケーション固有のデータを保持する。
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  −                      -- アプリケーション定義
+ATTR :  UB  −                  -- アプリケーション定義
+DATA :  UH  appl[3]             -- アプリケーションID
+        UB  param[]             -- アプリケーション・パラメータ
+</PRE>
+<DL>
+ <DT>appl:
+ <DD>付箋の内容を定義しているアプリケーションID。
+     アプリケーションID中のデータID毎にこの付箋の内容が定義される。
+</DL>
+
+
+<H1><A name="aet">付録  A TADセグメント一覧</A></H1>
+
+<H4>セグメントID:</H4>
+
+<TABLE>
+<TR><TD>管理情報セグメント          </TD><TD>TS_INFO   </TD><TD>(0xE0)</TD></TR>
+<TR><TD>文章開始セグメント          </TD><TD>TS_TEXT   </TD><TD>(0xE1)</TD></TR>
+<TR><TD>文章終了セグメント          </TD><TD>TS_TEXTEND</TD><TD>(0xE2)</TD></TR>
+<TR><TD>図形開始セグメント          </TD><TD>TS_FIG    </TD><TD>(0xE3)</TD></TR>
+<TR><TD>図形終了セグメント          </TD><TD>TS_FIGEND </TD><TD>(0xE4)</TD></TR>
+<TR><TD>画像セグメント              </TD><TD>TS_IMAGE  </TD><TD>(0xE5)</TD></TR>
+<TR><TD>仮身セグメント              </TD><TD>TS_VOBJ   </TD><TD>(0xE6)</TD></TR>
+<TR><TD>指定付箋セグメント          </TD><TD>TS_DFUSEN </TD><TD>(0xE7)</TD></TR>
+<TR><TD>機能付箋セグメント          </TD><TD>TS_FFUSEN </TD><TD>(0xE8)</TD></TR>
+<TR><TD>設定付箋セグメント          </TD><TD>TS_SFUSEN </TD><TD>(0xE9)</TD></TR>
+<TR><TD>文章ページ割付け指定付箋    </TD><TD>TS_TPAGE  </TD><TD>(0xA0)</TD></TR>
+<TR><TD>行書式指定付箋              </TD><TD>TS_TRULER </TD><TD>(0xA1)</TD></TR>
+<TR><TD>文字指定付箋                </TD><TD>TS_TFONT  </TD><TD>(0xA2)</TD></TR>
+<TR><TD>特殊文字指定付箋            </TD><TD>TS_TUB    </TD><TD>(0xA3)</TD></TR>
+<TR><TD>文字割付け指定付箋          </TD><TD>TS_TATTR  </TD><TD>(0xA4)</TD></TR>
+<TR><TD>文字修飾指定付箋            </TD><TD>TS_TSTYLE </TD><TD>(0xA5)</TD></TR>
+<TR><TD></TD><TD>(予約)                      </TD><TD>------    </TD><TD>(0xA6〜0xAC)</TD></TR>
+<TR><TD>変数参照指定付箋            </TD><TD>TS_TVAR   </TD><TD>(0xAD)</TD></TR>
+<TR><TD>文章メモ指定付箋            </TD><TD>TS_TMEMO  </TD><TD>(0xAE)</TD></TR>
+<TR><TD>文章アプリケーション指定付箋</TD><TD>TS_TAPPL  </TD><TD>(0xAF)</TD></TR>
+<TR><TD>図形要素セグメント          </TD><TD>TS_FPRIM  </TD><TD>(0xB0)</TD></TR>
+<TR><TD>データ定義セグメント        </TD><TD>TS_FDEF   </TD><TD>(0xB1)</TD></TR>
+<TR><TD>グループ定義セグメント      </TD><TD>TS_FGRP   </TD><TD>(0xB2)</TD></TR>
+<TR><TD>マクロ定義／参照セグメント  </TD><TD>TS_FMAC   </TD><TD>(0xB3)</TD></TR>
+<TR><TD>図形修飾セグメント          </TD><TD>TS_FATTR  </TD><TD>(0xB4)</TD></TR>
+<TR><TD>図形ページ割付け指定付箋    </TD><TD>TS_FPAGE  </TD><TD>(0xB5)</TD></TR>
+<TR><TD></TD><TD>(予約)                      </TD><TD>------    </TD><TD>(0xB6〜0xBD)</TD></TR>
+<TR><TD>図形メモ指定付箋            </TD><TD>TS_FMEMO  </TD><TD>(0xBE)</TD></TR>
+<TR><TD>図形アプリケーション指定付箋</TD><TD>TS_FAPPL  </TD><TD>(0xBF)</TD></TR>
+</TABLE>
+
+<H4>管理情報セグメント:</H4>
+<PRE>
+ID  :   TS_INFO                 -- 管理情報セグメント
+LEN :   〜
+DATA:   UH  subid               -- 項目ID
+        UH  sublen              -- 項目のバイト数
+        UH  data[]              -- 項目データ本体（sublen バイト)
+        :        :
+</PRE>
+        ＜上記の繰り返し＞
+<H4>文章開始セグメント:</H4>
+<PRE>
+ID  :   TS_TEXT
+LEN :   24
+DATA:   RECT    view            -- 表示領域
+        RECT    draw            -- 描画領域
+        UNITS   h_unit          -- 水平ユニット
+        UNITS   v_unit          -- 垂直ユニット
+        UH      lang            -- デフォールト言語
+        UH      bgpat           -- 背景パターンID
+</PRE>
+<H4>文章終了セグメント:</H4>
+<PRE>
+ID  :   TS_TEXTEND
+LEN :   0
+DATA:   なし
+</PRE>
+<H4>図形開始セグメント:</H4>
+<PRE>
+ID  :   TS_FIG
+LEN :   24
+DATA:   RECT    view            -- 表示領域
+        RECT    draw            -- 描画領域
+        UNITS   h_unit          -- 水平ユニット
+        UNITS   v_unit          -- 垂直ユニット
+        W       ratio           -- 倍率
+</PRE>
+<H4>図形終了セグメント:</H4>
+<PRE>
+ID  :   TS_FIGEND
+LEN :   0
+DATA:   なし
+</PRE>
+<H4>画像データセグメント:</H4>
+
+<A name="aeu">
+<CENTER><IMG src="gif/data_struct.gif" alt="画像セグメントのデータ形式"></CENTER>
+</A>
+<CENTER>図 53 : 画像セグメントのデータ形式</CENTER>
+
+
+<H4>仮身セグメント:</H4>
+<PRE>
+ID  :   TS_VOBJ
+LEN :   〜
+DATA:   RECT    view            -- 表示領域
+        H       height          -- 開いた場合の仮身高さ
+        CHSIZE  chsz            -- 文字サイズ
+        COLOR   frcol           -- 枠の色
+        COLOR   chcol           -- 文字の色
+        COLOR   tbcol           -- タイトル背景色
+        COLOR   bgcol           -- 開いた場合の背景色
+        UH      dlen            -- 固有データのバイト長
+        UB      data[dlen]      -- 固有データ(dlen バイト)
+</PRE>
+<H4>機能付箋セグメント:</H4>
+<PRE>
+ID  :   TS_FFUSEN
+LEN :   〜
+DATA:   RECT    view            -- 表示領域
+        CHSIZE  chsz            -- 文字サイズ
+        COLOR   frcol           -- 枠の色
+        COLOR   chcol           -- 文字の色
+        COLOR   tbcol           -- タイトル背景色
+        UH      pict            -- ピクトグラム／タイプ
+        UH      appl[3]         -- アプリケーションID
+        UB      name[32]        -- 付箋名
+        UB      type[32]        -- データタイプ名
+        UH      dlen            -- 固有データのバイト長
+        UB      data[dlen]      -- 固有データ(dlen バイト)
+</PRE>
+<H4>指定付箋セグメント:</H4>
+<PRE>
+ID  :   TS_DFUSEN
+LEN :   〜
+DATA:   RECT     view           -- 表示領域
+        CHSIZE   chsz           -- 文字サイズ
+        COLOR   frcol           -- 枠の色
+        COLOR   chcol           -- 文字の色
+        COLOR   tbcol           -- タイトル背景色
+        UH      pict            -- ピクトグラム／タイプ
+        UH      appl[3]         -- アプリケーションID
+        UB      name[32]        -- 付箋名
+        UW      dlen            -- 固有データのバイト長
+        UB      dat[dlen]       -- 固有データ(dlen バイト)
+</PRE>
+<H4>文章ページ割付け指定付箋セグメント:</H4>
+◎ 用紙指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  14
+SUBID:  0
+ATTR :  UB      attr            -- 面付け、綴じ方向指定
+DATA :  UH      length          -- 用紙の長さ
+        UH      width           -- 用紙の幅
+        UH      top             -- オーバーレイ上マージン(天)
+        UH      bottom          -- オーバーレイ下マージン(地)
+        UH      left            -- オーバーレイ左マージン(ノド)
+        UH      right           -- オーバーレイ右マージン(小口)
+</PRE>
+◎ マージン指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  10
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA :  UH      top             -- 上マージン(天)
+        UH      bottom          -- 下マージン(地)
+        UH      left            -- 左マージン(ノド)
+        UH      right           -- 右マージン(小口)
+</PRE>
+○ コラム指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  4,6
+SUBID:  2
+ATTR :  UB      column          -- コラム数、およびコラム長均等化指定
+DATA :  UH      colsp           -- コラムマージン
+       [UH      colline         -- コラム罫線]
+</PRE>
+○ 用紙オーバーレイ定義付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      attr            -- オーバーレイ番号／ページ適用属性
+DATA :  UB      data[]          -- オーバーレイする文章データ
+</PRE>
+○ 用紙オーバーレイ指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  4
+SUBID:  4
+ATTR :  UB      ---             -- 未使用
+DATA :  UH      overlay         -- オーバーレイ指定
+</PRE>
+○ 枠あけ指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  10
+SUBID:  5
+ATTR :  UB      attr            -- 枠あけ属性
+DATA :  RECT    area            -- 枠あけ領域
+</PRE>
+○ ページ番号指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  4
+SUBID:  6
+ATTR :  B       step            -- ページの増加ステップ
+DATA:   UH      num             -- ページ開始番号
+</PRE>
+○ 条件改ページ指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  2,4
+SUBID:  7
+ATTR :  UB      cond            -- 条件
+DATA : [SCALE   remain          -- 残り領域指定]
+</PRE>
+○ 充填行指定付箋:
+<PRE>
+ID   :  TS_TPAGE
+LEN  :  2
+SUBID:  8
+ATTR :  UB      −              -- 未使用
+</PRE>
+<H4>行書式指定付箋:</H4>
+
+◎ 行間隔指定付箋:
+
+<PRE>
+ID   :  TS_TRULER
+LEN  :  4
+SUBID:  0
+ATTR :  UB    attr              -- 属性指定
+DATA :  SCALE pitch             -- 間隔指定
+</PRE>
+◎ 行揃え指定付箋:
+<PRE>
+ID   :  TS_TRULER
+LEN  :  2
+SUBID:  1
+ATTR :  UB      align           -- 行揃えの方法
+</PRE>
+◎ タブ書式指定付箋:
+<PRE>
+ID   :  TS_TRULER
+LEN  :  〜
+SUBID:  2
+ATTR :  UB      attr            -- 属性
+DATA:   SCALE   height          -- 書式高さ指定
+        SCALE   pargap          -- 段落間隔指定
+        H       left            -- 行頭マージン
+        H       right           -- 行末マージン
+        H       indent          -- インデントマージン
+        H       ntabs           -- タブストップ設定数
+        UH      tabs[]          -- タブストップ位置(ntabs個)
+</PRE>
+○ フィールド書式指定付箋:
+<PRE>
+ID   :  TS_TRULER
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      attr            -- 属性
+DATA:   SCALE   height          -- 書式高さ指定
+        SCALE   pargap          -- 段落間隔指定
+        UH      line            -- フィールド段落線属性
+        H       nfld            -- フィールド設定数
+     +- UH      fld             -- フィールド開始位置
+     |  UH      left            -- フィールド内左マージン
+     |  UH      right           -- フィールド内右マージン
+     |  UH      margin          -- 小数点位置／インデントマージン
+     +- UH      f_attr          -- フィールド属性
+        :        :
+</PRE>
+○ 文字方向指定付箋:
+<PRE>
+ID   :  TS_TRULER
+LEN  :  2
+SUBID:  4
+ATTR :  UB      txdir           -- 文字列方向
+</PRE>
+○ 行頭移動指定付箋:
+<PRE>
+ID   :  TS_TRULER
+LEN  :  2
+SUBID:  5
+ATTR :  UB      ---             -- 未使用
+</PRE>
+
+<H4>文字指定付箋:</H4>
+
+◎ Управління шрифтами (Font Manager)指定付箋:
+
+<PRE>
+ID   :  TS_TFONT
+LEN  :  4〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UH      class           -- Управління шрифтами (Font Manager)クラス
+       [UB    name[] ]        -- Управління шрифтами (Font Manager)(ファミリー)名
+</PRE>
+◎ Управління шрифтами (Font Manager)属性指定付箋:
+<PRE>
+ID   :  TS_TFONT
+LEN  :  4
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA :  UH  attr                -- Управління шрифтами (Font Manager)属性
+</PRE>
+◎ 文字サイズ指定付箋:
+<PRE>
+ID   :  TS_TFONT
+LEN  :  4
+SUBID:  2
+ATTR :  UB      −              -- 未使用
+DATA :  CHSIZE  size            -- 文字サイズ
+</PRE>
+◎ 文字拡大／縮小指定付箋:
+<PRE>
+ID   :  TS_TFONT
+LEN  :  6
+SUBID:  3
+ATTR :  UB      −              -- 未使用
+DATA :  RATIO   h_ratio         -- 文字高さ(サイズ)の拡大率
+        RATIO   w_ratio         -- 文字幅の拡大率
+</PRE>
+◎ 文字間隔指定付箋:
+<PRE>
+ID   :  TS_TFONT
+LEN  :  4
+SUBID:  4
+ATTR :  UB      attr            -- 属性指定
+DATA :  SCALE   pitch           -- 間隔指定
+</PRE>
+○ 文字回転指定付箋:
+<PRE>ID   :  TS_TFONT
+LEN  :  4
+SUBID:  5
+ATTR :  UB  abs                 -- 絶対／相対指定
+DATA :  UH  angle               -- 文字の横軸の反時計回りの回転角度
+</PRE>
+○ 文字カラー指定付箋:
+<PRE>
+ID   :  TS_TFONT
+LEN  :  6
+SUBID:  6
+ATTR :  UB      −              -- 未使用
+DATA :  COLOR  color            -- 文字カラーの指定
+</PRE>
+○ 文字基準位置移動付箋:
+<PRE>ID   :  TS_TFONT
+LEN  :  4
+SUBID:  7
+ATTR :  UB      attr            -- 属性指定
+DATA :  SCALE   base            -- 基準位置移動量
+</PRE>
+
+<H4>特殊文字指定付箋:</H4>
+
+○ 固定幅空白付箋:
+<PRE>
+ID   :  TS_TUB
+LEN  :  4
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  SCALE   width           -- 空白の幅
+</PRE>
+○ 充填文字指定付箋:
+<PRE>
+ID   :  TS_TUB
+LEN  :  〜
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA:   UB      str[]           -- 充填文字列
+</PRE>
+○ 文字罫線指定付箋:
+<PRE>
+ID   :  TS_TUB
+LEN  :  4＋罫線列データ数
+SUBID:  2
+ATTR :  UB   type               -- 罫線のタイプ
+DATA :  UH   count              -- 罫線列の繰り返し数
+        UH   lines[]            -- 罫線指定データ列( LEN で指定されたデータ数)
+</PRE>
+<H4>文字割付け指定付箋:</H4>
+<PRE>
+○ 結合指定付箋:
+ID   :  TS_TATTR
+LEN  :  2
+SUBID:  0                       -- 結合開始指定付箋
+ATTR :  UB      −              -- 未使用
+ID   :  TS_TATTR
+LEN  :  2
+SUBID:  1                       -- 結合終了指定付箋
+ATTR :  UB      −              -- 未使用
+</PRE>
+○ 文字割付け指定付箋:
+<PRE>
+ID   :  TS_TATTR
+LEN  :  4
+SUBID:  2                       -- 文字割付け開始指定付箋
+ATTR :  UB      kind            -- 種類
+DATA :  SCALE   width           -- 割り付け幅
+ID   :  TS_TATTR
+LEN  :  2
+SUBID:  3                       -- 文字割付け終了指定付箋
+ATTR :  UB      −              -- 未使用
+</PRE>
+○ 添字指定付箋:
+<PRE>
+ID   :  TS_TATTR
+LEN  :  6
+SUBID:  4                       -- 添字開始指定付箋
+ATTR :  UB      type            -- タイプ
+DATA :  SCALE   pos             -- 文字位置の移動量
+        RATIO   size            -- 文字サイズの比率
+ID   :  TS_TATTR
+LEN  :  2
+SUBID:  5                       -- 添字終了指定付箋
+ATTR :  UB      −              -- 未使用
+</PRE>
+○ ルビ指定付箋:
+<PRE>
+ID   :  TS_TATTR
+LEN  :  〜
+SUBID:  6                       -- ルビ開始指定付箋
+ATTR :  UB      attr            -- ルビ属性
+DATA :  UB      rubi[]          -- ルビ文字列
+ID   :  TS_TATTR
+LEN  :  2
+SUBID:  7                       -- ルビ終了指定付箋
+ATTR :  UB      −              -- 未使用
+</PRE>
+○ 禁則指定付箋:
+<PRE>
+ID   :  TS_TATTR
+LEN  :  〜
+SUBID:  8                       -- 行頭禁則指定
+ATTR :  UB      kind            -- 行頭禁則タイプ
+[DATA :  UB     ch[]]           -- 行頭禁則対象文字
+ID   :  TS_TATTR
+LEN  :  〜
+SUBID:  9                       -- 行末禁則指定
+ATTR :  UB      kind            -- 行末禁則タイプ
+[DATA :  UB     ch[]]           -- 行末禁則対象文字
+</PRE>
+<H4>文字修飾指定付箋:</H4>
+
+◎ 文字修飾指定付箋:
+<PRE>
+ID   :  TS_TSTYLE
+LEN  :  2,6
+SUBID:  type            -- 文字修飾開始付箋
+ATTR :  UB      attr    -- 属性
+DATA : [COLOR   color ] -- 修飾カラー指定(省略可能)
+ID   :  TS_TSTYLE
+LEN  :  2
+SUBID:  type＋1         -- 文字修飾終了付箋
+ATTR :  UB      −      -- 未使用
+SUBID:  0:      下線開始                1:      下線終了
+        2:      上線開始                3:      上線終了
+        4:      打ち消し線開始          5:      打ち消し線終了
+        6:      枠囲み線開始            7:      枠囲み線終了
+        8:      上(右)傍点開始          9:      上(右)傍点終了
+        10:     下(下)傍点開始          11:     下(下)傍点終了
+        12:     反転開始                13:     反転終了
+        14:     網掛開始                15:     網掛終了
+        16:     背景開始                17:     背景終了
+        18:     無印字開始(終了付箋までのデータを印字しない)
+        19:     無印字終了
+        20〜127: (予約）
+        128〜   : 未定義(アプリケーション依存)
+</PRE>
+<H4>変数参照指定付箋:</H4>
+
+○ 変数参照指定付箋:
+<PRE>
+ID   :  TS_TVAR
+LEN  :  4
+SUBID:  0                       -- 変数参照
+ATTR :  UB      −              -- 未使用
+DATA :  H   var_id              -- 変数ID
+ID   :  TS_TVAR
+LEN  :  〜
+SUBID:  1                       -- 変数参照
+ATTR :  UB      −              -- 未使用
+DATA :  UB      name[]          -- 変数名
+</PRE>
+<H4>文章メモ指定付箋:</H4>
+
+◎ 文章メモ指定付箋:
+<PRE>
+ID   :  TS_TMEMO
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UB      memo[]          -- メモ文字列
+</PRE>
+<H4>文章アプリケーション指定付箋:</H4>
+◎ 文章アプリケーション指定付箋:
+<PRE>
+ID   :  TS_TAPPL
+LEN  :  〜
+SUBID:  −                      -- アプリケーション定義
+ATTR :  UB      −              -- アプリケーション定義
+DATA :  UH      appl[3]         -- アプリケーションID
+        UB      param[]         -- アプリケーション・パラメータ
+</PRE>
+<H4>図形要素セグメント:</H4>
+
+◎ 長方形セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  18
+SUBID:  0
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角
+        RECT    frame           -- 外接長方形
+</PRE>
+◎ 角丸長方形セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  22
+SUBID:  1
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        UH      rh              -- 丸めの水平直径
+        UH      rv              -- 丸めの垂直直径
+        RECT    frame           -- 外接長方形
+</PRE>
+◎ 楕円セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  18
+SUBID:  2
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+</PRE>
+◎ 扇形セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  26
+SUBID:  3
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+◎ 弓形セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  26
+SUBID:  4
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT    start            -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+◎ 多角形セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  〜
+SUBID:  5
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        UH      round           -- 角の丸めの円の直径:拡張レベル
+        UH      np              -- 点数(＞2)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+◎ 直線セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  14
+SUBID:  6
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+◎ 楕円弧セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  24
+SUBID:  7
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      angle           -- 回転角度
+        RECT    frame           -- 外接長方形
+        PNT     start           -- 開始点
+        PNT     end             -- 終了点
+</PRE>
+◎ 折れ線セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  〜
+SUBID:  8
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      round           -- 角の丸め:拡張レベル
+        UH      np              -- 点数 (＞1)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+○ 曲線セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  〜
+SUBID:  9
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      l_atr           -- 線属性
+        UH      l_pat           -- 線パターンID
+        UH      f_pat           -- 塗り潰しパターンID
+        H       type            -- 曲線のタイプ
+        UH      np              -- 点数 (＞0)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+○ マーカー列セグメント:
+<PRE>
+ID   :  TS_FPRIM
+LEN  :  〜
+SUBID:  10
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      market          -- マーカーID
+        UH      np              -- 点数 (＞0)
+        PNT     pt[np]          -- 点の配列(np 個の要素)
+</PRE>
+◎ 任意図形セグメント:
+<PRE>ID   :  TS_FPRIM
+LEN  :  〜
+SUBID:  11
+ATTR :  UB      mode            -- 描画モード
+DATA :  UH      f_pat           -- 塗り潰しパターンID
+        UH      sy              -- 垂直座標の開始値(最小値)
+        UH      nr              -- 垂直座標数
+        H       bx              -- 水平座標値のバイアス
+        ＜垂直座標値 sy 〜 sy+nr-1 にそれぞれ対応した、以下に示す
+                水平座標値列の要素が nr 個連続する＞
+        UH     nh               -- 水平座標の数
+        UH     h[nh]            -- 水平座標の値 (nh 個の要素)
+        :       :
+</PRE>
+<H4>データ定義セグメント:</H4>
+
+◎ カラーマップ定義セグメント:
+<PRE>
+ID   :  TS_FDEF
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UH   nent               -- エントリ数
+        COLOR col[nent]         -- カラーマップ (nent 個の要素)
+</PRE>
+◎ マスクデータ定義セグメント:
+<PRE>
+ID   :  TS_FDEF
+LEN  :  〜
+SUBID:  1
+ATTR :  UB      type            -- マスク定義タイプ
+DATA :  UH      id              -- 定義するマスクID
+        ＜type＝0の場合＞
+        UH      hsize           -- 横のサイズ
+        UH      vsize           -- 縦のサイズ
+        UB      mask[]          -- マスクビットマップ
+</PRE>
+◎ パターン定義セグメント:
+<PRE>
+ID   :  TS_FDEF
+LEN  :  〜
+SUBID:  2
+ATTR :  UB      type            -- パターン定義タイプ
+DATA :  UH      id              -- 定義するパターンID
+        ＜type＝0の場合＞
+        UH      hsize           -- 横のサイズ
+        UH     vsize            -- 縦のサイズ
+        UH     ncol             -- 前景カラー数
+        COLOR  fgcol[ncol]      -- 前景色 (ncol 個の要素)
+        COLOR  bgcol            -- 背景色
+        UH     mask[ncol]       -- マスクID(ncol 個の要素)
+</PRE>
+○ 線種定義セグメント:
+<PRE>
+ID   :  TS_FDEF
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      type            -- 線種定義タイプ
+DATA :  UH      id              -- 定義する線種ID
+        ＜type＝0 の場合＞
+        UH      n               -- 線種定義バイト数
+        UB      mask[nb]        -- 線種定義バイト列
+</PRE>
+○ マーカー定義セグメント:
+<PRE>
+ID   :  TS_FDEF
+LEN  :  〜
+SUBID:  4
+ATTR :  UB       type           -- マーカー定義タイプ
+DATA :  UH       id             -- 定義するマーカーID
+        ＜type＝0 の場合＞
+        UH       size               -- マーカーサイズ
+        COLOR    fgcol             -- マーカー色
+       [UH       mask             -- マスクデータID]
+</PRE>
+<H4>グループ定義セグメント:</H4>
+<PRE>
+○ グループ定義セグメント:
+ID   :  TS_FGRP
+LEN  :  4
+SUBID:  0                       -- グループ開始
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- グループID
+ID   :  TS_FGRP
+LEN  :  2
+SUBID:  1                       -- グループ終了
+ATTR :  UB      −              -- 未使用
+</PRE>
+
+<H4>マクロ定義／参照セグメント:</H4>
+
+○ マクロ定義セグメント:
+<PRE>
+ID   :  TS_FMAC
+LEN  :  4
+SUBID:  0                       -- マクロ定義開始
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- 定義するマクロID
+ID   :  TS_FMAC
+LEN  :  2
+SUBID:  1                       -- マクロ定義終了
+ATTR :  UB      −              -- 未使用
+</PRE>
+○ マクロ参照セグメント:
+<PRE>
+LEN  :  4
+SUBID:  2
+ATTR :  UB      −              -- 未使用
+DATA :  UH  id                  -- 参照するマクロID
+</PRE>
+
+<H4>図形修飾セグメント:</H4>
+
+○ 図形要素修飾セグメント:
+<PRE>
+ID   :  TS_FATTR
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      type            -- 修飾タイプ
+DATA :  ＜type＝0の場合＞
+        UH  arrow               -- 矢印属性
+</PRE>
+○ 座標変換セグメント:
+<PRE>
+ID   :  TS_FATTR
+LEN  :  6, 8, 10
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA :  H   dh                  -- 水平座標移動量
+        H   dv                  -- 垂直座標移動量
+       [UH  hangle              -- 水平軸回転角度]
+       [H   vangle              -- 垂直軸回転角度]
+</PRE>
+<H4>図形ページ割付け指定付箋セグメント:</H4>
+<PRE>
+◎ 用紙指定付箋:
+ID   :  TS_FPAGE
+LEN  :  14
+SUBID:  0
+ATTR :  UB      attr            -- 面付け、綴じ方向指定
+DATA :  UH      length          -- 用紙の長さ
+        UH      width           -- 用紙の幅
+        UH      top             -- オーバーレイ上マージン(天)
+        UH      bottom          -- オーバーレイ下マージン(地)
+        UH      left            -- オーバーレイ左マージン(ノド)
+        UH      right           -- オーバーレイ右マージン(小口)
+</PRE>
+◎ マージン指定付箋:
+<PRE>
+ID   :  TS_FPAGE
+LEN  :  10
+SUBID:  1
+ATTR :  UB      −              -- 未使用
+DATA :  UH      top             -- 上マージン(天)
+        UH      bottom          -- 下マージン(地)
+        UH      left            -- 左マージン(ノド)
+        UH      right           -- 右マージン(小口)
+</PRE>
+○ 用紙オーバーレイ定義付箋:
+<PRE>
+ID   :  TS_FPAGE
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      attr            -- オーバーレイ番号／ページ適用属性
+DATA :  UB      data[]          -- オーバーレイする文章データ
+</PRE>
+○ 用紙オーバーレイ指定付箋:
+<PRE>
+ID   :  TS_FPAGE
+LEN  :  4
+SUBID:  4
+ATTR :  UB      ---             -- 未使用
+DATA :  UH  overlay             -- オーバーレイ指定
+</PRE>
+○ ページ番号指定付箋:
+<PRE>
+ID   :  TS_FPAGE
+LEN  :  4
+SUBID:  6
+ATTR :  B   step                -- ページの増加ステップ
+DATA:   UH  num                 -- ページ開始番号
+</PRE>
+<H4>図形メモ指定付箋:</H4>
+
+◎ 図形メモ指定付箋:
+<PRE>
+ID   :  TS_FMEMO
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 未使用
+DATA :  UB      memo[]          -- メモ文字列
+</PRE>
+
+<H4>図形アプリケーション指定付箋:</H4>
+
+◎ 図形アプリケーション指定付箋:
+
+<PRE>
+ID   :  TS_FAPPL
+LEN  :  〜
+SUBID:  −                      -- アプリケーション定義
+ATTR :  UB      −              -- アプリケーション定義
+DATA :  UH      appl[3]         -- アプリケーションID
+        UB      param[]         -- アプリケーション・パラメータ
+</PRE>
+
+
+<H1><A name="aev">付録  B 準TAD規格</A></H1>
+<P>
+  TADデータ構成では、
+  異なるプロセッサ間を含めたデータの互換性を完全に保証するために8ビット以上のビット長を持つデータのバイトオーダーは、
+  上位バイトが先にくるビッグエンディアン形式に統一している。
+</P>
+<P>
+  しかしながら、この形式はリトルエンディアン形式の CPU
+  上で動作する既存のアプリケーションを移植する場合等には負担となる場合もあるため、
+  これを救済するために、
+  リトルエンディアンのデータ形式を持つTADデータ構成を、
+  準TAD規格として規定する。
+</P>
+<P>
+  準TAD規格は、TAD規格に対して以下に示す変更／制限を行なったものである。
+</P>
+<OL>
+<LI>使用する文字コードは2バイトの固定長とし、
+    かつ第2バイトが先にくる形式とする。
+    1バイトの制御コードの直後には、常に値 &quot;0&quot;
+    のバイトを詰めるものとする。
+    すなわち、
+    文字コードはリトルエンディアンの16ビットデータとみなす。
+ <LI>各セグメントのデータ構造として記述されている、 
+    H,  UH,  W, UW, COLOR, UNITS, CHSIZE, SCALE, RATIO
+    のデータタイプのバイトオーダーは、
+    下位バイトが先にくるリトルエンディアン形式とする。
+    UB タイプのデータには、
+    1.で記述した2バイト固定長の文字コードのみを使用する。
+ <LI>可変長セグメントの形式は、
+    以下示すバイトオーダーが逆転した形式となる。
+</OL>
+
+<A name="aew">
+<CENTER><IMG src="gif/semi_tad_vseg.gif" alt="準TAD規格での可変長セグメントの構造"></CENTER>
+</A>
+<CENTER>図 54 : 準 TAD 規格での可変長セグメントの構造</CENTER>
+
+
+<A name="aex">
+<CENTER><IMG src="gif/semi_tad_fusen.gif" alt="準TAD規格での文章／図形付箋の構造"></CENTER>
+</A>
+<CENTER>図 55 : 準 TAD 規格での文章／図形付箋の構造</CENTER>
+
+
+<P>
+  準TAD規格に基づいたシステム／アプリケーションは、
+  以下の点を遵守しなくてはいけない。
+</P>
+<UL>
+ <LI>準TAD規格のデータは、 
+     リトルエンディアン形式の準標準FD形式の交換媒体内、
+     またはシステム内部でのみ使用すること。
+ <LI>何らかの方法により、
+     TAD規格データとの双方向のデータ交換機能を有していること。<BR>
+     すなわち:
+     <UL>
+      <LI>TAD規格の交換用データを出力できること。
+      <LI>TAD規格の交換用データを入力できること。
+      <LI>準TAD規格である旨を明記すること。
+      <LI>TAD規格データとの交換方法を明記すること。
+     </UL>
+</UL>
+
+<HR>
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="tad2.html">前頁:3.5 文章付箋セグメントにもどる</A><BR>
+<A href="fd_format.html">次頁:第4章 フロッピーディスク形式にすすむ</A><BR>
+</BODY>
+</HTML>

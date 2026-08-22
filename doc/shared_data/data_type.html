@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  第1章 基本データタイプ
+</TITLE>
+<LINK REL="parent" HREF="index.html">
+<LINK REL="next" HREF="tron_code.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="tron_code.html">次頁:第2章 TRON コード体系にすすむ</A><BR>
+<HR>
+<H1><A name="aaa">第1章 基本データタイプ</A></H1>
+<HR>
+
+<P>
+  共通して使われる型の定義を以下に記述する。
+</P>
+
+<H4>基本データ型:ITRON共通</H4>
+
+<PRE>
+typedef char            B;          /* 符号付き 8ビット整数 */
+typedef short           H;          /* 符号付き16ビット整数 */
+typedef int             W;          /* 符号付き32ビット整数 */
+typedef unsigned char   UB;         /* 符号無し 8ビット整数 */
+typedef unsigned short  UH;         /* 符号無し16ビット整数 */
+typedef unsigned int    UW;         /* 符号無し32ビット整数 */
+
+typedef char            VB;         /* 不定型 8ビットデータ */
+typedef short           VH;         /* 不定型16ビットデータ */
+typedef int             VW;         /* 不定型32ビットデータ */
+
+typedef void            *VP;        /* 不定型データへのポインタ */
+
+typedef void            (*FP)();    /* 一般関数ポインタ */
+</PRE>
+
+<P>
+  以上のデータ型はITRONと共通である。
+</P>
+
+<H4><CODE>Volatile</CODE>: コンパイラによる最適化禁止指定</H4>
+
+<PRE>
+typedef volatile W      _W;     /* 最適化禁止の符号付き 8ビット整数 */
+typedef volatile H      _H;     /* 最適化禁止の符号付き16ビット整数 */
+typedef volatile B      _B;     /* 最適化禁止の符号付き32ビット整数 */
+
+typedef volatile UW     _UW;    /* 最適化禁止の符号無し 8ビット整数 */
+typedef volatile UH     _UH;    /* 最適化禁止の符号無し16ビット整数 */
+typedef volatile UB     _UB;    /* 最適化禁止の符号無し32ビット整数 */
+
+typedef volatile void   _void;
+</PRE>
+
+<H4>修飾型</H4>
+
+<PRE>
+#define CONST       const       /* 変数・関数の代入禁止指定 */
+
+#define LOCAL       static      /* <A href="#module">モジュール(*)</A>内でのみ使われる */
+                                /* 変数・関数 */
+
+#define EXPORT                  /* プログラム中の任意の箇所で参照  */
+                                /* 可能な変数・関数の定義          */
+                                /* 1個の変数・関数について EXPORT  */
+                                /* 宣言はプログラム中に1箇所だけ   */
+                                /* 記述                            */
+#define IMPORT      extern      /* プログラム中の任意の箇所で参照  */
+                                /* 可能な変数・関数の参照宣言      */
+                                /* 1モジュールに1個の参照宣言で    */
+                                /* EXPORT された変数・関数の使用が */
+                                /* 可能                            */
+#define VOID        void        /* 空の型 */
+</PRE>
+
+<DL>
+ <DT><A name="module">* モジュール</A>
+ <DD><P>プログラムはソースコードをコンパイル・リンクして作成されるが、
+     そのソースコードは通常、
+     複数のソースファイルに分割して記述されている。
+     以降、本書ではこのソースファイル 1 個の単位をモジュールと呼ぶ。
+     </P>
+</DL>
+
+
+<H4>数値型</H4>
+
+<PRE>
+typedef float       FLOAT;      /* 単精度(32ビット)浮動小数点 */
+typedef double      DOUBLE;     /* 倍精度(64ビット)浮動小数点 */
+typedef int         BOOL;       /* TRUE or FALSE */
+typedef W           (*FUNCP)(); /* W 関数へのポインタ */
+</PRE>
+
+
+<H4>ブール値</H4>
+<PRE>
+typedef enum {
+    False = 0, 
+    True = 1
+} Bool;         /* ブール値 */
+</PRE>
+
+
+<H4>ID番号</H4>
+<PRE>
+typedef W       ID;     /* ID番号 */
+</PRE>
+
+
+<H4>時間</H4>
+<PRE>
+typedef W       MSEC;   /* ミリ秒 */
+typedef W       STIME;  /* システム時間 */
+                        /* 1985/01/01 00:00:00 GMT からの秒数 */
+</PRE>
+
+
+<H4>文字コード</H4>
+<PRE>
+typedef UH      TC;         /* TRON 文字コード */
+#define TNULL   ((TC) 0)    /* 文字列終端の文字コード値 */
+</PRE>
+
+
+<H4>エラーコード</H4>
+<P>
+  ビッグエンディアンの場合
+</P>
+<PRE>
+typedef union {
+    W           err;            /* エラーコード */
+    struct {
+            H   eclass;         /* エラークラス */
+            UH  detail;         /* 詳細エラー   */
+    } c;
+} ErrCode;
+</PRE>
+<P>
+  リトルエンディアンの場合
+</P>
+<PRE>
+typedef union {
+    W           err;            /* エラーコード */
+    struct {
+            UH  detail;         /* 詳細エラー   */
+            H   eclass;         /* エラークラス */
+    } c;
+} ErrCode;
+</PRE>
+
+<P>
+  システムコールの関数値は以下のいずれかである。
+</P>
+<PRE>
+typedef W       ERR;        /* エラーコード                       */
+                            /* エラーまたは正常のみ戻す場合に使用 */
+typedef W       WERR;       /* システムコール関数値               */
+                            /* エラーまたは意味のある値を戻す     */
+                            /* 場合に使用                         */
+</PRE>
+<P>
+  エラーコードとして通常は <CODE>ERR</CODE> を使用し、
+  詳細が必要な場合は <CODE>ErrCode</CODE> を使用する。
+</P>
+
+<PRE>
+#define OK      (0)         /* 正常(OK) */
+</PRE>
+
+<H4>共通定義</H4>
+
+<PRE>
+#define CLR         0x0000      /* クリア指定     */
+#define NOCLR       0x0008      /* ノークリア指定 */
+#define DELEXIT     0x8000      /* 終了時削除指定 */
+</PRE>
+
+<H4>大きさ</H4>
+<PRE>
+typedef struct Size {
+    H     h;    /* 幅 */
+    H     v;    /* 高さ */
+} SIZE;
+</PRE>
+
+
+<H4>点</H4>
+<PRE>
+typedef struct point {
+    H     x;    /* 水平座標値 */
+    H     y;    /* 垂直座標値 */
+} PNT;
+</PRE>
+
+
+<H4>長方形</H4>
+<PRE>
+typedef union rect {
+    struct _rect {
+        H       left;       /* 左の座標値 */
+        H       top;        /* 上の座標値 */
+        H       right;      /* 右の座標値 */
+        H       bottom;     /* 下の座標値 */
+    } c;
+    struct {
+        PNT     lefttop;    /* 左上の点 */
+        PNT     rightbot;   /* 右下の点 */
+    } p;
+} RECT;
+</PRE>
+
+<H4>ファイルへのリンク</H4>
+<PRE>
+#define L_FSNM      20    /* Файлова система名の長さ(文字数) */
+typedef struct {
+    TC    fs_name[L_FSNM];
+                          /* Файлова система名 */
+    UH    f_id;           /* ファイルID  */
+    UH    atr1;           /* 属性データ1 */
+    UH    atr2;           /* 属性データ2 */
+    UH    atr3;           /* 属性データ3 */
+    UH    atr4;           /* 属性データ4 */
+    UH    atr5;           /* 属性データ5 */
+} LINK;
+</PRE>
+
+<H4>Віконна система (Windowing System)</H4>
+<PRE>
+typedef W       WID;     /* Віконна система (Windowing System)ID */
+</PRE>
+<HR>
+<A href="index.html">この章のЗмістにもどる</A><BR>
+<A href="tron_code.html">次頁:第2章 TRON コード体系にすすむ</A><BR>
+</BODY>
+</HTML>

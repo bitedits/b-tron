@@ -1,0 +1,1406 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  3.10 TCP/IPマネージャ
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="font_mgr.html">
+<LINK REL="next" HREF="printmgr.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="font_mgr.html">前頁:3.9 Управління шрифтами (Font Manager)マネージャにもどる</A><BR>
+<A href="printmgr.html">次頁:3.11 印刷マネージャ仕様書にすすむ</A><BR>
+<HR>
+
+<H2><A name="anc">3.10 TCP/IPマネージャ</A></H2>
+
+<H3><A name="and">3.10.1 構成</A></H3>
+
+<P>
+  TCP/IP マネージャは LAN を利用した TCP/IP
+  通信の機能を実現するモジュールでネットワーク上の別のマシンと TCP/IP
+  プロトコルを用いて通信することができる。
+  TCP/IP マネージャのシステムコールはソケットを意識したものとなっている。
+</P>
+<P>
+  通信はソケットを作成し、
+  ソケットデスクリプタを使用して行なう。
+  このソケットデスクリプタはファイルデスクリプタとは別の概念であり、
+  TCP/IP マネージャのシステムコールではソケットデスクリプタのみを扱うことができる。
+</P>
+<P>
+  また、ソケットによる通信であっても、
+  同一マシン内の異なるПроцеси та потоки間の通信手段として利用することはできない。
+</P>
+
+<H3><A name="anh">3.10.2 TCP/IP</A></H3>
+
+<P>
+  以下のデータを定義する。
+</P>
+
+<PRE>
+/*  プロトコルファミリ */
+
+#define PF_UNSPEC   0       /* unspecified protocol family */
+#define PF_INET     2       /* TCP/IP and related */
+
+/*  アドレスファミリ
+*/
+#define AF_UNSPEC   0       /* unspecified address family */
+#define AF_INET     2       /* TCP/IP and related */
+
+/*  ソケットタイプ
+*/
+
+#define SOCK_STREAM 1       /* stream socket */
+#define SOCK_DGRAM  2       /* datagram socket */
+#define SOCK_RAW    3       /* raw-protocol interface */
+
+/*  getsockopt(), setsockopt() のオプション
+*/
+
+#define SOL_SOCKET      0xffff      /* options for socket level */
+#define IPPROTO_TCP     0x0001      /* options for TCP level */
+#define IPPROTO_IP      0x0002      /* options for IP level */
+
+#define SO_DEBUG        0x0001      /* turn on debugging info recording */
+#define SO_REUSEADDR    0x0004      /* allow local address reuse */
+#define SO_KEEPALIVE    0x0008      /* keep connections alive */
+#define SO_DONTROUTE    0x0010      /* just use interface addresses */
+#define SO_BROADCAST    0x0020      /* permit sending of broadcast msgs */
+#define SO_LINGER       0x0080      /* linger on close if data present */
+#define SO_OOBINLINE    0x0100      /* leave received OOB data in line */
+#define SO_SNDBUF       0x1001      /* send buffer size */
+#define SO_RCVBUF       0x1002      /* receive buffer size */
+#define SO_ERROR        0x1007      /* get error status and clear */
+#define SO_TYPE         0x1008      /* get socket type */
+
+#define TCP_MAXSEG      0x2000      /* maximum segment size */
+#define TCP_NODELAY     0x2001      /* immediate send() */
+
+#define IP_OPTIONS      0x0001      /* IP header options */
+
+/*  recv, send のオプション */
+
+#define MSG_OOB         0x01        /* send or receive out of band data */
+#define MSG_PEEK        0x02        /* take data but leave it */
+#define MSG_DONTROUTE   0x04        /* do not route */
+
+/*  fcntl のオプション */
+
+#define O_NDELAY    0x04        /* non-blocking */
+#define FNDELAY     O_NDELAY    /* synonym */
+#define F_GETFL     3           /* get flags */
+#define F_SETFL     4           /* set flags */
+
+/*  ioctl のオプション */
+
+#define SIOCATMARK  7       /* check for out of bound data */
+
+/*  アドレス */
+struct sockaddr {
+    unsigned short sa_family;   /* address family */
+    char sa_data[14];           /* up to 14 bytes of direct address */
+};
+
+/*  インターネットアドレス */
+struct in_addr {
+    unsigned long s_addr;
+};
+
+/*  ソケットアドレス */
+struct sockaddr_in {
+    short sin_family;
+    unsigned short sin_port;
+    struct in_addr sin_addr;
+    char sin_zero[8];
+};
+
+
+struct iovec {              /* address and length */
+    char *iov_base;         /* base */
+    int iov_len;            /* size */
+};
+
+/*  recvmsg, sendmsg 用Повідомленняヘッダ */
+struct msghdr {             /* Message header for recvmsg and sendmsg. */
+    char *msg_name;         /* optional address */
+    int msg_namelen;        /* size of address */
+    struct iovec *msg_iov;  /* scatter/gather array */
+    int msg_iovlen;         /* # elements in msg_iov */
+    char *msg_accrights;    /* access rights sent/received */
+    int msg_accrightslen;
+};
+
+struct hostent {            /* structure for gethostbyname */
+    char *h_name;           /* official name of host */
+    char **h_aliases;       /* alias list */
+    int h_addrtype;         /* host address type */
+    int h_length;           /* length of address */
+    char **h_addr_list;     /* list of addresses from name server */
+#define h_addr h_addr_list[0]       /* address, for backward compatiblity */
+};
+
+struct servent {        /* structure for getservbyname */
+    char *s_name;       /* official service name */
+    char **s_aliases;   /* alias list */
+    int s_port;         /* port # */
+    char *s_proto;      /* protocol to use */
+};
+
+struct linger {         /* structure for the SO_LINGER option */
+    int l_onoff;        /* zero=off, nonzero = on */
+    int l_linger;       /* linger time, in seconds */
+};
+
+#define FD_SETSIZE 256
+typedef struct fd_set {     /* Bit mask for select() */
+    int fds_bits[FD_SETSIZE/sizeof(int)];
+} fd_set;
+
+struct timeval {        /* Timeout format for select() */
+    long tv_sec;        /* seconds */
+    long tv_usec;       /* microseconds */
+};
+</PRE>
+
+<H3><A name="ani">3.10.3 エラーコード</A></H3>
+
+<P>
+  以下のエラーコードが定義されている。
+</P>
+
+<PRE>
+#define EX_HOSTUNREACH  ((-401) &lt;&lt; 16)   /* ホストが見つからない */
+#define EX_TIMEDOUT     ((-402) &lt;&lt; 16)   /* TCPIP タイムアウト */
+#define EX_CONNABORTED  ((-403) &lt;&lt; 16)   /* 接続がアボートされた */
+#define EX_NOBUFS       ((-404) &lt;&lt; 16)   /* TCPIP 内部領域不足 */
+#define EX_BADF         ((-405) &lt;&lt; 16)   /* ソケットが無効 */
+#define EX_WOULDBLOCK   ((-407) &lt;&lt; 16)   /* ブロックされる処理がある */
+#define EX_MSGSIZE      ((-408) &lt;&lt; 16)   /* 送信Повідомленняの細分化ができない */
+#define EX_DESTADDRREQ  ((-409) &lt;&lt; 16)   /* 送信先アドレス指定が必要 */
+#define EX_PROTOTYPE    ((-410) &lt;&lt; 16)   /* プロトコルが不正 */
+#define EX_NOPROTOOPT   ((-411) &lt;&lt; 16)   /* 利用できないプロトコル指定 */
+#define EX_PROTONOSUPPORT ((-412) &lt;&lt; 16) /* 認識されていないオプション指定 */
+#define EX_SOCKTNOSUPPORT ((-413) &lt;&lt; 16) /* サポートされていないソケットタイプ */
+#define EX_OPNOTSUPP    ((-414) &lt;&lt; 16)   /* サポートされていない動作指定 */
+#define EX_PFNOSUPPORT  ((-415) &lt;&lt; 16)   /* サポートされていないプロトコルファミリ */
+#define EX_AFNOSUPPORT  ((-416) &lt;&lt; 16)   /* サポートされていないアドレスファミリ */
+#define EX_ADDRINUSE    ((-417) &lt;&lt; 16)   /* アドレスは使用中 */
+#define EX_ADDRNOTAVAIL ((-418) &lt;&lt; 16)   /* アドレスが利用できない */
+#define EX_NETDOWN      ((-419) &lt;&lt; 16)   /* ネットワーク機能が無効 */
+#define EX_NETUNREACH   ((-420) &lt;&lt; 16)   /* ネットワークが見つからない */
+#define EX_NETRESET     ((-421) &lt;&lt; 16)   /* ネットワークがリセットされた */
+#define EX_CONNRESET    ((-422) &lt;&lt; 16)   /* 接続がリセットされた */
+#define EX_ISCONN       ((-423) &lt;&lt; 16)   /* ソケットは接続済み */
+#define EX_NOTCONN      ((-424) &lt;&lt; 16)   /* ソケットは接続されていない */
+#define EX_SHUTDOWN     ((-425) &lt;&lt; 16)   /* 送信は禁止されている */
+#define EX_CONNREFUSED  ((-426) &lt;&lt; 16)   /* 接続が拒絶された */
+#define EX_HOSTDOWN     ((-427) &lt;&lt; 16)   /* ホストがダウンしている */
+#define EX_ALREADY      ((-428) &lt;&lt; 16)   /* 既に処理中の動作 */
+#define EX_INPROGRESS   ((-429) &lt;&lt; 16)   /* 非ブロック化ソケットで接続中 */
+</PRE>
+
+<H3><A name="anj">3.10.4 システムコール</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_start</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>TCP/IPの初期化</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_start (W arg)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   arg 特殊用途の引数
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  TCP/IP 通信を初期化する。
+  通常はアプリケーションПроцеси та потокиが <CODE>TCPIPMGR</CODE>
+ のその他のシステムコールを呼び出すと暗黙的に TCP/IP
+  通信の初期化が行なわれる。
+</P>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_finish</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>TCP/IPの終了宣言</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_finish (W arg)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   arg 0   終了宣言
+      ＜0  特殊用途
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0     正常
+＜0     エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  TCP/IP の終了宣言。<BR>
+  Процеси та потоки終了時に自動的に呼び出されるので通常は、明示的に呼び出す必要はない。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_BUSY     TCP/IP ロック中。
+EX_NOSPT    TCP/IP を使用していないのに so_finish を呼び出した。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_accept</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットへの接続受け付け</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_accept (W s, SOCKADDR *nam, W *namlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W         s      ソケットデスクリプタ
+SOCKADDR *nam    アドレスが戻される
+W        *namlen アドレスのバイト長
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧0 新規生成されたソケットデスクリプタ
+＜0  エラーコード
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>listen</CODE> 状態にあるソケットに対して接続要求を待ち、
+  要求があったときに最初の要求を取りだし、
+  ソケット <CODE>s</CODE> と同じ属性の新しいソケットを生成しそのデスクリプタを戻す。
+</P>
+<P>
+  接続要求元のアドレスとその長さが、
+  <CODE>nam</CODE> および <CODE>namlen</CODE> に戻される。
+</P>
+<P>
+  元のソケット <CODE>s</CODE> は、
+  次の要求を受け付けるためにオープンされたままとなる。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効
+EX_WOULDBLOCK   ソケットが非ブロック化されていて、接続要求がない
+EX_NOBUFS       内部領域不足
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_bind</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットへの名前のバインド</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_bind (W s, SOCKADDR *nam, W namlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W         s      ソケット
+SOCKADDR *nam    アドレス
+W        namlen  アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+
+<P>
+  名前なしのソケットに <CODE>nam</CODE> および
+  <CODE>namlen</CODE> で指定した名前を割り当てる。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)。
+EX_BADF        ソケットが無効。
+EX_FAULT        名前が不正。
+EX_ADDRNOTAVAIL 名前(アドレス)が利用できない。
+EX_ADDRINUSE    名前(アドレス)は使用中。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_close</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットを閉じる</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_close (W s)
+</PRE>
+
+<H4>【パラメータ】</H4>
+W   s   ソケットデスクリプタ
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+
+<P>
+  ソケットをクローズする。
+</P>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_connect</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットへの接続の開始</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_connect (W s, SOCKADDR *nam, W namlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W        s       ソケットデスクリプタ
+SOCKADDR *na m   アドレス
+W        namlen  アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  <CODE>s</CODE> が <CODE>SOCK_DGRAM</CODE> 型ソケットの場合は、
+  ソケットに関連づけられる通信先のアドレスを指定する。
+</P>
+<P>
+  <CODE>s</CODE> が <CODE>SOCK_STREAM</CODE> 型ソケットの場合は、
+  指定されたアドレスへの接続を行なう。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_BADF         ソケットが無効。
+EX_FAULT        名前(アドレス)が不正。
+EX_HOSTUNREACH  接続先が不正。
+EX_INPROGRESS   ソケットが非ブロック型で、接続がすぐに完了しない。
+EX_TIMEDOUT     タイムアウト。
+EX_CONNABORTED  接続がアボートされた。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_fcntl</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットの制御</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_fcntl (W s, W cmd, W arg)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s   ソケットデスクリプタ
+W   cmd 以下
+        F_GETFL     デスクリプタ状態フラグを取得する
+        F_SETFL     デスクリプタ状態フラグを設定する
+W   arg フラグ値
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 フラグ値(F_GETFL)
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットデスクリプタの状態フラグを取得/設定する。<BR>
+  有効なフラグ値は <CODE>O_NDELAY</CODE> のみである。<BR>
+  <CODE>O_NDELAY</CODE> を指定されたソケットは非ブロック状態となり、
+  ソケットに関連したシステムコールでは待ちに入らなくなる。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_gethostbyname</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>名前によるホスト情報の取得  </TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_gethostbyname (B *nam, HOSTENT *hp, B *buf)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+B*      nam     ホスト名
+HOSTENT *hp     ホスト情報
+B       *buf    作業領域
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>nam</CODE> で指定された名前を持つホストに関する情報を
+  <CODE>hp</CODE> で指定された領域に格納する。<BR>
+  <CODE>B buf[HBUFLE]</CODE> で定義される作業領域を指定する必要がある。
+</P>
+<P>
+  <CODE>hp</CODE> が指す領域には以下の情報が戻される。
+</P>
+<PRE>
+struct hostent {                    /* structure for gethostbyname */
+        char *h_name;               /* official name of host */
+        char **h_aliases;           /* alias list */
+        int h_addrtype;             /* host address type */
+        int h_length;               /* length of address */
+        char **h_addr_list;         /* list of addresses from nameserver */
+        #define h_addr h_addr_list[0]
+                                    /* address, for backward compatiblity */
+};
+
+h_name      ホストの正式名
+h_aliases   ホストのエイリアス名(実装では NULL が戻る)
+h_addrtype  アドレスタイプ(常に AF_INET が戻る)
+h_length    アドレスのバイト長
+h_addr_list ホストのネットワークアドレスのリストへのポインタ
+</PRE>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_HOSTUNREACH  指定されたホストが見つからない。
+EX_TIMEDOUT     タイムアウト。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_gethostbyaddr</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>アドレスによるホスト情報の取得 </TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_gethostbyaddr (B *addr, W type, W len, HOSTENT *hp, B *buf)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+B       *addr   アドレス
+W       type    アドレスタイプ(AF_INET のみ指定可能)
+W       len     アドレスのバイト長
+HOSTENT *hp     ホスト情報
+B       *buf    作業領域
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  アドレスで指定されたホストに関する情報を
+  <CODE>hp</CODE> で指定された領域に格納する。<BR>
+  <CODE>B buf[HBUFLE]</CODE> で定義される作業領域を指定する必要がある。
+</P>
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_HOSTUNREACH  指定されたホストが見つからない
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">ERR so_getpeername</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>接続相手の名前の取得</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+    ERR so_getpeername (W s, SOCKADDR *nam, W *namlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W        s       ソケットデスクリプタ
+SOCKADDR *nam    アドレス
+W        *namlen アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットに接続されている相手のアドレスを戻す。<BR>
+  <CODE>namlen</CODE> は <CODE>nam</CODE> が指す領域のサイズを指定する。
+  実行後は <CODE>nam</CODE> に戻されたアドレスのバイト長が戻される。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+EX_FAULT    名前(アドレス)が不正。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_getsockname</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケット名の獲得</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ ERR so_getsockname (W s, SOCKADDR *nam, W *namlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W        s   ソケットデスクリプタ
+SOCKADDR *nam   アドレス
+W        *namlen アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+
+<H4>【解説】</H4>
+<P>
+  指定したソケットに対する現在の名前(アドレス)を戻す。<BR>
+  <CODE>namlen</CODE> は <CODE>nam</CODE> のサイズを指定する。
+  実行後は <CODE>name</CODE> に戻されたアドレスのバイト長が戻される。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+EX_FAULT    名前(アドレス)が不正。
+</PRE>
+
+<A name="getsockopt">
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_getsockopt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットオプションの取得</TD></TR>
+</TABLE></TD></TR></TABLE>
+</A>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_getsockopt (W s, W level, W optnam, B *optval, W *optlen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s   ソケットデスクリプタ
+W   level   レベル
+W   optnam  オプション
+B   *optval オプション値
+W   *optlen オプションのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットに関するオプションを取得する。
+</P>
+
+<H4>level およびオプション</H4>
+
+<DL>
+ <DT><CODE>IPPROTO_IP</CODE> :
+ <DD><P>
+     <CODE>IP_OPTIONS optval, optlen</CODE> で IP オプションを指定
+     </P>
+ <DT><CODE>IPPROTO_TCP</CODE> :
+ <DT><P>
+     <CODE>TCP_NODELAY send</CODE> 時にПовідомленняをただちに送信するか否かの状態取得<BR>
+     <CODE>TCP_MAXSEG</CODE>  最大Повідомлення長を取得
+     </P>
+ <DT><CODE>SOL_SOCKET</CODE> :
+ <DT><PRE>
+    SO_DEBUG        デバッグ情報の記録フラグを取得
+    SO_RESUSEADDR   ローカルアドレスの再使用状態を取得
+    SO_KEEPALIVE    (未サポート)
+    SO_DONTROUTE    発信Повідомленняのためのバイパスルートの決定
+    SO_BROADCAST    ブロードキャストПовідомленняの送信許可
+    SO_LINGER       データがある場合のクローズの延期
+    SO_OOBINLINE    帯域内の帯域外データの受信状態
+    SO_SNDBUF       出力のためのバッファサイズを取得
+    SO_RCVBUF       入力のためのバッファサイズを取得
+    SO_ERROR        ソケットのエラーの取得およびクリア
+    SO_TYPE         ソケットのタイプを取得
+  </PRE>
+</DL>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_FAULT        不正なオプション指定。
+EX_NOPROTOOPT   指定したレベルで認識されていないオプション。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_setsockopt</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットオプションの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<PRE>
+ERR so_setsockopt (W s, W level, W optnam, B *optval, W optlen)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W   s        ソケットデスクリプタ
+W   level   レベル
+W   optnam  オプション
+B   *optval オプション値
+W   *optlen オプションのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットに関するオプションを設定する。<BR>
+  レベルとオプションについては <A href="tcpip.html#getsockopt">so_getsockopt</A> を参照すること。<BR>
+  <CODE>SOL_SOCKET</CODE> レベルのオプションでは、
+  各オプションがトグルされる。
+</P>
+<DL>
+ <DT><CODE>IPPROTO_IP</CODE> :
+ <DD><P>
+     <CODE>IP_OPTIONS  optval, optlen</CODE> で IP オプションを指定
+     </P>
+ <DT><CODE>IPPROTO_TCP</CODE> :
+ <DD><P>
+     <CODE>TCP_NODELAY send</CODE> 時にПовідомленняをただちに送信するよう指定
+     </P>
+ <DT><CODE>SOL_SOCKET</CODE> :
+ <DD><PRE>
+    SO_DEBUG        デバッグ情報の記録フラグをトグル
+    SO_RESUSEADDR   ローカルアドレスの再使用状態をトグル
+    SO_KEEPALIVE    (未サポート)
+    SO_DONTROUTE    発信Повідомленняのためのバイパスルートの決定のトグル
+    SO_BROADCAST    ブロードキャストПовідомленняの送信許可をトグル
+    SO_LINGER       データがある場合のクローズの延期を設定
+    SO_OOBINLINE    帯域内の帯域外データの受信状態をトグル
+    SO_SNDBUF       出力のためのバッファサイズを設定
+    SO_RCVBUF       入力のためのバッファサイズを設定
+   </PRE>
+</DL>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_FAULT        不正なオプション指定。
+EX_NOPROTOOPT   指定したレベルで認識されていないオプション。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_ioctl</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>デバイスの制御</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ WERR    so_ioctl (W s, W request, W arg)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s       ソケットデスクリプタ
+W   request 要求
+W   arg     引数
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧  正常
+0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットに関して特殊な処理を行なう。
+</P>
+
+<PRE>
+request
+</PRE>
+     <DL>
+      <DT><CODE>FIONREAD</CODE> :
+      <DD><P>
+	  ソケットの受信バッファにたまっているПовідомленняのバイト数を
+          <CODE>arg</CODE> を <CODE>W*</CODE> とみなしてそこに戻す。
+	  </P>
+      <DT><CODE>SIOCATMARK</CODE> :
+      <DD><P>
+	  ソケットが帯域外データを受信しているとき
+          <CODE>arg</CODE> を <CODE>W*</CODE> とみなしてそこに 1 を戻す。
+	  </P>
+     </DL>
+
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_listen</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケット接続のためのlisten</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_listen (W s, W backlog)
+</PRE>
+<H4>【パラメータ】</H4>
+W   s   ソケットデスクリプタ<BR>
+W   backlog 最大接続要求待ちキュー数
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+指定したソケットを listen 状態にする。
+<H4>【エラーコード】</H4>
+<PRE>
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_read</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからの受信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_read (W s, B *buf, W len)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s       ソケットデスクリプタ
+B   *buf    受信バッファ
+W   len     受信バッファのバイト長
+</PRE>u
+<H4>【リターン値】</H4>
+<PRE>
+≧0 受信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットからПовідомленняを受信する。<BR>
+  <CODE>so_recv(s, buf, len, 0)</CODE> と等しい。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_WOULDBLOCK   ソケットが非ブロック化されていて、受信データがない。
+EX_TIMEDOUT     タイムアウト。
+EX_CONNABORTED  接続がアボートされた。
+EX_OPNOTSUP     サポートされていない動作指定
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_recv</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからの受信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_recv (W s, B *buf, W len, W flags)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s       ソケットデスクリプタ
+B   *buf    受信バッファ
+W   len     受信バッファのバイト長
+W   flags   以下の OR を指定することができる
+        MSG_OOB     帯域外データを読み取る
+        MSG_PEEK    ソケット上にあるデータを「のぞき見」する。
+                    データは廃棄されず、それ以降の受信処理では、
+                    同一データが戻る。
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+≧0 受信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットからПовідомленняを受信する。
+  Повідомленняがないときは非ブロック状態の場合は
+  <CODE>EX_WOULDBLOCK</CODE>を戻し、
+  それ以外では待ちに入る。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_WOULDBLOCK   ソケットが非ブロック化されていて、受信データがない。
+EX_TIMEDOUT     タイムアウト。
+EX_CONNABORTED  接続がアボートされた。
+EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_recvfrom</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからの受信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ WERR    so_recvfrom (W s, B *buf, W len, W flags, SOCKADDR *from, W *flen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W        s       ソケットデスクリプタ
+B        *buf    受信バッファ
+W        len     受信バッファのバイト長
+W        flags   以下の OR を指定することができる
+         MSG_OOB     帯域外データを読み取る
+         MSG_PEEK    ソケット上にあるデータを「のぞき見」する。
+                     データは廃棄されず、それ以降の受信処理では、
+                     同一データが戻る。
+SOCKADDR *from   アドレス
+W        *flen   アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 受信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットからПовідомленняを受信する。
+  Повідомленняがないときは非ブロック状態の場合は
+  <CODE>EX_WOULDBLOCK</CODE> を戻し、
+  それ以外では待ちに入る。<BR>
+  <CODE>from</CODE> が <CODE>NULL</CODE> でないときは、
+  Повідомленняの発信元のアドレスが戻される。
+  <CODE>*flen</CODE> はアドレスのサイズを指定し、
+  実行後は実際のアドレスの長さが戻される。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_WOULDBLOCK   ソケットが非ブロック化されていて、受信データがない。
+EX_TIMEDOUT     タイムアウト。
+EX_CONNABORTED  接続がアボートされた。
+EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_recvmsg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからの受信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_recvmsg (W s, MSGHDR *msg, W flags)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W       s           ソケットデスクリプタ
+MSGHDR  *msg        Повідомленняヘッダー
+W       flags       以下の OR を指定することができる
+        MSG_OOB     帯域外データを読み取る
+        MSG_PEEK    ソケット上にあるデータを「のぞき見」する。
+                    データは廃棄されず、それ以降の受信処理では、
+                    同一データが戻る。
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 受信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットからПовідомленняを受信する。
+  Повідомленняがないときは非ブロック状態の場合は
+  <CODE>EX_WOULDBLOCK</CODE> を戻し、それ以外では待ちに入る。
+</P>
+<P>
+  構造体 <CODE>msghdr</CODE> で指定することができる。
+</P>
+<PRE>
+          caddr_t      msg_name;         オプションのアドレス
+          int          msg_namelen;      アドレスサイズ
+          struct iovec *msg_iov;         配列の分散/収集
+          int          msg_iovlen;       msg_iov にある構成要素の数
+          caddr_t      msg_accrights;    送信または受信されたアクセス権
+          int          msg_accrightslen;
+</PRE>
+<P>
+  <CODE>msg_name, msg_namelen</CODE> に相手先アドレスを指定する。
+  指定不要のときは <CODE>msg_name</CODE> は <CODE>NULL</CODE> を指定する。
+</P>
+<P>
+  <CODE>msg_iov</CODE>
+  により一回の要求で分散したいくつかの場所に読み込むことができる。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_WOULDBLOCK   ソケットが非ブロック化されていて、受信データがない。
+EX_TIMEDOUT     タイムアウト。
+EX_CONNABORTED  接続がアボートされた。
+EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_select</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケット状態の検査</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_select (W nfds, fd_set *rfds, fd_set *wfds, fd_set *efds,
+                   TIMEVAL *tmout)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W       nfds    最大ソケットデスクリプタ数
+fd_set  *rfds   受信準備完了を調べるソケットデスクリプタの集合
+fd_set  *wfds   送信準備完了を調べるソケットデスクリプタの集合
+fd_set  *efds   例外発生を調べるソケットデスクリプタの集合
+TIMEVAL *tmout  タイムアウト指定
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+＞0  準備ができているデスクリプタ数
+＝0  タイムアウトした。
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  指定したソケットデスクリプタ中で、
+  <CODE>rfds, wfds, efds</CODE>
+  中で準備ができているソケットがあるかどうか検査する。
+  <CODE>rfds, wfds, efds</CODE> の内容は、
+  準備ができているかどうかの結果が戻される。
+</P>
+<P>
+  <CODE>rfds, wfds, efds</CODE> は、
+  関連するソケットが一つもない場合は、
+  それぞれ <CODE>NULL</CODE> を指定することができる。
+</P>
+<P>
+  <CODE>tmout</CODE> が <CODE>NULL</CODE> のときは無限に待つ。
+  <CODE>tmout</CODE> が <CODE>NULL</CODE> でない場合は、
+  そこで指定された時間だけ待つ。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_write</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからのПовідомлення送信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_write (W s, B *buf, W len)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s       ソケットデスクリプタ
+B   *buf    送信データ
+W   len     送信データのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 送信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットの接続先にПовідомленняを送信する。
+  <CODE>so_send(s, buf, len, 0)</CODE> に等しい。
+</P>
+<H4>【エラーコード】</H4>
+
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_SHUTDOWN     送信は禁止されている。
+EX_CONNABORTED  接続がアボートされた。
+EX_MSGSIZE      送信Повідомленняサイズへの細分化ができなかった。
+EX_NOBUFS       内部領域不足。
+EX_WOULDBLOCK   ソケットが非ブロック化されているが、送信により待ちにはいる。
+EX_TIMEOUT      タイムアウト。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_send</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからのПовідомлення送信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_send (W s, B *buf, W len, W flags)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s       ソケットデスクリプタ
+B   *buf    送信データ
+W   len     送信データのバイト長
+W   flags   以下の OR を指定することができる
+          MSG_OOB     帯域外データを送信する。
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 送信したバイト数
+＜0  エラー
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<H4>【解説】</H4>
+
+<P>
+  ソケットの接続先にПовідомленняを送信する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_SHUTDOWN     送信は禁止されている。
+EX_CONNABORTED  接続がアボートされた。
+EX_MSGSIZE      送信Повідомленняサイズへの細分化がてきなかった。
+EX_NOBUFS       内部領域不足。
+EX_WOULDBLOCK   ソケットが非ブロック化されているが、送信により待ちにはいる。
+EX_TIMEOUT      タイムアウト。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_sendto</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからのПовідомлення送信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_sendto (W s, B *buf, W len, W flags, SOCKADDR *to, W tolen)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W        s           ソケットデスクリプタ
+B        *buf        送信データ
+W        len         送信データのバイト長
+W        flags       以下の OR を指定することができる
+         MSG_OOB     帯域外データを送信する。
+SOCKADDR *to         送信先アドレス
+W        tolen       送信先アドレスのバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 送信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  相手先アドレスを指定して、Повідомленняを送信する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_SHUTDOWN     送信は禁止されている。
+EX_CONNABORTED  接続がアボートされた。
+EX_MSGSIZE      送信Повідомленняサイズへの細分化がてきなかった。
+EX_NOBUFS       内部領域不足。
+EX_WOULDBLOCK   ソケットが非ブロック化されているが、送信により待ちにはいる。
+EX_TIMEOUT      タイムアウト。
+EX_HOSTUNREACH  指定された送信先が見つからない。
+EX_DESTADDRREQ  送信先アドレスの指定が必要。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_sendmsg</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ソケットからのПовідомлення送信</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_sendmsg (W s, MSGHDR *msg, W flags)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W       s       ソケットデスクリプタ
+MSGHDR  *msg    Повідомленняデータ
+W       flags   以下の OR を指定することができる
+              MSG_OOB     帯域外データを送信する。
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 送信したバイト数
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  相手先アドレスを指定して、Повідомленняを送信する。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR          パラメータでアクセスが許されていない領域を参照している。
+EX_PAR          パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF         ソケットが無効。
+EX_SHUTDOWN     送信は禁止されている。
+EX_CONNABORTED  接続がアボートされた。
+EX_MSGSIZE      送信Повідомленняサイズへの細分化がてきなかった。
+EX_NOBUFS       内部領域不足。
+EX_WOULDBLOCK   ソケットが非ブロック化されているが、送信により待ちにはいる。
+EX_TIMEOUT      タイムアウト。
+EX_HOSTUNREACH  指定された送信先が見つからない。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_shutdown</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>全二重接続の部分シャットダウン</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_shutdown (W s, W how)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+W   s   ソケットデスクリプタ
+W   how これ以降の送受信の指定
+        0   以降の受信の禁止
+        1   以降の送信の禁止
+        2   以降の送受信の禁止
+</PRE>
+<H4>【リターン値】</H4>
+
+<H4>【解説】</H4>
+<P>
+  ソケットと対応する全二重通信路のすべてまたは一部をシャットダウンする。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_NOBUFS
+EX_PAR      パラメータが不正(ソケットデスクリプタの値が不正)
+EX_BADF     ソケットが無効。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_socket</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>通信用の終点の作成</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+WERR    so_socket (W domain, W type, W protocol)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+W   domain      通信を行なうドメイン
+                  PF_INET
+                  PF_UNSPEC (PF_INET として扱われる)
+W   type        通信のタイプ
+                  SOCK_STREAM
+                  SOCK_DGRAM
+W   protocol    プロトコル
+                  TCP (SOCK_STREAM タイプの時)
+                  UDP (SOCK_DGRAM タイプの時)
+                  ICMP    (SOCK_DGRAM タイプの時)
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+≧0 ソケットデスクリプタ
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  ソケットを作成しそのデスクリプタを戻す。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_NOBUFS           内部領域不足。
+EX_PROTONOSUPPORT   サポートされていないタイプまたはプロトコル。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_gethostname</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ホスト名の取得</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<PRE>
+ERR so_gethostname (B *name, W nlen)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+B   *name   ホスト名を格納する領域
+W   nlen    name のバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  現在のホスト名を戻す。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+</PRE>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">so_sethostname</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>ホスト名の設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR so_sethostname (B *name, W nlen)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+B   *name   ホスト名
+W   nlen    ホスト名のバイト長
+</PRE>
+<H4>【リターン値】</H4>
+<PRE>
+＝0  正常
+＜0  エラー
+</PRE>
+<H4>【解説】</H4>
+<P>
+  現在のホスト名を指定されたものに変更する。
+  ホスト名は最大 31文字。
+</P>
+<H4>【エラーコード】</H4>
+<PRE>
+EX_ADR      パラメータでアクセスが許されていない領域を参照している。
+</PRE>
+
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="font_mgr.html">前頁:3.9 Управління шрифтами (Font Manager)マネージャにもどる</A><BR>
+<A href="printmgr.html">次頁:3.11 印刷マネージャ仕様書にすすむ</A><BR>
+</BODY>
+</HTML>

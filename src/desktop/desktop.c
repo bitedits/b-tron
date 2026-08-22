@@ -1,6 +1,6 @@
 /*
- * B-TRON Desktop Compositor: desktop.c
- * Authentic Sakamura Cho-Kanji Teal Desktop Shell & Top Panel.
+ * B-TRON System Desktop Compositor: desktop.c
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 
 #include <btron/desktop.h>

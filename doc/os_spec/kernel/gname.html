@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  1.4 グローバル名管理
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="taskcomm.html">
+<LINK REL="next" HREF="memory.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="taskcomm.html">前頁:1.3 Процеси та потоки/タスク間同期通信管理にもどる</A><BR>
+<A href="memory.html">次頁:1.5 Управління пам'яттюにすすむ</A><BR>
+<HR>
+
+<H2><A name="aay">1.4 グローバル名管理</A></H2>
+
+<H3><A name="aaz">1.4.1 グローバル名データ</A></H3>
+
+<P>
+  グローバル名データ管理機能は、
+  Процеси та потоки間で共有的に使用されるデータを任意の名前により生成する機能、
+  および生成された名前によるデータの参照機能を提供している。
+  このように名前付けられて生成された共有データをグローバル名データと呼ぶ。
+</P>
+<P>
+  生成されるデータは 1 つの 32 ビットデータ ( W ) であり、
+  データに付けられる名前は最大 8 文字である。
+  名前としては通常、
+  文字コードとして意味のあるものが使用されるが特に制限はなく、
+  <CODE>TNULL(0)</CODE> までの最大 8 文字分  (16 バイト )
+  の任意のデータが名前とされる。
+</P>
+<P>
+  生成されたグローバル名データは、
+  すべてのПроцеси та потокиから参照 / 変更可能である。
+</P>
+<P>
+  グローバル名データとしては、
+  生成 / 変更したПроцеси та потокиの存在とは無関係に存在し続けるものと、
+  生成 / 変更したПроцеси та потокиが終了した場合に自動的に削除されるものの 2 種類があり、
+  グローバル名データの生成／変更時に指定できる。
+  前者の場合はグローバル名データが不要となった時点で明示的に削除する必要がある。
+</P>
+<P>
+  この機能は、
+  主にある種のデータを不特定多数のПроцеси та потокиから参照可能とするために使用され、
+  例えば、以下に示すようなデータを対応する固定的な名前により生成し、
+  参照することが考えられる。
+</P>
+
+<UL>
+ <LI> サーバ機能を持ったПроцеси та потокиのПроцеси та потокиID
+ <LI> 特定に資源に対応したセマフォID
+ <LI> 共通的に使用される環境パラメータ
+</UL>
+
+<A name="aba">
+  <CENTER><IMG src="gif/grobal_name.gif" alt="グローバル名データの操作"></CENTER>
+</A>
+<CENTER>図 5 : グローバル名データの操作</CENTER>
+
+<H3><A name="abb">1.4.2 データ / 定数の定義</A></H3>
+
+<H4>□ グローバル名管理</H4>
+
+<PRE>
+#define N_CREATE	0x0000		/* グローバル名データの新規生成 */
+#define N_MODIFY	0x0001		/* グローバル名データの変更     */
+#define N_FORCE		0x0002		/* グローバル名データの強制生成 */
+</PRE>
+
+<H3><A name="abc">1.4.3 システムコール</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">cre_nam</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>グローバル名データ生成</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+
+<H4>【形式】</H4>
+<PRE>
+WERR    cre_nam(TC* name, W data, W opt)
+</PRE>
+<H4>【パラメータ】</H4>
+<PRE>
+TC* name    対象グローバル名(先頭8文字(16バイト)までが有効)
+W   data    登録するデータ
+W   opt     グローバル名属性
+            ( N_CREATE ‖ N_MODIFY ‖ N_FORCE ) | [ DELEXIT ]
+</PRE>
+<DL>
+ <DT><CODE>N_CREATE</CODE> :
+ <DD><P>
+     指定した名前のグローバル名データが存在していない場合に生成する
+     (すでに存在している場合はエラー)。
+     </P>
+ <DT><CODE>N_MODIFY</CODE> :
+ <DD><P>
+     指定した名前のグローバル名データが存在している場合にそのデータを変更する
+     (存在していない場合はエラー)。
+     </P>
+ <DT><CODE>N_FORCE</CODE> :
+ <DD><P>
+     指定した名前のグローバル名データが存在していない場合は新規に生成し、
+     すでに存在している場合はそのデータを変更する。
+     </P>
+ <DT><CODE>DELEXIT</CODE> :
+ <DD><P>
+     生成したПроцеси та потоки、
+     または最後にデータを変更したПроцеси та потокиの終了時にグローバル名データを自動削除する。
+     既に他のПроцеси та потокиから <CODE>DELEXIT</CODE> 指定が行なわれていた場合でも、 
+     <CODE>DELEXIT</CODE> 指定により本システムコールを最後に実行したПроцеси та потокиが対象となる。
+     </P>
+</DL>
+
+<H4>【リターン値】</H4>
+<PRE>
+＝0    正常
+＜0    エラー(エラーコード)
+</PRE>
+<H4>【解説】</H4>
+<P>
+  <CODE>name</CODE> で指定した名前のグローバル名データを生成または変更する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_ADR      : アドレス(name)のアクセスは許されていない。
+ER_EXS      : 名前(name)は既に存在している(N_CREATEの時)。
+ER_NOEXS    : 名前(name)は存在していない(N_MODIFYの時)。
+ER_NOSPC    : システムのメモリ領域が不足した。
+ER_PAR      : パラメータが不正である(optが不正,nameが空)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">del_nam</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>グローバル名データ削除</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR del_nam(TC* name)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+TC* name    対象グローバル名(先頭8文字(16バイト)までが有効)
+</PRE>
+
+<H4>【リターン値】</H4>
+<PRE>
+＝0    正常
+＜0    エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>name</CODE> で指定したグローバル名データを削除する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_ADR      : アドレス(name)のアクセスは許されていない。
+ER_NOEXS    : 名前(name)は存在していない。
+ER_PAR      : パラメータが不正である(nameが空)。
+</PRE>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">get_nam</FONT></TD></TR>
+<TR><TD>&nbsp;</TD></TR>
+<TR><TD>グローバル名データ取得</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【形式】</H4>
+<PRE>
+ERR get_nam(TC* name, W* data)
+</PRE>
+
+<H4>【パラメータ】</H4>
+<PRE>
+TC* name    対象グローバル名(先頭8文字(16バイト)までが有効)
+W*  data    取得データ格納領域
+</PRE>
+
+<H4>【リターン値】</H4>
+
+<PRE>
+＝0   正常
+＜0   エラー(エラーコード)
+</PRE>
+
+<H4>【解説】</H4>
+
+<P>
+  <CODE>name</CODE> で指定したグローバル名データを取得する。
+</P>
+
+<H4>【エラーコード】</H4>
+<PRE>
+ER_ADR      : アドレス(name,data)のアクセスは許されていない。
+ER_NOEXS    : 名前(name)は存在していない。
+ER_PAR      : パラメータが不正である(nameが空)。
+</PRE>
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="taskcomm.html">前頁:1.3 Процеси та потоки/タスク間同期通信管理にもどる</A><BR>
+<A href="memory.html">次頁:1.5 Управління пам'яттюにすすむ</A><BR>
+</BODY>
+</HTML>

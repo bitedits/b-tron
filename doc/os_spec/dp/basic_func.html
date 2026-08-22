@@ -1,0 +1,1329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  2.3 基本関数
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="basic_concept.html">
+<LINK REL="next" HREF="figure_func.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="basic_concept.html">前頁:2.2 基本概念にもどる</A><BR>
+<A href="figure_func.html">次頁:2.4 図形描画関数にすすむ</A><BR>
+<HR>
+
+<H2><A name="adu">2.3 基本関数</A></H2>
+
+<P>ディスプレイプリミティブの関数はすべて  W 型の関数値をとり、何らかのエ
+ラーがあった場合は、「負」のエラーコードが戻る。正常終了時には、「０」ま
+たは「正」の値が戻る。</P>
+
+<P>ディスプレイプリミティブの関数から戻されるエラーコードは以下のもの
+である。</P>
+
+<DL>
+  <DT>EG_ADR   ((-64) &lt;&lt; 16)
+    <DD>パラメータで指定したアドレスが不正である。
+  <DT>EG_PAR   ((-65) &lt;&lt; 16)
+    <DD>パラメータが不正、または範囲外である。
+  <DT>EG_NOSPT ((-66) &lt;&lt; 16)
+    <DD>現在のインプリメントではサポートしていない、もしくは予約されているパラメータ値である。
+  <DT>EG_NOSPC ((-67) &lt;&lt; 16)
+    <DD>システムのメモリが不足、または制限を越えた。
+  <DT>EG_GID   ((-68) &lt;&lt; 16)
+    <DD>指定した描画環境IDが不正(存在しない)。
+  <DT>EG_LOCK  ((-69) &lt;&lt; 16)
+    <DD>画環境はロックされている。
+  <DT>EG_LIMIT ((-70) &lt;&lt; 16)
+    <DD>システムの制限を越えた
+  <DT>EG_NOEXS ((-71) &lt;&lt; 16)
+    <DD>指定したデバイスは存在しない。(登録されていない。)
+  <DT>EG_DEV   ((-72) &lt;&lt; 16)
+    <DD>指定したデバイスのタイプが不正である。
+  <DT>EG_ERDEV ((-73) &lt;&lt; 16)
+    <DD>デバイスでエラーが発生した。
+  <DT>EG_FORM  ((-80) &lt;&lt; 16)
+    <DD>ビットマップの形式が異なる。
+  <DT>EG_ENV   ((-81) &lt;&lt; 16)
+    <DD>カラーマップが存在しない。
+</DL>
+
+<P>なお、以下のエラーコードは、各関数毎の説明では特に記述していないが各種の
+描画関数で発生する可能性がある。</P>
+
+<DL>
+  <DT>EG_NOSPT
+    <DD>インプリメント上サポートされていない場合、もしくは予約されている
+      パラメータ値が指定された場合。
+</DL>
+
+基本関数としては、描画環境の生成／削除、描画環境の各データのアクセス、お
+よび座標変換を行なう関数群が用意されている。
+
+各種の関数内での「相対」←→「絶対」座標変換でオーバーフローが発生した
+場合、即ち、-32768 〜 32767 の範囲を越えた場合の描画は保証されないため注
+意が必要である。 また、以下に示すように描画すべき図形の一部が -32768  〜
+32767 の座標系をはみ出した場合も描画は保証されない。
+
+<UL>
+  <LI>描画指定点は範囲内であるが、 線幅が太いため枠の一部分が範囲外となる場合。
+  <LI>回転した図形の描画で、回転後の図形の一部分が範囲外となる場合。
+</UL>
+
+<H3><A name="adv">2.3.1 描画環境の生成／削除</A></H3>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gini_dsp</FONT></TD></TR>
+<TR><TD align="right">Initialize Display Primitive</TD></TR>
+<TR><TD>gini_dsp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gini_dsp (W mode)
+
+<DT>【解説】
+<DD>ディスプレイプリミティブの初期化処理を行う。<BR>
+    通常、アプリケーションは使用しない。<BR>
+    アプリケーションがこの関数を呼び出したときの動作は保証しない。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0     : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD><DL>
+     <DT>EG_NOSP:
+         <DD>システムのメモリが不足した。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gfin_dsp</FONT></TD></TR>
+<TR><TD align="right">Finish Display Primitive</TD></TR>
+<TR><TD>gfin_dsp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gfin_dsp ( )
+
+<DT>【解説】
+<DD>ディスプレイプリミティブの終了処理を行う。<BR>
+    通常、アプリケーションは使用しない。<BR>
+    アプリケーションがこの関数を呼び出したときの動作は保証しない。
+
+<DT>【リターン値】
+<DD>=0    : 正常終了<BR>
+    &lt;0    : エラー  (発生しない)
+
+<DT>【エラーコード】
+<DD>発生しない。
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcls_env</FONT></TD></TR>
+<TR><TD align="right">Delete Drawing Environment</TD></TR>
+<TR><TD>gcls_env</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gcls_env ( GID gid )
+
+<DT>【解説】
+<DD>gid で指定した描画環境を削除する。<BR>
+    描画環境を生成したПроцеси та потокиのみがその描画環境を削除可能であり、
+    そうでない場合には EG_GID のエラーとなる。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_GID:
+         <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<A name="gopn_dev">
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gopn_dev</FONT></TD></TR>
+<TR><TD align="right">Open Devide Drawing Environment</TD></TR>
+<TR><TD>gopn_dev</TD></TR>
+</TABLE></TD></TR></TABLE></A>
+
+<DL>
+<DT>【形式】
+<DD>GID gopn_dev ( TC *dev, B *par )
+
+<DT>【解説】
+<DD><P>dev で指定したデバイスに対する「デバイス描画環境」を新規に生成し、その
+    描画環境IDを関数値として戻す。  固有ビットマップを持たないデバイスの
+    場合は、EG_DEVのエラーとなる。</P>
+
+    <P>生成された描画環境の各データは、以下のように初期化される。</P>
+
+<PRE>
+    対象デバイス        : dev
+    対象ビットマップ    : dev の固有ビットマップ
+    マスクピクセル値    : 白(0)
+    フレーム長方形      : ビットマップの bounds 長方形
+    表示長方形          : ビットマップの bounds 長方形
+    前置長方形リスト    : 未定義
+    クリッピング領域    : 未定義
+    線マスクパターン    : 実線
+    文字カラー          : 前景：黒(0x10000000)、背景：白(0x10FFFFFF)
+    文字描画方向        : TORIGHT (0)
+    文字描画位置        : (0,0)
+    文字間隔            : すべて0
+    文字Управління шрифтами (Font Manager)        : システムУправління шрифтами (Font Manager)
+    文字セット          : システムУправління шрифтами (Font Manager)の文字セット
+    色変換用カラー情報  : 未定義
+</PRE>
+<DT>【リターン値】
+<DD>≧0        : 正常終了(関数値は描画環境ID)<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+      <DD> 指定されたアドレス(dev)のメモリのアクセスは許されていない。
+     <DT>EG_DEV
+      <DD> 指定したデバイスのタイプが不正である。
+     <DT>EG_LIMIT
+      <DD> システムの制限を越えた。(オープン可能な描画環境の最大数を越えた)
+     <DT>EG_NOEXS
+      <DD> 指定されたデバイス(dev)は登録されていない。
+     <DT>EG_NOSPC
+      <DD> システムのメモリが不足した。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gopn_mem</FONT></TD></TR>
+<TR><TD align="right">Open Memory Drawing Environment</TD></TR>
+<TR><TD>gopn_mem</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>GID gopn_mem ( TC *dev, BMP *bmap, B *par )
+
+<DT>【解説】
+<DD><P>dev で指定したデバイスに対する「メモリ描画環境」を新規に生成し、その描
+    画環境IDを関数値として戻す。描画用のビットマップは bmap で指定したも
+    のが使用される。指定したデバイスがカラーマップを持つ場合は、カラーマッ
+    プを共有することになる。</P>
+
+    <P>bmap  の内容は、描画環境生成後にディスプレイプリミティブにより直接ア
+    クセスされるため、変更してはいけない。</P>
+
+    <P>bmap で指定したビットマップのプレーン数とピクセルビット数が、dev  で指
+    定したデバイスで定義されるものと一致していない場合は、 EG_DEV のエラー
+    となる。</P>
+
+    <P>dev ＝ NULL の場合は、「汎用メモリ描画環境」の生成となる。
+    B *par == NULL の場合、 カラー情報を持たない汎用メモリ描画環境を生成す
+    る。<BR>
+    B *par != NULL の場合、 CSPEC *par とみなされ、カラー情報付きの汎用メ
+    モリ描画環境を生成する。<BR>
+    CSPEC.colmap にカラーマップへのアドレスを設定することにより、 カラーマ
+    ップ方式の汎用メモリ描画環境の生成も可能である。</P>
+
+    <P>生成された描画環境の対象デバイス、ビットマップ、カラー情報は生成する描
+    画環境の種類に応じてパラメータとして指定されたものになり、他の各データ
+    はデバイス描画環境の生成時と同様に初期化される。</P>
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値は描画環境ID)<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+      <DT>EG_ADR
+      <DD>指定されたアドレス(dev)のメモリのアクセスは許されていない。
+      <DT>EG_DEV
+      <DD>指定したデバイスのタイプが不正である。
+      <DT>EG_LIMIT
+      <DD>システムの制限を越えた。(オープン可能な描画環境の最大数を越えた)
+      <DT>EG_NOEXS
+      <DD>指定されたデバイス(dev)は登録されていない。
+      <DT>EG_NOSPC
+      <DD>システムのメモリが不足した。
+      <DT>EG_PAR
+      <DD>パラメータが不正、または範囲外である。bmap の内容が不正、par の内容が不正(カラー情報付き汎用メモリ描画環境の場合)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gnew_env</FONT></TD></TR>
+<TR><TD align="right">Open New Drawing Environment</TD></TR>
+<TR><TD>gnew_env</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>GID gnew_env ( GID gid )
+
+<DT>【解説】
+<DD>
+    gid で指定した描画環境と全く同じ内容を持つ描画環境を新たに生成(複製)し、
+    その描画環境IDを関数値として戻す。
+
+    デバイス情報、カラー情報、カラーマップ、ビットマップ(BMP.baseaddr のデ
+    ータ領域)は生成元と共有される。 
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値は描画環境ID)<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+         <DD>指定した描画環境IDが不正(存在しない)。
+    <DT>EG_LIMIT
+         <DD>システムの制限を越えた。(オープン可能な描画環境の最大数を越えた)
+    <DT>EG_NOSPC
+         <DD>システムのメモリが不足した。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gini_env</FONT></TD></TR>
+<TR><TD align="right">Initialize Drawing Environment</TD></TR>
+<TR><TD>gini_env</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gini_env ( GID gid )
+
+<DT>【解説】
+<DD>
+    gid で指定した描画環境の各データを再初期化し、  gopn_dev()   または
+    gopn_mem() を行なった直後の状態と同じ状態にする。ただし、 ビットマップ
+    上に描画されているデータは変更されない。
+
+<DT>【リターン値】
+<DD>= 0 (E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>EG_GID      : 指定した描画環境IDが不正(存在しない)。
+
+
+</DL>
+
+<A name="gget_spc">
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_spc</FONT></TD></TR>
+<TR><TD align="right">Get Device Specification</TD></TR>
+<TR><TD>gget_spc</TD></TR>
+</TABLE></TD></TR></TABLE></A>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_spc ( TC *dev, DEVSPEC *buf )
+
+<DT>【解説】
+<DD>
+    dev で指定したデバイスの情報(仕様)を取り出し、buf で指定した領域に格納
+    する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+      <DT>EG_ADR
+        <DD>指定されたアドレス(dev, spec)のメモリのアクセスは許されていない。
+      <DT>EG_NOEXS
+        <DD>指定されたデバイス(dev)は登録されていない。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_dev</FONT></TD></TR>
+<TR><TD align="right">Get Device Name</TD></TR>
+<TR><TD>gget_dev</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_dev ( W gid, TC dev[11] )
+
+<DT>【解説】
+<DD>
+    gid で指定した描画環境の対象デバイス名を dev に指定した領域に格納する。
+    対象デバイスが存在しない場合(汎用メモリ描画環境)は空文字列が格納され
+    る。
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了<BR>
+              0=デバイス描画環境<BR>
+              1=メモリ描画環境<BR>
+              2=汎用メモリ描画環境<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD>指定されたアドレス(dev)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+        <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_dsp</FONT></TD></TR>
+<TR><TD align="right">Get Device Specification</TD></TR>
+<TR><TD>gget_dsp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_dsp ( W gid, DEVSPEC *buf )
+
+<DT>【解説】
+<DD>
+    gid で指定した描画環境の対象デバイス情報を buf  に指定した領域に格納す
+    る。対象デバイスが存在しない場合(汎用メモリ描画環境)は EG_DEV となる。
+
+<DT>【リターン値】
+<DD>≧０    : 正常終了(関数値は0=デバイス描画環境／1=メモリ描画環境)<BR>
+    &lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD>指定されたアドレス(buf)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_csp</FONT></TD></TR>
+<TR><TD align="right">Get Color Specification</TD></TR>
+<TR><TD>gget_csp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_csp ( W gid, CSPEC *buf )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境のカラー情報を buf に指定した領域に格納する。た
+    だし、colmap はカラーマップ方式であっても格納されず常に NULL  が設定さ
+    れる。カラーマップは別に gget_col() で取り出す必要がある。カラー情報が
+    存在しない場合は EG_DEV となる。
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値は0=デバイス描画環境／1=メモリ描画環境／2=汎用メモリ描画環境)<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+       <DD>指定されたアドレス(buf)のメモリのアクセスは許されていない。
+    <DT>EG_DEV
+        <DD>デバイスはカラー情報を持っていない。
+    <DT>EG_GID
+        <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_bcs</FONT></TD></TR>
+<TR><TD align="right">Set Bitmap Convert Color Specification</TD></TR>
+<TR><TD>gset_bcs</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_bcs ( GID gid, CSPEC *cspec )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境に対して、色変換用のCSPECを設定する。
+    CSPEC がカラーマップ形式の場合、CSPEC.colmap にもエントリ数分の
+    カラーマップが設定されていなければならない。</P>
+    <P>cspec = NULL とした場合、変換用CSPECを未定義にすることを意味する。
+    色変換用カラー情報は、カラー情報を持たない描画環境には設定できない。</P>
+
+<DT>【リターン値】
+<DD>0      : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+      <DT>EG_ADR
+          <DD>指定されたアドレス(cspec)のメモリのアクセスは許されていない。
+      <DT>EG_ENV
+          <DD>デバイスはカラー情報を持っていない。
+      <DT>EG_GID
+          <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_bcs</FONT></TD></TR>
+<TR><TD align="right">Get Bitmap Convert Color Specification</TD></TR>
+<TR><TD>gget_bcs</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_bcs ( GID gid, CSPEC *cspec )
+
+<DT>【解説】
+<DD>gid で指定した描画環境に対して、色変換用のCSPECを取り出す。<BR>
+    CSPEC.colmap = NULL でない場合、カラーマップが取り出される可能性があるため、
+    カラーマップを取り出すのに十分な領域が確保されていなければならない。<BR>
+    CSPEC.colmap = NULL の場合、描画環境に設定されている色変換用カラー情報が
+    カラーマップ形式であっても、カラーマップは取り出されない。
+
+<DT>【リターン値】
+<DD>0      : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(cspec)のメモリのアクセスは許されていない。
+     <DT>EG_ENV
+         <DD> デバイスはカラー情報を持っていない。または色変換用カラー情報は未定義である。
+     <DT>EG_GID
+         <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<H3><A name="adw">2.3.2 カラーマップの操作</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_col</FONT></TD></TR>
+<TR><TD align="right">Set Color Map Entries</TD></TR>
+<TR><TD>gset_col</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gset_col ( GID gid, UW p, COLOR *cv, UW cnt )
+
+<DT>【解説】
+<DD><P>gid  で指定した描画環境のカラーマップの p で指定したエントリから連続し
+    た cnt 個のエントリを cv で指定した値に設定し、 実際に設定したエントリ
+    の数を関数値として戻す。 cv は、COLOR の cnt 個の COLOR 配列へのポイン
+    タである。</P>
+    <P>カラーマップを持たないか、設定可能でないカラーマップを持つ描画環境の場合は EG_ENV のエラーとなる。</P>
+
+<DT>【リターン値】
+<DD>≧０        : 正常終了(関数値は実際に設定したエントリの数（０〜))<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD> 指定されたアドレス(cv)のメモリのアクセスは許されていない。
+    <DT>EG_ENV
+        <DD> カラーマップが存在しない。(カラーマップは存在しない)
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(p は範囲外)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_col</FONT></TD></TR>
+<TR><TD align="right">Get Color Map Entries</TD></TR>
+<TR><TD>gget_col</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gget_col ( GID gid, UW p, COLOR OUT *cv, UW cnt )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の対象デバイスのカラーマップの p  で指定したエン
+    トリから連続した  cnt 個のエントリに対応する COLORVAL 値を cv で指定し
+    た領域に取り出し、 実際に取り出したエントリの数を関数値として戻す。 cv
+    は cnt 個の COLOR 配列へのポインタであり、その配列は予め確保しておく必
+    要がある。
+<DD><P>カラーマップ形式でないカラー情報を持つ描画環境の場合、
+    pをピクセル値とみなし、ピクセル値に対応する絶対ＲＧＢカラーを
+    cv で指定した cnt 個の領域に取り出すことができる。</P>
+<DD><P>カラー情報を持たない描画環境の場合は EG_ENV のエラーとなる。</P>
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値は実際に取り出したエントリの数（０〜))<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(cv)のメモリのアクセスは許されていない。
+     <DT>EG_ENV
+         <DD> カラーマップが存在しない。(カラーマップは存在しない)
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+     <DT>EG_PAR
+         <DD> パラメータが不正、または範囲外である。(p は範囲外)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcnv_col</FONT></TD></TR>
+<TR><TD align="right">Convert Color to Pixel Value</TD></TR>
+<TR><TD>gcnv_col</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gcnv_col ( GID gid, COLOR cv, PIXVAL OUT *pixv )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境で cv で指定した絶対カラーにもっとも近いカラーの
+    ピクセル値を取り出し、pixv で指定した領域に格納する。cv の上位４ビット
+    の値は無視され、下位 28 ビットがRGB絶対カラー指定値と見なされる。</P>
+    <P>カラー情報を持たない描画環境の場合は EG_ENV のエラーとなる。</P>
+    <P>関数値として、カラーの近似度の目安を示す 0 〜 100 の範囲の値を戻す。0
+    の場合は完全に一致したカラーであり、100 は補色となる。この値はあくま
+    で目安であり、厳密な意味はもたない。</P>
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値はカラーの近似度(0 〜100))<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(pixv) のメモリのアクセスは許されていない。
+     <DT>EG_ENV
+         <DD> カラー情報が存在しない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<H3><A name="adx">2.3.3 描画環境レコードのアクセス</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_msk</FONT></TD></TR>
+<TR><TD align="right">Set Mask Pixel Value</TD></TR>
+<TR><TD>gset_msk</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_msk ( GID gid, PIXVAL pixv )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の「マスクピクセル値」を pixv で指定した値に変
+    更する。
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_NOSPT
+        <DD> 現在のインプリメントではサポートしていない、 もしくは予約されているパラメータ値である。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_msk</FONT></TD></TR>
+<TR><TD align="right">Get Mask Pixel Value</TD></TR>
+<TR><TD>gget_msk</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_msk ( GID gid, PIXVAL OUT *pixv )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境の「マスクピクセル値」を取り出し、pixv で指定
+    した領域に格納する。
+<DT>【リターン値】
+ <DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+     <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_NOSPT
+     <DD> 現在のインプリメントではサポートしていない、 もしくは予約されているパラメータ値である。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_clp</FONT></TD></TR>
+<TR><TD align="right">Get Clipping Region</TD></TR>
+<TR><TD>gget_clp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_clp ( GID gid, GRGN *clip, W csize, W *a_size )
+
+<DT>【解説】
+<DD><P>gid  で指定した描画環境の「クリッピング領域」を csize バイトの clip の
+    領域に設定する。</P>
+
+    <P>a_size が NULL でない場合、「クリッピング領域」 を設定するために必要な
+    メモリサイズが設定される。</P>
+
+    <P>「クリッピング領域」に必要なメモリサイズを獲得するためには、clip = NULL,
+    csize = 0 でこの関数を呼び出せばよい。</P>
+
+    <P>clip  が NULL または「クリッピング領域」を設定するために必要なサイズよ
+    りも少ない場合、clip の領域にはなにも設定されない。</P>
+
+    <P>関数値として、実際に設定したクリッピング領域のサイズを戻す。０の場合、
+    なにも設定されなかったことを示す。a_size = 0, 関数値 = 0 の場合、 クリ
+    ッピング領域が未定義であることを示す。<P>
+
+<DT>【リターン値】
+<DD>≧0        : 正常終了(関数値は実際に設定されたクリッピング領域データサイズ)<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD>指定されたアドレス(clip,a_size)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD>指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_clp</FONT></TD></TR>
+<TR><TD align="right">Set Clipping Region</TD></TR>
+<TR><TD>gset_clp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_clp ( GID gid, GRGN *clip )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境の「クリッピング領域」を clip で指定した任意領域
+    に変更する。</P>
+
+    <P>clip は任意領域へのポインタであり、NULL の場合は、「クリッピング領域」
+    を未定義(なし)にする。任意領域の内容はコピーされてディスプレイプリミティブ
+    内で使用される。</P>
+
+<DT>【リターン値】
+<DD>= 0 (E_OK)  : 正常終了<BR>
+    &lt; 0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+      <DD> 指定されたアドレス(clip) のメモリのアクセスは許されていない。
+      <DT>EG_GID
+      <DD> 指定した描画環境IDが不正(存在しない)。
+      <DT>EG_NOSPC
+      <DD> システムのメモリが不足した。
+      <DT>EG_PAR
+      <DD> パラメータが不正、または範囲外である。(clp の内容が不正)
+    </DL>
+</DL>
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_fra</FONT></TD></TR>
+<TR><TD align="right">Get Frame Rectangle</TD></TR>
+<TR><TD>gget_fra</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_fra ( GID gid, RECT *rp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の現在の「フレーム長方形」を rp で指定した領域に
+    取り出す。rp は長方形領域へのポインタであり、 その領域はあらかじめ確保
+    しておく必要がある。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_fra</FONT></TD></TR>
+<TR><TD align="right">Set Frame Rectangle</TD></TR>
+<TR><TD>gset_fra</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_fra ( GID gid, RECT r )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境の「フレーム長方形」を r で指定した長方形に変更
+    する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_vis</FONT></TD></TR>
+<TR><TD align="right">Get Visible Rectangle</TD></TR>
+<TR><TD>gget_vis</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_vis ( GID gid, RECT *rp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の現在の「表示長方形」を rp で指定した領域に取り
+    出す。rpは長方形領域へのポインタであり、その領域はあらかじめ確保してお
+    く必要がある。
+
+<DT>【リターン値】
+<DD>= 0 (E_OK)  : 正常終了<BR>
+    &lt; 0         : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_vis</FONT></TD></TR>
+<TR><TD align="right">Set Visible Rectangle</TD></TR>
+<TR><TD>gset_vis</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_vis ( GID gid, RECT r )
+
+<DT>【解説】
+<DD>
+    gid で指定した描画環境の「表示長方形」を r で指定した長方形に変更する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。
+    </DL>
+</DL>
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_for</FONT></TD></TR>
+<TR><TD align="right">Get Foreground Rectangle List</TD></TR>
+<TR><TD>gget_for</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_for ( GID gid, RLIST *rlp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の現在の「前置長方形リスト」を rlp  で指定した領
+    域に取り出す。rlp は前置長方形リストへのポインタであり、リストの各要素
+    の r_next は正しく設定されているものとする。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_for</FONT></TD></TR>
+<TR><TD align="right">Set Foreground Rectangle List</TD></TR>
+<TR><TD>gset_for</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_for ( GID gid, RLIST *rlp )
+
+<DT>【解説】
+<DD>
+    gid  で指定した描画環境の「前置長方形リスト」を rlp で指定した長方形リ
+    ストに変更する。rlp が NULL の場合、「前置長方形リスト」を空（未定義）
+    にする。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gsiz_pat</FONT></TD></TR>
+<TR><TD align="right">Get Pattern Image Size</TD></TR>
+<TR><TD>gsiz_pat</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gsiz_pat ( GID gid, UW kind, UW hsize, UW vsize, W *size )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境上での描画で使用する内部パターンイメージを格納す
+    るために必要なメモリ領域全体のバイトサイズを取り出し、size  で指定した
+    領域に格納する。</P>
+
+    <P>kind は使用するパターンのタイプであり、内部パターンであってはいけない。
+    hsize,  vsize は、使用するパターンの横サイズ、縦サイズのピクセル数の指
+    定である。</P>
+
+    <P>このサイズは、その描画環境用に生成される同一のパターンタイプ、同一のパ
+    ターンのサイズを持つ全ての内部パターンイメージに対して同一の値である。
+    即ち、得られたサイズ×Ｎ  のメモリ領域内にＮ個の任意のパターンを生成で
+    きることが保証される。</P>
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+     <DT>EG_NOSPT
+         <DD> 現在のインプリメントではサポートしていない、 もしくは予約されているパラメータ値である。
+     <DT>EG_PAR
+         <DD> パラメータが不正、 または範囲外である。(hsize,vsizeが大きすぎる)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcre_pat</FONT></TD></TR>
+<TR><TD align="right">Create Pattern Image</TD></TR>
+<TR><TD>gcre_pat</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gcre_pat ( GID gid, PAT *def, UB *loc, UB **pat, W *size、W cvt )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境上で描画するための内部パターンイメージを生成する。
+    def は生成する描画パターンの定義データへのポインタであり、パターンタイ
+    プは内部パターンであってはいけない。</P>
+
+    <P>loc は、生成した内部パターンイメージを格納する領域へのポインタであり、
+    少なくとも gsiz_pat() で得られた大きさがなくてはいけない。</P>
+
+    <P>loc = NULL の場合、パターンイメージ用の領域(ローカルメモリ)が
+    get_mbk() により自動的に確保される。
+    自動的に確保されたローカルメモリは rel_mbk() によって解放できる。</P>
+
+    <P>*pat  には、生成された内部パターンイメージへのポインタが戻され、そのバ
+    イト数が *size に戻される。得られたポインタを PAT 構造体の ipat.ptr に
+    設定することにより、パターンとして使用できることになる。
+    loc != NULL の場合には、*pat には loc の値が設定されることになる。</P>
+
+    <P>cvt には G_CVFORM および G_CVCOLOR の指定が可能で、この指定は変換前の
+    パターンがMPATである場合のみ意味を持つ。色変換用のCSPECが描画環境に
+    設定されていない場合には G_CVCOLOR 指定は無視される。MPATのビットマップの
+    有効ピクセルビット数が色変換用 CSPECの色指定と矛盾する
+    （カラーマップのエントリ数が足りないなど）場合、EG_ENVを戻す。</P>
+
+    <P>生成したパターンは、同一ビットマップ形式を持つ他の描画環境に対しても使
+    用することが可能であるが、描画環境のCSPECが異なる場合、
+    描画色に関しては保証されない。</P>
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD> 指定されたアドレス(size) のメモリのアクセスは許されていない。
+    <DT>EG_FORM
+        <DD> パターンで指定されたビットマップ形式が描画環境のビットマップ形式と異なる。
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_NOSPC
+        <DD> システムのメモリが不足した。
+    <DT>EG_NOSPT
+        <DD> 現在のインプリメントではサポートしていない、 もしくは予約されているパラメータ値である。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(def の内容が不正)
+     </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_lmk</FONT></TD></TR>
+<TR><TD align="right">Set Line Mask</TD></TR>
+<TR><TD>gset_lmk</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_lmk ( GID gid, UW nbytes, UB *mask )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境の「線マスクパターン」を mask で指定した内容に設
+    定する。</P>
+    <P>nbytes はマスクパターンのバイト数を示す１〜８の値であり、 パターンの周
+    期を意味する。mask は nbytesで指定したバイト数のバイト配列へのポインタ
+    である。</P>
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(mask) のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+     <DT>EG_PAR
+         <DD> パラメータが不正、または範囲外である。(nbytes＜1,＞8)
+    </DL>
+</DL>
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_lmk</FONT></TD></TR>
+<TR><TD align="right">Get Line Mask</TD></TR>
+<TR><TD>gget_lmk</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gget_lmk ( GID gid, UB *mask )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の「線マスクパターン」を取り出し、mask  で指定し
+    た領域に格納し、 関数値としてパターンのバイト数(１〜８)を戻す。mask は
+    ８バイトの領域が確保されている必要がある。
+
+<DT>【リターン値】
+<DD>≧ 0        : 正常終了(関数値は線マスクパターンバイト数(１〜８))<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(mask) のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_bmp</FONT></TD></TR>
+<TR><TD align="right">Get Bitmap</TD></TR>
+<TR><TD>gget_bmp</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_bmp ( GID gid, BMP *bmap )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の「対象ビットマップ」を bmap で指定した領域に取
+    り出す。 bmap はビットマップ領域へのポインタであり、その領域は予め確保
+    しておく必要がある。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_bnd</FONT></TD></TR>
+<TR><TD align="right">Get Bitmap Bounds</TD></TR>
+<TR><TD>gget_bnd</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_bnd ( GID gid, RECT *rp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の対象ビットマップの境界長方形(bounds)を rp で指
+    定した領域に取り出す。 rp は長方形領域へのポインタであり、その領域は予
+    め確保しておく必要がある。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_ADR
+         <DD> 指定されたアドレス(rp)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmov_bnd</FONT></TD></TR>
+<TR><TD align="right">Move Bitmap Bounds</TD></TR>
+<TR><TD>gmov_bnd</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gmov_bnd ( GID gid, W dh, W dv )
+
+<DT>【解説】
+<DD><P>gid で指定した描画環境のビットマップの境界長方形(bounds)を (dh, dv) だ
+    け並行移動する。dh は水平方向の移動量、dv は垂直方向の移動量を示す。</P>
+
+    <P>なお、クリッピング領域、文字描画位置等の相対座標は変更されない。</P>
+
+<A name="ady">
+<CENTER><IMG src="gif/bitmap_border.gif" alt="ビットマップ境界の移動"></CENTER>
+</A>
+<CENTER>図 34 : ビットマップ境界の移動</CENTER>
+
+
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(座標値がオーバーフローした)
+    </DL>
+</DL>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmov_cor</FONT></TD></TR>
+<TR><TD align="right">Move Coordination</TD></TR>
+<TR><TD>gmov_cor</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gmov_cor ( GID gid, W dh, W dv )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の座標系全体を(dh, dv)だけ並行移動する。即ち、ビ
+    ットマップ境界(bounds)、フレーム長方形、表示長方形、文字描画位置の全て
+    を(dh, dv)だけ平行移動する。dh は水平方向の移動量、dv は垂直方向の移動
+    量を示す。
+
+<A name="adz">
+<CENTER><IMG src="gif/cord_move.gif" alt="座標系の移動"></CENTER>
+</A>
+<CENTER>図 35 : 座標系の移動</CENTER>
+
+
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(座標値がオーバーフローした)
+    </DL>
+</DL>
+
+<H3><A name="aea">2.3.4 座標変換</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcnv_abs</FONT></TD></TR>
+<TR><TD align="right">Convert to Absolute Coordination</TD></TR>
+<TR><TD>gcnv_abs</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gcnv_abs ( GID gid, PNT *pp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の相対座標で示された点 pp の座標値を、絶対座標に
+    変換する。結果は pp に直接戻される。
+
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD> 指定されたアドレス(pp)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(座標値がオーバーフローした)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcnv_rel</FONT></TD></TR>
+<TR><TD align="right">Convert to Relative Coordination</TD></TR>
+<TR><TD>gcnv_rel</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gcnv_rel ( GID gid, PNT *pp )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の絶対座標で示された点 pp の座標値を、相対座標に
+    変換する。結果は pp に直接戻される。
+
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+    <DT>EG_ADR
+        <DD> 指定されたアドレス(pp)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+        <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+        <DD> パラメータが不正、または範囲外である。(座標値がオーバーフローした)
+    </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gloc_env</FONT></TD></TR>
+<TR><TD align="right">Lock Drawing Environment</TD></TR>
+<TR><TD>gloc_env</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gloc_env ( GID gid W lock )
+
+<DT>【解説】
+<DD><P>gid で指定した「デバイス描画環境」と、同一のデバイスに対する他の「デバ
+    イス描画環境」からの書込みアクセスをロック(lock≠ 0 の時)、またはロック
+    解除(lock = 0の時)する。</P>
+
+    <P>デバイスがロック対象外のデバイスの場合、またはメモリ描画環境の場合は、
+    ロックは適用されず無視される。</P>
+
+    <P>ロックされた描画環境での描画(書込み)を行なった場合は、ロックが解除され
+    るまで待たされる。待たされている描画が複数存在した場合、解除後の描画順
+    序は待たされた順番となる。待つことによりデッドロックとなるような場合は、
+    待たずに EG_LOCK のエラーが各種の描画関数で戻されることになる。ただし、
+    このデッドロックの検出はインプリメントに依存する。</P>
+
+<DT>【リターン値】
+<DD>= 0(E_OK)  : 正常終了<BR>
+    &lt; 0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+    <DL>
+     <DT>EG_GID
+         <DD> 指定した描画環境IDが不正(存在しない)。
+     <DT>EG_LOCK
+         <DD> 既にロックされている、またはロックが多すぎる。
+     <DT>EG_PAR
+         <DD> パラメータが不正、または範囲外である。(ロックしたПроцеси та потоки
+         でない)
+    </DL>
+</DL>
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="basic_concept.html">前頁:2.2 基本概念にもどる</A><BR>
+<A href="figure_func.html">次頁:2.4 図形描画関数にすすむ</A><BR>
+</BODY>
+</HTML>

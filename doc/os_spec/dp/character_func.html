@@ -1,0 +1,699 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  2.5 文字(列)描画関数
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="figure_func.html">
+<LINK REL="next" HREF="pointer_func.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="figure_func.html">前頁:2.4 図形描画関数にもどる</A><BR>
+<A href="pointer_func.html">次頁:2.6 ポインタ制御関数にすすむ</A><BR>
+<HR>
+
+<H2><A name="aes">2.5 文字(列)描画関数</A></H2>
+
+<H3><A name="aet">2.5.1 描画環境レコードアクセス</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_chp</FONT></TD></TR>
+<TR><TD align="right">Set Character Position</TD></TR>
+<TR><TD>文字描画位置の設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_chp ( GID gid, W x, W y, Bool abs )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置の値を abs, x, y  で指定した値に従って以下のように変更する。
+    <P></P>
+    <DL>
+     <DT>abs =0 (相対指定)
+         <DD>(現在の水平位置) + x を新しい水平位置、(現在の垂直位置) + y を新しい垂直位置とする。
+     <DT> abs !=0 (絶対指定)
+         <DD> x を新しい水平位置、y を、新しい垂直位置とする。
+    </DL>
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(座標値がオーバーフローした(abs＝0の時))
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chp</FONT></TD></TR>
+<TR><TD align="right">Get Character Position</TD></TR>
+<TR><TD>文字描画位置の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_chp ( GID gid, W *x, W *y )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置を取り出し、水平位置を x、垂直位置
+    を y で指定した領域に格納する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(x,y)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_chc</FONT></TD></TR>
+<TR><TD align="right">Set Character Color</TD></TR>
+<TR><TD>文字描画カラーの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_chc ( GID gid, COLOR fgc, COLOR bgc )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画の前景色を fgc で指定した値に、 背景色を bgc で指定した値に変更する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chc</FONT></TD></TR>
+<TR><TD align="right">Get Character Color</TD></TR>
+<TR><TD>文字描画カラーの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_chc ( GID gid, COLOR *fgc, COLOR *bgc )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境の文字描画の色を取り出し、前景色を fgc で指定し
+    た領域に、背景色を bgc で指定した領域に格納する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(fgc,bgc)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_chd</FONT></TD></TR>
+<TR><TD align="right">Set Character Direction</TD></TR>
+<TR><TD>文字描画方向／間隔の設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_chd ( GID gid, W dir, CGAP *gap )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画方向 を dir で指定した値に、文字間隔を *gap で指定した値にそれぞれ変更する。
+<P></P>
+dir&lt;0 の場合は、文字描画方向は変更しないことを意味し、gap＝NULL の場合は、文字間隔は変更しないことを意味する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(gap)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(dir,gapの内容が不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chd</FONT></TD></TR>
+<TR><TD align="right">Get Character Direction</TD></TR>
+<TR><TD>文字描画方向／間隔の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gget_chd ( GID gid, CGAP OUT *gap )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画方向を関数値として戻し、文字間隔を gapで指定した領域に領域に格納する。gap＝NULL の場合は、文字描画方向のみを関数値として取り出す。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了 (関数値は文字描画方向)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(gap)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_fon</FONT></TD></TR>
+<TR><TD align="right">Set Font</TD></TR>
+<TR><TD>文字Управління шрифтами (Font Manager)の指定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_fon ( GID gid, FSSPEC *fnt )
+
+<DT>【解説】
+<DD>gid で指定した描画環境のУправління шрифтами (Font Manager)指定を fnt  で指定したУправління шрифтами (Font Manager)に設定する。
+<P></P>
+fnt は FSSPEC 構造体へのポインタである。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(fnt)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_NOSPC
+    <DD> システムのメモリが不足した。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(文字サイズが不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_fon</FONT></TD></TR>
+<TR><TD align="right">Get Font</TD></TR>
+<TR><TD>文字Управління шрифтами (Font Manager)情報の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_fon ( GID gid, FSSPEC *fnt, FNTINFO *inf )
+
+<DT>【解説】
+<DD>gid で指定した描画環境のУправління шрифтами (Font Manager)指定、およびУправління шрифтами (Font Manager)情報を取り出し、そ
+    れぞれ、 fnt および inf で指定した領域に格納する。fnt＝NULL または inf
+    ＝NULL の場合は、対応する情報は格納されない。
+    <P></P>
+    *fnt には、gset_fon() で設定したデータそのものが格納され、*inf  にはフ
+    ォント情報が格納される。この情報は全てピクセル数で表わされ、指定した文
+    字サイズにスケーリングされた値である。即ち、inf-&gt;height は、fnt-&gt;size.
+    v に常に等しくなる。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(fnt,inf)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_scr</FONT></TD></TR>
+<TR><TD align="right">Set SCRIPT</TD></TR>
+<TR><TD>文字セット(SCRIPT)の指定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_scr ( GID gid, SCRIPT script)
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字セット(SCRIPT)を script に設定する。
+
+<P>script は言語指定コードを含まない文字コードのデフォルトの文字セットとして使用される。</P>
+
+描画環境の文字セットに関しては、本システムコールの他に、文字(列)描画によっても、自動的に変更される可能性がある。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_PAR
+    <DD> script の内容が不正。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_scr</FONT></TD></TR>
+<TR><TD align="right">Get SCRIPT</TD></TR>
+<TR><TD>文字セット(SCRIPT)の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gget_scr ( GID gid, SCRIPT *script)
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字セット(SCRIPT)を取り出し、*script に設定する。
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(script)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<H3><A name="aeu">2.5.2 文字(列)チェック関数</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chw</FONT></TD></TR>
+<TR><TD align="right">Get Character Width</TD></TR>
+<TR><TD>文字幅の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gget_chw ( GID gid, TC ch )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境で ch で指定した文字を描画した場合の、文字幅(ピクセル数)を関数値として戻す。
+<P></P>
+    ch が言語指定コードであった場合、常に0を戻す。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了 (関数値は文字幅)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chh</FONT></TD></TR>
+<TR><TD align="right">Get Character Height</TD></TR>
+<TR><TD>文字高さの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gget_chh ( GID gid, TC ch )
+
+<DT>【解説】
+<DD>gid で指定した描画環境で ch  で指定した文字を描画した場合の、 文字高さ(ピクセル数)を関数値として戻す。
+    <P></P>
+    ch が言語コードであった場合、常に0を戻す。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了(関数値は文字高さ)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_stw</FONT></TD></TR>
+<TR><TD align="right">Get String Width</TD></TR>
+<TR><TD>文字列幅の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gget_stw ( GID gid, TC *str, W len, CGAP *gap, W *pos )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境で  str で指定した文字列の先頭から len 文字数をgap で指定した文字間隔で描画した場合の、文字列幅(ピクセル数)を関数値として戻す。gap＝NULL の場合は、描画環境に設定されている文字間隔が適用される。
+
+<P>len には言語指定コードも含まれ、言語指定コード2バイトを1文字とみなす。</P>
+
+<P>文字列幅とは、指定した文字列を描画した場合の全ての文字枠を囲む最小の長方形の幅であり、設定されている水平文字間隔を含んだ値となる。</P>
+
+<P>str  で指定した文字列が len で指定した値より短い場合は、そこまでの文字列幅が戻される。
+</P>
+
+<P>pos は文字列中の各文字の描画位置の水平座標値を格納するための、len の大きさを持つ W 配列へのポインタである。先頭文字に対応する座標値は、 現在設定されている文字描画位置の水平座標値となる。pos＝NULL の場合は、各文字の描画位置は格納されない。
+</P>
+
+<P>文字列中に言語指定コードが含まれる場合、言語指定コードに対応した pos[N] にはその時点での文字描画位置が設定される。言語指定コードによる文字描画位置の更新は行われず、pos[N]、pos[N+1] の値は等しくなる。</P>
+
+<P>縦書きの場合は、この関数は単に文字幅を戻すことになり、pos にはすべて同一の値が設定されることになる。</P>
+
+この関数により文字描画位置、言語指定は変化しない。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了 (関数値は文字列幅)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(str,gap,pos)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(gapの内容が不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_sth</FONT></TD></TR>
+<TR><TD align="right">Get String Height</TD></TR>
+<TR><TD>文字列高さの取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gget_sth ( GID gid, TC *str, W len, CGAP *gap, W *pos )
+
+<DT>【解説】
+<DD>gid  で指定した描画環境で  str で指定した文字列の先頭から len 文字数をgap で指定した文字間隔で描画した場合の、文字列高さ(ピクセル数)を関数値として戻す。gap＝NULL の場合は、描画環境に設定されている文字間隔が適用される。
+
+<P>len には言語指定コードも含まれ、言語指定コード2バイトを1文字とみなす。</P>
+
+<P>文字列高さとは、指定した文字列を描画した場合の全ての文字枠を囲む最小の長方形の高さであり、設定されている垂直文字間隔を含んだ値となる。</P>
+
+<P>str  で指定した文字列が len で指定した値より短い場合は、そこまでの文字列高さが戻される。</P>
+
+<P>pos は文字列中の各文字の描画位置の垂直座標値を格納するための、len の大きさを持つ W 配列へのポインタである。先頭文字に対応する座標値は、 現在設定されている文字描画位置の垂直座標値となる。pos＝NULL の場合は、各文字の描画位置は格納されない。</P>
+
+<P>文字列中に言語指定コードが含まれる場合、言語指定コードに対応した pos[N] にはその時点での文字描画位置が設定される。言語指定コードによる文字描画位置の更新は行われず、pos[N]、pos[N+1] の値は等しくなる。</P>
+
+<P>横書きの場合は、この関数は単に文字高さを戻すことになり、pos にはすべて同一の値が設定されることになる。</P>
+
+この関数により文字描画位置、言語指定は変化しない。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了(関数値は文字列高さ)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(str,gap,pos)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(gapの内容が不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_str</FONT></TD></TR>
+<TR><TD align="right">Get String Rectangle</TD></TR>
+<TR><TD>文字列描画領域の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>WERR gget_str ( GID gid, TC *str, W len, CGAP *gap, PNT *chp, RECT *cr, RECT *dr, W *alen)
+
+<DT>【解説】
+<DD>gid で指定した描画環境で str で指定した文字列の先頭から len 文字数を gap で指定した文字間隔で描画した場合の文字描画位置、文字描画領域の情報を引数で指定した領域に設定する。gap＝NULL の場合は、描画環境に設定されている文字間隔が適用される。
+
+<P>len には言語指定コードも含まれ、言語指定コード2バイトを1文字とみなす。</P>
+
+<P>*dr が NULL でない場合、対象描画環境の相対座標系で表現される、文字列描画領域が設定される。</P>
+
+<P>文字描画領域とは、指定した文字列を描画した場合の全ての文字枠、文字枠を超えたカーニング、斜体描画を含む最小の矩形であり、設定されている文字間隔を含んだ値となる。</P>
+
+<P>str で指定した文字列が len で指定した値より短い場合は、そこまでの文字列幅が戻される。</P>
+
+<P>str で指定した文字列中に言語指定コードがあった場合、Управління шрифтами (Font Manager)を切り替えも考慮した描画領域情報の取得が可能である。</P>
+
+<P>alen が NULL でない場合、処理した要素(文字)数(TCの個数)が設定される。通常はlenと同じ値が設定されるが、実際の文字列要素がlenよりも少なかった場合や、言語指定コードの途中でlenの要素数に達した場合、正常に処理できた部分の要素数が設定される。 alen が len を超える値になることはない。(不完全な言語指定コード列があっても、エラーにはしない。)</P>
+
+<P>chp は文字列中の各文字の描画位置を格納するための、len の要素数を持つ PNT 配列へのポインタである。chp＝NULL の場合は、各文字の描画位置は格納されない。言語指定コードに対応したPNT配列の要素に関しては,その時点での文字描画位置が設定される。</P>
+
+<P>cr は文字列中の各文字の描画領域を格納するための、len の要素数を持つ RECT 配列へのポインタである。cr＝NULL の場合は、各文字の描画領域は格納されない。言語指定コードに対応したRECTに関しては,その時点での文字描画位置を(Px,Py)として、{Px,Py,Px,Py}が設定される。(RECT としては空ということになる。)</P>
+
+この関数により描画環境の文字描画位置、文字セット(SCRIPT)は変化しない。関数値として、エラーコードまたは、描画終了時点でのSCRIPTを戻す。ただし、SCRIPTに変化がない場合には0を戻す。
+
+<DT>【リターン値】
+<DD>=0    : 正常終了(描画による言語切り替えは発生しない)<BR>
+&gt;0    : 正常終了(関数値は描画した場合に更新されるSCRIPT)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(str, gap, cr, dr, alen)のメモリのアクセス
+        は許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(gap,lenの内容が不正)
+  </DL>
+</DL>
+
+<H3><A name="aev">2.5.3 文字(列)の描画関数</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdra_chr</FONT></TD></TR>
+<TR><TD align="right">Draw Character</TD></TR>
+<TR><TD>文字の描画</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gdra_chr ( GID gid, TC ch, DCM mode )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置に ch で指定した文字を mode で指定した描画モードで描画する。描画後、文字描画位置は文字描画方向／文字間隔に従って更新される。ch が言語指定コードであった場合、言語指定が更新される。
+<P></P>
+言語切り替えが発生した場合、切り替わった言語指定に対応したSCRIPTを戻す。
+
+<DT>【リターン値】
+<DD>=0        ：正常終了。言語切り替えは発生しなかった。<BR>
+&gt;0        ：正常終了。言語切り替えが発生した。<BR>
+&lt;0        ：エラー  (関数値はエラーコード)
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+   <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(modeが不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdra_chp</FONT></TD></TR>
+<TR><TD align="right">Draw Character at Position</TD></TR>
+<TR><TD>文字の描画(位置指定)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>WERR gdra_chp ( GID gid, W x, W y, TC ch, DCM mode )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置を(x,y)に変更した後、ch で指定した文字を mode で指定した描画モードで描画する。描画後、文字描画位置は文字描画方向／文字間隔に従って更新される。ch が言語指定コードであった場合、言語指定が更新される。
+<P></P>
+言語切り替えが発生した場合、切り替わった言語指定に対応したSCRIPTを戻す。
+
+<DT>【リターン値】
+<DD>=0        ：正常終了。言語切り替えは発生しなかった。<BR>
+    &gt;0        ：正常終了。言語切り替えが発生した。<BR>
+    &lt;0        ：エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(modeが不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdra_str</FONT></TD></TR>
+<TR><TD align="right">Draw String</TD></TR>
+<TR><TD>文字列の描画</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD> WERR gdra_str ( GID gid, TC *str, W len, DCM mode )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置に、str で指定した文字列の先頭からlen 文字を mode で指定した描画モードで描画する。描画後、文字描画位置は文字描画方向／文字間隔に従って更新される。ch が言語指定コードであった場合、言語指定が更新される。
+<P>言語切り替えが発生した場合、切り替わった言語指定に対応したSCRIPTを戻す。</P>
+
+str  で指定した文字列が len で指定した値より短い場合は、そこまでの文字列が描画される。
+
+<DT>【リターン値】
+<DD> =0        ：正常終了。言語切り替えは発生しなかった。<BR>
+	&gt;0        ：正常終了。言語切り替えが発生した。<BR>
+	&lt;0        ：エラー  (関数値はエラーコード)
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(str)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(modeが不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdra_stp</FONT></TD></TR>
+<TR><TD align="right">Draw String at Position</TD></TR>
+<TR><TD>文字列の描画(位置指定)</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>WERR gdra_stp ( GID gid, W x, W y, TC *str, W len, DCM mode )
+
+<DT>【解説】
+<DD>gid で指定した描画環境の文字描画位置を(x,y)に変更した後、str で指定した文字列の先頭からlen 文字を mode で指定した描画モードで描画する。描画後、文字描画位置は文字描画方向／文字間隔に従って更新される。ch が言語指定コードであった場合、言語指定が更新される。
+<P>言語切り替えが発生した場合、切り替わった言語指定に対応したSCRIPTを戻す。</P>
+
+str  で指定した文字列が len で指定した値より短い場合は、そこまでの文字列が描画される。
+
+<DT>【リターン値】
+<DD>=0        ：正常終了。言語切り替えは発生しなかった。<BR>
+    &gt;0        ：正常終了。言語切り替えが発生した。<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(str)のメモリのアクセスは許されていない。
+    <DT>EG_GID
+    <DD> 指定した描画環境IDが不正(存在しない)。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(modeが不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcop_chr</FONT></TD></TR>
+<TR><TD align="right">Copy Character Image</TD></TR>
+<TR><TD>文字イメージの描画</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gcop_chr ( GID gid, SIZE asize, SIZE isize, UB *img, DCM mode )
+
+<DT>【解説】
+<DD>gid で指定した描画環境で、img で指定した文字イメージを現在の文字描画位
+    置に mode で指定した描画モード、設定されている文字描画カラーで描画する。
+    描画後、文字描画位置は文字描画方向／文字間隔に従って更新される。
+
+    <P>文字描画位置が文字イメージ矩形のどの位置に対応するかは、通常の文字描画
+    と同様に文字描画方向に依存する。</P>
+
+    <P>描画すべき文字イメージは以下に示すビットマップデータとして取り扱われ
+    る。この文字イメージは isize で示される大きさを持ち、asize  で示される
+    大きさに拡大／縮小が行なわれて描画される。</P>
+
+  <PRE>
+    planes    1
+    rowbytes ((isize.h +15) ÷ 16)×2  (偶数)
+    bounds   (0, 0, isize.h, isize.v)
+    baseaddr img
+  </PRE>
+   <P>ベース位置に関しては、描画時点でのУправління шрифтами (Font Manager)情報の文字高さとベース位置の比率をもとに、asize.v から決定される。</P>
+<PRE>
+Base = asize.v * FNTINFO.base / FNTINFO.height
+</PRE>
+
+<A name="aew">
+<CENTER><IMG src="gif/char_image.gif" alt="文字イメージの描画"></CENTER>
+<CENTER>図 42 : 文字イメージの描画</CENTER>
+</A>
+
+<DT>【リターン値】
+<DD>=0(E_OK)  : 正常終了<BR>
+    &lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+    <DL>
+     <DT>EG_ADR
+     <DD> 指定されたアドレス(img)のメモリのアクセスは許されていない。
+     <DT>EG_GID
+     <DD> 指定した描画環境IDが不正(存在しない)。
+     <DT>EG_PAR
+     <DD> パラメータが不正、または範囲外である。(isize,asizeの内容,mode が不正)
+    </DL>
+</DL>
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="figure_func.html">前頁:2.4 図形描画関数にもどる</A><BR>
+<A href="pointer_func.html">次頁:2.6 ポインタ制御関数にすすむ</A><BR>
+</BODY>
+</HTML>

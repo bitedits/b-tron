@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  第2編 OS 仕様 Зміст
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="next" HREF="indexfig.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">全Змістにもどる</A><BR>
+<A href="indexfig.html">次頁:図版Змістにすすむ</A><BR>
+<HR>
+<H1>第2編 OS 仕様 Зміст</H1>
+<HR>
+<DL>
+ <DT><a href="kernel/kernel.html#aaa">第1章 周辺核</A>
+ <DD><DL>
+      <DT><a href="kernel/proc.html#aab">1.1 Процеси та потоки / タスク管理</A>
+      <DD><a href="kernel/proc.html#aac">1.1.1 Процеси та потоки / タスク</A><BR>
+          <a href="kernel/proc.html#aae">1.1.2 Процеси та потоки / タスクの状態</A><BR>
+          <a href="kernel/proc.html#aah">1.1.3 Процеси та потоки / タスクの優先度とスケジューリング</A><BR>
+          <a href="kernel/proc.html#aai">1.1.4 Процеси та потокиの実行環境</A><BR>
+          <a href="kernel/proc.html#aaj">1.1.5 ユーザ情報</A><BR>
+          <a href="kernel/proc.html#aak">1.1.6 Процеси та потокиの生成</A><BR>
+          <a href="kernel/proc.html#aam">1.1.7 Процеси та потоки / タスクの実行</A><BR>
+          <a href="kernel/proc.html#aan">1.1.8 データ / 定数の定義</A><BR>
+          <a href="kernel/proc.html#aao">1.1.9 システムコール</A>
+      <DT><a href="kernel/message.html#aap">1.2 Повідомлення管理</A>
+      <DD><a href="kernel/message.html#aaq">1.2.1 Процеси та потоки間Повідомлення</A><BR>
+          <a href="kernel/message.html#aar">1.2.2 Повідомленняの種類</A><BR>
+          <a href="kernel/message.html#aas">1.2.3 Повідомленняハンドラ</A><BR>
+          <a href="kernel/message.html#aat">1.2.4 データ／定数の定義</A><BR>
+          <a href="kernel/message.html#aau">1.2.5 システムコール</A>
+      <DT><a href="kernel/taskcomm.html#aav">1.3 Процеси та потоки/タスク間同期通信管理</A>
+      <DD><a href="kernel/taskcomm.html#aaw">1.3.1 データ/定数の定義</A><BR>
+          <a href="kernel/taskcomm.html#aax">1.3.2 システムコール</A>
+      <DT><a href="kernel/gname.html#aay">1.4 グローバル名管理</A>
+      <DD><a href="kernel/gname.html#aaz">1.4.1 グローバル名データ</A><BR>
+          <a href="kernel/gname.html#abb">1.4.2 データ / 定数の定義</A><BR>
+          <a href="kernel/gname.html#abc">1.4.3 システムコール</A>
+      <DT><a href="kernel/memory.html#abd">1.5 Управління пам'яттю</A>
+      <DD><a href="kernel/memory.html#abe">1.5.1 Управління пам'яттю機能の概要</A><BR>
+          <a href="kernel/memory.html#abf">1.5.2 データ／定数の定義</A><BR>
+          <a href="kernel/memory.html#abg">1.5.3 システムコール</A><BR>
+          <a href="kernel/memory.html#abh">1.5.4 ライブラリ</A>
+      <DT><a href="kernel/file.html#abi">1.6 ファイル管理</A>
+      <DD><a href="kernel/file.html#abj">1.6.1 ファイル管理機能の概要</A><BR>
+          <a href="kernel/file.html#abl">1.6.2 Файлова система構成</A><BR>
+          <a href="kernel/file.html#abq">1.6.3 ファイルの構成</A><BR>
+          <a href="kernel/file.html#abs">1.6.4 ファイルのアクセス管理</A><BR>
+          <a href="kernel/file.html#abt">1.6.5 ファイルの操作</A><BR>
+          <a href="kernel/file.html#abv">1.6.6 ファイルの詳細情報</A><BR>
+          <a href="kernel/file.html#abw">1.6.7 データ／定数の定義</A><BR>
+          <a href="kernel/file.html#abx">1.6.8 システムコール</A>
+      <DT><a href="kernel/event.html#aby">1.7 イベント管理</A>
+      <DD><a href="kernel/event.html#abz">1.7.1 イベント管理機能の概要</A><BR>
+          <a href="kernel/event.html#aca">1.7.2 イベント</A><BR>
+          <a href="kernel/event.html#acb">1.7.3 キーボード</A><BR>
+          <a href="kernel/event.html#acd">1.7.4 ポインティングデバイス</A><BR>
+          <a href="kernel/event.html#ace">1.7.5 データ/定数の定義</A><BR>
+          <a href="kernel/event.html#acf">1.7.6 システムコール</A>
+      <DT><a href="kernel/device.html#acg">1.8 デバイス管理</A>
+      <DD><a href="kernel/device.html#ach">1.8.1 デバイス管理機能の概要</A><BR>
+          <a href="kernel/device.html#acj">1.8.2 デバイス</A><BR>
+          <a href="kernel/device.html#acm">1.8.3 データ / 定数の定義</A><BR>
+          <a href="kernel/device.html#acn">1.8.4 システムコール</A>
+      <DT><a href="kernel/clk.html#aco">1.9 時計管理</A>
+      <DD><a href="kernel/clk.html#acp">1.9.1 時計管理機能の概要</A><BR>
+          <a href="kernel/clk.html#acq">1.9.2 データ／定数の定義</A><BR>
+          <a href="kernel/clk.html#acr">1.9.3 システムコール</A>
+      <DT><a href="kernel/system.html#acs">1.10 Системне управління機能</A>
+      <DD><a href="kernel/system.html#act">1.10.1 データ / 定数の定義</A><BR>
+          <a href="kernel/system.html#acu">1.10.2 システムコール</A>
+     </DL>
+ <DT><a href="dp/dp.html#acv">第2章 ディスプレイプリミティブ</A>
+ <DD><DL>
+      <DT><a href="dp/intro.html#acw">2.1 はじめに</A>
+      <DD><a href="dp/intro.html#acx">2.1.1 ディスプレイプリミティブの概要</A>
+      <DT><a href="dp/basic_concept.html#acy">2.2 基本概念</A>
+      <DD><a href="dp/basic_concept.html#acz">2.2.1 座標平面／点／長方形</A><BR>
+          <a href="dp/basic_concept.html#ada">2.2.2 ビットマップ</A><BR>
+          <a href="dp/basic_concept.html#adh">2.2.3 カラー表現</A><BR>
+          <a href="dp/basic_concept.html#adj">2.2.4 描画環境</A>
+      <DT><a href="dp/basic_func.html#adu">2.3 基本関数</A>
+      <DD><a href="dp/basic_func.html#adv">2.3.1 描画環境の生成／削除</A><BR>
+          <a href="dp/basic_func.html#adw">2.3.2 カラーマップの操作</A><BR>
+          <a href="dp/basic_func.html#adx">2.3.3 描画環境レコードのアクセス</A><BR>
+          <a href="dp/basic_func.html#aea">2.3.4 座標変換</A>
+      <DT><a href="dp/figure_func.html#aeb">2.4 図形描画関数</A>
+      <DD><a href="dp/figure_func.html#aec">2.4.1 直線／点の描画</A><BR>
+          <a href="dp/figure_func.html#aee">2.4.2 長方形の描画</A><BR>
+          <a href="dp/figure_func.html#aeg">2.4.3 角丸長方形の描画</A><BR>
+          <a href="dp/figure_func.html#aeh">2.4.4 楕円(円)の描画</A><BR>
+          <a href="dp/figure_func.html#aej">2.4.5 弧／扇形／弓形の描画</A><BR>
+          <a href="dp/figure_func.html#aek">2.4.6 多角形(直線列)の描画</A><BR>
+          <a href="dp/figure_func.html#aem">2.4.7 任意図形の描画</A><BR>
+          <a href="dp/figure_func.html#aen">2.4.8 曲線の描画</A><BR>
+          <a href="dp/figure_func.html#aeo">2.4.9 ビットマップの操作</A><BR>
+          <a href="dp/figure_func.html#aer">2.4.10 ピッキング処理</A>
+      <DT><a href="dp/character_func.html#aes">2.5 文字(列)描画関数</A>
+      <DD><a href="dp/character_func.html#aet">2.5.1 描画環境レコードアクセス</A><BR>
+          <a href="dp/character_func.html#aeu">2.5.2 文字(列)チェック関数</A><BR>
+          <a href="dp/character_func.html#aev">2.5.3 文字(列)の描画関数</A>
+      <DT><a href="dp/pointer_func.html#aex">2.6 ポインタ制御関数</A>
+      <DD><a href="dp/pointer_func.html#aey">2.6.1 ポインタ</A><BR>
+          <a href="dp/pointer_func.html#aez">2.6.2 ポインタの状態／形状</A><BR>
+          <a href="dp/pointer_func.html#afb">2.6.3 ポインタの制御関数</A>
+      <DT><a href="dp/pointer_func.html#afc">標準ポインタ形状(参考)</A>
+     </DL>
+ <DT><a href="shell/shell.html#afe">第3章 外殻</A>
+ <DD><DL>
+      <DT><a href="shell/window.html#aff">3.1 Віконна система (Windowing System)マネージャ</A>
+      <DD><a href="shell/window.html#afg">3.1.1 Віконна система (Windowing System)マネージャの機能</A><BR>
+          <a href="shell/window.html#afh">3.1.1.1 概要</A><BR>
+          <a href="shell/window.html#afi">3.1.1.2 Віконна система (Windowing System)</A><BR>
+          <a href="shell/window.html#afl">3.1.1.3 Віконна система (Windowing System)の表示</A><BR>
+          <a href="shell/window.html#afu">3.1.1.4 Віконна система (Windowing System)の操作</A><BR>
+          <a href="shell/window.html#afv">3.1.2 Віконна система (Windowing System)の管理</A><BR>
+          <a href="shell/window.html#afw">3.1.2.1 Віконна система (Windowing System)とПроцеси та потоки</A><BR>
+          <a href="shell/window.html#afy">3.1.2.2 Віконна система (Windowing System)イベント</A><BR>
+          <a href="shell/window.html#age">3.1.2.3 Віконна система (Windowing System)の再表示処理</A><BR>
+          <a href="shell/window.html#agg">3.1.2.4 Віконна система (Windowing System)の表示管理</A><BR>
+          <a href="shell/window.html#agi">3.1.2.5 Віконна система (Windowing System)の描画環境</A><BR>
+          <a href="shell/window.html#agk">3.1.2.6 Віконна система (Windowing System)情報レコード</A><BR>
+          <a href="shell/window.html#agl">3.1.3 データ/定数の定義</A><BR>
+          <a href="shell/window.html#agm">3.1.4 Віконна система (Windowing System)マネージャの関数</A>
+      <DT><a href="shell/menu.html#agq">3.2 Меню та командні інтерфейсиマネージャ</A>
+      <DD><a href="shell/menu.html#agr">3.2.1 Меню та командні інтерфейсиマネージャの機能</A><BR>
+          <a href="shell/menu.html#ags">3.2.1.1 概要</A><BR>
+          <a href="shell/menu.html#agt">3.2.1.2 標準Меню та командні інтерфейси</A><BR>
+          <a href="shell/menu.html#agv">3.2.1.3 標準Меню та командні інтерфейсиの操作</A><BR>
+          <a href="shell/menu.html#agw">3.2.1.4 標準Меню та командні інтерфейсиのデータ構造</A><BR>
+          <a href="shell/menu.html#ahc">3.2.1.5 汎用Меню та командні інтерфейси</A><BR>
+          <a href="shell/menu.html#ahe">3.2.1.6 汎用Меню та командні інтерфейсиの操作</A><BR>
+          <a href="shell/menu.html#ahf">3.2.1.7 汎用Меню та командні інтерфейсиのデータ構造</A><BR>
+          <a href="shell/menu.html#ahj">3.2.2 データ／定数の定義</A><BR>
+          <a href="shell/menu.html#ahk">3.2.3 Меню та командні інтерфейсиマネージャの関数</A>
+      <DT><a href="shell/parts.html#ahn">3.3 Компоненти графічного інтерфейсуマネージャ</A>
+      <DD><a href="shell/parts.html#aho">3.3.1 Компоненти графічного інтерфейсуマネージャの機能</A><BR>
+          <a href="shell/parts.html#ahp">3.3.1.1 概要</A><BR>
+          <a href="shell/parts.html#ahq">3.3.1.2 Компоненти графічного інтерфейсуの種類</A><BR>
+          <a href="shell/parts.html#ahr">3.3.1.3 Компоненти графічного інтерфейсуのデータ構造</A><BR>
+          <a href="shell/parts.html#ahu">3.3.1.4 Компоненти графічного інтерфейсуの状態</A><BR>
+          <a href="shell/parts.html#ahv">3.3.2 Компоненти графічного інтерфейсуの種類</A><BR>
+          <a href="shell/parts.html#ahw">3.3.2.1 テキストボックス</A><BR>
+          <a href="shell/parts.html#ahy">3.3.2.2 シークレットテキストボックス</A><BR>
+          <a href="shell/parts.html#aia">3.3.2.3 数値ボックス</A><BR>
+          <a href="shell/parts.html#aid">3.3.2.4 シリアルボックス</A><BR>
+          <a href="shell/parts.html#aif">3.3.2.5 テキストオルタネートスイッチ</A><BR>
+          <a href="shell/parts.html#aii">3.3.2.6 テキストモーメンタリスイッチ</A><BR>
+          <a href="shell/parts.html#aij">3.3.2.7 ピクトグラムオルタネートスイッチ</A><BR>
+          <a href="shell/parts.html#ail">3.3.2.8 ピクトグラムモーメンタリスイッチ</A><BR>
+          <a href="shell/parts.html#ain">3.3.2.9 スイッチセレクタ</A><BR>
+          <a href="shell/parts.html#aip">3.3.2.10 スクロールセレクタ</A><BR>
+          <a href="shell/parts.html#air">3.3.2.11 ボリューム</A><BR>
+          <a href="shell/parts.html#aiv">3.3.3 データ／定数の定義</A><BR>
+          <a href="shell/parts.html#aiw">3.3.4 Компоненти графічного інтерфейсуマネージャの関数</A>
+      <DT><a href="shell/panel.html#aix">3.4 Системні панелі (Panels)マネージャ</A>
+      <DD><a href="shell/panel.html#aiy">3.4.1 Системні панелі (Panels)マネージャの機能</A><BR>
+          <a href="shell/panel.html#aiz">3.4.1.1 概要</A><BR>
+          <a href="shell/panel.html#aja">3.4.1.2 Системні панелі (Panels)</A><BR>
+          <a href="shell/panel.html#ajb">3.4.1.3 システムПовідомленняСистемні панелі (Panels)</A><BR>
+          <a href="shell/panel.html#ajd">3.4.1.4 Системні панелі (Panels)の表示形状</A><BR>
+          <a href="shell/panel.html#ajg">3.4.1.5 Системні панелі (Panels)のデータ構造</A><BR>
+          <a href="shell/panel.html#ajj">3.4.1.6 Системні панелі (Panels)の描画環境</A><BR>
+          <a href="shell/panel.html#ajl">3.4.1.7 Системні панелі (Panels)の動作</A><BR>
+          <a href="shell/panel.html#ajm">3.4.2 データ／定数の定義</A><BR>
+          <a href="shell/panel.html#ajn">3.4.3 Системні панелі (Panels)マネージャの関数</A>
+      <DT><a href="shell/tray.html#ajo">3.5 トレーマネージャ</A>
+      <DD><a href="shell/tray.html#ajp">3.5.1 トレーマネージャの機能</A><BR>
+          <a href="shell/tray.html#ajq">3.5.1.1 概要</A><BR>
+          <a href="shell/tray.html#ajr">3.5.1.2 トレー</A><BR>
+          <a href="shell/tray.html#ajt">3.5.1.3 トレーの格納データ</A><BR>
+          <a href="shell/tray.html#ajz">3.5.1.4 トレーの操作</A><BR>
+          <a href="shell/tray.html#aka">3.5.2 データ／定数の定義</A><BR>
+          <a href="shell/tray.html#akb">3.5.3 トレーマネージャの関数</A>
+      <DT><a href="shell/data.html#akc">3.6 データマネージャ</A>
+      <DD><a href="shell/data.html#akd">3.6.1 データマネージャの機能</A><BR>
+          <a href="shell/data.html#ake">3.6.1.1 概要</A><BR>
+          <a href="shell/data.html#akf">3.6.1.2 データタイプID／データ番号</A><BR>
+          <a href="shell/data.html#akg">3.6.1.3 データマネージャの動作</A><BR>
+          <a href="shell/data.html#akh">3.6.1.4 データボックスの構造</A><BR>
+          <a href="shell/data.html#akj">3.6.2 データ／定数の定義</A><BR>
+          <a href="shell/data.html#akk">3.6.2.1 データ／定数の定義</A><BR>
+          <a href="shell/data.html#akl">3.6.2.2 標準データ形式</A><BR>
+          <a href="shell/data.html#ako">3.6.3 データマネージャの関数</A>
+      <DT><a href="shell/tip.html#akp">3.7 テキスト入力プリミティブ</A>
+      <DD><a href="shell/tip.html#akq">3.7.1 テキスト入力プリミティブの機能</A><BR>
+          <a href="shell/tip.html#akr">3.7.1.1 概要</A><BR>
+          <a href="shell/tip.html#aks">3.7.1.2 テキスト入力プリミティブ</A><BR>
+          <a href="shell/tip.html#aku">3.7.1.3 テキスト入力ポート</A><BR>
+          <a href="shell/tip.html#akw">3.7.1.4 カレット表示</A><BR>
+          <a href="shell/tip.html#aky">3.7.2 データタイプ/定数の定義</A><BR>
+          <a href="shell/tip.html#akz">3.7.3 テキスト入力プリミティブの関数</A>
+      <DT><a href="shell/omgr.html#ala">3.8 実身／仮身マネージャ</A>
+      <DD><a href="shell/omgr.html#alb">3.8.1 実身／仮身マネージャの機能</A><BR>
+          <a href="shell/omgr.html#alc">3.8.1.1 概要</A><BR>
+          <a href="shell/omgr.html#ald">3.8.1.2 仮身／実身／虚身</A><BR>
+          <a href="shell/omgr.html#alf">3.8.1.3 仮身の表示</A><BR>
+          <a href="shell/omgr.html#alm">3.8.1.4 仮身の操作</A><BR>
+          <a href="shell/omgr.html#aln">3.8.2 仮身の移動／複写</A><BR>
+          <a href="shell/omgr.html#alp">3.8.2.1 付箋</A><BR>
+          <a href="shell/omgr.html#alr">3.8.3 実身／仮身マネージャの詳細</A><BR>
+          <a href="shell/omgr.html#als">3.8.3.1 仮身</A><BR>
+          <a href="shell/omgr.html#alv">3.8.3.2 付箋</A><BR>
+          <a href="shell/omgr.html#alw">3.8.3.3 アプリケーションプログラム管理</A><BR>
+          <a href="shell/omgr.html#alx">3.8.3.4 アプリケーションプログラムの起動</A><BR>
+          <a href="shell/omgr.html#aly">3.8.3.5 Меню та командні інтерфейси管理</A><BR>
+          <a href="shell/omgr.html#alz">3.8.4 データ／定数の定義</A><BR>
+          <a href="shell/omgr.html#ama">3.8.5 実身／仮身マネージャの関数</A><BR>
+          <a href="shell/omgr.html#amb">3.8.6 アプリケーション支援関数</A>
+      <DT><a href="shell/font_mgr.html#amc">3.9 Управління шрифтами (Font Manager)マネージャ</A>
+      <DD><a href="shell/font_mgr.html#amd">3.9.1 Управління шрифтами (Font Manager)マネージャの機能</A><BR>
+          <a href="shell/font_mgr.html#ame">3.9.1.1 概要</A><BR>
+          <a href="shell/font_mgr.html#amg">3.9.1.2 Управління шрифтами (Font Manager)</A><BR>
+          <a href="shell/font_mgr.html#amj">3.9.1.3 Управління шрифтами (Font Manager)データ</A><BR>
+          <a href="shell/font_mgr.html#aml">3.9.1.4 Управління шрифтами (Font Manager)のアクセス</A><BR>
+          <a href="shell/font_mgr.html#amt">3.9.2 データ／定数の定義</A><BR>
+          <a href="shell/font_mgr.html#amu">3.9.3 Управління шрифтами (Font Manager)マネージャの関数</A><BR>
+          <a href="shell/font_mgr.html#amv">3.9.4 標準Управління шрифтами (Font Manager)データ形式</A>
+      <DT><a href="shell/tcpip.html#anc">3.10 TCP/IPマネージャ</A>
+      <DD><a href="shell/tcpip.html#and">3.10.1 構成</A><BR>
+          <a href="shell/tcpip.html#anh">3.10.2 TCP/IP</A><BR>
+          <a href="shell/tcpip.html#ani">3.10.3 エラーコード</A><BR>
+          <a href="shell/tcpip.html#anj">3.10.4 システムコール</A><BR>
+      <DT><a href="shell/printmgr.html#ann">3.11 印刷マネージャ</A>
+      <DD><a href="shell/printmgr.html#ano">3.11.1 印刷マネージャの機能</A><BR>
+          <a href="shell/printmgr.html#anq">3.11.2 印刷管理</A><BR>
+          <a href="shell/printmgr.html#anr">3.11.2.1 レイアウト用紙と印刷用紙</A><BR>
+          <a href="shell/printmgr.html#ant">3.11.2.2 印刷管理の機能</A><BR>
+          <a href="shell/printmgr.html#anu">3.11.2.3 印刷パラメータ</A><BR>
+          <a href="shell/printmgr.html#anv">3.11.3 スプール管理</A><BR>
+          <a href="shell/printmgr.html#anw">3.11.3.1 スプール管理の機能</A><BR>
+          <a href="shell/printmgr.html#anx">3.11.3.2 印刷登録状態</A><BR>
+          <a href="shell/printmgr.html#any">3.11.3.3 印刷終了Повідомлення</A><BR>
+          <a href="shell/printmgr.html#anz">3.11.4 プリンタ管理</A><BR>
+          <a href="shell/printmgr.html#aoa">3.11.4.1 プリンタ管理の機能</A><BR>
+          <a href="shell/printmgr.html#aob">3.11.4.2 プリンタ構成情報</A><BR>
+          <a href="shell/printmgr.html#aoc">3.11.5 データ／定数の定義</A><BR>
+          <a href="shell/printmgr.html#aod">3.11.6 印刷マネージャの関数</A><BR>
+     </DL>
+</DL>
+<HR>
+<A href="../index.html">全Змістにもどる</A><BR>
+<A href="indexfig.html">次頁:図版Змістにすすむ</A><BR>
+</BODY>
+</HTML>

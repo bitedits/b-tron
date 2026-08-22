@@ -1,0 +1,376 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+  2.6 ポインタ制御関数
+</TITLE>
+<LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="character_func.html">
+<LINK REL="next" HREF="../shell/shell.html">
+</HEAD>
+<BODY>
+<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3</DIV>
+
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="character_func.html">前頁:2.5 文字(列)描画関数にもどる</A><BR>
+<A href="../shell/shell.html">次頁:第3章 外殻にすすむ</A><BR>
+<HR>
+
+<H2><A name="aex">2.6 ポインタ制御関数</A></H2>
+
+<H3><A name="aey">2.6.1 ポインタ</A></H3>
+
+ポインタは、スクリーン上に表示されているオブジェクトを指し示すために使用
+される特殊な図形であり、スクリーン上の表示にオーバーラップする形で表示さ
+れる。
+
+<H3><A name="aez">2.6.2 ポインタの状態／形状</A></H3>
+
+ポインタの状態は以下の構造体により定義される。
+
+<PRE>
+/* ポインタ形状 */
+typedef W       PTRSTL; /* ポインタの形状 */
+</PRE>
+
+<PRE>
+/* ポインタ状態 */
+struct PointerStatus {
+    PNT     pos;        /* 現在のポインタの座標位置 */
+    PTRSTL  style;      /* ポインタの形状 */
+    COLOR   fgcol;      /* 前景色 */
+    COLOR   bgcol;      /* 背景色 */
+    W       motion;     /* 追従状態(0:非追従、1:追従) */
+    W       hidden;     /* 表示状態(0:表示状態、正：消去状態) */
+    W       size;       /* ポインタサイズ(16,24,32,etc) */
+};
+</PRE>
+
+<PRE>
+typedef PointerStatus   PTRSTS;     /* ポインタの状態 */
+</PRE>
+
+<P>pos は、現在のポインタの座標位置であり、スクリーンの左上を(0,0) とした
+絶対座標で示される。</P>
+
+<P>style  は、ポインタの形状を示し、≧0 の場合は、システムで定義されている
+標準形状を示し、&lt;0 の場合は、 アプリケーションが独自に定義した形状を示
+す。標準形状としては、以下のものが定義されている。</P>
+
+<PRE>
+/* 標準ポインタ形状 */
+enum StdPointerShape {
+/*                          (意味) */
+    PS_SELECT   = 0,    /* 選択指 : 選択操作 */
+    PS_MODIFY   = 1,    /* 修正選択指 : 修正選択操作 */
+    PS_MOVE     = 2,    /* 移動手 : 移動可能 */
+    PS_VMOVE    = 3,    /* 移動手(縦方向) : 移動可能(縦方向のみ) */
+    PS_HMOVE    = 4,    /* 移動手(横方向) : 移動可能(横方向のみ) */
+    PS_GRIP     = 5,    /* 握り : 移動ドラッグ中 */
+    PS_VGRIP    = 6,    /* 握り(縦方向) : 移動ドラッグ中(縦方向のみ) */
+    PS_HGRIP    = 7,    /* 握り(横方向) : 移動ドラッグ中(横方向のみ) */
+    PS_RSIZ     = 8,    /* 変形手 : 変形可能 */
+    PS_VRSIZ    = 9,    /* 変形手(縦方向) : 変形可能(縦方向のみ) */
+    PS_HRSIZ    = 10,   /* 変形手(横方向) : 変形可能(横方向のみ) */
+    PS_PICK     = 11,   /* つまみ : 変形ドラッグ中 */
+    PS_VPICK    = 12,   /* つまみ(縦方向) : 変形ドラッグ中(縦方向のみ) */
+    PS_HPICK    = 13,   /* つまみ(横方向) : 変形ドラッグ中(横方向のみ) */
+    PS_BUSY     = 14,   /* 湯のみ(待ち状態) : 待ち状態 */
+    PS_MENU     = 15    /* プリМеню та командні інтерфейси : Меню та командні інтерфейси表示 */
+/*          = 16 〜 : 予約 */
+};
+</PRE>
+
+<P>fgcol と bgcol はそれぞれポインタの前景色、背景色を示すピクセル値である。</P>
+
+<P>motion  は、ポインタの位置がポインティングデバイスに追従しているか否か
+の状態を示す。</P>
+
+<P>hidden は、ポインタの消去要求数を示し、この値が0の時、 ポインタが実際に
+表示されていることになる。</P>
+
+<P>size は、ポインタサイズを示し、ポインタ形状を定義する正方形の大きさ(高
+さ) をピクセル数で示したもので、標準的には24であるが、インプリメントに
+よっては、16、32等の場合もある。</P>
+
+<P>ポインタの形状を示すイメージデータは、以下の構造体で表わされる。</P>
+
+<PRE>
+/* ポインタイメージデータ */
+#define MAX_PTR_SIZE        64  /* ポインタイメージデータサイズ */
+#define P_SIZE  (MAX_PTR_SIZE * MAX_PTR_SIZE) / 8
+</PRE>
+
+<PRE>
+struct PointerImage {
+    PNT   hotpt;          /* ホットポイントの座標値 */
+    SIZE  size;           /* ポインタサイズ */
+    UB    data[P_SIZE];   /* データイメージ */
+    UB    mask[P_SIZE];   /* マスクイメージ */
+};
+</PRE>
+
+<PRE>
+typedef PointerImage    PTRIMG;     /* ポインタイメージ */
+</PRE>
+
+<P>hotpt は、イメージデータ中のどの点をポインタ位置とするかを示すもので、イ
+メージ長方形の左上を(0,0)とした座標値で表わされる。即ち、hotpt  がポイ
+ンタ位置となるようにポインタイメージが表示される。</P>
+
+<P>data  と mask はそれぞれポインタのデータイメージとマスクイメージを表現す
+る以下のビットマップである。 n はポインタのサイズであり、標準では24で
+あるが、インプリメントによっては、16、32 などとなる。</P>
+
+<PRE>
+  planes   : 1
+  rowbytes : ((n + 15)÷16)×2 (偶数)
+  bounds   : (0,0,n,n)
+  baseaddr : data / mask
+</PRE>
+
+<P>P_SIZE は、ポインタサイズに依存した値であり、n × rowbytes である。 (n
+= 16 の時は  P_SIZE = 32、 n = 24 の時は P_SIZE = 96 、n = 32 の時は 
+P_SIZE = 128)</P>
+
+<P>ポインタイメージの表示は、データイメージと、マスクイメージに従って、以
+下のように描画環境上に行なわれる。</P>
+
+<PRE>
+データ      マスク      表示
+  0          1   →   背景色
+  1          1   →   前景色
+  0          0   →   元のイメージのまま (透明)
+  1          0   →   元のイメージの反転 (XOR)
+</PRE>
+
+<P>前景色と背景色は、ポインタの色を指定したピクセル値である。この値は基本的
+には、スクリーンへの描画で使用されるピクセル値と同一であるが、インプリメ
+ントによっては、異なっている場合もある。</P>
+
+<A name="afa">
+<CENTER><IMG src="gif/pointer_image.gif" alt="ポインタイメージの例"></CENTER>
+</A>
+<CENTER>図 43 : ポインタイメージの例</CENTER>
+
+<H3><A name="afb">2.6.3 ポインタの制御関数</A></H3>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gini_ptr</FONT></TD></TR>
+<TR><TD align="right">Initialize Pointer</TD></TR>
+<TR><TD>ポインタの初期化</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gini_ptr (  )
+
+<DT>【解説】
+<DD>ポインタの状態を以下に示す初期状態に設定して、現在のポインティングデ
+    バイスの位置に表示する。
+    <P></P>
+    <DL>
+     <DT>表示／非表示
+         <DD>表示状態
+     <DT>形状
+         <DD>style＝0の形状
+     <DT>前景色
+         <DD>デフォールト色（通常は黒）
+     <DT>背景色
+         <DD>デフォールト色（通常は白または肌色）
+     <DT>追従／非追従
+         <DD>追従状態
+    </DL>
+
+<DT>【リターン値】
+<DD>＝0    : 正常終了<BR>
+&lt;0    : エラー  (発生しない)
+
+<DT>【エラーコード】
+<DD>    発生しない。
+
+</DL>
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdsp_ptr</FONT></TD></TR>
+<TR><TD align="right">Display Pointer</TD></TR>
+<TR><TD>ポインタの表示／消去</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>    ERR gdsp_ptr ( W req )
+
+<DT>【解説】
+<DD>ポインタの消去／表示／強制表示を要求する。
+    <DL>
+     <DT>req ＝ 0
+         <DD>消去要求
+     <DT>req ＞ 0
+         <DD> 表示要求
+     <DT>req &lt; 0
+         <DD>強制表示要求
+    </DL>
+
+    <P>消去要求では、ポインタの消去要求数を＋１してポインタの表示を消去する。
+    表示要求では、ポインタの表示要求数が0でない場合、−１して0になった場
+    合にポインタの表示を行なう。強制表示要求では、ポインタの表示要求数を0
+    としてポインタの表示を行なう。</P>
+
+    結果としての消去要求数を関数値として戻す。即ち、関数値が0の場合は、ポ
+    インタは表示されており、＞0の場合はポインタは表示されていないことにな
+    る。
+<DT>【リターン値】
+<DD> ≧0    : 正常終了 (関数値は消去要求数)<BR>
+&lt;0    : エラー  (発生しない)
+
+<DT>【エラーコード】
+<DD>発生しない。
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_ptr</FONT></TD></TR>
+<TR><TD align="right">Set Pointer Shape and Color</TD></TR>
+<TR><TD>ポインタ形状／カラーの設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gset_ptr ( PTRSTL style, PTRIMG *img, COLOR fgcol, COLOR bgcol )
+
+<DT>【解説】
+<DD>ポインタの形状／カラーを、style(形状)、fgcol(前景色)、および  bgcol(背
+    景色)  で指定した値に変更する。style&lt;0の場合は、img で指定したポイン
+    タイメージが有効になり style≧0の場合は img は無視され、 指定した標
+    準イメージが適用される。
+    <P></P>
+    fgcol&lt;0, bgcol&lt;0 の場合は、それぞれデフォールト色の指定となる。
+
+<DT>【リターン値】
+<DD>＝0(E_OK)  : 正常終了<BR>
+&lt;0        : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(img)のメモリのアクセスは許されていない。
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。(fgcol,bgcolが範囲外, imgの内容が不正)
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmov_ptr</FONT></TD></TR>
+<TR><TD align="right">Move Pointer Position</TD></TR>
+<TR><TD>ポインタ表示位置の移動</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>ERR gmov_ptr ( PNT pos )
+
+<DT>【解説】
+<DD>ポインタが非追従状態の場合、 ポインタの位置を pos で指定した位置に移動
+    する。pos は画面の左上を (0,0)とした絶対座標であり、画面をはみ出る場
+    合は EG_PAR エラーとなる。ポインタが追従状態の場合は、何もしない。
+    <P></P>
+    関数値として、ポインタが非追従状態の場合は0、追従状態の場合は１が戻る。
+    従って、関数値が0の場合のみポインタ表示位置が変更されたことになる。
+
+<DT>【リターン値】
+<DD>≧0    : 正常終了 (関数値は追従状態)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_PAR
+    <DD> パラメータが不正、または範囲外である。（pos が範囲外）
+  </DL>
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmot_ptr</FONT></TD></TR>
+<TR><TD align="right">Set Pointer Motion</TD></TR>
+<TR><TD>ポインタ動作の設定</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>    ERR gmot_ptr ( W sts )
+
+<DT>【解説】
+<DD>ポインタ表示がポインティングデバイスの動きに追従するか否かを  sts の値により指定する。
+    <P></P>
+    <DL>
+     <DT>sts ＝ 0
+         <DD>非追従動作指定
+     <DT>sts  ≠ 0
+         <DD>追従動作指定
+    </DL>
+    <P>非追従指定を行なった場合はその時点でポ
+    インタの位置は固定され、gmov_ptr()  関数によってのみポインタ表示を移動
+    することができる。追従指定を行なった場合は、その時点からポインタの表示
+    はポインティングデバイスに追従を始める。従って、ポインタの表示位置が、
+    ポインティングデバイスの位置と異なっていた場合は、追従指定によりポイ
+    ンタ表示が移動することになる。</P>
+
+    既に追従している時に追従指定を行なった場合や、非追従の時に非追従指定を
+    行なった場合は何もしない。
+
+<DT>【リターン値】
+<DD>＝0    : 正常終了<BR>
+&lt;0    : エラー  (発生しない)
+
+<DT>【エラーコード】
+<DD>発生しない。
+</DL>
+
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_ptr</FONT></TD></TR>
+<TR><TD align="right">Get Pointer Status and Shape</TD></TR>
+<TR><TD>ポインタ状態／形状の取り出し</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<DL>
+<DT>【形式】
+<DD>W gget_ptr ( PTRSTS *sts, PTRIMG *img )
+
+<DT>【解説】
+<DD>ポインタの現在の状態を sts で指定した領域に、 ポインタのイメージデータ
+    を img で指定した領域にそれぞれ格納する。
+
+    <P>sts は PTRSTS 構造体データへのポインタであり、img は PTRIMG 構造体デー
+    タへのポインタであり、  ともに予めその領域は確保されている必要がある。
+    sts または img が NULL の場合は、それぞれ対応するデータは格納されない。</P>
+
+    関数値としてポインタのサイズが戻る。
+
+<DT>【リターン値】
+<DD>    ≧0    : 正常終了(関数値はポインタのサイズ)<BR>
+&lt;0    : エラー  (関数値はエラーコード)
+
+<DT>【エラーコード】
+<DD>
+  <DL>
+    <DT>EG_ADR
+    <DD> 指定されたアドレス(sts,img)のメモリのアクセスは許されていない。
+  </DL>
+</DL>
+
+<H2><A name="afc">標準ポインタ形状(参考)</A></H2>
+
+以下に、24 x 24 ピクセルの標準ポインタ形状を示す。
+
+<A name="afd">
+<CENTER><IMG src="gif/std_pointer.gif" alt="標準ポインタ形状"></CENTER>
+</A>
+<CENTER>図 44 : 標準ポインタ形状</CENTER>
+
+<HR>
+<A href="../index.html">この章のЗмістにもどる</A><BR>
+<A href="character_func.html">前頁:2.5 文字(列)描画関数にもどる</A><BR>
+<A href="../shell/shell.html">次頁:第3章 外殻にすすむ</A><BR>
+</BODY>
+</HTML>

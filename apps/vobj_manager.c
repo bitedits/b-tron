@@ -1,5 +1,6 @@
 /*
- * BTRON Accessory: Real Object Cabinet & Virtual Object Explorer Window
+ * BTRON Accessory: Real Object Cabinet & Virtual Object Explorer Window (vobj_manager)
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 
 #include <btron/wnd.h>

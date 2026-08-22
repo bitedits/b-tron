@@ -1,7 +1,8 @@
 /*
  * BTRON Accessory: System Terminal Console Window (gterm)
- * Real interactive terminal accessory inspired by SDK B-right V4.5 gterm.
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
+
 
 #include <btron/wnd.h>
 #include <btron/troncode.h>
@@ -76,7 +77,7 @@ static void gterm_init_banner(GTERM_STATE *st) {
     strncpy(st->prompt, "btron# ", sizeof(st->prompt) - 1);
 
     gterm_append_line(st, "B-TRON OS Shell v1.0 (gterm console)", COLOR_WHITE);
-    gterm_append_line(st, "SDK B-right V4.5 Specification Terminal Emulator", COLOR_CYAN);
+    gterm_append_line(st, "Sakamura BTRON3 Specification Terminal Emulator", COLOR_CYAN);
     gterm_append_line(st, "Type 'help' or '?' to list commands.", COLOR_GRAY);
     gterm_append_line(st, "--------------------------------------------------", COLOR_GRAY);
 }
@@ -130,7 +131,7 @@ static void gterm_execute_cmd(WND *wnd, GTERM_STATE *st, const char *cmd_line) {
         gterm_append_line(st, "BTRON 1.0 (btron-sdl2-posix x86_64)", COLOR_CYAN);
         gterm_append_line(st, "Kernel: uITRON 4.0 Specification Engine", COLOR_CYAN);
         gterm_append_line(st, "Graphics: DP SDL2 Compositor Architecture", COLOR_CYAN);
-        gterm_append_line(st, "SDK: B-right V4.5 Terminal Specification", COLOR_CYAN);
+        gterm_append_line(st, "Specification: Sakamura BTRON3 Specification", COLOR_CYAN);
     } else if (strcmp(cmd, "pwd") == 0) {
         char cwd[256];
         if (getcwd(cwd, sizeof(cwd))) {

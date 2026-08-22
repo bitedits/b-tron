@@ -1,5 +1,6 @@
 /*
  * B-TRON Display Primitives SDL2 Host Integration: dp_sdl.c
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 
 #include <btron/dp.h>

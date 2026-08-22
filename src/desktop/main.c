@@ -1,5 +1,6 @@
 /*
- * B-TRON Retro OS Environment Main Launcher & Event Loop
+ * B-TRON Retro OS Environment Main Launcher & Event Loop: main.c
+ * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 
 #include <btron/btron.h>
