@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.3 Процес (Process)/Задача (Task)間同期通信管理
+  1.3 процес/1.3 Синхронізація та комунікація задач (Task Communication & Synchronization)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="message.html">
@@ -14,70 +14,70 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="message.html">前頁:1.2 Повідомлення (Message)管理にもどる</A><BR>
-<A href="gname.html">次頁:1.4 Глобальне ім'я (Global Name)管理にすすむ</A><BR>
+<A href="message.html">Попередня сторінка: 1.2 Система міжпроцесних повідомлень (Повернутися)</A><BR>
+<A href="gname.html">Наступна сторінка: 1.4 Глобальні імена (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aav">1.3 Процес (Process)/Задача (Task)間同期通信管理</A></H2>
+<H2><A name="aav">1.3 процес/1.3 Синхронізація та комунікація задач (Task Communication & Synchronization)</A></H2>
 
 <P>
-  Процес (Process) / Задача (Task)間の同期や通信を行うための機構として, 
-  下記の同期通信функціонал / підсистемаを提供する. 
+  процес / , 
+  . 
 </P>
 <UL>
-    <LI>Семафор (Semaphore)
-    <LI>Подія (Event)フラグ
-    <LI>Повідомлення (Message)バッファ
-    <LI>Ранデву (Rendezvous)
+    <LI>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
+    <LI>Подієві прапорці (Event Flags) — бітові маски сигналізації
+    <LI>Буфери повідомлень (Message Buffers) — локальна черга повідомлень
+    <LI>Рандеву (Rendezvous) — синхронне двостороннє передавання даних
 </UL>
 
 <P>
-  これらの同期・通信オブジェクトは動的に生成され, 
-  生成時に割り当てられたID ( &gt; 0 ) により識別される. 
+  , 
+  ID ( &gt; 0 ) . 
 </P>
 
 <P>
-  Повідомлення (Message)による通信と一番大きく異なる点は, 
-  Повідомлення (Message)がПроцес (Process)間の通信であるのに対し, 
-  Задача (Task)間の通信であることである. 
-  したがって, 主な用途はПроцес (Process)内のЗадача (Task)間の同期・通信である. 
-  生成したオブジェクトはすべてのПроцес (Process)から使用可能となるので, 
-  Процес (Process)間の同期・通信にも使用できる. 
+  , 
+  процес, 
+  . 
+  , процес. 
+  процес, 
+  процес. 
 </P>
 
-<H3><A name="aaw">1.3.1 データ / 定数の定義</A></H3>
+<H3><A name="aaw">1.3.1 1.3.1 Визначення типів даних та констант</A></H3>
 
-<H4>□ タイムアウト定義</H4>
+<H4>□ </H4>
 
 <PRE>
-typedef W   TMOUT;          /* タイムアウト指定 (ミリ秒) */
+typedef W   TMOUT;          /*  () */
 </PRE>
 
 <PRE>
-#define T_NOWAIT    ( 0)    /* 待たない */
-#define T_FOREVER   (-1)    /* 永久待ち */
+#define T_NOWAIT    ( 0)    /*  */
+#define T_FOREVER   (-1)    /*  */
 </PRE>
 
-<H4>□ Семафор (Semaphore)定数定義</H4>
+<H4>□ Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси</H4>
 
 <PRE>
-#define SEM_SYNC    0x0000  /* 同期用Семафор (Semaphore) */
-#define SEM_EXCL    0x4000  /* 排他制御用Семафор (Semaphore) */
+#define SEM_SYNC    0x0000  /* Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси */
+#define SEM_EXCL    0x4000  /* Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси */
 </PRE>
 
-<H4>□ Подія (Event)フラグ定数定義</H4>
+<H4>□ Подієві прапорці (Event Flags) — бітові маски сигналізації</H4>
 
 <PRE>
-#define WF_AND      0x0000  /* Подія (Event)フラグ AND 待ち */
-#define WF_OR       0x0002  /* Подія (Event)フラグ OR  待ち */
+#define WF_AND      0x0000  /* Подієві прапорці (Event Flags) — бітові маски сигналізації AND  */
+#define WF_OR       0x0002  /* Подієві прапорці (Event Flags) — бітові маски сигналізації OR   */
 </PRE>
 
-<H3><A name="aax">1.3.2 системний виклик (System Call)</A></H3>
+<H3><A name="aax">1.3.2 1.3.2 Системні виклики синхронізації та комунікації</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cre_sem</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Семафор (Semaphore)の生成</TD></TR>
+<TR><TD>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -87,57 +87,57 @@ WERR    cre_sem(W cnt, UW opt)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   cnt Семафор (Semaphore)初期値
-        同期用Семафор (Semaphore)の場合には cnt ≧ 0 でなければならない. 
-        排他制御用Семафор (Semaphore)の場合には cnt = 1 でなければならない. 
+W   cnt Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
+        Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси cnt ≧ 0 . 
+        Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси cnt = 1 . 
 
-UW  opt Семафор (Semaphore)属性
+UW  opt Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
         ( SEM_SYNC ‖ SEM_EXCL ) | [ DELEXIT ]
-        SEM_SYNC    同期用Семафор (Semaphore)
-        SEM_EXCL    排他制御用Семафор (Semaphore)
-        DELEXIT     生成Процес (Process)終了時に自動削除
+        SEM_SYNC    Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
+        SEM_EXCL    Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
+        DELEXIT     процес
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(生成したСемафор (Semaphore)ID)
+> 0      Успішне виконання(Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Семафор (Semaphore)を生成する. 
-  生成したСемафор (Semaphore)は, すべてのПроцес (Process)から使用可能である. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, процес. 
 </P>
 <DL>
- <DT><CODE>SEM_EXCL</CODE> -- 排他制御用Семафор (Semaphore)
+ <DT><CODE>SEM_EXCL</CODE> -- Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
  <DD><UL>
-      <LI>必ず, 獲得 ( <CODE>wai_sem</CODE> ) 〜
-          開放 ( <CODE>sig_sem</CODE> ) の順で使用しなくてはならない. 
-      <LI>Семафор (Semaphore)を獲得したまま解放せずにЗадача (Task)が終了した場合には, 自動的に解放される. 
-      <LI>初期値は 1 でなければならない. 
+      <LI>,  ( <CODE>wai_sem</CODE> ) 〜
+           ( <CODE>sig_sem</CODE> ) . 
+      <LI>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, . 
+      <LI> 1 . 
      </UL>
 </DL>
 <DL>
- <DT><CODE>SEM_SYNC</CODE> -- 同期用Семафор (Semaphore)
+ <DT><CODE>SEM_SYNC</CODE> -- Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
  <DD><UL>
-      <LI>Семафор (Semaphore)の獲得 ( <CODE>wai_sem</CODE> ), 開放 ( <CODE>sig_sem</CODE> )
-          の順序に対する制限はない. 
-      <LI>Задача (Task)が終了した場合の自動解放は行われない. 
-      <LI>生成時の初期値に制限はない. 
+      <LI>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси ( <CODE>wai_sem</CODE> ),  ( <CODE>sig_sem</CODE> )
+          . 
+      <LI>. 
+      <LI>. 
      </UL>
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_LIMIT    : Семафор (Semaphore)の数がシステムの制限を超えた. 
-ER_PAR      : параметриが不正である. 
+ER_NOSPC    : . 
+ER_LIMIT    : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">del_sem</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Семафор (Semaphore)の削除</TD></TR>
+<TR><TD>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -147,30 +147,30 @@ ERR del_sem(ID id)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Семафор (Semaphore)ID
+ID  id  Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Семафор (Semaphore)を削除する. <BR>
-  削除したСемафор (Semaphore)で待ち状態にあったЗадача (Task)は待ちが解除され, 
-  そのЗадача (Task)へ <CODE>ER_DLT</CODE> が返される. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. <BR>
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, 
+   <CODE>ER_DLT</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Семафор (Semaphore)IDが不正である. 
-ER_NOEXS    : Семафор (Semaphore)は存在していない. 
+ER_ID       : Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID. 
+ER_NOEXS    : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">sig_sem</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Семафор (Semaphore)へ資源の返却</TD></TR>
+<TR><TD>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -180,42 +180,42 @@ ERR sig_sem(ID id)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Семафор (Semaphore)ID
+ID  id  Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Семафор (Semaphore)へ資源を 1 つ返却する. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси 1 . 
 </P>
 <P>
-  Семафор (Semaphore)の資源待ちのЗадача (Task)があれば, 
-  待ち行列の先頭のЗадача (Task)の待ちを解除する. 
-  資源待ちのЗадача (Task)がなければ, Семафор (Semaphore)の資源を 1 増やす. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, 
+  . 
+  , Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси 1 . 
 </P>
 <P>
-  排他制御用Семафор (Semaphore)の場合には, 
-  対象Семафор (Semaphore)の資源を獲得していない状態で返却しようとした場合は
-  <CODE>ER_OBJ</CODE> になる. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси
+  <CODE>ER_OBJ</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Семафор (Semaphore)IDが不正である. 
-ER_LIMIT    : Семафор (Semaphore)のカウント値が制限を越えた. 
-ER_NOEXS    : Семафор (Semaphore)は存在していない. 
-ER_OBJ      : 排他制御用Семафор (Semaphore)に対しての不正操作である. 
+ER_ID       : Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID. 
+ER_LIMIT    : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_NOEXS    : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_OBJ      : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">wai_sem</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Семафор (Semaphore)から資源の獲得</TD></TR>
+<TR><TD>Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -225,58 +225,58 @@ ERR wai_sem(ID id, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID      id      Семафор (Semaphore)ID
+ID      id      Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID
 
-TMOUT   tmo         タイムアウト指定 (ミリ秒)
-        T_NOWAIT    資源を獲得できなくても待たない
-        T_FOREVER   資源を獲得できるまで待つ
-        &gt;0          資源を獲得できるまで最長 tmo ミリ秒待つ
+TMOUT   tmo          ()
+        T_NOWAIT    
+        T_FOREVER   
+        &gt;0           tmo 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Семафор (Semaphore)から資源を 1 つ獲得する. 
-  Семафор (Semaphore)に 1 つ以上の資源がある場合には, 
-  その資源を 1 つ獲得する ( 減らす ). 
-  資源が 0 の場合には, <CODE>sig_sem()</CODE>
-  により資源が返却されるのを待つ. 
-  指定された待ち時間が経過しても資源が獲得できない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси 1 . 
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси 1 , 
+   1  (  ). 
+   0 , <CODE>sig_sem()</CODE>
+  . 
+  , 
+  <CODE>ER_NONE</CODE> . 
 </P>
 <P>
-  排他制御用Семафор (Semaphore)の場合 :
+  Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси :
 </P>
 <UL>
  <LI><P>
-     対象Семафор (Semaphore)の資源をすでに獲得している状態で, 
-     再度獲得しようとした場合には <CODE>ER_OBJ</CODE> になる. 
+     Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси, 
+      <CODE>ER_OBJ</CODE> . 
      </P>
  <LI><P>
-     資源を獲得しているЗадача (Task)が終了した場合には, 
-     自動的に資源は返却される. 
+     , 
+     . 
      </P>
 </UL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Семафор (Semaphore)は獲得待ちの間に削除された. 
-ER_ID       : Семафор (Semaphore)IDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Семафор (Semaphore)は存在していない. 
-ER_NONE     : Семафор (Semaphore)を獲得できずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
-ER_OBJ      : 排他制御用Семафор (Semaphore)に対しての不正操作である. 
+ER_DLT      : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_ID       : Семафори (Semaphores) — лічильні та взаємовиключні м'ютексиID. 
+ER_MINTR    : . 
+ER_NOEXS    : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_NONE     : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
+ER_PAR      : . 
+ER_OBJ      : Семафори (Semaphores) — лічильні та взаємовиключні м'ютекси. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cre_flg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)フラグの生成</TD></TR>
+<TR><TD>Подієві прапорці (Event Flags) — бітові маски сигналізації</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -287,37 +287,37 @@ WERR    cre_flg(W ptn, UW opt)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   ptn Подія (Event)フラグ初期パターン (≧0)
+W   ptn Подієві прапорці (Event Flags) — бітові маски сигналізації (≧0)
 
-UW  opt Подія (Event)フラグ属性
+UW  opt Подієві прапорці (Event Flags) — бітові маски сигналізації
         [ DELEXIT ]
-        DELEXIT     生成Процес (Process)終了時に自動削除
+        DELEXIT     процес
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(Подія (Event)フラグID)
+> 0      Успішне виконання(Подієві прапорці (Event Flags) — бітові маски сигналізаціїID)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Подія (Event)フラグを生成する. 
-  生成したПодія (Event)フラグは, 
-  すべてのПроцес (Process)から使用可能である. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації, 
+  процес. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_LIMIT    : Подія (Event)フラグの数がシステムの制限を超えた. 
-ER_PAR      : параметриが不正である. 
+ER_NOSPC    : . 
+ER_LIMIT    : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">del_flg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)フラグの削除</TD></TR>
+<TR><TD>Подієві прапорці (Event Flags) — бітові маски сигналізації</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -326,7 +326,7 @@ ERR del_flg(ID id)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Подія (Event)フラグID
+ID  id  Подієві прапорці (Event Flags) — бітові маски сигналізаціїID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -336,21 +336,21 @@ ID  id  Подія (Event)フラグID
 
 <H4>【Детальний опис】</H4>
 <P>
-  Подія (Event)フラグを削除する. 
-  削除したПодія (Event)フラグで待ち状態にあったЗадача (Task)は待ちが解除され, 
-  そのЗадача (Task)へ <CODE>ER_DLT</CODE> が返される. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації, 
+   <CODE>ER_DLT</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Подія (Event)フラグIDが不正である. 
-ER_NOEXS    : Подія (Event)フラグは存在していない. 
+ER_ID       : Подієві прапорці (Event Flags) — бітові маски сигналізаціїID. 
+ER_NOEXS    : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_flg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)フラグをセット</TD></TR>
+<TR><TD>Подієві прапорці (Event Flags) — бітові маски сигналізації</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -359,33 +359,33 @@ ERR set_flg(ID id, W ptn)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-ID      id      Подія (Event)フラグID
-W       ptn     Подія (Event)フラグ設定パターン (≧0)
+ID      id      Подієві прапорці (Event Flags) — бітові маски сигналізаціїID
+W       ptn     Подієві прапорці (Event Flags) — бітові маски сигналізації (≧0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Подія (Event)フラグの現在の値に <CODE>ptn</CODE>
-  が OR (論理和)される. <BR>
-  その結果, 待ち状態にあるЗадача (Task)の待ち解除条件が満たされれば, 
-  そのЗадача (Task)の待ちが解除される. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації <CODE>ptn</CODE>
+   OR (). <BR>
+  , , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Подія (Event)フラグIDが不正である. 
-ER_NOEXS    : Подія (Event)フラグは存在していない. 
-ER_PAR      : параметриが不正である. 
+ER_ID       : Подієві прапорці (Event Flags) — бітові маски сигналізаціїID. 
+ER_NOEXS    : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">clr_flg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)フラグをクリア</TD></TR>
+<TR><TD>Подієві прапорці (Event Flags) — бітові маски сигналізації</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -394,8 +394,8 @@ ERR clr_flg(ID id, W ptn)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-ID      id     Подія (Event)フラグID
-W       ptn    Подія (Event)フラグ消去パターン
+ID      id     Подієві прапорці (Event Flags) — бітові маски сигналізаціїID
+W       ptn    Подієві прапорці (Event Flags) — бітові маски сигналізації
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -406,20 +406,20 @@ W       ptn    Подія (Event)フラグ消去パターン
 <H4>【Детальний опис】</H4>
 
 <P>
-  Подія (Event)フラグの現在の値に <CODE>ptn</CODE> が AND (論理積)される. <BR>
-  Подія (Event)フラグのクリアで, Задача (Task)の待ちが解除されることはない. 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації <CODE>ptn</CODE>  AND (). <BR>
+  Подієві прапорці (Event Flags) — бітові маски сигналізації, . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Подія (Event)フラグIDが不正である. 
-ER_NOEXS    : Подія (Event)フラグは存在していない. 
+ER_ID       : Подієві прапорці (Event Flags) — бітові маски сигналізаціїID. 
+ER_NOEXS    : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">wai_flg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)フラグ待ち</TD></TR>
+<TR><TD>Подієві прапорці (Event Flags) — бітові маски сигналізації</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -429,66 +429,66 @@ WERR    wai_flg(ID id, W ptn, UW mode, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Подія (Event)フラグID
+ID  id  Подієві прапорці (Event Flags) — бітові маски сигналізаціїID
 
-W   ptn 待ちパターン (&gt;0)
+W   ptn  (&gt;0)
 
-UW  mode    待ち解除条件
+UW  mode    
         ( WF_AND ‖ WF_OR ) | [ NOCLR ]
-        WF_AND  0x0000  ptn で1のビットがすべてセットされるまで待つ
-        WF_OR   0x0002  ptn で1のビットのいずれかがセットされるまで待つ
-        NOCLR   0x0008  待ち解除条件が満たされた時, Подія (Event)フラグの値を
-                        クリアしない
+        WF_AND  0x0000  ptn 1
+        WF_OR   0x0002  ptn 1
+        NOCLR   0x0008  , Подієві прапорці (Event Flags) — бітові маски сигналізації
+                        
 
-TMOUT   tmo タイムアウト指定 (ミリ秒)
-        T_NOWAIT    待ち解除条件が満たされなくても待たない
-        T_FOREVER   待ち解除条件が満たされるまで待つ
-        &gt;0          待ち解除条件が満たされるまで最長 tmo ミリ秒待つ
+TMOUT   tmo  ()
+        T_NOWAIT    
+        T_FOREVER   
+        &gt;0           tmo 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(待ち状態が解除されたときのПодія (Event)フラグの値)
+> 0      Успішне виконання(Подієві прапорці (Event Flags) — бітові маски сигналізації)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>mode</CODE> で指定された条件にしたがって, 
-  Подія (Event)フラグがセットされるのを待つ. 
+  <CODE>mode</CODE> , 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації. 
 </P>
 <P>
-  次の条件が満たされたとき待ち解除となる. 
+  . 
 </P>
 <PRE>
-WF_AND の時 ( flg &amp; ptn ) == ptn
-WF_OR の時  ( flg &amp; ptn ) != 0
-        ∵ flg はПодія (Event)フラグの値
+WF_AND  ( flg &amp; ptn ) == ptn
+WF_OR   ( flg &amp; ptn ) != 0
+        ∵ flg Подієві прапорці (Event Flags) — бітові маски сигналізації
 </PRE>
 <P>
-  <CODE>NOCLR</CODE> が指定された時には, 
-  待ち解除条件が満たされたときПодія (Event)フラグの値は変化しない. 
-  <CODE>NOCLR</CODE> の指定がない場合には, 
-  待ち解除条件が満たされたときПодія (Event)フラグの値 ( 全ビット ) が 0 クリアされる. 
+  <CODE>NOCLR</CODE> , 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+  <CODE>NOCLR</CODE> , 
+  Подієві прапорці (Event Flags) — бітові маски сигналізації (  )  0 . 
 </P>
 <P>
-  指定された待ち時間が経過しても待ち解除条件が満たされない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
+  , 
+  <CODE>ER_NONE</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Подія (Event)フラグが待ちの間に削除された. 
-ER_ID       : Подія (Event)フラグIDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Подія (Event)フラグは存在していない. 
-ER_NONE     : Подія (Event)フラグの条件が満たされずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
+ER_DLT      : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+ER_ID       : Подієві прапорці (Event Flags) — бітові маски сигналізаціїID. 
+ER_MINTR    : . 
+ER_NOEXS    : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+ER_NONE     : Подієві прапорці (Event Flags) — бітові маски сигналізації. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cre_mbf</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)バッファの生成</TD></TR>
+<TR><TD>Буфери повідомлень (Message Buffers) — локальна черга повідомлень</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -498,44 +498,44 @@ WERR    cre_mbf(W bufsz, W max, UW opt)
 
 <H4>【Параметри】</H4>
 <PRE>
-W       bufsz   Повідомлення (Message)バッファの全体のрозмір у байтах (バイト数)
-W       max     Повідомлення (Message)1つ当たりの最大розмір у байтах (バイト数)
-UW      opt     Повідомлення (Message)バッファ属性
+W       bufsz   Буфери повідомлень (Message Buffers) — локальна черга повідомлень ()
+W       max     1 ()
+UW      opt     Буфери повідомлень (Message Buffers) — локальна черга повідомлень
         [ DELEXIT ]
-        DELEXIT     生成Процес (Process)終了時に自動削除
+        DELEXIT     процес
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(Повідомлення (Message)バッファID)
+> 0      Успішне виконання(Буфери повідомлень (Message Buffers) — локальна черга повідомленьID)
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Повідомлення (Message)バッファを生成する. 
-  生成したПовідомлення (Message)バッファは, すべてのПроцес (Process)から使用可能である. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень, процес. 
 </P>
 <P>
   <CODE>bufsz</CODE> / <CODE>max</CODE>
-  個のПовідомлення (Message)がПовідомлення (Message)バッファに入れられる ( 保存できる ) ことは保証されない. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень (  ) . 
 </P>
 <P>
-  <CODE>bufsz</CODE> に 0 を指定することができる. 
-  この場合, Повідомлення (Message)はПовідомлення (Message)バッファに入らず ( 保存されず ), 
-  送信側のЗадача (Task)と受信側のЗадача (Task)が同時に送信 / 受信を行うことになる(同期通信). 
+  <CODE>bufsz</CODE>  0 . 
+  , Буфери повідомлень (Message Buffers) — локальна черга повідомлень (  ), 
+   / (). 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_LIMIT    : Повідомлення (Message)バッファの数がシステムの制限を超えた. 
-ER_PAR      : параметриが不正である. 
+ER_NOSPC    : . 
+ER_LIMIT    : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">del_mbf</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)バッファの削除</TD></TR>
+<TR><TD>Буфери повідомлень (Message Buffers) — локальна черга повідомлень</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -544,29 +544,29 @@ ERR del_mbf(ID id)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Повідомлення (Message)バッファID
+ID  id  Буфери повідомлень (Message Buffers) — локальна черга повідомленьID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Повідомлення (Message)バッファを削除する. <BR>
-  削除したПовідомлення (Message)バッファで待ち状態にあったЗадача (Task)は待ちが解除され, 
-  そのЗадача (Task)へ <CODE>ER_DLT</CODE> が返される. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень. <BR>
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень, 
+   <CODE>ER_DLT</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Повідомлення (Message)バッファIDが不正である. 
-ER_NOEXS    : Повідомлення (Message)バッファは存在していない. 
+ER_ID       : Буфери повідомлень (Message Buffers) — локальна черга повідомленьID. 
+ER_NOEXS    : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">snd_mbf</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)バッファへ送信</TD></TR>
+<TR><TD>Буфери повідомлень (Message Buffers) — локальна черга повідомлень</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -576,47 +576,47 @@ ERR snd_mbf(ID id, VP msg, W sz, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID      id          Повідомлення (Message)バッファID
-VP      msg         送信Повідомлення (Message)
-W       sz          送信Повідомлення (Message)розмір у байтах (バイト数)
-TMOOUT  tmo         タイムアウト指定 (ミリ秒)
-        T_NOWAIT    送信できなくても待たない
-        T_FOREVER   送信できるまで待つ
-        &gt;0          送信できるまで最長 tmo ミリ秒待つ
+ID      id          Буфери повідомлень (Message Buffers) — локальна черга повідомленьID
+VP      msg         
+W       sz           ()
+TMOOUT  tmo          ()
+        T_NOWAIT    
+        T_FOREVER   
+        &gt;0           tmo 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Повідомлення (Message)バッファへПовідомлення (Message)を送信する. 
-  Повідомлення (Message)バッファに空きが足りない場合には, 
-  空きができるまで待って送信する. 
-  指定された待ち時間が経過しても送信できない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень, 
+  . 
+  , 
+  <CODE>ER_NONE</CODE> . 
 </P>
 <P>
-  Повідомлення (Message)バッファの生成時に指定したПовідомлення (Message)の最大розмір у байтах
-  ( <CODE>max</CODE> ) より大きなПовідомлення (Message)を送信することはできない. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень
+  ( <CODE>max</CODE> ) . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Повідомлення (Message)バッファが待ちの間に削除された. 
-ER_ID       : Повідомлення (Message)バッファIDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Повідомлення (Message)バッファは存在していない. 
-ER_NONE     : Повідомлення (Message)を送信できずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
+ER_DLT      : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+ER_ID       : Буфери повідомлень (Message Buffers) — локальна черга повідомленьID. 
+ER_MINTR    : . 
+ER_NOEXS    : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+ER_NONE     : . 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rcv_mbf</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)バッファから受信</TD></TR>
+<TR><TD>Буфери повідомлень (Message Buffers) — локальна черга повідомлень</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -626,45 +626,45 @@ WERR    rcv_mbf(ID id, VP msg, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID      id          Повідомлення (Message)バッファID
-VP      msg         受信Повідомлення (Message)
-TMOUT   tmo         タイムアウト指定 (ミリ秒)
-        T_NOWAIT    受信できなくても待たない
-        T_FOREVER   受信できるまで待つ
-        &gt;0          受信できるまで最長 tmo ミリ秒待つ
+ID      id          Буфери повідомлень (Message Buffers) — локальна черга повідомленьID
+VP      msg         
+TMOUT   tmo          ()
+        T_NOWAIT    
+        T_FOREVER   
+        &gt;0           tmo 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(受信Повідомлення (Message)のバイト数)
+> 0      Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Повідомлення (Message)バッファからПовідомлення (Message)を受信し, 
-  <CODE>msg</CODE> の領域に書き込む. 
-  Повідомлення (Message)バッファにある先頭のПовідомлення (Message)が受信される. 
-  Повідомлення (Message)バッファにПовідомлення (Message)がない場合には, 
-  Повідомлення (Message)が送信されるまで待って受信する. 
-  指定された待ち時間が経過しても受信できない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
-  <CODE>msg</CODE> には, 
-  Повідомлення (Message)バッファの生成時に指定したПовідомлення (Message) 1 つ当たりの最大розмір у байтах
-  ( <CODE>max</CODE> ) 以上の領域がなくてはいけない. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень, 
+  <CODE>msg</CODE> . 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень, 
+  . 
+  , 
+  <CODE>ER_NONE</CODE> . 
+  <CODE>msg</CODE> , 
+  Буфери повідомлень (Message Buffers) — локальна черга повідомлень 1 
+  ( <CODE>max</CODE> ) . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Повідомлення (Message)バッファが待ちの間に削除された. 
-ER_ID       : Повідомлення (Message)バッファIDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Повідомлення (Message)バッファは存在していない. 
-ER_NONE     : Повідомлення (Message)を受信できずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
+ER_DLT      : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+ER_ID       : Буфери повідомлень (Message Buffers) — локальна черга повідомленьID. 
+ER_MINTR    : . 
+ER_NOEXS    : Буфери повідомлень (Message Buffers) — локальна черга повідомлень. 
+ER_NONE     : . 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cre_por</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)ポートの生成</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -674,35 +674,35 @@ WERR    cre_por(W maxcmsz, W maxrmsz, UW opt)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   maxcmsz 呼出Повідомлення (Message)最大розмір у байтах (バイト数)
-W   maxrmsz 返答Повідомлення (Message)最大розмір у байтах (バイト数)
-UW  opt     Ранデву (Rendezvous)ポート属性
+W   maxcmsz  ()
+W   maxrmsz  ()
+UW  opt     Рандеву (Rendezvous) — синхронне двостороннє передавання даних
             [ DELEXIT ]
-            DELEXIT     生成Процес (Process)終了時に自動削除
+            DELEXIT     процес
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(Ранデву (Rendezvous)ポートID)
+> 0      Успішне виконання(Рандеву (Rendezvous) — синхронне двостороннє передавання данихID)
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-Ранデву (Rendezvous)ポートを生成する. 
-生成したРанデву (Rendezvous)ポートは, すべてのПроцес (Process)から使用可能である. 
+Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+Рандеву (Rendezvous) — синхронне двостороннє передавання даних, процес. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_LIMIT    : Ранデву (Rendezvous)ポートの数がシステムの制限を超えた. 
-ER_PAR      : параметриが不正である. 
+ER_NOSPC    : . 
+ER_LIMIT    : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">del_por</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)ポートの削除</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -712,7 +712,7 @@ ERR del_por(ID id)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID  id  Ранデву (Rendezvous)ポートID
+ID  id  Рандеву (Rendezvous) — синхронне двостороннє передавання данихID
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -722,25 +722,25 @@ ID  id  Ранデву (Rendezvous)ポートID
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Ранデву (Rendezvous)ポートを削除する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 <P>
-  削除したРанデву (Rendezvous)ポートで受け付け待ちまたは呼び出し待ちの状態にあったЗадача (Task)は待ちが解除され, 
-  そのЗадача (Task)へ <CODE>ER_DLT</CODE> が返される. 
-  Ранデву (Rendezvous)成立後にРанデву (Rendezvous)ポートが削除されても, 
-  Ранデву (Rendezvous)は成立したままであり, Успішне виконанняにРанデву (Rendezvous)の返答ができる. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+   <CODE>ER_DLT</CODE> . 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання данихРандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Ранデву (Rendezvous)ポートIDが不正である. 
-ER_NOEXS    : Ранデву (Rendezvous)ポートは存在していない. 
+ER_ID       : Рандеву (Rendezvous) — синхронне двостороннє передавання данихID. 
+ER_NOEXS    : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cal_por</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)呼出</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -750,69 +750,69 @@ WERR    cal_por(ID id, UW calptn, VP msg, W cmsz, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID      id          Ранデву (Rendezvous)ポートID
-UW      calptn      呼出側選択条件 (&gt;0)
-VP      msg         呼出 / 返答Повідомлення (Message)
-W       cmsz        呼出Повідомлення (Message)розмір у байтах (バイト数)
-TMOUT   tmo         タイムアウト指定 (ミリ秒)
-        T_NOWAIT    Ранデву (Rendezvous)が成立しなくても待たない
-        T_FOREVER   Ранデву (Rendezvous)が成立するまで待つ
-        &gt;0          Ранデву (Rendezvous)が成立するまで最長 tmo ミリ秒待つ
+ID      id          Рандеву (Rendezvous) — синхронне двостороннє передавання данихID
+UW      calptn       (&gt;0)
+VP      msg          / 
+W       cmsz         ()
+TMOUT   tmo          ()
+        T_NOWAIT    Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+        T_FOREVER   Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+        &gt;0          Рандеву (Rendezvous) — синхронне двостороннє передавання даних tmo 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(返答Повідомлення (Message)のバイト数)
+> 0      Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Ранデву (Rendezvous)呼出を行う. 
-  Ранデву (Rendezvous)受け付けЗадача (Task)が存在し, 
-  選択条件が満たされるとРанデву (Rendezvous)成立となる. 
-  指定された待ち時間が経過してもРанデву (Rendezvous)が成立しない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
-  Ранデву (Rendezvous)成立後は, Ранデву (Rendezvous)の返答があるまで待つ. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  <CODE>ER_NONE</CODE> . 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 
 <P>
-  Ранデву (Rendezvous)は, 次の選択条件が満たされると成立する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, . 
 </P>
 <PRE>
-( calptn &amp; acpptn ) != 0    ∵ acpptn は, Ранデву (Rendezvous)受付側の選択条件
+( calptn &amp; acpptn ) != 0    ∵ acpptn , Рандеву (Rendezvous) — синхронне двостороннє передавання даних
 </PRE>
 <P>
-  Ранデву (Rendezvous)が成立すると, <CODE>msg</CODE> の内容がРанデву (Rendezvous)受付Задача (Task)へ送られる. 
-  Ранデву (Rendezvous)の返答が <CODE>msg</CODE> に格納され, 
-  そのрозмір у байтахが戻値に返される. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, <CODE>msg</CODE> Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних <CODE>msg</CODE> , 
+  . 
 </P>
 <P>
-  Ранデву (Rendezvous)ポートの生成時に指定した, 
-  呼出Повідомлення (Message)の最大розмір у байтах ( <CODE>maxcmsz</CODE> )
-  より大きなПовідомлення (Message)を送信することはできない. 
-  また, розмір у байтах 0 のПовідомлення (Message)を送信することもできない. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+   ( <CODE>maxcmsz</CODE> )
+  . 
+  ,  0 . 
 </P>
 <P>
-  <CODE>msg</CODE> には, 
-  Ранデву (Rendezvous)ポートの生成時に指定した返答Повідомлення (Message)の最大розмір у байтах
+  <CODE>msg</CODE> , 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних
   ( <CODE>maxrmsz</CODE> ) 
-  以上の領域がなくてはならない. 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Ранデву (Rendezvous)ポートがРанデву (Rendezvous)成立待ちの間に削除された. 
-ER_ID       : Ранデву (Rendezvous)ポートIDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Ранデву (Rendezvous)ポートは存在していない. 
-ER_NONE     : Ранデву (Rendezvous)が成立せずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
+ER_DLT      : Рандеву (Rendezvous) — синхронне двостороннє передавання данихРандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_ID       : Рандеву (Rendezvous) — синхронне двостороннє передавання данихID. 
+ER_MINTR    : . 
+ER_NOEXS    : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_NONE     : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">acp_por</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)受付</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -822,64 +822,64 @@ WERR    acp_por(ID id, UW acpptn, W *rdv, VP msg, TMOUT tmo)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID      id          Ранデву (Rendezvous)ポートID
-UW      acpptn      受付側選択条件 (&gt;0)
-W*      rdv         Ранデву (Rendezvous)番号
-VP      msg         呼出Повідомлення (Message)
-TMOUT   tmo         タイムアウト指定 (ミリ秒)
-        T_NOWAIT    Ранデву (Rendezvous)が成立しなくても待たない
-        T_FOREVER   Ранデву (Rendezvous)が成立するまで待つ
-        &gt;0          Ранデву (Rendezvous)が成立するまで最長 tmo ミリ秒待つ
+ID      id          Рандеву (Rendezvous) — синхронне двостороннє передавання данихID
+UW      acpptn       (&gt;0)
+W*      rdv         Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+VP      msg         
+TMOUT   tmo          ()
+        T_NOWAIT    Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+        T_FOREVER   Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+        &gt;0          Рандеву (Rendezvous) — синхронне двостороннє передавання даних tmo 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання(呼出Повідомлення (Message)のバイト数)
+> 0      Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Ранデву (Rendezvous)を受け付ける. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 <P>
-  Ранデву (Rendezvous)呼び出しЗадача (Task)が存在し, 
-  選択条件が満たされるとРанデву (Rendezvous)成立となる. 
-  指定された待ち時間が経過してもРанデву (Rendezvous)が成立しない場合には, 
-  <CODE>ER_NONE</CODE> が返される. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  <CODE>ER_NONE</CODE> . 
 </P>
 <P>
-  Ранデву (Rendezvous)は, 次の選択条件が満たされると成立する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, . 
 </P>
 <PRE>
-( calptn &amp; acpptn ) != 0    ∵ calptn は, Ранデву (Rendezvous)呼出側の選択条件
+( calptn &amp; acpptn ) != 0    ∵ calptn , Рандеву (Rendezvous) — синхронне двостороннє передавання даних
 </PRE>
 <P>
-  Ранデву (Rendezvous)が成立すると, 
-  そのРанデву (Rendezvous)の識別番号が <CODE>rdv</CODE> に返される. 
-  そして, 呼び出しПовідомлення (Message)が <CODE>msg</CODE> に格納され, 
-  そのрозмір у байтахが戻値に返される. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних <CODE>rdv</CODE> . 
+  ,  <CODE>msg</CODE> , 
+  . 
 </P>
 <P>
-  msg には, 
-  Ранデву (Rendezvous)ポートの生成時に指定した呼出Повідомлення (Message)の最大розмір у байтах
-  ( <CODE>maxcmsz</CODE>)以上の領域がなくてはならない. 
+  msg , 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+  ( <CODE>maxcmsz</CODE>). 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DLT      : Ранデву (Rendezvous)ポートがРанデву (Rendezvous)成立待ちの間に削除された. 
-ER_ID       : Ранデву (Rendezvous)ポートIDが不正である. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため待ち処理が中断された. 
-ER_NOEXS    : Ранデву (Rendezvous)ポートは存在していない. 
-ER_NONE     : Ранデву (Rendezvous)が成立せずにタイムアウトした. 
-ER_PAR      : параметриが不正である. 
+ER_DLT      : Рандеву (Rendezvous) — синхронне двостороннє передавання данихРандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_ID       : Рандеву (Rendezvous) — синхронне двостороннє передавання данихID. 
+ER_MINTR    : . 
+ER_NOEXS    : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_NONE     : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">fwd_por</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)回送</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -889,69 +889,69 @@ ERR fwd_por(ID id, UW calptn, W rdv, VP msg, W cmsz)
 
 <H4>【Параметри】</H4>
 <PRE>
-ID  id      Ранデву (Rendezvous)ポートID
-UW  calptn  呼出側選択条件 (&gt;0)
-W   rdv     Ранデву (Rendezvous)番号
-VP  msg     呼出Повідомлення (Message)
-W   cmsz    呼出Повідомлення (Message)розмір у байтах (バイト数)
+ID  id      Рандеву (Rendezvous) — синхронне двостороннє передавання данихID
+UW  calptn   (&gt;0)
+W   rdv     Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+VP  msg     
+W   cmsz     ()
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  一旦受け付けたРанデву (Rendezvous)を回送する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 <P>
-  現在のРанデву (Rendezvous)相手 ( 呼出Задача (Task) ) と自Задача (Task)の間で成立しているРанデву (Rendezvous)を解除し, 
-  呼出Задача (Task)が新たに回送先のポートに対してРанデву (Rendezvous)呼出を行う. 
-  回送先のポートに対するРанデву (Rendezvous)呼出が成立しない場合には, 
-  呼出Задача (Task)がРанデву (Rendezvous)成立待ちの状態になる. 
-  呼出Задача (Task)の待ちは, <CODE>cal_por()</CODE>
-  で指定したタイムアウト指定に関係なく無限待ち
-  ( <CODE>T_FOREVER</CODE> ) となる. 自Задача (Task)は待ちに入らない. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних (  ) Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+  , <CODE>cal_por()</CODE>
+  
+  ( <CODE>T_FOREVER</CODE> ) . . 
 </P>
 <P>
-  呼出Задача (Task)のРанデву (Rendezvous)は, 
-  <CODE>fwd_por()</CODE> で指定された条件で行われる. 
-  つまり, <CODE>fwd_por()</CODE> で指定された <CODE>calptn</CODE>
-  により選択条件が満たされるとРанデву (Rendezvous)が成立する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+  <CODE>fwd_por()</CODE> . 
+  , <CODE>fwd_por()</CODE>  <CODE>calptn</CODE>
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 <P>
-  回送先のРанデву (Rendezvous)ポートの生成時に指定した, 
-  呼出Повідомлення (Message)の最大розмір у байтах ( <CODE>maxcmsz</CODE> )
-  より大きなПовідомлення (Message)を送信することはできない. 
-  また, розмір у байтах 0 のПовідомлення (Message)を送信することもできない. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+   ( <CODE>maxcmsz</CODE> )
+  . 
+  ,  0 . 
 </P>
 <P>
-  回送先のРанデву (Rendezvous)ポートの返答Повідомлення (Message)の最大розмір у байтах
-  ( maxrmsz ) は, 
-  回送前の成立していたРанデву (Rendezvous)ポートの返答Повідомлення (Message)の最大розмір у байтахより大きくてはいけない
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+  ( maxrmsz ) , 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних
   ( <CODE>ER_OBJ</CODE>). 
-  また, 回送の呼出Повідомлення (Message)розмір у байтах
+  , 
   ( <CODE>cmsz</CODE> )
-  も回送前のРанデву (Rendezvous)ポートの返答Повідомлення (Message)の最大розмір у байтахより大きくてはいけない
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних
   ( <CODE>ER_PAR</CODE>). 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ID       : Ранデву (Rendezvous)ポートIDが不正である. 
-ER_NOEXS    : Ранデву (Rendezvous)ポートは存在していない. 
-ER_OBJ      : 回送先のРанデву (Rendezvous)ポートの返答Повідомлення (Message)の最大розмір у байтахより, 
-              回送前のРанデву (Rendezvous)ポートの返答Повідомлення (Message)の最大розмір у байтахの方が小さい. 
-            : Ранデву (Rendezvous)番号が不正である. 
-ER_PAR      : параметриが不正である. 
+ER_ID       : Рандеву (Rendezvous) — синхронне двостороннє передавання данихID. 
+ER_NOEXS    : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_OBJ      : Рандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+              Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+            : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rpl_rdv</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Ранデву (Rendezvous)返答</TD></TR>
+<TR><TD>Рандеву (Rendezvous) — синхронне двостороннє передавання даних</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -961,35 +961,35 @@ ERR rpl_rdv(W rdv, VP msg, W rmsz)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   rdv     Ранデву (Rendezvous)番号
-VP  msg     返答Повідомлення (Message)
-W   rmsz    返答Повідомлення (Message)розмір у байтах (バイト数)
+W   rdv     Рандеву (Rendezvous) — синхронне двостороннє передавання даних
+VP  msg     
+W   rmsz     ()
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Ранデву (Rendezvous)相手のЗадача (Task)に返答し, Ранデву (Rendezvous)を終了する. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання даних, Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
 </P>
 <P>
-  Ранデву (Rendezvous)を受け付けたРанデву (Rendezvous)ポートを生成したときに指定した, 
-  応答Повідомлення (Message)の最大розмір у байтах ( <CODE>maxrmsz</CODE> )
-  より大きなПовідомлення (Message)を返答することはできない. 
-  また, розмір у байтах 0 のПовідомлення (Message)を返答することもできない. 
+  Рандеву (Rendezvous) — синхронне двостороннє передавання данихРандеву (Rendezvous) — синхронне двостороннє передавання даних, 
+   ( <CODE>maxrmsz</CODE> )
+  . 
+  ,  0 . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_OBJ      : Ранデву (Rendezvous)番号が不正である. 
-ER_PAR      : параметриが不正である. 
+ER_OBJ      : Рандеву (Rendezvous) — синхронне двостороннє передавання даних. 
+ER_PAR      : . 
 </PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="message.html">前頁:1.2 Повідомлення (Message)管理にもどる</A><BR>
-<A href="gname.html">次頁:1.4 Глобальне ім'я (Global Name)管理にすすむ</A><BR>
+<A href="message.html">Попередня сторінка: 1.2 Система міжпроцесних повідомлень (Повернутися)</A><BR>
+<A href="gname.html">Наступна сторінка: 1.4 Глобальні імена (Перейти)</A><BR>
 </BODY>
 </HTML>

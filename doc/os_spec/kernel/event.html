@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.7 Подія (Event)管理
+  1.7 Менеджер подій вводу (Event Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="file.html">
@@ -14,96 +14,96 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="file.html">前頁:1.6 Файлова система та менеджер файлів (File Management)にもどる</A><BR>
-<A href="device.html">次頁:1.8 Пристрій (Device)管理にすすむ</A><BR>
+<A href="file.html">Попередня сторінка: 1.6 Файлова система та менеджер файлів (Повернутися)</A><BR>
+<A href="device.html">Наступна сторінка: 1.8 Менеджер пристроїв та драйверів (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aby">1.7 Подія (Event)管理</A></H2>
+<H2><A name="aby">1.7 Менеджер подій вводу (Event Management)</A></H2>
 
-<H3><A name="abz">1.7.1 Подія (Event)管理функціонал / підсистемаの概要</A></H3>
-
-<P>
-Подія (Event)管理функціонал / підсистемаは, インタラクティブなヒューマンインタフェースを実現するため
-に, ユーザとの対話に使用するКлавіатура (Keyboard)(KB)とВказівний пристрій (Pointing Device)(PD)の
-操作を«Подія (Event)»という形で統一的に取り扱うфункціонал / підсистемаであり, このфункціонал / підсистемаにより, 柔軟な
-インタラクティブ操作を実現することが可能となる. 
-</P>
-<P>
-Клавіатура (Keyboard)および, Вказівний пристрій (Pointing Device)の操作は«Подія (Event)»としてシステムで1つのПодія (Event)キューに順次格納され, прикладний додаток / програмаはПодія (Event)キューからПодія (Event)を順次取り出し, それに対応するアクションを実行する«Подія (Event)駆動形式»の形態を取ることになる. 
-</P>
-<P>
-マルチПроцес (Process)環境の場合, ユーザとのインタラクティブ操作を必要とするПроцес (Process)はある時点では必ず1つであり, ユーザとの«入力受付状態»を複数のПроцес (Process)間で相互に受け渡していく形態をとる. 
-</P>
-<P>
-従って, ある時点で入力受付状態となっているПроцес (Process)のみがПодія (Event)管理функціонал / підсистемаを使用してПодія (Event)を取り出すというルールを前提としており, прикладний додаток / програмаはこのルールに従った動作をしなくてはいけない. Подія (Event)管理функціонал / підсистема自体では, このルールを保証する機構は特に提供しておらず, 外殻レベルで提供することになる. 
-</P>
-<P>
-Подія (Event)管理функціонал / підсистемаには, Подія (Event)の管理以外にも, Клавіатура (Keyboard), およびポインティング
-Пристрій (Device)の状態／属性の取出し, 設定等のфункціонал / підсистемаも含まれており, インタラクティブな入
-力装置に対する統一的なインタフェースを提供している. 
-</P>
-
-<H3><A name="aca">1.7.2 Подія (Event)</A></H3>
-
-<H4>Подія (Event)の種類</H4>
+<H3><A name="abz">1.7.1 Загальний огляд</A></H3>
 
 <P>
-以下のタイプのПодія (Event)が定義される. 
+, 
+, (KB)(PD)
+«», , 
+. 
+</P>
+<P>
+, «»1, , «». 
+</P>
+<P>
+, 1, «». 
+</P>
+<P>
+, , . , , . 
+</P>
+<P>
+, , , 
+／, , 
+. 
+</P>
+
+<H3><A name="aca">1.7.2 Класифікація та структура системних подій</A></H3>
+
+<H4></H4>
+
+<P>
+. 
 </P>
 <DL>
- <DT>ボタンダウンПодія (Event) ( EV_BUTDWN )：
+ <DT> ( EV_BUTDWN )：
  <DD><P>
-     Вказівний пристрій (Pointing Device)のボタンが押された時に発生する. 
+     . 
      </P>
- <DT>ボタンアップПодія (Event) ( EV_BUTUP )：
+ <DT> ( EV_BUTUP )：
  <DD><P>
-     Вказівний пристрій (Pointing Device)のボタンが離された時に発生する. 
+     . 
      </P>
- <DT>キーダウンПодія (Event) ( EV_KEYDWN )：
+ <DT> ( EV_KEYDWN )：
  <DD><P>
-     シフトキー等の特殊キー(メタキー)以外の通常キーが押された時に発生する. 
+     (). 
      </P>
- <DT>キーアップПодія (Event) ( EV_KEYUP )：
+ <DT> ( EV_KEYUP )：
  <DD><P>
-     シフトキー等の特殊キー(メタキー)以外の通常キーが離された時に発生する. 
+     (). 
      </P>
- <DT>自動リピートキーПодія (Event) ( EV_AUTKEY )：
- <DD><P>自動リピートの対象となるキーが押され続けていた時に周期的に発生する. 
-     自動リピートの対象となるキーを押してから, 
-     最初に自動リピートキーПодія (Event)が発生するまでの時間(オフセット), 
-     およびその後の発生間隔(インターバル)は任意に設定可能である. 
+ <DT> ( EV_AUTKEY )：
+ <DD><P>. 
+     , 
+     (), 
+     (). 
      </P>
- <DT>Пристрій (Device)Подія (Event) ( EV_DEVICE )：
+ <DT> ( EV_DEVICE )：
  <DD><P>
-     Клавіатура (Keyboard), Вказівний пристрій (Pointing Device)以外のПристрій (Device)のある種の操作に伴って発生する汎用的なПодія (Event)であり, その内容はПристрій (Device)に依存する. 
-    フロッピーディスク等の取り外し可能メディアを装着した場合は, 
-    このПодія (Event)が発生する. 
+     , , . 
+    , 
+    . 
      </P>
- <DT>ヌルПодія (Event) ( EV_NULL )：
+ <DT> ( EV_NULL )：
  <DD><P>
-     対象とするПодія (Event)が発生していないことを示す擬似的なПодія (Event). 
+     . 
      </P>
- <DT>прикладний додаток / програмаПодія (Event) ( EV_APPL1 〜 EV_APPL8 )：
+ <DT> ( EV_APPL1 〜 EV_APPL8 )：
  <DD><P>
-     прикладний додаток / програмаにより定義され使用されるПодія (Event)であり, 
-     прикладний додаток / програма間での通信функціонал / підсистемаとして使用される. 
-     прикладний додаток / програмаПодія (Event)のいくつかは外殻により, その意味が定義さ
-     れる. 
+     , 
+     . 
+     , 
+     . 
      </P>
 </DL>
 
 <P>
-物理的なКлавіатура (Keyboard)が存在しない場合は, Подія (Event)管理の段階では EV_KEYDWN, EV_KEYUP, EV_AUTOKEYは発生しない. ソフトКлавіатура (Keyboard)のようなフロントエンドПроцес (Process)で, ボタンПодія (Event)が適当なキーПодія (Event)に変換されて, прикладний додаток / програмаに渡される. 
+,  EV_KEYDWN, EV_KEYUP, EV_AUTOKEYПомилок немає (завжди виконується успішно)., , . 
 </P>
 <P>
-Подія (Event)のタイプは, 0 〜 15 のタイプ番号で区別される. また各Подія (Event)タイプに
-対応したタイプマスクが定義されており, このマスクにより, 対象とするПодія (Event)の
-タイプを指定することができる. タイプマスクはビット対応となっており, &quot;1&quot;のビ
-ットに対応するタイプのПодія (Event)が対象とされる. ただし, ヌルПодія (Event)に対しては, その性質上マスクは定義されない. 
+, 0 〜 15 . 
+, , 
+. , &quot;1&quot;
+. , , . 
 </P>
 
 <PRE>
-    Подія (Event)    タイプ番号      タイプマスク
+              
     EV_NULL     0       --------
     EV_BUTDWN   1       EM_BUTDWN (0x0001)
     EV_BUTUP    2       EM_BUTUP  (0x0002)
@@ -111,142 +111,142 @@
     EV_KEYUP    4       EM_KEYUP  (0x0008)
     EV_AUTKEY   5       EM_AUTKEY (0x0010)
     EV_DEVICE   6       EM_DEVICE (0x0020)
-    EV_RSV      7       EM_RSV    (0x0040) ( 予約 )
+    EV_RSV      7       EM_RSV    (0x0040) (  )
     EV_APPL1    8       EM_APPL1  (0x0080)
      ：：                ：：
     EV_APPL8    15      EM_APPL8  (0x4000)
 </PRE>
 
-なお, タイプマスクとしては以下の特殊なマスクも用意されている. 
+, . 
 
 <PRE>
     EM_NULL 0x0000
     EM_ALL  0x7fff
 </PRE>
 
-<H4>Подія (Event)の構造</H4>
+<H4></H4>
 
 <P>
-Подія (Event)は以下に示すструктура даних Cで定義される. 
+. 
 </P>
 
 <PRE>
 typedef struct {
-    W   type;           /* Подія (Event)タイプ */
-    UW  time;           /* Подія (Event)発生時刻 */
-    PNT pos;            /* Подія (Event)発生時のPD位置 */
-    EVDATA  data;       /* Подія (Event)の固有データ */
-    UW  stat;           /* メタキー, PDボタン状態 */
+    W   type;           /*  */
+    UW  time;           /*  */
+    PNT pos;            /* PD */
+    EVDATA  data;       /*  */
+    UW  stat;           /* , PD */
 } EVENT;
 </PRE>
 
 <DL>
 <DT>type:
-    <DD>Подія (Event)のタイプを示す 0 〜 15 の値である. 
+    <DD> 0 〜 15 . 
 
  <DT>time:
- <DD>Подія (Event)発生時刻を示すミリ秒単位の相対的な時刻であり, この値はПодія (Event)の発生順序, 発生間隔を示しているもので絶対時刻としての意味は持たない. 
+ <DD>, , . 
     <BR>
-    内部的にПодія (Event)タイマーと呼ばれる, ミリ秒単位で加算される32ビットのタイマーが存在し, Подія (Event)が発生した時点のタイマーの値がПодія (Event)発生時刻としてセットされる. 32ビットをオーバーフローした場合は単に上位ビットが捨てられる. Подія (Event)タイマーの分解能はインプリメントに依存する. 
+    , 32, . 32. . 
     <BR>
-    なお, アプリーションПодія (Event)での time の意味はПодія (Event)の定義に依存する. 
+    ,  time . 
  <DT>pos:
- <DD>Подія (Event)発生時点のВказівний пристрій (Pointing Device)の座標位置を, スクリーンの左上を (0, 0) とした絶対座標値で示すもので, 以下の PNT タイプの値である. 
+ <DD>,  (0, 0) ,  PNT . 
 <PRE>
         typedef struct point {
-            H   x;  /* 水平座標値 */
-            H   y;  /* 垂直座標値 */
+            H   x;  /*  */
+            H   y;  /*  */
         } PNT;
 </PRE>
     <P>
-    なお, アプリーションПодія (Event)での pos の意味はПодія (Event)の定義に依存する. 
+    ,  pos . 
     </P>
  <DT>data:
- <DD>Подія (Event)の固有データであり, Подія (Event)のタイプに依存した内容である. 
+ <DD>, . 
 
 <PRE>
     typedef union {
         struct {        /* EV_KEYUP,EV_KEYDWN,EV_AUTKEY */
-            UH  keytop; /* キートップコード */
-            TC  code;   /* 文字コード */
+            UH  keytop; /*  */
+            TC  code;   /*  */
         } key;
         struct {        /* EV_DEVICE */
-            H   kind;   /* Пристрій (Device)Подія (Event)種別 */
-            H   devno;  /* Пристрій (Device)番号 */
+            H   kind;   /*  */
+            H   devno;  /*  */
         } dev;
-        W   info;       /* その他のПодія (Event)用データ */
+        W   info;       /*  */
     } EVDATA;
 </PRE>
 
-    EV_KEYDWN, EV_KEYUP, EV_AUTKEY の場合は, key が適用され, キーの物理的な位置を示すキートップコードと, エンコードされた文字コードからなる. 
+    EV_KEYDWN, EV_KEYUP, EV_AUTKEY , key , , . 
     <BR>
-    EV_DEVICE の場合は, dev が適用され, Пристрій (Device)Подія (Event)の種別(kind)とПодія (Event)が発生したПристрій (Device)を示すПристрій (Device)番号(devno)からなる. Подія (Event)の種別は以下に示すものである. 
+    EV_DEVICE , dev , (kind)(devno). . 
 <PRE>
-        kind ＝ DE_unknown  0       -- 未定義
-            DE_MOUNT        0x01    -- メディア挿入
-            DE_EJECT        0x02    -- メディア排出
-            DE_ILLMOUNT     0x03    -- メディア不正挿入
-            DE_ILLEJECT     0x04    -- メディア不正排出
-            DE_REMOUNT      0x05    -- メディア再挿入
-            DE_CARDBATLOW   0x06    -- カードバッテリ残量警告
-            DE_CARDBATFAIL  0x07    -- カードバッテリ異常
-            DE_REQEJECT     0x08    -- メディア排出要求
-                            0x09〜  -- 予約
+        kind ＝ DE_unknown  0       -- 
+            DE_MOUNT        0x01    -- 
+            DE_EJECT        0x02    -- 
+            DE_ILLMOUNT     0x03    -- 
+            DE_ILLEJECT     0x04    -- 
+            DE_REMOUNT      0x05    -- 
+            DE_CARDBATLOW   0x06    -- 
+            DE_CARDBATFAIL  0x07    -- 
+            DE_REQEJECT     0x08    -- 
+                            0x09〜  -- 
 </PRE>
-    これらのПристрій (Device)Подія (Event)は, 
-    Пристрій (Device)ドライバーからの事象通知により発生する. 
+    , 
+    . 
     <BR>
-    EV_NULL, EV_BUTDWN, EV_BUTUP の場合は, この data は使用されず, info は常に 0 となる. 
+    EV_NULL, EV_BUTDWN, EV_BUTUP ,  data , info  0 . 
     <BR>
-    アプリーションПодія (Event)(EV_APPL1〜8) の場合は, Подія (Event)の定義に依存した内容となる. 
+    (EV_APPL1〜8) , . 
  <DT>stat:
- <DD>Подія (Event)発生時点のメタキーとВказівний пристрій (Pointing Device)のボタンの状態をビット対応で示すものである. 各ビットは, &auot;0&auot;が離されている(OFF)状態, &quot;1&quot; が押されている(ON)状態を意味する. 
+ <DD>. , &auot;0&auot;(OFF), &quot;1&quot; (ON). 
     <PRE>
-        ES_BUT      0x0001  -- PDのメインボタン状態
-        ES_BUT2     0x0002  -- PDのサブボタン状態
-        ES_ALPH     0x0004  -- 英語ロックキー状態
-        ES_KANA     0x0008  -- カタカナロックキー状態
-        ES_LSHFT    0x0010  -- 左シフトキー状態
-        ES_RSHFT    0x0020  -- 右シフトキー状態
-        ES_EXT      0x0040  -- 拡張シフトキー状態
-        ES_CMD      0x0080  -- 命令シフトキー状態
+        ES_BUT      0x0001  -- PD
+        ES_BUT2     0x0002  -- PD
+        ES_ALPH     0x0004  -- 
+        ES_KANA     0x0008  -- 
+        ES_LSHFT    0x0010  -- 
+        ES_RSHFT    0x0020  -- 
+        ES_EXT      0x0040  -- 
+        ES_CMD      0x0080  -- 
     </PRE>
-    Вказівний пристрій (Pointing Device)のサブボタン(メニューボタン)は, 押されてもПодія (Event)は発生しない. また, 上記のキーはメタキーであり, 押されてもПодія (Event)は発生しない. 
+    (), Помилок немає (завжди виконується успішно)., , Помилок немає (завжди виконується успішно).
     <BR>
-    また, 下記の状態を示す情報も含まれる. 
+    , . 
 <PRE>
-        ES_LLSHFT   0x00000100  -- 左シフト簡易ロック
-        ES_LRSHFT   0x00000200  -- 右シフト簡易ロック
-        ES_LEXT     0x00000400  -- 拡張簡易ロック
-        ES_LCMD     0x00000800  -- 命令簡易ロック
-        ES_TLSHFT   0x00001000  -- 左シフト一時シフト
-        ES_TRSHFT   0x00002000  -- 右シフト一時シフト
-        ES_TEXT     0x00004000  -- 拡張一時シフト
-        ES_TCMD     0x00008000  -- 命令一時シフト
-        ES_HAN      0x00010000  -- 半角キー
-        ES_NODSP    0x00200000  -- вказівник (Pointer)非表示
-        ES_PDSIM    0x00C00000  -- PDシュミレーション
+        ES_LLSHFT   0x00000100  -- 
+        ES_LRSHFT   0x00000200  -- 
+        ES_LEXT     0x00000400  -- 
+        ES_LCMD     0x00000800  -- 
+        ES_TLSHFT   0x00001000  -- 
+        ES_TRSHFT   0x00002000  -- 
+        ES_TEXT     0x00004000  -- 
+        ES_TCMD     0x00008000  -- 
+        ES_HAN      0x00010000  -- 
+        ES_NODSP    0x00200000  -- 
+        ES_PDSIM    0x00C00000  -- PD
 </PRE>
-    これらの状態変化はПодія (Event)を発生しない. 
+    Помилок немає (завжди виконується успішно).
 </DL>
 
-<H4>Подія (Event)キュー</H4>
+<H4></H4>
 
 <P>
-Подія (Event)キューは, システムに唯 1 つ用意されているПодія (Event)格納用のキューであり, Подія (Event)が発生順に格納される. キューに空きが無い場合は, 新規に発生したПодія (Event), 即ち, 一番新しいПодія (Event)はキューに入れられず, 捨てられることになる. 
+,  1 , . , , , , . 
 </P>
 <P>
-Подія (Event)キューに格納されるПодія (Event)は, システムПодія (Event)マスクにより制限される. 即ち, システムПодія (Event)マスクの &quot;1&quot; のビットに対応するタイプのПодія (Event)のみがПодія (Event)キューに入り, &quot;0&quot; のビットに対応するタイプのПодія (Event)はシステム全体として無視されて捨てられる. 
+, . ,  &quot;1&quot; , &quot;0&quot; . 
 </P>
 <P>
-システムのスタートアップ時点では, Подія (Event)キューは空, システムПодія (Event)マスクは 0 となっており, Подія (Event)管理функціонал / підсистемаは事実上動作していない状態であるため, 必ずシステムПодія (Event)マスクを適当な値に設定する必要がある. 
+, ,  0 , , . 
 </P>
 <P>
-Подія (Event)には, そのタイプに応じた以下に示す優先度が付けられており, 高い優先度のПодія (Event)から取り出される. 同一優先度の場合は, 発生順に取り出される. 
+, , . , . 
 </P>
 
 <PRE>
-    ( 1: 最高優先度 〜 6:最低優先度 )
+    ( 1:  〜 6: )
     1. EV_APPL1〜4 
     2. EV_BUTDWN, EV_BUTUP, EV_KEYDWN, EV_KEYUP
     3. EV_AUTKEY
@@ -255,139 +255,139 @@ typedef struct {
     6. EV_NULL
 </PRE>
 
-ヌルПодія (Event)(EV_NULL), および自動リピートキーПодія (Event)(EV_AUTKEY) は, 実際にはПодія (Event)キューには入れられず, Подія (Event)の取り出し要求時に自動的に生成されることになる. 
+(EV_NULL), (EV_AUTKEY) , , . 
 
 <DL>
- <DT>ヌルПодія (Event)(EV_NULL)：
- <DD>要求されたタイプのПодія (Event)が発生していない場合に生成されて取り出される. 
- <DT>自動リピートキーПодія (Event)(EV_AUTKEY)：
- <DD>以下の条件が満足された場合, 生成されて取り出される. 
+ <DT>(EV_NULL)：
+ <DD>. 
+ <DT>(EV_AUTKEY)：
+ <DD>, . 
      <OL>
-      <LI>  EV_AUTKEY は要求されたタイプの1つである. 
-      <LI>  EV_AUTKEY に対応するシステムПодія (Event)マスクのビットは &quot;1&quot; である. 
-      <LI>  EV_AUTKEY より優先度の高いПодія (Event)が発生していない. 
-      <LI>  最新の EV_KEYDWN の発生キーが押され続けられている. 
-      <LI>  最新の EV_KEYDWN の発生以降, 設定されているオフセット時間, 
-            またはインターバル時間が経過した. 
-      <LI>  自動リピートの対象キーである. 
+      <LI>  EV_AUTKEY 1. 
+      <LI>  EV_AUTKEY  &quot;1&quot; . 
+      <LI>  EV_AUTKEY . 
+      <LI>   EV_KEYDWN . 
+      <LI>   EV_KEYDWN , , 
+            . 
+      <LI>  . 
      </OL>
-     なお, 1つのキーを押し続けている状態で, さらに別のキーを押し続けた場合は, 最後に押したキーの自動リピートキーПодія (Event)のみが発生することになる. 
+     , 1, , . 
 </DL>
 
-<H3><A name="acb">1.7.3 Клавіатура (Keyboard)</A></H3>
+<H3><A name="acb">1.7.3 Обробка вводу з клавіатури (Keyboard Management)</A></H3>
 
-<H4>メタキー</H4>
+<H4></H4>
 
 <P>
-TRONКлавіатура (Keyboard)において以下のキーはメタキーであり, 押したり離したりした場合でもПодія (Event)は発生しないが, その状態はПодія (Event)内の stat フィールドにセットされ, また文字コードのエンコードに使用される. 
+TRON, ,  stat , . 
 </P>
 
 <UL>
- <LI>日本語 / 英語キー (ロックキー)
- <LI>ひらがな / カタカナキー(英語の時は, CAPSLOCK キー) (ロックキー)
- <LI>左シフトキー
- <LI>右シフトキー
- <LI>拡張シフトキー
- <LI>命令シフトキー
+ <LI> /  ()
+ <LI> / (, CAPSLOCK ) ()
+ <LI>
+ <LI>
+ <LI>
+ <LI>
 </UL>
 
 <P>
-メタキーは先に押された場合のみ文字のエンコードに対して有効となる. 
+. 
 </P>
 
-<H4>自動リピートキー</H4>
+<H4></H4>
  
 <P>
-自動リピートキーПодія (Event)(EV_AUTKEY) は, 自動リピートの対象キーが押し続けられた場合に発生する. 
+(EV_AUTKEY) , . 
 </P>
 <P>
-自動リピートの対象キーはПодія (Event)を発生しないメタキーを除いて任意に設定可能であ
-り, システム立ち上げ時には, メタキーを除いたすべてのキーを自動リピートの対象と
-する. 
+
+, , 
+. 
 </P>
 <P>
-押してから最初に発生するまでの時間(オフセット時間)と, その後の発生間隔(インタ
-ーバル時間)の設定／取出し用のсистемний виклик (System Call)が提供されている. この時間はミリ秒
-単位である. 
+(), (
+)／. 
+. 
 </P>
 <P>
-但し, 自動リピートキーПодія (Event)の発生間隔はインプリメントに依存しており, オフ
-セット時間とインターバル時間は, Подія (Event)発生時刻の単位へ丸められる. 
+, , 
+, . 
 </P>
 
-<H4>文字コード</H4>
+<H4></H4>
 
 <P>
-キーПодія (Event)では, キーの物理的位置を示すキートップコードと, エンコードされた文字コードを戻す. 
+, , . 
 </P>
 <P>
-キートップコードは, キーの物理的位置に応じた固定的な8ビットのコード ( 0 〜255 ) であり, メタキーの状態により異なった文字コードにエンコードされる. 
+, 8 ( 0 〜255 ) , . 
 </P>
 <P>
-文字コードへのエンコードは«文字コード変換表»を使用して行なわれる. 通常, ユーザーの使用する言語, 入力方式(ローマ字入力／かな入力等)に対応した変換表が, ユーザー毎に設定されることになる. 
+«». , , (／), . 
 </P>
 <P>
-文字コード変換表は以下の構造を持つ. 
+. 
 </P>
 
 <PRE>
 typedef struct {
-    W   keymax;         /* 実際の最大キー数 (1〜256) */
-    W   kctmax;         /* 実際の変換表の数 (1〜64) */
-    UH  kctsel[KCTSEL]; /* 変換表の番号 (0〜kctmax-1の値) */
-    UH  kct[KCTMAX];    /* 変換表本体 (keymax×kctmax個の要素) */
+    W   keymax;         /*  (1〜256) */
+    W   kctmax;         /*  (1〜64) */
+    UH  kctsel[KCTSEL]; /*  (0〜kctmax-1) */
+    UH  kct[KCTMAX];    /*  (keymax×kctmax) */
 } KeyTab;
 </PRE>
 <UL>
- <LI>keymax はКлавіатура (Keyboard)により規定される最大キー数であり, キートップコードは0〜(keymax-1)となる. 
- <LI>kctmax は文字コード表の数で最大64. 
- <LI>keymax × kctmaxの最大許容値はインプリメントに依存するが, 少なくとも 2048 が保証される. 
- <LI>kctsel[] は, 6 種のメタキー状態に対応する文字コード表の番号( 0 〜 kctmax - 1 ) を定義する配列である. メタキー状態を以下の 6 ビットの数値と した場合, kctsel[メタキー状態] の値が対応する文字コード表の番号( 0 〜 kctmax - 1 )となる. 複数のエントリから, 共通の文字コード表を指すことができる. 
+ <LI>keymax , 0〜(keymax-1). 
+ <LI>kctmax 64. 
+ <LI>keymax × kctmax,  2048 . 
+ <LI>kctsel[] , 6 ( 0 〜 kctmax - 1 ) .  6  , kctsel[] ( 0 〜 kctmax - 1 ). , . 
 <PRE>      
-    メタキー状態：CERLKA
-        A:«日本語／英語»キー (0:日本語)
-        K:«ひらがな／カタカナ»キー (0:ひらがな)
-        L:«左シフト»キー
-        R:«右シフト»キー
-        E:«拡張シフト»キー
-        C:«命令シフト»キー
+    ：CERLKA
+        A:«／» (0:)
+        K:«／» (0:)
+        L:«»
+        R:«»
+        E:«»
+        C:«»
 </PRE>
- <LI> kct[] は文字コード表本体であり, 実際には kct[kctmax][keymax] の 2 次元配列となる. kct[kctsel[メタキー状態(0〜63)]][キー位置コード(0〜keymax-1)] がエンコードされた文字コードを示す. 
+ <LI> kct[] ,  kct[kctmax][keymax]  2 . kct[kctsel[(0〜63)]][(0〜keymax-1)] . 
 </UL>
 
-<H4>キー状態</H4>
+<H4></H4>
 
 <P>
-キーが押されているか否かの状態は, 1つのキーを1ビットに対応させた以下に示す
-KeyMap 配列により定義され, この KeyMap 配列を取り出すためのсистемний виклик (System Call)が提
-供されている. 
+, 11
+KeyMap ,  KeyMap 
+. 
 </P>
 
 <PRE>
-typedef UB  KeyMap[KEYMAX/8];       -- キー状態配列
+typedef UB  KeyMap[KEYMAX/8];       -- 
 </PRE>
 
 <A name="acc">
-<CENTER><IMG src="gif/keymap.gif" alt="キー状態 (KeyMap)"></CENTER>
+<CENTER><IMG src="gif/keymap.gif" alt=" (KeyMap)"></CENTER>
 </A>
-<CENTER>図 13 : キー状態 (KeyMap)</CENTER>
+<CENTER> 13 :  (KeyMap)</CENTER>
 
 
 <P>
-  なお, この KeyMap 配列は, 自動リピートの対象となるキーの設定 / 取出しにも使用される. この場合, &quot;1 &quot;のビットに対応するキーが自動リピートの対象となる. 
+  ,  KeyMap ,  / . , &quot;1 &quot;. 
 </P>
 
-<H4>Клавіатура (Keyboard)ID</H4>
+<H4>ID</H4>
 
 <P>
-  現在接続されているКлавіатура (Keyboard)の種類を知るために以下にように定義されるКлавіатура (Keyboard)IDを取り出すことが可能である. 
+  ID. 
 </P>
 
 <PRE>
 typedef struct {
-    UH  kind;           /* Клавіатура (Keyboard)タイプ */
-    UH  maker;          /* メーカーID */
-    UB  id[4];          /* メーカー依存Клавіатура (Keyboard)ID */
+    UH  kind;           /*  */
+    UH  maker;          /* ID */
+    UB  id[4];          /* ID */
 } KBD_ID;
 </PRE>
 
@@ -395,126 +395,126 @@ typedef struct {
 <DT>kind：0000 000T TTTT TTMP
  <DD>
     <PRE>
-    P= 0          -- Вказівний пристрій (Pointing Device)がКлавіатура (Keyboard)に内蔵されていない
-       1          -- Вказівний пристрій (Pointing Device)がКлавіатура (Keyboard)に内蔵されている
-    M= 0          -- ロックキーは電子ロック式
-       1          -- ロックキーはメカニカルロック方式
-    T=0x00        -- 未定義Клавіатура (Keyboard)
-      0x01        -- TRON日本語Клавіатура (Keyboard)
-      0x02〜0x3F  -- 予約 (TRON 仕様のКлавіатура (Keyboard))
-      0x40        -- IBM 101 系英語Клавіатура (Keyboard)
-      0x41        -- IBM 106 系日本語Клавіатура (Keyboard)
-      0x42〜0x7f  -- 予約 (TRON 仕様以外のКлавіатура (Keyboard))
+    P= 0          -- 
+       1          -- 
+    M= 0          -- 
+       1          -- 
+    T=0x00        -- 
+      0x01        -- TRON
+      0x02〜0x3F  --  (TRON )
+      0x40        -- IBM 101 
+      0x41        -- IBM 106 
+      0x42〜0x7f  --  (TRON )
     </PRE>
  <DT>maker:
- <DD>メーカーを表わすIDであり, get_ver() で得られるメーカーの値と同じものである. 
+ <DD>ID, get_ver() . 
  <DT>id[4]:
- <DD>メーカーに依存したКлавіатура (Keyboard)の種別を表わすIDで4バイトから構成される. 
+ <DD>ID4. 
 </DL>
 
-<H3><A name="acd">1.7.4 Вказівний пристрій (Pointing Device)</A></H3>
+<H3><A name="acd">1.7.4 Обробка вводу з вказівних пристроїв (Pointing Device Management)</A></H3>
 
-<H4>Вказівний пристрій (Pointing Device)</H4>
+<H4></H4>
 
 <P>
-Вказівний пристрій (Pointing Device)は, スクリーン上に表示されているオブジェクトを選択するために使用され, その現在位置として, スクリーンの解像度に対応したレンジの絶対座標値を持つ. 絶対座標値とは, スクリーンの左上の点を ( 0, 0 )とし, スクリーン上の 1 ピクセルを単位とした座標値である. 
+, , , . ,  ( 0, 0 ),  1 . 
 </P>
 
-<H4>Вказівний пристрій (Pointing Device)の動作タイプ</H4>
+<H4></H4>
 
 <P>
-Вказівний пристрій (Pointing Device)は, その動作方式から以下の 2 種類に大きく分類される. 
+,  2 . 
 </P>
 
 <DL>
- <DT>絶対動作タイプ：
-  <DD>電子ペン等のタブレットタイプのもので, Вказівний пристрій (Pointing Device)の
-      物理的な位置により, 絶対的に座標値が決定されるもの. 
- <DT>相対動作タイプ(差動タイプ)：
-  <DD>マウス等で, Вказівний пристрій (Pointing Device)の物理的な位置の移動により, 
-      相対的に座標値が決定されるもの. 
+ <DT>：
+  <DD>, 
+      , . 
+ <DT>()：
+  <DD>, , 
+      . 
 </DL>
 
 <P>
-相対動作タイプの場合は, Вказівний пристрій (Pointing Device)の(基準)位置を任意に設定するこ
-とが可能であるが, 絶対動作タイプの場合は, 位置の設定は不可となる. 
+, ()
+, , . 
 </P>
 <P>
-なお, Вказівний пристрій (Pointing Device)によっては, 絶対／相対動作の両方の動作を切り換える
-ことが可能なものもある. 
+, , ／
+. 
 </P>
 
-<H4>Вказівний пристрій (Pointing Device)の属性</H4>
+<H4></H4>
 
 <P>
-Вказівний пристрій (Pointing Device)の属性として以下のものが定義され, 取り出し/設定が可能である. 
+, /. 
 </P>
 <DL>
- <DT>感度:
- <DD>相対動作タイプの場合のみ定義され, Вказівний пристрій (Pointing Device)の移動
-     量と, 座標値の移動量と比率を表わすもので, 感度が高い程, ポイン
-     ティングПристрій (Device)の移動量に対する, 座標値の移動量が大きくなる. 
+ <DT>:
+ <DD>, 
+     , , , 
+     , . 
      <BR>
-     最低感度(0)〜最高感度(15) の16段階で定義される. 
- <DT>スキャン速度
- <DD>Вказівний пристрій (Pointing Device)の位置を取り出すことが可能な時間間隔を示
-     すものであり, スキャン速度が高速な程, 時間間隔が狭まることになる. 
+     (0)〜(15) 16. 
+ <DT>
+ <DD>
+     , , . 
      <BR>
-      最低速(0)〜最高速(15) の16段階で定義される. 
+      (0)〜(15) 16. 
 </DL>
 
-<H3><A name="ace">1.7.5 データ/定数の定義</A></H3>
+<H3><A name="ace">1.7.5 Визначення типів даних та конста</A></H3>
 
-<H4>□ Подія (Event)固有データ</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef union {
     struct {            /* EV_KEYUP,EV_KEYDWN,EV_AUTKEY */
-        UH  keytop;     /* キートップコード */
-        TC  code;       /* 文字コード */
+        UH  keytop;     /*  */
+        TC  code;       /*  */
     } key;
     struct {            /* EV_DEVICE */
-        H   kind;       /* Пристрій (Device)Подія (Event)種別 */
-        H   devno;      /* Пристрій (Device)番号 */
+        H   kind;       /*  */
+        H   devno;      /*  */
     } dev;
-    W   info;           /* その他のПодія (Event)用データ */
+    W   info;           /*  */
 } EVDATA;
 </PRE>
 
-<H4>□ Подія (Event)</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct {
-    W       type;           /* Подія (Event)タイプ */
-    UW      time;           /* Подія (Event)発生時間(m sec) */
-    PNT     pos;            /* Подія (Event)発生時のPD位置 */
-    EVDATA  data;           /* Подія (Event)の固有データ */
-    UW      stat;           /* メタキー, PDボタン状態 */
+    W       type;           /*  */
+    UW      time;           /* (m sec) */
+    PNT     pos;            /* PD */
+    EVDATA  data;           /*  */
+    UW      stat;           /* , PD */
 } EVENT;
 </PRE>
 
-<H4>□ Подія (Event)タイプ</H4>
+<H4>□ </H4>
 
 <PRE>
-#define EV_NULL     0       /* ヌルПодія (Event) */
-#define EV_BUTDWN   1       /* ボタンダウン */
-#define EV_BUTUP    2       /* ボタンアップ */
-#define EV_KEYDWN   3       /* キーダウン */
-#define EV_KEYUP    4       /* キーアップ */
-#define EV_AUTKEY   5       /* 自動キーリピート */
-#define EV_DEVICE   6       /* Пристрій (Device)Подія (Event) */
-#define EV_RSV      7       /* 予約 */
-#define EV_APPL1    8       /* прикладний додаток / програмаПодія (Event)#1 */
-#define EV_APPL2    9       /* прикладний додаток / програмаПодія (Event)#2 */
-#define EV_APPL3    10      /* прикладний додаток / програмаПодія (Event)#3 */
-#define EV_APPL4    11      /* прикладний додаток / програмаПодія (Event)#4 */
-#define EV_APPL5    12      /* прикладний додаток / програмаПодія (Event)#5 */
-#define EV_APPL6    13      /* прикладний додаток / програмаПодія (Event)#6 */
-#define EV_APPL7    14      /* прикладний додаток / програмаПодія (Event)#7 */
-#define EV_APPL8    15      /* прикладний додаток / програмаПодія (Event)#8 */
+#define EV_NULL     0       /*  */
+#define EV_BUTDWN   1       /*  */
+#define EV_BUTUP    2       /*  */
+#define EV_KEYDWN   3       /*  */
+#define EV_KEYUP    4       /*  */
+#define EV_AUTKEY   5       /*  */
+#define EV_DEVICE   6       /*  */
+#define EV_RSV      7       /*  */
+#define EV_APPL1    8       /* #1 */
+#define EV_APPL2    9       /* #2 */
+#define EV_APPL3    10      /* #3 */
+#define EV_APPL4    11      /* #4 */
+#define EV_APPL5    12      /* #5 */
+#define EV_APPL6    13      /* #6 */
+#define EV_APPL7    14      /* #7 */
+#define EV_APPL8    15      /* #8 */
 </PRE>
 
-<H4>□ Подія (Event)マスク</H4>
+<H4>□ </H4>
 
 <PRE>
 #define EM_NULL     0x0000
@@ -536,92 +536,92 @@ typedef struct {
 #define EM_APPL8    0x4000
 </PRE>
 
-<H4>□ メタキー, PDボタン状態(0: OFF, 1:ON)</H4>
+<H4>□ , PD(0: OFF, 1:ON)</H4>
 
 <PRE>
-#define ES_BUT      0x00000001  /* PDメインボタン */
-#define ES_BUT2     0x00000002  /* PDサブボタン */
-#define ES_ALPH     0x00000004  /* 英語ロックキー */
-#define ES_KANA     0x00000008  /* カタカナロックキー */
-#define ES_LSHFT    0x00000010  /* 左シフトキー */
-#define ES_RSHFT    0x00000020  /* 右シフトキー */
-#define ES_EXT      0x00000040  /* 拡張キー */
-#define ES_CMD      0x00000080  /* 命令キー */
-#define ES_LLSHFT   0x00000100  /* 左シフト簡易ロック */
-#define ES_LRSHFT   0x00000200  /* 右シフト簡易ロック */
-#define ES_LEXT     0x00000400  /* 拡張簡易ロック */
-#define ES_LCMD     0x00000800  /* 命令簡易ロック */
-#define ES_TLSHFT   0x00001000  /* 左シフト一時シフト */
-#define ES_TRSHFT   0x00002000  /* 右シフト一時シフト */
-#define ES_TEXT     0x00004000  /* 拡張一時シフト */
-#define ES_TCMD     0x00008000  /* 命令一時シフト */
-#define ES_HAN      0x00010000  /* 半角キー */
-#define ES_NODSP    0x00400000  /* вказівник (Pointer)非表示 */
-#define ES_PDSIM    0x00800000  /* PDシュミレーション */
+#define ES_BUT      0x00000001  /* PD */
+#define ES_BUT2     0x00000002  /* PD */
+#define ES_ALPH     0x00000004  /*  */
+#define ES_KANA     0x00000008  /*  */
+#define ES_LSHFT    0x00000010  /*  */
+#define ES_RSHFT    0x00000020  /*  */
+#define ES_EXT      0x00000040  /*  */
+#define ES_CMD      0x00000080  /*  */
+#define ES_LLSHFT   0x00000100  /*  */
+#define ES_LRSHFT   0x00000200  /*  */
+#define ES_LEXT     0x00000400  /*  */
+#define ES_LCMD     0x00000800  /*  */
+#define ES_TLSHFT   0x00001000  /*  */
+#define ES_TRSHFT   0x00002000  /*  */
+#define ES_TEXT     0x00004000  /*  */
+#define ES_TCMD     0x00008000  /*  */
+#define ES_HAN      0x00010000  /*  */
+#define ES_NODSP    0x00400000  /*  */
+#define ES_PDSIM    0x00800000  /* PD */
 </PRE>
 
-<H4>□ 入力モード</H4>
+<H4>□ </H4>
 
 <PRE>
-#define IM_HIRA     0x0000          /* 日本語ひらがな */
-#define IM_ALPH     (ES_ALPH)       /* 英語(小文字) */
-#define IM_KATA     (ES_KANA)       /* 日本語カタカナ */
-#define IM_CAPS     (ES_ALPH | ES_KANA) /* 英語(大文字) */
+#define IM_HIRA     0x0000          /*  */
+#define IM_ALPH     (ES_ALPH)       /* () */
+#define IM_KATA     (ES_KANA)       /*  */
+#define IM_CAPS     (ES_ALPH | ES_KANA) /* () */
 #define IM_MASK     (ES_ALPH | ES_KANA)
 </PRE>
 
 <PRE>
-#define KIN_KANA    0x0000          /* かな入力モード */
-#define KIN_ROMAN   0x0001          /* ローマ字入力モード */
+#define KIN_KANA    0x0000          /*  */
+#define KIN_ROMAN   0x0001          /*  */
 </PRE>
 
-<H4>□ Пристрій (Device)Подія (Event)(EV_DEVICE)の種別(EVDATA.dev.kind)</H4>
+<H4>□ (EV_DEVICE)(EVDATA.dev.kind)</H4>
 
 <PRE>
 typedef enum {
-    DE_unknown      = 0,        /* 未定義 */
-    DE_MOUNT        = 0x01,     /* メディア挿入 */
-    DE_EJECT        = 0x02,     /* メディア排出 */
-    DE_ILLMOUNT     = 0x03,     /* メディア不正挿入 */
-    DE_ILLEJECT     = 0x04,     /* メディア不正排出 */
-    DE_REMOUNT      = 0x05,     /* メディア再挿入 */
-    DE_CARDBATLOW   = 0x06,     /* カードバッテリ残量警告 */
-    DE_CARDBATFAIL  = 0x07,     /* カードバッテリ異常 */
-    DE_REQEJECT     = 0x08      /* メディア排出要求 */
+    DE_unknown      = 0,        /*  */
+    DE_MOUNT        = 0x01,     /*  */
+    DE_EJECT        = 0x02,     /*  */
+    DE_ILLMOUNT     = 0x03,     /*  */
+    DE_ILLEJECT     = 0x04,     /*  */
+    DE_REMOUNT      = 0x05,     /*  */
+    DE_CARDBATLOW   = 0x06,     /*  */
+    DE_CARDBATFAIL  = 0x07,     /*  */
+    DE_REQEJECT     = 0x08      /*  */
 } DevEvtKind;
 </PRE>
 
 <H4>□ put_evt()</H4>
 
 <PRE>
-#define EP_NONE     0x0000      /* time,pos,stat はそのまま */
-#define EP_POS      0x0001      /* pos に現在PD位置を設定 */
-#define EP_STAT     0x0002      /* stat に現在メタキー状態を設定 */
-#define EP_TIME     0x0004      /* time に現在時間を設定 */
-#define EP_ALL      0x0007      /* pos,stat,time に現在値を設定 */
+#define EP_NONE     0x0000      /* time,pos,stat  */
+#define EP_POS      0x0001      /* pos PD */
+#define EP_STAT     0x0002      /* stat  */
+#define EP_TIME     0x0004      /* time  */
+#define EP_ALL      0x0007      /* pos,stat,time  */
 </PRE>
 
 <H4>□ chg_pda()</H4>
 
 <PRE>
-#define PD_REV      0x1000      /* 左右反転 */
-#define PD_ABS      0x0100      /* 絶対座標タイプ */
-#define PD_REL      0x0000      /* 相対座標タイプ */
-#define PD_SCMSK    0x00f0      /* スキャン速度 (マスク) */
-#define PD_SNMSK    0x000f      /* 感度 (マスク) */
+#define PD_REV      0x1000      /*  */
+#define PD_ABS      0x0100      /*  */
+#define PD_REL      0x0000      /*  */
+#define PD_SCMSK    0x00f0      /*  () */
+#define PD_SNMSK    0x000f      /*  () */
 </PRE>
 
-<H4>□ Клавіатура (Keyboard)</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct {
-    UH  kind;           /* Клавіатура (Keyboard)タイプ */
-    UH  maker;          /* メーカーID */
-    UB  id[4];          /* メーカー依存Клавіатура (Keyboard)ID */
+    UH  kind;           /*  */
+    UH  maker;          /* ID */
+    UB  id[4];          /* ID */
 } KBD_ID;
 </PRE>
 
-<H4>□ キーマップ</H4>
+<H4>□ </H4>
 
 <PRE>
 #define KEYMAX      256
@@ -631,7 +631,7 @@ typedef struct {
 typedef UB  KeyMap[KEYMAX/8];
 </PRE>
 
-<H4>□ キーテーブル</H4>
+<H4>□ </H4>
 
 <PRE>
 #define KCTSEL      64
@@ -640,38 +640,38 @@ typedef UB  KeyMap[KEYMAX/8];
 
 <PRE>
 typedef struct {
-    W   keymax;             /* 実際の最大キー数 */
-    W   kctmax;             /* 実際の変換表の数 */
-    UH  kctsel[KCTSEL];     /* 変換表の番号 */
-    UH  kct[KCTMAX];        /* 変換表本体 */
+    W   keymax;             /*  */
+    W   kctmax;             /*  */
+    UH  kctsel[KCTSEL];     /*  */
+    UH  kct[KCTMAX];        /*  */
 } KeyTab;
 </PRE>
 
 <H4>□ ctl_buz()</H4>
 
 <PRE>
-                    /* ＜取り出し＞ */
-#define GET_BUZ_BEEP    0x0000      /* 音色：標準の警告音 */
-#define GET_BUZ_PDON    0x0001      /* 音色：ボタンONのクリック音 */
-#define GET_BUZ_PDOFF   0x0002      /* 音色：ボタンOFFのクリック音 */
-#define GET_BUZ_KEYON   0x0003      /* 音色：キーONのクリック音 */
-#define GET_BUZ_KEYOFF  0x0004      /* 音色：キーOFFのクリック音 */
-#define GET_BUZ_VOLUME  0x0010      /* 音量 */
-                    /* ＜設定＞ */
-#define SET_BUZ_BEEP    0x0100      /* 音色：標準の警告音 */
-#define SET_BUZ_PDON    0x0101      /* 音色：ボタンONのクリック音 */
-#define SET_BUZ_PDOFF   0x0102      /* 音色：ボタンOFFのクリック音 */
-#define SET_BUZ_KEYON   0x0103      /* 音色：キーONのクリック音 */
-#define SET_BUZ_KEYOFF  0x0104      /* 音色：キーOFFのクリック音 */
-#define SET_BUZ_VOLUME  0x0110      /* 音量 */
+                    /* ＜＞ */
+#define GET_BUZ_BEEP    0x0000      /* ： */
+#define GET_BUZ_PDON    0x0001      /* ：ON */
+#define GET_BUZ_PDOFF   0x0002      /* ：OFF */
+#define GET_BUZ_KEYON   0x0003      /* ：ON */
+#define GET_BUZ_KEYOFF  0x0004      /* ：OFF */
+#define GET_BUZ_VOLUME  0x0010      /*  */
+                    /* ＜＞ */
+#define SET_BUZ_BEEP    0x0100      /* ： */
+#define SET_BUZ_PDON    0x0101      /* ：ON */
+#define SET_BUZ_PDOFF   0x0102      /* ：OFF */
+#define SET_BUZ_KEYON   0x0103      /* ：ON */
+#define SET_BUZ_KEYOFF  0x0104      /* ：OFF */
+#define SET_BUZ_VOLUME  0x0110      /*  */
 </PRE>
 
-<H3><A name="acf">1.7.6 системний виклик (System Call)</A></H3>
+<H3><A name="acf">1.7.6 Системні виклики підсистеми подій</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -680,39 +680,39 @@ WERR    get_evt(W t_mask, EVENT* evt, W opt)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       t_mask  対象Подія (Event)タイプマスク
+W       t_mask  
 
-EVENT*  evt     取得したПодія (Event)の格納領域
+EVENT*  evt     
 
-W       opt     取得属性
+W       opt     
                 ( CLR ‖ NOCLR )
-                CLR    Подія (Event)キューから取り除く. 
-                NOCLR  Подія (Event)キューから取り除かない. 
+                CLR    . 
+                NOCLR  . 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(得られたПодія (Event)のタイプ)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定したタイプのПодія (Event)をПодія (Event)キューから取り出す. 
+. 
 <BR>
-指定したタイプのПодія (Event)が発生していないときは, EV_NULL が取り出される. 
+, EV_NULL . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(evt)のアクセスは許されていない. 
-ER_IO       : 入出力Помилкаが発生した(何らかのПристрій (Device)Помилкаが発生した). 
-ER_PAR      : параметриが不正である(t_mask≦0, optが不正). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (evt). 
+ER_IO       : (). 
+ER_PAR      : (t_mask≦0, opt). 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">put_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)の発生</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -721,15 +721,15 @@ ERR put_evt(EVENT* evt, W opt)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-EVENT*  evt   発生するПодія (Event)
+EVENT*  evt   
 
-W       opt   発生属性
+W       opt   
         ( EP_NONE ‖ EP_ALL ‖ ([ EP_POS ] | [ EP_STAT ] | [EP_TIME]) )
-        EP_NONE   time, pos, stat は evt の内容のままとする. 
-        EP_ALL    time, pos, stat のすべてを設定する. 
-        EP_POS    pos に現在のВказівний пристрій (Pointing Device)の位置を設定する. 
-        EP_STAT   stat に現在のメタキー/ PD ボタン状態を設定する. 
-        EP_TIME   time に現在のПодія (Event)タイマーの値を設定する. 
+        EP_NONE   time, pos, stat  evt . 
+        EP_ALL    time, pos, stat . 
+        EP_POS    pos . 
+        EP_STAT   stat / PD . 
+        EP_TIME   time . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -738,26 +738,26 @@ W       opt   発生属性
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定したПодія (Event)を発生させてПодія (Event)キューに入れる. 
+. 
 <BR>
-Подія (Event)キューに空きがない場合, または, EV_NULL および EV_AUTKEY の指定したときはПомилкаとなる. 
+, , EV_NULL  EV_AUTKEY . 
 <BR>
-システムПодія (Event)マスクで対象外のПодія (Event)は実際には発生せず無視される. 
+. 
 <BR>
-発生したПодія (Event)は time の値にかかわらず, 本системний виклик (System Call)を実行したときに発生したものとみなされ, 常にПодія (Event)キューの最後に入れられる. 
+ time , , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(evt)のアクセスは許されていない. 
-ER_IO       : 入出力Помилкаが発生した(何らかのПристрій (Device)Помилкаが発生した). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_PAR      : параметриが不正である(Подія (Event)のタイプが不正, optが不正). 
+ER_ADR      : (evt). 
+ER_IO       : (). 
+ER_NOSPC    : . 
+ER_PAR      : (, opt). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">clr_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)のクリア</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -766,12 +766,12 @@ ERR clr_evt(W t_mask, W last_mask)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   t_mask      クリア対象Подія (Event)タイプマスク
-                ＝EM_ALL    全Подія (Event)タイプ
+W   t_mask      
+                ＝EM_ALL    
 
-W   last_mask   クリア終了Подія (Event)タイプマスク
-                ＝EM_ALL    Подія (Event)を1つだけクリア
-                ＝EM_ALL    対象はПодія (Event)キューの最後まで
+W   last_mask   
+                ＝EM_ALL    1
+                ＝EM_ALL    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -780,21 +780,21 @@ W   last_mask   クリア終了Подія (Event)タイプマスク
 </PRE>
 
 <H4>【Детальний опис】</H4>
-発生済みのПодія (Event)をクリアする. 
+. 
 <BR>
-Подія (Event)キューに入っているПодія (Event)のうち, t_mask で指定したタイプのПодія (Event)を last_mask で指定したタイプのПодія (Event)の直前までクリアする. last_mask で指定したタイプのПодія (Event)はクリアされないが, last_mask =  EM_ALL のときは, 特別にПодія (Event)を1つだけクリアすることを意味する. 
+, t_mask  last_mask . last_mask , last_mask =  EM_ALL , 1. 
 <BR>
-t_mask と last_mask の指定例を以下に示す. 
+t_mask  last_mask . 
 <PRE>
-    t_mask      last_mask   動作
-    EM_ALL      EM_NULL     全てのПодія (Event)をクリア
-      --        EM_ALL      t_mask で指定したПодія (Event)を1つだけクリア
-    EM_ALL      EM_ALL      先頭のПодія (Event)を1つだけクリア
+    t_mask      last_mask   
+    EM_ALL      EM_NULL     
+      --        EM_ALL      t_mask 1
+    EM_ALL      EM_ALL      1
 </PRE>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR      : параметриが不正である(t_mask≦0, last_mask&lt;0). 
+ER_PAR      : (t_mask≦0, last_mask&lt;0). 
 </PRE>
 
 
@@ -802,7 +802,7 @@ ER_PAR      : параметриが不正である(t_mask≦0, last_mask&lt;0).
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_pdp</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>PD位置の取得</TD></TR>
+<TR><TD>PD</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -812,36 +812,36 @@ WERR    get_pdp(PNT* pos)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-PNT*    pos PD位置の格納領域
+PNT*    pos PD
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(発生しているПодія (Event)のタイプ)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-現在のВказівний пристрій (Pointing Device)の位置を絶対座標値で取り出す. 
+. 
 <BR>
-同時に発生しているПодія (Event)のタイプを戻す. 何のПодія (Event)も発生していないときは EV_NULL を戻す. 
+.  EV_NULL . 
 <BR>
-Подія (Event)キューの内容は一切変化しない. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(pos)のアクセスは許されていない. 
-ER_BUSY     : PDはビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (pos). 
+ER_BUSY     : PD. 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_pdp</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>PD位置の設定</TD></TR>
+<TR><TD>PD</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -850,37 +850,37 @@ WERR    set_pdp(PNT pos)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-PNT pos 設定するPD位置(絶対座標)
+PNT pos PD()
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання(PD位置設定可)
-＝1    Успішне виконання(PD位置設定不可)
+= 0      Успішне виконання(PD)
+＝1    (PD)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定した絶対座標位置を現在のВказівний пристрій (Pointing Device)の位置として設定する. 
+. 
 <BR>
-指定する位置はВказівний пристрій (Pointing Device)の座標レンジの範囲内でなくてはいけない. 
+. 
 <BR>
-位置の設定ができたときは関数値 &quot;0&quot; を戻し, Вказівний пристрій (Pointing Device)の動作が絶対動作タイプのため位置の設定ができなかったときは関数値 &quot;1&quot; を戻す. 
+ &quot;0&quot; ,  &quot;1&quot; . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_BUSY     : PDはビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_PAR      : параметриが不正である(pos が座標レンジ外). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_BUSY     : PD. 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_PAR      : (pos ). 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_etm</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)タイマー値の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -889,7 +889,7 @@ ERR get_etm(UW* time)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-UW  *time   Подія (Event)タイマー値の格納領域
+UW  *time   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -898,21 +898,21 @@ UW  *time   Подія (Event)タイマー値の格納領域
 </PRE>
 
 <H4>【Детальний опис】</H4>
-Подія (Event)タイマーの現在の値を取り出す. 
+. 
 <BR>
-Подія (Event)タイマーはミリ秒単位の相対的な時間であるが, 実際の分解能はインプリメントに依存する. 
+, . 
 <BR>
-本системний виклик (System Call)は一般的にミリ秒単位の相対時間を取り出すために使用される. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(time)のアクセスは許されていない. 
+ER_ADR      : (time). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_kmp</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>キー状態の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -921,7 +921,7 @@ ERR get_kmp(KeyMap keymap)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KeyMap  keymap  キー状態の格納領域
+KeyMap  keymap  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -931,24 +931,24 @@ KeyMap  keymap  キー状態の格納領域
 
 <H4>【Детальний опис】</H4>
 <P>
-現在のキー状態を取り出す. 
+. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(keymap)のアクセスは許されていない. 
-ER_BUSY     : Клавіатура (Keyboard)はビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (keymap). 
+ER_BUSY     : . 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">chg_emk</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>システムПодія (Event)マスクの変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -958,27 +958,27 @@ WERR    chg_emk(W mask)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   mask    設定するシステムПодія (Event)マスク
-            &lt;0    変更しない(現在のシステムПодія (Event)マスクの取得)
+W   mask    
+            &lt;0    ()
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(変更前のシステムПодія (Event)マスク)
+>= 0     Успішне виконання()
 </PRE>
 <H4>【Детальний опис】</H4>
-システムПодія (Event)マスクを指定した値に変更し, 変更前のシステムПодія (Event)マスクの値を関数値として戻す. 
+, . 
 <BR>
-mask &lt;0 のときは変更せずに現在のシステムПодія (Event)マスクの値を関数値として戻す. 
+mask &lt;0 . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-発生しない. 
+Помилок немає (завжди виконується успішно).
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_krp</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>自動リピート間隔の設定</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -988,9 +988,9 @@ ERR set_krp(W offset, W interval)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   offset      自動リピート最初の発生までの時間(ミリ秒)
+W   offset      ()
 
-W   interval    自動リピート発生間隔(ミリ秒)
+W   interval    ()
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -999,20 +999,20 @@ W   interval    自動リピート発生間隔(ミリ秒)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-自動リピートキーПодія (Event)(EV_AUTKEY)の発生までの時間, および間隔を設定する. 
+(EV_AUTKEY), . 
 <BR>
-設定する時間はミリ秒単位であるが, 実際の分解能はインプリメントに依存する. 
+, . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR      : параметриが不正である(offset≦0,interval≦0). 
+ER_PAR      : (offset≦0,interval≦0). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_krp</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>自動リピート間隔の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1021,9 +1021,9 @@ ERR get_krp(W* offset, W* interval)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   *offset     自動リピート最初の発生までの時間(ミリ秒)の格納領域
+W   *offset     ()
 
-W   *interval   自動リピート発生間隔(ミリ秒)の格納領域
+W   *interval   ()
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1031,18 +1031,18 @@ W   *interval   自動リピート発生間隔(ミリ秒)の格納領域
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-自動リピートキーПодія (Event)(EV_AUTKEY)の発生までの時間, および間隔を取り出す. 
+(EV_AUTKEY), . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(offset,interval)のアクセスは許されていない. 
+ER_ADR      : (offset,interval). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_krm</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>自動リピート対象キーの設定</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1051,7 +1051,7 @@ ERR set_krm(KeyMap keymap)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KeyMap  keymap  自動リピート対象キーマップ
+KeyMap  keymap  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1060,23 +1060,23 @@ KeyMap  keymap  自動リピート対象キーマップ
 </PRE>
 
 <H4>【Детальний опис】</H4>
-自動リピートの対象となるキーを設定する. 
+. 
 <BR>
-指定したキーマップの &quot;1&quot;
-のビットに対応するキーを自動リピートの対象とし, &quot;0&quot; のビットに対
-応するキーを自動リピートの対象としない. 
+ &quot;1&quot;
+, &quot;0&quot; 
+. 
 <BR>
-Подія (Event)を発生しないメタキーは自動リピートの対象としても無視される. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(keymap)のアクセスは許されていない. 
+ER_ADR      : (keymap). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_krm</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>自動リピート対象キーの取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1085,7 +1085,7 @@ ERR get_krm(KeyMap keymap)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KeyMap  keymap  自動リピート対象キーマップの格納領域
+KeyMap  keymap  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1094,21 +1094,21 @@ KeyMap  keymap  自動リピート対象キーマップの格納領域
 </PRE>
 
 <H4>【Детальний опис】</H4>
-自動リピートの対象となるキーを取り出す. 
+. 
 <BR>
-取り出したキーマップの &quot;1&quot;
-のビットに対応するキーが自動リピートの対象で, &quot;0&quot;
-のビットに対応するキーは自動リピートの対象でない. 
+ &quot;1&quot;
+, &quot;0&quot;
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(keymap)のアクセスは許されていない. 
+ER_ADR      : (keymap). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_kid</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Клавіатура (Keyboard)IDの取得</TD></TR>
+<TR><TD>ID</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1119,7 +1119,7 @@ ERR get_kid(KBD_ID* id)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KBD_ID* id  キボードIDの格納領域
+KBD_ID* id  ID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1129,24 +1129,24 @@ KBD_ID* id  キボードIDの格納領域
 
 <H4>【Детальний опис】</H4>
 <P>
-Клавіатура (Keyboard)IDを取り出す. 
+ID. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(id)のアクセスは許されていない. 
-ER_BUSY     : Клавіатура (Keyboard)はビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (id). 
+ER_BUSY     : . 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_ktb</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>文字コード変換表の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1156,35 +1156,35 @@ WERR    get_ktb(KeyTab* keytab)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KeyTab* keytab      文字コード変換表の格納領域
-                    NULL  格納しない
+KeyTab* keytab      
+                    NULL  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(文字コード変換表の全体のバイトрозмір у байтах)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-現在設定されている文字コード変換表を取り出し, 文字コード変換表全体のバイトрозмір у байтахを関数値として戻す. 
+, . 
 <BR>
-keytab =  NULL は, 文字コード変換表のバイトрозмір у байтахを取り出すために使用する. 
+keytab =  NULL , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(keytab)のアクセスは許されていない. 
-ER_BUSY     : Клавіатура (Keyboard)はビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (keytab). 
+ER_BUSY     : . 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">set_ktb</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>文字コード変換表の設定</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1194,7 +1194,7 @@ ERR set_ktb(KeyTab* keytab)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-KeyTab* keytab      設定する文字コード変換表
+KeyTab* keytab      
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1203,24 +1203,24 @@ KeyTab* keytab      設定する文字コード変換表
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定した文字コード変換表を設定する. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(keytab)のアクセスは許されていない. 
-ER_BUSY     : Клавіатура (Keyboard)はビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_PAR      : параметриが不正である(keytab の内容が不正). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_ADR      : (keytab). 
+ER_BUSY     : . 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_PAR      : (keytab ). 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">chg_pda</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Вказівний пристрій (Pointing Device)属性の変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1230,48 +1230,48 @@ WERR    chg_pda(W atr)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   atr Вказівний пристрій (Pointing Device)属性
-        &lt;0    変更しない(現在のВказівний пристрій (Pointing Device)属性の取得)
+W   atr 
+        &lt;0    ()
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(変更前のPD属性)
+>= 0     Успішне виконання(PD)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-Вказівний пристрій (Pointing Device)の属性を変更し, 変更前の属性を関数値として戻す. 
+, . 
 <BR>
-atr &lt;0 のときは変更せずに現在のВказівний пристрій (Pointing Device)属性を関数値として戻す. 
+atr &lt;0 . 
 <BR>
-Вказівний пристрій (Pointing Device)属性は以下の通りである. 
+. 
 <PRE>
         xx..xx xxxV xxxA RRRR SSSS
 
-        A： 動作タイプ ( 0: 相対座標タイプ, 1: 絶対座標タイプ )
-        S： 感度 ( 0: 最低感度 〜 15: 最高感度 )
-        R： スキャン速度 ( 0: 最低速 〜 15: 最高速 )
-        V： 左右反転 ( 0: 右手モード, 1: 左手モード )
-        x： 予約 ( = 0 )
+        A：  ( 0: , 1:  )
+        S：  ( 0:  〜 15:  )
+        R：  ( 0:  〜 15:  )
+        V：  ( 0: , 1:  )
+        x：  ( = 0 )
 </PRE>
 
-動作タイプの変更が不可能の場合はПомилка(ER_DEV)となる. 
+(ER_DEV). 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_BUSY     : PDはビジー状態である. 
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_PAR      : параметриが不正である(atr). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+ER_BUSY     : PD. 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_PAR      : (atr). 
+ER_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">sig_buz</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ブザー音の発生</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1280,24 +1280,24 @@ ERR sig_buz(W type)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   type    ブザー音の種別
-        = 0    標準の警告ブザー
-        = -1  ブザーの停止
+W   type    
+        = 0    
+        = -1  
         0xTTTTHHHH
 
-        TTTT≠0の場合
-            HHHH≧0 の場合 (ブザー)
-                T: 鳴らす時間 (1 〜 32767 msec)
-                H: 鳴らす周波数 (0 〜 32767 Hz)
+        TTTT≠0
+            HHHH≧0  ()
+                T:  (1 〜 32767 msec)
+                H:  (0 〜 32767 Hz)
 
-            HHHH&lt;0 の場合 (メロディー)
-                T: 繰り返し回数 (1 〜 32767)
-                H: メロディー番号 (-1 〜 -100)
+            HHHH&lt;0  ()
+                T:  (1 〜 32767)
+                H:  (-1 〜 -100)
 
-        TTTT= 0 の場合 (ブザー)
+        TTTT= 0  ()
             type = 0x0000thhh
-            t: 鳴らす時間 (100msec 単位)
-            h: 鳴らす周波数 (10Hz 単位)
+            t:  (100msec )
+            h:  (10Hz )
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1307,25 +1307,25 @@ W   type    ブザー音の種別
 
 
 <H4>【Детальний опис】</H4>
-指定した種類のブザー音またはメロディーを発生する. 
+. 
 <BR>
-メロディーは beep ドライバーに登録しておく必要がある. メロディーの登録は, beep ドライバーへ直接行う. 
+ beep . , beep . 
 <BR>
-beep ドライバーがメロディーに対応していない場合は, メロディーのфункціонал / підсистемаは使用できない. 
+beep , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_DEV      : Пристрій (Device)に対しての操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_NODEV    : Пристрій (Device)へのアクセスができない. 
-ER_PAR      : параметриが不正である. 
+ER_DEV      : . 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_NODEV    : . 
+ER_PAR      : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ctl_buz</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ブザー音の制御</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1334,9 +1334,9 @@ ERR ctl_buz(W kind, UW *val)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   kind    制御操作の種別
+W   kind    
 
-UW  *val    制御操作の値
+UW  *val    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1345,47 +1345,47 @@ UW  *val    制御操作の値
 </PRE>
 
 <H4>【Детальний опис】</H4>
-ブザー音に対して各種の制御操作を行う. 
+. 
 <PRE>
-kind:   GET_BUZ_BEEP    音色：標準の警告音の取り出し
-        GET_BUZ_PDON    音色：ボタンONのクリック音の取り出し
-        GET_BUZ_PDOFF   音色：ボタンOFFのクリック音の取り出し
-        GET_BUZ_KEYON   音色：キーONのクリック音の取り出し
-        GET_BUZ_KEYOFF  音色：キーOFFクリック音の取り出し
-        GET_BUZ_VOLUME  音量：取り出し
-        SET_BUZ_BEEP    音色：標準の警告音の設定
-        SET_BUZ_PDON    音色：ボタンONのクリック音の設定
-        SET_BUZ_PDOFF   音色：ボタンOFFのクリック音の設定
-        SET_BUZ_KEYON   音色：キーONのクリック音の設定
-        SET_BUZ_KEYOFF  音色：キーOFFのクリック音の設定
-        SET_BUZ_VOLUME  音量：設定
+kind:   GET_BUZ_BEEP    ：
+        GET_BUZ_PDON    ：ON
+        GET_BUZ_PDOFF   ：OFF
+        GET_BUZ_KEYON   ：ON
+        GET_BUZ_KEYOFF  ：OFF
+        GET_BUZ_VOLUME  ：
+        SET_BUZ_BEEP    ：
+        SET_BUZ_PDON    ：ON
+        SET_BUZ_PDOFF   ：OFF
+        SET_BUZ_KEYON   ：ON
+        SET_BUZ_KEYOFF  ：OFF
+        SET_BUZ_VOLUME  ：
 
-val:    音色：  DTTT TTTT TTTT TTTT HHHH HHHH HHHH HHHH
-        D：0：有効, 1：無効(音なし)
-        H≧0 の場合 (ブザー)
-            T：時間(msec)
-            H：周波数(Hz)
-        H&lt;0 の場合 (メロディー)
-            T：繰り返し回数
-            H：メロディー番号
+val:    ：  DTTT TTTT TTTT TTTT HHHH HHHH HHHH HHHH
+        D：0：, 1：()
+        H≧0  ()
+            T：(msec)
+            H：(Hz)
+        H&lt;0  ()
+            T：
+            H：
 
-    音量：  LLLL LLLL LLLL LLLL RRRR RRRR RRRR RRRR
-        L：左チャンネル音量 (無音=0 〜 最大=0xffff)
-        R：右チャンネル音量 (無音=0 〜 最大=0xffff)
-        音量は, すべての警告音, クリック音に共通である. 
+    ：  LLLL LLLL LLLL LLLL RRRR RRRR RRRR RRRR
+        L： (=0 〜 =0xffff)
+        R： (=0 〜 =0xffff)
+        , , . 
 </PRE>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR      : параметриが不正である. 
-ER_ADR      : адреса пам'яті(val)のアクセスは許されていない. 
+ER_PAR      : . 
+ER_ADR      : (val). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">req_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)Повідомлення (Message)要求</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1395,7 +1395,7 @@ ERR req_evt(W t_mask)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   t_mask  対象Подія (Event)タイプマスク
+W   t_mask  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1404,48 +1404,48 @@ W   t_mask  対象Подія (Event)タイプマスク
 </PRE>
 
 <H4>【Детальний опис】</H4>
-t_mask で指定したタイプのПодія (Event)が発生した場合に, そのПодія (Event)をПовідомлення (Message)として自Процес (Process)(req_evt をコールしたПроцес (Process))に送信することを要求する. <BR>
-ただし, EV_NULL, EV_AUTKEY はПовідомлення (Message)として送信することはできない. <BR>
-Повідомлення (Message)として送信されても, そのПодія (Event)はПодія (Event)キューから取り除かれない. 
+t_mask , (req_evt ). <BR>
+, EV_NULL, EV_AUTKEY . <BR>
+, . 
 <PRE>
-Повідомлення (Message)形式
+
 
 struct {
-    W       msg_type;   /* Повідомлення (Message)タイプ = MS_SYS5 */
-    W       msg_size;   /* Повідомлення (Message)розмір у байтах */
-    EVENT   evt;        /* Подія (Event) */
-    VB      info[];     /* 追加情報 */
+    W       msg_type;   /*  = MS_SYS5 */
+    W       msg_size;   /*  */
+    EVENT   evt;        /*  */
+    VB      info[];     /*  */
 }
 </PRE>
 
-msg_type は, MS_SYS5 固定となる. <BR>
-Повідомлення (Message)には, 標準では発生したПодія (Event)が evt に格納される. また, Подія (Event)の種類によって, 追加情報が info に格納される場合がある. したがって, msg_size は最低で sizeof(EVENT) となり, 追加情報があればそのрозмір у байтах分大きくなる. 追加情報はその内容によりрозмір у байтахが異なる. <BR>
+msg_type , MS_SYS5 . <BR>
+,  evt . , ,  info . , msg_size  sizeof(EVENT) , . . <BR>
 
-Пристрій (Device)Подія (Event)(EV_DEVICE)の場合に, 追加情報が付加される. 追加情報は, Пристрій (Device)ドライバからの事象通知の内容そのものとなる. <BR>
+(EV_DEVICE), . , . <BR>
 
-rcv_msg() によりПовідомлення (Message)を受信したときの送信Процес (Process) ID は次のようになる. 
+rcv_msg()  ID . 
 <UL>
- <LI>put_evt() により発生されたПодія (Event)の場合には, 
-     put_evt() を呼び出したПроцес (Process)の ID となる. 
- <LI>その他の場合には, ID = 1 (初期Процес (Process))となる. 
+ <LI>put_evt() , 
+     put_evt()  ID . 
+ <LI>, ID = 1 (). 
 </UL>
 
-t_mask に EM_NULL を指定することにより, Подія (Event)Повідомлення (Message)の要求が解除される. また, Процес (Process)が終了したときにも自動的に解除される. 
+t_mask  EM_NULL , . , . 
 <BR>
-Процес (Process)のПовідомлення (Message)キューが一杯で送信できなかった場合には, そのПодія (Event)Повідомлення (Message)は単に捨てられる. 
+, . 
 <BR>
-Подія (Event)Повідомлення (Message)要求を同時に行えるПроцес (Process)の最大数は, システムで制限される. 
+, . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR      : параметриが不正である. 
-ER_LIMIT    : Подія (Event)Повідомлення (Message)要求の登録数がシステムの制限を超えた. 
+ER_PAR      : . 
+ER_LIMIT    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">las_evt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>最終Подія (Event)発生からの経過時間の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1455,28 +1455,28 @@ WERR    las_evt(W t_mask)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   t_mask  対象Подія (Event)タイプマスク
+W   t_mask  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(最終Подія (Event)発生からの経過時間)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-t_mask で指定したタイプのПодія (Event)の内, 最後に発生したПодія (Event)から現在までの経過時間をミリ秒単位で返す. 
+t_mask , . 
 <BR>
-t_mask に EM_BUTDWN または EM_BUTUP が指定された場合には, вказівник (Pointer)の移動およびメニューボタンの操作もПодія (Event)発生と扱う. また, EM_KEYDWN または EM_KEYUP が指定された場合には, メタキーの状態変化もПодія (Event)発生と扱う. 
+t_mask  EM_BUTDWN  EM_BUTUP , . , EM_KEYDWN  EM_KEYUP , . 
 <BR>
-t_mask に EM_NULL を指定することで, すべてのタイプのПодія (Event)の最終発生時刻に現在時刻がセットされる. 
+t_mask  EM_NULL , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR      : параметриが不正である. 
+ER_PAR      : . 
 </PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="file.html">前頁:1.6 Файлова система та менеджер файлів (File Management)にもどる</A><BR>
-<A href="device.html">次頁:1.8 Пристрій (Device)管理にすすむ</A><BR>
+<A href="file.html">Попередня сторінка: 1.6 Файлова система та менеджер файлів (Повернутися)</A><BR>
+<A href="device.html">Наступна сторінка: 1.8 Менеджер пристроїв та драйверів (Перейти)</A><BR>
 </BODY>
 </HTML>

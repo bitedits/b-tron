@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.4 Глобальне ім'я (Global Name)管理
+  1.4 Глобальні імена та реєстр системних об'єктів (Global Name Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="taskcomm.html">
@@ -14,73 +14,73 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="taskcomm.html">前頁:1.3 Процес (Process)/Задача (Task)間同期通信管理にもどる</A><BR>
-<A href="memory.html">次頁:1.5 Оперативна пам'ять (Memory)管理にすすむ</A><BR>
+<A href="taskcomm.html">:1.3 /</A><BR>
+<A href="memory.html">Наступна сторінка: 1.5 Управління оперативною пам'яттю (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aay">1.4 Глобальне ім'я (Global Name)管理</A></H2>
+<H2><A name="aay">1.4 Глобальні імена та реєстр системних об'єктів (Global Name Management)</A></H2>
 
-<H3><A name="aaz">1.4.1 Глобальне ім'я (Global Name)データ</A></H3>
+<H3><A name="aaz">1.4.1 </A></H3>
 
 <P>
-  Глобальне ім'я (Global Name)データ管理функціонал / підсистемаは, 
-  Процес (Process)間で共有的に使用されるデータを任意の名前により生成するфункціонал / підсистема, 
-  および生成された名前によるデータの参照функціонал / підсистемаを提供している. 
-  このように名前付けられて生成された共有データをГлобальне ім'я (Global Name)データと呼ぶ. 
+  , 
+  , 
+  . 
+  . 
 </P>
 <P>
-  生成されるデータは 1 つの 32 ビットデータ ( W ) であり, 
-  データに付けられる名前は最大 8 文字である. 
-  名前としては通常, 
-  文字コードとして意味のあるものが使用されるが特に制限はなく, 
-  <CODE>TNULL(0)</CODE> までの最大 8 文字分  (16 バイト )
-  の任意のデータが名前とされる. 
+   1  32  ( W ) , 
+   8 . 
+  , 
+  , 
+  <CODE>TNULL(0)</CODE>  8   (16  )
+  . 
 </P>
 <P>
-  生成されたГлобальне ім'я (Global Name)データは, 
-  すべてのПроцес (Process)から参照 / 変更可能である. 
+  , 
+   / . 
 </P>
 <P>
-  Глобальне ім'я (Global Name)データとしては, 
-  生成 / 変更したПроцес (Process)の存在とは無関係に存在し続けるものと, 
-  生成 / 変更したПроцес (Process)が終了した場合に自動的に削除されるものの 2 種類があり, 
-  Глобальне ім'я (Global Name)データの生成／変更時に指定できる. 
-  前者の場合はГлобальне ім'я (Global Name)データが不要となった時点で明示的に削除する必要がある. 
+  , 
+   / , 
+   /  2 , 
+  ／. 
+  . 
 </P>
 <P>
-  このфункціонал / підсистемаは, 
-  主にある種のデータを不特定多数のПроцес (Process)から参照可能とするために使用され, 
-  例えば, 以下に示すようなデータを対応する固定的な名前により生成し, 
-  参照することが考えられる. 
+  , 
+  , 
+  , , 
+  . 
 </P>
 
 <UL>
- <LI> サーバфункціонал / підсистемаを持ったПроцес (Process)のПроцес (Process)ID
- <LI> 特定に資源に対応したСемафор (Semaphore)ID
- <LI> 共通的に使用される環境параметри
+ <LI> ID
+ <LI> ID
+ <LI> 
 </UL>
 
 <A name="aba">
-  <CENTER><IMG src="gif/grobal_name.gif" alt="Глобальне ім'я (Global Name)データの操作"></CENTER>
+  <CENTER><IMG src="gif/grobal_name.gif" alt=""></CENTER>
 </A>
-<CENTER>図 5 : Глобальне ім'я (Global Name)データの操作</CENTER>
+<CENTER> 5 : </CENTER>
 
-<H3><A name="abb">1.4.2 データ / 定数の定義</A></H3>
+<H3><A name="abb">1.4.2  / </A></H3>
 
-<H4>□ Глобальне ім'я (Global Name)管理</H4>
+<H4>□ </H4>
 
 <PRE>
-#define N_CREATE	0x0000		/* Глобальне ім'я (Global Name)データの新規生成 */
-#define N_MODIFY	0x0001		/* Глобальне ім'я (Global Name)データの変更     */
-#define N_FORCE		0x0002		/* Глобальне ім'я (Global Name)データの強制生成 */
+#define N_CREATE	0x0000		/*  */
+#define N_MODIFY	0x0001		/*      */
+#define N_FORCE		0x0002		/*  */
 </PRE>
 
-<H3><A name="abc">1.4.3 системний виклик (System Call)</A></H3>
+<H3><A name="abc">1.4.3 </A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cre_nam</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Глобальне ім'я (Global Name)データ生成</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -90,33 +90,33 @@ WERR    cre_nam(TC* name, W data, W opt)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC* name    対象Глобальне ім'я (Global Name)(先頭8文字(16バイト)までが有効)
-W   data    登録するデータ
-W   opt     Глобальне ім'я (Global Name)属性
+TC* name    (8(16))
+W   data    
+W   opt     
             ( N_CREATE ‖ N_MODIFY ‖ N_FORCE ) | [ DELEXIT ]
 </PRE>
 <DL>
  <DT><CODE>N_CREATE</CODE> :
  <DD><P>
-     指定した名前のГлобальне ім'я (Global Name)データが存在していない場合に生成する
-     (すでに存在している場合はПомилка). 
+     
+     (). 
      </P>
  <DT><CODE>N_MODIFY</CODE> :
  <DD><P>
-     指定した名前のГлобальне ім'я (Global Name)データが存在している場合にそのデータを変更する
-     (存在していない場合はПомилка). 
+     
+     (). 
      </P>
  <DT><CODE>N_FORCE</CODE> :
  <DD><P>
-     指定した名前のГлобальне ім'я (Global Name)データが存在していない場合は新規に生成し, 
-     すでに存在している場合はそのデータを変更する. 
+     , 
+     . 
      </P>
  <DT><CODE>DELEXIT</CODE> :
  <DD><P>
-     生成したПроцес (Process), 
-     または最後にデータを変更したПроцес (Process)の終了時にГлобальне ім'я (Global Name)データを自動削除する. 
-     既に他のПроцес (Process)から <CODE>DELEXIT</CODE> 指定が行なわれていた場合でも, 
-     <CODE>DELEXIT</CODE> 指定により本системний виклик (System Call)を最後に実行したПроцес (Process)が対象となる. 
+     , 
+     . 
+      <CODE>DELEXIT</CODE> , 
+     <CODE>DELEXIT</CODE> . 
      </P>
 </DL>
 
@@ -127,22 +127,22 @@ W   opt     Глобальне ім'я (Global Name)属性
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>name</CODE> で指定した名前のГлобальне ім'я (Global Name)データを生成または変更する. 
+  <CODE>name</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(name)のアクセスは許されていない. 
-ER_EXS      : 名前(name)は既に存在している(N_CREATEの時). 
-ER_NOEXS    : 名前(name)は存在していない(N_MODIFYの時). 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_PAR      : параметриが不正である(optが不正,nameが空). 
+ER_ADR      : (name). 
+ER_EXS      : (name)(N_CREATE). 
+ER_NOEXS    : (name)(N_MODIFY). 
+ER_NOSPC    : . 
+ER_PAR      : (opt,name). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">del_nam</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Глобальне ім'я (Global Name)データ削除</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -152,7 +152,7 @@ ERR del_nam(TC* name)
 
 <H4>【Параметри】</H4>
 <PRE>
-TC* name    対象Глобальне ім'я (Global Name)(先頭8文字(16バイト)までが有効)
+TC* name    (8(16))
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -164,20 +164,20 @@ TC* name    対象Глобальне ім'я (Global Name)(先頭8文字(16バ�
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>name</CODE> で指定したГлобальне ім'я (Global Name)データを削除する. 
+  <CODE>name</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(name)のアクセスは許されていない. 
-ER_NOEXS    : 名前(name)は存在していない. 
-ER_PAR      : параметриが不正である(nameが空). 
+ER_ADR      : (name). 
+ER_NOEXS    : (name). 
+ER_PAR      : (name). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_nam</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Глобальне ім'я (Global Name)データ取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -187,8 +187,8 @@ ERR get_nam(TC* name, W* data)
 
 <H4>【Параметри】</H4>
 <PRE>
-TC* name    対象Глобальне ім'я (Global Name)(先頭8文字(16バイト)までが有効)
-W*  data    取得データ格納領域
+TC* name    (8(16))
+W*  data    
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -201,18 +201,18 @@ W*  data    取得データ格納領域
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>name</CODE> で指定したГлобальне ім'я (Global Name)データを取得する. 
+  <CODE>name</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(name,data)のアクセスは許されていない. 
-ER_NOEXS    : 名前(name)は存在していない. 
-ER_PAR      : параметриが不正である(nameが空). 
+ER_ADR      : (name,data). 
+ER_NOEXS    : (name). 
+ER_PAR      : (name). 
 </PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="taskcomm.html">前頁:1.3 Процес (Process)/Задача (Task)間同期通信管理にもどる</A><BR>
-<A href="memory.html">次頁:1.5 Оперативна пам'ять (Memory)管理にすすむ</A><BR>
+<A href="taskcomm.html">:1.3 /</A><BR>
+<A href="memory.html">Наступна сторінка: 1.5 Управління оперативною пам'яттю (Перейти)</A><BR>
 </BODY>
 </HTML>

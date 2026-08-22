@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.5 Оперативна пам'ять (Memory)管理
+  1.5 Управління оперативною пам'яттю (Memory Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="gname.html">
@@ -14,101 +14,101 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="gname.html">前頁:1.4 Глобальне ім'я (Global Name)管理にもどる</A><BR>
-<A href="file.html">次頁:1.6 Файлова система та менеджер файлів (File Management)にすすむ</A><BR>
+<A href="gname.html">Попередня сторінка: 1.4 Глобальні імена (Повернутися)</A><BR>
+<A href="file.html">Наступна сторінка: 1.6 Файлова система та менеджер файлів (Перейти)</A><BR>
 <HR>
 
-<H2><A name="abd">1.5 Оперативна пам'ять (Memory)管理</A></H2>
+<H2><A name="abd">1.5 Управління оперативною пам'яттю (Memory Management)</A></H2>
 
-<H3><A name="abe">1.5.1 Оперативна пам'ять (Memory)管理функціонал / підсистемаの概要</A></H3>
+<H3><A name="abe">1.5.1 Загальний огляд</A></H3>
 
 <P>
-  データОперативна пам'ять (Memory)領域には以下に示す 3 種類があり, 
-  それぞれの領域に対して指定した大きさのОперативна пам'ять (Memory)ブロックの獲得 /
-  解放等のфункціонал / підсистемаを提供している. 
+   3 , 
+   /
+  . 
 </P>
 
 <DL>
- <DT>ローカルОперативна пам'ять (Memory)領域 :
+ <DT> :
  <DD><P>
-     1 つのПроцес (Process)内でのみ使用可能なОперативна пам'ять (Memory)領域であり, 
-     他のПроцес (Process)からはアクセスできない. <BR>
-     ローカルОперативна пам'ять (Memory)として確保した領域は, 
-     Процес (Process)終了時に自動的に解放される. 
+     1 , 
+     . <BR>
+     , 
+     . 
      </P>
- <DT>共有Оперативна пам'ять (Memory)領域 :
+ <DT> :
  <DD><P>
-     すべてのПроцес (Process)から使用可能なОперативна пам'ять (Memory)領域である. <BR>
-     獲得したПроцес (Process)の存在とは無関係に存在するが, 
-     獲得したПроцес (Process)の終了時に自動的に解放することもできる. 
+     . <BR>
+     , 
+     . 
      </P>
- <DT>システムОперативна пам'ять (Memory)領域 :
+ <DT> :
  <DD><P>
-     システム ( OS やПристрій (Device)ドライバー等 )
-     からのみ使用可能なОперативна пам'ять (Memory)領域である. 
-     прикладний додаток / програмаПроцес (Process)からは使用できない. <BR>
-     Процес (Process)とは無関係に存在する. 
+      ( OS  )
+     . 
+     . <BR>
+     . 
      </P>
 </DL>
 
 <P>
-  基本的にはブロック単位 ( 例えば 4KB 単位 )
-  でОперативна пам'ять (Memory)を割り当てるфункціонал / підсистемаのみを OS は提供する. 
-  さらに細かく内部を分割するのはライブラリ, 
-  またはприкладний додаток / програма自身で行う. 
-  通常は, системний виклик (System Call)を直接使用せずにライブラリを利用する. 
-  ライブラリのфункціонал / підсистемаでは不十分な場合のみсистемний виклик (System Call)を直接利用する. 
+   (  4KB  )
+   OS . 
+  , 
+  . 
+  , . 
+  . 
 </P>
 
 <P>
-  獲得したОперативна пам'ять (Memory)ブロックは連続した ( 論理 ) адреса пам'ятіを持ち, 
-  その先頭 ( 論理 ) адреса пам'ятіがприкладний додаток / програмаに戻される. 
-  一度獲得したОперативна пам'ять (Memory)ブロックの ( 論理 )
-  адреса пам'ятіは変更されることはないため, 
-  得られたадреса пам'ятіにより直接Оперативна пам'ять (Memory)ブロックをアクセスすることができる. 
-  獲得したОперативна пам'ять (Memory)ブロックへのデータの書込み / 読込みは自由にできるが, 
-  原則として実行することはできない. 
+   (  ) , 
+   (  ) . 
+   (  )
+  , 
+  . 
+   / , 
+  . 
 </P>
 
 <P>
-  Оперативна пам'ять (Memory)管理функціонал / підсистемаのある CPU の場合には, 
-  原則として, 共有Оперативна пам'ять (Memory), システムОперативна пам'ять (Memory)は負のадреса пам'ятіとなり, 
-  ローカルОперативна пам'ять (Memory)は正のадреса пам'ятіとなる. 
-  CPU の種類によってはこの原則通りにならない場合がある. 
-  また, Оперативна пам'ять (Memory)管理функціонал / підсистемаのない CPU の場合は, この限りではない. 
+   CPU , 
+  , , , 
+  . 
+  CPU . 
+  ,  CPU , . 
 </P>
 
 <P>
-  Оперативна пам'ять (Memory)に対する排他アクセス制御のфункціонал / підсистемаはないので, 
-  必要であればСемафор (Semaphore)などを利用してприкладний додаток / програмаで行う. 
+  , 
+  . 
 </P>
 
-<H3><A name="abf">1.5.2 データ／定数の定義</A></H3>
+<H3><A name="abf">1.5.2 ／</A></H3>
 
-<H4>□ Оперативна пам'ять (Memory)属性</H4>
+<H4>□ </H4>
 
 <PRE>
-#define M_COMMON        0x00000001      /* 共有 */
-#define M_SYSTEM        0x00000003      /* システムのみ */
-#define M_RESIDENT      0x00004000      /* 常駐 */
+#define M_COMMON        0x00000001      /*  */
+#define M_SYSTEM        0x00000003      /*  */
+#define M_RESIDENT      0x00004000      /*  */
 </PRE>
 
-<H4>□ Оперативна пам'ять (Memory)状態</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct m_state {
-        W       blksz;          /* ブロックрозмір у байтах */
-        W       total;          /* 全ブロック数 */
-        W       free;           /* 残りブロック数 */
+        W       blksz;          /*  */
+        W       total;          /*  */
+        W       free;           /*  */
 } M_STATE;
 </PRE>
 
-<H3><A name="abg">1.5.3 системний виклик (System Call)</A></H3>
+<H3><A name="abg">1.5.3 Системні виклики ядра (Low-Level System Calls)</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_mbk</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)ブロックの獲得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -118,84 +118,84 @@ ERR get_mbk( VP *adr, W nblk, UW atr )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-VP  *adr    獲得したОперативна пам'ять (Memory)ブロックの先頭адреса пам'ятіを返す領域
-W   nblk    獲得するОперативна пам'ять (Memory)ブロック数( &gt; 0)
-UW  atr     Оперативна пам'ять (Memory)ブロックの属性
+VP  *adr    
+W   nblk    ( &gt; 0)
+UW  atr     
             [ (M_COMMON ‖ M_SYSTEM) ] | [M_RESIDENT] | [DELEXIT]
 </PRE>
 
 <DL>
  <DT><CODE>M_COMMON</CODE> :
  <DD><P>
-     共有Оперативна пам'ять (Memory)を指定する. <BR>
-     共有Оперативна пам'ять (Memory)は, すべてのПроцес (Process)からアクセス可能. 
+     . <BR>
+     , . 
      </P>
  <DT><CODE>M_SYSTEM</CODE>
  <DD><P>
-     システムОперативна пам'ять (Memory)を指定する. <BR>
-     システムОперативна пам'ять (Memory)は, システム ( OS やПристрій (Device)ドライバー等 )
-     からのみアクセス可能. 
-     この指定は, прикладний додаток / програмаПроцес (Process)からは使用してはいけない. 
+     . <BR>
+     ,  ( OS  )
+     . 
+     , . 
      </P>
      <P>
-     <CODE>M_COMMON, M_SYSTEM</CODE> のいずれの指定もなければ, 
-     ローカルОперативна пам'ять (Memory)となる. 
-     ローカルОперативна пам'ять (Memory)は, Оперативна пам'ять (Memory)ブロックを獲得したПроцес (Process)からのみアクセス可能. 
+     <CODE>M_COMMON, M_SYSTEM</CODE> , 
+     . 
+     , . 
      </P>
      <P>
-     ※ 共有 / システム / ローカルОперативна пам'ять (Memory)の指定は, 
-     Оперативна пам'ять (Memory)管理функціонал / підсистемаがない CPU の場合には特に意味を持たない. 
-     いずれも同じ扱いとなってしまい, 保護されない. 
+     ※  /  / , 
+      CPU . 
+     , . 
      </P>
  <DT><CODE>M_RESIDENT</CODE> :
  <DD><P>
-     常駐を指定する. 指定がなければ非常駐となる. 
+     . . 
      </P>
      <P>
-     常駐指定されたОперативна пам'ять (Memory)ブロックは, 
-     ディスクなどにスワップアウトされることなく常に主Оперативна пам'ять (Memory)上に存在する. 
+     , 
+     . 
      </P>
      <P>
-     ※ 仮想記憶を行っていないシステムの場合には, 
-     特に意味を持たない(常駐と同等になる). 
+     ※ , 
+     (). 
      </P>
  <DT><CODE>DELEXIT</CODE> :
  <DD><P>
-     Процес (Process)終了時削除を指定する. 
+     . 
      </P>
      <P>
-     この指定があると, 
-     Оперативна пам'ять (Memory)ブロックを獲得したПроцес (Process)が終了すると自動的にОперативна пам'ять (Memory)ブロックが解放される. 
-     ただし, ローカルОперативна пам'ять (Memory)の場合は, この指定の有無に関係なく, 
-     Процес (Process)の終了時に解放される. 
+     , 
+     . 
+     , , , 
+     . 
      </P>
 </DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＝0  
+＜0  ()
 </pre>
 
 <h4>【Детальний опис】</h4>
 <p>
-  <code>nblk</code> 個の連続したОперативна пам'ять (Memory)ブロックを獲得し, 
-  その先頭адреса пам'ятіを <code>*adr</code> に返す. 
+  <code>nblk</code> , 
+   <code>*adr</code> . 
 </p>
 
 <h4>【Коди помилок】</h4>
 <pre>
-er_adr      : адреса пам'яті(adr)のアクセスは許されていない. 
-er_nomem    : Оперативна пам'ять (Memory)領域が不足した. 
-er_nospc    : システムのОперативна пам'ять (Memory)領域が不足した. 
-er_par      : параметриが不正である. 
-er_ctx      : 不正なコンテキストから呼び出した. 
+er_adr      : (adr). 
+er_nomem    : . 
+er_nospc    : . 
+er_par      : . 
+er_ctx      : . 
 </pre>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rel_mbk</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)ブロックの解放</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -204,32 +204,32 @@ ERR rel_mbk( VP adr )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-VP  adr     解放するОперативна пам'ять (Memory)ブロックのадреса пам'яті
+VP  adr     
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜ 0 Помилка(код помилки)
+＝0  
+＜ 0 ()
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>adr</CODE> で示すОперативна пам'ять (Memory)ブロックを解放する. 
-  <CODE>adr</CODE> は
+  <CODE>adr</CODE> . 
+  <CODE>adr</CODE> 
   <CODE>get_mbk()</CODE>
-  で得たадреса пам'ятіでなければならない. 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_MPTR     : Оперативна пам'ять (Memory)ブロックのадреса пам'ятіが不正である. 
-ER_CTX      : 不正なコンテキストから呼び出した. 
+ER_MPTR     : . 
+ER_CTX      : . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">mbk_sts</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)状態参照</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -239,14 +239,14 @@ ERR mbk_sts( M_STATE *sts )
 
 <H4>【Параметри】</H4>
 <PRE>
-M_STATE   sts   Оперативна пам'ять (Memory)状態を返す領域
+M_STATE   sts   
 </PRE>
 
 <PRE>
 typedef struct  m_state {
-    W   blksz;  /* ブロックрозмір у байтах */
-    W   total;  /* 全ブロック数 */
-    W   free;   /* 残りブロック数 */
+    W   blksz;  /*  */
+    W   total;  /*  */
+    W   free;   /*  */
 } M_STATE;
 </PRE>
 
@@ -258,43 +258,43 @@ typedef struct  m_state {
 
 <H4>【Детальний опис】</H4>
 <P>
-  現在のОперативна пам'ять (Memory)使用状況などを取得する. 
+  . 
 </P>
 <DL>
  <DT><CODE>blksz</CODE> :
- <DD>Оперативна пам'ять (Memory)割り当ての単位( 1 ブロック)のバイト数. <BR>
-     一般には CPU のページрозмір у байтахとなる. 標準的には 4KB. 
+ <DD>( 1 ). <BR>
+      CPU .  4KB. 
  <DT><CODE>total</CODE> :
- <DD>システム全体の総ブロック数. 
+ <DD>. 
  <DT><CODE>free</CODE> :
- <DD>システム全体の未使用ブロック数. 
+ <DD>. 
 </DL>
 
 <P>
-  仮想記憶を行っているシステムでは, 
-  全ブロック数, 残りブロック数が一意に決定できない場合がある. 
-  したがって, 具体的な意味はインプリメントに依存する. 
-  ただし, <CODE>free ÷ total</CODE>
-  が残りОперативна пам'ять (Memory)の割合の参考値となるような値とする. 
+  , 
+  , . 
+  , . 
+  , <CODE>free ÷ total</CODE>
+  . 
 </P>
 <P>
-  インプリメントにより, 
-  具体的な値が設定できない場合は, 
-  全ブロック数, 残りブロック数ともに <CODE>-1</CODE> を設定するものとする. 
+  , 
+  , 
+  ,  <CODE>-1</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(sts)のアクセスは許されていない. 
+ER_ADR      : (sts). 
 </PRE>
 
-<H3><A name="abh">1.5.4 ライブラリ</A></H3>
+<H3><A name="abh">1.5.4 Функції бібліотеки C (C Library Heap API)</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">malloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐ローカルОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：DELEXIT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：DELEXIT</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -303,25 +303,25 @@ void*   malloc( size_t size )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-size_t  size    獲得したいОперативна пам'ять (Memory)のバイト数(&gt; 0)
+size_t  size    (&gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐ローカルОперативна пам'ять (Memory)から指定したрозмір у байтахのОперативна пам'ять (Memory)を割り当て, その先頭адреса пам'ятіを戻す. 
+  , . 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">calloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐ローカルОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：DELEXIT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：DELEXIT</TD></TR>
 </TABLE></TD></TR></TABLE>
     
 <H4>【Синтаксис / Прототип】</H4>
@@ -330,26 +330,26 @@ void*   calloc( size_t nelem, size_t elsize )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-size_t  nelem   獲得したい要素数( &gt; 0)
-size_t  elsize  1要素のバイト数( &gt; 0)
+size_t  nelem   ( &gt; 0)
+size_t  elsize  1( &gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐ローカルОперативна пам'ять (Memory)から <CODE>elsize</CODE> の大きさの
-  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て, その先頭адреса пам'ятіを戻す. 
-  割り当てた領域は 0 で初期化される. 
+   <CODE>elsize</CODE> 
+  <CODE>nelem</CODE> , . 
+   0 . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">realloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐ローカルОперативна пам'ять (Memory)の再獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：DELEXIT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：DELEXIT</TD></TR>
 </TABLE></TD></TR></TABLE>
     
 <H4>【Синтаксис / Прототип】</H4>
@@ -358,31 +358,31 @@ void*   realloc( void *ptr, size_t size )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    розмір у байтах変更したい領域のадреса пам'яті
-                NULL を指定した場合は新規獲得
-size_t  size    獲得したいОперативна пам'ять (Memory)のバイト数(≧0)
-                0 を指定した場合は解放
+void    *ptr    
+                NULL 
+size_t  size    (≧0)
+                0 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐ローカルОперативна пам'ять (Memory)中の
-  <CODE>ptr</CODE> で指定される領域のрозмір у байтахを
-  <CODE>size</CODE> に変更して再獲得し, その先頭адреса пам'ятіを戻す. <BR>
-  <CODE>ptr</CODE> は, 
+  
+  <CODE>ptr</CODE> 
+  <CODE>size</CODE> , . <BR>
+  <CODE>ptr</CODE> , 
   <CODE>malloc(), calloc(), realloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">free</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐ローカルОперативна пам'ять (Memory)の解放(ライブラリ)</TD></TR>
+<TR><TD>()</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -393,23 +393,23 @@ void    free( void *ptr )
 <H4>【Параметри】</H4>
 
 <PRE>
-void    *ptr    解放したい領域のадреса пам'яті
+void    *ptr    
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>ptr</CODE> で指定された非常駐ローカルОперативна пам'ять (Memory)内の領域を解放する. <BR>
-  <CODE>ptr</CODE> は, 
+  <CODE>ptr</CODE> . <BR>
+  <CODE>ptr</CODE> , 
   <CODE>malloc(), calloc(), realloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Smalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐共有Оперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_COMMON</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_COMMON</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -419,26 +419,26 @@ void*   Smalloc( size_t size )
 <H4>【Параметри】</H4>
 
 <PRE>
-size_t  size    獲得したいОперативна пам'ять (Memory)のバイト数(&gt; 0)
+size_t  size    (&gt; 0)
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐共有Оперативна пам'ять (Memory)から指定したрозмір у байтахのОперативна пам'ять (Memory)を割り当て, その先頭адреса пам'ятіを戻す. 
+  , . 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Scalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐共有Оперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_COMMON</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_COMMON</TD></TR>
 </TABLE></TD></TR></TABLE>
     
 <H4>【Синтаксис / Прототип】</H4>
@@ -448,27 +448,27 @@ void*   Scalloc( size_t nelem, size_t elsize )
 
 <H4>【Параметри】</H4>
 <PRE>
-size_t  nelem   獲得したい要素数(&gt; 0)
-size_t  elsize  1 要素のバイト数(&gt; 0)
+size_t  nelem   (&gt; 0)
+size_t  elsize  1 (&gt; 0)
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐共有Оперативна пам'ять (Memory)から <CODE>elsize</CODE> の大きさの
-  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て, その先頭адреса пам'ятіを戻す. 
-  割り当てた領域は 0 で初期化される. 
+   <CODE>elsize</CODE> 
+  <CODE>nelem</CODE> , . 
+   0 . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Srealloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐共有Оперативна пам'ять (Memory)の再獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_COMMON</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_COMMON</TD></TR>
 </TABLE></TD></TR></TABLE>
     
 <H4>【Синтаксис / Прототип】</H4>
@@ -478,30 +478,30 @@ void*   Srealloc( void *ptr, size_t size )
 
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    розмір у байтах変更したい領域のадреса пам'яті
-                NULL を指定した場合は新規獲得
-size_t  size    再獲得したいОперативна пам'ять (Memory)のバイト数(≧0)
-                0 を指定した場合は解放
+void    *ptr    
+                NULL 
+size_t  size    (≧0)
+                0 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐共有Оперативна пам'ять (Memory)中の <CODE>ptr</CODE> で指定される領域のрозмір у байтахを
-  <CODE>size</CODE> に変更して再獲得し, その先頭адреса пам'ятіを戻す. <BR>
-  <CODE>ptr</CODE> は, 同じПроцес (Process)内で獲得したОперативна пам'ять (Memory)領域で, 
+   <CODE>ptr</CODE> 
+  <CODE>size</CODE> , . <BR>
+  <CODE>ptr</CODE> , , 
   <CODE>Smalloc(), Scalloc(), Srealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Sfree</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐共有Оперативна пам'ять (Memory)の解放(ライブラリ)</TD></TR>
+<TR><TD>()</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -510,22 +510,22 @@ void    Sfree( void *ptr )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    解放したい領域のадреса пам'яті
+void    *ptr    
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>ptr</CODE> で指定された非常駐共有Оперативна пам'ять (Memory)内の領域を解放する. <BR>
-  <CODE>ptr</CODE> は, 同じПроцес (Process)内で獲得したОперативна пам'ять (Memory)領域で, 
+  <CODE>ptr</CODE> . <BR>
+  <CODE>ptr</CODE> , , 
   <CODE>Smalloc(), Scalloc(), Srealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Kmalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>常駐システムОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM | M_RESIDENT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM | M_RESIDENT</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -535,27 +535,27 @@ void*   Kmalloc( size_t size )
 
 <H4>【Параметри】</H4>
 <PRE>
-size_t  size    獲得したいОперативна пам'ять (Memory)のバイト数(&gt; 0)
+size_t  size    (&gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  常駐システムОперативна пам'ять (Memory)から指定したрозмір у байтахのОперативна пам'ять (Memory)を割り当て, その先頭адреса пам'ятіを戻す. 
+  , . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Kcalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>常駐システムОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM | M_RESIDENT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM | M_RESIDENT</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -564,29 +564,29 @@ void*   Kcalloc( size_t nelem, size_t elsize )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-size_t  nelem   獲得したい要素数(&gt; 0)
-size_t  elsize  1 要素のバイト数(&gt; 0)
+size_t  nelem   (&gt; 0)
+size_t  elsize  1 (&gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  常駐システムОперативна пам'ять (Memory)から <CODE>elsize</CODE> の大きさの
-  <CODE>nelem</CODE> 個の要素を格納する領域を割り当て, その先頭адреса пам'ятіを戻す. 
-  割り当てた領域は 0 で初期化される. 
+   <CODE>elsize</CODE> 
+  <CODE>nelem</CODE> , . 
+   0 . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Krealloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>常駐システムОперативна пам'ять (Memory)の再獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM | M_RESIDENT</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM | M_RESIDENT</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -596,34 +596,34 @@ void*   Krealloc( void *ptr, size_t size )
 
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    розмір у байтах変更したい領域のадреса пам'яті
-                NULL を指定した場合は新規獲得
-size_t  size    再獲得したいОперативна пам'ять (Memory)のバイト数(≧0)
-                0 を指定した場合は解放
+void    *ptr    
+                NULL 
+size_t  size    (≧0)
+                0 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
 <P>
-  常駐システムОперативна пам'ять (Memory)中の <CODE>ptr</CODE>
-  で指定される領域のрозмір у байтахを <CODE>size</CODE> に変更して再獲得し, その先頭ドレスを戻す. <BR>
-  <CODE>ptr</CODE> は, 
+   <CODE>ptr</CODE>
+   <CODE>size</CODE> , . <BR>
+  <CODE>ptr</CODE> , 
   <CODE>Kmalloc(), Kcalloc(), Krealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Kfree</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>常駐システムОперативна пам'ять (Memory)の解放(ライブラリ)</TD></TR>
+<TR><TD>()</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -633,24 +633,24 @@ void    Kfree( void *ptr )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    解放したい領域のадреса пам'яті
+void    *ptr    
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>ptr</CODE> で指定された常駐システムОперативна пам'ять (Memory)内の領域を解放する. <BR>
-  <CODE>ptr</CODE> は, <CODE>Kmalloc(), Kcalloc(), Krealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  <CODE>ptr</CODE> . <BR>
+  <CODE>ptr</CODE> , <CODE>Kmalloc(), Kcalloc(), Krealloc()</CODE>
+  . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Vmalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐システムОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -660,27 +660,27 @@ void*   Vmalloc( size_t size )
 
 <H4>【Параметри】</H4>
 <PRE>
-size_t  size    獲得したいОперативна пам'ять (Memory)のバイト数(&gt; 0)
+size_t  size    (&gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 
 <P>
-  非常駐システムОперативна пам'ять (Memory)から指定したрозмір у байтахのОперативна пам'ять (Memory)を割り当て, その先頭адреса пам'ятіを戻す. 
+  , . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Vcalloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐システムОперативна пам'ять (Memory)の獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -689,29 +689,29 @@ void*   Vcalloc( size_t nelem, size_t elsize )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-size_t  nelem   獲得したい要素数(&gt; 0)
-size_t  elsize  1 要素のバイト数(&gt; 0)
+size_t  nelem   (&gt; 0)
+size_t  elsize  1 (&gt; 0)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐システムОперативна пам'ять (Memory)から <CODE>elsize</CODE>
-  の大きさの <CODE>nelem</CODE> 個の要素を格納する領域を割り当て, その先頭адреса пам'ятіを戻す. 
-  割り当てた領域は 0 で初期化される. 
+   <CODE>elsize</CODE>
+   <CODE>nelem</CODE> , . 
+   0 . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Vrealloc</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐システムОперативна пам'ять (Memory)の再獲得(ライブラリ)</TD></TR>
-<TR><TD>Оперативна пам'ять (Memory)属性：M_SYSTEM</TD></TR>
+<TR><TD>()</TD></TR>
+<TR><TD>：M_SYSTEM</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -720,33 +720,33 @@ void*   Vrealloc( void *ptr, size_t size )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    розмір у байтах変更したい領域のадреса пам'яті
-                NULL を指定した場合は新規獲得
-size_t  size    再獲得したいОперативна пам'ять (Memory)のバイト数(≧0)
-                0 を指定した場合は解放
+void    *ptr    
+                NULL 
+size_t  size    (≧0)
+                0 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≠NULL  Успішне виконання(獲得したОперативна пам'ять (Memory)адреса пам'яті)
-＝NULL  Помилка
+≠NULL  ()
+＝NULL  
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  非常駐システムОперативна пам'ять (Memory)中の <CODE>ptr</CODE> で指定される領域のрозмір у байтахを
-  <CODE>size</CODE> に変更して再獲得し, その先頭адреса пам'ятіを戻す. <BR>
-  <CODE>ptr</CODE> は, <CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+   <CODE>ptr</CODE> 
+  <CODE>size</CODE> , . <BR>
+  <CODE>ptr</CODE> , <CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
+  . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">Vfree</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>非常駐システムОперативна пам'ять (Memory)の解放(ライブラリ)</TD></TR>
+<TR><TD>()</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -755,20 +755,20 @@ void    Vfree( void *ptr )
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-void    *ptr    解放したい領域の先頭адреса пам'яті
+void    *ptr    
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  <CODE>ptr</CODE> で指定された非常駐システムОперативна пам'ять (Memory)内の領域を解放する. <BR>
-  <CODE>ptr</CODE> は, <CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
-  で返されたадреса пам'ятіでなければならない. 
+  <CODE>ptr</CODE> . <BR>
+  <CODE>ptr</CODE> , <CODE>Vmalloc(), Vcalloc(), Vrealloc()</CODE>
+  . 
 </P>
 <P>
-  ※ прикладний додаток / програмаПроцес (Process)からは使用できない. 
+  ※ . 
 </P>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="gname.html">前頁:1.4 Глобальне ім'я (Global Name)管理にもどる</A><BR>
-<A href="file.html">次頁:1.6 Файлова система та менеджер файлів (File Management)にすすむ</A><BR>
+<A href="gname.html">Попередня сторінка: 1.4 Глобальні імена (Повернутися)</A><BR>
+<A href="file.html">Наступна сторінка: 1.6 Файлова система та менеджер файлів (Перейти)</A><BR>
 </BODY>
 </HTML>

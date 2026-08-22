@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.8 Пристрій (Device)管理
+  1.8 Менеджер пристроїв та драйверів (Device Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="event.html">
@@ -14,272 +14,272 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="event.html">前頁:1.7 Подія (Event)管理にもどる</A><BR>
-<A href="clk.html">次頁:1.9 時計管理にすすむ</A><BR>
+<A href="event.html">Попередня сторінка: 1.7 Менеджер подій вводу (Повернутися)</A><BR>
+<A href="clk.html">Наступна сторінка: 1.9 Системний годинник та таймери (Перейти)</A><BR>
 <HR>
 
-<H2><A name="acg">1.8 Пристрій (Device)管理</A></H2>
+<H2><A name="acg">1.8 Менеджер пристроїв та драйверів (Device Management)</A></H2>
 
-<H3><A name="ach">1.8.1 Пристрій (Device)管理функціонал / підсистемаの概要</A></H3>
+<H3><A name="ach">1.8.1 Загальний огляд</A></H3>
 
 <P>
-  Пристрій (Device)管理функціонал / підсистемаでは, 
-  прикладний додаток / програмаが各種のПристрій (Device)を統一的に取り扱うためのインタフェースфункціонал / підсистема, 
-  および各種のПристрій (Device)に対応したПристрій (Device)ドライバの登録／管理функціонал / підсистема, 
-  Пристрій (Device)ドライバとのインタフェースфункціонал / підсистемаを提供している. 
-  ここでは, прикладний додаток / програмаインタフェースのみについて記述する. 
+  , 
+  , 
+  ／, 
+  . 
+  , . 
 </P>
 <P>
-  また, OS 核のФайл (File)管理функціонал / підсистемаやПодія (Event)管理функціонал / підсистемаでは, 
-  内部的にПристрій (Device)管理функціонал / підсистемаを経由して実際のПристрій (Device)操作を行なうことになる. 
+  , OS , 
+  . 
 </P>
 <P>
-  以下にПристрій (Device)管理функціонал / підсистемаの位置付けを示す. 
+  . 
 </P>
 
 <A name="aci">
-<CENTER><IMG src="gif/devicemap.gif" alt="Пристрій (Device)管理функціонал / підсистемаの位置付け"></CENTER>
+<CENTER><IMG src="gif/devicemap.gif" alt=""></CENTER>
 </A>
-<CENTER>図 14 : Пристрій (Device)管理функціонал / підсистемаの位置付け</CENTER>
+<CENTER> 14 : </CENTER>
 
 <P>
-使用されるПристрій (Device)としては以下のようなものがある. 
+. 
 </P>
 
 <OL>
- <LI> ビットマップディスプレイ (CRT, LCD, 等)
- <LI> Клавіатура (Keyboard) (KD)
- <LI> Вказівний пристрій (Pointing Device) (PD)
- <LI> 各種ディスク装置 (FD, HD, OD, CD-ROM, 等)
- <LI> 各種のプリンタ
- <LI> 通信回線 (RS-232C, モデム, 各種ネットワーク, 等)
- <LI> スピーカ
- <LI> イメージ処理装置
- <LI> その他
+ <LI>  (CRT, LCD, )
+ <LI>  (KD)
+ <LI>  (PD)
+ <LI>  (FD, HD, OD, CD-ROM, )
+ <LI> 
+ <LI>  (RS-232C, , , )
+ <LI> 
+ <LI> 
+ <LI> 
 </OL>
 
 <P>
-  これらのПристрій (Device)のうち, 
-  ビットマップディスプレイに対するприкладний додаток / програмаインタフェースは, 
-  Пристрій (Device)管理функціонал / підсистемаとは独立したディスプレイ関数群として提供される. 
+  , 
+  , 
+  . 
 </P>
 <P>
-  これらのディスプレイ関数群は通常ドライバと一体となっているためドライバインタフェースも適用されないことになり, 
-  Пристрій (Device)管理функціонал / підсистемаとは基本的に独立した存在となる. 
+  , 
+  . 
 </P>
 <P>
-  また, Клавіатура (Keyboard)とВказівний пристрій (Pointing Device)に対するприкладний додаток / програмаインタフェースはПодія (Event)管理функціонал / підсистемаとして提供されるが, 
-  ドライバとのインタフェースはПристрій (Device)管理でサポートしている. 
+  , , 
+  . 
 </P>
 <P>
-  各種のディスク装置の場合は, 
-  通常はФайл (File)として使用されるが, 
-  Пристрій (Device)として直接取り扱うためのприкладний додаток / програмаインタフェースも用意される. 
-</P>
-
-<H3><A name="acj">1.8.2 Пристрій (Device)</A></H3>
-
-<H4>Пристрій (Device)のタイプ</H4>
-
-<P>
-  Пристрій (Device)は文字型Пристрій (Device)とブロック型Пристрій (Device)の 2 種類に分類される. 
-  文字型Пристрій (Device)は基本的にバイト単位でデータの入出力をシーケンシャルに行なうもので, 
-  ブロックПристрій (Device)はПристрій (Device)毎に定められた大きさのデータブロック単位での入出力を行なうものでブロック単位でのランダムなアクセスが可能である. 
-</P>
-<P>
-  各種のディスク装置はブロック型Пристрій (Device)であり, 
-  その他のほとんどのПристрій (Device)は文字型Пристрій (Device)となる. 
-</P>
-<P>
-  また, Пристрій (Device)は実Пристрій (Device)と仮想Пристрій (Device)に分類される. 
-  実Пристрій (Device)は物理的に実際に存在する通常の意味でのПристрій (Device)であり, 
-  仮想Пристрій (Device)はある種の資源を仮想的に 1
-  つのПристрій (Device)として取り扱うものである. 
-  仮想Пристрій (Device)の代表的なものとしては画面上の 1
-  つのウィンドウを仮想的に1つのコンソールとして取り扱う仮想コンソールがあげられる. 
+  , 
+  , 
+  . 
 </P>
 
-<H4>論理Пристрій (Device)名</H4>
+<H3><A name="acj">1.8.2 Класифікація та архітектура пристроїв</A></H3>
+
+<H4></H4>
 
 <P>
-  Пристрій (Device)は, 
-  論理Пристрій (Device)名と呼ばれるユニークな文字列によりシステムに登録され, 
-  識別される. 論理Пристрій (Device)名は, 基本的に以下に示す 3
-  つの要素から構成される. 
+   2 . 
+  , 
+  . 
+</P>
+<P>
+  , 
+  . 
+</P>
+<P>
+  , . 
+  , 
+   1
+  . 
+   1
+  1. 
+</P>
+
+<H4></H4>
+
+<P>
+  , 
+  , 
+  . ,  3
+  . 
 </P>
 
 <DL>
- <DT>種別:
- <DD>Пристрій (Device)の種類を表わす名称であり, &quot;hd&quot;(ハードディスク), 
-     &quot;fd&quot;(フロッピーディスク)等がある. 
- <DT>ユニット:
- <DD>同一種別のПристрій (Device)が複数個存在する場合に, 
-     個々のПристрій (Device)を識別するために使用され, 通常, 
-     &quot;a&quot; 〜 の英文字1文字が使用される. 
- <DT>サブユニット:
- <DD>1つのユニットを論理的に複数に分割した場合に, 個
-     々の分割単位を識別するために使用され, 
-     &quot;0&quot;〜&quot;254&quot;の最大3桁の連続した数字で表わされる. 
+ <DT>:
+ <DD>, &quot;hd&quot;(), 
+     &quot;fd&quot;(). 
+ <DT>:
+ <DD>, 
+     々, , 
+     &quot;a&quot; 〜 1. 
+ <DT>:
+ <DD>1, 
+     々, 
+     &quot;0&quot;〜&quot;254&quot;3. 
 </DL>
 
 <P>
-  種別 +  ユニット を, 特にユニット名と呼び, OS で識別される単位となる. 
-  OS 側では種別とユニットの区別は認識せず, 
-  両方を合わせた名称であるユニット名により, 
-  Пристрій (Device)を識別する. ユニット名の最後の文字は数字であってはいけない. 
+   +   , , OS . 
+  OS , 
+  , 
+  . . 
 </P>
 <P>
-  論理Пристрій (Device)名は, «ユニット名＋サブユニット番号»で表わされ, 
-  全体として最大 8 文字 ( 16 バイト ) の文字列となる. 
-  サブユニット番号は前に 0 の付かない 3 桁までの数字である. 
-  サブユニットが存在しない場合, 
-  ユニット名がそのまま論理Пристрій (Device)名と成り得る. 
-  論理Пристрій (Device)名の最後の文字が数字である場合は, 
-  その論理Пристрій (Device)名はサブユニットを表わしているものと見なされる. 
-  サブユニット全体を表わす場合, 
-  サブユニット番号は付けず, ユニット名そのものが論理Пристрій (Device)名となる. 
+  , «＋», 
+   8  ( 16  ) . 
+   0  3 . 
+  , 
+  . 
+  , 
+  . 
+  , 
+  , . 
 </P>
 <P>
-  サブユニット ( パーティション )
-  を表わすために最大 3 桁の数字 ( サブユニット番号 ) が使用されるが, 
-  サブユニットの分割を無視した 1 つのユニットとして取り扱う場合は, 
-  サブユニット番号を含めない論理Пристрій (Device)名 ( ユニット名 )
-  を使用する. これは, 主にサブユニットの分割
-  (即ち, ディスクのパーティショニング )
-  を行なうために使用される. 
-  なお, サブユニット番号を含まない論理Пристрій (Device)名
-  ( ユニット名 ) を特に物理Пристрій (Device)名と呼ぶ. 
+   (  )
+   3  (  ) , 
+   1 , 
+   (  )
+  . , 
+  (,  )
+  . 
+  , 
+  (  ) . 
 </P>
 
 <A name="ack">
-<CENTER><IMG src="gif/logicaldevice.gif" alt="論理Пристрій (Device)名"></CENTER>
+<CENTER><IMG src="gif/logicaldevice.gif" alt=""></CENTER>
 </A>
-<CENTER>図 15 : 論理Пристрій (Device)名</CENTER>
+<CENTER> 15 : </CENTER>
 
 <P>
-  Пристрій (Device)の登録は, 実際には対応するПристрій (Device)ドライバの登録を意味し, 
-  Пристрій (Device)ドライバはユニット単位でユニット名により定義される. 
-  即ち, 1 つのユニットに含まれるすべてのサブユニットは 1
-  つのПристрій (Device)ドライバで処理される. 
-  通常, Пристрій (Device)ドライバはПристрій (Device)の種別に対応して用意され, 
-  1 つのПристрій (Device)ドライバで複数のユニットを処理する場合が多いが, 
-  複数のユニットを複数のПристрій (Device)ドライバで処理してもよい. 
+  , , 
+  . 
+  , 1  1
+  . 
+  , , 
+  1 , 
+  . 
 </P>
 <P>
-  なお, 今後単にПристрій (Device)名と言った場合は, 
-  論理Пристрій (Device)名を意味するものとする. 
+  , , 
+  . 
 </P>
 
-<H4>Пристрій (Device)のアクセス制御</H4>
+<H4></H4>
 
 <P>
-  ディスク等のПристрій (Device)では, システムの安全性を保つために, 
-  そのПристрій (Device)を使用できるユーザを制限することが望ましい. 
-  このため, Процес (Process)のユーザレベルによるПристрій (Device)のアクセス制御が行なわれる. 
+  , , 
+  . 
+  , . 
 </P>
 <P>
-  各Пристрій (Device)には以下に示す 1 ワードのアクセスモードが保持されており, 
-  これによりПристрій (Device)のアクセス権がチェックされる
-  ( これはФайл (File)に於ける一般アクセスレベルに相当するものである ). 
+   1 , 
+  
+  (  ). 
 </P>
 
 <A name="acl">
-<CENTER><IMG src="gif/accessmode.gif" alt="Пристрій (Device)のアクセスモード"></CENTER>
+<CENTER><IMG src="gif/accessmode.gif" alt=""></CENTER>
 </A>
 
-<CENTER>図 16 : Пристрій (Device)のアクセスモード</CENTER>
+<CENTER> 16 : </CENTER>
 
 <P>
-  即ち, 読込可能なユーザレベルを持つПроцес (Process)からのみПристрій (Device)の読込用
-  ( <CODE>D_READ</CODE>) のオープンが可能で, 
-  書込可能なユーザレベルを持つПроцес (Process)からのみПристрій (Device)の書込用
-  ( <CODE>D_WRITE</CODE> ) のオープンが可能となる. 
-  また, アクセス可能なユーザレベルを持つПроцес (Process)からのみ, 
-  そのПристрій (Device)をФайл (File)システムとして取り扱うことが可能であり, 
-  Файл (File)システムの接続 / 切断 /
-  管理情報読込みのФайл (File)管理のсистемний виклик (System Call)を実行できる. 
+  , 
+  ( <CODE>D_READ</CODE>) , 
+  
+  ( <CODE>D_WRITE</CODE> ) . 
+  , , 
+  , 
+   /  /
+  . 
 </P>
 <P>
-  Пристрій (Device)のアクセスモードは, 
-  Пристрій (Device)の登録時に R = W = F = 15 に設定される. 
-  登録後はユーザレベル 0 のПроцес (Process)からのみ変更可能となる. 
+  , 
+   R = W = F = 15 . 
+   0 . 
 </P>
 
-<H3><A name="acm">1.8.3 データ / 定数の定義</A></H3>
+<H3><A name="acm">1.8.3 Визначення типів даних та конста</A></H3>
 
-<H4>□ オープンモード</H4>
+<H4>□ </H4>
 
 <PRE>
-#define D_READ      0x0001      /* 読み込み専用オープン */
-#define D_WRITE     0x0002      /* 書き込み専用オープン */
-#define D_UPDATE    0x0003      /* 更新用オープン */
-#define D_EXCL      0x0100      /* 排他モード指定 */
-#define D_WEXCL     0x0200      /* 排他書き込みモード指定 */
-#define D_NOWAIT    0x8000      /* 待ちなしモード指定 */
+#define D_READ      0x0001      /*  */
+#define D_WRITE     0x0002      /*  */
+#define D_UPDATE    0x0003      /*  */
+#define D_EXCL      0x0100      /*  */
+#define D_WEXCL     0x0200      /*  */
+#define D_NOWAIT    0x8000      /*  */
 </PRE>
 
-<H4>□ Пристрій (Device)管理情報</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct dev_state {
-    UW  attr;       /* Пристрій (Device)の属性 */
-    UW  mode;       /* アクセスモード */
-    W   blksz;      /* 物理ブロックрозмір у байтах( -1 :不明) */
-    W   wprt;       /* 書き込み可否( 0:許可 1:禁止 -1:不明) */
+    UW  attr;       /*  */
+    UW  mode;       /*  */
+    W   blksz;      /* ( -1 :) */
+    W   wprt;       /* ( 0: 1: -1:) */
 } DEV_STATE;
 </PRE>
 
-<H4>□ Пристрій (Device)情報</H4>
+<H4>□ </H4>
 
 <PRE>
-#define L_DEVNM     8   /* Пристрій (Device)名の長さ */
+#define L_DEVNM     8   /*  */
 </PRE>
 
 <PRE>
 typedef struct {
-    UW  attr;           /* Пристрій (Device)の属性 */
-    W   nsub;           /* サブユニット数 */
-    TC  name[L_DEVNM];  /* ユニット名 */
+    UW  attr;           /*  */
+    W   nsub;           /*  */
+    TC  name[L_DEVNM];  /*  */
 } DEV_INFO;
 </PRE>
 
-<H4>□ Пристрій (Device)の属性 (attr : IIII IIII IIII IIII CRxx xxxx KKKK KKKK)</H4>
+<H4>□  (attr : IIII IIII IIII IIII CRxx xxxx KKKK KKKK)</H4>
 <PRE>
-#define DA_DEVINFO      0xFFFF0000  /* Пристрій (Device)/メディア依存情報 */
-#define DA_CHARDEV      0x8000      /* 文字型Пристрій (Device) */
-#define DA_REMOVABLE    0x4000      /* 取り外し可能 */
+#define DA_DEVINFO      0xFFFF0000  /* / */
+#define DA_CHARDEV      0x8000      /*  */
+#define DA_REMOVABLE    0x4000      /*  */
 
-#define DA_DEVKIND      0xFF        /* Пристрій (Device)/メディア種別 */
-#define DA_DEVTYPE      0xF0        /* Пристрій (Device)/メディアタイプマスク */
+#define DA_DEVKIND      0xFF        /* / */
+#define DA_DEVTYPE      0xF0        /* / */
 
-#define DK_UNDEF        0x00        /* 未定義/不明 */
-#define DK_DISK         0x10        /* ディスクタイプ */
+#define DK_UNDEF        0x00        /* / */
+#define DK_DISK         0x10        /*  */
 
-#define DK_DISK_UNDEF   0x10        /* その他のディスク */
-#define DK_DISK_RAM     0x11        /* RAM ディスク */
-#define DK_DISK_ROM     0x12        /* ROM ディスク */
-#define DK_DISK_FLA     0x13        /* FLASH ROM / SS ディスク */
-#define DK_DISK_FD      0x14        /* フロッピーディスク */
-#define DK_DISK_HD      0x15        /* ハードディスク */
+#define DK_DISK_UNDEF   0x10        /*  */
+#define DK_DISK_RAM     0x11        /* RAM  */
+#define DK_DISK_ROM     0x12        /* ROM  */
+#define DK_DISK_FLA     0x13        /* FLASH ROM / SS  */
+#define DK_DISK_FD      0x14        /*  */
+#define DK_DISK_HD      0x15        /*  */
 #define DK_DISK_CDROM   0x16        /* CD-ROM */
 </PRE>
 
-<H4>□ サスペンド要求モード</H4>
+<H4>□ </H4>
 
 <PRE>
-#define D_SUSPEND   0x0001  /* サスペンドする */
-#define D_DISSUS    0x0002  /* サスペンドを禁止する */
-#define D_ENASUS    0x0003  /* サスペンドを許可する */
-#define D_CHECK     0x0004  /* サスペンド禁止カウントを調べる */
-#define D_FORCE     0x8000  /* 強制サスペンド指定 */
+#define D_SUSPEND   0x0001  /*  */
+#define D_DISSUS    0x0002  /*  */
+#define D_ENASUS    0x0003  /*  */
+#define D_CHECK     0x0004  /*  */
+#define D_FORCE     0x8000  /*  */
 </PRE>
 
-<H3><A name="acn">1.8.4 системний виклик (System Call)</A></H3>
+<H3><A name="acn">1.8.4 Системні виклики драйверів пристроїв</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">opn_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)のオープン</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -289,67 +289,67 @@ WERR    opn_dev(TC* dev, W o_mode, W* error)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC* dev       対象Пристрій (Device)名
+TC* dev       
 
-W   o_mode    オープンモード
+W   o_mode    
     ( D_READ ‖ D_WRITE ‖ D_UPDATE ) | [ D_EXCL ‖ D_WEXCL ]
                             | [ D_NOWAIT ]
-    D_READ    読み込み用オープン(Rアクセス権が必要)
-    D_WRITE   書き込み用オープン(Wアクセス権が必要)
-    D_UPDATE  更新(読み込み／書き込み)用オープン(RWアクセス権が必要)
-    D_EXCL    排他モード
-    D_WEXCL   排他書き込みモード
-    D_NOWAIT  待ち無し指定
-              文字型Пристрій (Device)の場合, オープン時にПристрій (Device)がレディ状態になる
-              まで待たずにリターンする. この指定でオープンした場合は, 
-              rea_dev(), wri_dev() で入力データが得られなかったり, 出力が
-              ビジー状態の場合には, 待たずにリターンする. 
+    D_READ    (R)
+    D_WRITE   (W)
+    D_UPDATE  (／)(RW)
+    D_EXCL    
+    D_WEXCL   
+    D_NOWAIT  
+              , 
+              . , 
+              rea_dev(), wri_dev() , 
+              , . 
 
-W*  error     詳細Помилка情報格納領域
-              *error には, Пристрій (Device)ドライバから戻されたПомилка情報が設定される. 
-              Помилка情報の内容は, 各Пристрій (Device)ドライバによって異なる. 
-              error が NULL の場合, Помилка情報は格納しない. 
+W*  error     
+              *error , . 
+              , . 
+              error  NULL , . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＞0    Успішне виконання(Пристрій (Device)ディスクリプタ)
-＜0    код помилки
+＞0    ()
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定したПристрій (Device)を指定したモードでオープンする. 
-Пристрій (Device)をオープンするためにはオープンモードに対応するアクセス権が必要である. 
+. 
+. 
 <BR>
-排他モード, および排他書込モードはФайл (File)に対するものと全く同様のфункціонал / підсистемаであり, 
-1つのПристрій (Device)の同時オープンを制限することになる. 
-なお, 物理Пристрій (Device)名によるオープンは, 対象とするユニットのすべての論理Пристрій (Device)
-に対するオープンを同時に行なったものとみなされた排他制御が行なわれる. 
-例えば, &quot;hda&quot; の D_EXCL オープンは, &quot;hda#&quot; が1つもオープンされていない場合のみ可能であり, 逆に &quot;hda&quot; をD_EXCL オープンした後は, どの &quot;hda#&quot; のオープンも不可となる. 
+, , 
+1. 
+, , 
+. 
+, &quot;hda&quot;  D_EXCL , &quot;hda#&quot; 1,  &quot;hda&quot; D_EXCL ,  &quot;hda#&quot; . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ACCES    : Пристрій (Device)(dev)のアクセス権(R,W)がない. 
-ER_ADR      : адреса пам'яті(dev,error)のアクセスは許されていない. 
-ER_BUSY     : Пристрій (Device)(dev)は既に排他的にオープンされている為, 
-              同時にПристрій (Device)をオープンすることができない, 
-              またはФайл (File)システムとして接続されている. 
-ER_DEV      : Пристрій (Device)(dev)に対しての読込みまたは書込み操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_LIMIT    : 同時オープン可能な最大Пристрій (Device)数を越えた. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため, 処理が中断された. 
-ER_NODEV    : Пристрій (Device)(dev)へのアクセスができない. 
-ER_NOEXS    : Пристрій (Device)(dev)は存在していない(登録されていない). 
-ER_NOMDA    : Пристрій (Device)(dev)のメディアが存在しない. 
-ER_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-ER_PAR      : параметриが不正である(o_modeが不正). 
-ER_RONLY    : Пристрій (Device)(dev)は書込不可である. 
+ER_ACCES    : (dev)(R,W). 
+ER_ADR      : (dev,error). 
+ER_BUSY     : (dev), 
+              , 
+              . 
+ER_DEV      : (dev). 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_LIMIT    : . 
+ER_MINTR    : , . 
+ER_NODEV    : (dev). 
+ER_NOEXS    : (dev)(). 
+ER_NOMDA    : (dev). 
+ER_NOSPC    : . 
+ER_PAR      : (o_mode). 
+ER_RONLY    : (dev). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cls_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)のクローズ</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -359,39 +359,39 @@ ERR cls_dev(W dd, W eject, W* error)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   dd      Пристрій (Device)ディスクリプタ
+W   dd      
 
-W   eject   イジェクト指定
-            ＝ 0  イジェクトしない
-            ≠ 0  イジェクトする(イジェクト不可能なПристрій (Device)の時は無視)
+W   eject   
+            ＝ 0  
+            ≠ 0  ()
 
-W*  error   詳細Помилка情報格納領域
-            *error には, Пристрій (Device)ドライバから戻されたПомилка情報が設定される. 
-            Помилка情報の内容は, 各Пристрій (Device)ドライバによって異なる. 
-            error が NULL の場合, Помилка情報は格納しない. 
+W*  error   
+            *error , . 
+            , . 
+            error  NULL , . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0    Успішне виконання
-＜0    код помилки
+= 0    
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-オープンしたПристрій (Device)をクローズする. <BR>
-Пристрій (Device)をオープンしたПроцес (Process)が終了したときには, 自動的にそのПристрій (Device)はクローズされる. 
+. <BR>
+, . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(error)のアクセスは許されていない. 
-ER_DD       : Пристрій (Device)ディスクリプタは存在していない. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため, 処理が中断された. 
+ER_ADR      : (error). 
+ER_DD       : . 
+ER_IO       : . 
+ER_MINTR    : , . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rea_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)のデータ読み込み</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -401,67 +401,67 @@ ERR rea_dev(W dd, W start, B* buf, W size, W* a_size, W* error)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   dd      Пристрій (Device)ディスクリプタ
+W   dd      
 
-W   start   読み込み開始データ番号
-            ≧0      固有データ
-            &lt; 0     属性データ
+W   start   
+            ≧0      
+            &lt; 0     
 
-B*  buf     読み込みデータの格納領域
+B*  buf     
 
-W   size    読み込みデータрозмір у байтах
-            固有データ   単位はПристрій (Device)依存
-            属性データ   単位はバイト
+W   size    
+               
+               
 
-W*  a_size  読み込んだデータрозмір у байтах
-            固有データ   単位はПристрій (Device)依存
-            属性データ   単位はバイト
+W*  a_size  
+               
+               
 
-W*  error   詳細Помилка情報格納領域
-            *error には, Пристрій (Device)ドライバから戻されたПомилка情報が設定される. 
-            Помилка情報の内容は, 各Пристрій (Device)ドライバによって異なる. 
-            error が NULL の場合, Помилка情報は格納しない. 
+W*  error   
+            *error , . 
+            , . 
+            error  NULL , . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0    Успішне виконання<BR>
-＜0    код помилки
+= 0    <BR>
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-オープンしたПристрій (Device)のデータを指定した開始データ番号から指定したрозмір у байтахだけ読み込む. <BR>
-size = 0 の時は実際の読み込みは行わずに, a_size に読み込み可能なデータрозмір у байтахを戻す. <BR>
+. <BR>
+size = 0 , a_size . <BR>
 
-文字型Пристрій (Device)の場合は, オープン時の指定により以下に示す動作となる(詳細は個々のПристрій (Device)に依存する). 
+, (々). 
 <DL>
- <DT>D_NOWAIT 指定の時:
- <DD>その時点で得られたバイト数(size で指定したバイト数以下)のデータだ
-    けを読み込む. 何もデータが無い場合は, *a_size に０がセットされ, 
-    ER_BUSY のПомилкаとなる. 
- <DT>D_NOWAIT 指定でない時:
- <DD>size で指定したバイト数のデータが得られるか, データが終了となるま
-     で待つ. 
+ <DT>D_NOWAIT :
+ <DD>(size )
+    . , *a_size ０, 
+    ER_BUSY . 
+ <DT>D_NOWAIT :
+ <DD>size , 
+     . 
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(buf,a_size,error)のアクセスは許されていない. 
-ER_BUSY     : データは得られなかった(D_NOWAITオープン時)
-ER_DD       : Пристрій (Device)ディスクリプタは存在していない, 
-              または D_WRITE オープンである. 
-ER_DEV      : Пристрій (Device)(dd)に対しての読込み操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため, 処理が中断された. 
-ER_NODEV    : Пристрій (Device)(dd)へのアクセスができない. 
-ER_NOMDA    : Пристрій (Device)(dd)のメディアが存在しない. 
-ER_PAR      : параметриが不正である(size&lt; 0,start不正). 
+ER_ADR      : (buf,a_size,error). 
+ER_BUSY     : (D_NOWAIT)
+ER_DD       : , 
+               D_WRITE . 
+ER_DEV      : (dd). 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_MINTR    : , . 
+ER_NODEV    : (dd). 
+ER_NOMDA    : (dd). 
+ER_PAR      : (size&lt; 0,start). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">wri_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)へのデータ書き込み</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -471,70 +471,70 @@ ERR wri_dev(W dd, W start, B* buf, W size, W* a_size, W* error)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   dd      Пристрій (Device)ディスクリプタ
+W   dd      
 
-W   start   書き込み開始データ番号
-            ≧0      固有データ
-            &lt; 0     属性データ
+W   start   
+            ≧0      
+            &lt; 0     
 
-B*  buf     書き込みデータ
+B*  buf     
 
-W   size    書き込みデータрозмір у байтах
-            固有データ   単位はПристрій (Device)依存
-            属性データ   単位はバイト
+W   size    
+               
+               
 
-W*  a_size  書き込んだデータрозмір у байтах
-            固有データ   単位はПристрій (Device)依存
-            属性データ   単位はバイト
+W*  a_size  
+               
+               
 
-W*  error   詳細Помилка情報格納領域
-            *error には, Пристрій (Device)ドライバから戻されたПомилка情報が設定される. 
-            Помилка情報の内容は, 各Пристрій (Device)ドライバによって異なる. 
-            error が NULL の場合, Помилка情報は格納しない. 
+W*  error   
+            *error , . 
+            , . 
+            error  NULL , . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 = 0      Успішне виконання
-＜0   код помилки
+＜0   
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
-オープンしたПристрій (Device)へ指定した開始データ番号から指定したрозмір у байтахだけデータを書き込む. <BR>
-size = 0 の時は実際の書き込みは行わずに, a_size に書き込み可能なデータрозмір у байтахを戻す. 
+. <BR>
+size = 0 , a_size . 
 <BR>
-文字型Пристрій (Device)の場合は, オープン時の指定により以下に示す動作となる(詳細は個々
-のПристрій (Device)に依存する). 
+, (々
+). 
 <DL>
- <DT>D_NOWAIT 指定の時:
- <DD>その時点で得られたバイト数(size で指定したバイト数以下)のデータだ
-    けを読み込む. 何もデータが無い場合は, *a_size に０がセットされ, 
-    ER_BUSY のПомилкаとなる. 
- <DT>D_NOWAIT 指定でない時:
- <DD>size で指定したバイト数のデータが得られるか, データが終了となるま
-     で待つ. 
+ <DT>D_NOWAIT :
+ <DD>(size )
+    . , *a_size ０, 
+    ER_BUSY . 
+ <DT>D_NOWAIT :
+ <DD>size , 
+     . 
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(buf,a_size,error)のアクセスは許されていない. 
-ER_BUSY     : データは書き込めなかった(D_NOWAITオープン時). 
-ER_DD       : Пристрій (Device)ディスクリプタは存在していない, 
-              または D_READ オープンである. 
-ER_DEV      : Пристрій (Device)(dev)に対しての書込み操作は許されていない. 
-ER_ERDEV    : 装置異常が発生した. 
-ER_IO       : 入出力Помилкаが発生した. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため, 処理が中断された. 
-ER_NODEV    : Пристрій (Device)(dd)へのアクセスができない. 
-ER_NOMDA    : Пристрій (Device)(dd)のメディアが存在しない. 
-ER_PAR      : параметриが不正である(size&lt; 0,start不正). 
-ER_RONLY    : Пристрій (Device)(dev)は書込不可である. 
+ER_ADR      : (buf,a_size,error). 
+ER_BUSY     : (D_NOWAIT). 
+ER_DD       : , 
+               D_READ . 
+ER_DEV      : (dev). 
+ER_ERDEV    : . 
+ER_IO       : . 
+ER_MINTR    : , . 
+ER_NODEV    : (dd). 
+ER_NOMDA    : (dd). 
+ER_PAR      : (size&lt; 0,start). 
+ER_RONLY    : (dev). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">chg_dmd</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)のアクセスモード変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -543,34 +543,34 @@ ERR chg_dmd(TC* dev, W mode)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC* dev     対象Пристрій (Device)名
+TC* dev     
 
-W   mode    アクセスモード
+W   mode    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0     Успішне виконання
-＜0     код помилки
+＝0     
+＜0     
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
-指定したПристрій (Device)のアクセスモードを変更する. 
-本системний виклик (System Call)はユーザレベル 0 のПроцес (Process)からのみ可能である. 
+. 
+ 0 . 
 
 <H4>【Коди помилок】</H4>
 
 <PRE>
-ER_ACCES    : レベル 0 のユーザでない. 
-ER_ADR      : адреса пам'яті(dev)のアクセスは許されていない. 
-ER_NOEXS    : Пристрій (Device)(dev)は存在していない(登録されていない). 
-ER_PAR      : параметриが不正である(modeが不正). 
+ER_ACCES    :  0 . 
+ER_ADR      : (dev). 
+ER_NOEXS    : (dev)(). 
+ER_PAR      : (mode). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">dev_sts</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)の管理情報の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -581,45 +581,45 @@ ERR dev_sts(TC* dev, DEV_STATE* buf)
 
 <H4>【Параметри】</H4>
 <PRE>
-TC* dev 対象Пристрій (Device)名
+TC* dev 
 
-DEV_STATE* buf  Пристрій (Device)管理情報の格納領域
+DEV_STATE* buf  
 
 <PRE>
 typedef struct dev_state {
-    UW  attr;       /* Пристрій (Device)の属性 */
-    UW  mode;       /* アクセスモード */
-    W   blksz;      /* 物理ブロックрозмір у байтах(−１:不明) */
-    W   wprt;       /* 書き込み可否(０:許可 １:禁止 ー１:不明) */
+    UW  attr;       /*  */
+    UW  mode;       /*  */
+    W   blksz;      /* (−１:) */
+    W   wprt;       /* (０: １: １:) */
 } DEV_STATE;
 
-  attr   Пристрій (Device)の属性を示す. 
-  mode   Пристрій (Device)のアクセスモードを示す. 
-  blksz  Пристрій (Device)の物理ブロックрозмір у байтахをバイト数で示したもので, 
-         rea_dev(), wri_dev() での単位となる値である. 
-         文字型Пристрій (Device)の場合は常に &quot;1&quot; となる. 
-  wprt   Пристрій (Device)への書込みが禁止されているか否かを示す状態であり, 書込み禁止
-         の時は &quot;1&quot; となり, 書込み許可の時は &quot;0&quot; となる. 
+  attr   . 
+  mode   . 
+  blksz  , 
+         rea_dev(), wri_dev() . 
+          &quot;1&quot; . 
+  wprt   , 
+          &quot;1&quot; ,  &quot;0&quot; . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 = 0      Успішне виконання
-＜0    код помилки
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定したПристрій (Device)の管理情報を取り出す. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(dev,buf)のアクセスは許されていない. 
-ER_NOEXS    : Пристрій (Device)(dev)は存在していない. 
+ER_ADR      : (dev,buf). 
+ER_NOEXS    : (dev). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)名の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -629,31 +629,31 @@ WERR    get_dev(TC* dev, W devno)
 
 <H4>【Параметри】</H4>
 <PRE>
-TC* dev     Пристрій (Device)名の格納領域
+TC* dev     
 
-W   devno   Пристрій (Device)番号
+W   devno   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(Пристрій (Device)のサブユニット数)
-＜0    код помилки
+>= 0     Успішне виконання()
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-指定したПристрій (Device)番号のПристрій (Device)のユニット名を取り出し, Пристрій (Device)のサブユニット数を関数値として戻す. サブユニットが存在しないときは関数値は &quot;0&quot; となる. 
+, .  &quot;0&quot; . 
 <BR>
-指定するПристрій (Device)番号はПристрій (Device)Подія (Event)として得られたПристрій (Device)番号である. 
+. 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : адреса пам'яті(dev)のアクセスは許されていない. 
-ER_NOEXS    : Пристрій (Device)番号(num)は存在していない. 
+ER_ADR      : (dev). 
+ER_NOEXS    : (num). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">lst_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>登録済みПристрій (Device)の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -663,35 +663,35 @@ WERR    lst_dev(DEV_INFO* dev, W ndev)
 
 <H4>【Параметри】</H4>
 <PRE>
-DEV_INFO*   dev   Пристрій (Device)情報の格納領域(配列)
-                  NULL  格納しない
+DEV_INFO*   dev   ()
+                  NULL  
 
 typedef struct {
-    UW  attr;           /* Пристрій (Device)の属性 */
-    W   nsub;           /* サブユニット数 */
-    TC  name[L_DEVNM];  /* ユニット名 */
+    UW  attr;           /*  */
+    W   nsub;           /*  */
+    TC  name[L_DEVNM];  /*  */
 } DEV_INFO;
 
-W          ndev   Пристрій (Device)情報の格納領域(配列)の要素数
-                  0  格納しない
+W          ndev   ()
+                  0  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(登録されているПристрій (Device)数)
-＜0    код помилки
+>= 0     Успішне виконання()
+＜0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
-登録済みのПристрій (Device)(ユニット)の情報を取り出し, 登録済みのПристрій (Device)(ユニット)数を関数値として戻す. 
+(), (). 
 <BR>
-登録済みのПристрій (Device)の数が ndev より小さいときは登録されている数だけ dev に格納され, 登録済みのПристрій (Device)の数が ndev より多い場合は ndev 個のみ dev に格納される. 
+ ndev  dev ,  ndev  ndev  dev . 
 <BR>
-dev = NULL または ndev = 0 は, 登録済みのПристрій (Device)の数を取り出すために使用する. 
+dev = NULL  ndev = 0 , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR  : адреса пам'яті(dev)のアクセスは許されていない. 
-ER_PAR  : параметриが不正である(ndev&lt; 0). 
+ER_ADR  : (dev). 
+ER_PAR  : (ndev&lt; 0). 
 </PRE>
 
 
@@ -699,7 +699,7 @@ ER_PAR  : параметриが不正である(ndev&lt; 0).
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">sus_dev</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>サスペンド要求</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -711,56 +711,56 @@ WERR    sus_dev(UW mode)
 <PRE>
 mode ::＝ ( D_SUSPEND ‖ D_DISSUS ‖ D_ENASUS ‖ D_CHECK ) | [D_FORCE]
 
-    D_SUSPEND   0x0001  サスペンドする
-    D_DISSUS    0x0002  サスペンドを禁止する
-    D_ENASUS    0x0003  サスペンドを許可する
-    D_CHECK     0x0004  サスペンド禁止カウントを調べる
-    D_FORCE     0x8000  強制サスペンド指定
+    D_SUSPEND   0x0001  
+    D_DISSUS    0x0002  
+    D_ENASUS    0x0003  
+    D_CHECK     0x0004  
+    D_FORCE     0x8000  
 </PRE>
 <H4>【Значення, що повертається】</H4>
->= 0     Успішне виконання (D_CHECK のときはサスペンド禁止要求カウント数)<BR>
-＜0    код помилки
+>= 0     Успішне виконання (D_CHECK )<BR>
+＜0    
 
 <H4>【Детальний опис】</H4>
-システムのサスペンドの制御を行う. 
+. 
 <DL>
  <DT>D_SUSPEND
- <DD>サスペンドおよび強制サスペンド許可状態なら, サスペンドを行う. サスペンド状態から復帰(リジューム)すると, системний виклик (System Call)からリターンする. 
+ <DD>, . (), . 
  <DT>D_DISSUS
- <DD>サスペンドを禁止する. 
+ <DD>. 
  <DT>D_ENASUS
- <DD>サスペンドを許可する. 
-        D_DISSUS の要求回数はカウントされ, 同じ回数だけ D_ENASUS を要求して初めてサスペンドが許可される. <BR>
-        初期状態は, サスペンド許可である. 
+ <DD>. 
+        D_DISSUS ,  D_ENASUS . <BR>
+        , . 
  <DT>D_CHECK
- <DD>現在のサスペンド禁止要求カウント数を調べ, リターン値に返す. ０ならサスペンド許可状態である. 
+ <DD>, . ０. 
      <BR>
-    D_FORCE が指定されると, 強制サスペンドに関する操作となる. 
+    D_FORCE , . 
 
  <DT>D_FORCE|D_SUSPEND
- <DD>強制サスペンド許可状態なら, サスペンドを行う. D_DISSUS による通常のサスペンド禁止は無視される. 
+ <DD>, . D_DISSUS . 
  <DT>D_FORCE|D_DISSUS
- <DD>強制サスペンドを禁止する. 
+ <DD>. 
  <DT>D_FORCE|D_ENASUS
- <DD>強制サスペンドを許可する. <BR>
- D_FORCE|D_DISSUS の要求回数はカウントされ, 同じ回数だけ D_FORCE|D_ENASUS を
-     要求して初めて強制サスペンドが許可される. 
-     初期状態は, 強制サスペンド許可である. 
+ <DD>. <BR>
+ D_FORCE|D_DISSUS ,  D_FORCE|D_ENASUS 
+     . 
+     , . 
  <DT>D_FORCE|D_CHECK
-     現在の強制サスペンド禁止要求カウント数を調べ, リターン値に返す. ０なら強制サスペンド許可状態である. <BR>
+     , . ０. <BR>
 </DL>
-    サスペンドおよび強制サスペンドを禁止したПроцес (Process)が終了すると, そのПроцес (Process)が行った禁止要求は解除される. 
+    , . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_BUSY     : サスペンド禁止状態のためサスペンドできなかった. 
-ER_PAR      : параметриが不正である. 
-ER_LIMIT    : サスペンド禁止要求カウントがシステムの制限を超えた. 
-ER_MINTR    : Повідомлення (Message)ハンドラが起動されたため, 処理が中断された. 
+ER_BUSY     : . 
+ER_PAR      : . 
+ER_LIMIT    : . 
+ER_MINTR    : , . 
 </PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="event.html">前頁:1.7 Подія (Event)管理にもどる</A><BR>
-<A href="clk.html">次頁:1.9 時計管理にすすむ</A><BR>
+<A href="event.html">Попередня сторінка: 1.7 Менеджер подій вводу (Повернутися)</A><BR>
+<A href="clk.html">Наступна сторінка: 1.9 Системний годинник та таймери (Перейти)</A><BR>
 </BODY>
 </HTML>
