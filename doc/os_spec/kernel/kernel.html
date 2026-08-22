@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  Глава 1 周辺核
+  Розділ 1: Ядро операційної системи (Kernel Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="next" HREF="proc.html">
@@ -13,73 +13,73 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="proc.html">Наступна сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Перейти)</A><BR>
+<A href="proc.html">次頁:1.1 Процес (Process) / Задача (Task)管理にすすむ</A><BR>
 <HR>
-<H1><A name="aaa">Глава 1 周辺核</A></H1>
+<H1><A name="aaa">Розділ 1: Ядро операційної системи (Kernel Specification)</A></H1>
 <HR>
 <DL>
- <DT><a href="kernel.html#aaa">Глава 1 周辺核</A>
+ <DT><a href="kernel.html#aaa">Розділ 1: Ядро операційної системи (Kernel Specification)</A>
  <DD><DL>
       <DT><a href="proc.html#aab">1.1 Процес (Process) / Задача (Task)管理</A>
       <DD><a href="proc.html#aac">1.1.1 Процес (Process) / Задача (Task)</A><BR>
-          <a href="proc.html#aae">1.1.2 Процес (Process) / Задача (Task) 状態</A><BR>
-          <a href="proc.html#aah">1.1.3 Процес (Process) / Задача (Task) 優先度 та スケジューリング</A><BR>
-          <a href="proc.html#aai">1.1.4 Процес (Process) 実行環境</A><BR>
+          <a href="proc.html#aae">1.1.2 Процес (Process) / Задача (Task)の状態</A><BR>
+          <a href="proc.html#aah">1.1.3 Процес (Process) / Задача (Task)の優先度とスケジューリング</A><BR>
+          <a href="proc.html#aai">1.1.4 Процес (Process)の実行環境</A><BR>
           <a href="proc.html#aaj">1.1.5 ユーザ情報</A><BR>
-          <a href="proc.html#aak">1.1.6 Процес (Process) 生成</A><BR>
-          <a href="proc.html#aam">1.1.7 Процес (Process) / Задача (Task) 実行</A><BR>
-          <a href="proc.html#aan">1.1.8 データ / 定数 定義</A><BR>
-          <a href="proc.html#aao">1.1.9 Системні виклики</A>
+          <a href="proc.html#aak">1.1.6 Процес (Process)の生成</A><BR>
+          <a href="proc.html#aam">1.1.7 Процес (Process) / Задача (Task)の実行</A><BR>
+          <a href="proc.html#aan">1.1.8 データ / 定数の定義</A><BR>
+          <a href="proc.html#aao">1.1.9 системний виклик (System Call)</A>
       <DT><a href="message.html#aap">1.2 Повідомлення (Message)管理</A>
       <DD><a href="message.html#aaq">1.2.1 Процес (Process)間Повідомлення (Message)</A><BR>
-          <a href="message.html#aar">1.2.2 Повідомлення (Message) 種類</A><BR>
+          <a href="message.html#aar">1.2.2 Повідомлення (Message)の種類</A><BR>
           <a href="message.html#aas">1.2.3 Повідомлення (Message)ハンドラ</A><BR>
-          <a href="message.html#aat">1.2.4 データ／定数 定義</A><BR>
-          <a href="message.html#aau">1.2.5 Системні виклики</A>
+          <a href="message.html#aat">1.2.4 データ／定数の定義</A><BR>
+          <a href="message.html#aau">1.2.5 системний виклик (System Call)</A>
       <DT><a href="taskcomm.html#aav">1.3 Процес (Process)/Задача (Task)間同期通信管理</A>
-      <DD><a href="taskcomm.html#aaw">1.3.1 データ/定数 定義</A><BR>
-          <a href="taskcomm.html#aax">1.3.2 Системні виклики</A>
-      <DT><a href="gname.html#aay">1.4 グローバル名管理</A>
-      <DD><a href="gname.html#aaz">1.4.1 グローバル名データ</A><BR>
-          <a href="gname.html#abb">1.4.2 データ / 定数 定義</A><BR>
-          <a href="gname.html#abc">1.4.3 Системні виклики</A>
-      <DT><a href="memory.html#abd">1.5 Пам'ять (Memory)管理</A>
-      <DD><a href="memory.html#abe">1.5.1 Пам'ять (Memory)管理機能 Загальний огляд</A><BR>
-          <a href="memory.html#abf">1.5.2 データ／定数 定義</A><BR>
-          <a href="memory.html#abg">1.5.3 Системні виклики</A><BR>
+      <DD><a href="taskcomm.html#aaw">1.3.1 データ/定数の定義</A><BR>
+          <a href="taskcomm.html#aax">1.3.2 системний виклик (System Call)</A>
+      <DT><a href="gname.html#aay">1.4 Глобальне ім'я (Global Name)管理</A>
+      <DD><a href="gname.html#aaz">1.4.1 Глобальне ім'я (Global Name)データ</A><BR>
+          <a href="gname.html#abb">1.4.2 データ / 定数の定義</A><BR>
+          <a href="gname.html#abc">1.4.3 системний виклик (System Call)</A>
+      <DT><a href="memory.html#abd">1.5 Оперативна пам'ять (Memory)管理</A>
+      <DD><a href="memory.html#abe">1.5.1 Оперативна пам'ять (Memory)管理функціонал / підсистемаの概要</A><BR>
+          <a href="memory.html#abf">1.5.2 データ／定数の定義</A><BR>
+          <a href="memory.html#abg">1.5.3 системний виклик (System Call)</A><BR>
           <a href="memory.html#abh">1.5.4 ライブラリ</A>
-      <DT><a href="file.html#abi">1.6 Файл (File)管理</A>
-      <DD><a href="file.html#abj">1.6.1 Файл (File)管理機能 Загальний огляд</A><BR>
-          <a href="file.html#abl">1.6.2 Файл (File)Система (System)構成</A><BR>
-          <a href="file.html#abq">1.6.3 Файл (File) 構成</A><BR>
-          <a href="file.html#abs">1.6.4 Файл (File) アクセス管理</A><BR>
-          <a href="file.html#abt">1.6.5 Файл (File) 操作</A><BR>
-          <a href="file.html#abv">1.6.6 Файл (File) 詳細情報</A><BR>
-          <a href="file.html#abw">1.6.7 データ／定数 定義</A><BR>
-          <a href="file.html#abx">1.6.8 Системні виклики</A>
+      <DT><a href="file.html#abi">1.6 Файлова система та менеджер файлів (File Management)</A>
+      <DD><a href="file.html#abj">1.6.1 Огляд підсистеми управління файлами</A><BR>
+          <a href="file.html#abl">1.6.2 Архітектура та структура файлової системи (Volume Architecture)</A><BR>
+          <a href="file.html#abq">1.6.3 Внутрішня структура файлів та записів (File & Record Structure)</A><BR>
+          <a href="file.html#abs">1.6.4 Права доступу та захист файлів (Access Control & Security)</A><BR>
+          <a href="file.html#abt">1.6.5 Операції над файлами та покажчики (File Operations)</A><BR>
+          <a href="file.html#abv">1.6.6 Метадані та атрибути файлів (File Metadata)</A><BR>
+          <a href="file.html#abw">1.6.7 Визначення типів даних та конスタント</A><BR>
+          <a href="file.html#abx">1.6.8 Системні виклики файлової системи</A>
       <DT><a href="event.html#aby">1.7 Подія (Event)管理</A>
-      <DD><a href="event.html#abz">1.7.1 Подія (Event)管理機能 Загальний огляд</A><BR>
+      <DD><a href="event.html#abz">1.7.1 Подія (Event)管理функціонал / підсистемаの概要</A><BR>
           <a href="event.html#aca">1.7.2 Подія (Event)</A><BR>
           <a href="event.html#acb">1.7.3 Клавіатура (Keyboard)</A><BR>
-          <a href="event.html#acd">1.7.4 ポインティングПристрій (Device)</A><BR>
-          <a href="event.html#ace">1.7.5 データ/定数 定義</A><BR>
-          <a href="event.html#acf">1.7.6 Системні виклики</A>
+          <a href="event.html#acd">1.7.4 Вказівний пристрій (Pointing Device)</A><BR>
+          <a href="event.html#ace">1.7.5 データ/定数の定義</A><BR>
+          <a href="event.html#acf">1.7.6 системний виклик (System Call)</A>
       <DT><a href="device.html#acg">1.8 Пристрій (Device)管理</A>
-      <DD><a href="device.html#ach">1.8.1 Пристрій (Device)管理機能 Загальний огляд</A><BR>
+      <DD><a href="device.html#ach">1.8.1 Пристрій (Device)管理функціонал / підсистемаの概要</A><BR>
           <a href="device.html#acj">1.8.2 Пристрій (Device)</A><BR>
-          <a href="device.html#acm">1.8.3 データ / 定数 定義</A><BR>
-          <a href="device.html#acn">1.8.4 Системні виклики</A>
+          <a href="device.html#acm">1.8.3 データ / 定数の定義</A><BR>
+          <a href="device.html#acn">1.8.4 системний виклик (System Call)</A>
       <DT><a href="clk.html#aco">1.9 時計管理</A>
-      <DD><a href="clk.html#acp">1.9.1 時計管理機能 Загальний огляд</A><BR>
-          <a href="clk.html#acq">1.9.2 データ／定数 定義</A><BR>
-          <a href="clk.html#acr">1.9.3 Системні виклики</A>
-      <DT><a href="system.html#acs">1.10 Система (System)管理機能</A>
-      <DD><a href="system.html#act">1.10.1 データ / 定数 定義</A><BR>
-          <a href="system.html#acu">1.10.2 Системні виклики</A>
+      <DD><a href="clk.html#acp">1.9.1 時計管理функціонал / підсистемаの概要</A><BR>
+          <a href="clk.html#acq">1.9.2 データ／定数の定義</A><BR>
+          <a href="clk.html#acr">1.9.3 системний виклик (System Call)</A>
+      <DT><a href="system.html#acs">1.10 システム管理функціонал / підсистема</A>
+      <DD><a href="system.html#act">1.10.1 データ / 定数の定義</A><BR>
+          <a href="system.html#acu">1.10.2 системний виклик (System Call)</A>
      </DL>
 </DL>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="proc.html">Наступна сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Перейти)</A><BR>
+<A href="proc.html">次頁:1.1 Процес (Process) / Задача (Task)管理にすすむ</A><BR>
 </BODY>
 </HTML>
