@@ -10,12 +10,12 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="font_mgr.html">:3.9 Менеджер шрифтів (Font Manager)</A><BR>
-<A href="printmgr.html">:3.11 Друк</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="font_mgr.html">Попередня сторінка: 3.9  (Повернутися)</A><BR>
+<A href="printmgr.html">Наступна сторінка: 3.11  (Перейти)</A><BR>
 <HR>
 
 <H2><A name="anc">3.10 TCP/IP</A></H2>
@@ -24,25 +24,25 @@
 
 <P>
   TCP/IP  LAN  TCP/IP
-  функціонал / підсистемаМережа TCP/IP
-  . 
-  TCP/IP системний викликСокет (Socket). 
+   TCP/IP
+  。
+  TCP/IP 。
 </P>
 <P>
-  Сокет (Socket), 
-  Сокет (Socket). 
-  Сокет (Socket), 
-  TCP/IP системний викликСокет (Socket). 
+  、
+  。
+  、
+  TCP/IP 。
 </P>
 <P>
-  , Сокет (Socket), 
-  . 
+  、、
+  。
 </P>
 
 <H3><A name="anh">3.10.2 TCP/IP</A></H3>
 
 <P>
-  . 
+  。
 </P>
 
 <PRE>
@@ -56,7 +56,7 @@
 #define AF_UNSPEC   0       /* unspecified address family */
 #define AF_INET     2       /* TCP/IP and related */
 
-/*  Сокет (Socket)
+/*  
 */
 
 #define SOCK_STREAM 1       /* stream socket */
@@ -115,7 +115,7 @@ struct in_addr {
     unsigned long s_addr;
 };
 
-/*  Сокет (Socket) */
+/*   */
 struct sockaddr_in {
     short sin_family;
     unsigned short sin_port;
@@ -171,10 +171,10 @@ struct timeval {        /* Timeout format for select() */
 };
 </PRE>
 
-<H3><A name="ani">3.10.3 Помилка</A></H3>
+<H3><A name="ani">3.10.3 </A></H3>
 
 <P>
-  Помилка. 
+  。
 </P>
 
 <PRE>
@@ -182,33 +182,33 @@ struct timeval {        /* Timeout format for select() */
 #define EX_TIMEDOUT     ((-402) &lt;&lt; 16)   /* TCPIP  */
 #define EX_CONNABORTED  ((-403) &lt;&lt; 16)   /*  */
 #define EX_NOBUFS       ((-404) &lt;&lt; 16)   /* TCPIP  */
-#define EX_BADF         ((-405) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_BADF         ((-405) &lt;&lt; 16)   /*  */
 #define EX_WOULDBLOCK   ((-407) &lt;&lt; 16)   /*  */
 #define EX_MSGSIZE      ((-408) &lt;&lt; 16)   /*  */
 #define EX_DESTADDRREQ  ((-409) &lt;&lt; 16)   /*  */
 #define EX_PROTOTYPE    ((-410) &lt;&lt; 16)   /*  */
 #define EX_NOPROTOOPT   ((-411) &lt;&lt; 16)   /*  */
 #define EX_PROTONOSUPPORT ((-412) &lt;&lt; 16) /*  */
-#define EX_SOCKTNOSUPPORT ((-413) &lt;&lt; 16) /* Сокет (Socket) */
+#define EX_SOCKTNOSUPPORT ((-413) &lt;&lt; 16) /*  */
 #define EX_OPNOTSUPP    ((-414) &lt;&lt; 16)   /*  */
 #define EX_PFNOSUPPORT  ((-415) &lt;&lt; 16)   /*  */
 #define EX_AFNOSUPPORT  ((-416) &lt;&lt; 16)   /*  */
 #define EX_ADDRINUSE    ((-417) &lt;&lt; 16)   /*  */
 #define EX_ADDRNOTAVAIL ((-418) &lt;&lt; 16)   /*  */
-#define EX_NETDOWN      ((-419) &lt;&lt; 16)   /* Мережафункціонал / підсистема */
-#define EX_NETUNREACH   ((-420) &lt;&lt; 16)   /* Мережа */
-#define EX_NETRESET     ((-421) &lt;&lt; 16)   /* Мережа */
+#define EX_NETDOWN      ((-419) &lt;&lt; 16)   /*  */
+#define EX_NETUNREACH   ((-420) &lt;&lt; 16)   /*  */
+#define EX_NETRESET     ((-421) &lt;&lt; 16)   /*  */
 #define EX_CONNRESET    ((-422) &lt;&lt; 16)   /*  */
-#define EX_ISCONN       ((-423) &lt;&lt; 16)   /* Сокет (Socket) */
-#define EX_NOTCONN      ((-424) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_ISCONN       ((-423) &lt;&lt; 16)   /*  */
+#define EX_NOTCONN      ((-424) &lt;&lt; 16)   /*  */
 #define EX_SHUTDOWN     ((-425) &lt;&lt; 16)   /*  */
 #define EX_CONNREFUSED  ((-426) &lt;&lt; 16)   /*  */
 #define EX_HOSTDOWN     ((-427) &lt;&lt; 16)   /*  */
 #define EX_ALREADY      ((-428) &lt;&lt; 16)   /*  */
-#define EX_INPROGRESS   ((-429) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_INPROGRESS   ((-429) &lt;&lt; 16)   /*  */
 </PRE>
 
-<H3><A name="anj">3.10.4 системний виклик</A></H3>
+<H3><A name="anj">3.10.4 </A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_start</FONT></TD></TR>
@@ -227,16 +227,16 @@ W   arg
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка(Помилка)
+＝0  
+＜0  ()
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  TCP/IP . 
-  прикладний додаток <CODE>TCPIPMGR</CODE>
- системний виклик TCP/IP
-  . 
+<P>
+  TCP/IP 。
+   <CODE>TCPIPMGR</CODE>
+  TCP/IP
+  。
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -257,26 +257,28 @@ W   arg 0
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0     Успішне виконання
-＜0     Помилка
+≧0     
+＜0     
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  TCP/IP . <BR>
-  , . 
+<P>
+  TCP/IP 。<BR>
+  、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_BUSY     TCP/IP . 
-EX_NOSPT    TCP/IP  so_finish . 
+
+ER_BUSY     TCP/IP 。
+EX_NOSPT    TCP/IP  so_finish 。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_accept</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -286,43 +288,45 @@ WERR    so_accept (W s, SOCKADDR *nam, W *namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W         s      Сокет (Socket)
+W         s      
 SOCKADDR *nam    
 W        *namlen 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 Сокет (Socket)
-＜0  Помилка
+≧0 
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>listen</CODE> Сокет (Socket), 
-  , 
-  Сокет (Socket) <CODE>s</CODE> Сокет (Socket). 
+<P>
+  <CODE>listen</CODE> 、
+  、
+   <CODE>s</CODE> 。
 </P>
 <P>
-  , 
-  <CODE>nam</CODE>  <CODE>namlen</CODE> . 
+  、
+  <CODE>nam</CODE>  <CODE>namlen</CODE> 。
 </P>
 <P>
-  Сокет (Socket) <CODE>s</CODE> , 
-  . 
+   <CODE>s</CODE> 、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket)
-EX_WOULDBLOCK   Сокет (Socket), 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         
+EX_WOULDBLOCK   、
 EX_NOBUFS       
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_bind</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -332,36 +336,38 @@ ERR so_bind (W s, SOCKADDR *nam, W namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W         s      Сокет (Socket)
+W         s      
 SOCKADDR *nam    
 W        namlen  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
 
 <P>
-  Сокет (Socket) <CODE>nam</CODE> 
-  <CODE>namlen</CODE> . 
+   <CODE>nam</CODE> 
+  <CODE>namlen</CODE> 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket)). 
-EX_BADF        Сокет (Socket). 
-EX_FAULT        . 
-EX_ADDRNOTAVAIL (). 
-EX_ADDRINUSE    (). 
+
+EX_ADR          。
+EX_PAR          ()。
+EX_BADF        。
+EX_FAULT        。
+EX_ADDRNOTAVAIL ()。
+EX_ADDRINUSE    ()。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_close</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -370,29 +376,30 @@ ERR so_close (W s)
 </PRE>
 
 <H4>【Параметри】</H4>
-W   s   Сокет (Socket)
+W   s   
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
 
 <P>
-  Сокет (Socket). 
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
+
+EX_PAR      ()
+EX_BADF     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_connect</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -402,42 +409,44 @@ ERR so_connect (W s, SOCKADDR *nam, W namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       Сокет (Socket)
+W        s       
 SOCKADDR *na m   
 W        namlen  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>s</CODE>  <CODE>SOCK_DGRAM</CODE> Сокет (Socket), 
-  Сокет (Socket). 
+<P>
+  <CODE>s</CODE>  <CODE>SOCK_DGRAM</CODE> 、
+  。
 </P>
 <P>
-  <CODE>s</CODE>  <CODE>SOCK_STREAM</CODE> Сокет (Socket), 
-  . 
+  <CODE>s</CODE>  <CODE>SOCK_STREAM</CODE> 、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR          (Сокет (Socket))
-EX_ADR          . 
-EX_BADF         Сокет (Socket). 
-EX_FAULT        (). 
-EX_HOSTUNREACH  . 
-EX_INPROGRESS   Сокет (Socket), . 
-EX_TIMEDOUT     . 
-EX_CONNABORTED  . 
+
+EX_PAR          ()
+EX_ADR          。
+EX_BADF         。
+EX_FAULT        ()。
+EX_HOSTUNREACH  。
+EX_INPROGRESS   、。
+EX_TIMEDOUT     。
+EX_CONNABORTED  。
+
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_fcntl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -447,7 +456,7 @@ WERR    so_fcntl (W s, W cmd, W arg)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   Сокет (Socket)
+W   s   
 W   cmd 
         F_GETFL     
         F_SETFL     
@@ -456,19 +465,21 @@ W   arg
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 (F_GETFL)
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket)/. <BR>
-   <CODE>O_NDELAY</CODE> . <BR>
-  <CODE>O_NDELAY</CODE> Сокет (Socket), 
-  Сокет (Socket)системний виклик. 
+<P>
+  /。<BR>
+   <CODE>O_NDELAY</CODE> 。<BR>
+  <CODE>O_NDELAY</CODE> 、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
+
+EX_PAR      ()
+EX_BADF     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -486,21 +497,21 @@ ERR so_gethostbyname (B *nam, HOSTENT *hp, B *buf)
 <PRE>
 B*      nam     
 HOSTENT *hp     
-B       *buf    Робоча область вікна (Client Area)
+B       *buf    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
   <CODE>nam</CODE> 
-  <CODE>hp</CODE> . <BR>
-  <CODE>B buf[HBUFLE]</CODE> Робоча область вікна (Client Area). 
+  <CODE>hp</CODE> 。<BR>
+  <CODE>B buf[HBUFLE]</CODE> 。
 </P>
 <P>
-  <CODE>hp</CODE> . 
+  <CODE>hp</CODE> 。
 </P>
 <PRE>
 struct hostent {                    /* structure for gethostbyname */
@@ -517,14 +528,16 @@ h_name
 h_aliases   ( NULL )
 h_addrtype  ( AF_INET )
 h_length    
-h_addr_list Мережа
+h_addr_list 
 </PRE>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_HOSTUNREACH  . 
-EX_TIMEDOUT     . 
+
+EX_ADR          。
+EX_HOSTUNREACH  。
+EX_TIMEDOUT     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -544,24 +557,25 @@ B       *addr
 W       type    (AF_INET )
 W       len     
 HOSTENT *hp     
-B       *buf    Робоча область вікна (Client Area)
+B       *buf    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
   
-  <CODE>hp</CODE> . <BR>
-  <CODE>B buf[HBUFLE]</CODE> Робоча область вікна (Client Area). 
+  <CODE>hp</CODE> 。<BR>
+  <CODE>B buf[HBUFLE]</CODE> 。
 </P>
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_ADR          . 
+
+EX_ADR          。
 EX_HOSTUNREACH  
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -577,33 +591,35 @@ EX_HOSTUNREACH
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       Сокет (Socket)
+W        s       
 SOCKADDR *nam    
 W        *namlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). <BR>
-  <CODE>namlen</CODE>  <CODE>nam</CODE> . 
-   <CODE>nam</CODE> . 
+<P>
+  。<BR>
+  <CODE>namlen</CODE>  <CODE>nam</CODE> 。
+   <CODE>nam</CODE> 。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      . 
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
-EX_FAULT    (). 
+
+EX_ADR      。
+EX_PAR      ()
+EX_BADF     。
+EX_FAULT    ()。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_getsockname</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -613,35 +629,37 @@ EX_FAULT    ().
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s   Сокет (Socket)
+W        s   
 SOCKADDR *nam   
 W        *namlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket)(). <BR>
-  <CODE>namlen</CODE>  <CODE>nam</CODE> . 
-   <CODE>name</CODE> . 
+<P>
+  ()。<BR>
+  <CODE>namlen</CODE>  <CODE>nam</CODE> 。
+   <CODE>name</CODE> 。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      . 
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
-EX_FAULT    (). 
+
+EX_ADR      。
+EX_PAR      ()
+EX_BADF     。
+EX_FAULT    ()。
+
 </PRE>
 
 <A name="getsockopt">
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_getsockopt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 </A>
 
@@ -652,7 +670,7 @@ ERR so_getsockopt (W s, W level, W optnam, B *optval, W *optlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   Сокет (Socket)
+W   s   
 W   level   
 W   optnam  
 B   *optval 
@@ -660,12 +678,12 @@ W   *optlen
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
 </P>
 
 <H4>level </H4>
@@ -691,25 +709,26 @@ W   *optlen
     SO_OOBINLINE    
     SO_SNDBUF       
     SO_RCVBUF       
-    SO_ERROR        Сокет (Socket)Помилка
-    SO_TYPE         Сокет (Socket)
+    SO_ERROR        
+    SO_TYPE         
   </PRE>
 </DL>
 
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_FAULT        . 
-EX_NOPROTOOPT   . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_FAULT        。
+EX_NOPROTOOPT   。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_setsockopt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <PRE>
@@ -717,7 +736,7 @@ ERR so_setsockopt (W s, W level, W optnam, B *optval, W optlen)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   s        Сокет (Socket)
+W   s        
 W   level   
 W   optnam  
 B   *optval 
@@ -725,15 +744,15 @@ W   *optlen
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). <BR>
-   <A href="tcpip.html#getsockopt">so_getsockopt</A> . <BR>
-  <CODE>SOL_SOCKET</CODE> , 
-  . 
+<P>
+  。<BR>
+   <A href="tcpip.html#getsockopt">so_getsockopt</A> 。<BR>
+  <CODE>SOL_SOCKET</CODE> 、
+  。
 </P>
 <DL>
  <DT><CODE>IPPROTO_IP</CODE> :
@@ -760,11 +779,13 @@ W   *optlen
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_FAULT        . 
-EX_NOPROTOOPT   . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_FAULT        。
+EX_NOPROTOOPT   。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -780,18 +801,18 @@ EX_NOPROTOOPT   .
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       Сокет (Socket)
+W   s       
 W   request 
 W   arg     
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧  Успішне виконання
-0  Помилка
+≧  
+0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
 </P>
 
 <PRE>
@@ -800,28 +821,29 @@ request
      <DL>
       <DT><CODE>FIONREAD</CODE> :
       <DD><P>
-	  Сокет (Socket)
-          <CODE>arg</CODE>  <CODE>W*</CODE> . 
+	  
+          <CODE>arg</CODE>  <CODE>W*</CODE> 。
 	  </P>
       <DT><CODE>SIOCATMARK</CODE> :
       <DD><P>
-	  Сокет (Socket)
-          <CODE>arg</CODE>  <CODE>W*</CODE>  1 . 
+	  
+          <CODE>arg</CODE>  <CODE>W*</CODE>  1 。
 	  </P>
      </DL>
 
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_ADR      . 
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
+
+EX_ADR      。
+EX_PAR      ()
+EX_BADF     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_listen</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)listen</TD></TR>
+<TR><TD>listen</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -829,25 +851,27 @@ EX_BADF     Сокет (Socket).
 ERR so_listen (W s, W backlog)
 </PRE>
 <H4>【Параметри】</H4>
-W   s   Сокет (Socket)<BR>
+W   s   <BR>
 W   backlog 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-Сокет (Socket) listen . 
+ listen 。
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
+
+EX_PAR      ()
+EX_BADF     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_read</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -857,35 +881,37 @@ WERR    so_read (W s, B *buf, W len)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       Сокет (Socket)
+W   s       
 B   *buf    
 W   len     
 </PRE>u
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). <BR>
-  <CODE>so_recv(s, buf, len, 0)</CODE> . 
+<P>
+  。<BR>
+  <CODE>so_recv(s, buf, len, 0)</CODE> 。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEDOUT     . 
-EX_CONNABORTED  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_WOULDBLOCK   、。
+EX_TIMEDOUT     。
+EX_CONNABORTED  。
 EX_OPNOTSUP     
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recv</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -895,44 +921,46 @@ WERR    so_recv (W s, B *buf, W len, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       Сокет (Socket)
+W   s       
 B   *buf    
 W   len     
 W   flags    OR 
         MSG_OOB     
-        MSG_PEEK    Сокет (Socket)«». 
-                    , , 
-                    . 
+        MSG_PEEK    「」。
+                    、、
+                    。
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
   
-  <CODE>EX_WOULDBLOCK</CODE>, 
-  . 
+  <CODE>EX_WOULDBLOCK</CODE>、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEDOUT     . 
-EX_CONNABORTED  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_WOULDBLOCK   、。
+EX_TIMEDOUT     。
+EX_CONNABORTED  。
 EX_OPNOTSUP     (flag )
+
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recvfrom</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -942,48 +970,50 @@ EX_OPNOTSUP     (flag )
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       Сокет (Socket)
+W        s       
 B        *buf    
 W        len     
 W        flags    OR 
          MSG_OOB     
-         MSG_PEEK    Сокет (Socket)«». 
-                     , , 
-                     . 
+         MSG_PEEK    「」。
+                     、、
+                     。
 SOCKADDR *from   
 W        *flen   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
   
-  <CODE>EX_WOULDBLOCK</CODE> , 
-  . <BR>
-  <CODE>from</CODE>  <CODE>NULL</CODE> , 
-  . 
-  <CODE>*flen</CODE> , 
-  . 
+  <CODE>EX_WOULDBLOCK</CODE> 、
+  。<BR>
+  <CODE>from</CODE>  <CODE>NULL</CODE> 、
+  。
+  <CODE>*flen</CODE> 、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEDOUT     . 
-EX_CONNABORTED  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_WOULDBLOCK   、。
+EX_TIMEDOUT     。
+EX_CONNABORTED  。
 EX_OPNOTSUP     (flag )
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recvmsg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -993,27 +1023,27 @@ WERR    so_recvmsg (W s, MSGHDR *msg, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W       s           Сокет (Socket)
+W       s           
 MSGHDR  *msg        
 W       flags        OR 
         MSG_OOB     
-        MSG_PEEK    Сокет (Socket)«». 
-                    , , 
-                    . 
+        MSG_PEEK    「」。
+                    、、
+                    。
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
   
-  <CODE>EX_WOULDBLOCK</CODE> , . 
+  <CODE>EX_WOULDBLOCK</CODE> 、。
 </P>
 <P>
-   <CODE>msghdr</CODE> . 
+   <CODE>msghdr</CODE> 。
 </P>
 <PRE>
           caddr_t      msg_name;         
@@ -1024,28 +1054,30 @@ W       flags        OR
           int          msg_accrightslen;
 </PRE>
 <P>
-  <CODE>msg_name, msg_namelen</CODE> . 
-   <CODE>msg_name</CODE>  <CODE>NULL</CODE> . 
+  <CODE>msg_name, msg_namelen</CODE> 。
+   <CODE>msg_name</CODE>  <CODE>NULL</CODE> 。
 </P>
 <P>
   <CODE>msg_iov</CODE>
-  . 
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEDOUT     . 
-EX_CONNABORTED  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_WOULDBLOCK   、。
+EX_TIMEDOUT     。
+EX_CONNABORTED  。
 EX_OPNOTSUP     (flag )
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_select</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1055,47 +1087,49 @@ WERR    so_select (W nfds, fd_set *rfds, fd_set *wfds, fd_set *efds,
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       nfds    Сокет (Socket)
-fd_set  *rfds   Сокет (Socket)
-fd_set  *wfds   Сокет (Socket)
-fd_set  *efds   Сокет (Socket)
+W       nfds    
+fd_set  *rfds   
+fd_set  *wfds   
+fd_set  *efds   
 TIMEVAL *tmout  
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ＞0  
-＝0  . 
-＜0  Помилка
+＝0  。
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket), 
+<P>
+  、
   <CODE>rfds, wfds, efds</CODE>
-  Сокет (Socket). 
-  <CODE>rfds, wfds, efds</CODE> , 
-  . 
+  。
+  <CODE>rfds, wfds, efds</CODE> 、
+  。
 </P>
 <P>
-  <CODE>rfds, wfds, efds</CODE> , 
-  Сокет (Socket), 
-   <CODE>NULL</CODE> . 
+  <CODE>rfds, wfds, efds</CODE> 、
+  、
+   <CODE>NULL</CODE> 。
 </P>
 <P>
-  <CODE>tmout</CODE>  <CODE>NULL</CODE> . 
-  <CODE>tmout</CODE>  <CODE>NULL</CODE> , 
-  . 
+  <CODE>tmout</CODE>  <CODE>NULL</CODE> 。
+  <CODE>tmout</CODE>  <CODE>NULL</CODE> 、
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      . 
+
+EX_ADR      。
+
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_write</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1105,39 +1139,40 @@ WERR    so_write (W s, B *buf, W len)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       Сокет (Socket)
+W   s       
 B   *buf    
 W   len     
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
-  <CODE>so_send(s, buf, len, 0)</CODE> . 
+<P>
+  。
+  <CODE>so_send(s, buf, len, 0)</CODE> 。
 </P>
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_SHUTDOWN     . 
-EX_CONNABORTED  . 
-EX_MSGSIZE      . 
-EX_NOBUFS       . 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEOUT      . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_SHUTDOWN     。
+EX_CONNABORTED  。
+EX_MSGSIZE      。
+EX_NOBUFS       。
+EX_WOULDBLOCK   、。
+EX_TIMEOUT      。
+
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_send</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1147,16 +1182,16 @@ WERR    so_send (W s, B *buf, W len, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       Сокет (Socket)
+W   s       
 B   *buf    
 W   len     
 W   flags    OR 
-          MSG_OOB     . 
+          MSG_OOB     。
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -1164,26 +1199,28 @@ W   flags    OR
 <H4>【Детальний опис】</H4>
 
 <P>
-  Сокет (Socket). 
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_SHUTDOWN     . 
-EX_CONNABORTED  . 
-EX_MSGSIZE      . 
-EX_NOBUFS       . 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEOUT      . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_SHUTDOWN     。
+EX_CONNABORTED  。
+EX_MSGSIZE      。
+EX_NOBUFS       。
+EX_WOULDBLOCK   、。
+EX_TIMEOUT      。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_sendto</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1194,44 +1231,46 @@ WERR    so_sendto (W s, B *buf, W len, W flags, SOCKADDR *to, W tolen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s           Сокет (Socket)
+W        s           
 B        *buf        
 W        len         
 W        flags        OR 
-         MSG_OOB     . 
+         MSG_OOB     。
 SOCKADDR *to         
 W        tolen       
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , . 
+<P>
+  、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_SHUTDOWN     . 
-EX_CONNABORTED  . 
-EX_MSGSIZE      . 
-EX_NOBUFS       . 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEOUT      . 
-EX_HOSTUNREACH  . 
-EX_DESTADDRREQ  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_SHUTDOWN     。
+EX_CONNABORTED  。
+EX_MSGSIZE      。
+EX_NOBUFS       。
+EX_WOULDBLOCK   、。
+EX_TIMEOUT      。
+EX_HOSTUNREACH  。
+EX_DESTADDRREQ  。
+
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_sendmsg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Сокет (Socket)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1240,32 +1279,34 @@ WERR    so_sendmsg (W s, MSGHDR *msg, W flags)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       s       Сокет (Socket)
+W       s       
 MSGHDR  *msg    
 W       flags    OR 
-              MSG_OOB     . 
+              MSG_OOB     。
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧0 
-＜0  Помилка
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , . 
+<P>
+  、。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          . 
-EX_PAR          (Сокет (Socket))
-EX_BADF         Сокет (Socket). 
-EX_SHUTDOWN     . 
-EX_CONNABORTED  . 
-EX_MSGSIZE      . 
-EX_NOBUFS       . 
-EX_WOULDBLOCK   Сокет (Socket), . 
-EX_TIMEOUT      . 
-EX_HOSTUNREACH  . 
+
+EX_ADR          。
+EX_PAR          ()
+EX_BADF         。
+EX_SHUTDOWN     。
+EX_CONNABORTED  。
+EX_MSGSIZE      。
+EX_NOBUFS       。
+EX_WOULDBLOCK   、。
+EX_TIMEOUT      。
+EX_HOSTUNREACH  。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -1281,7 +1322,7 @@ ERR so_shutdown (W s, W how)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   Сокет (Socket)
+W   s   
 W   how 
         0   
         1   
@@ -1290,14 +1331,16 @@ W   how
 <H4>【Значення, що повертається】</H4>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
+
 EX_NOBUFS
-EX_PAR      (Сокет (Socket))
-EX_BADF     Сокет (Socket). 
+EX_PAR      ()
+EX_BADF     。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -1325,17 +1368,19 @@ W   protocol
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 Сокет (Socket)
-＜0  Помилка
+≧0 
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  Сокет (Socket). 
+<P>
+  。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_NOBUFS           . 
-EX_PROTONOSUPPORT   . 
+
+EX_NOBUFS           。
+EX_PROTONOSUPPORT   。
+
 </PRE>
 
 
@@ -1355,17 +1400,19 @@ W   nlen    name
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  . 
+<P>
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      . 
+
+EX_ADR      。
+
 </PRE>
 
 
@@ -1386,22 +1433,24 @@ W   nlen
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0  Успішне виконання
-＜0  Помилка
+＝0  
+＜0  
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  . 
-   31. 
+<P>
+  。
+   31。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      . 
+
+EX_ADR      。
+
 </PRE>
 
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="font_mgr.html">:3.9 Менеджер шрифтів (Font Manager)</A><BR>
-<A href="printmgr.html">:3.11 Друк</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="font_mgr.html">Попередня сторінка: 3.9  (Повернутися)</A><BR>
+<A href="printmgr.html">Наступна сторінка: 3.11  (Перейти)</A><BR>
 </BODY>
 </HTML>

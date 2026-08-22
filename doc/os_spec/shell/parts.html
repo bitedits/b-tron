@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.3 Менеджер системних елементів (Parts Manager)
+  3.3 
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="menu.html">
@@ -10,43 +10,43 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="menu.html">Попередня сторінка: 3.2 Менеджер меню (Повернутися)</A><BR>
-<A href="panel.html">Наступна сторінка: 3.4 Менеджер панелей (Перейти)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="menu.html">Попередня сторінка: 3.2  (Повернутися)</A><BR>
+<A href="panel.html">Наступна сторінка: 3.4  (Перейти)</A><BR>
 <HR>
 
-<H2><A name="ahn">3.3 Менеджер системних елементів (Parts Manager)</A></H2>
+<H2><A name="ahn">3.3 </A></H2>
 
-<H3><A name="aho">3.3.1 Менеджер системних елементів (Parts Manager)функціонал / підсистема</A></H3>
+<H3><A name="aho">3.3.1 </A></H3>
 
 <H4><A name="ahp">3.3.1.1 </A></H4>
 
 <P>
-  Менеджер системних елементів (Parts Manager), 
-   HMI функціонал / підсистема 1 , 
+  、
+   HMI  1 、
    /  /  /
-  функціонал / підсистема. 
-  прикладний додаток, 
-  Менеджер системних елементів (Parts Manager). 
+  。
+  、
+  。
 </P>
 <P>
-  Менеджер системних елементів (Parts Manager), 
-   / , 
-  , 
-  прикладний додатокМенеджер системних елементів (Parts Manager). 
+  、
+   / 、
+  、
+  。
 </P>
 <P>
-  , 
-  , 
-  . 
+  、
+  、
+  。
 </P>
 
 <H4><A name="ahq">3.3.1.2 </A></H4>
 
-Менеджер системних елементів (Parts Manager). 
+。
 <TABLE>
  <TR><TD>                  </TD><TD>(TB)</TD></TR>
  <TR><TD>    </TD><TD>(XB)</TD></TR>
@@ -62,41 +62,41 @@
 </TABLE>
 
 <P>
-  прикладний додаток, , 
-  ID / . 
+  、、
+  ID / 。
 </P>
 <P>
-   2 , 
-  , 
-  . 
-   1 . 
-  , ID / ID. 
+   2 、
+  、
+  。
+   1 。
+  、ID / ID。
 </P>
 <P>
-   / , 
-   / , 
-  . 
-  , . 
+   / 、
+   / 、
+  。
+  、。
 </P>
 <P>
-  , 
-  . 
-   / , 
-   / , 
-  . 
+  、
+  。
+   / 、
+   / 、
+  。
 </P>
 <P>
-  , 
-  ID. 
-  , ID, 
-  . 
-  , , 
-  , 
-  , 
-  . 
-  , , 
-  , , 
-  . 
+  、
+  ID。
+  、ID、
+  。
+  、、
+  、
+  、
+  。
+  、、
+  、、
+  。
 </P>
 
 <H4><A name="ahr">3.3.1.3 </A></H4>
@@ -104,9 +104,9 @@
 <H5></H5>
 
 <P>
-  , 
-  , 
-  . 
+  、
+  、
+  。
 </P>
 
 <PRE>
@@ -114,7 +114,7 @@ typedef UNION {
     TEXTBOX tb;  -- ()
     NUMBOX  nb;  -- 
     SERBOX  sb;  -- 
-    SWSEL   ss;  --  / , 
+    SWSEL   ss;  --  / 、
             ／
     PICTSW  pw;  --  / 
     VOLUME  vl;  -- 
@@ -122,7 +122,7 @@ typedef UNION {
 </PRE>
 
 <P>
-  , . 
+  、。
 </P>
 
 <PRE>
@@ -134,7 +134,7 @@ struct {
 </PRE>
 
 <P>
-  <CODE>type</CODE>  /  / . 
+  <CODE>type</CODE>  /  / 。
 </P>
 
 <A name="ahs">
@@ -145,7 +145,7 @@ struct {
 
 <UL>
  <LI><P>
-     . 
+     。
      </P>
       <TABLE>
         <TR><TD><CODE>TB_PARTS</CODE></TD><TD>1 </TD><TD>-- </TD></TR>
@@ -161,26 +161,26 @@ struct {
         <TR><TD><CODE>VL_PARTS</CODE></TD><TD>11</TD><TD>-- </TD></TR>
       </TABLE>
  <LI><P>
-     . 
-      / , . 
+     。
+      / 、。
      </P>
 </UL>
 
 <P>
-  <CODE>r</CODE> , 
-  , 
-   / . 
-   / . 
+  <CODE>r</CODE> 、
+  、
+   / 。
+   / 。
 </P>
 <P>
-  , 
-  . 
-  . 
-  , 
-  . 
-  , , 
-  <CODE>cget_sts()</CODE> , 
-   0 . 
+  、
+  。
+  。
+  、
+  。
+  、、
+  <CODE>cget_sts()</CODE> 、
+   0 。
 </P>
 
 <PRE>
@@ -193,26 +193,26 @@ typedef struct {
 </PRE>
 
 <P>
-  <CODE>frpat</CODE>, <CODE>bgpat</CODE> , 
-  , <CODE>&quot;PAT_DATA&quot;</CODE>
-  . 
-  0 . 
-  , , 
-  . 
-  <CODE>chcol</CODE> , . 
-  , 
-  (, ). 
-  <CODE>misc</CODE> , , 
-  <CODE>COLORVAL</CODE> , 
-  2 . 
+  <CODE>frpat</CODE>, <CODE>bgpat</CODE> 、
+  、<CODE>&quot;PAT_DATA&quot;</CODE>
+  。
+  0 。
+  、、
+  。
+  <CODE>chcol</CODE> 、。
+  、
+  (、)。
+  <CODE>misc</CODE> 、、
+  <CODE>COLORVAL</CODE> 、
+  2 。
 </P>
 
 <H5></H5>
 
 <P>
-  , , 
-  (). 
-  . 
+  、、
+  ()。
+  。
 </P>
 
 <A name="aht">
@@ -230,36 +230,36 @@ typedef struct {
 </DL>
 
 <P>
-  , <CODE>MC_ATTR = 1</CODE>  6 , 
-  . 
-  <CODE>MC_ATTR = 0</CODE> , 
-  . 
-   <CODE>TNULL ( = 0 )</CODE> , 
-  . 
-  , . 
+  、<CODE>MC_ATTR = 1</CODE>  6 、
+  。
+  <CODE>MC_ATTR = 0</CODE> 、
+  。 
+   <CODE>TNULL ( = 0 )</CODE> 、
+  。
+  、。
 </P>
 <P>
-  , 
-   0 . 
+  、
+   0 。
 </P>
 
 <PRE>
         COLOR   chcol  --  (-1)
-        W       class  -- Шрифт (-1Шрифт)
-        UW      attr   -- Шрифт (0)
-        PNT     csize  -- Шрифт
+        W       class  --  (-1)
+        UW      attr   --  (0)
+        PNT     csize  -- 
                           (csize.c.h  csize.c.v 0)
 </PRE>
 
 <P>
-  <CODE>MC_ATTR = 0</CODE> , , Шрифт, 
-  . , 
-  . 
+  <CODE>MC_ATTR = 0</CODE> 、 、、
+  。、
+  。
 </P>
 <P>
-  , , 
-  <CODE>MC_ATTR</CODE> . 
-  , 2. 
+  、、
+  <CODE>MC_ATTR</CODE> 。
+  、2。
 </P>
 <PRE>
 
@@ -272,34 +272,34 @@ typedef struct {
         2:     (&quot;PAT_DATA&quot;)
         3:     (&quot;BMAP_DATA&quot;)
         4〜: 
-        D: (0, )
+        D: (0、)
         L:
 
-        , L. 
+        、L。
 </PRE>
 <DL>
  <DT>MC_EMPHAS:
  <DD>0 -- <BR>
-     1 --  (. )
+     1 --  (。)
  <DT>MC_INACT:
- <DD>0-- Успішне виконання<BR>
+ <DD>0-- <BR>
      1 -- ()
 </DL>
 
 <H4><A name="ahu">3.3.1.4 </A></H4>
 
 <P>
-  , . 
+  、。
 </P>
 
 <UL>
  <LI> /  :
      <P>
-     , . 
+     、。
      </P>
  <LI> /  :
      <P>
-     , . 
+     、。
      </P>
      <TABLE>
       <TR><TD>/  </TD><TD>:<CODE>P_DISP</CODE>   </TD><TD>=1</TD><TD>: </TD></TR>
@@ -317,72 +317,72 @@ typedef struct {
       <TR><TD>               </TD><TD>                       </TD><TD> 0</TD><TD>: : (1)</TD></TR>
      </TABLE>
      <P>  
-       / ,  /
-      , 
-       / , 
-     <CODE>P_INACT = 0</CODE> , , 
-     <CODE>P_INACT = 1</CODE> . 
-      / Менеджер панелей (Panel Manager) /
+       / 、 /
+      、
+       / 、
+     <CODE>P_INACT = 0</CODE> 、、
+     <CODE>P_INACT = 1</CODE> 。
+      /  /
      
-     (, <CODE>P_SBAR = 1</CODE> ). 
+     (、<CODE>P_SBAR = 1</CODE> )。
      </P>
  <LI> / ID :
      <P>
-      / ID. 
-      / , 
-     , , 
-      / . 
-     ID,  / . 
-     , <CODE>P_SBAR = 1</CODE> , 
-      / Робоча область вікна (Client Area)(Рамка вікна (Window Frame)). 
+      / ID。
+      / 、
+     、、
+      / 。
+     ID、 / 。
+     、<CODE>P_SBAR = 1</CODE> 、
+      / ()。
      </P>
      <P>
-     ,  <CODE>cidl_par()</CODE> , 
-      / . 
+     、 <CODE>cidl_par()</CODE> 、
+      / 。
      </P>
 <LI> :
      <P>
-     , 
-      (, ) . 
-      / . 
+     、
+      (、) 。
+      / 。
      </P>
 <LI>  :
      <P>
-     , 
-     . 
-     . 
-     «»,  (  ) «», 
-     . 
-     , 
-     . 
-     «», «», 
-     . 
-     «» 0  1 , 
-     «», 
-     «»«». 
+     、
+     。
+     。
+     「」、 (  ) 「」、
+     。
+     、
+     。
+     「」、「」、
+     。
+     「」 0  1 、
+     「」、
+     「」「」。
      </P>
 <LI>  :
      <P>
-     , , 
-     , 
-     .  / . 
+     、、
+     、
+     。 / 。
      </P>
 <LI>  :
     <P>
-     , 
-     . 
-     . 
+     、
+     。
+     。
       ( <CODE>P_APPEND</CODE> )
-     , 
-     , 
-     . 
+     、
+     、
+     。
      </P>
 <LI>  :
      <P>
-     , 
-     . 
-     , 
-      / . 
+     、
+     。
+     、
+      / 。
      </P>
 </UL>
  
@@ -391,27 +391,27 @@ typedef struct {
 <H4><A name="ahw">3.3.2.1 </A></H4>
 
 <P>
-  1, 
-   / . 
-  , 
-  , 
-  ,  &amp;   / , 
-  Вирізати (Cut) &amp;. 
-  . 
+  1、
+   / 。
+  、
+  、
+  、 &amp;   / 、
+   &amp;。
+  。
 </P>
 
 <H5>□ </H5>
 <UL>
  <LI><P>
-     , 
-     «», «», 
-      («») . 
-     , 
-     . 
+     、
+     「」、「」、
+      (「」) 。
+     、
+     。
      </P>
  <LI><P>
-     «». 
-     «». 
+     「」。
+     「」。
      </P>
 </UL>
 
@@ -426,16 +426,16 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>: </TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: </TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>:         </TD><TD></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>: , , </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: , </TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>: 、、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: 、</TD></TR>
   <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>: ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:   ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>: /</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>: /</TD></TR>
   <TR><TD><CODE>P_EMPHAS</CODE>  </TD><TD>: 0 ()        </TD><TD>: / ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: / ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
-  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>: , </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>: , </TD></TR>
+  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>: 、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>: 、</TD></TR>
   <TR><TD><CODE>P_PARTDISP</CODE></TD><TD>: 0 ()</TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()    </TD><TD>:</TD></TR>
 </TABLE>
@@ -444,69 +444,69 @@ typedef struct {
 
 <UL>
 <LI><P>
-    , , 
-    . 
-    , , . 
+    、、
+    。
+    、、。
     </P>
 <LI><P>
-    , 
-    , . 
-    . 
+    、
+    、。
+    。
     </P>
  <LI><P>
-    , 
-    . 
-    , , 
-    , 
-    . , 
-    . 
+    、
+    。
+    、 、
+    、
+    。、
+    。
     </P>
  <LI><P>
-    , 
-    , 
-    . 
+    、
+    、
+    。
     </P>
  <LI><P>
-    , 
-    «», , «», 
-    ,  / . 
-    , ,  / , 
-    , , , . 
-    , . 
+    、
+    「」、、「」、
+    、 / 。
+    、、 / 、
+    、、、。
+    、。
     </P>
 
  <LI><P>
-    <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> , 
-     PD ,  PD , 
-    . 
-    , <KBD>[]</KBD> , 
-    , 
-    , 
-    . 
-    <KBD>[]</KBD><KBD>[ / ]</KBD> . 
+    <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> 、
+     PD 、 PD 、
+    。
+    、<KBD>[]</KBD> 、
+    、
+    、
+    。
+    <KBD>[]</KBD><KBD>[ / ]</KBD> 。
     </P>
     <P>
-    , . 
+    、。
     </P>
     <TABLE>
      <TR><TD><KBD>[]</KBD>         </TD><TD>-- </TD></TR>
-     <TR><TD><KBD>[]</KBD>       </TD><TD>-- (), </TD></TR>
+     <TR><TD><KBD>[]</KBD>       </TD><TD>-- ()、</TD></TR>
      <TR><TD><KBD>[ / ]</KBD></TD><TD>-- </TD></TR>
     </TABLE>
  <LI><P>
     <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD>
-    , , 
-    , 
-     ( <CODE>P_APPEND</CODE> ) . 
-    , , 
-    . 
+    、、
+    、
+     ( <CODE>P_APPEND</CODE> ) 。
+    、、
+    。
     </P>
  <LI><P>
-    <KBD>[]</KBD> + <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> , 
-    . 
+    <KBD>[]</KBD> + <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> 、
+    。
     </P>
  <LI><P>
-    . 
+    。
     </P>
 </UL>
 
@@ -524,72 +524,72 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>text</CODE> , 
-     . <CODE>text = NULL</CODE> , 
-     . 
-     , , <CODE>MC_STR, MC_ATTR</CODE> , 
-     . , <CODE>text</CODE>  <CODE>MC_ATTR</CODE> Шрифт. 
-     , 
-     . 
+     <CODE>text</CODE> 、
+     。<CODE>text = NULL</CODE> 、
+     。
+     、、<CODE>MC_STR, MC_ATTR</CODE> 、
+     。、<CODE>text</CODE>  <CODE>MC_ATTR</CODE> 。
+     、
+     。
      </P>
  <LI><P>
-     <CODE>txsize</CODE>, 
-      ( <CODE>TNULL</CODE> ). 
-     . 
-     (80). 
+     <CODE>txsize</CODE>、
+      ( <CODE>TNULL</CODE> )。
+     。
+     (80)。
      </P>
  <LI><P>
-     , <CODE>text</CODE>
-     , . 
+     、<CODE>text</CODE>
+     、。
      </P>
  <LI><P>
-     . 
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
-  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) , «»</TD></TR>
+  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) 、「」</TD></TR>
 </TABLE>
 
 <H4><A name="ahy">3.3.2.2 </A></H4>
 
 <P>
-  , 
-  функціонал / підсистема, 
-  , 
-  «». 
-  , 
-   OR , 
-  , 
-  , «», 
-  ,  &amp;   / , 
-  Вирізати (Cut) &amp; . 
-  . 
+  、
+  、
+  、
+  「」。
+  、
+   OR 、
+  、
+  、「」、
+  、 &amp;   / 、
+   &amp; 。
+  。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-    , 
-    . 
-    , . 
+    、
+    。
+    、。
     </P>
  <LI><P>
-    «», «», 
-    , 
-    «», 
-    . 
-    , . 
+    「」、「」、
+    、
+    「」、
+    。 
+    、。
     </P>
  <LI><P>
-    «». 
-    «». 
+    「」。
+    「」。
     </P>
 </UL>
 
@@ -604,16 +604,16 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>: </TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: </TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>:         </TD><TD></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>: , , </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: , </TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>: 、、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: 、</TD></TR>
   <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>: ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:   ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>: /</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>: /</TD></TR>
   <TR><TD><CODE>P_EMPHAS</CODE>  </TD><TD>: 0 ()        </TD><TD>: / ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: / ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
-  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>: , </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>: , </TD></TR>
+  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>: 、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>: 、</TD></TR>
   <TR><TD><CODE>P_PARTDISP</CODE></TD><TD>: 0 ()</TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()    </TD><TD>:</TD></TR>
 </TABLE>
@@ -622,39 +622,39 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     , 
-      OR . 
-     , , . 
+     、
+     、
+      OR 。
+     、、。
      </P>
  <LI><P>
-     , 
-     , . . 
+     、
+     、。。
      </P>
  <LI><P>
-     , 
-     . 
+     、
+     。
      </P>
  <LI><P>
     <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> 
-      PD , . 
-     , , 
-     , . 
-     . 
+      PD 、。
+     、、
+     、。
+     。
      </P>     
     <P>
-    , . 
+    、。
     </P>
     <TABLE>
      <TR><TD><KBD>[]</KBD>         </TD><TD>-- </TD></TR>
-     <TR><TD><KBD>[]</KBD>       </TD><TD>-- (), </TD></TR>
+     <TR><TD><KBD>[]</KBD>       </TD><TD>-- ()、</TD></TR>
      <TR><TD><KBD>[ / ]</KBD></TD><TD>-- </TD></TR>
     </TABLE>
  <LI><P>
      <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> 
-     , , , 
-     , , 
-     . 
+     、、、
+     、、
+     。
      </P>
 </UL>
 
@@ -672,56 +672,56 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>text</CODE>, 
-     . <CODE>text = NULL</CODE> . 
-     , , <CODE>MC_STR</CODE>, <CODE>MC_ATTR</CODE> . 
-     , <CODE>text</CODE>  <CODE>MC_ATTR</CODE> Шрифт. 
-     , , . 
+     <CODE>text</CODE>、
+     。<CODE>text = NULL</CODE> 。
+     、、<CODE>MC_STR</CODE>, <CODE>MC_ATTR</CODE> 。
+     、<CODE>text</CODE>  <CODE>MC_ATTR</CODE> 。
+     、、。
      </P>
  <LI><P>
-     <CODE>txsize</CODE> ,  ( <CODE>TNULL</CODE> ). 
-     . 
-      ( 80  ) . 
+     <CODE>txsize</CODE> 、 ( <CODE>TNULL</CODE> )。
+     。
+      ( 80  ) 。
      </P>
  <LI><P>
-     . 
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
-  <TR><TD><CODE>chcol</CODE></TD><TD>: , </TD></TR>
-  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) , «»</TD></TR>
+  <TR><TD><CODE>chcol</CODE></TD><TD>: 、</TD></TR>
+  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) 、「」</TD></TR>
 </TABLE>
 
 <H4><A name="aia">3.3.2.3 </A></H4>
 
 <P>
-  , 1 , 
-   / . 
-  , 
-  , 
-  ,  &amp;   / , 
-  Вирізати (Cut)&amp; . 
-  , , . 
+  、1 、
+   / 。
+  、
+  、
+  、 &amp;   / 、
+  &amp; 。
+  、、。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-     , 
-     «», «», 
-      («») . 
-     , 
-     . 
+     、
+     「」、「」、
+      (「」) 。
+     、
+     。
      </P>
  <LI><P>
-     «». 
-     «». 
+     「」。
+     「」。
      </P>
 </UL>
 
@@ -736,16 +736,16 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>:         </TD><TD></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:, , </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:, </TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:、、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:、</TD></TR>
   <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>: ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:   ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>: / </TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>: / </TD></TR>
   <TR><TD><CODE>P_EMPHAS</CODE>  </TD><TD>: 0 ()        </TD><TD>: /  ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: /  ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
-  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>:, </TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>:, </TD></TR>
+  <TR><TD><CODE>P_APPEND</CODE>  </TD><TD>: 0 ()            </TD><TD>:、</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()            </TD><TD>:、</TD></TR>
   <TR><TD><CODE>P_PARTDISP</CODE></TD><TD>: 0 ()</TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()    </TD><TD>:</TD></TR>
 </TABLE>
@@ -754,55 +754,55 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , , 
-     . 
-     , , 
-     . , , , (), 
-     , 
-     , . 
+     、 、
+     。
+     、 、
+     。、、、()、
+     、
+     、。
      </P>
  <LI><P>
-     , . 
-     , , 
-     , 
-     . , 
+     、。
+     、、
+     、
+     。、
      
-     (, ). 
+     (、)。
      </P>
  <LI><P>
-     , , 
-     . 
+     、、
+     。
      </P>
  <LI><P>
-     , 
-     «», , 
-     «», , 
-      / . 
-     , ,  / , 
-     , , , . 
-     , . 
+     、
+     「」、、
+     「」、、
+      / 。
+     、、 / 、
+     、、、。
+     、。
      </P>
 
  <LI><P>
-    <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> , 
-     PD ,  PD , 
-    . 
+    <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD> 、
+     PD 、 PD 、
+    。
      </P>
     <P>
-    , . 
+    、。
     </P>
     <TABLE>
      <TR><TD><KBD>[]</KBD>         </TD><TD>-- </TD></TR>
-     <TR><TD><KBD>[]</KBD>       </TD><TD>-- (), </TD></TR>
+     <TR><TD><KBD>[]</KBD>       </TD><TD>-- ()、</TD></TR>
      <TR><TD><KBD>[ / ]</KBD></TD><TD>-- </TD></TR>
     </TABLE>
  <LI><P>
     <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD>
-    , , 
-    , 
-     ( <CODE>P_APPEND</CODE> ) . 
-    , , 
-    . 
+    、、
+    、
+     ( <CODE>P_APPEND</CODE> ) 。
+    、、
+    。
     </P>
 </UL>
 
@@ -822,9 +822,9 @@ typedef struct {
 </PRE>
 <UL>
  <LI><P>
-     <CODE>fmt</CODE> , 
-     . , 
-     (). 
+     <CODE>fmt</CODE> 、
+     。、
+     ()。
      </P>
 <PRE>
     fmt = SSSS SSSS TPxF DDDD
@@ -844,14 +844,14 @@ typedef struct {
       <DD>
           <DL compact>
            <DT>0:
-           <DD>D . <BR>
-               , D = 0 . 
+           <DD>D 。<BR>
+               、D = 0 。
            <DT>1:
-           <DD>D , 0. <BR>
-               , D = 0 . 
+           <DD>D 、0。<BR>
+               、D = 0 。
           </DL>
       <DT>S :
-      <DD>Шрифт
+      <DD>
       <DT>P :
       <DD>
           <DL compact>
@@ -864,14 +864,14 @@ typedef struct {
       <DD> (0)
      </DL>
      <P>
-     , . 
+     、。
      </P>
 
      <DL>
       <DT><CODE>T = 0</CODE> (  )  :
-      <DD>D. 
+      <DD>D。
       <DT><CODE>T = 1</CODE> (  )  :
-      <DD>D, F. 
+      <DD>D、F。
      </DL>
 
 <A name="aic">
@@ -880,60 +880,60 @@ typedef struct {
 <CENTER> 84 : </CENTER>
 
 
- <LI><CODE>cv</CODE> , 
-     <CODE>L_UNDEF</CODE> (  )  <CODE>D_UNDEF</CODE> ( <CODE>NaN</CODE>, ±∞) . 
-<LI>. 
+ <LI><CODE>cv</CODE> 、
+     <CODE>L_UNDEF</CODE> (  )  <CODE>D_UNDEF</CODE> ( <CODE>NaN</CODE>, ±∞) 。
+<LI>。
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
-  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) , «»</TD></TR>
+  <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> ) 、「」</TD></TR>
 </TABLE>
 
 <H4><A name="aid">3.3.2.4 </A></H4>
 
 <P>
-  , 
-  . 
-  , , 
-  , 
-  . 
+  、
+  。
+  、、
+  、
+  。
 </P>
 <P>
-   1  / , 
-  , 
-  , 
-   / . 
+   1  / 、
+  、
+  、
+   / 。
 </P>
 <P>
-  , ,  &amp;   / , 
-  Вирізати (Cut) &amp; функціонал / підсистема. 
+  、、 &amp;   / 、
+   &amp; 。
 </P>
 
 <H5>□ </H5>
 
 <UL>
 <LI><P>
-     (  ). 
+     (  )。
     </P>
 <LI><P>
-    «»«», 
-    , 
-    . 
-    ,  &quot;▲&quot;
-     &quot;▼&quot;  (  ) . 
-    , , 
+    「」「」、
+    、
+    。
+    、 &quot;▲&quot;
+     &quot;▼&quot;  (  ) 。
+    、、
      &quot;▼&quot;  &quot;▲&quot;
-    . 
-    , &quot;▼&quot; (  ) , &quot;▲&quot; (  ) . 
+    。
+    、&quot;▼&quot; (  ) 、&quot;▲&quot; (  ) 。
     </P>
 <LI><P>
-    «». 
-    «». 
+    「」。
+    「」。
     </P>
 </UL>
 
@@ -949,7 +949,7 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>:         </TD><TD></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:, </TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:、</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>: ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:   ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
@@ -965,78 +965,78 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     , 
-     . 1, 
-     . 
-     , . 
-     . 
+     、
+     、
+     。1、
+     。
+     、。
+     。
      </P>
  <LI><P>
      PD &quot;▲&quot;  &quot;▼&quot;
-      (  ) , 
-      1 . 
-     , 
-     . 
+      (  ) 、
+      1 。
+     、
+     。
      </P>
      <P>
-     , 
-     , . 
-     . 
-     . 
-     , 
-     . 
+     、
+     、。
+     。
+     。
+     、
+     。
      </P>
  <LI><P>
-     , 
-     . 
-     , (), 
-     , 
-     , . 
+     、
+     。
+     、()、
+     、
+     、。
      </P>
  <LI><P>
-     <KBD>[]</KBD><KBD>[]</KBD>, 
-      PD функціонал / підсистема, 
-     . 
-     <KBD>[]</KBD>  &quot;▲&quot; , 
-     <KBD>[]</KBD>  &quot;▼&quot; . 
+     <KBD>[]</KBD><KBD>[]</KBD>、
+      PD 、
+     。
+     <KBD>[]</KBD>  &quot;▲&quot; 、
+     <KBD>[]</KBD>  &quot;▼&quot; 。
      </P>
  <LI><P>
-     , 
-     , 
-     , 
-     . 
-     , . 
-     , 
-     , . 
-      <KBD>[]</KBD> . 
+     、
+     、
+     、
+     。
+     、。
+     、
+     、。
+      <KBD>[]</KBD> 。
      </P>
  <LI><P>
-     , . 
+     、。
      </P>
  <LI><P>
-     <KBD>[]</KBD> , 
-     . 
+     <KBD>[]</KBD> 、
+     。
      </P>
  <LI><P>
-    <KBD>[]</KBD>, <KBD>[ / ]</KBD> , 
-     PD , . 
+    <KBD>[]</KBD>, <KBD>[ / ]</KBD> 、
+     PD 、。
      </P>
     <P>
-    , . 
+    、。
     </P>
     <TABLE>
      <TR><TD><KBD>[]</KBD>         </TD><TD>-- </TD></TR>
-     <TR><TD><KBD>[]</KBD>       </TD><TD>-- (), </TD></TR>
+     <TR><TD><KBD>[]</KBD>       </TD><TD>-- ()、</TD></TR>
      <TR><TD><KBD>[ / ]</KBD></TD><TD>-- </TD></TR>
     </TABLE>
  <LI><P>
     <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD>
-    , , 
-    , 
-    . 
-    , , 
-    . 
+    、、
+    、
+    。
+    、、
+    。
     </P>
 </UL>
 
@@ -1056,13 +1056,13 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>fmt</CODE> , 
-     , ,  ( 1  0 ) . 
-     , , <CODE>MC_STR</CODE>, <CODE>MC_ATTR</CODE> . 
-     , <CODE>fmt</CODE>  <CODE>MC_ATTR</CODE> , 
-     Шрифт. <BR>
-     , , 
-     , . 
+     <CODE>fmt</CODE> 、
+     、、 ( 1  0 ) 。
+     、、<CODE>MC_STR</CODE>, <CODE>MC_ATTR</CODE> 。
+     、<CODE>fmt</CODE>  <CODE>MC_ATTR</CODE> 、
+     。<BR>
+     、、
+     、。
      </P>
 
 <TABLE>
@@ -1072,13 +1072,13 @@ typedef struct {
 </TABLE>
 
 <P>
-  &lt;&gt; , , 
-  , 
-  , 10. 
+  &lt;&gt; 、、
+  、
+  、10。
 </P>
 
 <P>
-  &lt;&gt;  3 . 
+  &lt;&gt;  3 。
 </P>
 <PRE>
     0000 11ZA SSSS SSSS -- 
@@ -1098,11 +1098,11 @@ typedef struct {
 </DL>
 
 <P>
-  &lt;&gt; . 
+  &lt;&gt; 。
   
-  ( 1  0 ) . 
-  , <CODE>fmt</CODE> &lt;&gt;, 
-   2 . 
+  ( 1  0 ) 。
+  、<CODE>fmt</CODE> &lt;&gt;、
+   2 。
 </P>
 <PRE>
     0000 1000 SSSS SSSS -- 
@@ -1116,32 +1116,32 @@ typedef struct {
       <DD>
 </DL>
 
-    () ([n] 16 n ). 
+    () ([n] 16 n )。
 <PRE>
         [1000][e02][1][c]/[e02][1][15]/[e02][50][63]  [e02][0][b]:
         [e02][0][3b] [801][1000]A[1000]P[0]M[0]
 </PRE>
  <LI><P>
-     <CODE>nfld</CODE> , 
+     <CODE>nfld</CODE> 、
      <CODE>fmt</CODE>
-     . <BR>
-      16 . 
+     。<BR>
+      16 。
      </P>
- <LI><CODE>cv</CODE> , 
-      (  0 ). 
-     <CODE>cv[i]</CODE>  <CODE>L_UNDEF</CODE> (  ) , 
-     <CODE>i + 1</CODE> . 
-     , , . 
- <LI><CODE>fmt</CODE> , 
-     . 
-     , <CODE>fmt</CODE> , 
-     . 
+ <LI><CODE>cv</CODE> 、
+      (  0 )。
+     <CODE>cv[i]</CODE>  <CODE>L_UNDEF</CODE> (  ) 、
+     <CODE>i + 1</CODE> 。
+     、、。
+ <LI><CODE>fmt</CODE> 、
+     。
+     、<CODE>fmt</CODE> 、
+     。
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>: ( <CODE>COLORVAL</CODE> )  &quot;▲&quot;  &quot;▼&quot; </TD></TR>
@@ -1149,32 +1149,32 @@ typedef struct {
 
 <DL compact>
   <DT>※
-      <DD> <CODE>frpat</CODE>, , <CODE>bgpat</CODE> . 
+      <DD> <CODE>frpat</CODE>、、<CODE>bgpat</CODE> 。
 </DL>
 
 <H4><A name="aif">3.3.2.5 </A></H4>
 
 <P>
-  , , 
-  ON / OFF , 
-  ON / OFF  / . 
+  、、
+  ON / OFF 、
+  ON / OFF  / 。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-     . 
-      &quot;＝&quot;  OFF , &quot;≠&quot;  ON . 
-     , , 
-     ON . 
+     。
+      &quot;＝&quot;  OFF 、&quot;≠&quot;  ON 。
+     、、
+     ON 。
      </P>
  <LI><P>
-     «»«», 
-     , . 
+     「」「」、
+     、。
      </P>
  <LI><P>
-     «», . 
+     「」、。
      </P>
 </UL>
 
@@ -1188,11 +1188,11 @@ typedef struct {
 <TABLE>
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1206,18 +1206,18 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-      1 . 
-      ( ON → OFF / OFF → ON ), 
-     , 
-     . 
+     、
+      1 。
+      ( ON → OFF / OFF → ON )、
+     、
+     。
      </P>
  <LI><P>
-     , 
-     . 
-     , 
-     , 
-     . 
+     、
+     。
+     、
+     、
+     。
      </P>
 </UL>
 
@@ -1241,24 +1241,24 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>name</CODE> , 
-     (<CODE>MC_EMPHAS</CODE>, <CODE>MC_INACT</CODE> ). 
+     <CODE>name</CODE> 、
+     (<CODE>MC_EMPHAS</CODE>, <CODE>MC_INACT</CODE> )。
      </P>
- <LI><P><CODE>name</CODE> , 
-     . 
-     , <CODE>name</CODE> , 
-     . 
+ <LI><P><CODE>name</CODE> 、
+     。
+     、<CODE>name</CODE> 、
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>:  -- <BR>
-                                     (&quot;<CODE>PAT_DATA</CODE>&quot; , 
+                                     (&quot;<CODE>PAT_DATA</CODE>&quot; 、
                                      <A href="#aih"> 87 : </A>)<BR>
                                       -- </TD></TR>
 </TABLE>      
@@ -1266,28 +1266,28 @@ typedef struct {
 <H4><A name="aii">3.3.2.6 </A></H4>
 
 <P>
-  , 
-  , 
-  ON / OFFфункціонал / підсистема, 
-  , . 
+  、
+  、
+  ON / OFF、
+  、。
 </P>
 <P>
-  , , , . 
+  、、、。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-     . 
+     。
      
-     (). 
+     ()。
      </P>
  <LI><P>
-     «»«», . 
+     「」「」、。
      </P>
  <LI><P>
-     «», . <BR>
+     「」、。<BR>
      </P>
 </UL>
 
@@ -1301,11 +1301,11 @@ typedef struct {
 <TABLE>
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1323,36 +1323,36 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     . 
-     , 
-      ON . 
+     、
+     。
+     、
+      ON 。
      </P>
  <LI><P>
-     , 
-     . 
-     , 
-      ON . 
+     、
+     。
+     、
+      ON 。
      </P>
  <LI><P>
-     <CODE>P_DCLICK = 1</CODE> , 
-     , 
-     прикладний додаток. 
-     0 , , 
-     прикладний додаток. 
+     <CODE>P_DCLICK = 1</CODE> 、
+     、
+     。
+     0 、、
+     。
      </P>
  <LI><P>
-     <CODE>P_PRESS = 1</CODE> , 
-      (  ) , 
-     прикладний додаток. 
-     0 , прикладний додаток. 
+     <CODE>P_PRESS = 1</CODE> 、
+      (  ) 、
+     。
+     0 、。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <P>
-  . 
+  。
 </P>
 
 <PRE>
@@ -1368,25 +1368,25 @@ typedef struct {
 <UL>
  <LI><P>
      <CODE>cv</CODE> 
-     (  0  ) . 
+     (  0  ) 。
      </P>
  <LI><P>
-     <CODE>name</CODE> , 
+     <CODE>name</CODE> 、
      
-     (<CODE>MC_EMPHAS</CODE>, <CODE>MC_INACT</CODE> ). 
+     (<CODE>MC_EMPHAS</CODE>, <CODE>MC_INACT</CODE> )。
      </P>
  <LI><P>
-     <CODE>name</CODE> , 
-     . 
-     , <CODE>name</CODE> , 
-     . 
+     <CODE>name</CODE> 、
+     。
+     、<CODE>name</CODE> 、
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
- <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+ <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>: </TD></TR>
@@ -1395,25 +1395,25 @@ typedef struct {
 <H4><A name="aij">3.3.2.7 </A></H4>
 
 <P>
-  функціонал / підсистема, 
+  、
    /  ON / OFF  2 
-  (  ) . 
+  (  ) 。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-      ON / OFF . 
-     ,  / , 
-     . 
+      ON / OFF 。
+     、 / 、
+     。
      </P>
  <LI><P>
-     «»«», 
-     . 
+     「」「」、
+     。
      </P>
  <LI><P>
-     «», . <BR>
+     「」、。<BR>
      </P>
 </UL> 
 
@@ -1427,11 +1427,11 @@ typedef struct {
 <TABLE>
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1445,19 +1445,19 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     . 
+     、
+     。
      
-     ( ON → OFF / OFF → ON ), 
-     , 
-     . 
+     ( ON → OFF / OFF → ON )、 
+     、
+     。
      </P>
  <LI><P>
-     , 
-     . 
-     , 
-     , 
-     . 
+     、
+     。
+     、
+     、
+     。
      </P>
 </UL>
 
@@ -1467,29 +1467,29 @@ typedef struct {
     UW       type;    -- (PA_PARTS) /  / 
     RECT     r;       -- 
     W        cv;      --  (0:OFF / 1:ON)
-    W        onpat;   -- ON«BMAP_DATA»
-    W        offpat;  -- OFF«BMAP_DATA»
+    W        onpat;   -- ON「BMAP_DATA」
+    W        offpat;  -- OFF「BMAP_DATA」
     PARTDISP atr;     -- (type  MSB 1)
 } PICTSW;
 </PRE>
 
 <UL>
  <LI><P>
-     <CODE>onpat</CODE>,  <CODE>offpat</CODE> , 
-     , 
-       «<CODE>BMAP_DATA</CODE>» . 
-     <CODE>offpat = 0</CODE>  , <CODE>offpat</CODE>  <CODE>onpat</CODE> . 
-      <CODE>onpat = 0</CODE> (). 
+     <CODE>onpat</CODE>,  <CODE>offpat</CODE> 、
+     、
+       「<CODE>BMAP_DATA</CODE>」 。
+     <CODE>offpat = 0</CODE>  、 <CODE>offpat</CODE>  <CODE>onpat</CODE> 。
+      <CODE>onpat = 0</CODE> ()。
      </P>
  <LI><P>
-     . 
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>: </TD></TR>
@@ -1498,23 +1498,23 @@ typedef struct {
 <H4><A name="ail">3.3.2.8 </A></H4>
 
 <P>
-  функціонал / підсистема, 
-  (). 
+  、
+  ()。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-     . 
-     , , 
-      / . 
+     。
+     、 、
+      / 。
      </P>
- <LI><P>«»«», 
-     . 
+ <LI><P>「」「」、
+     。
      </P>
  <LI><P>
-     «», . <BR>
+     「」、。<BR>
      </P>
 </UL>
 
@@ -1528,11 +1528,11 @@ typedef struct {
 <TABLE>
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_BLINK</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1551,42 +1551,42 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     . 
-     , 
-      ON . 
+     、
+     。
+     、
+      ON 。
      </P>
  <LI><P>
-     , 
-     . 
-     , 
-      ON . 
+     、
+     。
+     、
+      ON 。
      </P>
  <LI><P>
-     <CODE>P_DCLICK = 1</CODE> , , 
-     прикладний додаток. 
-     0 , , 
-     прикладний додаток. 
+     <CODE>P_DCLICK = 1</CODE> 、、
+     。
+     0 、、
+     。
      </P>
  <LI><P>
-     <CODE>P_PRESS = 1</CODE> , 
-      (  ) , 
-     прикладний додаток. 
-     0 , прикладний додаток. 
+     <CODE>P_PRESS = 1</CODE> 、
+      (  ) 、
+     。
+     0 、。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <P>
-  , offpat  . 
+  、offpat  。
 </P>
 <PRE>
 typedef struct {
     UW       type;   -- (PM_PARTS)／／
     RECT     r;      -- 
     W        cv;     --  ()
-    W        onpat;  -- «BMAP_DATA»
+    W        onpat;  -- 「BMAP_DATA」
     W        offpat; -- 
     PARTDISP atr;    -- (type  MSB 1)
 } PICTSW;
@@ -1594,22 +1594,22 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>onpat</CODE>  , 
-     «<CODE>BMAP_DATA</CODE>». 
-      <CODE>onpat = 0</CODE> (). 
+     <CODE>onpat</CODE>  、
+     「<CODE>BMAP_DATA</CODE>」。
+      <CODE>onpat = 0</CODE> ()。
      </P>
  <LI><P>
-     <CODE>cv</CODE> (0). 
+     <CODE>cv</CODE> (0)。
      </P>
  <LI><P>
-     . 
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>: </TD></TR>
@@ -1618,30 +1618,30 @@ typedef struct {
 <H4><A name="ain">3.3.2.9 </A></H4>
 
 <P>
-  , 
-  1  0 , 
-  , 
-  . 
+  、
+  1  0 、
+  、
+  。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-    . 
-    , &quot;＝&quot;  OFF, &quot;≠&quot;  ON . 
-     (, <A href="parts.html#aif"></A>)
+    。
+    、 &quot;＝&quot;  OFF、 &quot;≠&quot;  ON 。
+     (、<A href="parts.html#aif"></A>)
     </P>
  <LI><P>
-     , 
-     «», , . 
+     、
+     「」、、。
      </P>
  <LI><P>
-     «»«», 
-     . 
+     「」「」、
+     。
      </P>
  <LI><P>
-     , ,  2. 
+     、、 2。
      </P>
 </UL>
 
@@ -1656,9 +1656,9 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD colspan="2"></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1678,34 +1678,34 @@ typedef struct {
 
 <UL>
  <LI><P>
-     OFF , 
-     , 
-      1 . 
-     , ,  &quot;≠&quot; 
-      ON . 
+     OFF 、
+     、
+      1 。
+     、、 &quot;≠&quot; 
+      ON 。
       ON  OFF 
-     &quot;＝&quot; . 
-     ( , <A href="parts.html#aif"></A>)
+     &quot;＝&quot; 。
+     ( 、<A href="parts.html#aif"></A>)
      </P>
  <LI><P>
-     , 
-     , 
-     . 
+     、
+     、
+     。
      </P>
  <LI><P>
-     , 
-      ON . 
+     、
+      ON 。
      </P>
  <LI><P>
-     ON , 
-     , <CODE>P_NOSEL = 0</CODE> , 
-      ON , 
-     <CODE>P_NOSEL = 1</CODE> , 
-      OFF . 
+     ON 、
+     、<CODE>P_NOSEL = 0</CODE> 、
+      ON 、
+     <CODE>P_NOSEL = 1</CODE> 、
+      OFF 。
      </P>
  <LI><P>
-     , 
-     . 
+     、
+     。
      </P>
 </UL>
 
@@ -1723,36 +1723,36 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>cv</CODE>  ( 1 〜 ) . 
-      0 . 
+     <CODE>cv</CODE>  ( 1 〜 ) 。
+      0 。
      </P>
  <LI><P>
-     <CODE>name</CODE> . 
-     . 
-      32 . 
+     <CODE>name</CODE> 。
+     。
+      32 。
      </P>
 <PRE>
      &lt;&gt;&lt;1&gt;&lt; &gt;&lt;2&gt; .... &lt;TNULL&gt;
 </PRE>
      <P>
-     &lt;&gt; <CODE>MC_INACT</CODE> , , . 
+     &lt;&gt; <CODE>MC_INACT</CODE> 、、。
      </P>
  <LI><P>
-     <CODE>name</CODE> , 
-     . 
-     , <CODE>name</CODE> , 
-     . 
+     <CODE>name</CODE> 、
+     。
+     、<CODE>name</CODE> 、
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>:  --  <BR>
-                                     (&quot;<CODE>PAT_DATA</CODE>&quot; , 
+                                     (&quot;<CODE>PAT_DATA</CODE>&quot; 、
                                      <A href="#aih"> 87 : </A>)<BR>
                                       -- </TD></TR>
 </TABLE>
@@ -1760,47 +1760,47 @@ typedef struct {
 <H4><A name="aip">3.3.2.10 </A></H4>
 
 <P>
-  , 
-  1  0 , 
-  . 
+  、
+  1  0 、
+  。
 </P>
 <P>
-  , , 
-  прикладний додаток. 
+  、、
+  。
 </P>
 <P>
-  , 
-  . 
+  、
+  。
 </P>
 
 <H5>□ </H5>
 
 <UL>
  <LI><P>
-     Смуги прокрутки (Scrollbars). 
-      ( ≠ ) . 
+     。
+      ( ≠ ) 。
      
-     «…», . 
+     「…」、。
      </P>
  <LI><P>
-     , 
-     1〜 . 
+     、
+     1〜 。
      </P>
  <LI><P>
-     Смуги прокрутки (Scrollbars),  (  ) . 
+     、 (  ) 。
      </P>
  <LI><P>
-     , «», . 
+     、「」、。
      </P>
  <LI><P>
-     «»«», 
-     . 
-     , «», Смуги прокрутки (Scrollbars), 
-     , 
-     (). 
+     「」「」、
+     。
+     、「」、、
+     、
+     ()。
      </P>
  <LI><P>
-     , . 
+     、。
      </P>
 </UL>
 
@@ -1815,9 +1815,9 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD colspan="2"></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:, Смуги прокрутки (Scrollbars)</TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:、</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
@@ -1835,72 +1835,72 @@ typedef struct {
 
 <UL>
  <LI><P>
-     , 
-     , . 
-     , . 
+     、
+     、。
+     、。
      
-     (  ) . 
+     (  ) 。
      </P>
  <LI><P>
-     Смуги прокрутки (Scrollbars)
-     ( , , ,  )
-     . 
-     , Смуги прокрутки (Scrollbars)Менеджер системних елементів (Parts Manager), 
-     , 
-      - 1 . 
-     </P>
- <LI><P>
-     , 
-     , , , 
-      <CODE>P_NOSEL</CODE> . 
-     </P>
- <LI><P>
-     , 
-     . 
-     , 
-     , 
      
-     ( Смуги прокрутки (Scrollbars) ). 
-     . 
-     , 
-     , 
-     , 
-     . 
-     , 
-     . 
+     ( 、、、 )
+     。
+     、、
+     、
+      - 1 。
      </P>
  <LI><P>
-     , 
-     Смуги прокрутки (Scrollbars), 
-     . 
-     . 
+     、
+     、、、
+      <CODE>P_NOSEL</CODE> 。
      </P>
  <LI><P>
-     , <KBD>[]</KBD>, 
-     <KBD>[]</KBD>, 
-     прикладний додаток, 
-     . 
+     、
+     。
+     、
+     、
+     
+     (  )。
+     。
+     、
+     、
+     、
+     。
+     、
+     。
+     </P>
+ <LI><P>
+     、
+     、
+     。
+     。
+     </P>
+ <LI><P>
+     、<KBD>[]</KBD>、
+     <KBD>[]</KBD>、
+     、
+     。
      </P>
      <UL>
       <LI><P>
-          <KBD>[]</KBD>, <KBD>[]</KBD>, 
+          <KBD>[]</KBD>、<KBD>[]</KBD>、
            ( <KBD>[]</KBD> )  ( <KBD>[]</KBD> ) 
-          , 
-          . 
-          , , 
-          . 
+          、
+          。
+          、、
+          。
           </P>
       <LI><P>
-          <KBD>[]</KBD><KBD>[]</KBD>, <KBD>[]</KBD>, 
-          , 
+          <KBD>[]</KBD><KBD>[]</KBD>、<KBD>[]</KBD>、
+          、
           1  (  - 1 ) 
-          . 
+          。
           </P>
       <LI><P>
-          <CODE>P_NUMBER = 1</CODE> , 
-           1 〜 , 
-           <KBD>[]</KBD> , 
-          . 
+          <CODE>P_NUMBER = 1</CODE> 、
+           1 〜 、
+           <KBD>[]</KBD> 、
+          。
           </P>
      </UL>
 </UL>
@@ -1908,7 +1908,7 @@ typedef struct {
 <H5>□ </H5>
 
 <P>
-  . 
+  。
 </P>
 
 <PRE>
@@ -1923,66 +1923,66 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>cv</CODE>  ( 0 〜 ) . 
-     0. 
+     <CODE>cv</CODE>  ( 0 〜 ) 。
+     0。
      </P>
  <LI><P>
-     <CODE>name</CODE> . 
-     . 
+     <CODE>name</CODE> 。
+     。
      </P>
 <PRE>
     &lt;&gt;&lt;1&gt;&lt; &gt;&lt;２&gt; .... &lt;TNULL&gt;
 </PRE>
 <P>
-     &lt;&gt; MC_INACT , , . 
+     &lt;&gt; MC_INACT 、、。
 </P>
- <LI><CODE>name</CODE> , 
-     . 
-     , <CODE>name</CODE> , 
-     . 
+ <LI><CODE>name</CODE> 、
+     。
+     、<CODE>name</CODE> 、
+     。
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
   <TR><TD><CODE>bgpat</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>:  --  <BR>
-                                     (&quot;<CODE>PAT_DATA</CODE>&quot; , 
+                                     (&quot;<CODE>PAT_DATA</CODE>&quot; 、
                                      <A href="#aih"> 87 : </A>)<BR>
-                                      -- Смуги прокрутки (Scrollbars) (&quot;<CODE>PAT_DATA</CODE>&quot;)</TD></TR>
+                                      --  (&quot;<CODE>PAT_DATA</CODE>&quot;)</TD></TR>
 </TABLE>
 
 <DL compact>
  <DT>※
- <DD>Смуги прокрутки (Scrollbars) <CODE>frpat</CODE>,  <CODE>bgpat</CODE> . 
+ <DD> <CODE>frpat</CODE>、 <CODE>bgpat</CODE> 。
 </DL>
 
 <H4><A name="air">3.3.2.11 </A></H4>
 
 <P>
-  , 
-  . 
+  、
+  。
 </P>
 <P>
-  , Смуги прокрутки (Scrollbars), 
-  . 
+  、、
+  。
 </P>
 
 <H5>□ </H5>
 
 <UL>
   <LI><P>
-      ,  (  )
-      . 
-      . 
+      、 (  )
+      。
+      。
        (  ) 
-      (  ). 
+      (  )。
       </P>
  <LI><P>
-      , 
-      , . 
+      、
+      、。
       </P>
 
 <A name="ais">
@@ -1991,20 +1991,20 @@ typedef struct {
 <CENTER> 93 : </CENTER>
 
  <LI><P>
-      , 
-      . 
-      , . 
+      、
+      。
+      、。
       </P>
  <LI><P>
-      . 
+      。
       </P>
  <LI><P>
-      «», , 
-      (). 
+      「」、、
+      ()。
       </P>
  <LI><P>
-      «»«»Успішне виконання. 
-      , . 
+      「」「」。
+      、。
       </P>
 </UL>
 
@@ -2019,10 +2019,10 @@ typedef struct {
   <TR><TD><CODE>P_DISP</CODE>    </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_BLINK</CODE>   </TD><TD colspan="2"></TD></TR>
-  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:, </TD></TR>
-  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:Успішне виконання</TD></TR>
-  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:Успішне виконання (, <CODE>P_NONOB = 1</CODE> )</TD></TR>
+  <TR><TD><CODE>P_INACT</CODE>   </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>:、</TD></TR>
+  <TR><TD><CODE>P_DISABLE</CODE> </TD><TD>: 0 ()        </TD><TD>:</TD></TR>
+  <TR><TD>                       </TD><TD>: 1 ()        </TD><TD>: (、<CODE>P_NONOB = 1</CODE> )</TD></TR>
   <TR><TD><CODE>P_NOFRAME</CODE> </TD><TD>: 0 ()          </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1 ()          </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_EMPHAS</CODE>  </TD><TD>: 0 ()        </TD><TD>: ( <CODE>P_NOFRAME = 0</CODE> )</TD></TR>
@@ -2030,7 +2030,7 @@ typedef struct {
   <TR><TD><CODE>P_NONOB</CODE>   </TD><TD>: 0                   </TD><TD>:</TD></TR>
   <TR><TD>                       </TD><TD>: 1                   </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_SBAR</CODE>    </TD><TD>: 0                   </TD><TD>:</TD></TR>
-  <TR><TD>                       </TD><TD>: 1                   </TD><TD>:Смуги прокрутки (Scrollbars)</TD></TR>
+  <TR><TD>                       </TD><TD>: 1                   </TD><TD>:</TD></TR>
   <TR><TD><CODE>P_HALIGN</CODE>  </TD><TD>: 0                   </TD><TD>: () </TD></TR>
   <TR><TD>                       </TD><TD>: 1                   </TD><TD>: () </TD></TR>
   <TR><TD><CODE>P_PARTDISP</CODE></TD><TD>: 0 ()  </TD><TD>:</TD></TR>
@@ -2042,52 +2042,52 @@ typedef struct {
 <UL>
  <LI>【】
      <P>
-     , 
-     «», «». 
-     , , 
-     , «», «». 
+     、
+     「」、「」。
+     、、
+     、「」、「」。
      </P>
      <P>
-      (  XOR  ) , 
-     . 
-     , , 
-     («»). 
+      (  XOR  ) 、
+     。
+     、、
+     (「」)。
      </P>
      <P>
-     , 
-      12 〜 16 , 
-     . 
-     , . 
-     , «». 
+     、
+      12 〜 16 、
+     。
+     、。
+     、「」。
      </P>
  <LI>【】
      <P>
-     , 
-     , 
-     々. 
-     прикладний додаток. 
-     , 
-     . 
-     , . 
+     、 
+     、
+     々。
+     。
+     、
+     。
+     、。
      </P>
      <P>
-     , . 
-     , . 
+     、。
+     、 。
      </P>
 <LI>【】
      <P>
-     , 
-      (  -  ) . 
-     , прикладний додаток. 
+     、
+      (  -  ) 。
+     、。
      </P>
      <P>
-     , 
-     . 
+     、
+     。
      </P>
  <LI><P>
-     , 
-     , 
-     . 
+     、
+     、
+     。
      </P>
 </UL>
 
@@ -2097,8 +2097,8 @@ typedef struct {
 typedef struct {
     UW       type;       -- (VL_PARTS) /  / 
     RECT     r;          -- 
-    W        clo,chi;    -- , 
-    W        lo,hi;      -- , 
+    W        clo,chi;    -- 、
+    W        lo,hi;      -- 、
     W        patnum;     -- 
     PARTDISP atr;        -- (type  MSB 1)
 } VOLUME;
@@ -2106,9 +2106,9 @@ typedef struct {
 
 <UL>
  <LI><P>
-     <CODE>lo</CODE>, <CODE>hi</CODE>  (  )  (  ) , 
-     <CODE>clo</CODE>, <CODE>chi</CODE>   (  )  (  ) . 
-     . 
+     <CODE>lo</CODE>, <CODE>hi</CODE>  (  )  (  ) 、
+     <CODE>clo</CODE>, <CODE>chi</CODE>   (  )  (  ) 。
+     。
      </P>
 
 <A name="aiu">
@@ -2117,19 +2117,19 @@ typedef struct {
 <CENTER> 95 : </CENTER>
 
  <LI><P>
-     <CODE>patnum</CODE> , «<CODE>PAT_DATA</CODE>». 
-     0 . 
+     <CODE>patnum</CODE> 、「<CODE>PAT_DATA</CODE>」。
+     0 。
      </P>
  <LI><P>
-     . 
+     。
      </P>
 </UL>
 
 <H5>□ </H5>
 
 <TABLE>
-  <TR><TD><CODE>frpat</CODE></TD><TD>: ,  ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
-  <TR><TD><CODE>bgpat</CODE></TD><TD>: Смуги прокрутки (Scrollbars) (  ) </TD></TR>
+  <TR><TD><CODE>frpat</CODE></TD><TD>: 、 ( <CODE>P_NOFRAME = 0</CODE>  )</TD></TR>
+  <TR><TD><CODE>bgpat</CODE></TD><TD>:  (  ) </TD></TR>
   <TR><TD><CODE>chcol</CODE></TD><TD>: </TD></TR>
   <TR><TD><CODE>misc </CODE></TD><TD>: </TD></TR>
 </TABLE>
@@ -2224,8 +2224,8 @@ typedef struct pictsw {     /* PA_PARTS, PM_PARTS */
 typedef struct volume {     /* VL_PARTS */
     UW       type;
     RECT     r;
-    W        clo, chi;   /* ,  */
-    W        lo, hi;     /* ,  */
+    W        clo, chi;   /* 、 */
+    W        lo, hi;     /* 、 */
     W        patnum;     /*  */
     PARTDISP atr;
 } VOLUME;
@@ -2272,7 +2272,7 @@ typedef union parts {
 </PRE>
 
 <PRE>
-#define P_SBAR      0x0040  /* Смуги прокрутки (Scrollbars) */
+#define P_SBAR      0x0040  /*  */
 #define P_DCLICK    0x0080  /*  */
 #define P_NOSEL     0x0080  /* 0  */
 #define P_APPEND    0x0080  /*  */
@@ -2373,7 +2373,7 @@ typedef union parts {
 #define P_ACT       0x0010  /*  */
 </PRE>
 
-<H3><A name="aiw">3.3.4 Менеджер системних елементів (Parts Manager)</A></H3>
+<H3><A name="aiw">3.3.4 </A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ccre_par</FONT></TD></TR>
@@ -2403,20 +2403,15 @@ PARTS   *parts
 
 <P>
   <CODE>parts</CODE>  <CODE>wid</CODE>
-   / , 
-  ID ( <CODE>pid &gt; 0</CODE> ). 
-  «», 
-  «», . 
+   / 、
+  ID ( <CODE>pid &gt; 0</CODE> )。
+  「」、
+  「」、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (parts). 
-EX_NOSPC    : . 
-EX_PAR      : . 
-EX_WID      : (wid). 
-EX_DNUM     : (onpat，offpat，patnum). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ccre_tbx</FONT></TD></TR>
@@ -2446,8 +2441,8 @@ PARTDISP *atr
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-   ID . 
+<P>
+   ID 。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2480,8 +2475,8 @@ PARTDISP *atr
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  ID. 
+<P>
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2513,8 +2508,8 @@ PARTDISP *atr
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  ID. 
+<P>
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2552,7 +2547,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2592,7 +2587,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2629,7 +2624,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2668,7 +2663,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <PRE>
-  ID. 
+  ID。
 </PRE>
 
 <H4>【Коди помилок】</H4>
@@ -2704,7 +2699,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2740,7 +2735,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2773,8 +2768,8 @@ PARTDISP *atr
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  ID. 
+<P>
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2811,7 +2806,7 @@ PARTDISP *atr
 <H4>【Детальний опис】</H4>
 
 <P>
-  ID. 
+  ID。
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -2843,30 +2838,25 @@ PNT *pos    ()
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
   <CODE>dnum</CODE>  &quot;<CODE>PARTS_DATA</CODE>&quot;
   
-  <CODE>wid</CODE>  / . 
+  <CODE>wid</CODE>  / 。
 </P>
 <P>
-  <CODE>*pos</CODE>  / , 
-  . 
-  <CODE>pos = NULL</CODE> , 
-  . 
+  <CODE>*pos</CODE>  / 、
+  。
+  <CODE>pos = NULL</CODE> 、
+  。
 </P>
 <P>
-  «», 
-  «», . 
+  「」、
+  「」、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (pos). 
-EX_DNUM     : (dnum). 
-EX_NOSPC    : . 
-EX_PAR      : . 
-EX_WID      : (wid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cdel_par</FONT></TD></TR>
@@ -2887,9 +2877,9 @@ W   opt ::= ( CLR ‖ NOCLR )
 
 <DL>
  <DT>CLR  (=0)：
- <DD>. 
+ <DD>。
  <DT>NOCLR(≠0)：
- <DD>(). 
+ <DD>()。
 </DL>
 
 <H4>【Значення, що повертається】</H4>
@@ -2901,21 +2891,19 @@ W   opt ::= ( CLR ‖ NOCLR )
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>pid</CODE> . 
+  <CODE>pid</CODE> 。
 </P>
 <P>
-  <CODE>opt</CODE> , . 
-  , 
-   / , 
-  , 
-  . 
+  <CODE>opt</CODE> 、。
+  、
+   / 、
+  、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
-
 <PRE>
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -2943,25 +2931,24 @@ W   opt     cdel_par
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>wid</CODE>  / . 
-  , <CODE>P_SBAR = 1</CODE> . 
+<P>
+  <CODE>wid</CODE>  / 。
+  、<CODE>P_SBAR = 1</CODE> 。
 </P>
 <P>
-  <CODE>opt</CODE> , , 
-   <CODE>cdel_par()</CODE>. 
+  <CODE>opt</CODE> 、、
+   <CODE>cdel_par()</CODE>。
 </P>
 <P>
-  , 
-   / , 
-  , 
-  . 
+  、
+   / 、
+  、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_WID  : (wid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cdsp_par</FONT></TD></TR>
@@ -2977,38 +2964,38 @@ ERR cdsp_par(W pid, UW vis)
 
 <PRE>
 W   pid     ID
-UW  vis     , ／／／. 
+UW  vis     、／／／。
 </PRE>
 <DL>
  <DT><CODE>P_ERASE</CODE> (  ) :
  <DD><P>
-     «», 
-     «»«». 
-     .  <CODE>P_DISP = 0</CODE>，<CODE>P_BLINK = 0</CODE> . 
+     「」、
+     「」「」。
+     。 <CODE>P_DISP = 0</CODE>，<CODE>P_BLINK = 0</CODE> 。
      </P>
  <DT><CODE>P_NODISP</CODE> (  ) :
  <DD><P>
-     . 
-      <CODE>P_DISP = 0</CODE>，<CODE>P_BLINK = 0</CODE> . 
+     。
+      <CODE>P_DISP = 0</CODE>，<CODE>P_BLINK = 0</CODE> 。
      </P>
  <DT><CODE>P_DISP</CODE> (  ) :
  <DD><P>
-     «», «», «»«». 
-     .  <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 0</CODE> . 
+     「」、「」、「」「」。
+     。 <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 0</CODE> 。
      </P>
  <DT><CODE>P_BLINK</CODE> () : 
  <DD><P>
-     «», «»«». 
-      <CODE>cidl_par()</CODE> . 
-     . 
-     «», <CODE>P_DISP</CODE> . 
-      <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 1</CODE> . 
+     「」、「」「」。
+      <CODE>cidl_par()</CODE> 。
+     。
+     「」、<CODE>P_DISP</CODE> 。
+      <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 1</CODE> 。
      </P>
  <DT><CODE>P_RDISP</CODE> (  ) :
  <DD><P>
-     «», 
-     «». 
-      <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 0</CODE> . 
+     「」、
+     「」。
+      <CODE>P_DISP = 1</CODE>，<CODE>P_BLINK = 0</CODE> 。
      </P>
 </DL>
 
@@ -3019,15 +3006,13 @@ UW  vis     , ／／／.
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE>  /  /  / . 
+<P>
+  <CODE>pid</CODE>  /  /  / 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR  : (vis ). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cdsp_pwd</FONT></TD></TR>
@@ -3045,8 +3030,8 @@ ERR cdsp_pwd(W wid, RECT *r, UW vis)
 <PRE>
 W       wid    ID
 RECT    *r     
-UW      vis     /  /  / , 
-                cdsp_par() . 
+UW      vis     /  /  / 、
+                cdsp_par() 。
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
@@ -3058,22 +3043,19 @@ UW      vis     /  /  / ,
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>wid</CODE>  / , 
-  <CODE>*r</CODE>  /  /  / . 
-  , <CODE>P_SBAR = 1</CODE> , 
-  .  /  /  / . 
+  <CODE>wid</CODE>  / 、
+  <CODE>*r</CODE>  /  /  / 。
+  、<CODE>P_SBAR = 1</CODE> 、
+  。  /  /  / 。
 </P>
 <P>
-  <CODE>*r</CODE>  / , 
-  <CODE>r = NULL</CODE> ,  / . 
+  <CODE>*r</CODE>  / 、
+  <CODE>r = NULL</CODE> 、 / 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (r). 
-EX_PAR  : (vis ). 
-EX_WID  : (wid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cchk_par</FONT></TD></TR>
@@ -3100,25 +3082,24 @@ PNT pos
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
   <CODE>pos</CODE>  <CODE>pid</CODE>
-  , 
-   0, 
-   ( 1 〜 ) . 
+  、
+   0、
+   ( 1 〜 ) 。
 </P>
 <P>
-  ,  ( <CODE>P_DISABLE = 1</CODE>) , 
+  、 ( <CODE>P_DISABLE = 1</CODE>) 、
    ( <CODE>P_DISP = 0</CODE> )
-   0 . 
+   0 。
 </P>
 <P>
-  <CODE>pos</CODE> . 
+  <CODE>pos</CODE> 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-  EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cfnd_par</FONT></TD></TR>
@@ -3143,28 +3124,26 @@ W   *pid    ID
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>wid</CODE>  / , 
-  <CODE>pos</CODE> , 
-  , 
-  ID <CODE>*pid</CODE> , 
-   0  <CODE>*pid</CODE> . 
+<P>
+  <CODE>wid</CODE>  / 、
+  <CODE>pos</CODE> 、
+  、
+  ID <CODE>*pid</CODE> 、
+   0  <CODE>*pid</CODE> 。
 </P>
 <P>
-  ,  ( <CODE>P_DISABLE = 1</CODE>) , 
-   ( <CODE>P_DISP=0</CODE>) , 
-   <CODE>P_SBAR = 1</CODE> . 
+  、 ( <CODE>P_DISABLE = 1</CODE>) 、
+   ( <CODE>P_DISP=0</CODE>) 、
+   <CODE>P_SBAR = 1</CODE> 。
 </P>
 <P>
-  ,  0 , 
-   ( 1 〜 ) . 
+  、 0 、
+   ( 1 〜 ) 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (pid). 
-EX_WID  : (wid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cact_par</FONT></TD></TR>
@@ -3193,33 +3172,33 @@ WEVENT  *ev
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> . 
-  <CODE>*ev</CODE> , 
-  , , , 
-  , . 
+<P>
+  <CODE>pid</CODE> 。
+  <CODE>*ev</CODE> 、
+  、、、
+  、。
 </P>
 <P>
-  , 
-  , 
-  , , 
-  , 0. , <CODE>*ev</CODE> . 
+  、
+  、
+  、、
+  、0。、<CODE>*ev</CODE> 。
 </P>
 <UL>
-    <LI>  ( <CODE>P_DISABLE = 1</CODE>) . 
-    <LI> <CODE>*ev</CODE> . 
-    <LI>  <CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE> , 
-         (ev-&gt;e.pos). 
+    <LI>  ( <CODE>P_DISABLE = 1</CODE>) 。
+    <LI> <CODE>*ev</CODE> 。
+    <LI>  <CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE> 、
+         (ev-&gt;e.pos)。
 </UL>
 
 <P>
-  , прикладний додаток, 
-  <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> , 
-   <CODE>cact_par()</CODE> . 
+  、、
+  <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> 、
+   <CODE>cact_par()</CODE> 。
 </P>
 <P>
-  , ／, 
-  , 0. 
+  、／、
+  、0。
 </P>
 
 <H4> /  / </H4>
@@ -3227,38 +3206,38 @@ WEVENT  *ev
 <DL>
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
  <DD><UL>
-      <LI> «»«», «». 
-      <LI> , , ／. . 
-      <LI> , . , . 
+      <LI> 「」「」、「」。
+      <LI> 、、／。。
+      <LI> 、。、。
      </UL>
  <DT><CODE>EV_KEYDWN</CODE>  <CODE>EV_NULL</CODE>  :
  <DD><UL>
-      <LI> «»«», «». 
-      <LI> ／. 
+      <LI> 「」「」、「」。
+      <LI> ／。
      </UL>
  <DT> : 
- <DD> 0 (*ev ). 
+ <DD> 0 (*ev )。
 </DL>
 <P>
-   / . 
+   / 。
 </P>
 <UL>
- <LI> «»,  / . 
-      , «», 
-      «», ／. 
- <LI> , 
-       <a href="#ahw">3.3.2.1 </A>, 
-       <a href="#ahy">3.3.2.2 </A>, 
+ <LI> 「」、 / 。
+      、「」、
+      「」、／。
+ <LI> 、
+       <a href="#ahw">3.3.2.1 </A>、
+       <a href="#ahy">3.3.2.2 </A>、
        <a href="#aia">3.3.2.3 </A>
-       . 
-       <LI><KBD>[]</KBD>, <KBD>[]</KBD><KBD>[ / ]</KBD>, 
-      «». 
-       <LI>, , 
-      «», . 
+       。
+       <LI><KBD>[]</KBD>、<KBD>[]</KBD><KBD>[ / ]</KBD>、
+      「」。
+       <LI>、、
+      「」、。
        <LI><CODE>EV_BUTDWN，EV_BUTUP，EV_KEYDWN，EV_KEYUP，EV_AUTKEY</CODE>
-      , , , 
-      . <CODE>*ev</CODE> , 
-      . 
+      、、、
+      。<CODE>*ev</CODE> 、
+      。
 <PRE>
         ：
              (P_EVENT)：
@@ -3266,26 +3245,26 @@ WEVENT  *ev
              (P_MENU)：
             0110 0000 0001 0000
 
-        , , . 
-        (1) Кнопки (Buttons)
-        (2) «»
-        (3) «»()
+        、、。
+        (1) 
+        (2) 「」
+        (3) 「」()
 </PRE>
 <P>
-      прикладний додаток, , 
-      <CODE>*ev</CODE>  <CODE>EV_NULL</CODE>, 
-       <CODE>cact_par()</CODE> . 
+      、、
+      <CODE>*ev</CODE>  <CODE>EV_NULL</CODE>、
+       <CODE>cact_par()</CODE> 。
 </P>
-       <LI> <CODE>*ev</CODE> . 
-       <LI>, . 
+       <LI> <CODE>*ev</CODE> 。
+       <LI>、。
 <PRE>
         :010C 0000 0000 0SSS
 
                 C = 0: 
                   = 1: 
-                S = P_TAB   «»
-                  = P_NL  «/»
-                  = P_END   «»
+                S = P_TAB   「」
+                  = P_NL  「/」
+                  = P_END   「」
                   = P_BUT 
                   = P_MOVE   
                   = P_COPY   
@@ -3297,37 +3276,37 @@ WEVENT  *ev
 <DL>
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
  <DD><UL>
-      <LI>«»«», «». 
-      <LI> ,  / . 
+      <LI>「」「」、「」。
+      <LI> 、 / 。
      </UL>
  <DT><CODE>EV_KEYDWN</CODE>  <CODE>EV_NULL</CODE>  :
  <DD><UL>
-       <LI> «»«», «». 
-       <LI>  / . 
+       <LI> 「」「」、「」。
+       <LI>  / 。
      </UL>
  <DT> : 
- <DD> 0 . (<CODE>*ev</CODE> )
+ <DD> 0 。(<CODE>*ev</CODE> )
 </DL>
 
 <P>
-   / . 
+   / 。
 </P>
 
 <UL>
-    <LI>«», . 
-         , «», 
-        «», . 
-    <LI><KBD>[]</KBD>. 
-    <LI><a href="#aid">3.3.2.4 </A>. 
-    <LI><KBD>[]</KBD>, <KBD>[]</KBD><KBD>[ / ]</KBD>, 
-        «». 
-    <LI>, «», 
-        . 
+    <LI>「」、。
+         、「」、
+        「」、。
+    <LI><KBD>[]</KBD>。
+    <LI><a href="#aid">3.3.2.4 </A>。
+    <LI><KBD>[]</KBD>、<KBD>[]</KBD><KBD>[ / ]</KBD>、
+        「」。
+    <LI>、「」、
+        。
     <LI><CODE>EV_BUTDWN, EV_BUTUP, EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE>
-        , 
-        , 
-        . <CODE>*ev</CODE> , 
-        . 
+        、
+        、
+        。<CODE>*ev</CODE> 、
+        。
 <PRE>
         ：
              (P_EVENT)：
@@ -3335,19 +3314,19 @@ WEVENT  *ev
              (P_MENU)：
             0110 0000 0001 0000
 </PRE>
-        прикладний додаток, , 
-        <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> , 
-         <CODE>cact_par()</CODE> . 
-    <LI>  <CODE>*ev</CODE> . 
-    <LI> , . 
+        、、
+        <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> 、
+         <CODE>cact_par()</CODE> 。
+    <LI>  <CODE>*ev</CODE> 。
+    <LI> 、。
 <PRE>
         :010C 0000 0000 0SSS
 
                 C = 0: 
                 = 1: 
-                S = P_TAB   «»
-                = P_NL  «/»
-                = P_END   «»
+                S = P_TAB   「」
+                = P_NL  「/」
+                = P_END   「」
                 = P_BUT 
 </PRE>
 </UL>
@@ -3357,22 +3336,22 @@ WEVENT  *ev
 <DL>
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
  <DD><UL>
-      <LI> «»«». «»«». 
-      <LI> , ／. 
-      <LI> , ／, . 
+      <LI> 「」「」。「」「」。
+      <LI> 、／。
+      <LI> 、／、。
 <PRE>
         :010C 0000 0000 000S
 
-                C = 0: . ()
-                  = 1: . ()
+                C = 0: 。()
+                  = 1: 。()
                 S   :  (0:OFF, 1:ON)
 </PRE>
-      <LI> <CODE>EV_BUTUP</CODE> . 
+      <LI> <CODE>EV_BUTUP</CODE> 。
             <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE>
-           , . 
+           、。
       </UL>
     <DT>  :
-       <DD> 0 . (<CODE>*ev</CODE> )
+       <DD> 0 。(<CODE>*ev</CODE> )
 </DL>
 
 <H4> / </H4>
@@ -3380,46 +3359,46 @@ WEVENT  *ev
 <DL>
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
     <DD><UL>
-         <LI>«»«». «»«». 
-         <LI>,  / . 
-         <LI><CODE>P_PRESS = 1</CODE> (  ) , 
-             ,  
-             (  ) , 
-             . 
-              <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> . 
+         <LI>「」「」。「」「」。
+         <LI>、 / 。
+         <LI><CODE>P_PRESS = 1</CODE> (  ) 、
+             、 
+             (  ) 、
+             。
+              <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> 。
 <PRE>
         ：0110 0000 0000 0000
 </PRE>
 <P>
-  прикладний додаток, 
-  ,  <CODE>cact_par()</CODE> . 
+  、
+  、 <CODE>cact_par()</CODE> 。
 </P>
-       <LI> <CODE>P_DCLICK = 0</CODE> (  ) , 
-             , 
-             <CODE>P_DCLICK = 1</CODE> , 
+       <LI> <CODE>P_DCLICK = 0</CODE> (  ) 、
+             、
+             <CODE>P_DCLICK = 1</CODE> 、
              
-             (, 2). 
-         <LI> ,  / , 
-             . 
+             (、2)。
+         <LI> 、 / 、
+             。
 <PRE>
         :010C 0000 0000 00DS
 
-                C = 0: . ()
-                  = 1: . ()
+                C = 0: 。()
+                  = 1: 。()
                 D = 1:  (P_DCLICK=1)
                 S = 1: 
-                (C=0, D,S0)
+                (C=0、D,S0)
 </PRE>
        <LI> <CODE>EV_BUTUP</CODE> 
-             ( <CODE>EV_BUTUP</CODE>, <CODE>EV_BUTDWN</CODE> ). 
+             ( <CODE>EV_BUTUP</CODE>, <CODE>EV_BUTDWN</CODE> )。
               <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE>
-             , 
-             . 
+             、
+             。
         </UL>
  <DT><CODE>EV_NULL</CODE>  :
- <DD>, <CODE>EV_BUTDWN</CODE> . 
+ <DD>、<CODE>EV_BUTDWN</CODE> 。
  <DT> :
- <DD> 0  ( <CODE>*ev</CODE> ). 
+ <DD> 0  ( <CODE>*ev</CODE> )。
 </DL>
 
 <H4></H4>
@@ -3427,26 +3406,26 @@ WEVENT  *ev
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
  <DD>
      <UL>
-      <LI> «»«». 
-      <LI> , . 
-      <LI> ,  / , . 
+      <LI> 「」「」。
+      <LI> 、。
+      <LI> 、 / 、。
 <PRE>
         :010C SSSS SSSS SSSS
 
                 C = 0: 
                   = 1: 
-                S    :  (, 0:)
+                S    :  (、0:)
 </PRE>
 <P>
-  4095, . 
+  4095、。
 </P>
-      <LI> <CODE>EV_BUTUP</CODE> . 
+      <LI> <CODE>EV_BUTUP</CODE> 。
             <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE>
-           , 
-           . 
+           、
+           。
      </UL>
  <DT> :
- <DD> 0 (<CODE>*ev</CODE> ). 
+ <DD> 0 (<CODE>*ev</CODE> )。
 </DL>
 
 <H4></H4>
@@ -3455,48 +3434,48 @@ WEVENT  *ev
  <DT><CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
 <DD>
  <UL>
-  <LI>«»«». 
+  <LI>「」「」。
   <LI> ( ev-&gt;e.pos ) 
-       (  ) , 
-      , 
-      . 
+       (  ) 、
+      、
+      。
   <LI> ( ev-&gt;e.pos ) 
-      Смуги прокрутки (Scrollbars), 
-      Смуги прокрутки (Scrollbars) ( , ,  ) , 
-      . 
-  <LI>, 
-      , Менеджер системних елементів (Parts Manager). 
-  <LI>, 
+      、
+       ( 、、 ) 、
+      。
+  <LI>、
+      、。
+  <LI>、
       ( - 1 ) 
-      Менеджер системних елементів (Parts Manager). 
-  <LI>, 
-       / , 
-      . 
+      。
+  <LI>、
+       / 、
+      。
 <PRE>
         :010C SSSS SSSS SSSS
 
-                C = 0: . 
-                  = 1: . 
-                S    :  (, 0:)
+                C = 0: 。
+                  = 1: 。
+                S    :  (、0:)
 </PRE>
 <P>
-   4095 , . 
+   4095 、。
 </P>
-  <LI> <CODE>EV_BUTUP</CODE> . 
+  <LI> <CODE>EV_BUTUP</CODE> 。
        
-      <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE> , 
-     . 
+      <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE> 、
+     。
 </UL>
     <DT> :
-    <DD> 0 (<CODE>*ev</CODE> ). 
+    <DD> 0 (<CODE>*ev</CODE> )。
   </DL>
 
 <P>
   【】
-   <CODE>cact_par()</CODE> , 
-   (  ) . 
-  , <KBD>[]</KBD>, 
-  прикладний додаток. 
+   <CODE>cact_par()</CODE> 、
+   (  ) 。
+  、<KBD>[]</KBD>、
+  。
 </P>
 
 <H4></H4>
@@ -3504,32 +3483,32 @@ WEVENT  *ev
  <DT> <CODE>EV_BUTDWN</CODE>  <CODE>EV_SWITCH</CODE>  :
  <DD>
       <UL>
-       <LI> «»«». 
+       <LI> 「」「」。
        <LI> 【】
             <P>
-             ( ev-&gt;e.pos )  (  ) , 
-            , 
-            ,  ( <CODE>clo, chi</CODE> ) / . 
-            , «», 
-            . 
-            , , 
-            «». 
+             ( ev-&gt;e.pos )  (  ) 、
+            、
+            、 ( <CODE>clo, chi</CODE> ) / 。
+            、「」、
+            。
+            、、
+            「」。
             </P>
     <LI> 【】
             <P>
-             ( ev-&gt;e.pos ) , 
-            , 
-            , . 
-             / . 
+             ( ev-&gt;e.pos ) 、
+            、
+            、。
+             / 。
             </P>
     <LI> 【】
             <P>
-            , , 
-            , 
-            , 
-            . 
+            、、
+            、
+            、
+            。
              <CODE>*ev</CODE> 
-            <CODE>EV_NULL</CODE> . 
+            <CODE>EV_NULL</CODE> 。
             </P>
 <PRE>
         :0110 0000 0000 00DD
@@ -3539,11 +3518,11 @@ WEVENT  *ev
                   = 3: P_RIGHT  --  
 </PRE>
 <P>
-  прикладний додаток, 
-  (<CODE>clo, chi</CODE>) , 
-   <CODE>cact_par()</CODE> . 
+  、
+  (<CODE>clo, chi</CODE>) 、
+   <CODE>cact_par()</CODE> 。
 </P>
-       <LI> , . 
+       <LI> 、。
 <PRE>
         :010C 0000 0000 SSDD
 
@@ -3558,20 +3537,18 @@ WEVENT  *ev
                   = 2: P_JUMP   -- 
 </PRE>
        <LI> <CODE>EV_BUTUP</CODE> 
-            ( <CODE>EV_BUTUP, EV_BUTDWN</CODE> ). 
+            ( <CODE>EV_BUTUP, EV_BUTDWN</CODE> )。
              <CODE>EV_KEYDWN, EV_KEYUP, EV_AUTKEY</CODE>
-            , 
-            . 
+            、
+            。
       </UL>
     <DT><CODE>EV_NULL</CODE>  :
-    <DD>, <CODE>EV_BUTDWN</CODE> . 
+    <DD>、<CODE>EV_BUTDWN</CODE> 。
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (ev). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cget_val</FONT></TD></TR>
@@ -3595,64 +3572,64 @@ W   *value
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> , 
-  <CODE>value</CODE> . <CODE>size</CODE> , <CODE>value</CODE>
-  (  ) . 
-   <CODE>value</CODE> , . 
+<P>
+  <CODE>pid</CODE> 、
+  <CODE>value</CODE> 。<CODE>size</CODE> 、<CODE>value</CODE>
+  (  ) 。
+   <CODE>value</CODE> 、。
 </P>
 
 <H4>／</H4>
 
 <UL>
- <LI> <CODE>(TC*) value</CODE> . 
-     <CODE>size</CODE>  (  ) , 
-      <CODE>( size - 1 )</CODE> , 
-      <CODE>TNULL</CODE> . 
-     . 
- <LI><CODE>size≦0</CODE>,  <CODE>value=NULL</CODE> , 
-     , . 
+ <LI> <CODE>(TC*) value</CODE> 。
+     <CODE>size</CODE>  (  ) 、
+      <CODE>( size - 1 )</CODE> 、
+      <CODE>TNULL</CODE> 。
+     。
+ <LI><CODE>size≦0</CODE>、 <CODE>value=NULL</CODE> 、
+     、。
 </UL>
 
 <H4></H4>
 
 <UL>
- <LI><CODE>cv</CODE> , <CODE>value</CODE> . 
-     <CODE>size</CODE> , 
-     ,  <CODE>size</CODE> . <BR>
-     (). 
+ <LI><CODE>cv</CODE> 、<CODE>value</CODE> 。
+     <CODE>size</CODE> 、
+     、 <CODE>size</CODE> 。<BR>
+     ()。
 <PRE>
         1  --  (32)
         2  --  (64)
 </PRE>
-    <LI><CODE>size ≦ 0</CODE>,  <CODE>value = NULL</CODE> , 
-     , . 
+    <LI><CODE>size ≦ 0</CODE>、 <CODE>value = NULL</CODE> 、
+     、。
 </UL>
 
 <H4></H4>
 
 <UL>
- <LI> <CODE>cv</CODE> , 
-     <CODE>value</CODE> . 
-     <CODE>size</CODE> , 
-     ,  <CODE>size</CODE> . 
-      (  ) . 
- <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE> , 
-     , . 
+ <LI> <CODE>cv</CODE> 、
+     <CODE>value</CODE> 。
+     <CODE>size</CODE> 、
+     、 <CODE>size</CODE> 。
+      (  ) 。
+ <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE> 、
+     、。
 </UL>
 
 <H4>／／</H4>
 <H4>／</H4>
 
 <UL>
- <LI>, <CODE>value</CODE> . 
-      1 , <CODE>size</CODE>  1 . 
-     . 
- <LI>,  0 . 
- <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE> , 
-     , . 
- <LI>, <CODE>size = 2,3</CODE> , 
-     <CODE>value</CODE> , . 
+ <LI>、<CODE>value</CODE> 。
+      1 、<CODE>size</CODE>  1 。
+     。
+ <LI>、 0 。
+ <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE> 、
+     、。
+ <LI>、<CODE>size = 2,3</CODE> 、
+     <CODE>value</CODE> 、。
 <PRE>
         value[0] :                                (size &gt; 0)
         value[1] :              (size &gt; 1)
@@ -3663,22 +3640,20 @@ W   *value
 <CODE></CODE>
 
 <UL>
- <LI><CODE>clo, chi, lo, hi</CODE> , 
-     <CODE>value</CODE> . 
-     <CODE>size</CODE> , 
-     , 
-      <CODE>size</CODE> . 
-     ,  ( = 4 ) . 
- <LI><CODE>size≦0</CODE>, 
-      <CODE>value = NULL</CODE> , 
-     ,  ( = 4 ) . 
+ <LI><CODE>clo, chi, lo, hi</CODE> 、
+     <CODE>value</CODE> 。
+     <CODE>size</CODE> 、
+     、
+      <CODE>size</CODE> 。
+     、 ( = 4 ) 。
+ <LI><CODE>size≦0</CODE>、
+      <CODE>value = NULL</CODE> 、
+     、 ( = 4 ) 。
 </UL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (value). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cset_val</FONT></TD></TR>
@@ -3702,87 +3677,87 @@ W   *value
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
   <PRE>pid</PRE>  
-  <PRE>*value</PRE> , 
-  «», . 
+  <PRE>*value</PRE> 、
+  「」、。
 </P>
 <P>
-  <CODE>size</CODE> , 
-  (  ) . 
-  , 
-  . 
+  <CODE>size</CODE> 、
+  (  ) 。
+  、
+  。
 </P>
 
 <H4>／</H4>
 
 <UL>
- <LI><CODE>value</CODE> . 
-     <CODE>size</CODE> . 
-      <CODE>TNULL</CODE> , 
-      <CODE>size</CODE> , 
-      ( <CODE>txsize</CODE> ) , 
+ <LI><CODE>value</CODE> 。
+     <CODE>size</CODE> 。
+      <CODE>TNULL</CODE> 、
+      <CODE>size</CODE> 、
+      ( <CODE>txsize</CODE> ) 、
       
-     (, <CODE>TNULL</CODE> )
-     . 
-    <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE> , 
-     ,  0 . 
+     (、<CODE>TNULL</CODE> )
+     。
+    <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE> 、
+     、 0 。
 </UL>
 
 <H4></H4>
 
 <UL>
- <LI><CODE>value</CODE>  <CODE>cv</CODE> . 
-     <CODE>size</CODE> W , 
-     1, 2. 
-     <CODE>size</CODE> , 
-      <CODE>value = NULL</CODE> , 
-     , 
-      0 . 
-      <CODE>size</CODE> . 
+ <LI><CODE>value</CODE>  <CODE>cv</CODE> 。
+     <CODE>size</CODE> W 、
+     1、2。
+     <CODE>size</CODE> 、
+      <CODE>value = NULL</CODE> 、
+     、
+      0 。
+      <CODE>size</CODE> 。
 </UL>
 
 <H4></H4>
 
 <UL>
- <LI><CODE>value</CODE>  <CODE>cv</CODE> . 
-     <CODE>size</CODE> W. 
-     <CODE>size</CODE> , 
-     , . 
-     , <CODE>size</CODE> 
-     (, ). 
- <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE>
-     , , 
-     0.  <CODE>size</CODE>
-     . 
+ <LI><CODE>value</CODE>  <CODE>cv</CODE> 。
+     <CODE>size</CODE> W。
+     <CODE>size</CODE> 、
+     、。
+     、<CODE>size</CODE> 
+     (、)。
+ <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE>
+     、、
+     0。 <CODE>size</CODE>
+     。
 </UL>
 
 <H4>／／</H4>
 <H4>／</H4>
 
 <UL>
- <LI><CODE>*value</CODE> . 
-     <CODE>size</CODE> W . 
-     , 1 . 
- <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE> , 
-     , 
-      0 .  <CODE>size</CODE> . 
- <LI> , . 
+ <LI><CODE>*value</CODE> 。
+     <CODE>size</CODE> W 。
+     、1 。
+ <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE> 、
+     、
+      0 。 <CODE>size</CODE> 。
+ <LI> 、。
      <UL>
-      <LI><CODE>size = 1</CODE> , <CODE>value[0]</CODE> , 
-          . 
-          , <CODE>P_NOSEL</CODE>  0 , 
-          . 
-      <LI><CODE>size = 2</CODE>, 
-          <CODE>value[0]</CODE> , 
-          <CODE>value[1]</CODE> . 
-          <CODE>value[1]</CODE> , 0 ,  -1 . 
-          <CODE>value[1]</CODE> , 
-           0 . 
-          ,  0 , <CODE>value[1]</CODE> , 
-          . 
-          , , 
-          . 
+      <LI><CODE>size = 1</CODE> 、<CODE>value[0]</CODE> 、
+          。
+          、<CODE>P_NOSEL</CODE>  0 、
+          。
+      <LI><CODE>size = 2</CODE>、
+          <CODE>value[0]</CODE> 、
+          <CODE>value[1]</CODE> 。
+          <CODE>value[1]</CODE> 、0 、 -1 。
+          <CODE>value[1]</CODE> 、
+           0 。
+          、 0 、<CODE>value[1]</CODE> 、
+          。
+          、、
+          。
      </UL>
 </UL>
 
@@ -3790,22 +3765,19 @@ W   *value
 
 <UL>
  <LI><CODE>value</CODE> <CODE>clo, chi, lo, hi</CODE>
-     . <CODE>size</CODE> W. 
-     <CODE>size</CODE> , 
-     , 
-     . 
-     , <CODE>size</CODE>  <CODE>clo, chi</CODE> . 
- <LI><CODE>size≦0</CODE>,  <CODE>value = NULL</CODE> , 
-     ,  0 . 
-      <CODE>size</CODE> . 
+     。<CODE>size</CODE> W。
+     <CODE>size</CODE> 、
+     、
+     。
+     、<CODE>size</CODE>  <CODE>clo, chi</CODE> 。
+ <LI><CODE>size≦0</CODE>、 <CODE>value = NULL</CODE> 、
+     、 0 。
+      <CODE>size</CODE> 。
 </UL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (value). 
-EX_PAR  : (). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cget_dat</FONT></TD></TR>
@@ -3834,9 +3806,9 @@ W   *par
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>pid</CODE> , 
-  <CODE>par</CODE> . 
-  , . 
+  <CODE>pid</CODE> 、
+  <CODE>par</CODE> 。
+  、。
 </P>
 
 <TABLE>
@@ -3853,14 +3825,14 @@ W   *par
   <TR><TD>                          </TD><TD><CODE>(W)     patnum</CODE></TD></TR>
 </TABLE>
 <P>
-<CODE>(TC*) fmt</CODE>  <CODE>(TC*) name</CODE> , 
-, . 
+<CODE>(TC*) fmt</CODE>  <CODE>(TC*) name</CODE> 、
+、。
 </P>
 
 <H4>【】</H4>
 <PRE>
-= 0 (E_OK) : Успішне виконання
-&lt; 0  : Помилка  (Помилка)
+= 0 (E_OK) : 
+&lt; 0  :   ()
 </PRE>
 
 
@@ -3887,10 +3859,10 @@ W   par    (PA_PARTS  W*)
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> , <CODE>par</CODE> , 
-  «». 
-  , . 
+<P>
+  <CODE>pid</CODE> 、<CODE>par</CODE> 、
+  「」。
+  、。
 </P>
 
 <TABLE>
@@ -3908,31 +3880,28 @@ W   par    (PA_PARTS  W*)
 </TABLE>
 
 <P>
-  <CODE>(TC*) fmt</CODE>  <CODE>(TC*) name</CODE> , 
-  . <CODE>fmt, name</CODE>
-  , 
-  <CODE>fmt, name</CODE> , 
-  <CODE>cset_dat()</CODE>. 
+  <CODE>(TC*) fmt</CODE>  <CODE>(TC*) name</CODE> 、
+  。<CODE>fmt, name</CODE>
+  、
+  <CODE>fmt, name</CODE> 、
+  <CODE>cset_dat()</CODE>。
 </P>
 <P>
-   <CODE>fmt</CODE>, 
-  . 
-  ,  <CODE>fmt</CODE> , 
-  , 
-  <CODE>EX_PAR</CODE> Помилка, 
-  <CODE>fmt</CODE>. 
+   <CODE>fmt</CODE>、
+  。
+  、 <CODE>fmt</CODE> 、
+  、
+  <CODE>EX_PAR</CODE> 、
+  <CODE>fmt</CODE>。
 </P>
 <H4>【】</H4>
 <PRE>
-= 0 (E_OK) : Успішне виконання
-&lt; 0  : Помилка  (Помилка)
+= 0 (E_OK) : 
+&lt; 0  :   ()
 </PRE>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_DNUM : (onpat,offpat,patnum). 
-EX_PAR  : . 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -3960,41 +3929,38 @@ TC  *buff
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE>  / , 
-  <CODE>buff</CODE> , . 
+<P>
+  <CODE>pid</CODE>  / 、
+  <CODE>buff</CODE> 、。
 </P>
 <P>
-  <CODE>size</CODE>  <CODE>buff</CODE> , 
-   <CODE>( size - 1 )</CODE>, 
-   <CODE>TNULL</CODE> . 
+  <CODE>size</CODE>  <CODE>buff</CODE> 、
+   <CODE>( size - 1 )</CODE>、
+   <CODE>TNULL</CODE> 。
 </P>
 <P>
-  , <CODE>buff</CODE> , 
-  , <CODE>*buff</CODE>  <CODE>TNULL</CODE> , 
-   0 . 
+  、<CODE>buff</CODE> 、
+  、<CODE>*buff</CODE>  <CODE>TNULL</CODE> 、
+   0 。
 </P>
 <P>
-  <CODE>cut = 0</CODE>, 
-  , 
-  <CODE>cut != 0</CODE> . 
+  <CODE>cut = 0</CODE>、
+  、
+  <CODE>cut != 0</CODE> 。
 </P>
 <P>
-  <CODE>buff = NULL</CODE> , , 
-  . 
-  , <CODE>cut</CODE> , . 
+  <CODE>buff = NULL</CODE> 、、
+  。
+  、<CODE>cut</CODE> 、。
 </P>
 <P>
-  , «», 
-  . 
+  、「」、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (buff). 
-EX_PAR  : (size ). 
-EX_PID  : (pid)(／). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cins_txt</FONT></TD></TR>
@@ -4021,33 +3987,30 @@ TC  *buff
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE>  /  <CODE>pos</CODE> , 
+<P>
+  <CODE>pid</CODE>  /  <CODE>pos</CODE> 、
   <CODE>buff</CODE> 
-  ( <CODE>TNULL</CODE>) , 
-  «», 
-  . 
+  ( <CODE>TNULL</CODE>) 、
+  「」、
+  。
 </P>
 <P>
-  <CODE>pos</CODE>  / . 
-  , , 
-  . . 
+  <CODE>pos</CODE>  / 。
+  、、
+  。。
 </P>
 <P>
-<CODE>pos</CODE>  <CODE>{0x8000, 0x8000}</CODE> , 
-<CODE>buff</CODE>. 
-, . 
+<CODE>pos</CODE>  <CODE>{0x8000, 0x8000}</CODE> 、
+<CODE>buff</CODE>。
+、。
 </P>
 <P>
-  , «», . 
+  、「」、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (buff). 
-EX_PAR  : (／). 
-EX_PID  : (pid)(／). 
-</PRE>
+</PRE>>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -4074,16 +4037,14 @@ RECT    *r
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> , 
-  <CODE>r</CODE> . 
-  , ／. 
+<P>
+  <CODE>pid</CODE> 、
+  <CODE>r</CODE> 。
+  、／。
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (r). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">cset_pos</FONT></TD></TR>
@@ -4109,22 +4070,19 @@ RECT    *r
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE>  <CODE>r</CODE> . 
-  , . 
-  <CODE>r</CODE> ,  / . 
+<P>
+  <CODE>pid</CODE>  <CODE>r</CODE> 。
+  、。 
+  <CODE>r</CODE> 、 / 。
 </P>
 <P>
-  «», , 
-  . 
+  「」、、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (r). 
-EX_PID  : (pid). 
-EX_PAR  : (). 
-</PRE>
+</PRE>>
 
 
 
@@ -4153,24 +4111,22 @@ W   *wid    ID
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> ／ID, 
-  <CODE>wid</CODE> , ／／
+<P>
+  <CODE>pid</CODE> ／ID、
+  <CODE>wid</CODE> 、／／
   (<A href="#ahs">79 ／／</A>)
-  . 
+  。
 </P>
 <P>
-  <CODE>wid=NULL</CODE> ,  / ID. 
+  <CODE>wid=NULL</CODE> 、 / ID。
 </P>
 <P>
-  ,  0 (). 
+  、 0 ()。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (wid). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 
 
@@ -4189,7 +4145,7 @@ ERR cchg_par(W pid, UW cmd)
 <H4>【Параметри】</H4>
 <PRE>
 W   pid     ID
-UW  cmd     cmd 4 (OR) . 
+UW  cmd     cmd 4 (OR) 。
 </PRE>
 
 <TABLE>
@@ -4205,19 +4161,17 @@ UW  cmd     cmd 4 (OR) .
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> , 
-  <CODE>cmd</CODE> . 
+<P>
+  <CODE>pid</CODE> 、
+  <CODE>cmd</CODE> 。
 </P>
 <P>
-  «», . 
+  「」、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR  : (cmd：P_EMPHASP_NORMAL). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 
 
@@ -4236,7 +4190,7 @@ ERR cchg_pwd(W wid, UW cmd)
 <H4>【Параметри】</H4>
 <PRE>
 W   wid ID
-W   cmd cchg_par() . 
+W   cmd cchg_par() 。
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -4245,20 +4199,18 @@ W   cmd cchg_par() .
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>wid</CODE> ／, 
-  <CODE>cmd</CODE> . 
-  , <CODE>P_SBAR = 1</CODE> , . 
+<P>
+  <CODE>wid</CODE> ／、
+  <CODE>cmd</CODE> 。
+  、<CODE>P_SBAR = 1</CODE> 、。
 </P>
 <P>
-«», . 
+「」、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR  : (cmd：P_EMPHASP_NORMAL). 
-EX_WID  : (wid). 
-</PRE>
+</PRE>>
 
 
 
@@ -4288,35 +4240,35 @@ PNT *pos
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>wid</CODE> ／. 
-  , <CODE>P_SBAR = 1</CODE> . 
-  , 
-  , . 
+<P>
+  <CODE>wid</CODE> ／。
+  、<CODE>P_SBAR = 1</CODE> 。
+  、
+  、。
 </P>
 <P>
-  <CODE>*pos</CODE> ,  <CODE>wid</CODE>
-  , 
-  . <CODE>pos = NULL</CODE> , 
-   1  /  <CODE>pos != NULL</CODE> , . 
+  <CODE>*pos</CODE> 、 <CODE>wid</CODE>
+  、
+  。<CODE>pos = NULL</CODE> 、
+   1  /  <CODE>pos != NULL</CODE> 、。
 </P>
 <P>
-  . 
+  。
 </P>
 <UL>
- <LI> «», . 
- <LI> , «», 
-      . «», . 
- <LI> Кнопки (Buttons), «», <CODE>pos</CODE>  <CODE>NULL</CODE>
-      , <CODE>pos</CODE> , 
-      («», «»«»). 
+ <LI> 「」、。
+ <LI> 、「」、
+      。「」、。
+ <LI> 、「」、<CODE>pos</CODE>  <CODE>NULL</CODE>
+      、<CODE>pos</CODE> 、
+      (「」、「」「」)。
 <PRE>
         ／
-            -- , «»
+            -- 、「」
         ／
-            -- «»
+            -- 「」
         
-            -- «»
+            -- 「」
         
             --  
 </PRE>
@@ -4324,18 +4276,16 @@ PNT *pos
 
 <DL compact>
  <DT>1: 
- <DD>Менеджер системних елементів (Parts Manager)
-     (, Менеджер системних елементів (Parts Manager), 
-     Кнопки (Buttons), <KBD>[]</KBD>)
+ <DD>
+     (、、
+     、<KBD>[]</KBD>)
  <DT>0:
- <DD>прикладний додаток
+ <DD>
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (pos). 
-EX_WID  : (wid). 
-</PRE>
+</PRE>>
 
 
 
@@ -4369,37 +4319,35 @@ WEVENT  *ev
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  <CODE>pid</CODE> . 
-  <CODE>*ev</CODE> . 
+<P>
+  <CODE>pid</CODE> 。
+  <CODE>*ev</CODE> 。
   
-  (, )
-  , 
-  <CODE>cact_par</CODE> функціонал / підсистема. 
+  (、)
+  、
+  <CODE>cact_par</CODE> 。
 </P>
 <P>
-  , 
-   <CODE>cact_par</CODE> , 
-  , <CODE>ev</CODE>  <CODE>EV_NULL</CODE> 
+  、
+   <CODE>cact_par</CODE> 、
+  、<CODE>ev</CODE>  <CODE>EV_NULL</CODE> 
   <CODE>P_EVENT</CODE> 
-  (, <CODE>P_EVENT</CODE>  <CODE>EV_NULL</CODE> ). 
-  , прикладний додаток <CODE>wget_evt</CODE> 
-  <CODE>cexe_par</CODE> (). 
-  , <CODE>P_EVENT</CODE> 
-  <CODE>EV_NULL</CODE> , <CODE>cact_par</CODE> , 
+  (、<CODE>P_EVENT</CODE>  <CODE>EV_NULL</CODE> )。
+  、 <CODE>wget_evt</CODE> 
+  <CODE>cexe_par</CODE> ()。
+  、<CODE>P_EVENT</CODE> 
+  <CODE>EV_NULL</CODE> 、<CODE>cact_par</CODE> 、
   <CODE>ev</CODE>  <CODE>EV_NULL</CODE> 
-  <CODE>cexe_par</CODE> . 
+  <CODE>cexe_par</CODE> 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR  : (ev). 
-EX_PID  : (pid). 
-</PRE>
+</PRE>>
 
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="menu.html">Попередня сторінка: 3.2 Менеджер меню (Повернутися)</A><BR>
-<A href="panel.html">Наступна сторінка: 3.4 Менеджер панелей (Перейти)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="menu.html">Попередня сторінка: 3.2  (Повернутися)</A><BR>
+<A href="panel.html">Наступна сторінка: 3.4  (Перейти)</A><BR>
 </BODY>
 </HTML>

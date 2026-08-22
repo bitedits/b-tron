@@ -2,117 +2,36 @@
 <HTML>
 <HEAD>
 <TITLE>
-  Розділ 3: Оболонка BTRON Shell (Shell Specification)
+  Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
-<LINK REL="previous" HREF="../dp/pointer_func.html">
 <LINK REL="next" HREF="window.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції вказівника та курсора (Повернутися)</A><BR>
-<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
+<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
 <HR>
 
-<H2><A name="afb">Розділ 3: Оболонка BTRON Shell (Shell Specification)</A></H2>
-
-<H3>Зміст розділу 3</H3>
+<H2>Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)</H2>
 
 <UL>
-  <LI><A href="window.html#afc">3.1 Менеджер вікон (Window Manager)</A>
-  <UL>
-    <LI><A href="window.html#afd">3.1.1 Огляд функцій менеджера вікон</A>
-    <LI><A href="window.html#afe">3.1.2 Ієрархія та типи вікон (Window Hierarchy & Types)</A>
-    <LI><A href="window.html#aff">3.1.3 Структура та операції над вікнами</A>
-    <LI><A href="window.html#afg">3.1.4 Відображення та стани вікон</A>
-    <LI><A href="window.html#afh">3.1.5 Робота з контекстом малювання вікна</A>
-    <LI><A href="window.html#afi">3.1.6 Визначення типів даних та констант</A>
-    <LI><A href="window.html#afj">3.1.7 Системні виклики менеджера вікон</A>
-  </UL>
-  <BR>
-
-  <LI><A href="menu.html#afk">3.2 Менеджер меню (Menu Manager)</A>
-  <UL>
-    <LI><A href="menu.html#afl">3.2.1 Огляд функцій менеджера меню</A>
-    <LI><A href="menu.html#afm">3.2.2 Меню першого рівня та випадаючі меню</A>
-    <LI><A href="menu.html#afn">3.2.3 Визначення типів даних та констант</A>
-    <LI><A href="menu.html#afo">3.2.4 Системні виклики менеджера меню</A>
-  </UL>
-  <BR>
-
-  <LI><A href="omgr.html#afp">3.3 Менеджер віртуальних об'єктів (VObject Manager)</A>
-  <UL>
-    <LI><A href="omgr.html#afq">3.3.1 Огляд концепції Реальних/Віртуальних об'єктів</A>
-    <LI><A href="omgr.html#afr">3.3.2 Дескриптори та посилання об'єктів</A>
-    <LI><A href="omgr.html#afs">3.3.3 Визначення типів даних та констант</A>
-    <LI><A href="omgr.html#aft">3.3.4 Системні виклики менеджера об'єктів</A>
-  </UL>
-  <BR>
-
-  <LI><A href="panel.html#afu">3.4 Менеджер панелей (Panel Manager)</A>
-  <UL>
-    <LI><A href="panel.html#afv">3.4.1 Огляд функцій системних панелей</A>
-    <LI><A href="panel.html#afw">3.4.2 Стандартні панелі діалогів та налаштувань</A>
-    <LI><A href="panel.html#afx">3.4.3 Системні виклики менеджера панелей</A>
-  </UL>
-  <BR>
-
-  <LI><A href="parts.html#afy">3.5 Менеджер системних елементів (Parts Manager)</A>
-  <UL>
-    <LI><A href="parts.html#afz">3.5.1 Кнопки, перемикачі, смуги прокрутки (Scrollbars)</A>
-    <LI><A href="parts.html#aga">3.5.2 Текстові поля та списки вибору</A>
-    <LI><A href="parts.html#agb">3.5.3 Системні виклики елементів інтерфейсу</A>
-  </UL>
-  <BR>
-
-  <LI><A href="tray.html#agc">3.6 Менеджер системного буфера обміну (Tray Manager)</A>
-  <UL>
-    <LI><A href="tray.html#agd">3.6.1 Операції обміну даними Copy / Cut / Paste</A>
-    <LI><A href="tray.html#age">3.6.2 Системні виклики буфера обміну</A>
-  </UL>
-  <BR>
-
-  <LI><A href="tip.html#agf">3.7 Менеджер текстового введення TRON (Text Input Processor / TIP)</A>
-  <UL>
-    <LI><A href="tip.html#agg">3.7.1 Введення багатомлинних символів TRON Code</A>
-    <LI><A href="tip.html#agh">3.7.2 Системні виклики обробника введення</A>
-  </UL>
-  <BR>
-
-  <LI><A href="font_mgr.html#agi">3.8 Менеджер шрифтів оболонки (Font Manager)</A>
-  <UL>
-    <LI><A href="font_mgr.html#agj">3.8.1 Кліп-шрифти, векторні та растрові шрифти TRON</A>
-    <LI><A href="font_mgr.html#agk">3.8.2 Системні виклики менеджера шрифтів</A>
-  </UL>
-  <BR>
-
-  <LI><A href="printmgr.html#agl">3.9 Менеджер друку (Print Manager)</A>
-  <UL>
-    <LI><A href="printmgr.html#agm">3.9.1 Формування та черга завдань друку</A>
-    <LI><A href="printmgr.html#agn">3.9.2 Системні виклики друку</A>
-  </UL>
-  <BR>
-
-  <LI><A href="data.html#ago">3.10 Загальні структури даних оболонки (Shell Shared Data)</A>
-  <UL>
-    <LI><A href="data.html#agp">3.10.1 Константи, кольори та шрифтові атрибути оболонки</A>
-  </UL>
-  <BR>
-
-  <LI><A href="tcpip.html#agq">3.11 Мережевий стек TCP/IP (Network Stack)</A>
-  <UL>
-    <LI><A href="tcpip.html#agr">3.11.1 Сокети, мережеві інтерфейси та протоколи BTRON</A>
-    <LI><A href="tcpip.html#ags">3.11.2 Системні виклики сокетів TCP/IP</A>
-  </UL>
+  <LI><A HREF="window.html">3.1 Менеджер вікон (Window Management)</A>
+  <LI><A HREF="panel.html">3.2 Менеджер панелей та діалогів (Panel & Dialog Management)</A>
+  <LI><A HREF="menu.html">3.3 Системні меню (Menu System)</A>
+  <LI><A HREF="omgr.html">3.4 Менеджер Реальних та Віртуальних об'єктів (Real/Virtual Object Manager)</A>
+  <LI><A HREF="parts.html">3.5 Елементи інтерфейсу та віджети (GUI Control Parts)</A>
+  <LI><A HREF="data.html">3.6 Буфер обміну та взаємообмін даними (Data Exchange & Clipboard)</A>
+  <LI><A HREF="font_mgr.html">3.7 Менеджер шрифтів (Font Manager)</A>
+  <LI><A HREF="printmgr.html">3.8 Підсистема друку (Print Manager)</A>
+  <LI><A HREF="tip.html">3.9 Метод введення TRON (Input Process FEP)</A>
+  <LI><A HREF="tray.html">3.10 Системний трей та сповіщення (System Tray & Notifications)</A>
+  <LI><A HREF="tcpip.html">3.11 Менеджер мережі та TCP/IP (Network Integration)</A>
 </UL>
 
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції вказівника та курсора (Повернутися)</A><BR>
-<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
+<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
 </BODY>
 </HTML>

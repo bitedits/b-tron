@@ -10,66 +10,66 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="panel.html">Попередня сторінка: 3.4 Менеджер панелей (Повернутися)</A><BR>
-<A href="data.html">:3.6 </A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="panel.html">Попередня сторінка: 3.4  (Повернутися)</A><BR>
+<A href="data.html">Наступна сторінка: 3.6  (Перейти)</A><BR>
 <HR>
 
 <H2><A name="ajo">3.5 </A></H2>
 
-<H3><A name="ajp">3.5.1 функціонал / підсистема</A></H3>
+<H3><A name="ajp">3.5.1 </A></H3>
 
 <H4><A name="ajq">3.5.1.1 </A></H4>
 
 <P>
-  1, 
-   / «», «», 
-  «»«», 
-  функціонал / підсистема. 
+  1、
+   / 「」、「」、
+  「」「」、
+  。
 </P>
 <P>
-  ,  / 
-  «», функціонал / підсистема. 
+  、 / 
+  「」、。
 </P>
 <P>
-  , 
-  . 
+  、
+  。
 </P>
 <P>
-  прикладний додаток, . 
-  , прикладний додаток. 
+  、。
+  、。
 </P>
 
 <H4><A name="ajr">3.5.1.2 </A></H4>
 
 <P>
-  , 1«», 
-  «»«», 
-  «»«». 
+  、1「」、
+  「」「」、
+  「」「」。
 </P>
 <P>
-  «／»(, ), 
-  «／», (, ). 
+  「／」(、)、
+  「／」、(、)。
 </P>
 <P>
-  , 
-  , 
-  . 
-  , ()&quot;1&quot;. 
+  、
+  、
+  。
+  、()&quot;1&quot;。
 </P>
 <P>
-  , «», 
-  . 
-  , , 
-  , 
-   5  (  10  ) . 
+  、「」、
+  。
+  、、
+  、
+   5  (  10  ) 。
 </P>
 <P>
-  , , 
-  . 
+  、、
+  。
 </P>
 
 <A name="ajs">
@@ -78,38 +78,38 @@
 <CENTER> 102 : </CENTER>
 
 <P>
-  , ／, 
-  1／. , . 
+  、／、
+  1／。、。
 </P>
 <P>
-  1, 
-  . 
-  , . 
+  1、
+  。
+  、。
 </P>
 
 <H4><A name="ajt">3.5.1.3 </A></H4>
 
 <P>
-  прикладний додаток, , 
-  . 
+  、、
+  。
 </P>
 <P>
-  , , 
-  . 
+  、、
+  。
 </P>
 <P>
-  1, TAD
-  , TAD . 
-  TAD , 
+  1、TAD
+  、TAD 。
+  TAD 、
    1  TAD  1
-  . 
-  , , 
-  , 
-  1. 
-  , 1  TAD . 
+  。
+  、、
+  、
+  1。
+  、1  TAD 。
 </P>
 <P>
-1 , . 
+1 、。
 </P>
 
 <PRE>
@@ -121,26 +121,26 @@
 </PRE>
 
 <P>
-  , TAD ID, 
-   0x80〜0xFD (, 
-  «<a href="../../shared_data/tad1.html">3 TAD</A>»
-  ). 
+  、TAD ID、
+   0x80〜0xFD (、
+  「<a href="../../shared_data/tad1.html">3 TAD</A>」
+  )。
 </P>
 <P>
-  , , TAD
-  ID. 
+  、、TAD
+  ID。
 </P>
 
 <DL>
- <DT>Віртуальний об'єкт (Virtual Object) (<CODE>TR_VOBJ (=0x1)</CODE>)：
- <DD>Віртуальний об'єкт (Virtual Object), , Віртуальний об'єкт (Virtual Object)
-     . TADВіртуальний об'єкт (Virtual Object)
-     , Віртуальний об'єкт (Virtual Object). (
-     «<A href="omgr.html">3.8 Реальний об'єкт (Real Object)／Віртуальний об'єкт (Virtual Object)</A>». )
+ <DT> (<CODE>TR_VOBJ (=0x1)</CODE>)：
+ <DD>、、
+     。TAD
+     、。(
+     「<A href="omgr.html">3.8 ／</A>」。)
 <PRE>
         typedef struct {
             VLINK   vlnk;   -- 
-            VOBJSEG vseg;   -- Віртуальний об'єкт (Virtual Object)
+            VOBJSEG vseg;   -- 
         } TR_VOBJREC;
 </PRE>
  <DT> (<CODE>TR_TEXT (=0x2)</CODE>)：
@@ -150,15 +150,15 @@
 </DL>
 
 <P>
-   1  TAD , 
-  . 
+   1  TAD 、
+  。
 </P>
 
 <DL>
  <DT> (<CODE>TR_CONT (=0x4000)</CODE>):
- <DD>. 
+ <DD>。
      <BLOCKQUOTE>
-      ：  1, . 
+      ：  1、。
       <PRE>
                ： TS_IMAGE＋TR_CONT (＝0x40E5)
       2        ： TS_IMAGE＋TR_CONT (＝0x40E5)
@@ -169,18 +169,18 @@
 </DL>
 
 <P>
-  , TAD , ID, 
-  . 
-  , (<CODE>TR_TEXT</CODE>)
-  (<CODE>TR_FIG</CODE>), ID, 
-  TAD. 
+  、TAD 、ID、
+  。
+  、(<CODE>TR_TEXT</CODE>)
+  (<CODE>TR_FIG</CODE>)、ID、
+  TAD。
 </P>
 <P>
-  TAD, «»«», 
-  , «»«»«», 
-  «»«». 
-  « / ». 
-  , «». 
+  TAD、「」「」、
+  、「」「」「」、
+  「」「」。
+  「 / 」。
+  、「」。
 </P>
 
 <A name="aju">
@@ -189,9 +189,9 @@
 <CENTER> 103 : </CENTER>
 
 <P>
-  , 
-  <CODE>TRAYREC</CODE> , 
-  (). 
+  、
+  <CODE>TRAYREC</CODE> 、
+  ()。
 </P>
 
 <A name="ajv">
@@ -200,26 +200,26 @@
 <CENTER> 104 : ／</CENTER>
 
 <P>
-  , 
-   3 . 
+  、
+   3 。
 </P>
 
 <DL>
  <DT>(1) 
- <DD>, 
-   <CODE>TRAYREC</CODE> , 
-  . 
+ <DD>、
+   <CODE>TRAYREC</CODE> 、
+  。
  <DT>(2) 
- <DD>, <CODE>TRAYREC</CODE> , 
-  . 
-  , <CODE>TRAYREC</CODE> 
-  (<CODE>dt</CODE>). 
+ <DD>、<CODE>TRAYREC</CODE> 、
+  。
+  、<CODE>TRAYREC</CODE> 
+  (<CODE>dt</CODE>)。
  <DT>(3) 
- <DD>, 
-  . 
+ <DD>、
+  。
   &quot;1&quot;
-  <CODE>TRAYREC</CODE> . 
-  , . 
+  <CODE>TRAYREC</CODE> 。
+  、。
 </DL>
 
 <A name="ajw">
@@ -238,43 +238,43 @@
 <CENTER> 107 : ／((3))</CENTER>
 
 <P>
-  ,  12  ( <CODE>TCODE</CODE> )
-  . 
-  прикладний додаток. 
-  , , . 
+  、  12  ( <CODE>TCODE</CODE> )
+  。
+  。
+  、、。
 </P>
 
 <H4><A name="ajz">3.5.1.4 </A></H4>
 
 <P>
-  , 1. 
-  , 
-  . 
-  , . 
+  、1。
+  、
+  。
+  、。
 </P>
 <P>
-  , 
-  , 
-  , 
-  . 
+  、
+  、
+  、
+  。
 </P>
 <P>
-  , «», . , «»1. 
+  、「」、。、「」1。
 </P>
 <P>
-  . 
+  。
 </P>
 <UL>
-    <LI>. . 
-    <LI>. 
-    <LI>. . 
-    <LI>. 
-    <LI>. 
+    <LI>。。
+    <LI>。
+    <LI>。。
+    <LI>。
+    <LI>。
 </UL>
 
 <P>
-  , 1. 
-  «»«». 
+  、1。
+  「」「」。
 </P>
 
 <H3><A name="aka">3.5.2 ／</A></H3>
@@ -282,25 +282,25 @@
 <H4>□ </H4>
 
 <PRE>
-#define TR_VOBJ 0x1     /* Віртуальний об'єкт (Virtual Object) */
+#define TR_VOBJ 0x1     /*  */
 #define TR_TEXT 0x2     /*  */
 #define TR_FIG  0x3     /*  */
 #define TR_CONT 0x4000  /*  */
 </PRE>
 
 <DL>
- <DT>Віртуальний об'єкт (Virtual Object) (<CODE>TR_VOBJ (=0x1)</CODE>)：
- <DD>Віртуальний об'єкт (Virtual Object), , Віртуальний об'єкт (Virtual Object) TR_VOBJREC. TADВіртуальний об'єкт (Virtual Object), Віртуальний об'єкт (Virtual Object). 
+ <DT> (<CODE>TR_VOBJ (=0x1)</CODE>)：
+ <DD>、、 TR_VOBJREC。TAD、。
  <DT> (<CODE>TR_TEXT (=0x2)</CODE>)：
  <DD>
  <DT> (<CODE>TR_FIG  (=0x3)</CODE>)：
  <DD>
  <DT> (<CODE>TR_CONT (=0x4000)</CODE>):
- <DD>. 
+ <DD>。
 </DL>
 
 <P>
-  (<CODE>TS_xxx</CODE>), TAD. 
+  (<CODE>TS_xxx</CODE>)、TAD。
 </P>
 
 <H4>□ </H4>
@@ -313,37 +313,37 @@ typedef struct {
 } TRAYREC;
 </PRE>
 
-<H4>□ Віртуальний об'єкт (Virtual Object)</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct {
     TC  fs_name[20];/*  */
     UH  f_id;       /* ID */
-    UH  attr;       /* Віртуальний об'єкт (Virtual Object)／ */
+    UH  attr;       /* ／ */
     UH  rel;        /*  */
-    UH  appl[3];    /* прикладний додатокID */
+    UH  appl[3];    /* ID */
 } VLINK;
 </PRE>
 
 <PRE>
 typedef struct {
     VLINK   vlnk;       /*  */
-    VOBJSEG vseg;       /* Віртуальний об'єкт (Virtual Object) */
+    VOBJSEG vseg;       /*  */
 } TR_VOBJREC;
 </PRE>
 
 <P>
-  , TAD , ID，. 
-  , (TR_TEXT)(TR_FIG), ID，
-  TAD. 
+  、TAD 、ID，。
+  、(TR_TEXT)(TR_FIG)、ID，
+  TAD。
 </P>
 <P>
-  TAD , «»«», 
-  , «»«»
-  «», 
-  «»«». 
-  «／». 
-  , «». 
+  TAD 、「」「」、
+  、「」「」
+  「」、
+  「」「」。
+  「／」。
+  、「」。
 </P>
 
 <PRE>
@@ -359,61 +359,61 @@ typedef struct {
           :  :                            :  :
     {}            {}
 
-                { }. 
+                { }。
 </PRE>
 
 <P>
-  , 
-  <CODE>TRAYREC</CODE> , 
-  (). 
+  、
+  <CODE>TRAYREC</CODE> 、
+  ()。
 </P>
 <P>
-  , 
-   3 . 
+  、
+   3 。
 </P>
 
 <DL>
  <DT>(1) 
- <DD>,  <CODE>TRAYREC</CODE>, 
-     . 
+ <DD>、 <CODE>TRAYREC</CODE>、 
+     。
  <DT>(2) 
- <DD>, <CODE>TRAYREC</CODE> , 
-     . 
-     , <CODE>TRAYREC</CODE> ( <CODE>dt</CODE> ). 
+ <DD>、<CODE>TRAYREC</CODE> 、
+     。
+     、<CODE>TRAYREC</CODE> ( <CODE>dt</CODE> )。
  <DT>(3) 
- <DD>, . 
-     &quot;1&quot; <CODE>TRAYREC</CODE> . 
-     , . 
+ <DD>、。
+     &quot;1&quot; <CODE>TRAYREC</CODE> 。
+     、。
 </DL>
 
 <P>
-  , 12(TC). 
-  прикладний додаток. 
-  , , . 
+  、 12(TC)。
+  。
+  、、。
 </P>
 <P>
-  , 1. , . , . 
+  、1。、。、。
 </P>
 <P>
-  , , , . 
+  、、、。
 </P>
 <P>
-  , «», . , «»1. 
+  、「」、。、「」1。
 </P>
 <P>
-  . 
+  。
 </P>
 
 <UL>
-    <LI>. . 
-    <LI>. 
-    <LI>. . 
-    <LI>. 
-    <LI>. 
+    <LI>。。
+    <LI>。
+    <LI>。。
+    <LI>。
+    <LI>。
 </UL>
 
 <P>
-  , 1. «»«». 
+  、1。「」「」。
 </P>
 
 <H3><A name="akb">3.5.3 </A></H3>
@@ -441,21 +441,23 @@ ERR topn_tra(void)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , 
-  . , . 
+<P>
+  、
+  。、。
 </P>
 <P>
-  . 
+  。
 </P>
 <P>
-  , , 
-  прикладний додаток. 
+  、、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_NOSPC    : . 
+
+EX_NOSPC    : 。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -482,17 +484,19 @@ ERR tcls_tra(void)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  . 
+<P>
+  。
 </P>
 <P>
-  , , 
-  прикладний додаток. 
+  、、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : . 
+
+EX_TRAY     : 。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -520,24 +524,26 @@ TC      *name
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
- data  <CODE>nrec</CODE> , 
-«». . 
+<P>
+ data  <CODE>nrec</CODE> 、
+「」。。
 </P>
 <P>
-<CODE>name</CODE> , 
-12(TC). , <CODE>name = NULL</CODE> . 
+<CODE>name</CODE> 、
+12(TC)。、<CODE>name = NULL</CODE> 。
 </P>
 <P>
-, , . 
+、、。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (data,name). 
-EX_NOSPC    : (). 
-EX_PAR      : (nrec≦0, ). 
-EX_TRAY     : . 
+
+EX_ADR      : (data,name)。
+EX_NOSPC    : ()。
+EX_PAR      : (nrec≦0、)。
+EX_TRAY     : 。
+
 </PRE>
 
 
@@ -572,39 +578,41 @@ TC      *name
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , 
-  <CODE>rec</CODE> , <CODE>data</CODE>  <CODE>size</CODE> . 
+<P>
+  、
+  <CODE>rec</CODE> 、<CODE>data</CODE>  <CODE>size</CODE> 。
 </P>
 <P>
-   <CODE>size</CODE> , <CODE>size</CODE> , 
-  <CODE>EX_PAR</CODE> Помилка. <CODE>data = NULL</CODE> , 
-  <CODE>size</CODE> , . 
-   <CODE>*a_size</CODE> . 
-  , <CODE>rec &lt; 0, data = NULL</CODE> , 
-  . 
+   <CODE>size</CODE> 、<CODE>size</CODE> 、
+  <CODE>EX_PAR</CODE> 。<CODE>data = NULL</CODE> 、
+  <CODE>size</CODE> 、。
+   <CODE>*a_size</CODE> 。
+  、<CODE>rec &lt; 0, data = NULL</CODE> 、
+  。
 </P>
 <P>
-  , , 
-. <CODE>name</CODE> , 12 + 1(TC) (  TNULL  ) . <CODE>name = NULL</CODE> , . 
+  、、
+。<CODE>name</CODE> 、12 + 1(TC) (  TNULL  ) 。<CODE>name = NULL</CODE> 、。
 </P>
 <P>
-,  /  ( <CODE>rec</CODE> ≦ 0 ) 
-, ,  
-( <CODE>rec</CODE> ＞ 0 ) , . , <CODE>EX_PAR</CODE> Помилка, <CODE>*a_size</CODE>  &quot;0&quot; . 
+、 /  ( <CODE>rec</CODE> ≦ 0 ) 
+、、 
+( <CODE>rec</CODE> ＞ 0 ) 、。、<CODE>EX_PAR</CODE> 、<CODE>*a_size</CODE>  &quot;0&quot; 。
 </P>
 <P>
-, , 
-<CODE>*a_size</CODE>  &quot;0&quot; , 
- &quot;0&quot; . 
+、、
+<CODE>*a_size</CODE>  &quot;0&quot; 、
+ &quot;0&quot; 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (data,a_size,name). 
+
+EX_ADR      : (data,a_size,name)。
 EX_PAR      : 
-              (size≦0, , rec). 
-EX_TRAY     : . 
+              (size≦0、、rec)。
+EX_TRAY     : 。
+
 </PRE>
 
 
@@ -624,24 +632,26 @@ W   tdel_dat(void)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0   Успішне виконання(«»)
+≧0   (「」)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  «». 
-  «». 
-  (), 
-  ()«». 
+<P>
+  「」。
+  「」。
+  ()、
+  ()「」。
 </P>
 <P>
-, «» ( &gt; 0 ) , 
-,  &quot;0&quot; . 
+、「」 ( &gt; 0 ) 、
+、 &quot;0&quot; 。
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : . 
+
+EX_TRAY     : 。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -661,29 +671,31 @@ W   pos
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(«»)
+>= 0     Успішне виконання(「」)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-, <CODE>pos</CODE> «». 
-«»«», 
-«» ( &gt; 0 ) . 
+<P>
+、<CODE>pos</CODE> 「」。
+「」「」、
+「」 ( &gt; 0 ) 。
 </P>
 <P>
-<CODE>pos</CODE> ,  &quot;1&quot; , 
-<CODE>pos</CODE> , 
-«».  <CODE>pos ≦ 0</CODE> , 
-«»«». 
+<CODE>pos</CODE> 、 &quot;1&quot; 、
+<CODE>pos</CODE> 、
+「」。 <CODE>pos ≦ 0</CODE> 、
+「」「」。
 </P>
 <P>
-,  &quot;0&quot; . 
+、 &quot;0&quot; 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : . 
+
+EX_TRAY     : 。
+
 </PRE>
 
 
@@ -706,31 +718,33 @@ W   pos
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(«»)
+>= 0     Успішне виконання(「」)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  «» <CODE>pos</CODE>
-  . 
-  «». 
+<P>
+  「」 <CODE>pos</CODE>
+  。
+  「」。
 </P>
 <P>
-  <CODE>pos</CODE> ≦ 1 , 
-  <CODE>pos</CODE> , 
-  . 
+  <CODE>pos</CODE> ≦ 1 、
+  <CODE>pos</CODE> 、
+  。
 </P>
 <P>
   
-  ( &gt; 0 ) , 
-  , 
-   &quot;0&quot; . 
+  ( &gt; 0 ) 、
+  、
+   &quot;0&quot; 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-  EX_TRAY     : . 
+
+  EX_TRAY     : 。
+
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -758,21 +772,23 @@ UW  *rsize
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , 
-  , <CODE>size</CODE> . 
+<P>
+  、
+  、<CODE>size</CODE> 。
    rsize 
-  (). 
+  ()。
 </P>
 <P>
   <CODE>size, rsize</CODE>  <CODE>NULL</CODE>
-  . 
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (size,rsize). 
-EX_TRAY     : . 
+
+EX_ADR      : (size,rsize)。
+EX_TRAY     : 。
+
 </PRE>
 
 
@@ -802,24 +818,26 @@ W       nrec
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+<P>
    <CODE>data</CODE> 
-  <CODE>nrec</CODE> . 
-  . 
+  <CODE>nrec</CODE> 。
+  。
 </P>
 <P>
-  <CODE>nrec = 0</CODE> , 
-  . 
-  , <CODE>data</CODE> , 
-  . 
+  <CODE>nrec = 0</CODE> 、
+  。
+  、<CODE>data</CODE> 、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (data). 
-EX_NOSPC    : (). 
+
+EX_ADR      : (data)。
+EX_NOSPC    : ()。
 EX_PAR      : 
-              (nrec &lt; 0, ). 
+              (nrec &lt; 0、)。
+
 </PRE>
 
 
@@ -852,48 +870,50 @@ W   rec
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
-  , 
-  <CODE>rec</CODE> , 
+<P>
+  、
+  <CODE>rec</CODE> 、
   <CODE>data</CODE> 
-  <CODE>size</CODE> . 
+  <CODE>size</CODE> 。
 </P>
 <P>
-   <CODE>size</CODE> , 
-  <CODE>size</CODE> , <CODE>EX_PAR</CODE>
-  Помилка. <CODE>data = NULL</CODE> , 
-  <CODE>size</CODE> , 
-  . 
+   <CODE>size</CODE> 、
+  <CODE>size</CODE> 、<CODE>EX_PAR</CODE>
+  。<CODE>data = NULL</CODE> 、
+  <CODE>size</CODE> 、
+  。
    <CODE>*a_size</CODE>
-  . 
-  , <CODE>rec &lt; 0, data = NULL</CODE>
-  , . 
+  。
+  、<CODE>rec &lt; 0, data = NULL</CODE>
+  、。
 </P>
 <P>
-  , . 
+  、。
 </P>
 <P>
-  , ／
-  ( <CODE>rec</CODE> ≦ 0 ), 
-  , ( <CODE>rec</CODE> &gt; 0 )
-  , . 
-  , 
-  <CODE>EX_PAR</CODE> Помилка, <CODE>*a_size</CODE> 
-  &quot;0&quot; . 
-  , , 
-  <CODE>*a_size</CODE>  <CODE>&quot;0&quot;</CODE> , 
-   <CODE>&quot;0&quot;</CODE> . 
+  、／
+  ( <CODE>rec</CODE> ≦ 0 )、
+  、( <CODE>rec</CODE> &gt; 0 )
+  、。
+  、
+  <CODE>EX_PAR</CODE> 、<CODE>*a_size</CODE> 
+  &quot;0&quot; 。
+  、、
+  <CODE>*a_size</CODE>  <CODE>&quot;0&quot;</CODE> 、
+   <CODE>&quot;0&quot;</CODE> 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : (data,a_size). 
+
+EX_ADR      : (data,a_size)。
 EX_PAR      : 
-              (size≦0, , rec). 
+              (size≦0、、rec)。
+
 </PRE>
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="panel.html">Попередня сторінка: 3.4 Менеджер панелей (Повернутися)</A><BR>
-<A href="data.html">:3.6 </A><BR>
+<A href="../index.html">Повернутися до змісту розділу Графічної оболонки</A><BR>
+<A href="panel.html">Попередня сторінка: 3.4  (Повернутися)</A><BR>
+<A href="data.html">Наступна сторінка: 3.6  (Перейти)</A><BR>
 </BODY>
 </HTML>
