@@ -192,3 +192,7 @@ WND* find_wnd_at(H x, H y) {
     }
     return NULL;
 }
+
+WND* get_top_wnd(void) {
+    return g_wnd_head;
+}

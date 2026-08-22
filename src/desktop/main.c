@@ -3,6 +3,7 @@
  */
 
 #include <btron/btron.h>
+#include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,10 +15,40 @@ extern WND* open_gterm_window(void);
 extern BOOL init_sdl_backend(H width, H height, const char *title);
 extern void flush_gdev_to_sdl(GDEV *dev);
 extern void shutdown_sdl_backend(void);
+extern void raise_sdl_window(void);
+
+#include <termios.h>
+#include <unistd.h>
+
+static struct termios g_orig_termios;
+static BOOL g_termios_saved = FALSE;
+
+static void restore_terminal_tty(void) {
+    if (g_termios_saved) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &g_orig_termios);
+    }
+}
+
+static void set_terminal_raw_tty(void) {
+    if (isatty(STDIN_FILENO)) {
+        if (tcgetattr(STDIN_FILENO, &g_orig_termios) == 0) {
+            g_termios_saved = TRUE;
+            atexit(restore_terminal_tty);
+
+            struct termios raw = g_orig_termios;
+            raw.c_lflag &= ~(ECHO | ICANON | ISIG);
+            raw.c_cc[VMIN] = 0;
+            raw.c_cc[VTIME] = 0;
+            tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+        }
+    }
+}
 
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
+
+    set_terminal_raw_tty();
 
     H screen_w = 1024;
     H screen_h = 768;
@@ -55,11 +86,12 @@ int main(int argc, char **argv) {
     open_gterm_window();
 
     while (running) {
-        /* Poll and process system events */
-        if (get_evt(&ev, 16) == E_OK) {
+        /* Poll and process all pending system events */
+        while (get_evt(&ev, 0) == E_OK) {
             if (ev.type == EV_WND_CLOSE) {
                 running = FALSE;
             } else if (ev.type == EV_BUT_DOWN) {
+                raise_sdl_window();
                 WND *clicked = find_wnd_at(ev.pos.x, ev.pos.y);
                 if (clicked) {
                     top_wnd(clicked);
@@ -91,6 +123,18 @@ int main(int argc, char **argv) {
                 drag_wnd = NULL;
             } else if (ev.type == EV_MOUSE_MOVE && dragging && drag_wnd) {
                 mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
+            } else if (ev.type == EV_KEY_DOWN) {
+                WND *top = get_top_wnd();
+                printf("[TRACE-MAIN] KEY_DOWN ev.key=%u ('%c') data=%ld -> top_wnd=%s (id=%d, handler=%p)\n",
+                       (unsigned)ev.key, (ev.key >= 32 && ev.key <= 126) ? (char)ev.key : '?',
+                       (long)(uintptr_t)ev.data,
+                       top ? top->title : "NULL",
+                       top ? (int)top->id : 0,
+                       top ? (void*)top->event_handler : NULL);
+                fflush(stdout);
+                if (top && top->event_handler) {
+                    top->event_handler(top, &ev);
+                }
             }
         }
 
@@ -101,6 +145,7 @@ int main(int argc, char **argv) {
 
         /* Flush composite buffer to SDL window */
         flush_gdev_to_sdl(screen_dev);
+        SDL_Delay(16);
     }
 
     printf("[B-TRON] Shutting down B-TRON Retro OS Environment.\n");

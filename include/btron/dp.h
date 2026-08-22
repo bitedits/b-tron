@@ -28,8 +28,9 @@ extern "C" {
 #define COLOR_LTGRAY    0xC0C0C0FF
 #define COLOR_TEAL      0x008080FF   /* Classic BTRON Desktop Background */
 #define COLOR_NAVY      0x000080FF   /* Active Title Bar */
-#define COLOR_YELLOW    #FFFF00FF
+#define COLOR_YELLOW    0xFFFF00FF
 #define COLOR_RED       0xFF0000FF
+#define COLOR_GREEN     0x00FF00FF
 #define COLOR_CYAN      0x00FFFFFF
 
 typedef struct {

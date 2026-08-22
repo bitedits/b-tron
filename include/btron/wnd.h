@@ -46,6 +46,7 @@ ER   inval_wnd(WND *wnd);
 
 void redraw_all_windows(void);
 WND* find_wnd_at(H x, H y);
+WND* get_top_wnd(void);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Darwin)
     SDL_CFLAGS := $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/local/include/SDL2")
-    SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") -lpthread
+    SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") -lpthread -framework ApplicationServices -framework Cocoa
 else ifeq ($(UNAME_S), Linux)
     SDL_CFLAGS := $(shell sdl2-config --cflags 2>/dev/null || pkg-config --cflags sdl2 2>/dev/null || echo "-I/usr/include/SDL2")
     SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") -lm -lpthread
