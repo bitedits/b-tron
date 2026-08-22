@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.2 Повідомлення (Message)管理
+  1.2 Система повідомлень (Message Passing)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="proc.html">
@@ -14,32 +14,23 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="proc.html">Попередня сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Повернутися)</A><BR>
-<A href="taskcomm.html">Наступна сторінка: 1.3 Процес (Process)/Задача (Task)間同期通信管理 (Перейти)</A><BR>
+<A href="proc.html">Попередня сторінка: 1.1 Управління процесами та задачами (Повернутися)</A><BR>
+<A href="taskcomm.html">Наступна сторінка: 1.3 Міжзадачна комунізація та синхронізація (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aap">1.2 Повідомлення (Message)管理</A></H2>
+<H2><A name="aap">1.2 Система повідомлень (Message Passing)</A></H2>
 
-<H3><A name="aaq">1.2.1 Процес (Process)間Повідомлення (Message)</A></H3>
+<H3><A name="aaq">1.2.1 Повідомлення між процесами (Inter-Process Messages)</A></H3>
 
 <P>
-  Процес (Process)  Повідомлення (Message)キュー 付属しており, 
-  こ Повідомлення (Message)キュー 経由してПроцес (Process)間Повідомлення (Message)通信 行なわれる. 
-  こ 機能 , Процес (Process)間  додатокПовідомлення (Message) 通信だけ  なく, 
-  子Процес (Process) 終了Повідомлення (Message)等 Система (System)  用途  також 使用される. 
-  こ ため, いくつか Повідомлення (Message) Формат / Синтаксис Система (System) 定義されている. 
+  Кожен процес у системі BTRON має власну чергу повідомлень (Message Queue), через яку здійснюється міжпроцесна комунікація. Цей механізм використовується як для обміну даними між прикладними програмами, так і для системних сповіщень ядра (наприклад, повідомлень про завершення дочірніх процесів). З цієї причини основні формати системних повідомлень чітко регламентовані специфікацією.
 </P>
 
 <P>
-  Повідомлення (Message) , Процес (Process) 付属しているПовідомлення (Message)キュー 送られ, 
-  送信先 そ Процес (Process) ID  より指定される. 
-  また送信元 також 送信Процес (Process) Процес (Process) ID  より識別される. 
+  Повідомлення відправляються в чергу цільового процесу за його ідентифікатором (PID). Ідентифікатор відправника також фіксується у системних метаданих.
 </P>
 <P>
-  1 つ Повідомлення (Message) 以下 構造 持ち, <CODE>msg_type</CODE>  より 1 〜 31   31 種 Тип (Type) 分けられている. 
-  さら 各Тип (Type) ビット対応したТип (Type)マスク より, 
-  Повідомлення (Message) 受信 / クリア おいて, 対象 та するПовідомлення (Message) Тип (Type) ( 複数 )
-   指定 きるよう なっている. 
+  Кожне повідомлення має стандартизовану структуру та класифікується полем <CODE>msg_type</CODE> на 31 тип (від 1 до 31). Бітова маска (Type Mask) дозволяє вибірково приймати або очищати групи повідомлень одного або кількох типів одночасно.
 </P>
 
 <PRE>
@@ -47,97 +38,87 @@ typedef union {
     struct {
         W   pid;
         W   code;
-    } ABORT;        /* Процес (Process) 異常終了Повідомлення (Message) */
+    } ABORT;        /* Повідомлення про аварійне завершення процесу (Abort) */
     struct {
         W   pid;
         W   code;
-    } EXIT;         /* Процес (Process) 正常終了Повідомлення (Message) */
+    } EXIT;         /* Повідомлення про успішне завершення проце (Exit) */
     struct {
         W   pid;
         W   code;
-    } TERM;         /* Процес (Process) 強制終了Повідомлення (Message) */
+    } TERM;         /* Повідомлення про примусове зупинення процесу (Term) */
     struct {
         W   code;
-    } TMOUT;        /* タイムアウトПовідомлення (Message) */
+    } TMOUT;        /* Повідомлення про закінчення таймауту (Timeout) */
     struct {
         W   code;
-    } SYSEVT;       /* Система (System)Подія (Event)Повідомлення (Message) */
+    } SYSEVT;       /* Повідомлення про системну подію (SysEvt) */
     struct {
         UB  msg_str[32];
-    } ANYMSG;       /* そ 他一般 */
+    } ANYMSG;       /* Загальний вміст користувацьких даних */
 } MSGBODY;
 </PRE>
 
 <PRE>
 typedef struct message {
-    W       msg_type;   /* Повідомлення (Message)Тип (Type) */
-    W       msg_size;   /* Повідомлення (Message)本体Розмір (Size)(バイト) */
-    MSGBODY msg_body;   /* Повідомлення (Message)本体 */
+    W       msg_type;   /* Тип повідомлення (msg_type) */
+    W       msg_size;   /* Розмір тіла повідомлення (у байтах) */
+    MSGBODY msg_body;   /* Тіло повідомлення (msg_body) */
 } MESSAGE;
 </PRE>
 
 <P>
-  Процес (Process) Повідомлення (Message)キュー  他Процес (Process)から Повідомлення (Message)以外  також 自Процес (Process)から送信したПовідомлення (Message) також 
-  ( 送信先 自Процес (Process) 場合 ) 入り, 
-  こ 種 Повідомлення (Message) та して タイムアウトПовідомлення (Message) ある. 
-  なお, 子Процес (Process) 終了した場合 終了Повідомлення (Message) також こ Повідомлення (Message)キュー 入る. 
+  ПроцесПроцесПоточний процес
+  ( Поточний процес ) , 
+   та Повідомлення про закінчення таймауту (Timeout). 
+  , Процес. 
 </P>
 
 <P>
-  Повідомлення (Message)キュー  FIFO  あり, 必ず送信順 入れられる. 
-  送信時 相手 Повідомлення (Message)キュー フル 場合 , 
-  キュー 空き  きるま 待つか, エラーリターンするか 指定 きる. 
+  Черга повідомлень працює за принципом FIFO (First-In, First-Out). Якщо черга отримувача заповнена, відправник може або заблокуватися до звільнення місця, або негайно отримати код помилки у залежності від обраного режиму.
 </P>
 
 <P>
-  通常 , 受信したПовідомлення (Message) Повідомлення (Message)キュー 蓄えられ, 
-  Повідомлення (Message) 受信要求 より取り出す , 
-  Повідомлення (Message)ハンドラ 定義するこ та  より, 
-  指定したТип (Type) Повідомлення (Message) 受信した場合 , 
-  非同期な処理 行なうこ та  可能 ある. 
-  これ 一種 割り込み処理 та して使用される. 
+  Зазвичай отримані повідомлення накопичуються у черзі та вилучаються за запитом прийому (rcv_msg). Проте реєстрація обробника повідомлень (Message Handler) дозволяє реалізувати асинхронне переривання для негайної обробки важливих системних або користувацьких подій.
 </P>
 
-<H3><A name="aar">1.2.2 Повідомлення (Message) 種類</A></H3>
+<H3><A name="aar">1.2.2 Класифікація та типи повідомлень (Message Types)</A></H3>
 
 <P>
-  Повідомлення (Message)  1 〜 31  Тип (Type)番号 より 31 種 Тип (Type) 分類され, 
-  そ うち 1 〜  Система (System) そ 用途 規定されており, 
-  6 〜 23  Система (System)予約 , Система (System)及び外殻 より用途 規定される. 
-  残り  24 〜 31  додаток 使用可能 та なっている. 
+  Усі 31 типів повідомлень розподілені за призначенням: типи 1 - 5 зарезервовані для критичних системних сповіщень ядра, типи 6 - 23 зарезервовані для підсистем ядра та графічної оболонки BTRON, а типи 24 - 31 надані прикладним програмам для довільного використання.
 </P>
 
 <P>
-  Повідомлення (Message)Тип (Type) 以下 よう 定義される. 
+  Тип повідомлення (msg_type). 
 </P>
 
 <PRE>
-    #define MS_ABORT    ( 1)    /* Процес (Process)異常終了 */
-    #define MS_EXIT     ( 2)    /* Процес (Process)正常終了 */
-    #define MS_TERM     ( 3)    /* Процес (Process)強制終了 */
-    #define MS_TMOUT    ( 4)    /* タイムアウト     */
-    #define MS_SYSEVT   ( 5)    /* Система (System)Подія (Event)(強制終了) */
+    #define MS_ABORT    ( 1)    /* Аварійне завершення процесу (MS_ABORT) */
+    #define MS_EXIT     ( 2)    /* Успішне завершення процесу (MS_EXIT) */
+    #define MS_TERM     ( 3)    /* Примусове завершення процесу (MS_TERM) */
+    #define MS_TMOUT    ( 4)    /* Таймаут (MS_TMOUT)     */
+    #define MS_SYSEVT   ( 5)    /* Системна подія (MS_SYSEVT) */
 
-    #define MS_SYS1     ( 6)    /* Система (System)予約 */
-    #define MS_SYS2     ( 7)    /* Система (System)予約 */
-    #define MS_SYS3     ( 8)    /* Система (System)予約 */
-    #define MS_SYS4     ( 9)    /* Система (System)予約 */
-    #define MS_SYS5     (10)    /* Система (System)予約 */
-    #define MS_MNG0     (11)    /* 外殻予約 */
-    #define MS_MNG1     (12)    /* 外殻予約 */
-    #define MS_MNG2     (13)    /* 外殻予約 */
-    #define MS_MNG3     (14)    /* 外殻予約 */
-    #define MS_MNG4     (15)    /* 外殻予約 */
-    #define MS_MNG5     (16)    /* 外殻予約 */
-    #define MS_MNG6     (17)    /* 外殻予約 */
-    #define MS_MNG7     (18)    /* 外殻予約 */
-    #define MS_MNG8     (19)    /* 外殻予約 */
-    #define MS_MNG9     (20)    /* 外殻予約 */
-    #define MS_MNG10    (21)    /* 外殻予約 */
-    #define MS_MNG11    (22)    /* 外殻予約 */
-    #define MS_MNG12    (23)    /* 外殻予約 */
+    #define MS_SYS1     ( 6)    /* Зарезервовано ядром операційної системи */
+    #define MS_SYS2     ( 7)    /* Зарезервовано ядром операційної системи */
+    #define MS_SYS3     ( 8)    /* Зарезервовано ядром операційної системи */
+    #define MS_SYS4     ( 9)    /* Зарезервовано ядром операційної системи */
+    #define MS_SYS5     (10)    /* Зарезервовано ядром операційної системи */
+    #define MS_MNG0     (11)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG1     (12)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG2     (13)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG3     (14)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG4     (15)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG5     (16)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG6     (17)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG7     (18)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG8     (19)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG9     (20)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG10    (21)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG11    (22)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MS_MNG12    (23)    /* Зарезервовано графічною оболонкою BTRON Shell */
 
-    #define MS_TYPE0    (24)    /* додатокПовідомлення (Message) */
+    #define MS_TYPE0    (24)    /* Повідомлення користувацьких додатків */
     #define MS_TYPE1    (25)
     #define MS_TYPE2    (26)
     #define MS_TYPE3    (27)
@@ -146,47 +127,47 @@ typedef struct message {
     #define MS_TYPE6    (30)
     #define MS_TYPE7    (31)
 
-    #define MS_MIN      ( 1)    /* 最小Повідомлення (Message)Тип (Type) */
-    #define MS_MAX      (31)    /* 最大Повідомлення (Message)Тип (Type) */
+    #define MS_MIN      ( 1)    /* Тип повідомлення (msg_type) */
+    #define MS_MAX      (31)    /* Тип повідомлення (msg_type) */
 </PRE>
 
 <P>
-  各Повідомлення (Message)Тип (Type)  ビット対応 Тип (Type)マスク 対応づけられており, 
-  Тип (Type)マスク  OR  パターン より, 
-  対象 та するПовідомлення (Message) Тип (Type) 複数指定するこ та   きる. 
+  Тип повідомлення (msg_type) Маска, 
+  Маска OR , 
+  Цільовий об'єкт / тип та  та . 
 </P>
 <P>
-  Повідомлення (Message)Тип (Type)マスク 以下 よう 定義される. 
+  Тип повідомлення (msg_type)Маска. 
 </P>
 
 <PRE>
     #define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
 
-    #define MM_ABORT    MSGMASK(MS_ABORT)   /* Процес (Process)異常終了   */
-    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Процес (Process)正常終了   */
-    #define MM_TERM     MSGMASK(MS_TERM)    /* Процес (Process) 強制終了 */
-    #define MM_TMOUT    MSGMASK(MS_TMOUT)   /* タイムアウト */
-    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* Система (System)Подія (Event)(強制終了) */
-    #define MM_SYS1     MSGMASK(MS_SYS1)    /* Система (System)予約 */
-    #define MM_SYS2     MSGMASK(MS_SYS2)    /* Система (System)予約 */
-    #define MM_SYS3     MSGMASK(MS_SYS3)    /* Система (System)予約 */
-    #define MM_SYS4     MSGMASK(MS_SYS4)    /* Система (System)予約 */
-    #define MM_SYS5     MSGMASK(MS_SYS5)    /* Система (System)予約 */
-    #define MM_MNG0     MSGMASK(MS_MNG0)    /* 外殻予約 */
-    #define MM_MNG1     MSGMASK(MS_MNG1)    /* 外殻予約 */
-    #define MM_MNG2     MSGMASK(MS_MNG2)    /* 外殻予約 */
-    #define MM_MNG3     MSGMASK(MS_MNG3)    /* 外殻予約 */
-    #define MM_MNG4     MSGMASK(MS_MNG4)    /* 外殻予約 */
-    #define MM_MNG5     MSGMASK(MS_MNG5)    /* 外殻予約 */
-    #define MM_MNG6     MSGMASK(MS_MNG6)    /* 外殻予約 */
-    #define MM_MNG7     MSGMASK(MS_MNG7)    /* 外殻予約 */
-    #define MM_MNG8     MSGMASK(MS_MNG8)    /* 外殻予約 */
-    #define MM_MNG9     MSGMASK(MS_MNG9)    /* 外殻予約 */
-    #define MM_MNG10    MSGMASK(MS_MNG10)   /* 外殻予約 */
-    #define MM_MNG11    MSGMASK(MS_MNG11)   /* 外殻予約 */
-    #define MM_MNG12    MSGMASK(MS_MNG12)   /* 外殻予約 */
+    #define MM_ABORT    MSGMASK(MS_ABORT)   /* Аварійне завершення процесу (MS_ABORT)   */
+    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Успішне завершення процесу (MS_EXIT)   */
+    #define MM_TERM     MSGMASK(MS_TERM)    /* ПроцесПримусове завершення */
+    #define MM_TMOUT    MSGMASK(MS_TMOUT)   /* Таймаут (MS_TMOUT) */
+    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* Системна подія (MS_SYSEVT) */
+    #define MM_SYS1     MSGMASK(MS_SYS1)    /* Зарезервовано ядром операційної системи */
+    #define MM_SYS2     MSGMASK(MS_SYS2)    /* Зарезервовано ядром операційної системи */
+    #define MM_SYS3     MSGMASK(MS_SYS3)    /* Зарезервовано ядром операційної системи */
+    #define MM_SYS4     MSGMASK(MS_SYS4)    /* Зарезервовано ядром операційної системи */
+    #define MM_SYS5     MSGMASK(MS_SYS5)    /* Зарезервовано ядром операційної системи */
+    #define MM_MNG0     MSGMASK(MS_MNG0)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG1     MSGMASK(MS_MNG1)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG2     MSGMASK(MS_MNG2)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG3     MSGMASK(MS_MNG3)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG4     MSGMASK(MS_MNG4)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG5     MSGMASK(MS_MNG5)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG6     MSGMASK(MS_MNG6)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG7     MSGMASK(MS_MNG7)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG8     MSGMASK(MS_MNG8)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG9     MSGMASK(MS_MNG9)    /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG10    MSGMASK(MS_MNG10)   /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG11    MSGMASK(MS_MNG11)   /* Зарезервовано графічною оболонкою BTRON Shell */
+    #define MM_MNG12    MSGMASK(MS_MNG12)   /* Зарезервовано графічною оболонкою BTRON Shell */
 
-    #define MM_TYPE0    MSGMASK(MS_TYPE0)   /* додатокПовідомлення (Message) */
+    #define MM_TYPE0    MSGMASK(MS_TYPE0)   /* Повідомлення користувацьких додатків */
     #define MM_TYPE1    MSGMASK(MS_TYPE1)
     #define MM_TYPE2    MSGMASK(MS_TYPE2)
     #define MM_TYPE3    MSGMASK(MS_TYPE3)
@@ -195,172 +176,171 @@ typedef struct message {
     #define MM_TYPE6    MSGMASK(MS_TYPE6)
     #define MM_TYPE7    MSGMASK(MS_TYPE7)
 
-    #define MM_ALL      (0x7fffffff)    /* 全マスク */
-    #define MM_NULL     (0)             /* 空マスク */
+    #define MM_ALL      (0x7fffffff)    /* Маска всіх типів (MM_ALL) */
+    #define MM_NULL     (0)             /* Маска порожнього типу (MM_NULL) */
 </PRE>
 
 <P>
-  Система (System)Повідомлення (Message) , Система (System) 自動的 発生するПовідомлення (Message) あり, 
-  以下 示す内容 та なる. 
-  これら , 基本的 Повідомлення (Message)キュー オーバーフロー 影響 受けず, 
-  捨てられるこ та  ないよう なっている. 
-  なお, 1 〜 7  Повідомлення (Message)Тип (Type) 持つПовідомлення (Message) додаток 送信するこ та  特 禁止されていない. 
+  , , 
+   та . 
+  , , 
+   та . 
+  , 1 〜 7 Тип повідомлення (msg_type) та . 
 </P>
 
 <DL>
- <DT><CODE>MS_ABORT</CODE> -- 子Процес (Process) 異常終了Повідомлення (Message)
+ <DT><CODE>MS_ABORT</CODE> -- Повідомлення про аварійне завершення процесу (Abort)
  <DD><P>
-     Процес (Process) Система (System)エラー より異常終了させられた場合 , 
-     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
+     Автоматично надсилається ядром батьківському процесу у випадку критичного збою дочірнього процесу:
      </P>
 <PRE>
-        W   1       /* Тип (Type) = MS_ABORT */
-        W   8       /* 本体 バイト数 */
-        W   pid     /* 終了した子Процес (Process) Процес (Process) ID  */
-        W   code    /* Система (System)Коди помилок */
+        W   1       /*  = MS_ABORT */
+        W   8       /*   */
+        W   pid     /* PID завершеного дочірнього процесу  */
+        W   code    /* Код системної помилки (System Error Code) */
 </PRE>
      <P>
-     <CODE>code</CODE>  発生したСистема (System)エラー Код (Code) あり, 
-     <CODE>MH_TERM</CODE> Повідомлення (Message)ハンドラ よる異常終了 場合 , 0  та なる. 
+     <CODE>code</CODE> Помилкакод, 
+     <CODE>MH_TERM</CODE> , 0  та . 
      </P>
 
- <DT><CODE>MS_EXIT</CODE> -- 子Процес (Process) 正常終了Повідомлення (Message)
+ <DT><CODE>MS_EXIT</CODE> -- Повідомлення про успішне завершення проце (Exit)
  <DD><P>
-     Процес (Process)  <CODE>ext_prc()</CODE> Системні виклики より正常終了した場合 , 
-     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
+     Процес <CODE>ext_prc()</CODE> Успіх, 
+     Батьківський процесПроцес. 
      </P>
 <PRE>
-        W   2          /* Тип (Type) = MS_EXIT */
-        W   8          /* 本体 バイト数 */
-        W   pid        /* 終了した子Процес (Process) Процес (Process) ID  */
-        W   code       /* ext_prc () 指定した終了Код (Code) */
+        W   2          /*  = MS_EXIT */
+        W   8          /*   */
+        W   pid        /* PID завершеного дочірнього процесу  */
+        W   code       /* Код завершення, вказаний при виклику ext_prc() */
 </PRE>
- <DT><CODE>MS_TERM</CODE> -- 子Процес (Process) 強制終了Повідомлення (Message)
+ <DT><CODE>MS_TERM</CODE> -- Повідомлення про примусове зупинення процесу (Term)
  <DD><P>
-     Процес (Process)  <CODE>ter_prc()</CODE> Системні виклики より他から強制終了させられた場合 , 
-     親Процес (Process) 対して子Процес (Process)より自動的 送信される以下 内容 Повідомлення (Message) ある. 
+     Процес <CODE>ter_prc()</CODE> Примусове завершення, 
+     Батьківський процесПроцес. 
      </P>
 <PRE>
-        W   3           /* Тип (Type) = MS_TERM */
-        W   8           /* 本体 バイト数 */
-        W   pid         /* 終了した子Процес (Process) Процес (Process) ID  */
-        W   code        /* ter_prc() 指定した終了Код (Code) */
+        W   3           /*  = MS_TERM */
+        W   8           /*   */
+        W   pid         /* PID завершеного дочірнього процесу  */
+        W   code        /* Код завершення, вказаний при виклику ter_prc() */
 </PRE>
- <DT><CODE>MS_TMOUT</CODE> -- 自Процес (Process) タイムアウトПовідомлення (Message)
+ <DT><CODE>MS_TMOUT</CODE> -- Поточний процесПовідомлення про закінчення таймауту (Timeout)
  <DD><P>
-     <CODE>req_tmg()</CODE> Системні виклики より要求したタイムアウトПовідомлення (Message) あり, 
-     指定した時間後 , 自Процес (Process) 対して自動的 送信される以下 内容 Повідомлення (Message) ある. 
+     <CODE>req_tmg()</CODE> ЗапитПовідомлення про закінчення таймауту (Timeout), 
+     Інтервал часу, Поточний процес. 
      </P>
 <PRE>
-        W   4           /* Тип (Type) = MS_TMOUT */
-        W   4           /* 本体 バイト数 */
-        W   code        /* req_tmg () 指定したКод (Code) */
+        W   4           /*  = MS_TMOUT */
+        W   4           /*   */
+        W   code        /* req_tmg () */
 </PRE>
 </DL>
 
-<H3><A name="aas">1.2.3 Повідомлення (Message)ハンドラ</A></H3>
+<H3><A name="aas">1.2.3 Обробники повідомлень (Message Handlers)</A></H3>
 
 <P>
-  Повідомлення (Message)ハンドラ та  , 
-  受信したПовідомлення (Message) 現在実行中 処理 та 非同期 処理するため 関数 あり, 
-  Повідомлення (Message) Тип (Type) та , 対応する関数 指定するこ та  より定義される. 
-  従って, Повідомлення (Message) 各Тип (Type) 対応した最大 31 種 Повідомлення (Message)ハンドラ 同時 定義可能 ある. 
+   та , 
+  Прийом та , 
+   та ,  та . 
+  ,  31 . 
 </P>
 
 <P>
-  Повідомлення (Message)ハンドラ 以下 示す形 起動されて実行される. 
+  . 
 </P>
 
 <UL>
  <LI><P>
-     対応するТип (Type) Повідомлення (Message) 受信した場合, 
-     Повідомлення (Message)ハンドラ , メインЗадача (Task) 現在 処理 割り込む形 実行される. 
+     Прийом, 
+     , . 
      </P>
  <LI><P>
-     何らか Системні виклики よる待ち状態 時 Повідомлення (Message) 送信された場合  також Повідомлення (Message)ハンドラ 起動され, 
-     そ Процес (Process) メインЗадача (Task) 実行状態 та なる. <BR>
-     こ 場合, メインЗадача (Task) 実行中 長い待ち 伴ったСистемні виклики 無条件 中断され, 
-     そ 結果 保証されない. 
-     即ち, Повідомлення (Message)ハンドラ 終了した時点 , 
-     中断されたСистемні виклики  <CODE>ER_MINTR</CODE>  エラー та して戻る. 
+     Очікування, 
+     Процес та . <BR>
+     , Очікування, 
+     . 
+     , , 
+      <CODE>ER_MINTR</CODE> Помилка та . 
      </P>
  <LI><P>
-     Повідомлення (Message)ハンドラ 通常 Процес (Process)Код (Code) 一部 та して動作し, 
-     実行 きるСистемні виклики等 制限 ない. 
+     Процес та Дія / Режим, 
+     . 
      </P>
- <LI><P>Повідомлення (Message)ハンドラ 終了した場合 , 
-     通常, 割り込まれた位置からそ メインЗадача (Task) 実行 再開される , 
-     Повідомлення (Message)ハンドラから直接 <CODE>longjmp ()</CODE>  より, 
-     そ メインЗадача (Task) 任意 位置 ( <CODE>setjmp</CODE>  指定された位置 )
-      実行 移行するこ та  також 可能 ある. 
-     </P>
-    <LI><P>
-     Повідомлення (Message)ハンドラ ネスティングしない. 
-     即ち, 新たなПовідомлення (Message)ハンドラ 起動
-     ( 別 Повідомлення (Message)Тип (Type)  також   також 含む )  , 
-     現在処理中 Повідомлення (Message)ハンドラ 終了ま 待たされる. 
+ <LI><P>, 
+     , , 
+      <CODE>longjmp ()</CODE> , 
+      ( <CODE>setjmp</CODE>  )
+      та . 
      </P>
     <LI><P>
-     Повідомлення (Message)ハンドラ 起動された場合, 
-     そ 起動 原因 та なったПовідомлення (Message) Повідомлення (Message)キューから取り出され, 
-     取り出されたПовідомлення (Message) Вказівник (Pointer) ハンドラ Параметри та して渡される. 
+     . 
+     , 
+     ( Тип повідомлення (msg_type) ) , 
+     . 
      </P>
     <LI><P>
-     Повідомлення (Message)ハンドラ , 必ず <CODE>ret_msg ()</CODE>
-     Системні виклики よって終了しなくて いけない. 
+     , 
+      та , 
+      та . 
+     </P>
+    <LI><P>
+     ,  <CODE>ret_msg ()</CODE>
+     . 
      </P>
 </UL>
 
 <P>
-  Повідомлення (Message)ハンドラ , 以下 示す形 関数 та して定義される. 
+  ,  та . 
 </P>
 
 <PRE>
     VOID msg_hdr(W pid, MESSAGE *r_msg)
     {
-    /*  pid   送信したПроцес (Process)  ID . (自Процес (Process) 場合  0) */
-    /*  r_msg  受信したПовідомлення (Message)へ Вказівник (Pointer) ある.  */
+    /*  pid  Процес ID . (Поточний процес 0) */
+    /*  r_msg Прийом.  */
 
-        受信Повідомлення (Message) 処理
+        Прийом
 
-        ret_msg (0);            /* 終了 (割り込んだ位置 戻る場合) */
+        ret_msg (0);            /*  () */
 
-        また 
+        Крім того,
 
-        ret_msg (1);            /* 終了 (任意 位置 移行する場合) */
-        longjmp (reent, code);  /* reent へジャンプする */
+        ret_msg (1);            /*  () */
+        longjmp (reent, code);  /* reent  */
     }
 </PRE>
 
 <P>
-  特殊なПовідомлення (Message)ハンドラ та して以下 Система (System)定義  також   存在し, 使用するこ та   きる. 
+   та ,  та . 
 </P>
 
 <DL>
  <DT><CODE>MH_NONE</CODE> :
  <DD><P>
-     何 також せず , Повідомлення (Message) 無視される. 
-     こ 場合 , 例外的 待ち 含むСистемні виклики 中断されない. 
-     これ , 単 ある特定 Тип (Type) Повідомлення (Message) キュー  також 入れず 完全 無視するため 使用される. 
+     , Ігнорування. 
+     , Очікування. 
+     , УсіІгнорування. 
      </P>
  <DT><CODE>MH_BREAK</CODE> :
  <DD><P>
-     何 також せず , Повідомлення (Message) 無視される. 
-     こ 場合 , 待ち 含むСистемні виклики 中断され, 
-     <CODE>ER_MINTR</CODE> エラー 戻る. 
-     これ , タイムアウト等 処理 使用される. 
+     , Ігнорування. 
+     , Очікування, 
+     <CODE>ER_MINTR</CODE> Помилка. 
+     , Таймаут (MS_TMOUT). 
      </P>
  <DT><CODE>MH_TERM</CODE> :
  <DD><P>
-     自Процес (Process) 異常終了し, 
-     <CODE>MS_ABORT</CODE> Повідомлення (Message) 
-     ( Коди помилок  0 )  親Процес (Process) 送信する. 
+     Поточний процес, 
+     <CODE>MS_ABORT</CODE>  
+     ( Помилка 0 ) Батьківський процес. 
      </P>
 </DL>
 
-<H3><A name="aat">1.2.4 データ／定数 定義</A></H3>
+<H3><A name="aat">1.2.4 Визначення структур даних та констант</A></H3>
 
-<H4>□ Процес (Process)Повідомлення (Message)定義</H4>
+<H4>□ Визначення міжпроцесних повідомлень</H4>
 
 <PRE>
 typedef union {
@@ -382,48 +362,48 @@ typedef union {
     struct {            /* MS_SYSEVT */
         W   code;
     } SYSEVT;
-    struct {            /* そ 他一般 */
+    struct {            /* Загальний вміст користувацьких даних */
         UB  msg_str[32];
     } ANYMSG;
 } MSGBODY;
 
 typedef struct message {
-    W       msg_type;       /* Повідомлення (Message)Тип (Type) */
-    W       msg_size;       /* Повідомлення (Message)本体Розмір (Size)(バイト) */
-    MSGBODY msg_body;       /* Повідомлення (Message)本体 */
+    W       msg_type;       /* Тип повідомлення (msg_type) */
+    W       msg_size;       /* Розмір тіла повідомлення (у байтах) */
+    MSGBODY msg_body;       /* Тіло повідомлення (msg_body) */
 } MESSAGE;
 
 #define MSGSIZE(msgsz)          (offsetof(MESSAGE,msg_body) + msgsz)
 </PRE>
 
-<H4>□ Повідомлення (Message)Тип (Type)</H4>
+<H4>□ Тип повідомлення (msg_type)</H4>
 
 <PRE>
-#define MS_ABORT    ( 1)        /* Процес (Process)異常終了 */
-#define MS_EXIT     ( 2)        /* Процес (Process)正常終了 */
-#define MS_TERM     ( 3)        /* Процес (Process)強制終了 */
-#define MS_TMOUT    ( 4)        /* タイムアウト */
-#define MS_SYSEVT   ( 5)        /* Система (System)Подія (Event) ( 強制終了 ) */
-#define MS_SYS1     ( 6)        /* Система (System)予約 */
-#define MS_SYS2     ( 7)        /* Система (System)予約 */
-#define MS_SYS3     ( 8)        /* Система (System)予約 */
-#define MS_SYS4     ( 9)        /* Система (System)予約 */
-#define MS_SYS5     (10)        /* Система (System)予約 */
-#define MS_MNG0     (11)        /* 外殻予約 */
-#define MS_MNG1     (12)        /* 外殻予約 */
-#define MS_MNG2     (13)        /* 外殻予約 */
-#define MS_MNG3     (14)        /* 外殻予約 */
-#define MS_MNG4     (15)        /* 外殻予約 */
-#define MS_MNG5     (16)        /* 外殻予約 */
-#define MS_MNG6     (17)        /* 外殻予約 */
-#define MS_MNG7     (18)        /* 外殻予約 */
-#define MS_MNG8     (19)        /* 外殻予約 */
-#define MS_MNG9     (20)        /* 外殻予約 */
-#define MS_MNG10    (21)        /* 外殻予約 */
-#define MS_MNG11    (22)        /* 外殻予約 */
-#define MS_MNG12    (23)        /* 外殻予約 */
+#define MS_ABORT    ( 1)        /* Аварійне завершення процесу (MS_ABORT) */
+#define MS_EXIT     ( 2)        /* Успішне завершення процесу (MS_EXIT) */
+#define MS_TERM     ( 3)        /* Примусове завершення процесу (MS_TERM) */
+#define MS_TMOUT    ( 4)        /* Таймаут (MS_TMOUT) */
+#define MS_SYSEVT   ( 5)        /* Системна подія ( Примусове завершення ) */
+#define MS_SYS1     ( 6)        /* Зарезервовано ядром операційної системи */
+#define MS_SYS2     ( 7)        /* Зарезервовано ядром операційної системи */
+#define MS_SYS3     ( 8)        /* Зарезервовано ядром операційної системи */
+#define MS_SYS4     ( 9)        /* Зарезервовано ядром операційної системи */
+#define MS_SYS5     (10)        /* Зарезервовано ядром операційної системи */
+#define MS_MNG0     (11)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG1     (12)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG2     (13)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG3     (14)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG4     (15)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG5     (16)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG6     (17)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG7     (18)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG8     (19)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG9     (20)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG10    (21)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG11    (22)        /* Зарезервовано графічною оболонкою BTRON Shell */
+#define MS_MNG12    (23)        /* Зарезервовано графічною оболонкою BTRON Shell */
 
-#define MS_TYPE0    (24)        /* додатокПовідомлення (Message) */
+#define MS_TYPE0    (24)        /* Повідомлення користувацьких додатків */
 #define MS_TYPE1    (25)
 #define MS_TYPE2    (26)
 #define MS_TYPE3    (27)
@@ -432,11 +412,11 @@ typedef struct message {
 #define MS_TYPE6    (30)
 #define MS_TYPE7    (31)
 
-#define MS_MIN      ( 1)        /* 最小Повідомлення (Message)Тип (Type) */
-#define MS_MAX      (31)        /* 最大Повідомлення (Message)Тип (Type) */
+#define MS_MIN      ( 1)        /* Тип повідомлення (msg_type) */
+#define MS_MAX      (31)        /* Тип повідомлення (msg_type) */
 </PRE>
 
-<H4>□ Повідомлення (Message)Тип (Type)マスク</H4>
+<H4>□ Тип повідомлення (msg_type)Маска</H4>
 
 <PRE>
 #define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
@@ -474,36 +454,36 @@ typedef struct message {
 #define MM_TYPE6    MSGMASK(MS_TYPE6)
 #define MM_TYPE7    MSGMASK(MS_TYPE7)
 
-#define MM_ALL      (0x7fffffff)    /* 全マスク */
-#define MM_NULL     (0)             /* 空マスク */
+#define MM_ALL      (0x7fffffff)    /* Маска всіх типів (MM_ALL) */
+#define MM_NULL     (0)             /* Маска порожнього типу (MM_NULL) */
 </PRE>
 
-<H4>□ Повідомлення (Message)オプション</H4>
+<H4>□ Опції повідомлення</H4>
 
 <PRE>
-#define WAIT        0x0000          /* 待つ */
-#define NOWAIT      0x0001          /* 待たない */
-#define CONFM       0x0002          /* 受信(確認)待ち */
-#define CHECK       0x0002          /* Повідомлення (Message)チェック */
-#define WAIEVT      0x0004          /* Повідомлення (Message)およびПодія (Event)待ち */
+#define WAIT        0x0000          /* Очікувати */
+#define NOWAIT      0x0001          /* Не очікувати */
+#define CONFM       0x0002          /* Прийом(Підтвердження)Очікування */
+#define CHECK       0x0002          /* Перевірка наявності повідомлення */
+#define WAIEVT      0x0004          /*  Очікування */
 </PRE>
 
-<H4>□ デフォールトПовідомлення (Message)ハンドラ</H4>
+<H4>□ Стандартний обробник повідомлень</H4>
 <PRE>
-#define MH_NONE     ((FUNCP)1)      /* 無視 */
-#define MH_BREAK    ((FUNCP)2)      /* 処理中断 */
-#define MH_TERM     ((FUNCP)3)      /* Процес (Process)終了 */
+#define MH_NONE     ((FUNCP)1)      /* Ігнорування */
+#define MH_BREAK    ((FUNCP)2)      /* Переривання обробки */
+#define MH_TERM     ((FUNCP)3)      /* Завершення процесу */
 </PRE>
 
-<H3><A name="aau">1.2.5 Системні виклики</A></H3>
+<H3><A name="aau">1.2.5 Системні виклики підсистеми повідомлень (Message System Calls)</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">snd_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)送信</TD></TR>
+<TR><TD>Відправлення повідомлення (Send Message)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 
 <PRE>
 ERR snd_msg(W pid, MESSAGE* msg, W opt)
@@ -512,210 +492,210 @@ ERR snd_msg(W pid, MESSAGE* msg, W opt)
 <H4>【Параметри】</H4>
 
 <PRE>
-W        pid    送信先Процес (Process) ID
-                   &gt; 0   任意 Процес (Process)
-                   = 0   自Процес (Process)
-                   =-1   親Процес (Process)
-MESSAGE* msg    送信Повідомлення (Message)
-W        opt    送信待ち属性 ( NOWAIT ‖ WAIT ‖ CONFM )
+W        pid    Процес-отримувач ID
+                   &gt; 0   Будь-який процес
+                   = 0   Поточний процес
+                   =-1   Батьківський процес
+MESSAGE* msg    Повідомлення для відправлення
+W        opt    Очікування ( NOWAIT ‖ WAIT ‖ CONFM )
 </PRE>
 
 <DL>
  <DT><CODE>NOWAIT</CODE> :
  <DD><P>
-     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れた時点 正常終了する. 
-     送信先 Повідомлення (Message)キュー 空き ない時 エラー終了する. 
+     Процес-отримувачУспіхзавершити.. 
+     завершитися з помилкою.. 
      </P>
  <DT><CODE>WAIT</CODE> :
  <DD><P>
-     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れた時点 正常終了する. 
-     Повідомлення (Message)キュー 空き ない時 空き  きるま 待つ. 
-     待っている間 送信先Процес (Process) 終了した場合 エラー終了する. 
+     Процес-отримувачУспіхзавершити.. 
+     Очікувати. 
+     Процес-отримувачзавершитися з помилкою.. 
      </P>
  <DT><CODE>CONFM</CODE> :
  <DD><P>
-     Повідомлення (Message) 送信先Процес (Process) Повідомлення (Message)キュー 入れ, 
-     送信先Процес (Process) 送信したПовідомлення (Message) 受信, 
-     また Повідомлення (Message)キューからクリアした時点 正常終了する. 
-     それま 待つ. 
+     Процес-отримувач, 
+     Процес-отримувачПрийом, 
+     Крім того,Успіхзавершити.. 
+     Очікувати. 
      </P>
      <P>
-     <CODE>rcv_msg()</CODE>   <CODE>CHECK</CODE>
-     指定 よりヘッダ部分 み 得た場合  , 
-     受信した та みなされない. 
-     <CODE>NOCLR</CODE> 指定 より受信した場合 , 
-     キュー 残っていて також 受信した та みなされる. 
-     待っている間 送信先Процес (Process) 終了した場合 エラー終了する. 
-     送信先 自Процес (Process) 場合, <CODE>CONFM</CODE> 指定 エラー та なる. 
+     <CODE>rcv_msg()</CODE>  <CODE>CHECK</CODE>
+     лише, 
+     Прийом та . 
+     <CODE>NOCLR</CODE> Прийом, 
+     Прийом та . 
+     Процес-отримувачзавершитися з помилкою.. 
+     Поточний процес, <CODE>CONFM</CODE> Помилка та . 
      </P>
 </DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0    正常
-＜0    エラー(Коди помилок)
+＝0    Успішне виконання
+＜0    Помилка (Код помилки)
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 <P>
-  <CODE>pid</CODE>  指定したПроцес (Process) Повідомлення (Message) 送信する. 
+  <CODE>pid</CODE> Процес. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : アドレス(msg) アクセス 許されていない. 
-ER_MINTR    : Повідомлення (Message)ハンドラ 起動されたため待ち処理 中断された. 
-ER_NOPRC    : Процес (Process)(pid) 存在していない. 
-              Повідомлення (Message)キュー 空き待ち, また 確認待ち 間 送信先 Процес (Process) 終了した. 
-ER_NOSPC    : Система (System) Пам'ять (Memory)領域 不足した
-              (送信先 Повідомлення (Message)キュー フル(NOWAIT指定時)). 
-ER_PAR      : Параметри 不正 ある(オプション,Повідомлення (Message)Тип (Type) 不正). 
-ER_SELF     : 自Процес (Process) 指定した(pid = 0 また 自Процес (Process) PID)(CONFM指定時). 
-ER_SZOVR    : Повідомлення (Message)本体 Розмір (Size) Система (System) 制限 越えた, また 0以下 ある. 
+ER_ADR      : Адреса пам'яті(msg)Немає доступу до адреси пам'яті.. 
+ER_MINTR    : Очікування. 
+ER_NOPRC    : Процес(pid)не існує.. 
+              Очікування, Крім того,ПідтвердженняОчікуванняПроцес. 
+ER_NOSPC    : Недостатньо системної пам'яті.
+              (Черга отримувача заповнена.(NOWAITПри вказівці режиму)). 
+ER_PAR      : Неприпустимі параметри.(Опція / Прапор,Тип повідомлення (msg_type)некоректна.). 
+ER_SELF     : Поточний процес(pid = 0 Крім того,Поточний процесPID)(CONFMПри вказівці режиму). 
+ER_SZOVR    : Тіло повідомлення (msg_body)розмір перевищує системні ліміти., Крім того,0нижче.. 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rcv_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)受信</TD></TR>
+<TR><TD>Отримання повідомлення (Receive Message)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
 WERR    rcv_msg(W t_mask, MESSAGE* msg, W msgsz, W opt)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-W        t_mask 受信対象Повідомлення (Message)Тип (Type)マスク
-MESSAGE* msg    受信Повідомлення (Message)格納領域
-W        msgsz  受信Повідомлення (Message)格納領域全体 バイトРозмір (Size)
-                Повідомлення (Message) ヘッダ部分 також 含むため msgsz ≧ 8 なくて いけない. 
-W        opt    受信属性 (WAIT ‖ NOWAIT ‖ WAIEVT) | (CLR ‖ NOCLR) | (CHECK)
+W        t_mask ПрийомЦільовий об'єкт / типТип повідомлення (msg_type)Маска
+MESSAGE* msg    Прийом
+W        msgsz  ПрийомУсі 
+                включаючи заголовок повідомлення msgsz ≧ 8повинен відповідати умові.. 
+W        opt    Прийом (WAIT ‖ NOWAIT ‖ WAIEVT) | (CLR ‖ NOCLR) | (CHECK)
 </PRE>
 <DL>
   <DT><CODE>WAIT</CODE> :
   <DD><P>
-      指定Тип (Type) Повідомлення (Message) 受信していない時 , Повідомлення (Message) 来るま 待つ. 
+      Прийом, Очікувати. 
       </P>
   <DT><CODE>NOWAIT</CODE> :
   <DD><P>
-      指定Тип (Type) Повідомлення (Message) 受信していない時 , エラー終了する. 
+      Прийом, завершитися з помилкою.. 
       </P>
   <DT><CODE>WAIEVT</CODE> :
   <DD><P>
-      指定Тип (Type) Повідомлення (Message) 受信していない時 , 
-      指定Тип (Type) Повідомлення (Message) 来るか, Подія (Event)発生ま 待つ. 
+      Прийом, 
+      Чекати надходження повідомлення вказаного типу,  Очікувати. 
       </P>
   <DT><CODE>CLR</CODE> :
   <DD><P>
-      Повідомлення (Message) 受信した後 そ Повідомлення (Message) キューから取り除く. 
+      Прийом. 
       </P>
   <DT><CODE>NOCLR</CODE> :
   <DD><P>
-      Повідомлення (Message) 受信した後 також そ Повідомлення (Message) キュー 残しておく. 
+      Прийом. 
       </P>
   <DT><CODE>CHECK</CODE>
   <DD><P>
-      Повідомлення (Message) 有無 チェックする. 
+      Перевірити наявність повідомлення у черзі.. 
       </P>
 </DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＞0   正常(受信Повідомлення (Message) 送信元Процес (Process) ID)
-＝0   正常(受信Повідомлення (Message) 送信元 自Процес (Process))
-＜0   エラー(Коди помилок)
+＞0   Успіх(ПрийомПроцес ID)
+＝0   Успіх(ПрийомПоточний процес)
+＜0   Помилка(Помилка)
 </PRE>
  
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 <P>
-  自Процес (Process)宛 指定したТип (Type) Повідомлення (Message) 受信する. 
+  Поточний процесВказаний типПрийом. 
 </P>
 <P>
-  受信したПовідомлення (Message) 指定した領域 入り切らない場合 , 
-  <CODE>msgsz</CODE>  範囲内 み
-  <CODE>msg</CODE>  領域 格納されてエラー終了する. 
-  こ 時 , <CODE>CLR</CODE> 指定 あって також Повідомлення (Message) バッファ 残る. 
-  ただし, <CODE>msgsz &lt; 8</CODE>  時  <CODE>msg</CODE>
-   領域  何 також 格納されない. 
-  Повідомлення (Message) 全体 格納 きなかった場合 , 
-  格納されたПовідомлення (Message) ヘッダ部分から実際 Повідомлення (Message)Розмір (Size) 判断 きる  , 
-  そ Повідомлення (Message) 格納可能な十分な大きさ 領域 用意して再度本Системні виклики 実行するこ та  なる. 
+  Прийом, 
+  <CODE>msgsz</CODE> лише в межах діапазону
+  <CODE>msg</CODE> завершитися з помилкою.. 
+  У цьому випадку, <CODE>CLR</CODE> повідомлення залишається в буфері пам'яті.. 
+  Проте, <CODE>msgsz &lt; 8</CODE> якщо вказано <CODE>msg</CODE>
+  у буфер нічого не записується.. 
+  Усі, 
+  , 
+   та стає активним.. 
 </P>
 <P>
-  <CODE>CHECK</CODE> 指定 時 , 
-  次 ような動作 なる. 
+  <CODE>CHECK</CODE> якщо вказано, 
+  наступний станДія / Режимстає активним.. 
 </P>
 
 <OL>
   <LI><P>
-      Повідомлення (Message) 何 також 存在しない場合, <CODE>WAIT</CODE> また 
-      <CODE>WAIEVT</CODE> 指定時 待ち, 
-      <CODE>NOWAIT</CODE> 指定時 エラー終了する. 
+      Якщо в черзі немає жодного повідомлення, <CODE>WAIT</CODE> Крім того,
+      <CODE>WAIEVT</CODE> При вказівці режимуОчікування, 
+      <CODE>NOWAIT</CODE> При вказівці режимузавершитися з помилкою.. 
       </P>
  <LI><P>
-      指定したТип (Type) Повідомлення (Message) 存在している場合 , 
-      <CODE>msg</CODE>  Повідомлення (Message) 格納し正常終了する. 
-      <CODE>CLR</CODE> 指定 あればキューから取り除き, 
-      <CODE>NOCLR</CODE> 指定 あればキュー 残す. 
+      Якщо повідомлення вказаного типу присутнє,, 
+      <CODE>msg</CODE> Успіхзавершити.. 
+      <CODE>CLR</CODE> якщо вказано вилучення — вилучити з черги,, 
+      <CODE>NOCLR</CODE> якщо вказано збереження — залишити в черги.. 
       </P>
  <LI><P>
-      指定したТип (Type) Повідомлення (Message) 存在せず, 
-      それ以外 Повідомлення (Message) 存在している場合 , 
-      Повідомлення (Message) 先頭 8 バイト ( <CODE>msg_type</CODE>  та  <CODE>msg_size</CODE> )
-       み  <CODE>msg</CODE>  格納し正常終了する. 
-      こ 場合, <CODE>CLR</CODE> 指定 あって також Повідомлення (Message) キュー 残す. 
+      Якщо вказаний тип відсутній,, 
+      але в черзі є інші повідомлення,, 
+      заголовок повідомлення 8   ( <CODE>msg_type</CODE>  та  <CODE>msg_size</CODE> )
+      лише <CODE>msg</CODE> Успіхзавершити.. 
+      , <CODE>CLR</CODE> повідомлення залишається в черзі.. 
       </P>
 </OL>
 <P>
-  <CODE>CHECK</CODE> 指定 時 , 
-  指定したТип (Type)以外 Повідомлення (Message) 得られる可能性 あるため, 
-  受信したПовідомлення (Message) Тип (Type) 必ずチェックする必要 ある. 
+  <CODE>CHECK</CODE> якщо вказано, 
+  Оскільки може бути повернуто заголовок іншого типу,, 
+  Прийом. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE>  指定 基本的な動作 
-  <CODE>WAIT</CODE> 指定 та 同じ ある , 
-  Повідомлення (Message) 受信されていなくて також , 
-  <CODE>brk_msg()</CODE>  よりПодія (Event)発生 通知される та 待ち 解除される. 
-  こ 場合, エラー ( <CODE>ER_NOME</CODE> ) 終了する. 
+  <CODE>WAIEVT</CODE> Вказівка даного режиму еквівалентна Дія / Режим
+  <CODE>WAIT</CODE>  та , 
+  Прийом, 
+  <CODE>brk_msg()</CODE>   та Очікування. 
+  , Помилка ( <CODE>ER_NOME</CODE> ) завершити.. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE>  指定した場合 , 
-  <CODE>t_mask = 0</CODE>  指定 きる. 
-  こ 場合, Повідомлення (Message) 受信 行われず, Подія (Event)発生 通知されるま 待つ. 
+  <CODE>WAIEVT</CODE> якщо вказано, 
+  <CODE>t_mask = 0</CODE> можна вказати. 
+  , Прийом,  Очікувати. 
 </P>
 <P>
-  <CODE>WAIEVT</CODE>  指定 きる  同時  Система (System)全体  1 つ Задача (Task) み , 
-  複数 Задача (Task)  <CODE>WAIEVT</CODE> 指定  <CODE>rcv_msg()</CODE>  呼び出した та き , 
-  最後 呼び出したЗадача (Task) 
-  <CODE>WAIEVT</CODE> 指定 み 有効 та なる. 
-  他 Задача (Task)  <CODE>WAIT</CODE>  та 同じ扱い та なる. 
+  <CODE>WAIEVT</CODE> з даним режимомУсі 1 лише для однієї задачі, 
+  якщо кілька задач <CODE>WAIEVT</CODE> з даним режимом <CODE>rcv_msg()</CODE>  та , 
+  лише для останньої викличущої задачі
+  <CODE>WAIEVT</CODE>  та . 
+  Інші задачі <CODE>WAIT</CODE>  та  та . 
 </P>
 <P>
-  <CODE>WAIEVT</CODE>  外殻 ( ウインドウマネージャ )   
-  <CODE>wget_evt()</CODE>  実現 ため 用意されたオプション ある. 
-  додаток  <CODE>WAIEVT</CODE>  指定して いけない. 
+  <CODE>WAIEVT</CODE> використовується графічною оболонкою BTRON Shell ( Менеджер вікон (Window Manager) )  
+  <CODE>wget_evt()</CODE> Опція / Прапор. 
+  Прикладним програмам <CODE>WAIEVT</CODE> заборонено вказувати цей режим.. 
 </P>
           
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_ADR      : アドレス(msg) アクセス 許されていない. 
-ER_MINTR    : Повідомлення (Message)ハンドラ 起動されたため待ち処理 中断された. 
-ER_NONE     : 指定したТип (Type)(t_mask) Повідомлення (Message) 存在しない(NOWAIT指定時). 
-ER_PAR      : Параметри 不正 ある
-              (msgsz  小さすぎる, 
-               WAIEVT指定時以外 t_mask≦0, WAIEVT指定時 t_mask&lt;0). 
+ER_ADR      : Адреса пам'яті(msg)Немає доступу до адреси пам'яті.. 
+ER_MINTR    : Очікування. 
+ER_NONE     : Вказаний тип(t_mask)повідомлення відсутній у черзі.(NOWAITПри вказівці режиму). 
+ER_PAR      : Неприпустимі параметри.
+              (msgsz занадто малий розмір буфера., 
+               WAIEVTПри вказівці режиму t_mask≦0, WAIEVTПри вказівці режиму t_mask&lt;0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">clr_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)クリア</TD></TR>
+<TR><TD>Очищення повідомлень у черзі (Clear Messages)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
 ERR clr_msg(W t_mask, W last_mask)
 </PRE>
@@ -723,265 +703,265 @@ ERR clr_msg(W t_mask, W last_mask)
 <H4>【Параметри】</H4>
 
 <PRE>
-W   t_mask      クリア対象Повідомлення (Message)Тип (Type)マスク
-                = MM_ALL     全Повідомлення (Message)Тип (Type)
+W   t_mask      Маска видаленняТип повідомлення (msg_type)Маска
+                = MM_ALL     УсіТип повідомлення (msg_type)
 
-W   last_mask   クリア終了Повідомлення (Message)Тип (Type)マスク
-                = MM_NULL    対象 Повідомлення (Message)キュー 最後ま 
-                = MM_ALL     Повідомлення (Message) 1つだけクリア
+W   last_mask   Маска завершення видаленняТип повідомлення (msg_type)Маска
+                = MM_NULL    Видаляти до кінця черги (MM_NULL)
+                = MM_ALL     Видалити лише 1 повідомлення (MM_ALL)
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0    正常
-＜0    エラー(Коди помилок)
+＝0    Успішне виконання
+＜0    Помилка (Код помилки)
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 <P>
-  自Процес (Process)宛 指定したТип (Type) 受信済みПовідомлення (Message) クリアする. 
+  Видаляє з черги повідомлення вказаних типів.
 </P>
 <P>
-  自Процес (Process) Повідомлення (Message)キュー 受信済み Повідомлення (Message) うち, 
-  <CODE>t_mask</CODE>  指定したТип (Type) Повідомлення (Message) 
-  <CODE>last_mask</CODE>  指定したТип (Type) Повідомлення (Message) 直前ま クリアする. 
-  <CODE>last_mask</CODE>  指定したТип (Type) Повідомлення (Message) クリアされない , 
-  <CODE>last_mask = MM_ALL</CODE>  時 , 
-  特別 Повідомлення (Message)  1 つだけクリアするこ та  意味する. 
+  Поточний процесПрийом, 
+  <CODE>t_mask</CODE> Вказаний тип
+  <CODE>last_mask</CODE> Вказаний тип. 
+  <CODE>last_mask</CODE> Вказаний типне видаляються автоматично., 
+  <CODE>last_mask = MM_ALL</CODE> якщо вказано, 
+  видалити лише  1 одне повідомлення та . 
 </P>
 <P>
-  <CODE>t_mask</CODE>  та  <CODE>last_mask</CODE>  指定例 以下 示す. 
+  <CODE>t_mask</CODE>  та  <CODE>last_mask</CODE> Приклади вказівки масок наведено у таблиці:. 
 </P>
 <TABLE>
-  <TR><TH>t_mask</TH><TH>last_mask</TH><TH>動作</TH></TR>
-  <TR><TD>MM_ALL</TD><TD>MM_NULL  </TD><TD>受信済み 全Повідомлення (Message) クリア</TD></TR>
-  <TR><TD>  −  </TD><TD>MM_ALL   </TD><TD><CODE>t_mask</CODE>  指定したПовідомлення (Message)  1 つだけクリア</TD></TR>
-  <TR><TD>MM_ALL</TD><TD>MM_ALL   </TD><TD>先頭 Повідомлення (Message) 1つだけクリア</TD></TR>
+  <TR><TH>t_mask</TH><TH>last_mask</TH><TH>Дія / Режим</TH></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_NULL  </TD><TD>Видалити всі отримані повідомлення у черзі</TD></TR>
+  <TR><TD>  −  </TD><TD>MM_ALL   </TD><TD><CODE>t_mask</CODE> видалити повідомлення типу  1 одне повідомлення</TD></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_ALL   </TD><TD>перше Видалити лише 1 повідомлення (MM_ALL)</TD></TR>
 </TABLE>
 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_PAR  : Параметри 不正 ある(t_mask≦0, last_mask&lt;0). 
+ER_PAR  : Неприпустимі параметри.(t_mask≦0, last_mask&lt;0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">req_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>タイムアウトПовідомлення (Message)要求</TD></TR>
+<TR><TD>Повідомлення про закінчення таймауту (Timeout)Запит</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
 ERR req_tmg(W time, W code)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-W   time    Повідомлення (Message)送信時間(ミリ秒)
-W   code    タイムアウトПовідомлення (Message) Код (Code)
+W   time    Відправлення повідомлення (Send Message)Інтервал часу(мілісекунд)
+W   code    Повідомлення про закінчення таймауту (Timeout)код
 </PRE>
 <H4>【Значення, що повертається】</H4>
 
 <PRE>
-＝0    正常
-＜0    エラー(Коди помилок)
+＝0    Успішне виконання
+＜0    Помилка (Код помилки)
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 
 <P>
-  自Процес (Process)宛 指定した時間後 タイムアウトПовідомлення (Message)
-  ( <CODE>MS_TMOUT</CODE> )  送信するこ та  要求する. 
+  Поточний процесІнтервал часуПовідомлення про закінчення таймауту (Timeout)
+  ( <CODE>MS_TMOUT</CODE> )  та Запит. 
 </P>
 <P>
-  こ 機能 , 
-  Повідомлення (Message)ハンドラ та 組み合わせて特定 処理 タイムアウト監視など 使用される. 
+  Цей механізм, 
+   та Таймаут (MS_TMOUT)контролю системних таймаутів.. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_NOSPC    : Система (System) Пам'ять (Memory)領域 不足した. 
-ER_PAR      : Параметри 不正 ある(time≦0). 
+ER_NOSPC    : Недостатньо системної пам'яті.. 
+ER_PAR      : Неприпустимі параметри.(time≦0). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">can_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>タイムアウトПовідомлення (Message)取り消し</TD></TR>
+<TR><TD>Повідомлення про закінчення таймауту (Timeout)Скасування</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
      ERR can_tmg()
 </PRE>
 <H4>【Параметри】</H4>
 <P>
-     なし
+     Немає
 </P>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0    正常
+＝0    Успішне виконання
 </PRE>
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 <P>
-  自Процес (Process) タイムアウトПовідомлення (Message)要求 すべて取り消す. 
-  タイムアウトПовідомлення (Message)要求 ない場合 何 також しない. 
+  Поточний процесПовідомлення про закінчення таймауту (Timeout)Запит. 
+  Повідомлення про закінчення таймауту (Timeout)Запит. 
 </P>
 
 <P>
-  す  送信されてПовідомлення (Message)キュー 入っているタイムアウトПовідомлення (Message) クリアされない. 
+  Повідомлення, що вже потрапили у чергу,Повідомлення про закінчення таймауту (Timeout)не видаляються автоматично.. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <P>
-  発生しない. 
+  Помилки не виникають.. 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">def_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)ハンドラ定義</TD></TR>
+<TR><TD>Реєстрація обробника повідомлень (Define Message Handler)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
   ERR def_msg(W t_mask, FP msghdr)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   t_mask  対象Повідомлення (Message)Тип (Type)マスク
+W   t_mask  Цільовий об'єкт / типТип повідомлення (msg_type)Маска
 
-FP  msghdr  Повідомлення (Message)ハンドラ開始アドレス
-            = NULL      Повідомлення (Message)ハンドラ 定義解除
-            = MH_NONE   Система (System)定義ハンドラ(無視)
-            = MH_BREAK  Система (System)定義ハンドラ(処理中断)
-            = MH_TERM   Система (System)定義ハンドラ(Процес (Process)終了)
+FP  msghdr  Адреса точки входу функції обробника
+            = NULL      Скасування реєстрації обробника (NULL)
+            = MH_NONE   Системний обробник (Ігнорування - MH_NONE)
+            = MH_BREAK  Системний обробник (Переривання - MH_BREAK)
+            = MH_TERM   Системний обробник (Завершення процесу - MH_TERM)
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0    正常
-＜0    エラー(Коди помилок)
+＝0    Успішне виконання
+＜0    Помилка (Код помилки)
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 <P>
-  指定したТип (Type) Повідомлення (Message) 対応するПовідомлення (Message)ハンドラ 定義する. 
+  Реєструє асинхронний обробник для повідомлень вказаних типів.
 </P>
 
 <P>
-  同じТип (Type) Повідомлення (Message) 対するПовідомлення (Message)ハンドラ す  定義されている場合  , 
-  後から定義したПовідомлення (Message)ハンドラ 有効 та なる. 
+  Якщо для даного типу вже зареєстровано обробник,, 
+   та . 
 </P>
 
 <H4>【Коди помилок】</H4>
 
 <PRE>
-ER_ADR  : アドレス(msg_hdr) アクセス 許されていない. 
-ER_PAR  : Параметри 不正 ある(t_mask≦0). 
+ER_ADR  : Адреса пам'яті(msg_hdr)Немає доступу до адреси пам'яті.. 
+ER_PAR  : Неприпустимі параметри.(t_mask≦0). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ret_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Повідомлення (Message)ハンドラ終了</TD></TR>
+<TR><TD>Завершення обробника повідомлень (Return from Handler)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
 ERR ret_msg(W ret)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-W   ret リターン指定
+W   ret Режим повернення з обробника
 </PRE>
 <DL compact>
  <DT>＝0 :
- <DD>Повідомлення (Message)ハンドラ 割り込んだ位置から実行 再開し, 
-     本Системні викликиから 戻らない. <BR>
-     待ち 含むСистемні виклики 実行中 割り込んだ場合, 
-     そ Системні виклики 実行 保証されず , 
-     Повідомлення (Message)ハンドラ 起動されたこ та  示すКоди помилок そ Системні викликиから戻る. 
+ <DD>Відновити виконання з точки переривання,, 
+     повернення з даного виклику не здійснюється.. <BR>
+     Очікування, 
+     його виконання не продовжується,, 
+      та Помилка. 
  <DT>≠0 :
- <DD>Повідомлення (Message)ハンドラ 割り込んだ位置から 再開せず , 
-     本Системні викликиから戻って, 
-     そ まま実行 続行する. 
-     こ 場合, 通常 ハンドラ 最後  <CODE>longjmp ()</CODE>
-      より制御 他へ移行するこ та  なる. 
+ <DD>Не відновлювати виконання з точки переривання,, 
+     повернути управління з даного системного виклику, 
+     та продовжити виконання коду.. 
+     , Зазвичай наприкінці обробника <CODE>longjmp ()</CODE>
+      та стає активним.. 
 </DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-リターンしない(ret = 0  時)
-＝0     正常(ret≠ 0  時)
+Функція не повертає управління (при ret = 0)
+＝0    Успішне виконання (при ret != 0)
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 
 <P>
-  Повідомлення (Message)ハンドラ 実行 終了する. 
+  Завершує виконання асинхронного обробника повідомлень.
 </P>
 <P>
-  Повідомлення (Message)ハンドラ 最後  必ず本Системні виклики 実行しなくて いけない. 
-  また, 本Системні виклики Повідомлення (Message)ハンドラ内  み発行するこ та   き, 
-  それ以外 部分 発行された時 Система (System)エラー та なる. 
+  Наприкінці обробника повідомлень обов'язково викликати ret_msg().. 
+  Крім того,,  та , 
+  Помилка та . 
 </P>
 <P>
-  Повідомлення (Message)ハンドラ 起動要求 多重 発生していた場合, 
-  本Системні виклики 実行後 要求 あったПовідомлення (Message)ハンドラ 起動する. 
+  Запит, 
+  Запит. 
 </P>
 
 <H4>【Коди помилок】</H4>
 
 <P>
-  発生しない. 
+  Помилки не виникають.. 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">brk_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Подія (Event)発生通知</TD></TR>
+<TR><TD>Сповіщення про системну подію (Break/Event Notification)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
-<H4>【Формат / Синтаксис】</H4>
+<H4>【Синтаксис / Про тип】</H4>
 <PRE>
 ERR brk_msg()
 </PRE>
 
 <H4>【Параметри】</H4>
 <P>
-  なし
+  Немає
 </P>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＝0    正常
+＝0    Успішне виконання
 </PRE>
 
-<H4>【Опис та функціонал】</H4>
+<H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>WAIEVT</CODE> 指定 よる <CODE>rcv_msg()</CODE>  待ち 解除する. 
-  <CODE>brk_msg()</CODE>  呼び出した та き <CODE>WAIEVT</CODE>
-  指定 待ち 入っているЗадача (Task) 無ければ, 
-  待ち解除 要求 記録する. 
-  ただし, 待ち解除 要求回数 記録されない. 
+  <CODE>WAIEVT</CODE> завдяки вказівці  <CODE>rcv_msg()</CODE> Очікування. 
+  <CODE>brk_msg()</CODE>  та  <CODE>WAIEVT</CODE>
+  з даним режимомОчікування, 
+  ОчікуванняЗапит. 
+  Проте, ОчікуванняЗапит. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <P>
-  発生しない. 
+  Помилки не виникають.. 
 </P>
 
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="proc.html">Попередня сторінка: 1.1 Процес (Process) / Задача (Task)管理 (Повернутися)</A><BR>
-<A href="taskcomm.html">Наступна сторінка: 1.3 Процес (Process)/Задача (Task)間同期通信管理 (Перейти)</A><BR>
+<A href="proc.html">Попередня сторінка: 1.1 Управління процесами та задачами (Повернутися)</A><BR>
+<A href="taskcomm.html">Наступна сторінка: 1.3 Міжзадачна комунізація та синхронізація (Перейти)</A><BR>
 </BODY>
 </HTML>
