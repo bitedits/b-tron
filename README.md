@@ -1,10 +1,18 @@
-# B-TRON Retro OS Desktop Environment (SDL2)
+# B-TRON Retro OS Desktop Environment for Synrc VE OS.1
 
 A cleanroom recreation of the **B-TRON** (Business TRON / TRON OS Architecture for personal computers)
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
 and organized into a authentic Japanese BTRON tree structure.
 
----
+Current Status
+--------------
+
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://github.com/user-attachments/assets/da957512-0be4-439e-ad52-f57fa33b6d7a" />
+
+Goal
+----
+
+<img width="1228" height="518" alt="Screenshot 2026-08-22 at 21 09 27" src="https://github.com/user-attachments/assets/826f7605-8c6e-4786-a8a5-eb0f979ac314" />
 
 ## Japanese BTRON Lineage & Subsystem Layout
 
@@ -37,8 +45,6 @@ btron/
     └── gterm.c                 # BTRON Terminal Shell (gterm) Window
 ```
 
----
-
 ## Features
 
 1. **True Japanese BTRON API Header Hierarchy**:
@@ -57,8 +63,6 @@ btron/
    - **`gterm`**: BTRON Terminal Console window.
    - **`t_editor`**: TRON Text Editor with virtual object icon embedding.
    - **`vobj_manager`**: Real Object Cabinet & Virtual Object Link Explorer.
-
----
 
 ## Building & Running
 
