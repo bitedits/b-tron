@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.7 テキスト入力プリミティブ
+  3.7 
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="data.html">
@@ -14,469 +14,469 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="data.html">前頁:3.6 データマネージャにもどる</A><BR>
-<A href="omgr.html">次頁:3.8 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)にすすむ</A><BR>
+<A href="data.html">:3.6 </A><BR>
+<A href="omgr.html">:3.8 Реальний об'єкт (Real Object)／Віртуальний об'єкт (Virtual Object)</A><BR>
 <HR>
 
-<H2><A name="akp">3.7 テキスト入力プリミティブ</A></H2>
+<H2><A name="akp">3.7 </A></H2>
 
-<H3><A name="akq">3.7.1 テキスト入力プリミティブのфункціонал / підсистема</A></H3>
+<H3><A name="akq">3.7.1 функціонал / підсистема</A></H3>
 
-<H4><A name="akr">3.7.1.1 概要</A></H4>
-
-<P>
-  テキスト入力プリミティブ ( TIP ) は, 
-  外殻の HMI функціонал / підсистемаの 1 つとして位置付けられ, 
-  かな漢字変換およびローマ字かな変換を通した, 
-  テキスト入力のфункціонал / підсистемаを提供しているものである. 
-</P>
-<P>
-  прикладний додаток / програмаプログラムは, 
-  このテキスト入力プリミティブを使用することにより, 
-  かな漢字変換方式に依存しない共通的なインタフェースにより, 
-  テキストの入力を行なうことが可能となる. 
-</P>
-<P>
-  テキスト入力プリミティブで提供しているфункціонал / підсистемаは, 
-  прикладний додаток / програма側でのきめの細かい処理を可能としているため, 
-  かなりプリミティブなレベルであり, 
-  また文字の表示функціонал / підсистемаは, 一切含まれていない. 
-</P>
-<P>
-  テキスト入力プリミティブのфункціонал / підсистемаとしては, かな漢字変換, 
-  ローマ字かな変換の他に, 学習辞書の保存状態の設定 / 変更функціонал / підсистемаが提供される. 
-  また, 辞書アクセスや単漢字変換のфункціонал / підсистемаも包含されているが, 
-  прикладний додаток / програмаはこれらを特に意識する必要はない. 
-  なお, 辞書にない単語の登録функціонал / підсистемаや, 
-  辞書データ交換のための辞書変換функціонал / підсистемаなどの辞書メンテナンスфункціонал / підсистемаは, 
-  1 つの独立したシステムприкладний додаток / програмаとして別に提供されることになる. 
-</P>
-<P>
-  なお, テキスト入力プリミティブでは, 
-  関連するфункціонал / підсистемаとして, カレット表示を行なう関数も提供している. 
-</P>
-
-<H4><A name="aks">3.7.1.2 テキスト入力プリミティブ</A></H4>
+<H4><A name="akr">3.7.1.1 </A></H4>
 
 <P>
-  テキスト入力プリミティブは, 
-  一種のフィルターとして以下に示すようなモデルとして表現される. 
-  即ち, 入力として«キー入力Подія (Event)»を受け付け, 
-  出力として«確定文字列»を戻すことになる. 
-  さらに補助的な出力として«未確定文字列», «文節情報»等を戻すことになる. 
-  なお, テキスト入力プリミティブで保持している文字列全体を«変換中文字列»と呼ぶ. 
-  この文字列には, 
-  最新の操作で確定した«確定文字列»と«未確定文字列»が含まれる. 
+   ( TIP ) , 
+   HMI функціонал / підсистема 1 , 
+  , 
+  функціонал / підсистема. 
+</P>
+<P>
+  прикладний додаток, 
+  , 
+  , 
+  . 
+</P>
+<P>
+  функціонал / підсистема, 
+  прикладний додаток, 
+  , 
+  функціонал / підсистема, . 
+</P>
+<P>
+  функціонал / підсистема, , 
+  ,  / функціонал / підсистема. 
+  , функціонал / підсистема, 
+  прикладний додаток. 
+  , функціонал / підсистема, 
+  функціонал / підсистемафункціонал / підсистема, 
+  1 прикладний додаток. 
+</P>
+<P>
+  , , 
+  функціонал / підсистема, . 
+</P>
+
+<H4><A name="aks">3.7.1.2 </A></H4>
+
+<P>
+  , 
+  . 
+  , «», 
+  «». 
+  «», «». 
+  , «». 
+  , 
+  «»«». 
 </P>
 
 <A name="akt">
-  <CENTER><IMG src="gif/tipmodel.gif" alt="テキスト入力プリミティブのモデル"></CENTER>
+  <CENTER><IMG src="gif/tipmodel.gif" alt=""></CENTER>
 </A>
-<CENTER>図 111 : テキスト入力プリミティブのモデル</CENTER>
+<CENTER> 111 : </CENTER>
 
 <P>
-  入力モードとしては, 以下の3種類のいずれかを指定することができる. 
-  通常, 入力モードはユーザ毎に固定的なものが使用されるが, 動的に変更することも可能である. 
+  , 3. 
+  , , . 
 </P>
 
 <UL>
-    <LI> かな入力モード
-    <LI> ローマ字入力モード1 (n方式)
-    <LI> ローマ字入力モード2 (nn方式)<BR>
-        (n方式, nn方式はローマ字入力における«ん»の入力方式である)
+    <LI> 
+    <LI> 1 (n)
+    <LI> 2 (nn)<BR>
+        (n, nn«»)
 </UL>
 
 <P>
-  かな漢字変換モードは, 
-  以下の 2 種類のいずれかであり, 
-  自動変換モードでは, 
-  入力した«よみ»が <KBD>[変換/逆変換]</KBD> なしに自動的に変換されるモードであり, 
-  指定変換モードは, <KBD>[変換/逆変換]</KBD> によってのみ変換されるモードである. 
-  自動変換の場合は, 変換のタイミングにより各種の方法が考えられるが, 
-  <KBD>[変換/逆変換]</KBD>なしに変換されるものは, 
-  基本的にすべて自動変換とみなすものとする. 
-  たとえば, 句読点の入力時や, 
-  入力文字種の切り替わり時点で変換されるものも自動変換と見なす. 
-  なお, 両方の変換モードをサポートしているか否かはインプリメントに依存する. 
+  , 
+   2 , 
+  , 
+  «» <KBD>[/]</KBD> , 
+  , <KBD>[/]</KBD> . 
+  , , 
+  <KBD>[/]</KBD>, 
+  . 
+  , , 
+  . 
+  , . 
 </P>
 <UL>
-    <LI> 自動変換モード
-    <LI> 指定 ( マニュアル ) 変換モード
+    <LI> 
+    <LI>  (  ) 
 </UL>
 
 <P>
-  変換モードは, 以下の 2 種類のいずれかであり, 
-  直接モードでは入力した«よみ»が変換なしに直接出力されるモードであり, 
-  変換モードはかな漢字変換モードで指定したかな漢字変換方式で変換されるモードである. 
+  ,  2 , 
+  «», 
+  . 
 </P>
 
 <UL>
- <LI>直接モード
- <LI>変換モード
+ <LI>
+ <LI>
 </UL>
 
 <P>
-  テキスト入力プリミティブでは, 
-  以下に示すようなфункціонал / підсистемаをサポートすることが可能であり, 
-  これらの操作は, 
-  функціонал / підсистемаキーに対応するキー入力Подія (Event)によって行なわれる. ただし, こ
-  れらのфункціонал / підсистемаを実際にサポートしているか否かは, かな漢字変換のアルゴリズムに依存する. 
+  , 
+  функціонал / підсистема, 
+  , 
+  функціонал / підсистема. , 
+  функціонал / підсистема, . 
 </P>
 <UL>
- <LI> 対象文節の候補の変更
- <LI> 未確定文字列全体の候補の変更
- <LI> 未確定文字列後端への文字の追加 / 削除
- <LI> 未確定文字列内へのよみの挿入
- <LI> 未確定文字列内でのよみの削除
- <LI> 文節区切り位置の変更
+ <LI> 
+ <LI> 
+ <LI>  / 
+ <LI> 
+ <LI> 
+ <LI> 
 </UL>
 
-<H4><A name="aku">3.7.1.3 テキスト入力ポート</A></H4>
+<H4><A name="aku">3.7.1.3 </A></H4>
 
 <P>
-  テキスト入力プリミティブの動作環境をテキスト入力ポートと呼ぶ. 
-  прикладний додаток / програмаはテキスト入力ポートをオープンし, 
-  オープン時に得られるIDを使用して以後の入力処理を行なうことになる. 
-  テキスト入力ポートはオープンしたПроцес (Process)にのみ有効であり, 
-  そのПроцес (Process)が終了した場合は自動的に削除される. 
+  . 
+  прикладний додаток, 
+  ID. 
+  , 
+  . 
 </P>
 <P>
-  テキスト入力ポートのオープン時には, 
-  以下に示すテキスト入力Запис (Record)を指定する必要があり, 
-  指定したテキスト入力Запис (Record)にテキスト入力ポートの現在の状態が戻されることになる. 
+  , 
+  , 
+  . 
 </P>
 
 <PRE>
     typedef struct {
-        W   n_out;      /* 確定文節数 */
-        W   n_cl;       /* 全文節数 */
-        W   n_roman;    /* 部分ローマ字数 */
-        W   update;     /* 表示更新開始文字位置 */
-        UW  caret;      /* 現在のカレット位置 */
-        UW  clause;     /* 現在対象とする文節番号および状態 */
-        W*  cl_cnv;     /* 変換中文字列の文節位置配列 */
-        TC* cnv;        /* 変換中文字列 */
-        W*  cl_in;      /* 入力(よみ)文字列の文節位置配列 */
-        TC* in;         /* 入力(よみ)文字列 */
+        W   n_out;      /*  */
+        W   n_cl;       /*  */
+        W   n_roman;    /*  */
+        W   update;     /*  */
+        UW  caret;      /*  */
+        UW  clause;     /*  */
+        W*  cl_cnv;     /*  */
+        TC* cnv;        /*  */
+        W*  cl_in;      /* () */
+        TC* in;         /* () */
     } TIPREC;
 </PRE>
 
 <DL>
  <DT><CODE>n_out</CODE> :
- <DD>確定した文節数を示し, <CODE>cnv</CODE> で示される変換中文字列の先頭からの文節数を示す. 
-     <CODE>n_out</CODE> で示される数の文節は, 
-     続くテキスト入力ポートへの入力処理で削除されるので, 
-     <CODE>n_out ≠ 0</CODE> の時は, 
-     прикладний додаток / програмаは, 指定された文節数のデータを必ず取りだしておく必要がある. <BR>
-     なお, テキスト入力プリミティブ内部で保持可能な文節数または文字バッファの制限を超えた場合にも, 
-     <CODE>n_out</CODE> として先頭のいくつかの文節が確定されることがある. 
+ <DD>, <CODE>cnv</CODE> . 
+     <CODE>n_out</CODE> , 
+     , 
+     <CODE>n_out ≠ 0</CODE> , 
+     прикладний додаток, . <BR>
+     , , 
+     <CODE>n_out</CODE> . 
  <DT><CODE>n_cl</CODE> :
- <DD>変換中文字列全体の文節数を示す. 
+ <DD>. 
  <DT><CODE>n_roman</CODE> :
- <DD>変換中文字列中でのローマ字入力の英字数 ( 0 〜 インプリメント依存 ) を示す. 
+ <DD> ( 0 〜  ) . 
 
 <PRE>
-        例: cnv → ・・・・き      n_roman =0
-                   ・・・・きS     n_roman =1
-                   ・・・・きSH    n_roman =2
-                   ・・・・汽車    n_roman =0
+        : cnv →       n_roman =0
+                   S     n_roman =1
+                   SH    n_roman =2
+                       n_roman =0
 </PRE>
 
  <DT><CODE>update</CODE> :
- <DD>変換中文字列で変更があった先頭の文字位置を, 
-     変換中文字列の先頭文字を &quot;0&quot; とした文字位置で示す. 
-     これは, 変換中文字列の表示の更新に使用され, 
-     &lt;0 の場合は変換中文字列は変化しなかったことを示す. 
+ <DD>, 
+      &quot;0&quot; . 
+     , , 
+     &lt;0 . 
  <DT><CODE>caret</CODE> :
- <DD> 変換中文字列内でのカレットの現在位置を示す以下の値であり, 
-     カレット表示のために使用される. 
+ <DD> , 
+     . 
 
 <PRE>
     xxxx xxxx xxxx xxxx xPPP PPPP PPPP PPPP
 </PRE>
      <DL compact>
       <DT><CODE>P</CODE> :
-      <DD>カレットの現在位置
+      <DD>
           <P>
-          変換中文字列内で <CODE>n_out</CODE>
-          で示される確定文節の直後の文節の先頭文字を&quot;0&quot;とした場合の, 
-          カレットの直後に位置する文字の位置. 
-          すなわち, 未確定文字列内での文字位置. 
+           <CODE>n_out</CODE>
+          &quot;0&quot;, 
+          . 
+          , . 
           </P>
       <DT><CODE>X</CODE> :
-      <DD>予約
+      <DD>
      </DL>
 
  <DT><CODE>clause</CODE> :
- <DD>変換中文字列内での, 現在の対象文節, 
-     またはよみ列修正文節を示す以下の値であり, 
-     対象文節 / よみ列修正文節の表示のために使用される. 
-     対象文節は, 変換操作の対象となっている文節であり, 
-     よみ列修正文節は, 修正操作の対象のとなっている文節である. 
+ <DD>, , 
+     , 
+      / . 
+     , , 
+     , . 
 <PRE>
     XXXX XXXX XXXX XXXX MPPP PPPP PPPP PPPP
 </PRE>
      <DL>
       <DT><CODE>M</CODE> :
-      <DD> = 0 対象文節<BR>
-          = 1 よみ列修正文節
+      <DD> = 0 <BR>
+          = 1 
       <DT><CODE>P</CODE>:
-      <DD>対象 / よみ列修正文節の文節位置<BR>
+      <DD> / <BR>
           <P>
-          変換中文字列内で <CODE>n_out</CODE> で示される確定文節の直後の文節を
-          &quot;0&quot;とした場合の文節の位置. すなわち, 
-          未確定文字列内での文節位置. 
+           <CODE>n_out</CODE> 
+          &quot;0&quot;. , 
+          . 
           </P>
       <DT><CODE>X</CODE> :
-      <DD>予約
+      <DD>
      </DL>
      
  <DT><CODE>cl_cnv</CODE> :
- <DD>変換中文字列の文節区切り位置を示す
-     <CODE>(n_cl+1)</CODE> 個の要素からなるワード配列へのвказівник (Pointer)であり, 
-     各文節の先頭の文字位置を表わす. 
-     文字位置は &quot;0&quot; から始まるため先頭の要素は常に
-     &quot;0&quot; となり, 
-     最後の要素は変換中文字列の最後の <CODE>TNULL(0)</CODE> の文字位置であり, 
-     変換中文字列全体の文字数となる. <BR>
-     なお, 未確定文字列中の文節区切り位置は, 
-     対象文節 / よみ列修正文節の特定のために使用されるため, 
-     厳密な意味での文節区切り位置とは異なる場合がある. 
+ <DD>
+     <CODE>(n_cl+1)</CODE> , 
+     . 
+      &quot;0&quot; 
+     &quot;0&quot; , 
+      <CODE>TNULL(0)</CODE> , 
+     . <BR>
+     , , 
+      / , 
+     . 
  <DT><CODE>cnv</CODE> :
- <DD>変換中文字列へのвказівник (Pointer)である. 
-     一般に確定文字列と未確定文字列からなっているが, 
-     <CODE>n_out = 0</CODE> ときは, 未確定文字列のみとなり, 
-     <CODE>n_our = n_cl</CODE> のときは, 確定文字列のみとなる. 
-     変換中文字列の最後には <CODE>TNULL(0)</CODE> が入っている. 
+ <DD>. 
+     , 
+     <CODE>n_out = 0</CODE> , , 
+     <CODE>n_our = n_cl</CODE> , . 
+      <CODE>TNULL(0)</CODE> . 
  <DT><CODE>in_cnv</CODE> :
- <DD>入力(よみ)文字列の文節区切り位置を示す 
-     <CODE>(n_cl + 1)</CODE> 個の要素からなるワード配列へのвказівник (Pointer)であり, 
-     各文節の先頭の文字位置を表わす. 
-     文字位置は &quot;0&quot; から始まるため先頭の要素は常に &quot;0&quot; となり, 
-     最後の要素は入力 ( よみ ) 文字列の最後の <CODE>TNULL(0)</CODE>
-     の文字位置であり, 
-     入力 ( よみ ) 文字列全体の文字数となる. 
+ <DD>() 
+     <CODE>(n_cl + 1)</CODE> , 
+     . 
+      &quot;0&quot;  &quot;0&quot; , 
+      (  )  <CODE>TNULL(0)</CODE>
+     , 
+      (  ) . 
  <DT><CODE>in</CODE> :
- <DD>変換中文字列に対応する入力(よみ)文字列へのвказівник (Pointer)である. 
-     入力(よみ)文字列の最後には <CODE>TNULL(0)</CODE> が入っている. 
+ <DD>(). 
+     () <CODE>TNULL(0)</CODE> . 
 </DL>
 
 <UL>
- <LI><CODE>cl_cnv, cnv, cl_in, in</CODE> は, 
-     いずれもテキスト入力ポート内部に確保されたバッファへのвказівник (Pointer)であり, 
-     <CODE>TIPREC</CODE> には, このвказівник (Pointer)自体が設定される. 
+ <LI><CODE>cl_cnv, cnv, cl_in, in</CODE> , 
+     , 
+     <CODE>TIPREC</CODE> , . 
 </UL>
 
 <P>
-  一般に自動変換の場合は, 
-  テキスト入力ポートへのキー入力のたびに, 
-  変換中文字列の状態が変化し, 
-  逐次確定された文節が掃き出されることになるが, 
-  指定変換の場合は, 
-  <KBD>[変換 / 逆変換]</KBD>を入力するまでは, 
-  変換中文字列と入力文字列は同一であり, 
-  文節数は常に &quot;1&quot; となる. 
+  , 
+  , 
+  , 
+  , 
+  , 
+  <KBD>[ / ]</KBD>, 
+  , 
+   &quot;1&quot; . 
 </P>
 <P>
-  以下にテキスト入力Запис (Record)の内容の例を示す. 
+  . 
 </P>
 
 <A name="akv">
-  <CENTER><IMG src="gif/tiprec.gif" alt="テキスト入力Запис (Record)の内容"></CENTER>
+  <CENTER><IMG src="gif/tiprec.gif" alt=""></CENTER>
 </A>
-<CENTER>図 112 : テキスト入力Запис (Record)の内容</CENTER>
+<CENTER> 112 : </CENTER>
 
-<H4><A name="akw">3.7.1.4 カレット表示</A></H4>
+<H4><A name="akw">3.7.1.4 </A></H4>
 
 <P>
-  カレットは文字の挿入位置を示す山形のシンボルであり, 
-  通常は適当な周期でブПосилання (Link)している. 
-  カレットは, 何も選択されていないことを示す, 
-  選択ギャップ ( ヌル選択 ) の縦棒と結びついた場合は, 
-  文字カーソルの意味を持つことになる. 
+  , 
+  . 
+  , , 
+   (  ) , 
+  . 
 </P>
 <P>
-  テキスト入力プリミティブでは, 
-  カレット ( 文字カーソル ) の表示をサポートするための関数が用意されており, 
-  以下のструктура даних Cによりカレットが定義される. 
-  カレット表示の関数では, 
-  表示するカレットの状態を保持していないため, 
-  この <CODE>CARET</CODE>  структура даних Cの中に, 
-  カレットの状態が保持されることになる. 
+  , 
+   (  ) , 
+  . 
+  , 
+  , 
+   <CODE>CARET</CODE>  , 
+  . 
 </P>
 
 <PRE>
     typedef struct {
-        W   sts;        /* 0:消去状態  1:表示状態 */
-        W   gid;        /* 描画環境ID */
-        PNT pos;        /* 表示位置 */
-        W   height;     /* 表示高さ */
-        UW  kind;       /* カレット種類 0:横  1:縦 */
-        COLOR   color;  /* カレットの表示カラー */
+        W   sts;        /* 0:  1: */
+        W   gid;        /* ID */
+        PNT pos;        /*  */
+        W   height;     /*  */
+        UW  kind;       /*  0:  1: */
+        COLOR   color;  /*  */
     } CARET;
 </PRE>
 
 <DL>
  <DT><CODE>sts</CODE> :
- <DD>カレットの表示状態であり, 
-     &quot;0&quot;で消去状態, 
-     &quot;1&quot;で表示状態を示す. <BR>
-     この値はカレットの表示関数 ( <CODE>idsp_car()</CODE> )
-     により自動的に更新されるが, 
-     カレットの表示状態に応じて直接変更してもよい. 
+ <DD>, 
+     &quot;0&quot;, 
+     &quot;1&quot;. <BR>
+      ( <CODE>idsp_car()</CODE> )
+     , 
+     . 
  <DT><CODE>gid</CODE>n ：
- <DD>カレットを描画する描画環境のIDである. 
+ <DD>ID. 
  <DT><CODE>pos</CODE> ：
- <DD>カレットの山型の頂点の位置(相対座標)の指定である. 
+ <DD>(). 
  <DT><CODE>height</CODE> ：
- <DD>選択ギャップの表示の高さであり, 
-     通常はその位置の文字の高さに合わせることになる. 
-     <CODE>height = 0</CODE> の場合は, 
-     選択ギャップは表示されず, カレットのみの表示となる. 
+ <DD>, 
+     . 
+     <CODE>height = 0</CODE> , 
+     , . 
  <DT><CODE>kind</CODE> :
- <DD>カレットの種類を指定する以下の値である. 
+ <DD>. 
 
 <PRE>
     XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXD
 </PRE>
      <DL compact>
       <DT><CODE>D</CODE>:
-      <DD>= 0 : 横書き<BR>
-          = 1 : 縦書き
+      <DD>= 0 : <BR>
+          = 1 : 
       <DT><CODE>X</CODE>:
-      <DD>予約
+      <DD>
      </DL>
 
  <DT><CODE>color</CODE> :
  <DD>
-     カレットの表示カラーの指定であるが, 
-     インプリメントによってはサポートされない場合もある. 
+     , 
+     . 
 </DL>
 
 <P>
-  通常カレットの標準形状を, 
-  以下に示すが詳細はインプリメントに依存する. 
+  , 
+  . 
 </P>
 
 <A name="akx">
-  <CENTER><IMG src="gif/curet.gif" alt="通常カレットの標準形状"></CENTER>
+  <CENTER><IMG src="gif/curet.gif" alt=""></CENTER>
 </A>
-<CENTER>図 113 : 通常カレットの標準形状</CENTER>
+<CENTER> 113 : </CENTER>
 
 <P>
-  カレットの表示は, 
-  基本的に入力受付状態のウィンドウに対してのみ行なわれる. 
+  , 
+  . 
 </P>
 
-<H3><A name="aky">3.7.2 データタイプ/定数の定義</A></H3>
+<H3><A name="aky">3.7.2 /</A></H3>
 
-<H4>□ 定数定義</H4>
+<H4>□ </H4>
 
 <PRE>
-#define TIP_KANA    0x0000  /* かな入力モード */
-#define TIP_ROMAN1  0x0001  /* ローマ字入力モード(n) */
-#define TIP_ROMAN2  0x0002  /* ローマ字入力モード(nn) */
+#define TIP_KANA    0x0000  /*  */
+#define TIP_ROMAN1  0x0001  /* (n) */
+#define TIP_ROMAN2  0x0002  /* (nn) */
 </PRE>
 
 <PRE>
-#define TIP_DIRMD   0x0100  /* 直接モード */
-#define TIP_CNVMD   0x0000  /* 変換モード */
+#define TIP_DIRMD   0x0100  /*  */
+#define TIP_CNVMD   0x0000  /*  */
 </PRE>
 
 <PRE>
-#define TIP_AUTO    0   /* 自動変換モード */
-#define TIP_MANUAL  1   /* 指定変換モード */
+#define TIP_AUTO    0   /*  */
+#define TIP_MANUAL  1   /*  */
 </PRE>
 
 <PRE>
-#define TIP_OUT     0x1 /* 確定文節が発生した */
-#define TIP_CNV     0x2 /* 未確定文節が変更された */
-#define TIP_CAR     0x4 /* カレット位置が変化した */
-#define TIP_CL      0x8 /* 対象文節, または区切り位置が変化した */
+#define TIP_OUT     0x1 /*  */
+#define TIP_CNV     0x2 /*  */
+#define TIP_CAR     0x4 /*  */
+#define TIP_CL      0x8 /* ,  */
 </PRE>
 
 <H4>□ ichg_lrn()</H4>
 
 <PRE>
-#define TIP_DIC_COMMON  0x00000001  /* 基本辞書 */
-#define TIP_DIC_SINGLE  0x00000002  /* 単漢字辞書 */
-#define TIP_DIC_USR     0x00000004  /* ユーザ辞書 */
+#define TIP_DIC_COMMON  0x00000001  /*  */
+#define TIP_DIC_SINGLE  0x00000002  /*  */
+#define TIP_DIC_USR     0x00000004  /*  */
 </PRE>
 
 <H4>□ TIP</H4>
 
 <PRE>
 typedef struct {
-    W   n_out;      /* 確定文節数 */
-    W   n_cl;       /* 全文節数 */
-    W   n_roman;    /* 部分ローマ字数 */
-    W   update;     /* 表示更新開始文字位置 */
-    UW  caret;      /* 現在のカレット位置 */
-    UW  clause;     /* 現在対象とする文節番号および状態 */
-    W*  cl_cnv;     /* 変換中文字列の文節位置配列 */
-    TC* cnv;        /* 変換中文字列 */
-    W*  cl_in;      /* 入力文字列の文節位置配列 */
-    TC* in;         /* 入力文字列 */
+    W   n_out;      /*  */
+    W   n_cl;       /*  */
+    W   n_roman;    /*  */
+    W   update;     /*  */
+    UW  caret;      /*  */
+    UW  clause;     /*  */
+    W*  cl_cnv;     /*  */
+    TC* cnv;        /*  */
+    W*  cl_in;      /*  */
+    TC* in;         /*  */
 } TIPREC;
 </PRE>
 
 <PRE>
-#define TIP_YOMIMOD 0x80000000  /* 文節の M フラグ */
+#define TIP_YOMIMOD 0x80000000  /*  M  */
 </PRE>
 
-<H4>□ カレット</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct {
-    W   sts;        /* 0:消去状態  1:表示状態 */
-    W   gid;        /* 描画環境ID */
-    PNT pos;        /* 表示位置 */
-    W   height;     /* 表示高さ */
-    UW  kind;       /* カレット種類 0:横  1:縦 */
-    COLOR   color;  /* カレットの表示カラー */
+    W   sts;        /* 0:  1: */
+    W   gid;        /* ID */
+    PNT pos;        /*  */
+    W   height;     /*  */
+    UW  kind;       /*  0:  1: */
+    COLOR   color;  /*  */
 } CARET;
 </PRE>
 
 
-<H3><A name="akz">3.7.3 テキスト入力プリミティブの関数</A></H3>
+<H3><A name="akz">3.7.3 </A></H3>
 
 <P>
-  ここでは, 
-  テキスト入力プリミティブが外殻の拡張системний виклик (System Call)としてサポートしている各関数の詳細を説明する. 
+  , 
+  системний виклик. 
 </P>
 <P>
-  関数はすべて <CODE>WERR</CODE> 型の関数値をとり, 
-  何らかのПомилкаがあった場合は«負»のкод помилкиが戻る. 
-  Успішне виконання終了時には«0»または«正»の値が戻る. 
+   <CODE>WERR</CODE> , 
+  Помилка«»Помилка. 
+  Успішне виконання«0»«». 
 </P>
 <P>
-  各関数のкод помилкиとしては, ここで示した以外にも, 
-  核や他の外殻でПомилкаが検出された場合は, 
-  以下のкод помилкиが直接戻る場合がある. 
+  Помилка, , 
+  Помилка, 
+  Помилка. 
 </P>
 
 <DL>
  <DT><CODE>E_xxx</CODE> :
- <DD>核のПомилка ( <CODE>E_NOMEM, E_NOSPC, E_PAR </CODE>等 )
+ <DD>Помилка ( <CODE>E_NOMEM, E_NOSPC, E_PAR </CODE> )
  <DT><CODE>EG_xxx</CODE> :
- <DD>ディスプレイプリミティブのПомилка ( <CODE>EG_ADR</CODE> 等 )
+ <DD>Помилка ( <CODE>EG_ADR</CODE>  )
 </DL>
 
 <P>
-  また, 各関数のпараметриの説明では, 以下に示す記述方法を使用している. 
+  , , . 
 </P>
 
 <PRE>
-    ( x ‖ y ‖ z ) -- x, y, z のいずれか1つを意味する. 
-    |               -- OR で指定可能なことを意味する. 
-    [ ]             -- 省略可能なことを意味する. 
+    ( x ‖ y ‖ z ) -- x, y, z 1. 
+    |               -- OR . 
+    [ ]             -- . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ichg_mod</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>テキスト入力モードの変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -488,33 +488,33 @@ WERR    ichg_mod(W mode)
 <PRE>
 W   mode ::= ( TIP_KANA  ‖ TIP_ROMAN1 ‖ TIP_ROMAN2)
 
-        TIP_KANA    0   かな入力モード
-        TIP_ROMAN1  1   ローマ字入力モード1 (n方式)
-        TIP_ROMAN2  2   ローマ字入力モード2 (nn方式)
+        TIP_KANA    0   
+        TIP_ROMAN1  1   1 (n)
+        TIP_ROMAN2  2   2 (nn)
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は変更前の入力モード)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  テキスト入力モードを <CODE>mode</CODE> で指定した内容に変更し, 
-  変更前のテキスト入力モードを関数値として戻す. 
-  mode&lt;0 の場合は入力モードを変更せずに現在の入力モードを関数値として戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+   <CODE>mode</CODE> , 
+  . 
+  mode&lt;0 . 
 </P>
 <P>
-  テキスト入力モードはグローバルに有効であり, 
-  入力モードを変更した場合は, 
-  全てのПроцес (Process)でオープンしているテキスト入力ポートに対して, 
-  変更した時点から適用される. 
+  , 
+  , 
+  , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      : параметриが不正である(mode が不正)
+EX_PAR      : (mode )
 </PRE>
 
 
@@ -522,7 +522,7 @@ EX_PAR      : параметриが不正である(mode が不正)
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ichg_lrn</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>学習辞書の保存状態変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -533,44 +533,44 @@ WERR    ichg_lrn(UW kind, W stat)
 
 <H4>【Параметри】</H4>
 <PRE>
-UW  kind    辞書の種類
-W   stat    0で保存しないことを指定
-            &gt;0で保存することを指定
+UW  kind    
+W   stat    0
+            &gt;0
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は変更前の学習辞書の保存状態)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>kind</CODE> で指定した種類の学習辞書の保存状態を, 
-  <CODE>stat</CODE> で指定した内容に変更し, 
-  変更前の学習辞書の保存状態を関数値として戻す. 
-  <CODE>stat&lt;0</CODE> の場合は, 
-  保存状態を変更せずに現在の保存状態を関数値として戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>kind</CODE> , 
+  <CODE>stat</CODE> , 
+  . 
+  <CODE>stat&lt;0</CODE> , 
+  . 
 </P>
 <P>
-  <CODE>kind</CODE> は, ビット対応で辞書の種類を指定する
-  ( 対応ビット = 1 で指定 ) . 
+  <CODE>kind</CODE> , 
+  (  = 1  ) . 
 </P>
 <PRE>
          0XXX XXXX XXXX XXXX
          |------+------|  ||
-                |         |+-- 基本辞書
-   インプリメント依存辞書 +---- 単漢字変換辞書
+                |         |+-- 
+    +---- 
 </PRE>
 
 <P>
-  なお, 学習辞書の保存状態の変更による実際の効果はインプリメントに依存する. 
+  , . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_NOSPT    : 現在のインプリメントではそのфункціонал / підсистемаをサポートしていない
-EX_PAR      : параметриが不正である(kind または stat が不正)
+EX_NOSPT    : функціонал / підсистема
+EX_PAR      : (kind  stat )
 </PRE>
 
 
@@ -578,7 +578,7 @@ EX_PAR      : параметриが不正である(kind または stat が不正
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">iopn_tip</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>テキスト入力ポートのオープン</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -590,59 +590,59 @@ WERR    iopn_tip(TIPREC *tip, W mode)
 <H4>【Параметри】</H4>
 
 <PRE>
-TIPREC  *tip    テキスト入力ポート用Запис (Record)
+TIPREC  *tip    
 W       mode    ::= ( TIP_DIRMD ‖ TIP_CNVMD ) | ( TIP_AUTO ‖ TIP_MANUAL )
 
-        TIP_DIRMD   0x100   直接モード(変換なし)
-        TIP_CNVMD   0   変換モード
+        TIP_DIRMD   0x100   ()
+        TIP_CNVMD   0   
 
-        TIP_AUTO    0   自動変換モード
-        TIP_MANUAL  1   指定(マニュアル)変換モード
+        TIP_AUTO    0   
+        TIP_MANUAL  1   ()
 </PRE>
 
 <P>
-  <CODE>TIP_DIRMD</CODE> を指定した時, 
-  <CODE>TIP_AUTO / TIP_MANUAL</CODE> の指定は, 
-  意味を持たず無視される. 
+  <CODE>TIP_DIRMD</CODE> , 
+  <CODE>TIP_AUTO / TIP_MANUAL</CODE> , 
+  . 
 </P>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はテキスト入力ポートID(tipid))
+>= 0     Успішне виконання(ID(tipid))
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  テキスト入力ポートを新規にオープンし, そのID ( <CODE>tipid</CODE> ≧ 0 ) を関数値として戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , ID ( <CODE>tipid</CODE> ≧ 0 ) . 
 </P>
 <P>
-  <CODE>tip</CODE> はオープンしたテキスト入力ポートに割り当てられる, 
-  <CODE>TIPREC</CODE> の領域へのвказівник (Pointer)であり, 
-  以後の操作でのテキスト入力ポートの状態がセットされることになる. 
-  オープン時には, <CODE>tip</CODE> で指定した <CODE>TIPREC</CODE>
-  の内容はすべて &quot;0&quot; に初期化される. 
+  <CODE>tip</CODE> , 
+  <CODE>TIPREC</CODE> , 
+  . 
+  , <CODE>tip</CODE>  <CODE>TIPREC</CODE>
+   &quot;0&quot; . 
 </P>
 <P>
-  <CODE>mode</CODE>  は変換モードの指定であるが, 
-  インプリメントによってサポートされていない場合はПомилкаとなる. 
+  <CODE>mode</CODE>  , 
+  Помилка. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(tip)のアクセスは許されていない
-EX_LIMIT    : システムの制限を超えた
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した
-EX_NOSPT    : 現在のインプリメントではそのфункціонал / підсистемаをサポートしていない
-              (サポートしない変換モード)
-EX_PAR      : параметриが不正である(mode が不正)
+EX_ADR      : (tip)
+EX_LIMIT    : 
+EX_NOSPC    : 
+EX_NOSPT    : функціонал / підсистема
+              ()
+EX_PAR      : (mode )
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">icls_tip</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>テキスト入力ポートのクローズ</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -651,7 +651,7 @@ ERR icls_tip(W tipid)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   tipid   テキスト入力ポートID
+W   tipid   ID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -659,14 +659,14 @@ W   tipid   テキスト入力ポートID
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>tipid</CODE> で指定したテキスト入力ポートをクローズする. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>tipid</CODE> . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">iput_key</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>テキスト入力ポートへのキー入力</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -675,61 +675,61 @@ WERR    iput_key(W tipid, EVENT *evt)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       tipid   テキスト入力ポートID
-EVENT   *evt    キーПодія (Event)
+W       tipid   ID
+EVENT   *evt    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はテキスト入力ポートの変化状態)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>tipid</CODE> で指定したテキスト入力ポートに
-  <CODE>*evt</CODE> で指定したキー入力Подія (Event)
-  ( <CODE>EV_KEYDWN</CODE> または <CODE>EV_AUTKEY</CODE> ) を入力し, 
-  その結果のテキスト入力ポートの状態をオープン時に割り当てた
-  <CODE>TIPREC</CODE> に戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>tipid</CODE> 
+  <CODE>*evt</CODE> 
+  ( <CODE>EV_KEYDWN</CODE>  <CODE>EV_AUTKEY</CODE> ) , 
+  
+  <CODE>TIPREC</CODE> . 
 </P>
 <P>
-  関数値として, テキスト入力ポートの状態変化が以下のビット対応で戻される. 
-  何の変化も発生しなかった場合は, 
-  関数値は&quot;0&quot;となる. 
-  прикладний додаток / програмаはこの関数値に応じた適当な処理を行なう必要がある. 
+  , . 
+  , 
+  &quot;0&quot;. 
+  прикладний додаток. 
 </P>
 <PRE>
-    TIP_OUT     0x1 確定文節が発生した
-    TIP_CNV     0x2 未確定文字列が変更された
-    TIP_CAR     0x4 カレット位置が変化した
-    TIP_CL      0x8 対象文節が移動した, または区切り位置が変化した
+    TIP_OUT     0x1 
+    TIP_CNV     0x2 
+    TIP_CAR     0x4 
+    TIP_CL      0x8 , 
 </PRE>
 
 <P>
-  <CODE>*evt</CODE> で指定したПодія (Event)の内容が以下のいずれかの場合はПомилкаとなり, 
-  <CODE>TIPREC</CODE> の内容は一切変化しない. 
+  <CODE>*evt</CODE> Помилка, 
+  <CODE>TIPREC</CODE> . 
 </P>
 
 <UL>
- <LI> Подія (Event)のタイプが EV_KEYDWN, EV_AUTKEY 以外の時
- <LI> 文字コード自体が不正の時
- <LI> ローマ字入力として定義されていない文字コードの組み合せの時(インプリメント依存)
- <LI> サポートしていないфункціонал / підсистемаのфункціонал / підсистемаキーコードの時
+ <LI>  EV_KEYDWN, EV_AUTKEY 
+ <LI> 
+ <LI> ()
+ <LI> функціонал / підсистемафункціонал / підсистема
 </UL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_CKEY     : 変換中文字列が存在しない状態でфункціонал / підсистемаキーコードが入力された
-EX_KEY      : 不正キーコードである
-EX_LIMIT    : システムの制限を超えた(変換中文字列が長すぎる)
-EX_PAR      : параметриが不正である(EV_KEYDWN, または EV_AUTKEY ではない)
-EX_TID      : テキスト入力ポート(tipid)は存在していない
+EX_CKEY     : функціонал / підсистема
+EX_KEY      : 
+EX_LIMIT    : ()
+EX_PAR      : (EV_KEYDWN,  EV_AUTKEY )
+EX_TID      : (tipid)
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">iput_str</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>テキスト入力ポートへの文字列入力</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -738,8 +738,8 @@ ERR iput_str(W tipid, TC *str)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   tipid   テキスト入力ポートID
-TC  *str    文字列
+W   tipid   ID
+TC  *str    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -750,48 +750,48 @@ TC  *str    文字列
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>tipid</CODE>  で指定したテキスト入力ポートに
-  <CODE>str</CODE> で指定した文字列を入力して変換を行ない, 
-  その結果のテキスト入力ポートの状態を, オープン時に割り当てた <CODE>TIPREC</CODE> に戻す. 
+  <CODE>tipid</CODE>  
+  <CODE>str</CODE> , 
+  ,  <CODE>TIPREC</CODE> . 
 </P>
 <P>
-  <CODE>str</CODE> で指定した文字列は, 
-  ローマ字コードを含まない通常の文字コード, 
-  <KBD>[スペース(=0x20)]</KBD>および<KBD>[リクワイアードスペース(=0xA0)]</KBD>のみからなる
-  <CODE>TNULL(0)</CODE> で終了する文字列であり, 
-  途中にローマ字コードや, <KBD>[改行]</KBD>等の特殊文字キーコード, 
-  <KBD>[変換]</KBD>等のфункціонал / підсистемаキーコードが含まれている場合は, 
+  <CODE>str</CODE> , 
+  , 
+  <KBD>[(=0x20)]</KBD><KBD>[(=0xA0)]</KBD>
+  <CODE>TNULL(0)</CODE> , 
+  , <KBD>[]</KBD>, 
+  <KBD>[]</KBD>функціонал / підсистема, 
   <CODE>EX_KEY</CODE>
-  のПомилкаとなる. 
+  Помилка. 
 </P>
 <P>
-  また, 直接モード ( <CODE>TIP_DIRMD</CODE> ) でオープンされたテキスト入力ポートを指定した場合は, 
-  <CODE>EX_NOSPT</CODE> のПомилкаとなる. 
+  ,  ( <CODE>TIP_DIRMD</CODE> ) , 
+  <CODE>EX_NOSPT</CODE> Помилка. 
 </P>
 <P>
-  Помилкаが発生した場合は, 
-  <CODE>TIPREC</CODE> の内容は保証されない. 
+  Помилка, 
+  <CODE>TIPREC</CODE> . 
 </P>
 <P>
-  この関数は, 主に入力済みの文字列に対する再変換の最初の変換時に使用され, 
-  テキスト入力ポートに変換中文字列が存在していない状態で使用される. 
-  テキスト入力ポートに, 変換中文字列が存在していた状態で使用した場合の結果は, 
-  保証されない. 
+  , , 
+  . 
+  , , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_KEY      : 不正キーコードである
-EX_LIMIT    : システムの制限を超えた(変換中文字列が長すぎる)
-EX_NOSPT    : 現在のインプリメントではそのфункціонал / підсистемаをサポートしていない
-              (直接モードでオープンされている)
-EX_TID      : テキスト入力ポート(tipid)は存在していない
+EX_KEY      : 
+EX_LIMIT    : ()
+EX_NOSPT    : функціонал / підсистема
+              ()
+EX_TID      : (tipid)
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ichg_blk</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>カレットのブПосилання (Link)周期の取出し／設定</TD></TR>
+<TR><TD>／</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -801,41 +801,41 @@ WERR    ichg_blk(W intvl)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   intvl   ブПосилання (Link)周期
+W   intvl   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は設定前のブПосилання (Link)周期)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  カレットのブПосилання (Link)周期を <CODE>intvl</CODE> で指定した値に設定し, 
-  設定以前の値を関数値として戻す. 
-  <CODE>intvl = 0</CODE> の場合は, 
-  ブПосилання (Link)しない事を意味し, <CODE>intvl&lt;0</CODE> の場合は, 
-  設定せずに現在の設定値を戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+   <CODE>intvl</CODE> , 
+  . 
+  <CODE>intvl = 0</CODE> , 
+  , <CODE>intvl&lt;0</CODE> , 
+  . 
 </P>
 <P>
-  ブПосилання (Link)周期の単位はミリ秒であるが, 
-  実際にはインプリメントに依存した単位で, 
-  大きな値の方向に丸められることになる. 
+  , 
+  , 
+  . 
 </P>
 <P>
- カレットのブПосилання (Link)周期はグローバルに適用される. 
+ . 
 </P>
 
 <H4>【Коди помилок】</H4>
 
 <P>
-  Помилкаは発生しない. 
+  Помилка. 
 </P>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">idsp_car</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>カレットの表示</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -844,73 +844,73 @@ ERR idsp_car(CARET *car, W mode)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-CARET   *car    カレットデータ<BR>
-W       mode    表示 / 消去 / ブПосилання (Link)指定
+CARET   *car    <BR>
+W       mode     /  / 
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 >= 0     Успішне виконання
-&lt;0    Помилка(код помилки)
+&lt;0    Помилка(Помилка)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>car</CODE> で指定したカレットを <CODE>mode</CODE> の指定に従って, 
-  消去 / 表示 / ブПосилання (Link)する. 
+  <CODE>car</CODE>  <CODE>mode</CODE> , 
+   /  / . 
 </P>
 
 <DL>
  <DT><CODE>mode = 0</CODE>:
- <DD>消去
+ <DD>
      <P>
-     <CODE>car-&gt;sts ≠0</CODE> の場合, 
-     <CODE>car-&gt;pos, car-&gt;height</CODE> で示されるカレットを消去し, 
-     <CODE>car-&gt;sts</CODE> を 0 に設定する. <BR>
-     <CODE>car-&gt;sts = 0</CODE> の場合は何も行なわない. 
+     <CODE>car-&gt;sts ≠0</CODE> , 
+     <CODE>car-&gt;pos, car-&gt;height</CODE> , 
+     <CODE>car-&gt;sts</CODE>  0 . <BR>
+     <CODE>car-&gt;sts = 0</CODE> . 
      </P>
  <DT><CODE>&gt; 0</CODE> : 
- <DD>表示
+ <DD>
      <P>
-     <CODE>car-&gt;sts = 0</CODE> の場合, 
-     <CODE>car-&gt;pos, car-&gt;height</CODE> で示されるカレットを表示し, 
-     <CODE>car-&gt;sts</CODE> を 1 に設定する. <BR>
-     <CODE>car-&gt;sts ≠ 0</CODE> の場合は何も行なわない. 
+     <CODE>car-&gt;sts = 0</CODE> , 
+     <CODE>car-&gt;pos, car-&gt;height</CODE> , 
+     <CODE>car-&gt;sts</CODE>  1 . <BR>
+     <CODE>car-&gt;sts ≠ 0</CODE> . 
      </P>
  <DT><CODE>&lt; 0</CODE> :
- <DD>ブПосилання (Link)
+ <DD>
      <P>
-     ブПосилання (Link)の間隔に達していた場合, 
-     <CODE>car-&gt;sts</CODE> の値に応じて, 
+     , 
+     <CODE>car-&gt;sts</CODE> , 
      <CODE>car-&gt;pos, car -&gt;height</CODE>
-     で示されるカレットを表示または消去し, 
-     <CODE>car-&gt;sts</CODE> を更新する. <BR>
-     ブПосилання (Link)間隔に達していない場合は何も行なわない. 
+     , 
+     <CODE>car-&gt;sts</CODE> . <BR>
+     . 
      </P>
 </DL>
 
 <P>
-  ブПосилання (Link)の場合は, ブПосилання (Link)の周期以内に周期的に
+  , 
   <CODE>idsp_car (&amp;car, -1) </CODE>
-  を実行する必要がある. 
+  . 
 </P>
 <P>
-  カレットの表示を移動する場合は, まず消去を行なった後, 
-  カレットの位置, 高さを変更して, 
-  表示を行なうことになる. 
-  また, 表示状態で, 
-  カレットструктура даних Cのпараметриを変更した場合の動作は保証されない. 
+  , , 
+  , , 
+  . 
+  , , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(car)のアクセスは許されていない
+EX_ADR      : (car)
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="data.html">前頁:3.6 データマネージャにもどる</A><BR>
-<A href="omgr.html">次頁:3.8 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)にすすむ</A><BR>
+<A href="data.html">:3.6 </A><BR>
+<A href="omgr.html">:3.8 Реальний об'єкт (Real Object)／Віртуальний об'єкт (Virtual Object)</A><BR>
 </BODY>
 </HTML>

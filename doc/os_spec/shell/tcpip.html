@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.10 TCP/IPマネージャ
+  3.10 TCP/IP
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="font_mgr.html">
@@ -14,56 +14,56 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="font_mgr.html">前頁:3.9 Менеджер шрифтів (Font Manager)にもどる</A><BR>
-<A href="printmgr.html">次頁:3.11 印刷マネージャ仕様書にすすむ</A><BR>
+<A href="font_mgr.html">:3.9 Менеджер шрифтів (Font Manager)</A><BR>
+<A href="printmgr.html">:3.11 Друк</A><BR>
 <HR>
 
-<H2><A name="anc">3.10 TCP/IPマネージャ</A></H2>
+<H2><A name="anc">3.10 TCP/IP</A></H2>
 
-<H3><A name="and">3.10.1 構成</A></H3>
+<H3><A name="and">3.10.1 </A></H3>
 
 <P>
-  TCP/IP マネージャは LAN を利用した TCP/IP
-  通信のфункціонал / підсистемаを実現するモジュールでネットワーク上の別のマシンと TCP/IP
-  プロトコルを用いて通信することができる. 
-  TCP/IP マネージャのсистемний виклик (System Call)はソケットを意識したものとなっている. 
+  TCP/IP  LAN  TCP/IP
+  функціонал / підсистемаМережа TCP/IP
+  . 
+  TCP/IP системний викликСокет (Socket). 
 </P>
 <P>
-  通信はソケットを作成し, 
-  ソケットデスクリプタを使用して行なう. 
-  このソケットデスクリプタはФайл (File)デスクリプタとは別の概念であり, 
-  TCP/IP マネージャのсистемний виклик (System Call)ではソケットデスクリプタのみを扱うことができる. 
+  Сокет (Socket), 
+  Сокет (Socket). 
+  Сокет (Socket), 
+  TCP/IP системний викликСокет (Socket). 
 </P>
 <P>
-  また, ソケットによる通信であっても, 
-  同一マシン内の異なるПроцес (Process)間の通信手段として利用することはできない. 
+  , Сокет (Socket), 
+  . 
 </P>
 
 <H3><A name="anh">3.10.2 TCP/IP</A></H3>
 
 <P>
-  以下のデータを定義する. 
+  . 
 </P>
 
 <PRE>
-/*  プロトコルファミリ */
+/*   */
 
 #define PF_UNSPEC   0       /* unspecified protocol family */
 #define PF_INET     2       /* TCP/IP and related */
 
-/*  адреса пам'ятіファミリ
+/*  
 */
 #define AF_UNSPEC   0       /* unspecified address family */
 #define AF_INET     2       /* TCP/IP and related */
 
-/*  ソケットタイプ
+/*  Сокет (Socket)
 */
 
 #define SOCK_STREAM 1       /* stream socket */
 #define SOCK_DGRAM  2       /* datagram socket */
 #define SOCK_RAW    3       /* raw-protocol interface */
 
-/*  getsockopt(), setsockopt() のオプション
+/*  getsockopt(), setsockopt() 
 */
 
 #define SOL_SOCKET      0xffff      /* options for socket level */
@@ -87,35 +87,35 @@
 
 #define IP_OPTIONS      0x0001      /* IP header options */
 
-/*  recv, send のオプション */
+/*  recv, send  */
 
 #define MSG_OOB         0x01        /* send or receive out of band data */
 #define MSG_PEEK        0x02        /* take data but leave it */
 #define MSG_DONTROUTE   0x04        /* do not route */
 
-/*  fcntl のオプション */
+/*  fcntl  */
 
 #define O_NDELAY    0x04        /* non-blocking */
 #define FNDELAY     O_NDELAY    /* synonym */
 #define F_GETFL     3           /* get flags */
 #define F_SETFL     4           /* set flags */
 
-/*  ioctl のオプション */
+/*  ioctl  */
 
 #define SIOCATMARK  7       /* check for out of bound data */
 
-/*  адреса пам'яті */
+/*   */
 struct sockaddr {
     unsigned short sa_family;   /* address family */
     char sa_data[14];           /* up to 14 bytes of direct address */
 };
 
-/*  インターネットадреса пам'яті */
+/*   */
 struct in_addr {
     unsigned long s_addr;
 };
 
-/*  ソケットадреса пам'яті */
+/*  Сокет (Socket) */
 struct sockaddr_in {
     short sin_family;
     unsigned short sin_port;
@@ -129,7 +129,7 @@ struct iovec {              /* address and length */
     int iov_len;            /* size */
 };
 
-/*  recvmsg, sendmsg 用Повідомлення (Message)ヘッダ */
+/*  recvmsg, sendmsg  */
 struct msghdr {             /* Message header for recvmsg and sendmsg. */
     char *msg_name;         /* optional address */
     int msg_namelen;        /* size of address */
@@ -171,49 +171,49 @@ struct timeval {        /* Timeout format for select() */
 };
 </PRE>
 
-<H3><A name="ani">3.10.3 код помилки</A></H3>
+<H3><A name="ani">3.10.3 Помилка</A></H3>
 
 <P>
-  以下のкод помилкиが定義されている. 
+  Помилка. 
 </P>
 
 <PRE>
-#define EX_HOSTUNREACH  ((-401) &lt;&lt; 16)   /* ホストが見つからない */
-#define EX_TIMEDOUT     ((-402) &lt;&lt; 16)   /* TCPIP タイムアウト */
-#define EX_CONNABORTED  ((-403) &lt;&lt; 16)   /* 接続がアボートされた */
-#define EX_NOBUFS       ((-404) &lt;&lt; 16)   /* TCPIP 内部領域不足 */
-#define EX_BADF         ((-405) &lt;&lt; 16)   /* ソケットが無効 */
-#define EX_WOULDBLOCK   ((-407) &lt;&lt; 16)   /* ブロックされる処理がある */
-#define EX_MSGSIZE      ((-408) &lt;&lt; 16)   /* 送信Повідомлення (Message)の細分化ができない */
-#define EX_DESTADDRREQ  ((-409) &lt;&lt; 16)   /* 送信先адреса пам'яті指定が必要 */
-#define EX_PROTOTYPE    ((-410) &lt;&lt; 16)   /* プロトコルが不正 */
-#define EX_NOPROTOOPT   ((-411) &lt;&lt; 16)   /* 利用できないプロトコル指定 */
-#define EX_PROTONOSUPPORT ((-412) &lt;&lt; 16) /* 認識されていないオプション指定 */
-#define EX_SOCKTNOSUPPORT ((-413) &lt;&lt; 16) /* サポートされていないソケットタイプ */
-#define EX_OPNOTSUPP    ((-414) &lt;&lt; 16)   /* サポートされていない動作指定 */
-#define EX_PFNOSUPPORT  ((-415) &lt;&lt; 16)   /* サポートされていないプロトコルファミリ */
-#define EX_AFNOSUPPORT  ((-416) &lt;&lt; 16)   /* サポートされていないадреса пам'ятіファミリ */
-#define EX_ADDRINUSE    ((-417) &lt;&lt; 16)   /* адреса пам'ятіは使用中 */
-#define EX_ADDRNOTAVAIL ((-418) &lt;&lt; 16)   /* адреса пам'ятіが利用できない */
-#define EX_NETDOWN      ((-419) &lt;&lt; 16)   /* ネットワークфункціонал / підсистемаが無効 */
-#define EX_NETUNREACH   ((-420) &lt;&lt; 16)   /* ネットワークが見つからない */
-#define EX_NETRESET     ((-421) &lt;&lt; 16)   /* ネットワークがリセットされた */
-#define EX_CONNRESET    ((-422) &lt;&lt; 16)   /* 接続がリセットされた */
-#define EX_ISCONN       ((-423) &lt;&lt; 16)   /* ソケットは接続済み */
-#define EX_NOTCONN      ((-424) &lt;&lt; 16)   /* ソケットは接続されていない */
-#define EX_SHUTDOWN     ((-425) &lt;&lt; 16)   /* 送信は禁止されている */
-#define EX_CONNREFUSED  ((-426) &lt;&lt; 16)   /* 接続が拒絶された */
-#define EX_HOSTDOWN     ((-427) &lt;&lt; 16)   /* ホストがダウンしている */
-#define EX_ALREADY      ((-428) &lt;&lt; 16)   /* 既に処理中の動作 */
-#define EX_INPROGRESS   ((-429) &lt;&lt; 16)   /* 非ブロック化ソケットで接続中 */
+#define EX_HOSTUNREACH  ((-401) &lt;&lt; 16)   /*  */
+#define EX_TIMEDOUT     ((-402) &lt;&lt; 16)   /* TCPIP  */
+#define EX_CONNABORTED  ((-403) &lt;&lt; 16)   /*  */
+#define EX_NOBUFS       ((-404) &lt;&lt; 16)   /* TCPIP  */
+#define EX_BADF         ((-405) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_WOULDBLOCK   ((-407) &lt;&lt; 16)   /*  */
+#define EX_MSGSIZE      ((-408) &lt;&lt; 16)   /*  */
+#define EX_DESTADDRREQ  ((-409) &lt;&lt; 16)   /*  */
+#define EX_PROTOTYPE    ((-410) &lt;&lt; 16)   /*  */
+#define EX_NOPROTOOPT   ((-411) &lt;&lt; 16)   /*  */
+#define EX_PROTONOSUPPORT ((-412) &lt;&lt; 16) /*  */
+#define EX_SOCKTNOSUPPORT ((-413) &lt;&lt; 16) /* Сокет (Socket) */
+#define EX_OPNOTSUPP    ((-414) &lt;&lt; 16)   /*  */
+#define EX_PFNOSUPPORT  ((-415) &lt;&lt; 16)   /*  */
+#define EX_AFNOSUPPORT  ((-416) &lt;&lt; 16)   /*  */
+#define EX_ADDRINUSE    ((-417) &lt;&lt; 16)   /*  */
+#define EX_ADDRNOTAVAIL ((-418) &lt;&lt; 16)   /*  */
+#define EX_NETDOWN      ((-419) &lt;&lt; 16)   /* Мережафункціонал / підсистема */
+#define EX_NETUNREACH   ((-420) &lt;&lt; 16)   /* Мережа */
+#define EX_NETRESET     ((-421) &lt;&lt; 16)   /* Мережа */
+#define EX_CONNRESET    ((-422) &lt;&lt; 16)   /*  */
+#define EX_ISCONN       ((-423) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_NOTCONN      ((-424) &lt;&lt; 16)   /* Сокет (Socket) */
+#define EX_SHUTDOWN     ((-425) &lt;&lt; 16)   /*  */
+#define EX_CONNREFUSED  ((-426) &lt;&lt; 16)   /*  */
+#define EX_HOSTDOWN     ((-427) &lt;&lt; 16)   /*  */
+#define EX_ALREADY      ((-428) &lt;&lt; 16)   /*  */
+#define EX_INPROGRESS   ((-429) &lt;&lt; 16)   /* Сокет (Socket) */
 </PRE>
 
-<H3><A name="anj">3.10.4 системний виклик (System Call)</A></H3>
+<H3><A name="anj">3.10.4 системний виклик</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_start</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>TCP/IPの初期化</TD></TR>
+<TR><TD>TCP/IP</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -223,26 +223,26 @@ ERR so_start (W arg)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   arg 特殊用途の引数
+W   arg 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0  Успішне виконання
-＜0  Помилка(код помилки)
+＜0  Помилка(Помилка)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  TCP/IP 通信を初期化する. 
-  通常はприкладний додаток / програмаПроцес (Process)が <CODE>TCPIPMGR</CODE>
- のその他のсистемний виклик (System Call)を呼び出すと暗黙的に TCP/IP
-  通信の初期化が行なわれる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  TCP/IP . 
+  прикладний додаток <CODE>TCPIPMGR</CODE>
+ системний виклик TCP/IP
+  . 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_finish</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>TCP/IPの終了宣言</TD></TR>
+<TR><TD>TCP/IP</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -252,8 +252,8 @@ ERR so_finish (W arg)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   arg 0   終了宣言
-      ＜0  特殊用途
+W   arg 0   
+      ＜0  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -262,21 +262,21 @@ W   arg 0   終了宣言
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  TCP/IP の終了宣言. <BR>
-  Процес (Process)終了時に自動的に呼び出されるので通常は, 明示的に呼び出す必要はない. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  TCP/IP . <BR>
+  , . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-ER_BUSY     TCP/IP ロック中. 
-EX_NOSPT    TCP/IP を使用していないのに so_finish を呼び出した. 
+ER_BUSY     TCP/IP . 
+EX_NOSPT    TCP/IP  so_finish . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_accept</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットへの接続受け付け</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -286,43 +286,43 @@ WERR    so_accept (W s, SOCKADDR *nam, W *namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W         s      ソケットデスクリプタ
-SOCKADDR *nam    адреса пам'ятіが戻される
-W        *namlen адреса пам'ятіのバイト長
+W         s      Сокет (Socket)
+SOCKADDR *nam    
+W        *namlen 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 新規生成されたソケットデスクリプタ
-＜0  код помилки
+≧0 Сокет (Socket)
+＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>listen</CODE> 状態にあるソケットに対して接続要求を待ち, 
-  要求があったときに最初の要求を取りだし, 
-  ソケット <CODE>s</CODE> と同じ属性の新しいソケットを生成しそのデスクリプタを戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>listen</CODE> Сокет (Socket), 
+  , 
+  Сокет (Socket) <CODE>s</CODE> Сокет (Socket). 
 </P>
 <P>
-  接続要求元のадреса пам'ятіとその長さが, 
-  <CODE>nam</CODE> および <CODE>namlen</CODE> に戻される. 
+  , 
+  <CODE>nam</CODE>  <CODE>namlen</CODE> . 
 </P>
 <P>
-  元のソケット <CODE>s</CODE> は, 
-  次の要求を受け付けるためにオープンされたままとなる. 
+  Сокет (Socket) <CODE>s</CODE> , 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効
-EX_WOULDBLOCK   ソケットが非ブロック化されていて, 接続要求がない
-EX_NOBUFS       内部領域不足
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket)
+EX_WOULDBLOCK   Сокет (Socket), 
+EX_NOBUFS       
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_bind</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットへの名前のバインド</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -332,9 +332,9 @@ ERR so_bind (W s, SOCKADDR *nam, W namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W         s      ソケット
-SOCKADDR *nam    адреса пам'яті
-W        namlen  адреса пам'ятіのバイト長
+W         s      Сокет (Socket)
+SOCKADDR *nam    
+W        namlen  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -344,24 +344,24 @@ W        namlen  адреса пам'ятіのバイト長
 <H4>【Детальний опис】</H4>
 
 <P>
-  名前なしのソケットに <CODE>nam</CODE> および
-  <CODE>namlen</CODE> で指定した名前を割り当てる. 
+  Сокет (Socket) <CODE>nam</CODE> 
+  <CODE>namlen</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正). 
-EX_BADF        ソケットが無効. 
-EX_FAULT        名前が不正. 
-EX_ADDRNOTAVAIL 名前(адреса пам'яті)が利用できない. 
-EX_ADDRINUSE    名前(адреса пам'яті)は使用中. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket)). 
+EX_BADF        Сокет (Socket). 
+EX_FAULT        . 
+EX_ADDRNOTAVAIL (). 
+EX_ADDRINUSE    (). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_close</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットを閉じる</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -370,7 +370,7 @@ ERR so_close (W s)
 </PRE>
 
 <H4>【Параметри】</H4>
-W   s   ソケットデスクリプタ
+W   s   Сокет (Socket)
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0  Успішне виконання
@@ -379,20 +379,20 @@ W   s   ソケットデスクリプタ
 <H4>【Детальний опис】</H4>
 
 <P>
-  ソケットをクローズする. 
+  Сокет (Socket). 
 </P>
 
 <H4>【Коди помилок】</H4>
 
 <PRE>
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_connect</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットへの接続の開始</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -402,9 +402,9 @@ ERR so_connect (W s, SOCKADDR *nam, W namlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       ソケットデスクリプタ
-SOCKADDR *na m   адреса пам'яті
-W        namlen  адреса пам'ятіのバイト長
+W        s       Сокет (Socket)
+SOCKADDR *na m   
+W        namlen  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -413,31 +413,31 @@ W        namlen  адреса пам'ятіのバイト長
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>s</CODE> が <CODE>SOCK_DGRAM</CODE> 型ソケットの場合は, 
-  ソケットに関連づけられる通信先のадреса пам'ятіを指定する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>s</CODE>  <CODE>SOCK_DGRAM</CODE> Сокет (Socket), 
+  Сокет (Socket). 
 </P>
 <P>
-  <CODE>s</CODE> が <CODE>SOCK_STREAM</CODE> 型ソケットの場合は, 
-  指定されたадреса пам'ятіへの接続を行なう. 
+  <CODE>s</CODE>  <CODE>SOCK_STREAM</CODE> Сокет (Socket), 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_BADF         ソケットが無効. 
-EX_FAULT        名前(адреса пам'яті)が不正. 
-EX_HOSTUNREACH  接続先が不正. 
-EX_INPROGRESS   ソケットが非ブロック型で, 接続がすぐに完了しない. 
-EX_TIMEDOUT     タイムアウト. 
-EX_CONNABORTED  接続がアボートされた. 
+EX_PAR          (Сокет (Socket))
+EX_ADR          . 
+EX_BADF         Сокет (Socket). 
+EX_FAULT        (). 
+EX_HOSTUNREACH  . 
+EX_INPROGRESS   Сокет (Socket), . 
+EX_TIMEDOUT     . 
+EX_CONNABORTED  . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_fcntl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットの制御</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -447,34 +447,34 @@ WERR    so_fcntl (W s, W cmd, W arg)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   ソケットデスクリプタ
-W   cmd 以下
-        F_GETFL     デスクリプタ状態フラグを取得する
-        F_SETFL     デスクリプタ状態フラグを設定する
-W   arg フラグ値
+W   s   Сокет (Socket)
+W   cmd 
+        F_GETFL     
+        F_SETFL     
+W   arg 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 フラグ値(F_GETFL)
+≧0 (F_GETFL)
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットデスクリプタの状態フラグを取得/設定する. <BR>
-  有効なフラグ値は <CODE>O_NDELAY</CODE> のみである. <BR>
-  <CODE>O_NDELAY</CODE> を指定されたソケットは非ブロック状態となり, 
-  ソケットに関連したсистемний виклик (System Call)では待ちに入らなくなる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket)/. <BR>
+   <CODE>O_NDELAY</CODE> . <BR>
+  <CODE>O_NDELAY</CODE> Сокет (Socket), 
+  Сокет (Socket)системний виклик. 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_gethostbyname</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>名前によるホスト情報の取得  </TD></TR>
+<TR><TD>  </TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -484,9 +484,9 @@ ERR so_gethostbyname (B *nam, HOSTENT *hp, B *buf)
 
 <H4>【Параметри】</H4>
 <PRE>
-B*      nam     ホスト名
-HOSTENT *hp     ホスト情報
-B       *buf    作業領域
+B*      nam     
+HOSTENT *hp     
+B       *buf    Робоча область вікна (Client Area)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -494,13 +494,13 @@ B       *buf    作業領域
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>nam</CODE> で指定された名前を持つホストに関する情報を
-  <CODE>hp</CODE> で指定された領域に格納する. <BR>
-  <CODE>B buf[HBUFLE]</CODE> で定義される作業領域を指定する必要がある. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>nam</CODE> 
+  <CODE>hp</CODE> . <BR>
+  <CODE>B buf[HBUFLE]</CODE> Робоча область вікна (Client Area). 
 </P>
 <P>
-  <CODE>hp</CODE> が指す領域には以下の情報が戻される. 
+  <CODE>hp</CODE> . 
 </P>
 <PRE>
 struct hostent {                    /* structure for gethostbyname */
@@ -513,24 +513,24 @@ struct hostent {                    /* structure for gethostbyname */
                                     /* address, for backward compatiblity */
 };
 
-h_name      ホストの正式名
-h_aliases   ホストのエイリアス名(実装では NULL が戻る)
-h_addrtype  адреса пам'ятіタイプ(常に AF_INET が戻る)
-h_length    адреса пам'ятіのバイト長
-h_addr_list ホストのネットワークадреса пам'ятіのリストへのвказівник (Pointer)
+h_name      
+h_aliases   ( NULL )
+h_addrtype  ( AF_INET )
+h_length    
+h_addr_list Мережа
 </PRE>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_HOSTUNREACH  指定されたホストが見つからない. 
-EX_TIMEDOUT     タイムアウト. 
+EX_ADR          . 
+EX_HOSTUNREACH  . 
+EX_TIMEDOUT     . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_gethostbyaddr</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>адреса пам'ятіによるホスト情報の取得 </TD></TR>
+<TR><TD> </TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -540,11 +540,11 @@ ERR so_gethostbyaddr (B *addr, W type, W len, HOSTENT *hp, B *buf)
 
 <H4>【Параметри】</H4>
 <PRE>
-B       *addr   адреса пам'яті
-W       type    адреса пам'ятіタイプ(AF_INET のみ指定可能)
-W       len     адреса пам'ятіのバイト長
-HOSTENT *hp     ホスト情報
-B       *buf    作業領域
+B       *addr   
+W       type    (AF_INET )
+W       len     
+HOSTENT *hp     
+B       *buf    Робоча область вікна (Client Area)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -552,22 +552,22 @@ B       *buf    作業領域
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  адреса пам'ятіで指定されたホストに関する情報を
-  <CODE>hp</CODE> で指定された領域に格納する. <BR>
-  <CODE>B buf[HBUFLE]</CODE> で定義される作業領域を指定する必要がある. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  
+  <CODE>hp</CODE> . <BR>
+  <CODE>B buf[HBUFLE]</CODE> Робоча область вікна (Client Area). 
 </P>
 <H4>【Коди помилок】</H4>
 
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_HOSTUNREACH  指定されたホストが見つからない
+EX_ADR          . 
+EX_HOSTUNREACH  
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ERR so_getpeername</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>接続相手の名前の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -577,9 +577,9 @@ EX_HOSTUNREACH  指定されたホストが見つからない
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       ソケットデスクリプタ
-SOCKADDR *nam    адреса пам'яті
-W        *namlen адреса пам'ятіのバイト長
+W        s       Сокет (Socket)
+SOCKADDR *nam    
+W        *namlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -587,23 +587,23 @@ W        *namlen адреса пам'ятіのバイト長
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットに接続されている相手のадреса пам'ятіを戻す. <BR>
-  <CODE>namlen</CODE> は <CODE>nam</CODE> が指す領域のрозмір у байтахを指定する. 
-  実行後は <CODE>nam</CODE> に戻されたадреса пам'ятіのバイト長が戻される. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). <BR>
+  <CODE>namlen</CODE>  <CODE>nam</CODE> . 
+   <CODE>nam</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
-EX_FAULT    名前(адреса пам'яті)が不正. 
+EX_ADR      . 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
+EX_FAULT    (). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_getsockname</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケット名の獲得</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -613,9 +613,9 @@ EX_FAULT    名前(адреса пам'яті)が不正.
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s   ソケットデスクリプタ
-SOCKADDR *nam   адреса пам'яті
-W        *namlen адреса пам'ятіのバイト長
+W        s   Сокет (Socket)
+SOCKADDR *nam   
+W        *namlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -624,24 +624,24 @@ W        *namlen адреса пам'ятіのバイト長
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  指定したソケットに対する現在の名前(адреса пам'яті)を戻す. <BR>
-  <CODE>namlen</CODE> は <CODE>nam</CODE> のрозмір у байтахを指定する. 
-  実行後は <CODE>name</CODE> に戻されたадреса пам'ятіのバイト長が戻される. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket)(). <BR>
+  <CODE>namlen</CODE>  <CODE>nam</CODE> . 
+   <CODE>name</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
-EX_FAULT    名前(адреса пам'яті)が不正. 
+EX_ADR      . 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
+EX_FAULT    (). 
 </PRE>
 
 <A name="getsockopt">
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_getsockopt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットオプションの取得</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 </A>
 
@@ -652,11 +652,11 @@ ERR so_getsockopt (W s, W level, W optnam, B *optval, W *optlen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   ソケットデスクリプタ
-W   level   レベル
-W   optnam  オプション
-B   *optval オプション値
-W   *optlen オプションのバイト長
+W   s   Сокет (Socket)
+W   level   
+W   optnam  
+B   *optval 
+W   *optlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -664,52 +664,52 @@ W   *optlen オプションのバイト長
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットに関するオプションを取得する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
 </P>
 
-<H4>level およびオプション</H4>
+<H4>level </H4>
 
 <DL>
  <DT><CODE>IPPROTO_IP</CODE> :
  <DD><P>
-     <CODE>IP_OPTIONS optval, optlen</CODE> で IP オプションを指定
+     <CODE>IP_OPTIONS optval, optlen</CODE>  IP 
      </P>
  <DT><CODE>IPPROTO_TCP</CODE> :
  <DT><P>
-     <CODE>TCP_NODELAY send</CODE> 時にПовідомлення (Message)をただちに送信するか否かの状態取得<BR>
-     <CODE>TCP_MAXSEG</CODE>  最大Повідомлення (Message)長を取得
+     <CODE>TCP_NODELAY send</CODE> <BR>
+     <CODE>TCP_MAXSEG</CODE>  
      </P>
  <DT><CODE>SOL_SOCKET</CODE> :
  <DT><PRE>
-    SO_DEBUG        デバッグ情報の記録フラグを取得
-    SO_RESUSEADDR   ローカルадреса пам'ятіの再使用状態を取得
-    SO_KEEPALIVE    (未サポート)
-    SO_DONTROUTE    発信Повідомлення (Message)のためのバイパスルートの決定
-    SO_BROADCAST    ブロードキャストПовідомлення (Message)の送信許可
-    SO_LINGER       データがある場合のクローズの延期
-    SO_OOBINLINE    帯域内の帯域外データの受信状態
-    SO_SNDBUF       出力のためのバッファрозмір у байтахを取得
-    SO_RCVBUF       入力のためのバッファрозмір у байтахを取得
-    SO_ERROR        ソケットのПомилкаの取得およびクリア
-    SO_TYPE         ソケットのタイプを取得
+    SO_DEBUG        
+    SO_RESUSEADDR   
+    SO_KEEPALIVE    ()
+    SO_DONTROUTE    
+    SO_BROADCAST    
+    SO_LINGER       
+    SO_OOBINLINE    
+    SO_SNDBUF       
+    SO_RCVBUF       
+    SO_ERROR        Сокет (Socket)Помилка
+    SO_TYPE         Сокет (Socket)
   </PRE>
 </DL>
 
 <H4>【Коди помилок】</H4>
 
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_FAULT        不正なオプション指定. 
-EX_NOPROTOOPT   指定したレベルで認識されていないオプション. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_FAULT        . 
+EX_NOPROTOOPT   . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_setsockopt</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットオプションの設定</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <PRE>
@@ -717,11 +717,11 @@ ERR so_setsockopt (W s, W level, W optnam, B *optval, W optlen)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   s        ソケットデスクリプタ
-W   level   レベル
-W   optnam  オプション
-B   *optval オプション値
-W   *optlen オプションのバイト長
+W   s        Сокет (Socket)
+W   level   
+W   optnam  
+B   *optval 
+W   *optlen 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -729,48 +729,48 @@ W   *optlen オプションのバイト長
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットに関するオプションを設定する. <BR>
-  レベルとオプションについては <A href="tcpip.html#getsockopt">so_getsockopt</A> を参照すること. <BR>
-  <CODE>SOL_SOCKET</CODE> レベルのオプションでは, 
-  各オプションがトグルされる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). <BR>
+   <A href="tcpip.html#getsockopt">so_getsockopt</A> . <BR>
+  <CODE>SOL_SOCKET</CODE> , 
+  . 
 </P>
 <DL>
  <DT><CODE>IPPROTO_IP</CODE> :
  <DD><P>
-     <CODE>IP_OPTIONS  optval, optlen</CODE> で IP オプションを指定
+     <CODE>IP_OPTIONS  optval, optlen</CODE>  IP 
      </P>
  <DT><CODE>IPPROTO_TCP</CODE> :
  <DD><P>
-     <CODE>TCP_NODELAY send</CODE> 時にПовідомлення (Message)をただちに送信するよう指定
+     <CODE>TCP_NODELAY send</CODE> 
      </P>
  <DT><CODE>SOL_SOCKET</CODE> :
  <DD><PRE>
-    SO_DEBUG        デバッグ情報の記録フラグをトグル
-    SO_RESUSEADDR   ローカルадреса пам'ятіの再使用状態をトグル
-    SO_KEEPALIVE    (未サポート)
-    SO_DONTROUTE    発信Повідомлення (Message)のためのバイパスルートの決定のトグル
-    SO_BROADCAST    ブロードキャストПовідомлення (Message)の送信許可をトグル
-    SO_LINGER       データがある場合のクローズの延期を設定
-    SO_OOBINLINE    帯域内の帯域外データの受信状態をトグル
-    SO_SNDBUF       出力のためのバッファрозмір у байтахを設定
-    SO_RCVBUF       入力のためのバッファрозмір у байтахを設定
+    SO_DEBUG        
+    SO_RESUSEADDR   
+    SO_KEEPALIVE    ()
+    SO_DONTROUTE    
+    SO_BROADCAST    
+    SO_LINGER       
+    SO_OOBINLINE    
+    SO_SNDBUF       
+    SO_RCVBUF       
    </PRE>
 </DL>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_FAULT        不正なオプション指定. 
-EX_NOPROTOOPT   指定したレベルで認識されていないオプション. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_FAULT        . 
+EX_NOPROTOOPT   . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_ioctl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Пристрій (Device)の制御</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -780,9 +780,9 @@ EX_NOPROTOOPT   指定したレベルで認識されていないオプション.
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       ソケットデスクリプタ
-W   request 要求
-W   arg     引数
+W   s       Сокет (Socket)
+W   request 
+W   arg     
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -790,8 +790,8 @@ W   arg     引数
 0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットに関して特殊な処理を行なう. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
 </P>
 
 <PRE>
@@ -800,28 +800,28 @@ request
      <DL>
       <DT><CODE>FIONREAD</CODE> :
       <DD><P>
-	  ソケットの受信バッファにたまっているПовідомлення (Message)のバイト数を
-          <CODE>arg</CODE> を <CODE>W*</CODE> とみなしてそこに戻す. 
+	  Сокет (Socket)
+          <CODE>arg</CODE>  <CODE>W*</CODE> . 
 	  </P>
       <DT><CODE>SIOCATMARK</CODE> :
       <DD><P>
-	  ソケットが帯域外データを受信しているとき
-          <CODE>arg</CODE> を <CODE>W*</CODE> とみなしてそこに 1 を戻す. 
+	  Сокет (Socket)
+          <CODE>arg</CODE>  <CODE>W*</CODE>  1 . 
 	  </P>
      </DL>
 
 <H4>【Коди помилок】</H4>
 
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
+EX_ADR      . 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_listen</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケット接続のためのlisten</TD></TR>
+<TR><TD>Сокет (Socket)listen</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -829,25 +829,25 @@ EX_BADF     ソケットが無効.
 ERR so_listen (W s, W backlog)
 </PRE>
 <H4>【Параметри】</H4>
-W   s   ソケットデスクリプタ<BR>
-W   backlog 最大接続要求待ちキュー数
+W   s   Сокет (Socket)<BR>
+W   backlog 
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ＝0  Успішне виконання
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-指定したソケットを listen 状態にする. 
+Сокет (Socket) listen . 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_read</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからの受信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -857,35 +857,35 @@ WERR    so_read (W s, B *buf, W len)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       ソケットデスクリプタ
-B   *buf    受信バッファ
-W   len     受信バッファのバイト長
+W   s       Сокет (Socket)
+B   *buf    
+W   len     
 </PRE>u
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 受信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットからПовідомлення (Message)を受信する. <BR>
-  <CODE>so_recv(s, buf, len, 0)</CODE> と等しい. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). <BR>
+  <CODE>so_recv(s, buf, len, 0)</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_WOULDBLOCK   ソケットが非ブロック化されていて, 受信データがない. 
-EX_TIMEDOUT     タイムアウト. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_OPNOTSUP     サポートされていない動作指定
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEDOUT     . 
+EX_CONNABORTED  . 
+EX_OPNOTSUP     
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recv</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからの受信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -895,44 +895,44 @@ WERR    so_recv (W s, B *buf, W len, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       ソケットデスクリプタ
-B   *buf    受信バッファ
-W   len     受信バッファのバイト長
-W   flags   以下の OR を指定することができる
-        MSG_OOB     帯域外データを読み取る
-        MSG_PEEK    ソケット上にあるデータを«のぞき見»する. 
-                    データは廃棄されず, それ以降の受信処理では, 
-                    同一データが戻る. 
+W   s       Сокет (Socket)
+B   *buf    
+W   len     
+W   flags    OR 
+        MSG_OOB     
+        MSG_PEEK    Сокет (Socket)«». 
+                    , , 
+                    . 
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 受信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットからПовідомлення (Message)を受信する. 
-  Повідомлення (Message)がないときは非ブロック状態の場合は
-  <CODE>EX_WOULDBLOCK</CODE>を戻し, 
-  それ以外では待ちに入る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
+  
+  <CODE>EX_WOULDBLOCK</CODE>, 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_WOULDBLOCK   ソケットが非ブロック化されていて, 受信データがない. 
-EX_TIMEDOUT     タイムアウト. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEDOUT     . 
+EX_CONNABORTED  . 
+EX_OPNOTSUP     (flag )
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recvfrom</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからの受信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -942,48 +942,48 @@ EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s       ソケットデスクリプタ
-B        *buf    受信バッファ
-W        len     受信バッファのバイト長
-W        flags   以下の OR を指定することができる
-         MSG_OOB     帯域外データを読み取る
-         MSG_PEEK    ソケット上にあるデータを«のぞき見»する. 
-                     データは廃棄されず, それ以降の受信処理では, 
-                     同一データが戻る. 
-SOCKADDR *from   адреса пам'яті
-W        *flen   адреса пам'ятіのバイト長
+W        s       Сокет (Socket)
+B        *buf    
+W        len     
+W        flags    OR 
+         MSG_OOB     
+         MSG_PEEK    Сокет (Socket)«». 
+                     , , 
+                     . 
+SOCKADDR *from   
+W        *flen   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 受信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットからПовідомлення (Message)を受信する. 
-  Повідомлення (Message)がないときは非ブロック状態の場合は
-  <CODE>EX_WOULDBLOCK</CODE> を戻し, 
-  それ以外では待ちに入る. <BR>
-  <CODE>from</CODE> が <CODE>NULL</CODE> でないときは, 
-  Повідомлення (Message)の発信元のадреса пам'ятіが戻される. 
-  <CODE>*flen</CODE> はадреса пам'ятіのрозмір у байтахを指定し, 
-  実行後は実際のадреса пам'ятіの長さが戻される. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
+  
+  <CODE>EX_WOULDBLOCK</CODE> , 
+  . <BR>
+  <CODE>from</CODE>  <CODE>NULL</CODE> , 
+  . 
+  <CODE>*flen</CODE> , 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_WOULDBLOCK   ソケットが非ブロック化されていて, 受信データがない. 
-EX_TIMEDOUT     タイムアウト. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEDOUT     . 
+EX_CONNABORTED  . 
+EX_OPNOTSUP     (flag )
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_recvmsg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからの受信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -993,59 +993,59 @@ WERR    so_recvmsg (W s, MSGHDR *msg, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W       s           ソケットデスクリプタ
-MSGHDR  *msg        Повідомлення (Message)ヘッダー
-W       flags       以下の OR を指定することができる
-        MSG_OOB     帯域外データを読み取る
-        MSG_PEEK    ソケット上にあるデータを«のぞき見»する. 
-                    データは廃棄されず, それ以降の受信処理では, 
-                    同一データが戻る. 
+W       s           Сокет (Socket)
+MSGHDR  *msg        
+W       flags        OR 
+        MSG_OOB     
+        MSG_PEEK    Сокет (Socket)«». 
+                    , , 
+                    . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 受信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットからПовідомлення (Message)を受信する. 
-  Повідомлення (Message)がないときは非ブロック状態の場合は
-  <CODE>EX_WOULDBLOCK</CODE> を戻し, それ以外では待ちに入る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
+  
+  <CODE>EX_WOULDBLOCK</CODE> , . 
 </P>
 <P>
-  структура даних C <CODE>msghdr</CODE> で指定することができる. 
+   <CODE>msghdr</CODE> . 
 </P>
 <PRE>
-          caddr_t      msg_name;         オプションのадреса пам'яті
-          int          msg_namelen;      адреса пам'ятірозмір у байтах
-          struct iovec *msg_iov;         配列の分散/収集
-          int          msg_iovlen;       msg_iov にある構成要素の数
-          caddr_t      msg_accrights;    送信または受信されたアクセス権
+          caddr_t      msg_name;         
+          int          msg_namelen;      
+          struct iovec *msg_iov;         /
+          int          msg_iovlen;       msg_iov 
+          caddr_t      msg_accrights;    
           int          msg_accrightslen;
 </PRE>
 <P>
-  <CODE>msg_name, msg_namelen</CODE> に相手先адреса пам'ятіを指定する. 
-  指定不要のときは <CODE>msg_name</CODE> は <CODE>NULL</CODE> を指定する. 
+  <CODE>msg_name, msg_namelen</CODE> . 
+   <CODE>msg_name</CODE>  <CODE>NULL</CODE> . 
 </P>
 <P>
   <CODE>msg_iov</CODE>
-  により一回の要求で分散したいくつかの場所に読み込むことができる. 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_WOULDBLOCK   ソケットが非ブロック化されていて, 受信データがない. 
-EX_TIMEDOUT     タイムアウト. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_OPNOTSUP     サポートされていない動作指定(flag 指定が無効)
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEDOUT     . 
+EX_CONNABORTED  . 
+EX_OPNOTSUP     (flag )
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_select</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケット状態の検査</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1055,47 +1055,47 @@ WERR    so_select (W nfds, fd_set *rfds, fd_set *wfds, fd_set *efds,
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       nfds    最大ソケットデスクリプタ数
-fd_set  *rfds   受信準備完了を調べるソケットデスクリプタの集合
-fd_set  *wfds   送信準備完了を調べるソケットデスクリプタの集合
-fd_set  *efds   例外発生を調べるソケットデスクリプタの集合
-TIMEVAL *tmout  タイムアウト指定
+W       nfds    Сокет (Socket)
+fd_set  *rfds   Сокет (Socket)
+fd_set  *wfds   Сокет (Socket)
+fd_set  *efds   Сокет (Socket)
+TIMEVAL *tmout  
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-＞0  準備ができているデスクリプタ数
-＝0  タイムアウトした. 
+＞0  
+＝0  . 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  指定したソケットデスクリプタ中で, 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket), 
   <CODE>rfds, wfds, efds</CODE>
-  中で準備ができているソケットがあるかどうか検査する. 
-  <CODE>rfds, wfds, efds</CODE> の内容は, 
-  準備ができているかどうかの結果が戻される. 
+  Сокет (Socket). 
+  <CODE>rfds, wfds, efds</CODE> , 
+  . 
 </P>
 <P>
-  <CODE>rfds, wfds, efds</CODE> は, 
-  関連するソケットが一つもない場合は, 
-  それぞれ <CODE>NULL</CODE> を指定することができる. 
+  <CODE>rfds, wfds, efds</CODE> , 
+  Сокет (Socket), 
+   <CODE>NULL</CODE> . 
 </P>
 <P>
-  <CODE>tmout</CODE> が <CODE>NULL</CODE> のときは無限に待つ. 
-  <CODE>tmout</CODE> が <CODE>NULL</CODE> でない場合は, 
-  そこで指定された時間だけ待つ. 
+  <CODE>tmout</CODE>  <CODE>NULL</CODE> . 
+  <CODE>tmout</CODE>  <CODE>NULL</CODE> , 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
+EX_ADR      . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_write</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからのПовідомлення (Message)送信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1105,39 +1105,39 @@ WERR    so_write (W s, B *buf, W len)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       ソケットデスクリプタ
-B   *buf    送信データ
-W   len     送信データのバイト長
+W   s       Сокет (Socket)
+B   *buf    
+W   len     
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 送信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットの接続先にПовідомлення (Message)を送信する. 
-  <CODE>so_send(s, buf, len, 0)</CODE> に等しい. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
+  <CODE>so_send(s, buf, len, 0)</CODE> . 
 </P>
 <H4>【Коди помилок】</H4>
 
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_SHUTDOWN     送信は禁止されている. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_MSGSIZE      送信Повідомлення (Message)розмір у байтахへの細分化ができなかった. 
-EX_NOBUFS       内部領域不足. 
-EX_WOULDBLOCK   ソケットが非ブロック化されているが, 送信により待ちにはいる. 
-EX_TIMEOUT      タイムアウト. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_SHUTDOWN     . 
+EX_CONNABORTED  . 
+EX_MSGSIZE      . 
+EX_NOBUFS       . 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEOUT      . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_send</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからのПовідомлення (Message)送信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1147,15 +1147,15 @@ WERR    so_send (W s, B *buf, W len, W flags)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s       ソケットデスクリプタ
-B   *buf    送信データ
-W   len     送信データのバイト長
-W   flags   以下の OR を指定することができる
-          MSG_OOB     帯域外データを送信する. 
+W   s       Сокет (Socket)
+B   *buf    
+W   len     
+W   flags    OR 
+          MSG_OOB     . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 送信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 
@@ -1164,26 +1164,26 @@ W   flags   以下の OR を指定することができる
 <H4>【Детальний опис】</H4>
 
 <P>
-  ソケットの接続先にПовідомлення (Message)を送信する. 
+  Сокет (Socket). 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_SHUTDOWN     送信は禁止されている. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_MSGSIZE      送信Повідомлення (Message)розмір у байтахへの細分化がてきなかった. 
-EX_NOBUFS       内部領域不足. 
-EX_WOULDBLOCK   ソケットが非ブロック化されているが, 送信により待ちにはいる. 
-EX_TIMEOUT      タイムアウト. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_SHUTDOWN     . 
+EX_CONNABORTED  . 
+EX_MSGSIZE      . 
+EX_NOBUFS       . 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEOUT      . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_sendto</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからのПовідомлення (Message)送信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1194,44 +1194,44 @@ WERR    so_sendto (W s, B *buf, W len, W flags, SOCKADDR *to, W tolen)
 
 <H4>【Параметри】</H4>
 <PRE>
-W        s           ソケットデスクリプタ
-B        *buf        送信データ
-W        len         送信データのバイト長
-W        flags       以下の OR を指定することができる
-         MSG_OOB     帯域外データを送信する. 
-SOCKADDR *to         送信先адреса пам'яті
-W        tolen       送信先адреса пам'ятіのバイト長
+W        s           Сокет (Socket)
+B        *buf        
+W        len         
+W        flags        OR 
+         MSG_OOB     . 
+SOCKADDR *to         
+W        tolen       
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 送信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  相手先адреса пам'ятіを指定して, Повідомлення (Message)を送信する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_SHUTDOWN     送信は禁止されている. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_MSGSIZE      送信Повідомлення (Message)розмір у байтахへの細分化がてきなかった. 
-EX_NOBUFS       内部領域不足. 
-EX_WOULDBLOCK   ソケットが非ブロック化されているが, 送信により待ちにはいる. 
-EX_TIMEOUT      タイムアウト. 
-EX_HOSTUNREACH  指定された送信先が見つからない. 
-EX_DESTADDRREQ  送信先адреса пам'ятіの指定が必要. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_SHUTDOWN     . 
+EX_CONNABORTED  . 
+EX_MSGSIZE      . 
+EX_NOBUFS       . 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEOUT      . 
+EX_HOSTUNREACH  . 
+EX_DESTADDRREQ  . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_sendmsg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ソケットからのПовідомлення (Message)送信</TD></TR>
+<TR><TD>Сокет (Socket)</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1240,38 +1240,38 @@ WERR    so_sendmsg (W s, MSGHDR *msg, W flags)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       s       ソケットデスクリプタ
-MSGHDR  *msg    Повідомлення (Message)データ
-W       flags   以下の OR を指定することができる
-              MSG_OOB     帯域外データを送信する. 
+W       s       Сокет (Socket)
+MSGHDR  *msg    
+W       flags    OR 
+              MSG_OOB     . 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 送信したバイト数
+≧0 
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  相手先адреса пам'ятіを指定して, Повідомлення (Message)を送信する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR          параметриでアクセスが許されていない領域を参照している. 
-EX_PAR          параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF         ソケットが無効. 
-EX_SHUTDOWN     送信は禁止されている. 
-EX_CONNABORTED  接続がアボートされた. 
-EX_MSGSIZE      送信Повідомлення (Message)розмір у байтахへの細分化がてきなかった. 
-EX_NOBUFS       内部領域不足. 
-EX_WOULDBLOCK   ソケットが非ブロック化されているが, 送信により待ちにはいる. 
-EX_TIMEOUT      タイムアウト. 
-EX_HOSTUNREACH  指定された送信先が見つからない. 
+EX_ADR          . 
+EX_PAR          (Сокет (Socket))
+EX_BADF         Сокет (Socket). 
+EX_SHUTDOWN     . 
+EX_CONNABORTED  . 
+EX_MSGSIZE      . 
+EX_NOBUFS       . 
+EX_WOULDBLOCK   Сокет (Socket), . 
+EX_TIMEOUT      . 
+EX_HOSTUNREACH  . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_shutdown</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>全二重接続の部分シャットダウン</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1281,29 +1281,29 @@ ERR so_shutdown (W s, W how)
 
 <H4>【Параметри】</H4>
 <PRE>
-W   s   ソケットデスクリプタ
-W   how これ以降の送受信の指定
-        0   以降の受信の禁止
-        1   以降の送信の禁止
-        2   以降の送受信の禁止
+W   s   Сокет (Socket)
+W   how 
+        0   
+        1   
+        2   
 </PRE>
 <H4>【Значення, що повертається】</H4>
 
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットと対応する全二重通信路のすべてまたは一部をシャットダウンする. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
 EX_NOBUFS
-EX_PAR      параметриが不正(ソケットデスクリプタの値が不正)
-EX_BADF     ソケットが無効. 
+EX_PAR      (Сокет (Socket))
+EX_BADF     Сокет (Socket). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_socket</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>通信用の終点の作成</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1312,37 +1312,37 @@ WERR    so_socket (W domain, W type, W protocol)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   domain      通信を行なうドメイン
+W   domain      
                   PF_INET
-                  PF_UNSPEC (PF_INET として扱われる)
-W   type        通信のタイプ
+                  PF_UNSPEC (PF_INET )
+W   type        
                   SOCK_STREAM
                   SOCK_DGRAM
-W   protocol    プロトコル
-                  TCP (SOCK_STREAM タイプの時)
-                  UDP (SOCK_DGRAM タイプの時)
-                  ICMP    (SOCK_DGRAM タイプの時)
+W   protocol    
+                  TCP (SOCK_STREAM )
+                  UDP (SOCK_DGRAM )
+                  ICMP    (SOCK_DGRAM )
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0 ソケットデスクリプタ
+≧0 Сокет (Socket)
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  ソケットを作成しそのデスクリプタを戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  Сокет (Socket). 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_NOBUFS           内部領域不足. 
-EX_PROTONOSUPPORT   サポートされていないタイプまたはプロトコル. 
+EX_NOBUFS           . 
+EX_PROTONOSUPPORT   . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_gethostname</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ホスト名の取得</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <PRE>
@@ -1350,8 +1350,8 @@ ERR so_gethostname (B *name, W nlen)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-B   *name   ホスト名を格納する領域
-W   nlen    name のバイト長
+B   *name   
+W   nlen    name 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1359,20 +1359,20 @@ W   nlen    name のバイト長
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  現在のホスト名を戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
+EX_ADR      . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">so_sethostname</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>ホスト名の設定</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -1381,8 +1381,8 @@ ERR so_sethostname (B *name, W nlen)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-B   *name   ホスト名
-W   nlen    ホスト名のバイト長
+B   *name   
+W   nlen    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -1390,18 +1390,18 @@ W   nlen    ホスト名のバイト長
 ＜0  Помилка
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  現在のホスト名を指定されたものに変更する. 
-  ホスト名は最大 31文字. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  . 
+   31. 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      параметриでアクセスが許されていない領域を参照している. 
+EX_ADR      . 
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="font_mgr.html">前頁:3.9 Менеджер шрифтів (Font Manager)にもどる</A><BR>
-<A href="printmgr.html">次頁:3.11 印刷マネージャ仕様書にすすむ</A><BR>
+<A href="font_mgr.html">:3.9 Менеджер шрифтів (Font Manager)</A><BR>
+<A href="printmgr.html">:3.11 Друк</A><BR>
 </BODY>
 </HTML>

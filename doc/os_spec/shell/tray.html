@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.5 トレーマネージャ
+  3.5 
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="panel.html">
@@ -14,415 +14,415 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="panel.html">前頁:3.4 Менеджер панелей (Panel Manager)にもどる</A><BR>
-<A href="data.html">次頁:3.6 データマネージャにすすむ</A><BR>
+<A href="panel.html">Попередня сторінка: 3.4 Менеджер панелей (Повернутися)</A><BR>
+<A href="data.html">:3.6 </A><BR>
 <HR>
 
-<H2><A name="ajo">3.5 トレーマネージャ</A></H2>
+<H2><A name="ajo">3.5 </A></H2>
 
-<H3><A name="ajp">3.5.1 トレーマネージャのфункціонал / підсистема</A></H3>
+<H3><A name="ajp">3.5.1 функціонал / підсистема</A></H3>
 
-<H4><A name="ajq">3.5.1.1 概要</A></H4>
-
-<P>
-  トレーマネージャは外殻の1つとして位置付けられ, 
-  基本的なデータ移動 / 複写の操作である«切り取る», «写し取る», 
-  «貼り込む»および«取り込む»で使用されるトレーの管理を行ない, 
-  トレー内のデータを操作するфункціонал / підсистемаを提供するものである. 
-</P>
-<P>
-  また, ドラッグによるデータ移動 / 複写等のために一時的に使用される
-  «一時トレー»の管理も行ない, その操作функціонал / підсистемаを提供している. 
-</P>
-<P>
-  トレーマネージャは単にトレーに格納されるデータ領域の管理を行ない, 
-  その内容に関しては一切関知しない. 
-</P>
-<P>
-  прикладний додаток / програмаは, 常にユーザからの明示的な操作によってのみトレーの操作を行なわなくてはいけない. 
-  すなわち, ユーザの操作とは無関係にприкладний додаток / програма間のデータ交換等にトレーを使用してはいけない. 
-</P>
-
-<H4><A name="ajr">3.5.1.2 トレー</A></H4>
+<H4><A name="ajq">3.5.1.1 </A></H4>
 
 <P>
-  トレーは, 各ユーザ毎に1つ存在する特殊な«データ格納容器»であり, 
-  «切り取る»または«写し取る»の操作のディスティネーションとしてデータが格納され, 
-  «貼り込む»または«取り込む»の操作のソースとしてデータが取り出される容器である. 
+  1, 
+   / «», «», 
+  «»«», 
+  функціонал / підсистема. 
 </P>
 <P>
-  «切り取る／取り込む»の操作ではソースデータは失われ(即ち, 移動), 
-  «写し取る／貼り込む»の操作では, ソースデータは保存される(即ち, 複写). 
+  ,  / 
+  «», функціонал / підсистема. 
 </P>
 <P>
-  トレーはスタック構造を持ち, 
-  基本的に最後に格納したデータが最初に取り出されるが, 
-  その順番を変更したり任意の位置のデータを取り出すことも可能である. 
-  データは, 先頭(最後に格納されたデータ)を&quot;1&quot;とした連続番号であるデータ位置により識別される. 
+  , 
+  . 
 </P>
 <P>
-  トレーに格納されたデータは, «データの削除»操作を行なうか, 
-  またはトレーの最大容量をオーバーして溢れた場合に自動的に消滅する. 
-  トレーの最大容量は, インプリメントに依存するが, 
-  原則的には最後に格納されたデータから遡って, 
-  少なくとも 5 個のデータは保証されるものとする ( 通常は 10 個程度 ) . 
+  прикладний додаток, . 
+  , прикладний додаток. 
+</P>
+
+<H4><A name="ajr">3.5.1.2 </A></H4>
+
+<P>
+  , 1«», 
+  «»«», 
+  «»«». 
 </P>
 <P>
-  なお, トレーに格納されるデータの大きさは基本的に任意であるが, 
-  小さいрозмір у байтахのデータを効率的に取り扱うことを前提としている. 
+  «／»(, ), 
+  «／», (, ). 
+</P>
+<P>
+  , 
+  , 
+  . 
+  , ()&quot;1&quot;. 
+</P>
+<P>
+  , «», 
+  . 
+  , , 
+  , 
+   5  (  10  ) . 
+</P>
+<P>
+  , , 
+  . 
 </P>
 
 <A name="ajs">
-  <CENTER><IMG src="gif/tray.gif" alt="トレー"></CENTER>
+  <CENTER><IMG src="gif/tray.gif" alt=""></CENTER>
 </A>
-<CENTER>図 102 : トレー</CENTER>
+<CENTER> 102 : </CENTER>
 
 <P>
-  一時トレーは, ドラッグによる移動／複写等の一時的なデータの交換に使用される特殊な格納容器であり, 
-  1つのデータの格納／取り出しのみを行なう. 従って, 新たなデータを格納すると以前のデータは消滅する. 
+  , ／, 
+  1／. , . 
 </P>
 <P>
-  一時トレーは各ユーザ毎ではなくシステムに1つのみ用意されており, 
-  常にオープンされて使用できる状態となっている. 
-  システムの立上げ時には, 一時トレーは空の状態になっている. 
+  1, 
+  . 
+  , . 
 </P>
 
-<H4><A name="ajt">3.5.1.3 トレーの格納データ</A></H4>
+<H4><A name="ajt">3.5.1.3 </A></H4>
 
 <P>
-  прикладний додаток / програмаは, トレーを利用したデータ互換を実現するために, 
-  以下に述べる形式でトレーにデータを格納する必要がある. 
+  прикладний додаток, , 
+  . 
 </P>
 <P>
-  なお, トレーマネージャではЗапис (Record)の内容, 
-  Запис (Record)タイプの正当性等に関しては一切関知しない. 
+  , , 
+  . 
 </P>
 <P>
-  トレーおよび一時トレーに格納される1つのデータ単位は, TAD
-  データ構成の形式であり, TAD で規定されているセグメントの列となる. 
-  TAD データ構成をトレーおよび一時トレーに格納する場合は, 
-  原則的に 1 つの TAD セグメントを 1
-  つのトレーЗапис (Record)としたトレーЗапис (Record)の列として格納する. 
-  ただし, 連続した図形描画セグメント, 
-  および連続した文字コードと文章付箋セグメントは, 
-  それぞれ1つのトレーЗапис (Record)とすることができる. 
-  また, 1 つの TAD セグメントを複数の連続したトレーЗапис (Record)として格納することもできる. 
+  1, TAD
+  , TAD . 
+  TAD , 
+   1  TAD  1
+  . 
+  , , 
+  , 
+  1. 
+  , 1  TAD . 
 </P>
 <P>
-1 つのトレーЗапис (Record)は, 以下のструктура даних Cにより定義される. 
+1 , . 
 </P>
 
 <PRE>
     typedef struct {
-        W   id;     /* Запис (Record)タイプ( &gt; 0 ) */
-        W   len;    /* データのバイト長 */
-        B   *dt;    /* データ本体へのвказівник (Pointer) */
+        W   id;     /* ( &gt; 0 ) */
+        W   len;    /*  */
+        B   *dt;    /*  */
     } TRAYREC;
 </PRE>
 
 <P>
-  Запис (Record)タイプは, TAD で定義されているセグメントIDそのものであり, 
-  セグメントに対応した 0x80〜0xFD の値となる(内容に関しては, 
-  «<a href="../../shared_data/tad1.html">第3章 TAD詳細仕様書</A>»
-  を参照のこと). 
+  , TAD ID, 
+   0x80〜0xFD (, 
+  «<a href="../../shared_data/tad1.html">3 TAD</A>»
+  ). 
 </P>
 <P>
-  ただし, Запис (Record)タイプとしては, TAD
-  のセグメントIDに加えて以下に示すものが追加される. 
+  , , TAD
+  ID. 
 </P>
 
 <DL>
- <DT>Віртуальний об'єкт (Virtual Object)Запис (Record) (<CODE>TR_VOBJ (=0x1)</CODE>)：
- <DD>Віртуальний об'єкт (Virtual Object)を示すЗапис (Record)であり, Посилання (Link)Запис (Record), およびВіртуальний об'єкт (Virtual Object)セグメ
-     ントが続いた以下の形式を持つ. トレーではTADで定義されているВіртуальний об'єкт (Virtual Object)
-     セグメント単体では使用せずに, このВіртуальний об'єкт (Virtual Object)Запис (Record)を使用する. (詳細
-     に関しては«<A href="omgr.html">3.8 Реальний об'єкт (Real Object)／Менеджер віртуальних об'єктів (VObject Manager)</A>»を参照のこと. )
+ <DT>Віртуальний об'єкт (Virtual Object) (<CODE>TR_VOBJ (=0x1)</CODE>)：
+ <DD>Віртуальний об'єкт (Virtual Object), , Віртуальний об'єкт (Virtual Object)
+     . TADВіртуальний об'єкт (Virtual Object)
+     , Віртуальний об'єкт (Virtual Object). (
+     «<A href="omgr.html">3.8 Реальний об'єкт (Real Object)／Віртуальний об'єкт (Virtual Object)</A>». )
 <PRE>
         typedef struct {
-            VLINK   vlnk;   -- Посилання (Link)Запис (Record)
-            VOBJSEG vseg;   -- Віртуальний об'єкт (Virtual Object)セグメント
+            VLINK   vlnk;   -- 
+            VOBJSEG vseg;   -- Віртуальний об'єкт (Virtual Object)
         } TR_VOBJREC;
 </PRE>
- <DT>文章Запис (Record) (<CODE>TR_TEXT (=0x2)</CODE>)：
- <DD>連続した文字コードと文章付箋セグメントの列から構成されるЗапис (Record)
- <DT>図形Запис (Record) (<CODE>TR_FIG  (=0x3)</CODE>)：
- <DD>連続した図形描画セグメントの列から構成されるЗапис (Record)
+ <DT> (<CODE>TR_TEXT (=0x2)</CODE>)：
+ <DD>
+ <DT> (<CODE>TR_FIG  (=0x3)</CODE>)：
+ <DD>
 </DL>
 
 <P>
-  さらに 1 つの TAD セグメントを連続した複数のトレーЗапис (Record)に分割した場合は, 
-  以下の接続フラグがЗапис (Record)タイプにセットされる. 
+   1  TAD , 
+  . 
 </P>
 
 <DL>
- <DT>接続フラグ (<CODE>TR_CONT (=0x4000)</CODE>):
- <DD>分割したトレーЗапис (Record)の最後のЗапис (Record)以外のすべてのЗапис (Record)のЗапис (Record)タイプに接続フラグがセットされる. 
+ <DT> (<CODE>TR_CONT (=0x4000)</CODE>):
+ <DD>. 
      <BLOCKQUOTE>
-      例：  1つの画像セグメントを複数のトレーЗапис (Record)に分割した場合のЗапис (Record)タイプは, 以下のようになる. 
+      ：  1, . 
       <PRE>
-      先頭のЗапис (Record)         ： TS_IMAGE＋TR_CONT (＝0x40E5)
-      2番目のЗапис (Record)        ： TS_IMAGE＋TR_CONT (＝0x40E5)
+               ： TS_IMAGE＋TR_CONT (＝0x40E5)
+      2        ： TS_IMAGE＋TR_CONT (＝0x40E5)
           ：  ：
-      (最後 - 1)番目のЗапис (Record)： TS_IMAGE＋TR_CONT (＝0x40E5)
-      最後のЗапис (Record)         ： TS_IMAGE (＝0xE5)
+      ( - 1)： TS_IMAGE＋TR_CONT (＝0x40E5)
+               ： TS_IMAGE (＝0xE5)
      </PRE></BLOCKQUOTE>
 </DL>
 
 <P>
-  データ本体は, TAD のセグメントから, 先頭のセグメントID, 
-  およびバイト長を除いたデータ本体部分となる. 
-  ただし, 文章Запис (Record)(<CODE>TR_TEXT</CODE>)と図形Запис (Record)
-  (<CODE>TR_FIG</CODE>)の場合は, 先頭のセグメントID, 
-  およびバイト長を含んだ完全なTADセグメントの列となる. 
+  , TAD , ID, 
+  . 
+  , (<CODE>TR_TEXT</CODE>)
+  (<CODE>TR_FIG</CODE>), ID, 
+  TAD. 
 </P>
 <P>
-  TADデータ構成は, «文章データ»と«図形データ»のいずれかであるため, 
-  トレーЗапис (Record)の先頭には, «管理情報セグメント»に続いて«文章開始セグメント»か«図形開始セグメント»のいずれかがくることになり, 
-  最後のЗапис (Record)は«文章終了セグメント»か«図形終了セグメント»となる. 
-  通常は最後の«文章 / 図形終了セグメント»は省略される. 
-  また, 最初の«管理情報セグメント»も省略可能である. 
+  TAD, «»«», 
+  , «»«»«», 
+  «»«». 
+  « / ». 
+  , «». 
 </P>
 
 <A name="aju">
-  <CENTER><IMG src="gif/trayrecord.gif" alt="トレーЗапис (Record)の構造"></CENTER>
+  <CENTER><IMG src="gif/trayrecord.gif" alt=""></CENTER>
 </A>
-<CENTER>図 103 : トレーЗапис (Record)の構造</CENTER>
+<CENTER> 103 : </CENTER>
 
 <P>
-  トレーおよび一時トレーにデータを格納する場合は, 
-  <CODE>TRAYREC</CODE> の配列の先頭адреса пам'ятіと, 
-  トレーЗапис (Record)の数(配列の要素数)を指定する. 
+  , 
+  <CODE>TRAYREC</CODE> , 
+  (). 
 </P>
 
 <A name="ajv">
-  <CENTER><IMG src="gif/tray_data.gif" alt="トレー／一時トレーに格納するデータ指定"></CENTER>
+  <CENTER><IMG src="gif/tray_data.gif" alt="／"></CENTER>
 </A>
-<CENTER>図 104 : トレー／一時トレーに格納するデータ指定</CENTER>
+<CENTER> 104 : ／</CENTER>
 
 <P>
-  トレーおよび一時トレーからデータを取り出す場合は, 
-  以下に示す 3 種類の方法を取ることができる. 
+  , 
+   3 . 
 </P>
 
 <DL>
- <DT>(1) 全体取り出し
- <DD>格納されているデータ全体の取り出しであり, 
-  取り出し用バッファの先頭に <CODE>TRAYREC</CODE> の配列が入り, 
-  その直後にЗапис (Record)データ本体が入る形式となる. 
- <DT>(2) ヘッダ取り出し
- <DD>取り出し用バッファには, <CODE>TRAYREC</CODE> の配列のみが入り, 
-  対応するЗапис (Record)データ本体は取り出されない. 
-  この場合, <CODE>TRAYREC</CODE> 内のデータ本体へのвказівник (Pointer)
-  (<CODE>dt</CODE>)は意味を持たない. 
- <DT>(3) 指定Запис (Record)データ取り出し
- <DD>取り出し用バッファには, 
-  指定したЗапис (Record)のЗапис (Record)データ本体のみが取り出される. 
-  Запис (Record)の指定は先頭のЗапис (Record)は&quot;1&quot;とした
-  <CODE>TRAYREC</CODE> 配列のインデックス番号で行なう. 
-  この場合, 指定したЗапис (Record)のЗапис (Record)タイプも得られる. 
+ <DT>(1) 
+ <DD>, 
+   <CODE>TRAYREC</CODE> , 
+  . 
+ <DT>(2) 
+ <DD>, <CODE>TRAYREC</CODE> , 
+  . 
+  , <CODE>TRAYREC</CODE> 
+  (<CODE>dt</CODE>). 
+ <DT>(3) 
+ <DD>, 
+  . 
+  &quot;1&quot;
+  <CODE>TRAYREC</CODE> . 
+  , . 
 </DL>
 
 <A name="ajw">
-  <CENTER><IMG src="gif/data1.gif" alt="トレー／一時トレーから取り出すデータ形式((1)全体取り出し)"></CENTER>
+  <CENTER><IMG src="gif/data1.gif" alt="／((1))"></CENTER>
 </A>
-<CENTER>図 105 : トレー／一時トレーから取り出すデータ形式((1)全体取り出し)</CENTER>
+<CENTER> 105 : ／((1))</CENTER>
 
 <A name="ajx">
-  <CENTER><IMG src="gif/data2.gif" alt="トレー／一時トレーから取り出すデータ形式((2)ヘッダ取り出し)"></CENTER>
+  <CENTER><IMG src="gif/data2.gif" alt="／((2))"></CENTER>
 </A>
-<CENTER>図 106 : トレー／一時トレーから取り出すデータ形式((2)ヘッダ取り出し)</CENTER>
+<CENTER> 106 : ／((2))</CENTER>
 
 <A name="ajy">
-  <CENTER><IMG src="gif/data3.gif" alt="トレー／一時トレーから取り出すデータ形式((3)指定Запис (Record)データ取り出し)"></CENTER>
+  <CENTER><IMG src="gif/data3.gif" alt="／((3))"></CENTER>
 </A>
-<CENTER>図 107 : トレー／一時トレーから取り出すデータ形式((3)指定Запис (Record)データ取り出し)</CENTER>
+<CENTER> 107 : ／((3))</CENTER>
 
 <P>
-  また, トレーに格納したデータには最大 12 文字 ( <CODE>TCODE</CODE> )
-  の任意の名称を格納時に設定することが可能である. 
-  この名称はデータの内容を説明するためにприкладний додаток / програмаプログラムが設定する. 
-  なお, 一時トレーに格納するデータに対しては, 名称をつけることはできない. 
+  ,  12  ( <CODE>TCODE</CODE> )
+  . 
+  прикладний додаток. 
+  , , . 
 </P>
 
-<H4><A name="ajz">3.5.1.4 トレーの操作</A></H4>
+<H4><A name="ajz">3.5.1.4 </A></H4>
 
 <P>
-  トレーは, ユーザ毎に1つ用意される. 
-  通常はユーザの初期Процес (Process)によりオープンされ, 
-  そのユーザのПроцес (Process)はそのトレーを常に対象とする. 
-  トレーはユーザの使用が終了した時点でクローズされ, その内容は消える. 
+  , 1. 
+  , 
+  . 
+  , . 
 </P>
 <P>
-  トレーはスタック構造を持ち, 
-  スタックの先頭にデータが格納され, 
-  スタックの先頭からデータが取り出されるが, 
-  取り出す場合は任意の位置のデータを取り出すことも可能である. 
+  , 
+  , 
+  , 
+  . 
 </P>
 <P>
-  トレー内のデータには, «選択状態»が定義され, トレー内のどのデータが選択され処理の対象となっているかを示す. トレーは空でない限り, 必ず«選択状態»のデータが1つ存在する. 
+  , «», . , «»1. 
 </P>
 <P>
-  トレーに対する基本操作として以下のものが用意されている. 
+  . 
 </P>
 <UL>
-    <LI>データをスタックの先頭に格納する. 格納したデータが選択状態となる. 
-    <LI>選択されているデータを複写する. 
-    <LI>選択されているデータを削除する. 直後のデータが選択状態となる. 
-    <LI>任意のデータを選択する. 
-    <LI>選択されたデータを任意の位置に移動する. 
+    <LI>. . 
+    <LI>. 
+    <LI>. . 
+    <LI>. 
+    <LI>. 
 </UL>
 
 <P>
-  一時トレーはスタック構造を持たず, ただ1つのデータのみ格納可能である. 
-  従って一時トレーに対する操作は«格納»と«取り出し»のみとなる. 
+  , 1. 
+  «»«». 
 </P>
 
-<H3><A name="aka">3.5.2 データ／定数の定義</A></H3>
+<H3><A name="aka">3.5.2 ／</A></H3>
 
-<H4>□ トレーЗапис (Record)</H4>
+<H4>□ </H4>
 
 <PRE>
-#define TR_VOBJ 0x1     /* Віртуальний об'єкт (Virtual Object)Запис (Record) */
-#define TR_TEXT 0x2     /* 文章Запис (Record) */
-#define TR_FIG  0x3     /* 図形Запис (Record) */
-#define TR_CONT 0x4000  /* 接続フラグ */
+#define TR_VOBJ 0x1     /* Віртуальний об'єкт (Virtual Object) */
+#define TR_TEXT 0x2     /*  */
+#define TR_FIG  0x3     /*  */
+#define TR_CONT 0x4000  /*  */
 </PRE>
 
 <DL>
- <DT>Віртуальний об'єкт (Virtual Object)Запис (Record) (<CODE>TR_VOBJ (=0x1)</CODE>)：
- <DD>Віртуальний об'єкт (Virtual Object)を示すЗапис (Record)であり, Посилання (Link)Запис (Record), およびВіртуальний об'єкт (Virtual Object)セグメントが続いた TR_VOBJRECの形式を持つ. トレーではTADで定義されているВіртуальний об'єкт (Virtual Object)セグメント単体では使用せずに, このВіртуальний об'єкт (Virtual Object)Запис (Record)を使用する. 
- <DT>文章Запис (Record) (<CODE>TR_TEXT (=0x2)</CODE>)：
- <DD>連続した文字コードと文章付箋セグメントの列から構成されるЗапис (Record)
- <DT>図形Запис (Record) (<CODE>TR_FIG  (=0x3)</CODE>)：
- <DD>連続した図形描画セグメントの列から構成されるЗапис (Record)
- <DT>接続フラグ (<CODE>TR_CONT (=0x4000)</CODE>):
- <DD>分割したトレーЗапис (Record)の最後のЗапис (Record)以外のすべてのЗапис (Record)のЗапис (Record)タイプに接続フラグがセットされる. 
+ <DT>Віртуальний об'єкт (Virtual Object) (<CODE>TR_VOBJ (=0x1)</CODE>)：
+ <DD>Віртуальний об'єкт (Virtual Object), , Віртуальний об'єкт (Virtual Object) TR_VOBJREC. TADВіртуальний об'єкт (Virtual Object), Віртуальний об'єкт (Virtual Object). 
+ <DT> (<CODE>TR_TEXT (=0x2)</CODE>)：
+ <DD>
+ <DT> (<CODE>TR_FIG  (=0x3)</CODE>)：
+ <DD>
+ <DT> (<CODE>TR_CONT (=0x4000)</CODE>):
+ <DD>. 
 </DL>
 
 <P>
-  他のЗапис (Record)タイプ(<CODE>TS_xxx</CODE>)は, TADセグメントとして定義される. 
+  (<CODE>TS_xxx</CODE>), TAD. 
 </P>
 
-<H4>□ トレーЗапис (Record)タイプ</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct {
-    W   id;     /* Запис (Record)タイプ( &gt; 0 ) */
-    W   len;    /* データのバイト長 */
-    B   *dt;    /* データ本体へのвказівник (Pointer) */
+    W   id;     /* ( &gt; 0 ) */
+    W   len;    /*  */
+    B   *dt;    /*  */
 } TRAYREC;
 </PRE>
 
-<H4>□ Віртуальний об'єкт (Virtual Object)Запис (Record)タイプ</H4>
+<H4>□ Віртуальний об'єкт (Virtual Object)</H4>
 
 <PRE>
 typedef struct {
-    TC  fs_name[20];/* Файл (File)システム名 */
-    UH  f_id;       /* Файл (File)ID */
-    UH  attr;       /* Віртуальний об'єкт (Virtual Object)タイプ／属性 */
-    UH  rel;        /* 続柄インデックス */
-    UH  appl[3];    /* прикладний додаток / програмаID */
+    TC  fs_name[20];/*  */
+    UH  f_id;       /* ID */
+    UH  attr;       /* Віртуальний об'єкт (Virtual Object)／ */
+    UH  rel;        /*  */
+    UH  appl[3];    /* прикладний додатокID */
 } VLINK;
 </PRE>
 
 <PRE>
 typedef struct {
-    VLINK   vlnk;       /* Посилання (Link)Запис (Record) */
-    VOBJSEG vseg;       /* Віртуальний об'єкт (Virtual Object)セグメント */
+    VLINK   vlnk;       /*  */
+    VOBJSEG vseg;       /* Віртуальний об'єкт (Virtual Object) */
 } TR_VOBJREC;
 </PRE>
 
 <P>
-  データ本体は, TAD のセグメントから, 先頭のセグメントID，およびバイト長を除いたデータ本体部分となる. 
-  ただし, 文章Запис (Record)(TR_TEXT)と図形Запис (Record)(TR_FIG)の場合は, 先頭のセグメントID，
-  およびバイト長を含んだ完全なTADセグメントの列となる. 
+  , TAD , ID，. 
+  , (TR_TEXT)(TR_FIG), ID，
+  TAD. 
 </P>
 <P>
-  TAD データ構成は, «文章データ»と«図形データ»のいずれかであるため, 
-  トレーЗапис (Record)の先頭には, «管理情報セグメント»に続いて«文章開始セグメント»か
-  «図形開始セグメント»のいずれかがくることになり, 
-  最後のЗапис (Record)は«文章終了セグメント»か«図形終了セグメント»となる. 
-  通常は最後の«文章／図形終了セグメント»は省略される. 
-  また, 最初の«管理情報セグメント»も省略可能である. 
+  TAD , «»«», 
+  , «»«»
+  «», 
+  «»«». 
+  «／». 
+  , «». 
 </P>
 
 <PRE>
-    《文章データのЗапис (Record)構造》    《図形データのЗапис (Record)構造》
+    《》    《》
 
-    {管理情報セグメント}            {管理情報セグメント}
+    {}            {}
 
-    文章開始セグメント              図形開始セグメント
+                  
 
-    &lt;文章要素の                     &lt;図形要素の
-            セグメント列&gt;                   セグメント列&gt;
+    &lt;                     &lt;
+            &gt;                   &gt;
           :  :                            :  :
           :  :                            :  :
-    {文章終了セグメント}            {図形終了セグメント}
+    {}            {}
 
-                { }は省略可能を意味する. 
+                { }. 
 </PRE>
 
 <P>
-  トレーおよび一時トレーにデータを格納する場合は, 
-  <CODE>TRAYREC</CODE> の配列の先頭адреса пам'ятіと, 
-  トレーЗапис (Record)の数(配列の要素数)を指定する. 
+  , 
+  <CODE>TRAYREC</CODE> , 
+  (). 
 </P>
 <P>
-  トレーおよび一時トレーからデータを取り出す場合は, 
-  以下に示す 3 種類の方法を取ることができる. 
+  , 
+   3 . 
 </P>
 
 <DL>
- <DT>(1) 全体取り出し
- <DD>格納されているデータ全体の取り出しであり, 取り出し用バッファの先頭に <CODE>TRAYREC</CODE>の配列が入り, 
-     その直後にЗапис (Record)データ本体が入る形式となる. 
- <DT>(2) ヘッダ取り出し
- <DD>取り出し用バッファには, <CODE>TRAYREC</CODE> の配列のみが入り, 
-     対応するЗапис (Record)データ本体は取り出されない. 
-     この場合, <CODE>TRAYREC</CODE> 内のデータ本体へのвказівник (Pointer)( <CODE>dt</CODE> )は意味を持たない. 
- <DT>(3) 指定Запис (Record)データ取り出し
- <DD>取り出し用バッファには, 指定したЗапис (Record)のЗапис (Record)データ本体のみが取り出される. 
-     Запис (Record)の指定は先頭のЗапис (Record)は&quot;1&quot;とした <CODE>TRAYREC</CODE> 配列のインデックス番号で行なう. 
-     この場合, 指定したЗапис (Record)のЗапис (Record)タイプも得られる. 
+ <DT>(1) 
+ <DD>,  <CODE>TRAYREC</CODE>, 
+     . 
+ <DT>(2) 
+ <DD>, <CODE>TRAYREC</CODE> , 
+     . 
+     , <CODE>TRAYREC</CODE> ( <CODE>dt</CODE> ). 
+ <DT>(3) 
+ <DD>, . 
+     &quot;1&quot; <CODE>TRAYREC</CODE> . 
+     , . 
 </DL>
 
 <P>
-  また, トレーに格納したデータには最大12文字(TC)の任意の名称を格納時に設定することが可能である. 
-  この名称はデータの内容を説明するためにприкладний додаток / програмаプログラムが設定する. 
-  なお, 一時トレーに格納するデータに対しては, 名称をつけることはできない. 
+  , 12(TC). 
+  прикладний додаток. 
+  , , . 
 </P>
 <P>
-  トレーは, ユーザ毎に1つ用意される. 通常はユーザの初期Процес (Process)によりオープンされ, そのユーザーのПроцес (Process)はそのトレーを常に対象とする. トレーはユーザの使用が終了した時点でクローズされ, その内容は消える. 
+  , 1. , . , . 
 </P>
 <P>
-  トレーはスタック構造を持ち, スタックの先頭にデータが格納され, スタックの先頭からデータが取り出されるが, 取り出す場合は任意の位置のデータを取り出すことも可能である. 
+  , , , . 
 </P>
 <P>
-  トレー内のデータには, «選択状態»が定義され, トレー内のどのデータが選択され処理の対象となっているかを示す. トレーは空でない限り, 必ず«選択状態»のデータが1つ存在する. 
+  , «», . , «»1. 
 </P>
 <P>
-  トレーに対する基本操作として以下のものが用意されている. 
+  . 
 </P>
 
 <UL>
-    <LI>データをスタックの先頭に格納する. 格納したデータが選択状態となる. 
-    <LI>選択されているデータを複写する. 
-    <LI>選択されているデータを削除する. 直後のデータが選択状態となる. 
-    <LI>任意のデータを選択する. 
-    <LI>選択されたデータを任意の位置に移動する. 
+    <LI>. . 
+    <LI>. 
+    <LI>. . 
+    <LI>. 
+    <LI>. 
 </UL>
 
 <P>
-  一時トレーはスタック構造を持たず, ただ1つのデータのみ格納可能である. 従って一時トレーに対する操作は«格納»と«取り出し»のみとなる. 
+  , 1. «»«». 
 </P>
 
-<H3><A name="akb">3.5.3 トレーマネージャの関数</A></H3>
+<H3><A name="akb">3.5.3 </A></H3>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">topn_tra</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーのオープン</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -432,7 +432,7 @@ ERR topn_tra(void)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-なし
+
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -441,27 +441,27 @@ ERR topn_tra(void)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  自Процес (Process)のユーザに対するトレーをオープンし, 
-  以後のトレーに関する操作を可能とする. この時, トレーは空の状態になっている. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , 
+  . , . 
 </P>
 <P>
-  既にトレーがオープンされている場合は何もしない. 
+  . 
 </P>
 <P>
-  この関数は, 通常ユーザの初期Процес (Process)によりそのユーザのセッションが開始する際にコールされ, 
-  一般のприкладний додаток / програмаでは使用しない. 
+  , , 
+  прикладний додаток. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
+EX_NOSPC    : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tcls_tra</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーのクローズ</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -472,7 +472,7 @@ ERR tcls_tra(void)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-なし
+
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
@@ -482,23 +482,23 @@ ERR tcls_tra(void)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  自Процес (Process)のユーザに対するトレーをクローズしその内容を消す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  . 
 </P>
 <P>
-  この関数は, 通常ユーザの初期Процес (Process)によりそのユーザのセッションが終了する際にコールされ, 
-  一般のприкладний додаток / програмаでは使用しない. 
+  , , 
+  прикладний додаток. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : トレーはオープンされていない. 
+EX_TRAY     : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tpsh_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーへのデータ格納</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -509,35 +509,35 @@ W   tpsh_dat(TRAYREC *data, W nrec, TC *name)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TRAYREC *data   トレーに格納するデータ
-W       nrec    Запис (Record)数
-TC      *name   データに付ける名前
+TRAYREC *data   
+W       nrec    
+TC      *name   
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は格納したЗапис (Record)数)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-トレーの先頭に data で指定した <CODE>nrec</CODE> 個のデータЗапис (Record)を格納し, 
-そのデータを«選択状態»とする. 関数値として格納したЗапис (Record)数が戻る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+ data  <CODE>nrec</CODE> , 
+«». . 
 </P>
 <P>
-<CODE>name</CODE> はデータに対して付ける任意の名称であり, 
-先頭の12文字(TC)までが有効となる. 名称を付けない場合は, <CODE>name = NULL</CODE> とする. 
+<CODE>name</CODE> , 
+12(TC). , <CODE>name = NULL</CODE> . 
 </P>
 <P>
-データの格納により, トレーに溢れが生じた場合は, 最後のデータは自動的に消滅する. 
+, , . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(data,name)のアクセスは許されていない. 
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した(データのрозмір у байтахが大きすぎる). 
-EX_PAR      : параметриが不正である(nrec≦0, トレーЗапис (Record)の内容が不正). 
-EX_TRAY     : トレーはオープンされていない. 
+EX_ADR      : (data,name). 
+EX_NOSPC    : (). 
+EX_PAR      : (nrec≦0, ). 
+EX_TRAY     : . 
 </PRE>
 
 
@@ -545,7 +545,7 @@ EX_TRAY     : トレーはオープンされていない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tpop_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーからのデータ取り出し</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -556,62 +556,62 @@ W   tpop_dat(TRAYREC *data, W size, W *a_size, W rec, TC *name)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TRAYREC *data   トレーから取り出すデータ格納場所
-W       size    data のバイト数
-W       a_size  全体のバイト数
-W       rec     取り出し方法
-        &lt; 0 :  全体取り出し
-        = 0 :  ヘッダ取り出し
-        &gt; 0 :  指定Запис (Record)データ取り出し(rec で指定したЗапис (Record))
-TC      *name   データ名称の格納場所
+TRAYREC *data   
+W       size    data 
+W       a_size  
+W       rec     
+        &lt; 0 :  
+        = 0 :  
+        &gt; 0 :  (rec )
+TC      *name   
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はデータのЗапис (Record)数 / Запис (Record)タイプ)
+>= 0     Успішне виконання( / )
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  トレー内の選択されているデータを, 
-  <CODE>rec</CODE> の指定に従って取り出し, <CODE>data</CODE> で指定した <CODE>size</CODE> バイトの領域に格納する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , 
+  <CODE>rec</CODE> , <CODE>data</CODE>  <CODE>size</CODE> . 
 </P>
 <P>
-  格納すべきデータのрозмір у байтахより <CODE>size</CODE> が小さい場合は, <CODE>size</CODE> 分だけ格納され, 
-  <CODE>EX_PAR</CODE> のПомилкаとなる. <CODE>data = NULL</CODE> の場合は, 
-  <CODE>size</CODE> の値は無視され, データは一切格納されない. 
-  いずれの場合も <CODE>*a_size</CODE> には格納すべきデータの全体のバイトрозмір у байтахが戻される. 
-  このため例えば, <CODE>rec &lt; 0, data = NULL</CODE> とすることにより, 
-  格納されているデータ全体のрозмір у байтахを知ることができる. 
+   <CODE>size</CODE> , <CODE>size</CODE> , 
+  <CODE>EX_PAR</CODE> Помилка. <CODE>data = NULL</CODE> , 
+  <CODE>size</CODE> , . 
+   <CODE>*a_size</CODE> . 
+  , <CODE>rec &lt; 0, data = NULL</CODE> , 
+  . 
 </P>
 <P>
-  なお, データを取り出した後もトレー内のデータは削除されずに残っており, 
-選択状態のままとなる. <CODE>name</CODE> はデータに付けられた名称を格納する領域へのвказівник (Pointer)であり, 12 + 1文字(TC)の領域である必要がある ( 格納された名称の最後には TNULL が付けられる ) . <CODE>name = NULL</CODE> の場合は, 名称は格納されない. 
+  , , 
+. <CODE>name</CODE> , 12 + 1(TC) (  TNULL  ) . <CODE>name = NULL</CODE> , . 
 </P>
 <P>
-関数値として, 全体取り出し / ヘッダ取り出し ( <CODE>rec</CODE> ≦ 0 ) の
-時は, データの総Запис (Record)数が戻り, 指定Запис (Record)取り出し 
-( <CODE>rec</CODE> ＞ 0 ) の時は, 取り出したЗапис (Record)のЗапис (Record)タイプが戻る. 存在しないЗапис (Record)番号を指定した場合は, <CODE>EX_PAR</CODE> のПомилкаとなり, <CODE>*a_size</CODE> には &quot;0&quot; が戻される. 
+,  /  ( <CODE>rec</CODE> ≦ 0 ) 
+, ,  
+( <CODE>rec</CODE> ＞ 0 ) , . , <CODE>EX_PAR</CODE> Помилка, <CODE>*a_size</CODE>  &quot;0&quot; . 
 </P>
 <P>
-トレーが空の場合は, 取り出し方法に無関係に, 
-<CODE>*a_size</CODE> には &quot;0&quot; が戻され, 
-関数値は &quot;0&quot; となる. 
+, , 
+<CODE>*a_size</CODE>  &quot;0&quot; , 
+ &quot;0&quot; . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(data,a_size,name)のアクセスは許されていない. 
-EX_PAR      : параметриが不正である
-              (size≦0, 領域のрозмір у байтахが不足, recの値が不正). 
-EX_TRAY     : トレーはオープンされていない. 
+EX_ADR      : (data,a_size,name). 
+EX_PAR      : 
+              (size≦0, , rec). 
+EX_TRAY     : . 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tdel_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーデータの削除</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -620,34 +620,34 @@ W   tdel_dat(void)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-なし
+
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-≧0   Успішне виконання(関数値は«選択状態»のデータ位置)
+≧0   Успішне виконання(«»)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  トレー内の«選択状態»のデータを削除する. 
-  削除後は削除した直後のデータが«選択状態»となる. 
-  直後のデータが存在しない場合(即ち最後のデータの場合)は, 
-  直前のデータ(即ち新規に最後となったデータ)が«選択状態»になる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  «». 
+  «». 
+  (), 
+  ()«». 
 </P>
 <P>
-関数値としては, 削除後に«選択状態»となったデータ位置 ( &gt; 0 ) が戻るが, 
-トレーが空の場合は何も行なわれず, 関数値は &quot;0&quot; が戻る. 
+, «» ( &gt; 0 ) , 
+,  &quot;0&quot; . 
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : トレーはオープンされていない. 
+EX_TRAY     : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tsel_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーデータの選択</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -657,33 +657,33 @@ W   tsel_dat(W pos)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pos データ位置
+W   pos 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は«選択状態»のデータ位置)
+>= 0     Успішне виконання(«»)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-トレー内の, <CODE>pos</CODE> で指定した位置のデータを«選択状態»とする. 
-今まで«選択状態»であったデータは«非選択状態»となり, 
-関数値として新たな«選択状態»のデータ位置 ( &gt; 0 ) が戻る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+, <CODE>pos</CODE> «». 
+«»«», 
+«» ( &gt; 0 ) . 
 </P>
 <P>
-<CODE>pos</CODE> は, 先頭のデータを &quot;1&quot; とした連続番号であり, 
-<CODE>pos</CODE> が存在するデータ数より大きい場合は, 
-最後のデータが«選択状態»となる. また <CODE>pos ≦ 0</CODE> の場合は, 
-«選択状態»を変えずに現在の«選択状態»のデータ位置を関数値として戻す. 
+<CODE>pos</CODE> ,  &quot;1&quot; , 
+<CODE>pos</CODE> , 
+«».  <CODE>pos ≦ 0</CODE> , 
+«»«». 
 </P>
 <P>
-トレーが空の場合は何も行なわれず, 関数値は &quot;0&quot; が戻る. 
+,  &quot;0&quot; . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_TRAY     : トレーはオープンされていない. 
+EX_TRAY     : . 
 </PRE>
 
 
@@ -691,7 +691,7 @@ EX_TRAY     : トレーはオープンされていない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tmov_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーデータの位置変更</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -702,41 +702,41 @@ W   tmov_dat(W pos)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pos データ位置
+W   pos 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は«選択状態»のデータ位置)
+>= 0     Успішне виконання(«»)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  トレー内の«選択状態»のデータを <CODE>pos</CODE>
-  で指定したデータ位置に移動する. 
-  移動したデータは«選択状態»のままとなる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  «» <CODE>pos</CODE>
+  . 
+  «». 
 </P>
 <P>
-  <CODE>pos</CODE> ≦ 1 の場合は先頭に移動し, 
-  <CODE>pos</CODE> が現在のデータ数より大きい場合は, 
-  最後に移動する. 
+  <CODE>pos</CODE> ≦ 1 , 
+  <CODE>pos</CODE> , 
+  . 
 </P>
 <P>
-  関数値として移動後のデータのデータ位置
-  ( &gt; 0 ) が戻り, 
-  トレーが空の場合は何も行なわれず, 
-  関数値は &quot;0&quot; が戻る. 
+  
+  ( &gt; 0 ) , 
+  , 
+   &quot;0&quot; . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-  EX_TRAY     : トレーはオープンされていない. 
+  EX_TRAY     : . 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tget_sts</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>トレーの状態取り出し</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -747,32 +747,32 @@ W   tget_sts(UW *size, UW *rsize)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-UW  *size   トレーの総バイト数
-UW  *rsize  使用できる残りのバイト数
+UW  *size   
+UW  *rsize  
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は存在するデータ数)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  トレー内にあるデータの総数を関数値として戻し, 
-  その総バイト数を, <CODE>size</CODE> に設定する. 
-  また使用できる残りのバイト数を rsize に設定する
-  (特に制限がない場合でも適当な大きな数が戻されるものとする). 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , 
+  , <CODE>size</CODE> . 
+   rsize 
+  (). 
 </P>
 <P>
-  <CODE>size, rsize</CODE> がそれぞれ <CODE>NULL</CODE>
-  の場合は設定されない. 
+  <CODE>size, rsize</CODE>  <CODE>NULL</CODE>
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(size,rsize)のアクセスは許されていない. 
-EX_TRAY     : トレーはオープンされていない. 
+EX_ADR      : (size,rsize). 
+EX_TRAY     : . 
 </PRE>
 
 
@@ -780,7 +780,7 @@ EX_TRAY     : トレーはオープンされていない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tset_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>一時トレーへのデータ格納</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -791,42 +791,42 @@ W   tset_dat(TRAYREC *data, W nrec)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TRAYREC *data   データ
-W       nrec    Запис (Record)数
+TRAYREC *data   
+W       nrec    
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は格納したЗапис (Record)数)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  一時トレーに <CODE>data</CODE> で指定した
-  <CODE>nrec</CODE> 個のЗапис (Record)を格納する. 
-  以前に格納されていたデータは捨てられる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+   <CODE>data</CODE> 
+  <CODE>nrec</CODE> . 
+  . 
 </P>
 <P>
-  <CODE>nrec = 0</CODE> の場合は, 
-  一時トレーを空の状態とする. 
-  この場合, <CODE>data</CODE> はアクセスされないため, 
-  その値は何でもよい. 
+  <CODE>nrec = 0</CODE> , 
+  . 
+  , <CODE>data</CODE> , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(data)のアクセスは許されていない. 
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した(розмір у байтахが大きすぎる). 
-EX_PAR      : параметриが不正である
-              (nrec &lt; 0, トレーЗапис (Record)の内容が不正). 
+EX_ADR      : (data). 
+EX_NOSPC    : (). 
+EX_PAR      : 
+              (nrec &lt; 0, ). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">tget_dat</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>一時トレーからのデータ取り出し</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -837,63 +837,63 @@ W   tget_dat(TRAYREC *data, W size, W *a_size, W rec)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TRAYREC *data   データ格納場所
-W   size    data のバイト数
-W   *a_size データの全体のバイト数
-W   rec 取り出し方法
-        &lt; 0 :  全体取り出し
-        = 0 :  ヘッダ取り出し
-        &gt; 0 :  指定Запис (Record)データ取り出し(<CODE>rec</CODE> で指定したЗапис (Record))
+TRAYREC *data   
+W   size    data 
+W   *a_size 
+W   rec 
+        &lt; 0 :  
+        = 0 :  
+        &gt; 0 :  (<CODE>rec</CODE> )
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はデータのЗапис (Record)数／Запис (Record)タイプ)
+>= 0     Успішне виконання(／)
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  一時トレー内に格納されているデータを, 
-  <CODE>rec</CODE> の指定に従って取り出し, 
-  <CODE>data</CODE> で指定した
-  <CODE>size</CODE> バイトの領域に格納する. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , 
+  <CODE>rec</CODE> , 
+  <CODE>data</CODE> 
+  <CODE>size</CODE> . 
 </P>
 <P>
-  格納すべきデータのрозмір у байтахより <CODE>size</CODE> が小さい場合は, 
-  <CODE>size</CODE> 分だけ格納され, <CODE>EX_PAR</CODE>
-  のПомилкаとなる. <CODE>data = NULL</CODE> の場合は, 
-  <CODE>size</CODE> の値は無視され, 
-  データは一切格納されない. 
-  いずれの場合も <CODE>*a_size</CODE>
-  には格納すべきデータの全体のバイトрозмір у байтахが戻される. 
-  このため例えば, <CODE>rec &lt; 0, data = NULL</CODE>
-  とすることにより, 格納されているデータ全体のрозмір у байтахを知ることができる. 
+   <CODE>size</CODE> , 
+  <CODE>size</CODE> , <CODE>EX_PAR</CODE>
+  Помилка. <CODE>data = NULL</CODE> , 
+  <CODE>size</CODE> , 
+  . 
+   <CODE>*a_size</CODE>
+  . 
+  , <CODE>rec &lt; 0, data = NULL</CODE>
+  , . 
 </P>
 <P>
-  なお, データを取り出した後も一時トレー内のデータは削除されずに残っている. 
+  , . 
 </P>
 <P>
-  関数値として, 全体取り出し／ヘッダ取り出し
-  ( <CODE>rec</CODE> ≦ 0 )の時は, 
-  データの総Запис (Record)数が戻り, 指定Запис (Record)取り出し( <CODE>rec</CODE> &gt; 0 )
-  の時は, 取り出したЗапис (Record)のЗапис (Record)タイプが戻る. 
-  存在しないЗапис (Record)番号を指定した場合は, 
-  <CODE>EX_PAR</CODE> のПомилкаとなり, <CODE>*a_size</CODE> には
-  &quot;0&quot; が戻される. 
-  一時トレーが空の場合は, 取り出し方法に無関係に, 
-  <CODE>*a_size</CODE> には <CODE>&quot;0&quot;</CODE> が戻され, 
-  関数値は <CODE>&quot;0&quot;</CODE> となる. 
+  , ／
+  ( <CODE>rec</CODE> ≦ 0 ), 
+  , ( <CODE>rec</CODE> &gt; 0 )
+  , . 
+  , 
+  <CODE>EX_PAR</CODE> Помилка, <CODE>*a_size</CODE> 
+  &quot;0&quot; . 
+  , , 
+  <CODE>*a_size</CODE>  <CODE>&quot;0&quot;</CODE> , 
+   <CODE>&quot;0&quot;</CODE> . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(data,a_size)のアクセスは許されていない. 
-EX_PAR      : параметриが不正である
-              (size≦0, 領域のрозмір у байтахが不足, recの値が不正). 
+EX_ADR      : (data,a_size). 
+EX_PAR      : 
+              (size≦0, , rec). 
 </PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="panel.html">前頁:3.4 Менеджер панелей (Panel Manager)にもどる</A><BR>
-<A href="data.html">次頁:3.6 データマネージャにすすむ</A><BR>
+<A href="panel.html">Попередня сторінка: 3.4 Менеджер панелей (Повернутися)</A><BR>
+<A href="data.html">:3.6 </A><BR>
 </BODY>
 </HTML>

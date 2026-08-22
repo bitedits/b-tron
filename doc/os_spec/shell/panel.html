@@ -14,492 +14,492 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="parts.html">前頁:3.3 Менеджер системних елементів (Parts Manager)にもどる</A><BR>
-<A href="tray.html">次頁:3.5 トレーマネージャにすすむ</A><BR>
+<A href="parts.html">:3.3 Менеджер системних елементів (Parts Manager)</A><BR>
+<A href="tray.html">:3.5 </A><BR>
 <HR>
 
 <H2><A name="aix">3.4 Менеджер панелей (Panel Manager)</A></H2>
 
-<H3><A name="aiy">3.4.1 Менеджер панелей (Panel Manager)のфункціонал / підсистема</A></H3>
+<H3><A name="aiy">3.4.1 Функції менеджера системних панелей</A></H3>
 
-<H4><A name="aiz">3.4.1.1 概要</A></H4>
-
-<P>
-  Менеджер панелей (Panel Manager)は, 外殻の HMI функціонал / підсистемаの 1 つとして位置付けられ, 
-  ダイアローグタイプのパネルの生成 / 削除 / 操作等のфункціонал / підсистемаを提供している. 
-  прикладний додаток / програмаプログラムは, 
-  このМенеджер панелей (Panel Manager)を通して容易にダイアローグタイプのパネルを使用することができる. 
-</P>
-<P>
-  また, システムПовідомлення (Message)パネルの表示функціонал / підсистемаもМенеджер панелей (Panel Manager)が提供している. 
-</P>
-<P>
-  なお, フローティングタイプのパネルに関しては, 
-  Менеджер панелей (Panel Manager)では特にфункціонал / підсистемаを提供せず, 
-  прикладний додаток / програмаが通常のウィンドウとして処理することになる. 
-</P>
-<P>
-  なお, 今後単にパネルといった場合は, ダイアローグタイプのパネルを示すものとする. 
-</P>
-<P>
-  本仕様書では, パネルの標準的な形状に関して説明しているが, 表示形状の詳細はインプリメントに依存する. 
-</P>
-
-<H4><A name="aja">3.4.1.2 パネル</A></H4>
+<H4><A name="aiz">3.4.1.1 </A></H4>
 
 <P>
-  ( ダイアローグタイプの ) パネルは, 
-  параметриの設定や, 確認等を求めるパネルであり, 
-  その設定 / 操作が終了しないと先の処理に進めない場合に使用されるもので, 
-  スクリーン上で通常ウィンドウの前面 / 前面ウィンドウの下に表示され移動 / 変形ができないものである. 
+  Менеджер панелей (Panel Manager),  HMI функціонал / підсистема 1 , 
+   /  / функціонал / підсистема. 
+  прикладний додаток, 
+  Менеджер панелей (Panel Manager). 
 </P>
 <P>
-  パネルは表示された時点で強制的にユーザからの入力受付状態となり, 
-  そのパネルで要求している設定や操作を終了した時点でパネルは消滅し, 
-  以前に入力受付状態であったウィンドウに入力受付状態は戻る. 
+  , функціонал / підсистемаМенеджер панелей (Panel Manager). 
 </P>
 <P>
-  パネルは多重にネスティングされて表示される場合があり, 
-  その場合は発生順にオーバーラップされて表示され, 
-  入力受付状態も最後に発生したパネルに順次切り換わっていく. 
-  パネルの操作を終了した場合は, 
-  発生の逆順に表示が消えて入力受付状態が戻る. 
+  , , 
+  Менеджер панелей (Panel Manager)функціонал / підсистема, 
+  прикладний додаток. 
 </P>
 <P>
-  прикладний додаток / програмаプログラムはМенеджер панелей (Panel Manager)を使用してパネルを生成し, 
-  生成時に得られるパネルID ( &gt;0 ) を使用して操作等を行なう. 
+  , , . 
 </P>
 <P>
-  生成したパネルは, 基本的に登録したПроцес (Process)に依存し, 
-  そのПроцес (Process)が終了するとパネルも自動的に削除されるが, 
-  ある種のパネルは複数Процес (Process)で使用される場合があるため, 
-  パネル ID はПроцес (Process)グローバルであり, 
-  またパネルの定義データはすべてのПроцес (Process)からアクセスできる領域にある必要がある. 
-  このような複数Процес (Process)で使用されるパネルは, 
-  ローカルОперативна пам'ять (Memory)領域のデータを参照していないように作成する必要があるが, 
-  Менеджер панелей (Panel Manager)は特にこのための保証は行なわない. 
-</P>
-<P>
-  Менеджер панелей (Panel Manager)は内部的には, 
-  ウィンドウマネージャを使用して特殊なウィンドウとしてのパネルを生成する. 
-  従ってパネル ID は, 
-  ウィンドウマネージャにより生成されたウィンドウ ID に等しいことになる. 
+  , , . 
 </P>
 
-<H4><A name="ajb">3.4.1.3 システムПовідомлення (Message)パネル</A></H4>
+<H4><A name="aja">3.4.1.2 </A></H4>
 
 <P>
-  システムПовідомлення (Message)パネルはスクリーンの下部に 1 行分の大きさで常に表示されている特殊なパネルであり, 
-  他のウィンドウ / パネル等で決してオーバーラップされない領域である. 
+  (  ) , 
+  , , 
+   / , 
+   /  / . 
 </P>
 <P>
-  フルスクリーンモードでは, システムПовідомлення (Message)パネルは隠れて見えなくなる. 
+  , 
+  , 
+  . 
 </P>
 <P>
-  このパネルでは一切の操作はできず, 
-  単にПовідомлення (Message)の表示のみが行なわれる. 
-  一度表示されたПовідомлення (Message)は, 
-  別のПовідомлення (Message)によりオーバーライトされない限り消えることはない. 
+  , 
+  , 
+  . 
+  , 
+  . 
 </P>
 <P>
-  システムПовідомлення (Message)パネルはシステムの初期化の時点で自動的に生成されるため, 
-  прикладний додаток / програмаが表示を行なう場合は単に表示用の関数をコールすればよいが, 
-  システムПовідомлення (Message)パネルの目的にあった使用法に限定すべきである. 
+  прикладний додатокМенеджер панелей (Panel Manager), 
+  ID ( &gt;0 ) . 
+</P>
+<P>
+  , , 
+  , 
+  , 
+   ID , 
+  . 
+  , 
+  , 
+  Менеджер панелей (Panel Manager). 
+</P>
+<P>
+  Менеджер панелей (Panel Manager), 
+  . 
+   ID , 
+   ID . 
+</P>
+
+<H4><A name="ajb">3.4.1.3 </A></H4>
+
+<P>
+   1 , 
+   / . 
+</P>
+<P>
+  , . 
+</P>
+<P>
+  , 
+  . 
+  , 
+  . 
+</P>
+<P>
+  , 
+  прикладний додаток, 
+  . 
 </P>
 
 <A name="ajc">
-  <CENTER><IMG src="gif/sysmsgpnl.gif" alt="システムПовідомлення (Message)パネル"></CENTER>
+  <CENTER><IMG src="gif/sysmsgpnl.gif" alt=""></CENTER>
 </A>
-<CENTER>図 96 : システムПовідомлення (Message)パネル</CENTER>
+<CENTER> 96 : </CENTER>
 
-<H4><A name="ajd">3.4.1.4 パネルの表示形状</A></H4>
+<H4><A name="ajd">3.4.1.4 </A></H4>
 
 <P>
-  パネルは, 一般的にウィンドウと同様に下図のように右下に影が付いた境界線により囲まれた矩形領域として表示される. 
+  , . 
 </P>
 
 <A name="aje">
-  <CENTER><IMG src="gif/pnl_bdr.gif" alt="パネルの一般的な境界線"></CENTER>
+  <CENTER><IMG src="gif/pnl_bdr.gif" alt=""></CENTER>
 </A>
-<CENTER>図 97 : パネルの一般的な境界線</CENTER>
+<CENTER> 97 : </CENTER>
 
 <P>
-  パネルの内部には通常, 強調用の内枠を表示する. 
-  内枠は, パネルの境界線の内側に狭い隙間を開けて描かれる, 
-  境界線より太い枠である. なお, 境界線のことを外枠とも呼ぶ. 
+  , . 
+  , , 
+  . , . 
 </P>
 <P>
-  内枠としては任意のパターンが指定可能であるが, 
-  通常はパネルの用途に応じて«通常パネル»«警告パネル»«重大警告パネル»の
-  3 種類のパターンが使用される. 
+  , 
+  «»«»«»
+  3 . 
 </P>
 <P>
-  内枠の内側がパネルの作業領域であり, 
-  その表示内容はприкладний додаток / програмаに依存し, 
-  各種コントロールパーツ, 図形イメージデータ, 文字列の任意の組み合せとなる. 
-  また, 通常はパネルの操作を終了するためのモーメンタリスイッチが存在する. 
+  Робоча область вікна (Client Area), 
+  прикладний додаток, 
+  , , . 
+  , . 
 </P>
 <A name="ajf">
-  <CENTER><IMG src="gif/pnl_shp.gif" alt="パネルの一般的な形状"></CENTER>
+  <CENTER><IMG src="gif/pnl_shp.gif" alt=""></CENTER>
 </A>
-<CENTER>図 98 : パネルの一般的な形状</CENTER>
+<CENTER> 98 : </CENTER>
 
 <P>
-  パネルの表示に関する以下の項目は, パネルの生成時に指定することができる. 
+  , . 
 </P>
 
 <UL>
- <LI>境界線の幅
- <LI>境界線のパターン
- <LI>内枠の幅
- <LI>内枠のパターン
- <LI>境界線と内枠の隙間
- <LI>パネルの背景パターン
+ <LI>
+ <LI>
+ <LI>
+ <LI>
+ <LI>
+ <LI>
 </UL>
 
-<H4><A name="ajg">3.4.1.5 パネルのデータ構造</A></H4>
+<H4><A name="ajg">3.4.1.5 </A></H4>
 
-<H5>パネルの全体構造</H5>
+<H5></H5>
 
 <P>
-  パネルは以下のデータ構造により定義される. 
+  . 
 </P>
 
 <PRE>
     typedef struct panel {
-        UW  oframe;     /* 境界線(外枠)の属性 */
-        UW  iframe;     /* 内枠の属性 */
-        W   bgpat;      /* 背景パターン */
-        RECT    r;      /* 表示領域 */
-        W   defsw;      /* デフォールトスイッチ番号 */
-        W   nitem;      /* 項目数 */
-        PNL_ITEM *item; /* 項目配列へのвказівник (Pointer) */
+        UW  oframe;     /* () */
+        UW  iframe;     /*  */
+        W   bgpat;      /*  */
+        RECT    r;      /*  */
+        W   defsw;      /*  */
+        W   nitem;      /*  */
+        PNL_ITEM *item; /*  */
     } PANEL;
 </PRE>
 <DL>
  <DT><CODE>oframe</CODE> : 
- <DD>パネルの境界線の属性を指定するもので, 以下の内容を持つ. 境界線の幅は影の部分を含まない幅である. 
+ <DD>, . . 
 
 <A name="ajh">
-<CENTER><IMG src="gif/bdr_atr.gif" alt="パネルの境界線の属性"></CENTER>
+<CENTER><IMG src="gif/bdr_atr.gif" alt=""></CENTER>
 </A>
-<CENTER>図 99 : パネルの境界線の属性</CENTER>
+<CENTER> 99 : </CENTER>
 
 
  <DT><CODE>frame</CODE> :
- <DD>パネルの内枠の属性を指定するもので, 以下の内容を持つ. 
+ <DD>, . 
 
 <A name="aji">
-<CENTER><IMG src="gif/inbdr_atr.gif" alt="パネルの内枠の属性"></CENTER>
+<CENTER><IMG src="gif/inbdr_atr.gif" alt=""></CENTER>
 </A>
-<CENTER>図 100 : パネルの内枠の属性</CENTER>
+<CENTER> 100 : </CENTER>
 
 
  <DT><CODE>bgpat</CODE>:
- <DD>パネルの背景パターンを指定する, &quot;<CODE>PAT_DAT</CODE>&quot;
-     タイプのデータ番号. 0 の場合はデフォールトを意味する. 
+ <DD>, &quot;<CODE>PAT_DAT</CODE>&quot;
+     . 0 . 
  <DT><CODE>r</CODE>:
- <DD>パネルの境界線を囲む全体の表示矩形領域を絶対座標で指定したものである. 
+ <DD>. 
  <DT><CODE>defsw</CODE>:
- <DD>デフォールトスイッチとして使用されるモーメンタリスイッチパーツの項目番号を示す. <BR>
-     パネルには通常«保存»«承認»等のモーメンタリスイッチが 1 つ存在し, 
-     このスイッチは<KBD>[改段落 / 改行]</KBD>キーにより ON となりパネルの処理が終了する. 
-     デフォールトのスイッチは太枠で強調表示される. 
-     デフォールトスイッチが存在しない場合は 0 とする. 
+ <DD>. <BR>
+     «»«» 1 , 
+     <KBD>[ / ]</KBD> ON . 
+     . 
+      0 . 
  <DT><CODE>nitem</CODE>:
- <DD>パネル内に表示される項目の数であり, 項目配列の要素数を示す. 
+ <DD>, . 
  <DT><CODE>item</CODE>:
- <DD><CODE>nitem</CODE> 個の要素からなる項目配列へのвказівник (Pointer)である. <BR>
-     各項目はこの配列のインデックス + 1 ( 1 〜 nitem ) である項目番号で識別される. 
+ <DD><CODE>nitem</CODE> . <BR>
+      + 1 ( 1 〜 nitem ) . 
 </DL>
 
-<H5>パネルの項目の構造</H5>
+<H5></H5>
 
 <P>
-  パネルの構成項目 ( <CODE>PNL_ITEM</CODE> ) は, 
-  以下のように定義される. 
+   ( <CODE>PNL_ITEM</CODE> ) , 
+  . 
 </P>
 
 <PRE>
     typedef struct pnl_item {
-        UW  itype;      /* 項目タイプ */
-        UW  info;       /* 各種情報 */
-        RECT    ir;     /* 表示領域 */
-        W   desc;       /* 内部ディスクリプタ */
-        W   dnum;       /* データ番号 */
-        H   *ptr;       /* データвказівник (Pointer) */
+        UW  itype;      /*  */
+        UW  info;       /*  */
+        RECT    ir;     /*  */
+        W   desc;       /*  */
+        W   dnum;       /*  */
+        H   *ptr;       /*  */
     } PNL_ITEM;
 </PRE>
 
 <DL>
  <DT><CODE>itype</CODE>:
- <DD>項目のタイプを指定する以下のいずれかの値であり, 
-     この値はデータマネージャのデータタイプに 1 対 1 に対応している. 
+ <DD>, 
+      1  1 . 
      <TABLE>
-       <TR><TD><CODE>NULL_ITEM </CODE></TD><TD>   0</TD><TD>-- 空項目</TD></TR>
-       <TR><TD><CODE>PTR_ITEM  </CODE></TD><TD>   1</TD><TD>-- вказівник (Pointer)イメージ</TD></TR>
-       <TR><TD><CODE>PICT_ITEM </CODE></TD><TD>   2</TD><TD>-- ピクトグラムイメージ</TD></TR>
-       <TR><TD><CODE>PAT_ITEM  </CODE></TD><TD>   3</TD><TD>-- パターンイメージ</TD></TR>
-       <TR><TD><CODE>BMAP_ITEM </CODE></TD><TD>   4</TD><TD>-- ビットマップイメージ</TD></TR>
-       <TR><TD>                       </TD><TD>   5</TD><TD>-- 予約</TD></TR>
-       <TR><TD><CODE>TEXT_ITEM </CODE></TD><TD>   6</TD><TD>-- 文字列</TD></TR>
-       <TR><TD><CODE>PARTS_ITEM</CODE></TD><TD>   7</TD><TD>-- コントロールパーツ</TD></TR>
+       <TR><TD><CODE>NULL_ITEM </CODE></TD><TD>   0</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>PTR_ITEM  </CODE></TD><TD>   1</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>PICT_ITEM </CODE></TD><TD>   2</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>PAT_ITEM  </CODE></TD><TD>   3</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>BMAP_ITEM </CODE></TD><TD>   4</TD><TD>-- </TD></TR>
+       <TR><TD>                       </TD><TD>   5</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>TEXT_ITEM </CODE></TD><TD>   6</TD><TD>-- </TD></TR>
+       <TR><TD><CODE>PARTS_ITEM</CODE></TD><TD>   7</TD><TD>-- </TD></TR>
        <TR><TD colspan="3"></TD></TR>
-       <TR><TD><CODE>ACT_ITEM  </CODE></TD><TD>0x80</TD><TD>-- 動作項目( PD プレスの通知)</TD></TR>
-       <TR><TD><CODE>ATR_TEXT  </CODE></TD><TD>0x20</TD><TD>-- 属性付き文字列</TD></TR>
+       <TR><TD><CODE>ACT_ITEM  </CODE></TD><TD>0x80</TD><TD>-- ( PD )</TD></TR>
+       <TR><TD><CODE>ATR_TEXT  </CODE></TD><TD>0x20</TD><TD>-- </TD></TR>
 </TABLE>
 
 <DL compact>
  <DT>※
- <DD><CODE>ACT_ITEM, ATR_TEXT</CODE> の指定は上記項目タイプに OR で指定される. 
+ <DD><CODE>ACT_ITEM, ATR_TEXT</CODE>  OR . 
 </DL>
 <P>
-   <CODE>ATR_TEXT</CODE> 指定は <CODE>TEXT_ITEM</CODE> に対してのみ適用され, 
-   その文字列項目が属性データを含んでいることを意味する. 
+   <CODE>ATR_TEXT</CODE>  <CODE>TEXT_ITEM</CODE> , 
+   . 
 </P>
 <P>
-  コントロールパーツ以外は表示のみの項目であり基本的に操作はできないが, 
-  <CODE>ACT_ITEM</CODE> 指定を行なった場合は, 
-  その表示領域で <CODE>PD</CODE> のプレスが発生した場合, 
-  прикладний додаток / програмаに通知される. 
-  コントロールパーツの場合は, <CODE>ACT_ITEM</CODE> 指定は無関係であり, 
-  パーツの操作を行なった場合は常にприкладний додаток / програмаに通知される. 
+  , 
+  <CODE>ACT_ITEM</CODE> , 
+   <CODE>PD</CODE> , 
+  прикладний додаток. 
+  , <CODE>ACT_ITEM</CODE> , 
+  прикладний додаток. 
 </P>
 <P>
-  <CODE>NULL_ITEM</CODE> として指定した領域には何も表示されないが
-  <CODE>ACT_ITEM</CODE> と組合わせて, 
-  指定した領域内での PD プレスを検出するために使用される. 
+  <CODE>NULL_ITEM</CODE> 
+  <CODE>ACT_ITEM</CODE> , 
+   PD . 
 </P>
  <DT><CODE>info</CODE>:
- <DD>項目のタイプにより以下の意味を持つ. 
+ <DD>. 
      <UL>
-      <LI>コントロールパーツのオルタネートスイッチの場合：<BR>
-           &quot;0&quot; の場合は独立したスイッチを意味し, 
-          &quot;0&quot; でない場合は, グループスイッチを意味する. <BR>
-          グループスイッチの場合, そのスイッチが属するグループに対応したビットが 1 にセットされる. 
-      <LI>その他の場合：<BR>
-          使用しない(無視される). 
+      <LI>：<BR>
+           &quot;0&quot; , 
+          &quot;0&quot; , . <BR>
+          ,  1 . 
+      <LI>：<BR>
+          (). 
      </UL>
  <DT><CODE>ir</CODE>: 
- <DD>項目を表示する矩形領域の指定であり, 
-     パネルの全体領域(境界線を含む)の左上の点を (0,0)
-     とした座標値で指定される. 各項目の表示はこの領域でクリッピングされ, 
-     はみ出ることはない. <BR>
-     なお, 表示領域が空の場合は, その項目は表示されない. <BR>
-     項目がコントロールパーツの場合は, パーツの定義データの中に表示領域が定義されおり, 
-     その左上の点を <CODE>ir</CODE> の左上の点に一致するように移動したものが実際の表示領域となる. 
-     したがって, この場合は, <CODE>ir</CODE> の右下の点は使用されない. 
+ <DD>, 
+     () (0,0)
+     . , 
+     . <BR>
+     , , . <BR>
+     , , 
+      <CODE>ir</CODE> . 
+     , , <CODE>ir</CODE> . 
  <DT><CODE>desc</CODE>:
- <DD>以下の意味を持つ内部ディスクリプタであり, 定義時には何も設定する必要はない. 
+ <DD>, . 
         <UL>
-         <LI> コントロールパーツ項目の場合：<BR>
-                登録したパーツID
-         <LI> データ番号 ( <CODE>dnum</CODE> ) で定義した項目の場合：<BR>
-                共有Оперативна пам'ять (Memory)のアクセスキー
-         <LI> その他の項目の場合：<BR>
-                使用しない(0)
+         <LI> ：<BR>
+                ID
+         <LI>  ( <CODE>dnum</CODE> ) ：<BR>
+                
+         <LI> ：<BR>
+                (0)
         </UL>
     <DT><CODE>dnum</CODE>:
- <DD>項目のデータとして, データボックスに定義されているデータを使用する場合, 
-     そのデータ番号 ( &gt; 0 ) を指定する. 
-     項目のタイプがデータタイプとして適用される. 
-     <CODE>dnum ≠ 0</CODE> の場合は <CODE>ptr</CODE> は無視される. 
+ <DD>, , 
+      ( &gt; 0 ) . 
+     . 
+     <CODE>dnum ≠ 0</CODE>  <CODE>ptr</CODE> . 
  <DT><CODE>ptr</CODE>:
- <DD>項目のデータを直接Оперативна пам'ять (Memory)上に定義している場合に, 
-     そのвказівник (Pointer)を指定する. この場合は, <CODE>dnum = 0</CODE> とする必要がある. 
+ <DD>, 
+     . , <CODE>dnum = 0</CODE> . 
 </DL>
 
-<H5>グループスイッチ</H5>
+<H5></H5>
 
 <P>
-  複数のオルタネートスイッチをグループ化して排他的動作を行なわせるものをグループスイッチと呼ぶ. 
-  即ち, グループ内のあるスイッチが ON 状態となった場合には, 
-  同一グループ内で既に ON 状態となっているスイッチは自動的に OFF 状態となる. 
-  グループスイッチでは, 常に 0 個または 1 個のスイッチのみ ON 状態となる. 
+  . 
+  ,  ON , 
+   ON  OFF . 
+  ,  0  1  ON . 
 </P>
 <P> 
-  グループスイッチは, <CODE>info</CODE> データのグループに対応するビットを
-  &quot;1&quot; にセットすることにより指定される. 
-  即ち, <CODE>info</CODE> データの同一ビットが &quot;1&quot;
-  にセットされているスイッチ群が同一のグループに属することになる. 
-  グループは最大32個まであり, 1つのスイッチを2つ以上のグループに属させることも可能である. 
+  , <CODE>info</CODE> 
+  &quot;1&quot; . 
+  , <CODE>info</CODE>  &quot;1&quot;
+  . 
+  32, 12. 
 </P>
 <P>
-  グループスイッチの例を以下に示す. 
+  . 
 </P>
 <PRE>
-    スイッチ1のinfo = 0x01
-    スイッチ2のinfo = 0x01
-    スイッチ3のinfo = 0x10
-    スイッチ4のinfo = 0x10
-    スイッチ5のinfo = 0x11
+    1info = 0x01
+    2info = 0x01
+    3info = 0x10
+    4info = 0x10
+    5info = 0x11
 </PRE>
 <UL>
- <LI> スイッチ1,2,5が1つのグループで, スイッチ3,4,5がもう一つ別のグループとなる. 
- <LI> スイッチ2をONにすると, スイッチ1,5は共にOFFとなる. 
- <LI> スイッチ4をONにすると, スイッチ3,5は共にOFFとなる. 
- <LI> スイッチ5をONにすると, スイッチ1,2,3,4はすべてOFFとなる. 
+ <LI> 1,2,51, 3,4,5. 
+ <LI> 2ON, 1,5OFF. 
+ <LI> 4ON, 3,5OFF. 
+ <LI> 5ON, 1,2,3,4OFF. 
 </UL>
 
-<H5>属性付き文字列</H5>
+<H5></H5>
 
 <P>
-  <CODE>ATR_TEXT</CODE> 指定の付いた文字列項目は, 
-  文字の属性を指定するために, <CODE>TAD</CODE>
-  で規定されている以下の文章付箋セグメントを文字列の中に含むことができる. 
+  <CODE>ATR_TEXT</CODE> , 
+  , <CODE>TAD</CODE>
+  . 
 </P>
 <UL>
- <LI> フォント指定付箋
- <LI> フォント属性指定付箋
- <LI> 文字розмір у байтах指定付箋
- <LI> 文字カラー指定付箋
+ <LI> Шрифт
+ <LI> Шрифт
+ <LI> 
+ <LI> 
 </UL>
 <P>
-  上記以外の付箋は無視される. 
-  また, 属性付き文字列を <CODE>ATR_TEXT</CODE> 指定せずに登録した場合, 
-  その表示は保証されない. 属性付き文字列は, 表示領域の上端に合わせて表示される. 
+  . 
+  ,  <CODE>ATR_TEXT</CODE> , 
+  . , . 
 </P>
 
-<H4><A name="ajj">3.4.1.6 パネルの描画環境</A></H4>
+<H4><A name="ajj">3.4.1.6 </A></H4>
 
 <P>
-  パネルは 1 つの独立した描画環境を持ち, 
-  パネルの生成時に対応した描画環境が割り当てられ, 
-  その描画環境上でパネルの描画が行なわれる. 
+   1 , 
+  , 
+  . 
 </P>
 <P>
-  この描画環境の内容の詳細はインプリメントに依存したパネル描画のための標準的な設定となっているが, 
-  座標系とクリッピング領域は以下のようになっている. 
+  , 
+  . 
 </P>
 <DL>
- <DT>座標系 :
- <DD>パネルの表示領域の左上の点を( 0 , 0 ) とした座標系
- <DT>クリッピング領域 ：
- <DD>フレーム長方形 -- パネルの表示領域(境界線を含む)<BR>
-     表示長方形    -- パネルの作業領域(内枠の内部)
+ <DT> :
+ <DD>( 0 , 0 ) 
+ <DT> ：
+ <DD>Рамка вікна (Window Frame) -- ()<BR>
+         -- Робоча область вікна (Client Area)()
 </DL>
 <P>
-  ウィンドウと異なり, 作業領域の左上の点は ( 0 , 0 ) でない点に注意が必要である. 
+  , Робоча область вікна (Client Area) ( 0 , 0 ) . 
 </P>
 
 <A name="ajk">
- <CENTER><IMG src="gif/pnl_env.gif" alt="パネルの描画環境"></CENTER>
+ <CENTER><IMG src="gif/pnl_env.gif" alt=""></CENTER>
 </A>
-<CENTER>図 101 : パネルの描画環境</CENTER>
+<CENTER> 101 : </CENTER>
 
 <P>
-  прикладний додаток / програмаが, パネル上に特殊な描画を行ないたい場合は, 
-  パネルに割り当てられている描画環境IDを取り出し, 
-  その描画環境に対して描画を行なうことにより可能である. 
-  ただし, прикладний додаток / програмаが, 
-  描画環境のпараметриを変更した場合のパネルの表示は保証されなくなるため, 
-  変更した場合は必ず元に戻すか, 
-  描画環境の複製を作成して使用する必要がある. 
+  прикладний додаток, , 
+  ID, 
+  . 
+  , прикладний додаток, 
+  , 
+  , 
+  . 
 </P>
 
-<H4><A name="ajl">3.4.1.7 パネルの動作</A></H4>
+<H4><A name="ajl">3.4.1.7 </A></H4>
 
 <P>
-  パネルは入力受付状態を占有した形で動作し, 
-  発生したПодія (Event)は基本的にすべて現在表示されているパネルを対象とする. 
-  従って, PDプレスによる自動的なウィンドウ / パネルの入力受付状態の切り換えは行なわれず, 
-  パネル以外の場所での PD プレスの操作は通常は無視される. 
+  , 
+  . 
+  , PD / , 
+   PD . 
 </P>
 <P>
-  パネルの動作, 即ちПодія (Event)処理は, 以下に示す 2 つの方法により行なう. 
+  , ,  2 . 
 </P>
 <DL compact>
 <DT>(1)
- <DD>прикладний додаток / програмаが直接Подія (Event)を取り出し, その処理を行なう. <BR>
-    <P>この場合, прикладний додаток / програмаは取り出したПодія (Event)の発生場所をチェックし, 
-    対応する動作をパーツマーネージャ等の関数を使用して直接行なう必要がある. <BR>
-    なお, この場合は, 
-    他のウィンドウへの切換えが発生しないように<CODE>wget_evt()</CODE> を
-    <CODE>NOMSG</CODE> 指定で実行する必要がある. 
+ <DD>прикладний додаток, . <BR>
+    <P>, прикладний додаток, 
+    . <BR>
+    , , 
+    <CODE>wget_evt()</CODE> 
+    <CODE>NOMSG</CODE> . 
     </P>
  <DT>(2)
  <DD><P>
-    Менеджер панелей (Panel Manager)で用意されている標準パネル動作関数
-    (<CODE>pact_pnl</CODE>)を使用する. <BR>
-    この場合, Менеджер панелей (Panel Manager)がПодія (Event)を順次取り出し, 
-    対応する処理を行ない, その結果, Подія (Event)がприкладний додаток / програмаに戻される. 
+    Менеджер панелей (Panel Manager)
+    (<CODE>pact_pnl</CODE>). <BR>
+    , Менеджер панелей (Panel Manager), 
+    , , прикладний додаток. 
     </P>
 </DL>
 <P>
-  通常は, (2)の方法を用いるが, Подія (Event)に対する特殊な動作を必要とする場合は, 
-  (1)の方法を使用することになる. 
+  , (2), , 
+  (1). 
 </P>
 
-<H3><A name="ajm">3.4.2 データ／定数の定義</A></H3>
+<H3><A name="ajm">3.4.2 ／</A></H3>
 
-<H4>□ パネルID</H4>
+<H4>□ ID</H4>
 
 <PRE>
-typedef W       PNID;   /* パネルID */
+typedef W       PNID;   /* ID */
 </PRE>
 
-<H4>□ 項目タイプ</H4>
+<H4>□ </H4>
 
 <PRE>
-#define NULL_ITEM   0   /* 無し */
-#define PTR_ITEM    1   /* вказівник (Pointer) */
-#define PICT_ITEM   2   /* ピクトグラム */
-#define PAT_ITEM    3   /* パターン */
-#define BMAP_ITEM   4   /* ビットマップ */
+#define NULL_ITEM   0   /*  */
+#define PTR_ITEM    1   /*  */
+#define PICT_ITEM   2   /*  */
+#define PAT_ITEM    3   /*  */
+#define BMAP_ITEM   4   /*  */
 #define FIG_ITEM    5
-#define TEXT_ITEM   6   /* 文字列 (1行) */
-#define PARTS_ITEM  7   /* コントロールパーツ */
+#define TEXT_ITEM   6   /*  (1) */
+#define PARTS_ITEM  7   /*  */
 </PRE>
 
 <PRE>
-#define ACT_ITEM    0x80    /* 動作項目(上記項目にORで指定) */
+#define ACT_ITEM    0x80    /* (OR) */
 #define BLT_TEXT    0x40
-#define ATR_TEXT    0x20    /* 属性付き文字列(上記項目にORで指定) */
+#define ATR_TEXT    0x20    /* (OR) */
 </PRE>
 
-<H4>□ パネル項目</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct pnl_item {
-    UW  itype;      /* 項目タイプ */
-    UW  info;       /* 各種情報 */
-    RECT    ir;     /* 表示領域 */
-    W   desc;       /* 内部ディスクリプタ */
-    W   dnum;       /* データ番号 */
-    H   *ptr;       /* データвказівник (Pointer) */
+    UW  itype;      /*  */
+    UW  info;       /*  */
+    RECT    ir;     /*  */
+    W   desc;       /*  */
+    W   dnum;       /*  */
+    H   *ptr;       /*  */
 } PNL_ITEM;
 </PRE>
 
-<H4>□ パネル</H4>
+<H4>□ </H4>
 
 <PRE>
 typedef struct panel {
-    UW  oframe;     /* 境界線(外枠)の属性 */
-    UW  iframe;     /* 内枠の属性 */
-    W   bgpat;      /* 背景パターン */
-    RECT    r;      /* 表示領域 */
-    W   defsw;      /* デフォールトスイッチ番号 */
-    W   nitem;      /* 項目数 */
-    PNL_ITEM *item; /* 項目配列へのвказівник (Pointer) */
+    UW  oframe;     /* () */
+    UW  iframe;     /*  */
+    W   bgpat;      /*  */
+    RECT    r;      /*  */
+    W   defsw;      /*  */
+    W   nitem;      /*  */
+    PNL_ITEM *item; /*  */
 } PANEL;
 </PRE>
 
 
-<H3><A name="ajn">3.4.3 Менеджер панелей (Panel Manager)の関数</A></H3>
+<H3><A name="ajn">3.4.3 Менеджер панелей (Panel Manager)</A></H3>
 
 <P>
-  ここでは, Менеджер панелей (Panel Manager)がサポートしている各関数の詳細を説明する. 
-  これらの関数群は外殻の拡張системний виклик (System Call)として提供される. 
+  , Менеджер панелей (Panel Manager). 
+  системний виклик. 
 </P>
 <P>
-  各関数のкод помилкиとしては, ここで示した以外にも, 
-  核や他の外殻でПомилкаが検出された場合は, そのкод помилкиが直接戻る. 
+  Помилка, , 
+  Помилка, Помилка. 
 </P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pcre_pnl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネルの生成</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -509,59 +509,59 @@ PNID    pcre_pnl(PANEL *pnl, PNT *p)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-PANEL   *pnl    パネル定義データ
-PNT     *p  パネル表示位置
+PANEL   *pnl    
+PNT     *p  
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(パネルID)
+>= 0     Успішне виконання(ID)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 
 <P>
-  <CODE>pnl</CODE> で定義したパネルを生成し, 
-  <CODE>p</CODE> で指定した位置にパネルの表示を行なう. 
+  <CODE>pnl</CODE> , 
+  <CODE>p</CODE> . 
 </P>
 <P>
-  パネルはオープンされると入力受付状態を横取りした形で占有し, 
-  パネルをオープンしたПроцес (Process)がアクティブПроцес (Process)となる. 
-  パネルをオープンしたПроцес (Process)がアクティブПроцес (Process)でなかった場合は, 
-  元の入力受付状態のウィンドウに対して <CODE>EV_INACT</CODE> が送られ, 
-  <CODE>EV_INACT</CODE> が受信された後にパネルがオープンされる. 
-  パネルをオープンしたПроцес (Process)が既にアクティブПроцес (Process)であった場合は, 
-  <CODE>EV_INACT</CODE> は送られない. 
+  , 
+  . 
+  , 
+   <CODE>EV_INACT</CODE> , 
+  <CODE>EV_INACT</CODE> . 
+  , 
+  <CODE>EV_INACT</CODE> . 
 </P>
 <P>
-  パネルをクローズした場合, 
-  オープンした時に入力受付状態であったウィンドウに入力受付状態が戻り, 
-  <CODE>EV_INACT</CODE> を送った場合は, 
-  <CODE>EV_SWITCH</CODE> (<CODE>W_SWITCH</CODE>コマンド) が送られる. 
+  , 
+  , 
+  <CODE>EV_INACT</CODE> , 
+  <CODE>EV_SWITCH</CODE> (<CODE>W_SWITCH</CODE>) . 
 </P>
 <P>
-  <CODE>p</CODE> はパネルの境界線を含む全体の表示領域の左上の点を絶対座標で指定したもので, 
-  <CODE>p = NULL</CODE> の場合は, パネルの定義データ内に定義された位置に表示される. 
-  指定したパネルの定義データは生成後も参照されるので, 保存しておかなければいけない. 
-  <CODE>p-&gt;x</CODE> に 0x8000 を指定すると水平方向にセンタリングされ, 
-  <CODE>p-&gt;y</CODE> に 0x8000 を指定すると垂直方向にセンタリングされる. 
+  <CODE>p</CODE> , 
+  <CODE>p = NULL</CODE> , . 
+  , . 
+  <CODE>p-&gt;x</CODE>  0x8000 , 
+  <CODE>p-&gt;y</CODE>  0x8000 . 
 </P>
 <P>
-  パネルの境界線, 内枠, 背景の各パターンを指定したデータ番号が不正な場合は, 
-  デフォルトパターンが適用される. また, デフォルトスイッチ番号が不正な場合は, 
-  デフォルトスイッチが無いものとしてパネルを生成する. 
+  , , , 
+  . , , 
+  . 
 </P>
 <P>
-  関数値としてパネルID( &gt; 0 )が戻され, 
-  以後の操作の際に指定する. 
+  ID( &gt; 0 ), 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(pnl,p)のアクセスは許されていない. 
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-EX_PAR      : параметриが不正である(パネルの定義データが不正). 
-EX_SAVE     : イメージのセーブ領域が不足した(ネスティングしたパネルの場合). 
+EX_ADR      : (pnl,p). 
+EX_NOSPC    : . 
+EX_PAR      : (). 
+EX_SAVE     : (). 
 </PRE>
 
 
@@ -569,7 +569,7 @@ EX_SAVE     : イメージのセーブ領域が不足した(ネスティング�
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">popn_pnl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネルのデータボックスからの生成</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -580,65 +580,65 @@ PNID    popn_pnl(W dnum, PNT *p)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   dnum    PANEL_DATA タイプのデータ番号
-PNT *p  パネル表示位置
+W   dnum    PANEL_DATA 
+PNT *p  
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(パネルID)
+>= 0     Успішне виконання(ID)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>dnum</CODE>で指定したデータ番号を持つ, &quot;<CODE>PANEL_DATA</CODE>&quot;
-  タイプのデータで定義したパネルを生成し, <CODE>p</CODE> で指定した位置にパネルの表示を行なう. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>dnum</CODE>, &quot;<CODE>PANEL_DATA</CODE>&quot;
+  , <CODE>p</CODE> . 
 </P>
 <P>
-  パネルはオープンされると入力受付状態を横取りした形で占有し, 
-  パネルをオープンしたПроцес (Process)がアクティブПроцес (Process)となる. 
-  パネルをオープンしたПроцес (Process)がアクティブПроцес (Process)でなかった場合は, 
-  元の入力受付状態のウィンドウに対して <CODE>EV_INACT</CODE> が送られ, 
-  <CODE>EV_INACT</CODE> が受信された後にパネルがオープンされる. 
-  パネルをオープンしたПроцес (Process)が既にアクティブПроцес (Process)であった場合は, 
-  <CODE>EV_INACT</CODE> は送られない. 
+  , 
+  . 
+  , 
+   <CODE>EV_INACT</CODE> , 
+  <CODE>EV_INACT</CODE> . 
+  , 
+  <CODE>EV_INACT</CODE> . 
 </P>
 <P>
-  パネルをクローズした場合, 
-  オープンした時に入力受付状態であったウィンドウに入力受付状態が戻り, 
-  <CODE>EV_INACT</CODE> を送った場合は, <CODE>EV_SWITCH</CODE> ( <CODE>W_SWITCH</CODE> コマンド )
-  が送られる. 
+  , 
+  , 
+  <CODE>EV_INACT</CODE> , <CODE>EV_SWITCH</CODE> ( <CODE>W_SWITCH</CODE>  )
+  . 
 </P>
 <P>
-  <CODE>p</CODE> はパネルの境界線を含む全体の表示領域の左上の点を絶対座標で指定したもので, 
-  <CODE>p = NULL</CODE> の場合は, パネルの定義データ内に定義された位置に表示される. 
-  <CODE>p-&gt;x</CODE> に0x8000を指定すると水平方向にセンタリングされ, 
-  <CODE>p-&gt;y</CODE> に0x8000を指定すると垂直方向にセンタリングされる. 
+  <CODE>p</CODE> , 
+  <CODE>p = NULL</CODE> , . 
+  <CODE>p-&gt;x</CODE> 0x8000, 
+  <CODE>p-&gt;y</CODE> 0x8000. 
 </P>
 <P>
-  パネルの境界線, 内枠, 背景の各パターンを指定したデータ番号が不正な場合は, 
-  デフォルトパターンが適用される. また, デフォルトスイッチ番号が不正な場合は, 
-  デフォルトスイッチが無いものとしてパネルを生成する. 
+  , , , 
+  . , , 
+  . 
 </P>
 <P>
-  関数値としてパネルID( &gt; 0 ) が戻され, 
-  以後の操作の際に指定する. 
+  ID( &gt; 0 ) , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(p)のアクセスは許されていない. 
-EX_DNUM     : データ(dnum)はデータマネージャに登録されていない. 
-EX_NOSPC    : システムのОперативна пам'ять (Memory)領域が不足した. 
-EX_PAR      : параметриが不正である(パネルの定義データが不正). 
-EX_SAVE     : イメージのセーブ領域が不足した(ネスティングしたパネルの場合). 
+EX_ADR      : (p). 
+EX_DNUM     : (dnum). 
+EX_NOSPC    : . 
+EX_PAR      : (). 
+EX_SAVE     : (). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pdel_pnl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネルの削除</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
@@ -647,7 +647,7 @@ ERR pdel_pnl(W pnid)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pnid    パネルID
+W   pnid    ID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -656,23 +656,23 @@ W   pnid    パネルID
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネルを削除し, パネルの表示を消去する. 
-  消去するパネルは最前面に表示されているパネル, 即ち, 最も最後に生成したパネルでなくてはいけない. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE> , . 
+  , , . 
 </P>
 <P>
-  パネルを削除した場合にはパネルに属しているパーツ群も自動的に削除される. 
-  また, パネルを生成したПроцес (Process)が終了した場合は, パネルは自動的に削除される. 
+  . 
+  , , . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-  EX_PNID     : パネル(pnid)は存在していない(最前面のパネルでない). 
+  EX_PNID     : (pnid)(). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pact_pnl</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネルの標準動作</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -683,125 +683,125 @@ W   pact_pnl(W pnid, EVENT *ev, W *itemno)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W       pnid    パネルID
-EVENT   *ev     動作結果のПодія (Event)が格納される
-W       *itemno 動作結果の項目番号が格納される
+W       pnid    ID
+EVENT   *ev     
+W       *itemno 
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は項目の処理状態コード)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネルの標準動作を行ない, 
-  動作結果としてのПодія (Event), および項目番号をそれぞれ, 
-  <CODE>ev, itemno</CODE> で指定した領域に格納して, 
-  操作した項目の状態を関数値として戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE> , 
+  , , 
+  <CODE>ev, itemno</CODE> , 
+  . 
 </P>
 <P>
-  この関数により, 以下に示す内容の処理が行なわれる. 
-  通常はデフォールトスイッチが押されてパネルの処理が完全に終了するまで, 
-  <CODE>pact_pnl()</CODE> を繰り返し実行することになる. 
+  , . 
+  , 
+  <CODE>pact_pnl()</CODE> . 
 </P>
 <DL compact>
  <DT>(1)
- <DD> 操作許可状態のボックスタイプのパーツが存在し, 
-     かつ«入力状態»のボックスが存在しない場合は, 
-     最も小さい項目番号のボックスを«入力状態»とし, 
-     キー入力を受け付けるようにする. 
+ <DD> , 
+     «», 
+     «», 
+     . 
  <DT>(2)
- <DD>(ウィンドウ)Подія (Event)を順次取り出し, 
-     そのПодія (Event)がパネル内に存在するパーツに対して適用される場合, 
-     そのパーツに対して <CODE>cact_par()</CODE> を実行する. 
-     その結果パーツの状態が変更されなかった場合は (5) の処理を行ない, 
-     状態が変更された場合は (3), (4) の処理を行なう. 
+ <DD>(), 
+     , 
+      <CODE>cact_par()</CODE> . 
+      (5) , 
+      (3), (4) . 
  <DT>(3)
- <DD>ボックスタイプのパーツの <CODE>cact_par()</CODE> を実行した場合：
+ <DD> <CODE>cact_par()</CODE> ：
      <UL>
-      <LI> <KBD>[タブ]</KBD>, <KBD>[入力終]</KBD>, <KBD>[改段落 / 改行]</KBD>キーで終了した場合は, 
-           <CODE>cact_par()</CODE> の関数値を <CODE>pact_pnl()</CODE> の関数値としてリターンする. 
-           この時, <CODE>*itemno</CODE> には操作したパーツの項目番号が設定され, 
-           <CODE>*ev</CODE> には <CODE>EV_NULL</CODE> が設定される. 
-           この場合, 次に <CODE>pact_pnl()</CODE> が呼ばれた場合のボックスの入力状態は, 
-           以下のようになる. 
+      <LI> <KBD>[]</KBD>, <KBD>[]</KBD>, <KBD>[ / ]</KBD>, 
+           <CODE>cact_par()</CODE>  <CODE>pact_pnl()</CODE> . 
+           , <CODE>*itemno</CODE> , 
+           <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> . 
+           ,  <CODE>pact_pnl()</CODE> , 
+           . 
 <PRE>
 
-       [タブ]                   -- 項目番号順での次のボックスが入力状態となる
-       [入力終][改段落 / 改行]  -- 同一のボックスが再度入力状態となる
+       []                   -- 
+       [][ / ]  -- 
 </PRE>
 <P>
-  ただし, デフォールトスイッチが定義されている場合は, 
-  «改段落 / 改行»キーにより, デフォールトスイッチも動作する. 
-  デフォールトスイッチの動作は次に <CODE>pact_pnl()</CODE> が呼ばれたときに行なわれる. 
-  デフォールトスイッチの動作が行なわれると, <CODE>*itemno</CODE>
-  にデフォルトスイッチの項目番号を負にしたものが設定される. 
+  , , 
+  « / », . 
+   <CODE>pact_pnl()</CODE> . 
+  , <CODE>*itemno</CODE>
+  . 
 </P>
-    <LI>ボックス外の PD のプレスで終了した場合は, 
-           まず, <CODE>cact_par()</CODE> の関数値を <CODE>pact_pnl()</CODE>の関数値として返す. 
-           この時 <CODE>*itemno</CODE> には, その時入力状態だったボックスパーツの項目番号が設定され, 
-           <CODE>*ev</CODE> には <CODE>EV_NULL</CODE> が設定される. 
-           そして, 次に <CODE>pact_pnl</CODE> が呼ばれた時に, 
-           このボックスパーツの終了の契機となったПодія (Event)に対する処理が行なわれる. 
-      <LI> メニュー指定で終了した場合, 他のПодія (Event)による中断の場合は, 
-           (6) と同じ条件で <CODE>pact_pnl()</CODE> からリターンする. 
-           ボックスの入力状態は変わらない. 
+    <LI> PD , 
+           , <CODE>cact_par()</CODE>  <CODE>pact_pnl()</CODE>. 
+            <CODE>*itemno</CODE> , , 
+           <CODE>*ev</CODE>  <CODE>EV_NULL</CODE> . 
+           ,  <CODE>pact_pnl</CODE> , 
+           . 
+      <LI> , , 
+           (6)  <CODE>pact_pnl()</CODE> . 
+           . 
      </UL>
  <DT>(4)
- <DD>ボックス以外のパーツの <CODE>cact_par()</CODE> を実行した場合：
+ <DD> <CODE>cact_par()</CODE> ：
      <UL>
-      <LI><CODE>cact_par()</CODE> の関数値を <CODE>pact_pnl()</CODE> の関数値としてリターンする. 
-          この時, <CODE>*itemno</CODE> には操作したパーツの項目番号が設定され, 
-          <CODE>*ev</CODE> には <CODE>EV_NULL</CODE>が設定される. 
-      <LI>グループスイッチ内のスイッチが ON になった場合は, 今迄 ON であったスイッチは OFF 
-          に切り換わった状態となっている. 
-      <LI>デフォールトスイッチは <KBD>[改段落/改行]</KBD> キーでも動作し, 
-          この場合の項目番号は, 負の値 ( - 項目番号 ) となる. 
-      <LI>ボリュームおよびモーメンタリスイッチの場合は, 
-          プレス中の処理のために <CODE>cact_par()</CODE> が中断する場合があるが, 
-          その場合も <CODE>cact_par()</CODE> の関数値がそのまま戻るので, 
-          対応する処理を行なう必要がある. 
+      <LI><CODE>cact_par()</CODE>  <CODE>pact_pnl()</CODE> . 
+          , <CODE>*itemno</CODE> , 
+          <CODE>*ev</CODE>  <CODE>EV_NULL</CODE>. 
+      <LI> ON ,  ON  OFF 
+          . 
+      <LI> <KBD>[/]</KBD> , 
+          ,  ( -  ) . 
+      <LI>, 
+           <CODE>cact_par()</CODE> , 
+           <CODE>cact_par()</CODE> , 
+          . 
      </UL>
  <DT>(5)
- <DD><CODE>ACT_ITEM</CODE> が設定された表示項目で PD がプレスされた場合は, 
-     プレスされた時点で, <CODE>pact_pnl()</CODE> からリターンする. 
-     この時, <CODE>*itemno</CODE> にはその項目番号が設定され, 
-     <CODE>*ev</CODE> には得られたПодія (Event) ( <CODE>EV_BUTDWN</CODE> )が設定される. 
-     関数値は 0 となる. 
+ <DD><CODE>ACT_ITEM</CODE>  PD , 
+     , <CODE>pact_pnl()</CODE> . 
+     , <CODE>*itemno</CODE> , 
+     <CODE>*ev</CODE>  ( <CODE>EV_BUTDWN</CODE> ). 
+      0 . 
  <DT>(6)
- <DD>(2),(5) に該当しない, ボタン / キー関連のПодія (Event)は無視される. <BR>
-    ボタン / キー関連以外のПодія (Event), またはメニュー指定のПодія (Event)が得られた場合は, 
-     <CODE>*itemno</CODE> に現在«入力状態»であるボックスパーツの項目番号
-    ( 無い場合は 0 ) を, <CODE>*ev</CODE> には得られたПодія (Event)を設定して戻る. 
-     関数値は以下の値となる(<CODE>cact_par()</CODE> の値と同一). 
+ <DD>(2),(5) , Кнопки (Buttons) / . <BR>
+    Кнопки (Buttons) / , , 
+     <CODE>*itemno</CODE> «»
+    (  0 ) , <CODE>*ev</CODE> . 
+     (<CODE>cact_par()</CODE> ). 
 <PRE>
-        メニュー指定：  P_MENU  (0x6010)
-        他のПодія (Event)：  P_EVENT (0x6020)
+        ：  P_MENU  (0x6010)
+        ：  P_EVENT (0x6020)
 </PRE>
-    なお, メニュー指定とは, 以下のいずれかの場合を示す. 
+    , , . 
 <PRE>
-        (1)  PD のメニューボタンを押した状態でのクリック
-        (2) «命令»キーを押した状態でのプレス
-        (3) «命令»キーと別のキーの同時押し(キーマクロ)
-        (4) メニュー起動ボタンでのクリック(タッチパネルの場合)
+        (1)  PD Кнопки (Buttons)
+        (2) «»
+        (3) «»()
+        (4) Кнопки (Buttons)()
 </PRE>
 
 </DL>
 
 <P>
-  なお, Подія (Event)として<CODE>EV_REQUEST</CODE> の <CODE>W_REDISP</CODE> が返った場合は, 
-  <CODE>wid</CODE> で指定されたパネルやウィンドウの再表示をおこなう必要がある. 
-  パネルの再表示の場合, パネルструктура даних Cで定義した部分は再描画がおこなわれているので, 
-  прикладний додаток / програмаで描画した部分があれば再表示することになる. 
-  なお, アクティブでないパネルや, ウィンドウに対しても再表示要求が発生することに注意が必要である. 
+  , <CODE>EV_REQUEST</CODE>  <CODE>W_REDISP</CODE> , 
+  <CODE>wid</CODE> . 
+  , , 
+  прикладний додаток. 
+  , , . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(ev,itemno)のアクセスは許されていない. 
-EX_PNID     : パネル(pnid)は存在していない. 
+EX_ADR      : (ev,itemno). 
+EX_PNID     : (pnid). 
 </PRE>
 
 
@@ -809,7 +809,7 @@ EX_PNID     : パネル(pnid)は存在していない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pget_itm</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネル項目の取出し</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -819,9 +819,9 @@ W   pget_itm(W pnid, W itemno, PNL_ITEM *item)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pnid    パネルID
-W   itemno  項目番号
-PNL_ITEM *item  パネル項目データ
+W   pnid    ID
+W   itemno  
+PNL_ITEM *item  
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
@@ -830,27 +830,27 @@ PNL_ITEM *item  パネル項目データ
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネル内の <CODE>itemno</CODE> で指定した項目の定義データを取り出し, 
-  <CODE>item</CODE> で指定した領域に格納する. 
-  格納される内容は定義した内容と同一であるが, 内部ディスクリプタ
-  ( <CODE>item-&gt;desc</CODE> ) には, 以下の値が格納され, 
-  関数値として, この内部ディスクリプタの値が戻る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE>  <CODE>itemno</CODE> , 
+  <CODE>item</CODE> . 
+  , 
+  ( <CODE>item-&gt;desc</CODE> ) , , 
+  , . 
 </P>
 <PRE>
-    コントロールパーツの場合：      -- 登録されたパーツID
-    コントロールパーツ以外の場合：  -- 0
+    ：      -- ID
+    ：  -- 0
 </PRE>
 <P>
-  <CODE>item = NULL</CODE> の場合は項目の定義データの取り出しは行なわれないが, 
-  関数値として上記の内部ディスクリプタの値が戻る. 
+  <CODE>item = NULL</CODE> , 
+  . 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(item)のアクセスは許されていない. 
-EX_PAR      : параметриが不正である(itemnoが不正). 
-EX_PNID     : パネル(pnid)は存在していない. 
+EX_ADR      : (item). 
+EX_PAR      : (itemno). 
+EX_PNID     : (pnid). 
 </PRE>
 
 
@@ -858,7 +858,7 @@ EX_PNID     : パネル(pnid)は存在していない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pset_itm</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネル項目の設定</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -869,41 +869,41 @@ W   pset_itm(W pnid, W itemno, PNL_ITEM *item)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pnid        パネルID
-W   itemno      項目番号
-PNL_ITEM *item  パネル項目データ
+W   pnid        ID
+W   itemno      
+PNL_ITEM *item  
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は項目の内部ディスクリプタ)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネル内の <CODE>itemno</CODE> で指定した項目の定義データを
-  <CODE>item</CODE> で指定した領域の内容に変更し, 
-   パネルの再表示を行なう. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE>  <CODE>itemno</CODE> 
+  <CODE>item</CODE> , 
+   . 
 </P>
 <P>
-  <CODE>item = NULL</CODE> の場合は再設定を行なわず, 
-  指定した項目の再表示のみを行なう. 
-  特に <CODE>pset_itm(pnid, -1,NULL)</CODE>の場合は, 
-  すべての項目の再表示を行う. 
+  <CODE>item = NULL</CODE> , 
+  . 
+   <CODE>pset_itm(pnid, -1,NULL)</CODE>, 
+  . 
 </P>
 <P>
-  関数値として, 項目定義データ設定後の以下の内部ディスクリプタの値が戻る. 
+  , . 
 </P>
 <PRE>
-    コントロールパーツの場合：      -- 登録されたパーツID
-    コントロールパーツ以外の場合：  -- 0
+    ：      -- ID
+    ：  -- 0
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">psel_box</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>パネルの入力ボックスの選択</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -914,44 +914,44 @@ W   psel_box(W pnid, W itemno)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pnid    パネルID
-W   itemno  項目番号
+W   pnid    ID
+W   itemno  
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は入力状態のボックスの項目番号(該当なしの場合は0))
+>= 0     Успішне виконання((0))
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネル内で, 
-  <CODE>itemno</CODE> で指定した項目番号を持つボックスパーツを«入力状態»のボックスとして選択し, 
-  そのボックスパーツの項目番号を関数値として戻す. 
-  «入力状態»として選択したボックスパーツが, 
-  <CODE>pact_pnl()</CODE> を実行した場合にキー入力を受け付けることになる. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE> , 
+  <CODE>itemno</CODE> «», 
+  . 
+  «», 
+  <CODE>pact_pnl()</CODE> . 
 </P>
 <P>
-  <CODE>itemno = 0</CODE> の場合は, ボックスパーツの入力状態の変更は行なわれず, 
-  単に現在入力状態であるボックスパーツの項目番号を関数値として戻す. 
-  該当するものが無い場合は, 関数値として 0 が戻る. 
+  <CODE>itemno = 0</CODE> , , 
+  . 
+  ,  0 . 
 </P>
 <P>
-  <CODE>itemno</CODE> で指定した項目が操作許可状態のボックスパーツでない場合は, 
-  <CODE>EX_PAR</CODE> のПомилкаとなる. 
+  <CODE>itemno</CODE> , 
+  <CODE>EX_PAR</CODE> Помилка. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PAR      : параметриが不正である(itemno が不正,操作許可のボックスパーツでない). 
-EX_PNID     : パネル(pnid)は存在していない. 
+EX_PAR      : (itemno ,). 
+EX_PNID     : (pnid). 
 </PRE>
 
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pget_gid</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>描画環境IDの取出し</TD></TR>
+<TR><TD>ID</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -961,27 +961,27 @@ GID pget_gid(W pnid)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   pnid    パネルID
+W   pnid    ID
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はパネルの描画環境ID)
+>= 0     Успішне виконання(ID)
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>pnid</CODE> で指定したパネルで使用している描画環境IDを取り出し, 
-  関数値として戻す. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>pnid</CODE> ID, 
+  . 
 </P>
 <P>
-  прикладний додаток / програмаがこの描画環境IDを用いてパネル上に直接描画する場合は, 
-  基本的に必要なпараметриを再設定し, 描画後は元の設定に戻しておく必要がある. 
-  параметриを変更したままの状態でパネルの表示／操作等を行なった場合の動作は保証されないので注意が必要である. 
+  прикладний додатокID, 
+  , . 
+  ／. 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_PNID     : パネル(pnid)は存在していない. 
+EX_PNID     : (pnid). 
 </PRE>
 
 
@@ -989,7 +989,7 @@ EX_PNID     : パネル(pnid)は存在していない.
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pact_err</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>標準Помилка警告パネル処理</TD></TR>
+<TR><TD>Помилка</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1000,69 +1000,69 @@ W   pact_err(W kind, TC *arg1, TC *arg2, TC *arg3)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-W   kind    PANEL_DATA タイプのデータ番号
-TC  *arg1   文字列1
-TC  *arg2   文字列2
-TC  *arg3   文字列3
+W   kind    PANEL_DATA 
+TC  *arg1   1
+TC  *arg2   2
+TC  *arg3   3
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値はスイッチの種別(デフォールトスイッチは0))
+>= 0     Успішне виконання((0))
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>kind</CODE> で指定した &quot;<CODE>PANEL_DATA</CODE>&quot;
-  タイプのデータ番号をもつ標準Помилка警告パネルを表示する. 
-  <CODE>kind</CODE> &lt; 0 の場合は, <CODE>- kind</CODE> をデータ番号とする. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>kind</CODE>  &quot;<CODE>PANEL_DATA</CODE>&quot;
+  Помилка. 
+  <CODE>kind</CODE> &lt; 0 , <CODE>- kind</CODE> . 
 </P>
 <P>
-  標準Помилка警告パネルは, データ番号が 1000 以上のため, 
-  <CODE>kind ≧ 1000</CODE> または <CODE>kind ≦ -1000</CODE>でなくてはいけない. 
+  Помилка,  1000 , 
+  <CODE>kind ≧ 1000</CODE>  <CODE>kind ≦ -1000</CODE>. 
 </P>
 <P>
-  パネルの定義データの先頭の 3 つまでの項目が文字列項目の場合は, 
-  順番に, arg1 〜arg3 で指定した文字列項目に置き替えられる. 
+   3 , 
+  , arg1 〜arg3 . 
 </P>
 <PRE>
-    例: 項目1 文字列項目       -- arg1 に置き替えられる. 
-        項目2 文字列項目       -- arg2 に置き替えられる. 
-        項目3 文字列項目でない -- arg3 は無視される. 
+    : 1        -- arg1 . 
+        2        -- arg2 . 
+        3  -- arg3 . 
 
-    例: 項目1 文字列項目       -- arg1 に置き替えられる. 
-        項目2 文字列項目でない -- arg2, arg3 は無視される. 
+    : 1        -- arg1 . 
+        2  -- arg2, arg3 . 
 </PRE>
 <P>
-  デフォールトスイッチ項目は必ず存在し, 
-  デフォールトスイッチから連続した n 個のモーメンタリスイッチ項目
-  (ピクトグラムモーメンタリも含む)のいずれかのプレスで処理を終了し, 
-  (プレスされたモーメンタリスイッチ項目番号) - (デフォールトスイッチ項目番号) 
-  の値 ( 0 〜 n - 1 ) を関数値として戻す. 
+  , 
+   n 
+  (), 
+  () - () 
+   ( 0 〜 n - 1 ) . 
 </P>
 <BLOCKQUOTE>
-    例: デフォールトスイッチ項目番号を 4 とし, 項目 7 までが, モーメンタリスイッチの場合, 
-    4 〜 7 のスイッチのプレスで処理を終了し, 
-    関数値として 0 〜 3 を戻す. 
+    :  4 ,  7 , , 
+    4 〜 7 , 
+     0 〜 3 . 
 </BLOCKQUOTE>
 <P>
-  <CODE>kind</CODE> で指定した番号の &quot;<CODE>PANEL_DATA</CODE>&quot; タイプのデータが登録されていない場合, 
-  およびデフォールトスイッチ項目が規定されていない場合は, 
-  <CODE>EX_PAR</CODE> のПомилкаとなる. 
+  <CODE>kind</CODE>  &quot;<CODE>PANEL_DATA</CODE>&quot; , 
+  , 
+  <CODE>EX_PAR</CODE> Помилка. 
 </P>
 <P>
-  また, デフォールトスイッチ項目番号より小さい項目番号の
-  <CODE>PARTS_ITEM</CODE> 項目が存在する場合は, 
-  <CODE>EX_PAR</CODE> のПомилкаとなる. 
+  , 
+  <CODE>PARTS_ITEM</CODE> , 
+  <CODE>EX_PAR</CODE> Помилка. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(arg1〜3)のアクセスは許されていない. 
-EX_PAR      : параметриが不正である(-1000 &lt; kind &lt; 1000, パネルデータが登録され
-              ていない, デフォールトスイッチが未定義, デフォールトスイッチ項目
-              番号より小さい番号のパーツ項目が存在する). 
-EX_SAVE     : イメージのセーブ領域が不足した
-              (kind &gt; 0 でネスティングしたパネルの場合). 
+EX_ADR      : (arg1〜3). 
+EX_PAR      : (-1000 &lt; kind &lt; 1000, 
+              , , 
+              ). 
+EX_SAVE     : 
+              (kind &gt; 0 ). 
 </PRE>
 
 
@@ -1070,7 +1070,7 @@ EX_SAVE     : イメージのセーブ領域が不足した
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pdsp_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>システムПовідомлення (Message)パネルの表示</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1081,37 +1081,37 @@ W   pdsp_msg(TC *msg)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC  *msg    文字列
+TC  *msg    
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання(関数値は表示文字数)
+>= 0     Успішне виконання()
 < 0      Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  システムПовідомлення (Message)パネルに現在表示されているПовідомлення (Message)を消去し, 
-  <CODE>msg</CODE> で指定したПовідомлення (Message)を新たに表示する. 
-  <CODE>msg = NULL</CODE> の場合は, 単に現在の表示の消去を行なう. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  , 
+  <CODE>msg</CODE> . 
+  <CODE>msg = NULL</CODE> , . 
 </P>
 <P>
-  Повідомлення (Message)は, システムのデフォールトフォント, 
-  通常体, デフォールトカラーで表示され, 
-  領域をはみでた部分はクリップされる. 
+  , Шрифт, 
+  , , 
+  . 
 </P>
 <P>
-  関数値としてはクリップされずに実際に表示された文字数が戻る. 
+  . 
 </P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EX_ADR      : адреса пам'яті(msg)のアクセスは許されていない. 
+EX_ADR      : (msg). 
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pdsp_tim</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>システムПовідомлення (Message)パネルの時刻表示</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1122,25 +1122,25 @@ ERR pdsp_tim(UW stat)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-UW  stat    メタキー状態
+UW  stat    
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
 ≧ 0     Успішне виконання
-＜ 0     Помилка(код помилки)
+＜ 0     Помилка(Помилка)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  <CODE>stat</CODE>で指定したメタキー状態に対応した言語モード, 
-  入力補助モード, および現在時刻をシステムПовідомлення (Message)パネルに表示する. 
-  実際には, 現在表示している言語モード, 入力補助モード, 
-  現在時刻と異なっている場合のみ表示の更新を行なう. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+  <CODE>stat</CODE>, 
+  , . 
+  , , , 
+  . 
 </P>
 <P>
-  この関数は, メターキー状態が変更された場合, 
-  および適当な周期でウィンドウマネージャにより実行されるため, 
-  通常のприкладний додаток / програмаでは実行する必要はない. 
+  , , 
+  , 
+  прикладний додаток. 
 </P>
 
 <H4>【Коди помилок】</H4>
@@ -1148,7 +1148,7 @@ UW  stat    メタキー状態
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">pact_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>システムПовідомлення (Message)パネルのПодія (Event)処理</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 
@@ -1159,7 +1159,7 @@ ERR pact_msg(WEVENT* ev)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-WEVENT  *ev ウィンドウПодія (Event)
+WEVENT  *ev 
 
 </PRE>
 <H4>【Значення, що повертається】</H4>
@@ -1169,25 +1169,25 @@ WEVENT  *ev ウィンドウПодія (Event)
 </PRE>
 
 <H4>【Детальний опис】</H4>
-<P>
-  システムПовідомлення (Message)パネルに対して発生したПодія (Event) <CODE>ev</CODE> に応じて, 
-  システムПовідомлення (Message)パネルの表示の更新を行なう. 
-  NULLПодія (Event)や再表示Подія (Event)を受け付ける. 
-  関数値として, 処理したПодія (Event)のタイプが返る. 
+<P>Виконує системну операцію даного виклику підсистеми оболонки BTRON Shell згідно з переданими параметрами.</P>
+   <CODE>ev</CODE> , 
+  . 
+  NULL. 
+  , . 
 </P>
 <P>
-  このсистемний виклик (System Call)は, ウィンドウマネージャによって自動的に実行されるため, 
-  通常のприкладний додаток / програмаでは実行する必要はない. 
+  системний виклик, , 
+  прикладний додаток. 
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-  EX_ADR      : адреса пам'яті(ev)のアクセスは許されていない. 
+  EX_ADR      : (ev). 
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="parts.html">前頁:3.3 Менеджер системних елементів (Parts Manager)にもどる</A><BR>
-<A href="tray.html">次頁:3.5 トレーマネージャにすすむ</A><BR>
+<A href="parts.html">:3.3 Менеджер системних елементів (Parts Manager)</A><BR>
+<A href="tray.html">:3.5 </A><BR>
 </BODY>
 </HTML>
