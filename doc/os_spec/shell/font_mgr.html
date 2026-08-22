@@ -25,11 +25,11 @@
 <H4><A name="amgg">3.7.1.1 Архітектура Менеджера шрифтів</A></H4>
 
 <P>
-  Менеджер шрифтів (Font Manager) є системною підсистемою BTRON3, що забезпечує реєстрацію, вилучення, вибір альтернативних замінників та надання растрових (BitMap) та векторних (Outline Vector) шрифтових гарнітур для виведення багатомовного тексту в кодуванні TRON Code.
+  Менеджер шрифтів (Font Manager) є базовим компонентом графічної оболонки BTRON3, що керує реєстрацією, візуалізацією, трансформацією (масштабуванням, поворотом) та наданням растрових та векторних шрифтів для виведення багатомовного тексту в кодуванні TRON Code.
 </P>
 
 <P>
-  Підсистема малювання графічних примітивів (Display Primitives) використовує Менеджер шрифтів для отримання растрових масок символів та їхніх системних метрик (ширина, висунення, аскендер/дескендер).
+  Підсистема малювання графічних примітивів (Display Primitives) взаємодіє з Менеджером шрифтів для завантаження зображень символів та їхніх системних метрик (аскендер, дескендер, ширина, базовий крок).
 </P>
 
 <A name="amgg_img">
@@ -37,38 +37,38 @@
 </A>
 <CENTER>Мал. 125: Схема взаємодії Менеджера шрифтів та підсистеми Display Primitives</CENTER>
 
-<H4><A name="amh">3.7.1.2 Гарнітури, класи та атрибути шрифтів</A></H4>
+<H4><A name="amh">3.7.1.2 Класифікація шрифтів, гарнітур та атрибутів</A></H4>
 
 <P>
-  Шрифти BTRON3 класифікуються за трьома основними параметрами:
+  Шрифти BTRON3 класифікуються за трьома основними критеріями:
 </P>
 
 <DL>
  <DT><B>1. Гарнітура / Родина шрифту (Font Family)</B> :
  <DD><P>Назва родини шрифтів (до 12 символів TRON Code, наприклад <CODE>"Ming-style"</CODE>, <CODE>"Gothic"</CODE>).</P>
  <DT><B>2. Клас шрифту (Font Class / FTC)</B> :
- <DD><P>32-бітне числове значення, що описує стилістичні характеристики дизайну символів та використовується для автопідбору подібного шрифту-замінника при відсутності запитаної гарнітури (<CODE>FTC_DEFAULT = 0x80000000</CODE>).</P>
+ <DD><P>32-бітне числове значення, що описує стилістичні характеристики дизайну символів для автоматичного добору шрифту-замінника при відсутності запитаної гарнітури (<CODE>FTC_DEFAULT = 0x80000000</CODE>).</P>
  <DT><B>3. Атрибути шрифту (Font Attributes)</B> :
  <DD><P>Варіації накреслення: товщина пера (Normal/Bold), нахил (Roman/Italic), моноширинність та пропорційність.</P>
 </DL>
 
 <H3><A name="amk">3.7.2 Системні виклики Менеджера шрифтів</A></H3>
 
-<!-- reg_fnt -->
+<!-- fdef_fnt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">reg_fnt</FONT></TD></TR>
-<TR><TD align="right">Register Font Data</TD></TR>
-<TR><TD>Реєстрація нового шрифту у системі</TD></TR>
+<TR><TD><FONT size="+2">fdef_fnt</FONT></TD></TR>
+<TR><TD align="right">Define Font Data</TD></TR>
+<TR><TD>Реєстрація та визначення шрифтових даних у системі</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     reg_fnt(LINK *lnk, W mode)
+ERR     fdef_fnt(LINK *lnk, W mode)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
 LINK   *lnk     Посилання на файл шрифтових даних (ROM / File Font)
-W       mode    Режим реєстрації шрифту (System Global / Process Local)
+W       mode    Режим реєстрації шрифту (F_SYS, F_LOCAL)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
@@ -79,43 +79,211 @@ W       mode    Режим реєстрації шрифту (System Global / Pr
 <P>
   Реєструє новий шрифтовий файл lnk у системному реєстрі Менеджера шрифтів.
 </P>
-<H4>【Коди помилок】</H4>
-<PRE>
-ER_ACCES   : Відсутні права доступу до файла шрифту.
-ER_ADR     : Неприпустима адреса вказівника lnk.
-ER_NOEXS   : Файл шрифту відсутній.
-ER_NOSPC   : Недостатньо пам'яті для завантаження шрифтових метрик.
-</PRE>
 
-<!-- lst_fnt -->
+<!-- fdel_fnt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">lst_fnt</FONT></TD></TR>
-<TR><TD align="right">List Installed Fonts</TD></TR>
-<TR><TD>Отримання списку встановлених шрифтів</TD></TR>
+<TR><TD><FONT size="+2">fdel_fnt</FONT></TD></TR>
+<TR><TD align="right">Delete Font Data</TD></TR>
+<TR><TD>Вилучення шрифтових даних із системи</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    lst_fnt(FNT_INFO *buf, W max_cnt)
+ERR     fdel_fnt(LINK *lnk)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-FNT_INFO *buf   Буфер для збереження масиву інформаційних структур шрифтів
-W       max_cnt Максимальна кількість елементів буфера
+LINK   *lnk     Посилання на файл шрифтових даних
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання (Фактична кількість зареєстрованих шрифтів)
+= 0      Успішне виконання
+< 0      Помилка (Код помилки)
+</PRE>
+
+<!-- fdel_loc -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fdel_loc</FONT></TD></TR>
+<TR><TD align="right">Delete Local Font</TD></TR>
+<TR><TD>Вилучення локального шрифту процесу</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fdel_loc(ID fid)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+ID      fid     Ідентифікатор шрифту
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0      Успішне виконання
+< 0      Помилка (Код помилки)
+</PRE>
+
+<!-- fget_def -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_def</FONT></TD></TR>
+<TR><TD align="right">Get Default Font</TD></TR>
+<TR><TD>Отримання параметрів системного шрифту за замовчуванням</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_def(TC *family, FNT_ATTR *attr)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+TC        *family   Буфер для збереження назви гарнітури
+FNT_ATTR  *attr     Буфер для збереження атрибутів шрифту
+</PRE>
+
+<!-- fget_not -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_not</FONT></TD></TR>
+<TR><TD align="right">Get Font Notification</TD></TR>
+<TR><TD>Отримання сповіщень про динамічні зміни шрифтового реєстру</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_not(FNT_NOT *notif)
+</PRE>
+
+<!-- flst_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">flst_fon</FONT></TD></TR>
+<TR><TD align="right">List Fonts</TD></TR>
+<TR><TD>Отримання списку всіх зареєстрованих шрифтів</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+WERR    flst_fon(FNT_INFO *buf, W max_cnt)
+</PRE>
+
+<!-- fopn_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fopn_fon</FONT></TD></TR>
+<TR><TD align="right">Open Font</TD></TR>
+<TR><TD>Відкриття шрифту для використання у контексті</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+FID     fopn_fon(TC *family, FNT_ATTR *attr, W size)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+TC        *family   Назва гарнітури шрифту
+FNT_ATTR  *attr     Атрибути шрифту
+W          size     Розмір шрифту у точках BitMap або скалярі
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+> 0      Дескриптор відкритого шрифту FID
+< 0      Помилка (Код помилки)
+</PRE>
+
+<!-- fcls_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fcls_fon</FONT></TD></TR>
+<TR><TD align="right">Close Font</TD></TR>
+<TR><TD>Закриття дескриптора шрифту</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fcls_fon(FID fid)
+</PRE>
+
+<!-- fset_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fset_fon</FONT></TD></TR>
+<TR><TD align="right">Set Font Parameters</TD></TR>
+<TR><TD>Зміна розміру та параметрів відкритого шрифту</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fset_fon(FID fid, W size, FNT_ATTR *attr)
+</PRE>
+
+<!-- fget_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_fon</FONT></TD></TR>
+<TR><TD align="right">Get Font Parameters</TD></TR>
+<TR><TD>Зчитання поточних параметрів шрифту FID</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_fon(FID fid, FNT_PARAM *param)
+</PRE>
+
+<!-- fset_ang -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fset_ang</FONT></TD></TR>
+<TR><TD align="right">Set Font Rotation Angle</TD></TR>
+<TR><TD>Налаштування кута повороту шрифту</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fset_ang(FID fid, W angle)
+</PRE>
+
+<!-- fget_ang -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_ang</FONT></TD></TR>
+<TR><TD align="right">Get Font Rotation Angle</TD></TR>
+<TR><TD>Зчитання кута повороту шрифту</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_ang(FID fid, W *angle)
+</PRE>
+
+<!-- fget_fam -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_fam</FONT></TD></TR>
+<TR><TD align="right">Get Font Family Info</TD></TR>
+<TR><TD>Отримання інформації про гарнітуру родини шрифтів</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_fam(TC *family, FAM_INFO *info)
+</PRE>
+
+<!-- fget_img -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">fget_img</FONT></TD></TR>
+<TR><TD align="right">Get Font Character Image BitMap</TD></TR>
+<TR><TD>Отримання растрового зображення символу BitMap</TD></TR>
+</TABLE></TD></TR></TABLE>
+
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR     fget_img(FID fid, TC code, BITMAP *img)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+FID     fid     Дескриптор відкритого шрифту
+TC      code    Код символу у кодуванні TRON Code
+BITMAP *img     Буфер для збереження растрового зображення символу (Вихід)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0      Успішне виконання
 < 0      Помилка (Код помилки)
 </PRE>
 <H4>【Детальний опис】</H4>
 <P>
-  Повертає перелік усіх встановлених у системі гарнітур та їхніх метрик у масив buf.
+  Генерує та повертає растрову маску BitMap для символу code у шрифті fid.
 </P>
-<H4>【Коди помилок】</H4>
-<PRE>
-ER_ADR     : Неприпустима адреса буфера buf.
-</PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту специфікації BTRON3</A><BR>
