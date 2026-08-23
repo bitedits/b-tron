@@ -6,7 +6,7 @@ and organized into a authentic Japanese BTRON tree structure.
 
 ## Specification
 
-* [B-TRON SPEC 3.20](doc/index.html)
+* [B-TRON SPEC 3.20](https://bitedits.github.io/btron/doc/)
 
 ## Current Status
 
