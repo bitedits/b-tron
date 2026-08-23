@@ -28,10 +28,20 @@
 <TR><TD align="right">Set / Get Text Position</TD></TR>
 <TR><TD>Встановлення та отримання поточної позиції виведення тексту</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gset_chp(GID gid, PNT *pos)
 ERR gget_chp(GID gid, PNT *pos)
 </PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID  gid    Дескриптор середовища малювання
+PNT *pos    Вказівник на структуру координат точки (X, Y)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  <CODE>gset_chp()</CODE> встанолювє нову поточну позицію пера малювання тексту у середовищі <CODE>gid</CODE>. <CODE>gget_chp()</CODE> зчитує поточні координати пера.
+</P>
 
 <!-- gset_chc / gget_chc -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
@@ -39,9 +49,16 @@ ERR gget_chp(GID gid, PNT *pos)
 <TR><TD align="right">Set / Get Text Color</TD></TR>
 <TR><TD>Встановлення та отримання кольору тексту (передній план / фон)</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gset_chc(GID gid, COLOR fg, COLOR bg)
 ERR gget_chc(GID gid, COLOR *fg, COLOR *bg)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   gid   Дескриптор середовища малювання
+COLOR fg    Колір переднього плану / символу (Foreground Color)
+COLOR bg    Колір фону під символом (Background Color)
 </PRE>
 
 <!-- gset_chd / gget_chd -->
@@ -50,9 +67,16 @@ ERR gget_chc(GID gid, COLOR *fg, COLOR *bg)
 <TR><TD align="right">Set / Get Text Direction and Spacing</TD></TR>
 <TR><TD>Встановлення та отримання напрямку письма й міжсимвольних інтервалів</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gset_chd(GID gid, W dir, CGAP *gap)
 ERR gget_chd(GID gid, W *dir, CGAP *gap)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   gid   Дескриптор середовища малювання
+W     dir   Напрямок виведення тексту (TORIGHT, TOLEFT, TOUP, TODOWN)
+CGAP *gap   Структура міжсимвольних інтервалів та відступів (CGAP)
 </PRE>
 
 <!-- gset_fon / gget_fon -->
@@ -61,9 +85,16 @@ ERR gget_chd(GID gid, W *dir, CGAP *gap)
 <TR><TD align="right">Set / Get Font Specifier</TD></TR>
 <TR><TD>Призначення та зчитування специфікації шрифту FSSPEC</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gset_fon(GID gid, FSSPEC *spec)
 ERR gget_fon(GID gid, FSSPEC *spec, FNTINFO *info)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID      gid    Дескриптор середовища малювання
+FSSPEC  *spec   Специфікація гарнітури, накреслення та розміру шрифту
+FNTINFO *info   Буфер для збереження виміряних метрик вибраного шрифту
 </PRE>
 
 <!-- gset_scr / gget_scr -->
@@ -72,6 +103,7 @@ ERR gget_fon(GID gid, FSSPEC *spec, FNTINFO *info)
 <TR><TD align="right">Set / Get Script Language</TD></TR>
 <TR><TD>Встановлення та отримання кодової площини / мовного скрипту</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gset_scr(GID gid, W script)
 ERR gget_scr(GID gid, W *script)
@@ -85,9 +117,20 @@ ERR gget_scr(GID gid, W *script)
 <TR><TD align="right">Get Character Width / Height</TD></TR>
 <TR><TD>Отримання ширини та висоти окремого символу</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-W   gget_chw(GID gid, TC ch)
-W   gget_chh(GID gid, TC ch)
+W gget_chw(GID gid, TC ch)
+W gget_chh(GID gid, TC ch)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID gid     Дескриптор середовища малювання
+TC  ch      Символьний код TRON Code
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+>= 0    Ширина або висота символу ch у пікселях
+< 0     Помилка (EG_GID, EG_PAR)
 </PRE>
 
 <!-- gget_stw / gget_sth / gget_str -->
@@ -96,11 +139,16 @@ W   gget_chh(GID gid, TC ch)
 <TR><TD align="right">Get String Metrics / Bounding Box</TD></TR>
 <TR><TD>Вимірювання повної довжини, висоти та обмежувального прямокутника рядка</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 W   gget_stw(GID gid, TC *str, W len)
 W   gget_sth(GID gid, TC *str, W len)
 ERR gget_str(GID gid, TC *str, W len, RECT *r)
 </PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  Обчислюють ширину, висоту та прямокутник верстки <CODE>r</CODE> для рядка символів <CODE>str</CODE> завдовжки <CODE>len</CODE> символів з урахуванням поточного шрифту й інтервалів.
+</P>
 
 <H3><A name="aev">2.5.3 Функції малювання символів та рядків</A></H3>
 
@@ -118,8 +166,8 @@ ERR gdra_chp(GID gid, PNT *pos, TC ch, W mode)
 <H4>【Параметри】</H4>
 <PRE>
 GID  gid    ID середовища малювання
-PNT *pos    Точка виведення (NULL = поточна позиція chp)
-TC   ch     Код символу TRON Code
+PNT *pos    Точка виведення (NULL = поточна позиція пера chp)
+TC   ch     Символьний код TRON Code
 W    mode   Режим накладання (DM_PAINT, DM_OVER тощо)
 </PRE>
 
@@ -129,9 +177,18 @@ W    mode   Режим накладання (DM_PAINT, DM_OVER тощо)
 <TR><TD align="right">Draw String (Auto / Specified Position)</TD></TR>
 <TR><TD>Малювання рядка символів</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gdra_str(GID gid, TC *str, W len, W mode)
 ERR gdra_stp(GID gid, PNT *pos, TC *str, W len, W mode)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID  gid    ID середовища малювання
+PNT *pos    Початкова точка виведення рядка (NULL = поточна позиція chp)
+TC  *str    Символьний рядок у кодуванні TRON Code
+W    len    Кількість символів у рядку
+W    mode   Режим малювання
 </PRE>
 
 <!-- gcop_chr -->
@@ -140,8 +197,16 @@ ERR gdra_stp(GID gid, PNT *pos, TC *str, W len, W mode)
 <TR><TD align="right">Get Glyph Mask Bitmap</TD></TR>
 <TR><TD>Отримання растрової бітової маски гліфа у буфер</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gcop_chr(GID gid, TC ch, BITMAP *bmap, PNT *offset)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID     gid     Дескриптор середовища малювання
+TC      ch      Код символу TRON Code
+BITMAP *bmap    Вказівник на бітову карту для збереження растру гліфа
+PNT    *offset  Буфер для збереження базового зсуву гліфа відносно лінії шрифту
 </PRE>
 
 <HR>
