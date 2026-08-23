@@ -1,4 +1,4 @@
-# B-TRON Retro OS Desktop Environment for Synrc VE OS.1
+# B-TRON Retro OS for Synrc VE OS.1
 
 A cleanroom recreation of the **B-TRON** (Business TRON / TRON OS Architecture for personal computers)
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
