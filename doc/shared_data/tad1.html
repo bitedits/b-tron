@@ -2,182 +2,1149 @@
 <HTML>
 <HEAD>
 <TITLE>
-  3.1-3.4 Детальна специфікація формату документів TAD (TRON Application Databox)
+  Розділ 3. Детальна специфікація формату документів TAD (TRON Application Databox)
 </TITLE>
-<LINK REL="parent" HREF="../index.html">
+<LINK REL="parent" HREF="index.html">
 <LINK REL="previous" HREF="tron_code.html">
 <LINK REL="next" HREF="tad2.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
 <DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Частина 1: Загальні структури даних (Shared Data)
+  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
-<A href="../index.html">Повернутися до загального змісту всієї специфікації</A><BR>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="tron_code.html">Попередня сторінка: Розділ 2. Система кодування TRON Code (Повернутися)</A><BR>
-<A href="tad2.html">Наступна сторінка: 3.5 Сегменти текстових вкладок (Перейти)</A><BR>
+<A href="tad2.html">Наступна сторінка: Розділ 3.5. Сегменти текстових вкладок (Text Fusen) (Перейти)</A><BR>
+<HR>
+<H1><A name="abh">Розділ 3. Детальна специфікація формату документів TAD (TRON Application Databox)</A></H1>
 <HR>
 
-<H1><A name="abh">Розділ 3. Детальна специфікація формату документів TAD</A></H1>
+<H2><A name="abj">3.1 Вступ </A></H2>
 
-<H2><A name="abj">3.1 Вступ</A></H2>
 <P>
-  Ця специфікація описує детальні структури даних стандарту TAD (TRON Application Databox),
-  який є уніфікованим форматом збереження та обміну гіпертекстовими, графічними, растровими
-  документами й ієрархічними мережами об'єктів у середовищі BTRON3.
+  Ця специфікація  , TAD ( TRON APPLICATION DATABUS )
+   стосовно    та   та , 
+   BTRON  Реальний об'єкт (Real Object), Віртуальний об'єкт (Virtual Object), Наліпка (Fusene) , 
+   TAD  , ,  стосовно  . 
+</P>
+
+<P>
+  , BTRON Система (System), 
+   Файл (File)Система (System) та , 
+   TRON Код (Code) стосовно   та   та . 
 </P>
 
 <H2><A name="abk">3.2 Структура Реального об'єкта TAD (Real Object Layout)</A></H2>
 
 <H3><A name="abl">3.2.1 Загальні відомості</A></H3>
+
 <P>
-  Кожен Реальний об'єкт (файл даних TAD) зберігається на носії у вигляді послідовності записів (Records).
-  Записи можуть містити текстові потоки, геометричну графіку, вкладені віртуальні об'єкти (посилання),
-  а також допоміжні ресурси.
+  TAD ( TRON APPLICATION DATABUS ) Реальний об'єкт (Real Object) , 
+  BTRON  Реальний об'єкт (Real Object) ( Файл (File) )    також   існує. 
 </P>
 
-<H3><A name="abm">3.2.2 Структура записів Реального об'єкта</A></H3>
-<PRE>
-typedef struct {
-    UH  rec_type;   /* Тип запису TAD (TR_TEXT, TR_FIG, TR_VOBJ тощо) */
-    UW  len;        /* Довжина даних запису у байтах */
-} TAD_RECORD_HDR;
+<P>
+  BTRON  Реальний об'єкт (Real Object) ( Файл (File) )   ,   . 
+</P>
 
-#define TR_TEXT     0x0001  /* Текстовий запис */
-#define TR_FIG      0x0002  /* Графічний запис (векторна графіка) */
-#define TR_VOBJ     0x0003  /* Запис Віртуального об'єкта (посилання / Link) */
-#define TR_CONT     0x4000  /* Прапор продовження розділеного запису */
-</PRE>
+<UL>
+ <LI>Реальний об'єкт (Real Object)(Файл (File)):
+     <P>Реальний об'єкт (Real Object) (Файл (File))  , ,  ,  
+       BTRON Файл (File)Система (System) та . </P>
+ <LI>додатокРеальний об'єкт (Real Object)Тип (Type):
+     <P>Реальний об'єкт (Real Object) додаток  Тип (Type)  також   , 
+     Піктограма (Pictogram)  1  1 . <BR>
+     , , Пристрій (Device)Реальний об'єкт (Real Object)  також . </P>
+ <LI>Реальний об'єкт (Real Object):
+     <P>Реальний об'єкт (Real Object)  ,  Код (Code) складається з 1-вимірного ланцюжка, 
+     Код (Code) , Тип запису (Record Type) ,   . </P>
+</UL>
+
+<H3><A name="abm">3.2.2 Структура записів Реального об'єкта</A></H3>
+
+<P>
+  BTRONРеальний об'єкт (Real Object)(Файл (File)) Код (Code) ,  Код (Code) , 
+  Тип запису (Record Type) ,  Правила структури даних. 
+  Код (Code) Тип (Type) , Код (Code)  для , 
+     . 
+</P>
+
+<P>
+   Тип запису (Record Type) та ,  Правила структури даних . 
+</P>
+<TABLE>
+ <TR><TH colspan=2>Тип запису (Record Type)        </TH><TH>Правила структури даних </TH></TR>
+ <TR><TD>0</TD><TD>Запис посилання (Link Record)        </TD><TD>Стандартні типи даних C</TD></TR>
+ <TR><TD>1</TD><TD>TAD Головний запис (Main Record)         </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>2</TD><TD>TAD Запис коментаря (Annotation Record)       </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>3</TD><TD>TAD Допоміжний запис (Auxiliary Record)       </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>4</TD><TD>Зарезервований запис          </TD><TD>−</TD></TR>
+ <TR><TD>5</TD><TD>Запис налаштувальної вкладки (Setting Fusen)      </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>6</TD><TD>Запис специфічної вкладки (Specified Fusen)      </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>7</TD><TD>Запис функціональної вкладки (Functional Fusen)      </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>8</TD><TD>Запис функціональної вкладки (Functional Fusen)  </TD><TD>Формат та структура TAD</TD></TR>
+ <TR><TD>9</TD><TD>Запис виконуваної програми (Executable Record)</TD><TD>Стандартний формат об'єктного коду</TD></TR>
+ <TR><TD>10</TD><TD>Контей даних (Data Box)Код (Code)</TD><TD>Контей даних (Data Box)Формат / Синтаксис</TD></TR>
+ <TR><TD>11</TD><TD>Запис шрифтових даних (Font Data Record)</TD><TD>Стандартний формат шрифтів</TD></TR>
+ <TR><TD>12</TD><TD>Запис словникових даних (Dictionary Record)    </TD><TD>Стандартний формат словника  </TD></TR>
+ <TR><TD>13</TD><TD>Зарезервований запис          </TD><TD>−</TD></TR>
+ <TR><TD>14</TD><TD>Зарезервований запис          </TD><TD>−</TD></TR>
+ <TR><TD>15</TD><TD>Запис системних даних (System Data Record)</TD><TD>Визначення системного додатка</TD></TR>
+ <TR><TD>16〜31</TD><TD>Запис прикладного додатка (Application Record)</TD><TD>Приватне визначення додатка</TD></TR>
+</TABLE>
+<UL>
+<LI>5〜 Наліпка (Fusene)Код (Code) є, 9〜15 Наліпка (Fusene)Код (Code) та . 
+</UL>
+
+<DL>
+ <DT>TAD Головний запис (Main Record):
+ <DD><P>Реальний об'єкт (Real Object)  є, TAD Формат / Синтаксис існує. 
+   та . </P>
+ <DT>TAD Запис коментаря (Annotation Record):
+ <DD><P>Реальний об'єкт (Real Object)  та   є, TAD Формат / Синтаксис існує. 
+    Файл (File) довідкові дані (Help), дані про авторські права (Copyright) , 
+      не обробляється базовим редактором. </P>
+ <DT>TAD Допоміжний запис (Auxiliary Record):
+ <DD><P>Реальний об'єкт (Real Object)  є, TAD Формат / Синтаксис існує. 
+      додаток , 
+      не обробляється базовим редактором. </P>
+ <DT>Запис налаштувальної вкладки (Setting Fusen):
+ <DD><P>Реальний об'єкт (Real Object) Наліпка (Fusene) існує. </P>
+ <DT>Запис специфічної вкладки (Specified Fusen):
+ <DD><P>Реальний об'єкт (Real Object) Наліпка (Fusene) існує. </P>
+ <DT>Запис функціональної вкладки (Functional Fusen):
+ <DD><P>Реальний об'єкт (Real Object) Наліпка (Fusene) існує. </P>
+ <DT>Запис функціональної вкладки (Functional Fusen):
+ <DD><P>Реальний об'єкт (Real Object)  та Табл. , Наліпка (Fusene) існує. </P>
+ <DT>Запис виконуваної програми (Executable Record):
+ <DD><P> Стандартний формат об'єктного коду є, Тип (Type) CPU Тип (Type) . </P>
+<TABLE>
+ <TR><TD>0x100〜0x13F</TD><TD>Сімейство TRONCHIP </TD><TD>0x00</TD><TD>TRONCHIP32</TD></TR>
+ <TR><TD>0x140〜0x14F</TD><TD>   Сімейство 68000 </TD><TD>0x40</TD><TD>68000</TD></TR>
+ <TR><TD>            </TD><TD>            </TD><TD>0x41</TD><TD>68010</TD></TR>
+ <TR><TD>            </TD><TD>            </TD><TD>0x42</TD><TD>68020</TD></TR>
+ <TR><TD>0x150〜0x15F</TD><TD> Сімейство NS32000 </TD><TD>0x50</TD><TD>32032</TD></TR>
+ <TR><TD>0x160〜0x16F</TD><TD>      Сімейство x86 </TD><TD>0x60</TD><TD>8086 / 8088</TD></TR>
+ <TR><TD>            </TD><TD>            </TD><TD>0x61</TD><TD>80186</TD></TR>
+ <TR><TD>            </TD><TD>            </TD><TD>0x62</TD><TD>80286</TD></TR>
+ <TR><TD>            </TD><TD>            </TD><TD>0x63</TD><TD>80386</TD></TR>
+ <TR><TD>0x170〜0x17F</TD><TD> Сімейство V-Series </TD><TD>    </TD><TD>     </TD></TR>
+</TABLE>
+ <DT>Контей даних (Data Box)Код (Code):
+ <DD><P>Контей даних (Data Box)  є, 
+     Менеджер даних (Data Manager) Формат / Синтаксис існує. </P>
+ <DT>Запис шрифтових даних (Font Data Record):
+ <DD><P> Шрифт (Font)Формат / Синтаксис. </P>
+ <DT>Запис словникових даних (Dictionary Record):
+ <DD><P> Формат / Синтаксис. </P>
+ <DT>Запис системних даних (System Data Record):
+ <DD><P>Система (System)  Система (System)Формат / Синтаксис існує. </P>
+ <DT>Запис прикладного додатка (Application Record):
+ <DD><P>додаток Формат / Синтаксис існує. </P>
+</DL>
 
 <H2><A name="abn">3.3 Огляд структури даних TAD</A></H2>
 
 <H3><A name="abo">3.3.1 Формат сегментів TAD</A></H3>
+
 <P>
-  Дані всередині запису складаються з послідовності сегментів змінної довжини:
+  Формат та структура TAD , 
+  BTRON Файл (File)  TAD Код (Code)   також   існує. 
 </P>
-<PRE>
-typedef struct {
-    UB  id;         /* Ідентифікатор сегмента (Segment ID) */
-    UB  len;        /* Довжина сегмента у байтах (без урахування заголовка) */
-} TAD_SEG_HDR;
-</PRE>
+
+<P>
+  Формат та структура TAD , Файл (File) Формат / Синтаксис  та  та  також  , 
+  Лоток (Tray),   додаток  для  також . 
+</P>
+
+<P>
+  Формат та структура TAD , 
+   та   є, 
+    ,  Сегменти фіксованої довжини та , 
+   Сегменти змінної довжини існує. 
+   , TRON Код (Code)  , 
+  Формат та структура TAD  TRON Код (Code)  також   існує та . 
+</P>
+
+<DL>
+ <DT>Сегменти фіксованої довжини
+ <DD><P>
+     TRON Код (Code) та , 
+      Код (Code)  також   є,   також   . 
+     </P>
+     <TABLE>
+      <TR><TD> Код (Code)</TD><TD>: 1 2Код (Code)</TD></TR>
+      <TR><TD>Управляючі коди      </TD><TD>: (<CODE>0x00</CODE>〜<CODE>0x20</CODE>)  1Код (Code)</TD></TR>
+      <TR><TD>Коди зміни мовного скрипту  </TD><TD>: (<CODE>0xFE</CODE>) Код (Code)</TD></TR>
+      <TR><TD>Спеціальні коди      </TD><TD>: (<CODE>0xFF</CODE>)(<CODE>0x21</CODE>〜<CODE>0x7E</CODE>) 2Код (Code)</TD></TR>
+     </TABLE>
+     <P>
+     , Формат та структура TAD  ,   
+     Управляючі коди  . 
+     </P>
+      <TABLE>
+      <TR><TD>Нікчемний код (TNULL)          </TD><TD>0x00</TD></TR>
+      <TR><TD>Табуляція (TAB)          </TD><TD>0x09</TD></TR>
+      <TR><TD>Новий абзац (NL)        </TD><TD>0x0A</TD></TR>
+      <TR><TD>Нова колонка      </TD><TD>0x0B</TD></TR>
+      <TR><TD>Нова сторінка      </TD><TD>0x0C</TD></TR>
+      <TR><TD>Новий рядок (CR)          </TD><TD>0x0D</TD></TR>
+      <TR><TD>Розділювач (SP / Пробіл)</TD><TD>0x20</TD></TR>
+      </TABLE>
+     <UL>
+      <LI>,    , 
+          Табуляція (TAB) ,  Новий абзац (NL) Новий рядок (CR) та   . 
+      <LI>  Нова колонка , 
+          Нова сторінка та   . 
+      <LI>Графічні дані Текстові дані ,  
+          Нова сторінка (   ,  
+          Нова колонка також  )  Новий рядок (CR) та . 
+     </UL>
+ <DT>Сегменти змінної довжини
+ <DD><P>
+     TRON Код (Code) та 
+     TRON  є, 
+       (<CODE>0xFF</CODE>),  2  , 
+     (<CODE>0x80</CODE>〜<CODE>0xFE</CODE>)   . 
+      2    Табл. , 
+      ID  та . 
+      ID      , 
+      Формат / Синтаксис та , 
+      та 
+     
+       2  Формат / Синтаксис ,  , 
+       65,536  випадок  . <BR>
+       та    &quot;0&quot; 
+        . 
+        
+      Формат / Синтаксис та . <BR>
+     Мал.  Сегменти змінної довжини Формат / Синтаксис . 
+     </P>
+
+<A name="abp">
+<CENTER><IMG src="gif/variable_seg.gif" alt="Сегменти змінної довжини "></CENTER>
+</A>
+<CENTER>Мал.  3 : Сегменти змінної довжини </CENTER>
+
+     <P>Сегменти змінної довжини та   також   . </P>
+
+<BLOCKQUOTE>
+<TABLE>
+<TR><TH>Тип (Type)  </TH><TH colspan="2">ID сегмента (Segment ID)</TH></TR>
+<TR><TD>()            </TD><TD>          </TD><TD>(0x80〜0x9F)</TD></TR>
+<TR><TD>Наліпка (Fusene)</TD><TD>TS_Txxxx  </TD><TD>(0xA0〜0xAF)</TD></TR>
+<TR><TD>Мал. </TD><TD>TS_Fxxxx  </TD><TD>(0xB0〜0xBF)</TD></TR>
+<TR><TD>()            </TD><TD>          </TD><TD>(0xC0〜0xDF)</TD></TR>
+<TR><TD></TD><TD>TS_INFO   </TD><TD>(0xE0)</TD></TR>
+<TR><TD>Сегмент початку тексту (TS_TBGN)</TD><TD>TS_TEXT   </TD><TD>(0xE1)</TD></TR>
+<TR><TD>Сегмент завершення тексту (TS_TEND)</TD><TD>TS_TEXTEND</TD><TD>(0xE2)</TD></TR>
+<TR><TD>Сегмент початку графіки (TS_GBGN)</TD><TD>TS_FIG    </TD><TD>(0xE3)</TD></TR>
+<TR><TD>Сегмент завершення графіки (TS_GEND)</TD><TD>TS_FIGEND </TD><TD>(0xE4)</TD></TR>
+<TR><TD>Сегмент растру (TS_IMAGE)    </TD><TD>TS_IMAGE  </TD><TD>(0xE5)</TD></TR>
+<TR><TD>Сегмент Віртуального об'єкта (TS_VOBJ)    </TD><TD>TS_VOBJ   </TD><TD>(0xE6)</TD></TR>
+<TR><TD>Сегмент специфічної вкладки (TS_DFUSEN)</TD><TD>TS_DFUSEN </TD><TD>(0xE7)</TD></TR>
+<TR><TD>Сегмент функціональної вкладки (TS_FFUSEN)</TD><TD>TS_FFUSEN </TD><TD>(0xE8)</TD></TR>
+<TR><TD>Сегмент налаштувальної вкладки (TS_SFUSEN)</TD><TD>TS_SFUSEN </TD><TD>(0xE9)</TD></TR>
+<TR><TD>()            </TD><TD>          </TD><TD>(0xEA 〜 0xFE)</TD></TR>
+</TABLE>
+</BLOCKQUOTE>
+</DL>
 
 <H3><A name="abq">3.3.2 Текстові та графічні дані</A></H3>
+
 <P>
-  Текст представлена послідовністю символів TRON Code (2 байти на символ) з можливістю вкраплення
-  функціональних вкладок (Fusen). Графіка описується векторними сегментами фігур, ліній, патернів
-  заливки та кольорів.
+  TAD  , Текстові дані та , Графічні дані . 
 </P>
+
+<P>
+  Текстові дані  1  та  також , 
+    Табл.  існує. 
+  Текстові дані 々   2    також існує , 
+    1 ,  та Табл. . 
+</P>
+
+<P>
+  Текстові дані  , 
+  Текстові дані   2  (  )  Табл.  
+    також  , 
+     також   є, 
+  Текстові дані та  , 
+   та   2
+    Табл.  Табл.  також   . 
+</P>
+
+<A name="abr">
+<CENTER><IMG src="gif/text_data.gif" alt="Текстові дані"></CENTER>
+</A>
+<CENTER>Мал.  4 : Текстові дані</CENTER>
+
+<P>
+  Графічні дані  2  та  також , 
+   2  Табл.  існує. 
+  Графічні дані 々   2    та  . 
+</P>
+
+<P>
+  Графічні дані   ( 0, 0 )  та , 
+   /     2  (  )  
+  1    Табл.  також   , 
+   ,  , 
+       та . 
+    0 〜 32,767     існує. 
+</P>
+
+<P>
+  Графічні дані    2 
+  (  )   Табл.   є, 
+    Табл.  також    . 
+</P>
+
+<A name="abs">
+<CENTER><IMG src="gif/figure_data.gif" alt="Графічні дані"></CENTER>
+</A>
+<CENTER>Мал.  5 : Графічні дані</CENTER>
+
+
+<P>
+  Текстові дані та Графічні дані  
+  можливе вкладення (Nesting) є, 
+     , 
+  Текстові даніГрафічні дані . 
+  Текстові дані, Графічні дані , 
+  <B>Текстові дані</B>, 
+  <B>Графічні дані</B>
+   та  також . 
+</P>
+
+<P>
+    (  / Мал.  )   , 
+   та   , 
+    ,  також   . 
+    також  , 
+   додаток 
+   та . 
+</P>
+
+<P>
+    ( Мал.  /  )   , 
+    ,  також   також    та . 
+  ,    , 
+      . 
+  , 
+  ,  стосовно , ,     також   . 
+  ,    , 
+       . 
+</P>
+
+<BLOCKQUOTE>
+<TABLE>
+ <TR><TD> : </TD><TD colspan=2>Графічні дані A</TD><TD></TD></TR>
+ <TR><TD>     </TD><TD colspan=2>Графічні дані B</TD><TD>--  батьківська область видимості (Outer Scope)  A</TD></TR>
+ <TR><TD>     </TD><TD colspan=2>Графічні дані C</TD><TD>--  батьківська область видимості (Outer Scope)  A</TD></TR>
+ <TR><TD>     </TD><TD>&nbsp;&nbsp;&nbsp;</TD><TD>Графічні дані D</TD><TD>--  батьківська область видимості (Outer Scope)  C, A</TD></TR>
+ <TR><TD>     </TD><TD colspan=2>Текстові дані E</TD><TD>--  батьківська область видимості (Outer Scope)</TD></TR>
+ <TR><TD>     </TD><TD>&nbsp;&nbsp;&nbsp;</TD><TD>Текстові дані F</TD><TD>--  батьківська область видимості (Outer Scope)  E</TD></TR>
+ <TR><TD>     </TD><TD>&nbsp;&nbsp;&nbsp;</TD><TD>Графічні дані G</TD><TD>--  батьківська область видимості (Outer Scope)</TD></TR>
+</TABLE>
+</BLOCKQUOTE>
+
+
+<P>
+  (  )  / Графічні дані  ,   . 
+</P>
+
+<DL>
+<DT>Область малювання (Draw Region) ( draw )
+ <DD><P>
+    <DL>
+     <DT>(  ) Графічні дані 
+     <DD><P>Графічні дані та , 
+          для  , ,  та  також   . 
+         Область малювання (Draw Region)   відсікається (Clipping), 
+         Графічні дані  . </P>
+     <DT>Текстові дані 
+     <DD><P> . </P>
+     <DT>Текстові дані 
+     <DD><P>Графічні дані Текстові дані , 
+         Текстові дані  , 
+            . <BR>
+         Текстові дані Текстові дані випадок ,  . </P>
+    </DL>
+    </P>
+ <DT>Одиниці координатної системи (Units) ( unit )
+ <DD><P>Область малювання (Draw Region)   , 
+    1 cm    1 inch   . 
+    Текстові дані випадок ,  Графічні дані,  Область відображення (View Region) , 
+        . <BR>
+    Одиниці координатної системи (Units)   0  випадок ,  є, 
+     та  існує та . </P>
+ <DT>Область відображення (View Region) ( view )
+ <DD><P>
+    <DL>
+     <DT>Графічні дані, Текстові дані, Текстові дані Текстові дані 
+     <DD><P> . </P>
+     <DT>  
+     <DD><P>Область малювання (Draw Region) Табл.   Область малювання (Draw Region)   та  . 
+         , Область відображення (View Region)   /  . <BR>
+         Текстові дані  ,   . <BR>
+         Область відображення (View Region)  /   /   та , 
+         Область малювання (Draw Region)  / / , 
+         Область малювання (Draw Region) Табл.  масштабується (збільшення або зменшення)Область відображення (View Region) . 
+         </P>
+    </DL>
+</DL>
+
+<A name="abt">
+<CENTER><IMG src="gif/areas.gif" alt="Область малювання (Draw Region) та Область відображення (View Region)"></CENTER>
+</A>
+<CENTER>Мал.  6 : Область малювання (Draw Region) та Область відображення (View Region)</CENTER>
+
+ 
+<P>
+  Графічні дані Текстові дані , 
+  Область малювання (Draw Region) та   та  Табл.  , 
+  2  та . 
+   , ,   , 
+  Текстові дані ,    . 
+</P>
+
+<P>
+  Графічні дані Графічні дані ,  /  , 
+   , Мал.   для . 
+</P>
+
+<P>
+  Текстові дані Текстові дані , Одиниці координатної системи (Units) , 
+   ,     , 
+  Текстові дані також  1  , 
+      . 
+  2   Табл.  та    , 
+  Графічні дані Текстові дані та  існує. 
+</P>
+
+<A name="abu">
+<CENTER><IMG src="gif/nesting_fig.gif" alt="Графічні дані  "></CENTER>
+</A>
+<CENTER>Мал.  7 : Графічні дані  </CENTER>
+
+
+<A name="abv">
+<CENTER><IMG src="gif/nesting_txt.gif" alt="Текстові дані  "></CENTER>
+</A>
+<CENTER>Мал.  8 : Текстові дані  </CENTER>
+
 
 <H3><A name="abw">3.3.3 Растрові зображення (Image Data)</A></H3>
+
 <P>
-  Растрові елементи (бітові карти) зберігаються у вигляді сегментів <CODE>TS_IMAGE</CODE>,
-  що підтримують палітри кольорів, глибину від 1 до 32 біт на піксель та алгоритми стиснення.
+   , 
+  (  ) Растрове зображення (Bitmap)Формат / Синтаксис Табл.  є, 
+  , Табл.     . 
 </P>
 
-<H3><A name="abx">3.3.4 Опис структур даних TAD мовою C</A></H3>
+<P>
+   ,   1   та   має , 
+  TAD  та  , 1   та , Графічні дані, 
+   Текстові дані  1   та . 
+</P>
+
+<H3><A name="abx">3.3.4 TAD  </A></H3>
+
+<P>TAD  ,  BNFТабл.  . </P>
+
+<TABLE>
+ <TR><TD>【TAD 】  </TD><TD>::=</TD><TD>《》【TAD 】</TD></TR>
+ <TR><TD>【TAD 】    </TD><TD>::=</TD><TD>【Текстові дані】｜【Графічні дані】</TD></TR>
+ <TR><TD>【Текстові дані】  </TD><TD>::=</TD><TD>《Сегмент початку тексту (TS_TBGN)》【】《Сегмент завершення тексту (TS_TEND)》</TD></TR>
+ <TR><TD>【】</TD><TD>::=</TD><TD>《》｜【】【】</TD></TR>
+ <TR><TD>【】    </TD><TD>::=</TD><TD>【Код (Code)】｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Наліпка (Fusene)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>【Графічні дані】｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>【Текстові дані】｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент растру (TS_IMAGE)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент Віртуального об'єкта (TS_VOBJ)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент специфічної вкладки (TS_DFUSEN)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент функціональної вкладки (TS_FFUSEN)》</TD></TR>
+ <TR><TD>【Код (Code)】</TD>  <TD>::=</TD>  <TD>《Звичайні коди символів》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Управляючі коди》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Коди зміни мовного скрипту》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Код (Code)》</TD></TR>
+ <TR><TD>【Графічні дані】</TD><TD>::=</TD><TD>《Сегмент початку графіки (TS_GBGN)》【Мал. 】《Сегмент завершення графіки (TS_GEND)》</TD></TR>
+ <TR><TD>【Мал. 】</TD><TD>::=</TD><TD>《》｜【Мал. 】【Мал. 】</TD></TR>
+ <TR><TD>【Мал. 】</TD><TD>::=</TD>  <TD>《Мал. 》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>【Текстові дані】｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>【Графічні дані】｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент растру (TS_IMAGE)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент Віртуального об'єкта (TS_VOBJ)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент специфічної вкладки (TS_DFUSEN)》｜</TD></TR>
+ <TR><TD></TD><TD></TD><TD>《Сегмент функціональної вкладки (TS_FFUSEN)》</TD></TR>
+</TABLE>
+
+<H2><A name="aby">3.4 Формат та структура TAD </A></H2>
+
+<H3><A name="abz">3.4.1 Загальний огляд</A></H3>
+
+<P>
+     , TAD       , 
+  Наліпка (Fusene) стосовно  4  , 
+  Мал.  стосовно  5  . 
+</P>
+
+<P>
+    ,  Формат / Синтаксис . 
+</P>
+
+<PRE>
+ID  :   -- ID сегмента (Segment ID) . 
+LEN :   --   , &quot;〜&quot;  . 
+DATA:   --   . 
+</PRE>
+
+<DL compact>
+ <DT>※
+ <DD>  ( LEN )  , 
+     Тип (Type)  , 
+       , 
+        , 
+       LEN    існує. 
+</DL>
+
+<P>
+  ,   ,  Табл.  . 
+  8    , 
+     Формат / Синтаксис існує. 
+</P>
+
+<DL compact>
+ <DT>B
+ <DD>8  
+ <DT>UB     
+ <DD>8  
+ <DT>UB
+ <DD>Код (Code) , 8  
+ <DT>H      
+ <DD>16  
+ <DT>UH     
+ <DD>16  
+ <DT>W      
+ <DD>32  
+ <DT>UW     
+ <DD>32  
+ <DT>PNT
+ <DD> Табл.  . 			
+<PRE>
+typedef struct {                        
+ H   h  --    
+ H   v  --    
+} PNT;                                  
+</PRE>
+<DT>RECT
+ <DD> Табл.  .          
 <PRE>
 typedef struct {
-    TAD_SEG_HDR hdr;
-    B           data[1];    /* Масив даних сегмента */
-} TAD_SEG;
+DBYTE   left    --  
+DBYTE   top     --  
+DBYTE   right   --  
+DBYTE   bottom  --  
+} RECT;
 </PRE>
+<UL>
+ <LI> та     , 
+      та   ,   
+     (half-open property). 
+</UL>
+<DT>COLOR
+ <DD> Табл.   32  
 
-<H2><A name="aby">3.4 Детальний опис базових сегментів TAD</A></H2>
+<A name="aca">
+<CENTER><IMG src="gif/color_data.gif" alt="Табл. "></CENTER>
+</A>
+<CENTER>Мал.  9 : Табл. </CENTER>
 
-<H3><A name="abz">3.4.1 Огляд базових сегментів</A></H3>
+ <DT>UNITS
+ <DD>  Табл.   16  . 
+<PRE>
+&gt;0: 1 cm          
+&lt;0: 1 inch   
+=0:  (   та )
+
+  :    400    -- 1 / 400 cm    
+        -240    -- 1 / 240 inch  
+</PRE>
+ <DT>CHSIZE
+ <DD>Розмір (Size) Табл.   16  . 
+<PRE>
+UUSS SSSS SSSS SSSS
+
+        U: 
+                0:   
+                1: 1/20  ( 1 / 80 mm ) . 
+                2: 1/20  ( 1 / 1440 inch ) . 
+                3: 
+        S: U    Розмір (Size). 0  випадок 
+           та  . 
+</PRE>
+ <DT>SCALE
+ <DD> Табл.   16  . 
+<PRE>
+1NNN NNNN NNNN NNNN   -- 
+0AAA AAAA BBBB BBBB   -- 
+
+ : Одиниці координатної системи (Units)   ( N )
+ :  × ( A / B )  
+          ( B = 0    1  та  )
+</PRE>
+ <DT>RATIO
+ <DD> Табл.   16  . 
+<PRE>
+AAAA AAAA BBBB BBBB
+
+A / B    та  ( B = 0    1  та  )
+</PRE>
+</DL>
+
+<H3><A name="acb">3.4.2 Сегмент службової інформації керування</A></H3>
+
+<H4>□ :</H4>
+
 <P>
-  Кожен сегмент у TAD має стандартний формат представлення:
+  TAD   для 
+      , 
+  Реальний об'єкт (Real Object)  1   TAD  випадок , 
+  TAD  (  / Графічні дані )   . 
+     та  має , 
+      . 
+   та ,  ,   та . 
 </P>
+
+<H4>□ Формат / Синтаксис:</H4>
+
 <PRE>
-ID  :   Ідентифікатор сегмента (UB)
-LEN :   Довжина блоку даних у байтах (UB / UH / UW). Позначає розмір без урахування заголовка.
-DATA:   Вміст даних сегмента.
+ID  :   TS_INFO                 -- 
+LEN :   〜
+DATA:   UH  subid               -- ID
+        UH  sublen              --  
+        UH  data[]              -- (sublen )
+         :        :
+     $lt; &gt;
 </PRE>
+
+<H4>□ :</H4>
+
+<DL>
+ <DT>subid :
+ <DD>  ID  . 
+ <DT>sublen :
+ <DD>  .   та . 
+ <DT>data[ ] :
+ <DD>  , sublen  . 
+        ID  . 
+</DL>
+
+<UL>
+ <LI> ,    Формат / Синтаксис . 
+</UL>
+
+<UL>
+ <LI> та  ,   також   . 
+</UL>
+<PRE>
+subid:  0               -- TAD  
+sublen: 2
+data:   UH  ver         --  Формат / Синтаксис  3  BCD Код (Code) 
+
+        0000 AAAA BBBB CCCC  :  A.BC
+
+        :1.2  та   AAAA = 0001
+                                BBBB = 0010
+                                CCCC = 0000
+subid:  1〜             -- 
+</PRE>
+
+
+<H3><A name="acc">3.4.3  / </A></H3>
+
+<H4>□ :</H4>
+
 <P>
-  Усі числові значення довжиною 16 і 32 біти зберігаються у форматі Big-Endian (вищий байт іде першим).
-  Прикладні програми мають зчитувати довжину сегмента безпосередньо з поля <CODE>LEN</CODE> для забезпечення
-  зворотної сумісності з майбутніми розширеннями формату.
+  Текстові дані  Табл.  , 
+  Сегмент початку тексту (TS_TBGN) та Сегмент завершення тексту (TS_TEND)  
+  1  Текстові дані та . 
 </P>
 
-<H3><A name="acb">3.4.2 Сегмент службової інформації керування (TS_HEADER / TS_SYSTEM)</A></H3>
+<H4>□ Формат / Синтаксис:</H4>
+
 <PRE>
-#define TS_HEADER   0x00    /* Заголовок управління документом */
-#define TS_SYSTEM   0x01    /* Системна інформація додатків */
+ID  :   TS_TEXT                 -- Сегмент початку тексту (TS_TBGN)
+LEN :   24
+DATA:   RECT    view            -- Область відображення (View Region)
+        RECT    draw            -- Область малювання (Draw Region)
+        UNITS   h_unit          -- 
+        UNITS   v_unit          -- 
+        UH  lang                -- 
+        UH  bgpat               --  ID
+ID  :   TS_TEXTEND              -- Сегмент завершення тексту (TS_TEND)
+LEN :   0
+DATA:   
 </PRE>
 
-<H3><A name="acc">3.4.3 Сегменти початку та завершення тексту</A></H3>
-<PRE>
-#define TS_TBGN     0x02    /* Початок текстового блоку */
-#define TS_TEND     0x03    /* Завершення текстового блоку */
-</PRE>
+<H4>□ :</H4>
+<DL compact>
+ <DT>view:
+ <DD>  Текстові дані Область відображення (View Region) , 
+     Графічні дані Текстові дані випадок , 
+      . 
+ <DT>draw:
+ <DD>Область малювання (Draw Region) , 
+     Графічні дані Текстові дані випадок , 
+         , 
+       . 
+ <DT>h_unit:
+ <DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+ <DT>v_unit:
+ <DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+ <DT>lang:
+ <DD>Текстові дані  . <BR>
+      та  , 
+      Коди зміни мовного скрипту     . 
+     <TABLE>
+      <TR><TD>:</TD><TD>0x0021</TD></TR>
+     </TABLE>
+ <DT>bgpat:
+ <DD>Текстові дані  ID  , 
+     Графічні дані Текстові дані випадок  . 
+     0     та  . <BR>
+     ID стосовно , «<A href="tad3.html#aeia"></A>»  . 
+</DL>
 
 <H3><A name="accc">3.4.4 Сегменти початку та завершення графіки</A></H3>
+
+<H4>□ :</H4>
+
+<P>
+  Графічні дані  Табл.  , 
+  Сегмент початку графіки (TS_GBGN) та Сегмент завершення графіки (TS_GEND)  
+  1  Графічні дані та . 
+</P>
+
+<H4>□ Формат / Синтаксис:</H4>
 <PRE>
-#define TS_GBGN     0x04    /* Початок графічного блоку */
-#define TS_GEND     0x05    /* Завершення графічного блоку */
+ID  :   TS_FIG                  -- Сегмент початку графіки (TS_GBGN)
+LEN :   24
+DATA:   RECT    view            -- Область відображення (View Region)
+        RECT    draw            -- Область малювання (Draw Region)
+        UNITS   h_unit          -- 
+        UNITS   v_unit          -- 
+        W   ratio               -- 
+ID  :   TS_FIGEND               -- Сегмент завершення графіки (TS_GEND)
+LEN :   0
+DATA:   
 </PRE>
+
+<H4>□ :</H4>
+
+<DL compact>
+<DT>view:
+<DD>  Графічні дані Область відображення (View Region) , 
+    Графічні дані випадок , 
+      також . 
+    Текстові дані Графічні дані , 
+    view   випадок , Розмір (Size) та спеціальне значення . 
+    Розмір (Size) та  , 
+    Область малювання (Draw Region)  Розмір (Size) та  
+     також  Область відображення (View Region) та  також   , 
+    Мал.   та  
+    (   ) . 
+<DT>draw:
+<DD>Область малювання (Draw Region) , Графічні дані   та  . 
+<DT>h_unit:
+<DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+<DT>v_unit:
+<DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+</DL>
+
 
 <H3><A name="acd">3.4.5 Сегмент растрового зображення (TS_IMAGE)</A></H3>
-<PRE>
-#define TS_IMAGE    0x06    /* Растрове зображення */
 
-typedef struct {
-    TAD_SEG_HDR hdr;        /* id = TS_IMAGE */
-    H           width;      /* Ширина растру у пікселях */
-    H           height;     /* Висота растру у пікселях */
-    H           rowbytes;   /* Кількість байтів у рядку растру */
-    UH          pixbits;    /* Глибина кольору (1, 2, 4, 8, 16, 24, 32 біти) */
-    UH          compress;   /* Алгоритм стиснення (0 = без стиснення, 1 = RLE) */
-} IMAGE_SEG_HDR;
+<H4>□ :</H4>
+
+<P>
+  Сегмент растру (TS_IMAGE) ,  Табл.  є, 
+  TAD Текстові дані, Графічні дані  . 
+  Сегмент растру (TS_IMAGE) ,   , 
+  BTRON<A href="../os_spec/dp/dp.html"></A>
+   <A href="../os_spec/dp/basic_concept.html#ada">Растрове зображення (Bitmap)Формат / Синтаксис</A> Табл. . 
+</P>
+
+<H4>□ Формат / Синтаксис:</H4>
+
+
+<A name="ace">
+<CENTER><IMG src="gif/data_struct.gif" alt="Сегмент растру (TS_IMAGE) Формат / Синтаксис"></CENTER>
+</A>
+<CENTER>Мал.  10 : Сегмент растру (TS_IMAGE) Формат / Синтаксис</CENTER>
+
+
+<H4>□ :</H4>
+<DL compact>
+<DT>view:
+<DD>  Сегмент растру (TS_IMAGE) Область відображення (View Region) . 
+    Текстові дані  , 
+    view   випадок , Розмір (Size) та спеціальне значення . 
+<DT>draw:
+<DD>Область малювання (Draw Region) , Сегмент растру (TS_IMAGE)   та  . 
+     Растрове зображення (Bitmap)   bounds    draw
+       та . 
+     випадок , Растрове зображення (Bitmap)  bounds  та  та . 
+<DT>h_unit:
+<DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+<DT>v_unit:
+<DD>Область малювання (Draw Region)    UNITS Тип (Type) . 
+    Одиниці координатної системи (Units) ,   Розмір (Size)   також   існує , 
+       , draw   view
+     . 
+<DT>slope:
+<DD>  . 
+         
+    ( ≧ 0 )   ( 360    ) . 
+    slope &lt; 0  ,  . 
+<DT>color:
+<DD> . 
+<PRE>
+xxxx xxxx Ixxx PRRR
 </PRE>
+    <DL compact>
+     <DT>R:
+     <DD>0  -- 
+     <DD>1  -- RGB 
+     <DD>2  -- CMY 
+     <DD>3〜--   (  )
+     <DT>P:
+     <DD>0  --  (  )
+     <DD>1  --  (  )
+     <DT>I:
+     <DD>0  -- Табл.  (  0  ,    )
+     <DD>1  -- Табл.  (  0  ,    )
+     <DT>x:
+     <DD>   --  ( 0 )
+    </DL>
+<DT>cinfo:
+<DD> . 
+    <DL>
+     <DT>&lt; &gt;
+     <DD><P> (  Табл.   )
+          ,  . 
+           ( <CODE>cinfo[0]</CODE> ) = 0
+          випадок , 
+            та  . </P>
+         
+         
+<A name="acf">
+<CENTER><IMG src="gif/color_map.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  11 : </CENTER>
+
+     <DT>&lt; &gt;
+     <DD><P>Табл.  (  )  
+           Табл.   . 
+         <CODE>cinfo[0] = 0</CODE>  випадок , 
+         Табл.    та  . </P>
+         <DL>
+          <DT>R = 0 (  )  :
+          <DD>
+<PRE>
+cinfo[0] --   та  
+cinfo[1] -- 
+cinfo[2] -- 
+cinfo[3] -- 
+</PRE>
+          <DT>R = 1 ( RGB )  :
+<DD>
+<PRE>
+cinfo[0] --   та  
+cinfo[1] --   та  
+cinfo[2] --   та  
+cinfo[3] -- 
+</PRE>
+          <DT>R = 2 ( CMY )  :
+<DD>
+<PRE>
+cinfo[0] --   та  
+cinfo[1] --   та  
+cinfo[2] --   та  
+cinfo[3] --   та  
+</PRE>
+         </DL>
+        <P>   , 
+           LSB   0  та  . 
+         та ,  Табл.  , 
+        <CODE>....BBBBGGGGGGRRRRRR</CODE>  випадок , 
+<PRE>
+cinfo[0] → 0x0006
+cinfo[1] → 0x0606
+cinfo[2] → 0x0c04
+</PRE>
+         та . </P>
+    </DL>
+ <DT>extlen:
+ <DD>  . 
+     = 0  випадок   та  . 
+ <DT>extend:
+ <DD>  , extlen ≠ 0  випадок  існує. 
+    extlen = 0  випадок    та   та . 
+     ,    Формат / Синтаксис є, ext_id  , 
+      . 
+    ext_id   MSB  Формат / Синтаксис  , 
+      15    ID  та   . 
+    <DL>
+     <DT>Формат / Синтаксис:
+     <DD>
+<PRE>
+UH    ext_id  --  Тип (Type) ( ext_id   MSB = 0 )
+UH    len     --  
+UB    data[]  --  ( len  )
+</PRE>
+     <DT>Формат / Синтаксис:
+     <DD>
+<PRE>
+UH    ext_id  --  Тип (Type)( ext_id   MSB = 1 )
+UH    len     --  
+UW    offset  --  
+</PRE>
+    </DL>
+    ,  ,   також   існує. 
+    <DL>
+     <DT>ext_id = 0:
+     <DD> 
+<PRE>
+len : 4
+data: COLOR bgcol --  
+</PRE>
+     <DT>1 〜 16383:
+     <DD>(  )
+     <DT>16384 〜:
+     <DD> ( додаток )
+    </DL>
+ <DT>mask:
+ <DD> Растрове зображення (Bitmap)  . 
+       0  та . 
+     , 1 шар екрана Растрове зображення (Bitmap) є, 
+      &quot;1&quot;    є, 
+    &quot; 0&quot;     та  . 
+     Растрове зображення (Bitmap)   Растрове зображення (Bitmap)  та  також  існує. 
+ <DT>compac:
+ <DD> , 
+     
+    Растрове зображення (Bitmap)Формат / Синтаксис  є, 
+    шар екрана   
+      . 
+    (<A href="../os_spec/dp/basic_concept.html#ada">Растрове зображення (Bitmap)</A>Формат / Синтаксис  стосовно 
+    BTRON <A href="../os_spec/dp/dp.html">Графічні примітиви (Display Primitives)</A>    та )
+    , Растрове зображення (Bitmap)Формат / Синтаксис   ( compac = 0 )  випадок також . 
+
+    <UL>
+    <LI> ,   ( view )
+          існує. 
+    </UL>
+</DL>
+
+<A name="acg">
+<CENTER><IMG src="gif/figure_seg.gif" alt="Сегмент растру (TS_IMAGE)"></CENTER>
+</A>
+<CENTER>Мал.  12 : Сегмент растру (TS_IMAGE)</CENTER>
 
 <H3><A name="ach">3.4.6 Сегмент Віртуального об'єкта (TS_VOBJ / Link)</A></H3>
-<P>
-  Сегмент <CODE>TS_VOBJ</CODE> вставляє візуальне посилання (іконку чи рамку) на інший Реальний об'єкт:
-</P>
-<PRE>
-#define TS_VOBJ     0x07    /* Посилання на віртуальний об'єкт */
 
-typedef struct {
-    LINK        vlnk;       /* Ідентифікатор файлової системи та ID цільового файлу */
-    RECT        frame;      /* Розміри та рамка відображення іконки на екрані */
-    TC          name[12];   /* Назва Віртуального об'єкта */
-} VOBJSEG;
+<H4>□ :</H4>
+
+<P>
+  Сегмент Віртуального об'єкта (TS_VOBJ) , Віртуальний об'єкт (Virtual Object)  є, TAD Текстові дані, 
+  Графічні дані  ,  Реальний об'єкт (Real Object)  . 
+  Сегмент Віртуального об'єкта (TS_VOBJ)  , Віртуальний об'єкт (Virtual Object) Табл.   , 
+  додаток для  . 
+  Віртуальний об'єкт (Virtual Object)  ,  ( Віртуальний об'єкт (Virtual Object) ) Код (Code) та  , 
+  Реальний об'єкт (Real Object)  від 1  1  Сегмент Віртуального об'єкта (TS_VOBJ) та   . 
+  Код (Code)   BTRON <A href="../os_spec/kernel/file.html">Файл (File)</A> Файл (File)   ,   . 
+</P>
+
+<UL>
+ <LI>Віртуальний об'єкт (Virtual Object)Тип (Type) / 
+ <LI>
+ <LI>додаток ID
+</UL>
+
+<P>
+  Сегмент Віртуального об'єкта (TS_VOBJ)Запис посилання (Link Record) , 
+  BTRON<A href="../os_spec/shell/omgr.html">Менеджер реальних та віртуальних об'єктів </A>, , додаток . 
+</P>
+
+<H4>□ Формат / Синтаксис:</H4>
+<PRE>
+ID  :   TS_VOBJ                 -- Сегмент Віртуального об'єкта (TS_VOBJ)
+LEN :   〜
+DATA:   RECT    view            -- Область відображення (View Region)
+        H       height          --  Віртуальний об'єкт (Virtual Object)
+        CHSIZE  chsz            -- Розмір (Size)
+        COLOR   frcol           --  
+        COLOR   chcol           --  
+        COLOR   tbcol           -- 
+        COLOR   bgcol           --  
+        UH      dlen            --  
+        UB      data[dlen]      -- ( dlen )
 </PRE>
 
-<H3><A name="aci">3.4.7 Сегменти функціональних вкладок (TS_FUSEN / Фусени)</A></H3>
+<H4>□ :</H4>
+
+<DL compact>
+ <DT>view:
+ <DD>  Сегмент Віртуального об'єкта (TS_VOBJ) Область відображення (View Region) . 
+ <DT>height:
+ <DD> Віртуальний об'єкт (Virtual Object)  view  та  . 
+     -1   та  , 
+     0     та  . 
+ <DT>chsz:
+ <DD>Віртуальний об'єкт (Virtual Object) Розмір (Size) , CHSIZE Тип (Type) . 
+ <DT>frcol:
+ <DD>Віртуальний об'єкт (Virtual Object)Табл.   . 
+ <DT>chcol:
+ <DD>Віртуальний об'єкт (Virtual Object)   . 
+ <DT>tbcol:
+ <DD>Віртуальний об'єкт (Virtual Object)  . 
+ <DT>bgcol:
+ <DD>Віртуальний об'єкт (Virtual Object) Область відображення (View Region)  . 
+ <DT>data:
+ <DD>додаток Наліпка (Fusene)  є, 
+     dlen     . <BR>
+       додаток
+      . 
+</DL>
+
+
+<H3><A name="aci">3.4.7 Сегменти функціональних вкладок (TS_FUSEN)</A></H3>
+
+<H4>□ :</H4>
+
 <P>
-  Функціональна вкладка (Fusen) — це розширюваний блок керування макетом, форматуванням або параметрами
-  документа, що вбудовується безпосередньо у потік даних TAD.
+  Сегмент функціональної вкладки (TS_FFUSEN) , 
+  додаток   Параметри  також   , 
+   Наліпка (Fusene) Табл.   також . 
+  , Сегмент функціональної вкладки (TS_FFUSEN) , 
+  Запис функціональної вкладки (Functional Fusen) Запис функціональної вкладки (Functional Fusen) та . 
+  Сегмент функціональної вкладки (TS_FFUSEN) Запис функціональної вкладки (Functional Fusen)
+   Запис функціональної вкладки (Functional Fusen) та   , 
+    ID, <CODE>0xFF</CODE>, 
+    Код (Code)   DATA   та . 
+   ID  та  , Тип запису (Record Type) та Код (Code) . 
 </P>
+
+<H4>□ Формат / Синтаксис:</H4>
+<PRE>
+ID  :   TS_FFUSEN               -- Сегмент функціональної вкладки (TS_FFUSEN)
+LEN :   〜
+DATA:   RECT    view            -- Область відображення (View Region)
+        CHSIZE  chsz            -- Розмір (Size)
+        COLOR   frcol           --  
+        COLOR   chcol           --  
+        COLOR   tbcol           -- 
+        UH      pict            -- Піктограма (Pictogram) / Тип (Type)
+        UH      appl[3]         -- додаток ID
+        UB      name[32]        -- Наліпка (Fusene)
+        UB      type[32]        -- Типи даних
+        UH      dlen            --  
+        UB      data[dlen]      --  ( dlen  )
+</PRE>
+<H4>□ :</H4>
+<DL compact>
+ <DT>view:
+ <DD>  Сегмент функціональної вкладки (TS_FFUSEN) Область відображення (View Region) . 
+ <DT>chsz:
+ <DD>Наліпка (Fusene) Розмір (Size) , CHSIZE Тип (Type) . 
+ <DT>frcol:
+ <DD>Наліпка (Fusene)Табл.   . 
+ <DT>chcol:
+ <DD>Наліпка (Fusene)   . 
+ <DT>tbcol:
+ <DD>Наліпка (Fusene)  . 
+ <DT>pict:
+ <DD>Наліпка (Fusene) Піктограма (Pictogram) . 0  Наліпка (Fusene)  . 
+ <DT>appl:
+ <DD>додаток ID  . 
+ <DT>name:
+ <DD>Наліпка (Fusene) . 
+ <DT>type:
+ <DD>додаток ID  Типи даних . 
+ <DT>data:
+ <DD>Наліпка (Fusene)  є, dlen    .  
+       додаток . 
+</DL>
+
 
 <H3><A name="acj">3.4.8 Сегмент вкладки специфікації (TS_SPEC / TS_DFUSEN)</A></H3>
-<P>
-  Сегмент вкладки специфікації (<CODE>TS_DFUSEN</CODE>) вбудовується у потік даних TAD для збереження
-  приватних даних прикладних програм. На відміну від звичайних вкладок, довжина даних визначається полем типу <CODE>UW</CODE> (32 біти).
-</P>
-<PRE>
-#define TS_DFUSEN   0x08    /* Задана специфічна вкладка даних (Specified Fusen) */
 
-typedef struct {
-    TAD_SEG_HDR hdr;        /* id = TS_DFUSEN */
-    RECT        view;       /* Область відображення */
-    SIZE        chsz;       /* Розмір символів */
-    COLOR       frcol;      /* Колір рамки */
-    COLOR       chcol;      /* Колір символів */
-    COLOR       tbcol;      /* Колір фону заголовка */
-    UH          pict;       /* Піктограма / тип */
-    UH          appl[3];    /* Ідентифікатор додатка (Application ID) */
-    UB          name[32];   /* Назва вкладки (32 байти) */
-    UW          dlen;       /* Довжина приватних даних у байтах */
-    B           data[1];    /* Масив приватних даних */
-} TS_SPEC_SEG;
+<H4>□ :</H4>
+
+<P>
+  Сегмент специфічної вкладки (TS_DFUSEN) , TAD   , 
+  додаток  та  існує. 
+</P>
+
+<P>
+  1  Сегмент специфічної вкладки (TS_DFUSEN) 
+  Запис специфічної вкладки (Specified Fusen) та  та   . 
+  Запис специфічної вкладки (Specified Fusen) 1 Сегмент специфічної вкладки (TS_DFUSEN)  також , 
+    ID, <CODE>0xFF</CODE>, 
+     та   . 
+</P>
+
+<P>
+    , Сегмент Віртуального об'єкта (TS_VOBJ) та , 
+  Сегмент функціональної вкладки (TS_FFUSEN) та , <CODE>UW</CODE> та . 
+</P>
+
+<H4>□ Формат / Синтаксис:</H4>
+
+<PRE>
+ID  :   TS_DFUSEN               -- Сегмент специфічної вкладки (TS_DFUSEN)
+LEN :   〜
+DATA:   RECT    view            -- Область відображення (View Region)
+        CHSIZE  chsz            -- Розмір (Size)
+        COLOR   frcol           --  
+        COLOR   chcol           --  
+        COLOR   tbcol           -- 
+        UH      pict            -- Піктограма (Pictogram) / Тип (Type)
+        UH      appl[3]         -- додаток ID
+        UB      name[32]        -- Наліпка (Fusene)
+        UW      dlen            --  
+        UB      dat[dlen]       --  ( dlen  )
 </PRE>
 
+<H4>□ :</H4>
+
+<DL compact>
+ <DT>view:
+ <DD>  Сегмент специфічної вкладки (TS_DFUSEN) Область відображення (View Region) . 
+ <DT>chsz:
+ <DD>Наліпка (Fusene) Розмір (Size) , CHSIZE Тип (Type) . 
+ <DT>frcol:
+ <DD>Наліпка (Fusene)Табл.   . 
+ <DT>chcol:
+ <DD>Наліпка (Fusene)   . 
+ <DT>tbcol:
+ <DD>Наліпка (Fusene)  . 
+ <DT>pict:
+ <DD>Наліпка (Fusene) Піктограма (Pictogram) . 0  Наліпка (Fusene)  . 
+ <DT>appl:
+ <DD>додаток ID . 
+ <DT>name:
+ <DD>Наліпка (Fusene) . 
+ <DT>data:
+ <DD>Наліпка (Fusene)  є,  dlen   
+       додаток . 
+</DL>
 <HR>
-<A href="../index.html">Повернутися до загального змісту всієї специфікації</A><BR>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="tron_code.html">Попередня сторінка: Розділ 2. Система кодування TRON Code (Повернутися)</A><BR>
-<A href="tad2.html">Наступна сторінка: 3.5 Сегменти текстових вкладок (Перейти)</A><BR>
+<A href="tad2.html">Наступна сторінка: Розділ 3.5. Сегменти текстових вкладок (Text Fusen) (Перейти)</A><BR>
 </BODY>
 </HTML>

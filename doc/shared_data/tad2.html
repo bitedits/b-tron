@@ -4,108 +4,2134 @@
 <TITLE>
   3.5 Сегменти текстових вкладок (Text Fusen Segments)
 </TITLE>
-<LINK REL="parent" HREF="../index.html">
+<LINK REL="parent" HREF="index.html">
 <LINK REL="previous" HREF="tad1.html">
 <LINK REL="next" HREF="tad3.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
 <DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Частина 1: Загальні структури даних (Shared Data)
+  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
-<A href="../index.html">Повернутися до загального змісту всієї специфікації</A><BR>
-<A href="tad1.html">Попередня сторінка: 3.1-3.4 Огляд формату TAD (Повернутися)</A><BR>
-<A href="tad3.html">Наступна сторінка: 3.6 Сегменти графічного креслення (Перейти)</A><BR>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="tad1.html">Попередня сторінка: Глава 3 TAD (Повернутися)</A><BR>
+<A href="tad3.html">Наступна сторінка: 3.6 Мал.  (Перейти)</A><BR>
 <HR>
 
 <H2><A name="ack">3.5 Сегменти текстових вкладок (Text Fusen Segments)</A></H2>
 
-<H3><A name="acl">3.5.1 Огляд текстових вкладок (Text Fusen)</A></H3>
+
+<H3><A name="acl">3.5.1 Загальний огляд</A></H3>
+
 <P>
-  Текстові вкладки (Text Fusen) — це спеціальні сегменти управління, що вбудовуються безпосередньо
-  у потік текстових символів TAD. Вони контролюють параметри макета сторінки, гарнітури шрифтів,
-  розміри символів, відступи, лінійки абзаців, вирівнювання, табуляцію та колірне оформлення.
+  Сегмент текстової вкладки (Text Fusen Segment) , 
+   Специфічна вкладка (Specified Fusen) є, 
+  , , , 
+      2  Табл.   . 
+  Сегмент текстової вкладки (Text Fusen Segment)  ,  . 
+  , , Табл.  Табл.  також , 
+  Сегмент текстової вкладки (Text Fusen Segment) Табл.  додаток . 
+  Сегмент текстової вкладки (Text Fusen Segment) та ,   також   . 
 </P>
 
-<H3><A name="acn">3.5.2 Вкладки макета та параметрів сторінки (Page Layout Fusen)</A></H3>
+<TABLE>
+<TR><TH>Сегмент текстової вкладки (Text Fusen Segment)</TH><TH colspan=2>ID</TH></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)    </TD><TD><CODE>TS_TPAGE</CODE></TD><TD><CODE>(0xA0)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)              </TD><TD><CODE>TS_TRULER</CODE></TD><TD><CODE>(0xA1)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)                </TD><TD><CODE>TS_TFONT</CODE></TD><TD><CODE>(0xA2)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TCHAR</CODE></TD><TD><CODE>(0xA3)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)          </TD><TD><CODE>TS_TATTR</CODE></TD><TD><CODE>(0xA4)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TSTYLE</CODE></TD><TD><CODE>(0xA5)</CODE></TD></TR>
+<TR><TD>()                      </TD><TD><CODE>------ </CODE></TD><TD><CODE>(0xA6</CODE>〜<CODE>0xAC)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TVAR  </CODE></TD><TD><CODE>(0xAD)</CODE></TD></TR>
+<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TMEMO </CODE></TD><TD><CODE>(0xAE)</CODE></TD></TR>
+<TR><TD>додатокСпецифічна вкладка (Specified Fusen)</TD><TD><CODE>TS_TAPPL </CODE></TD><TD><CODE>(0xAF)</CODE></TD></TR>
+</TABLE>
+
+<P>
+  Сегмент текстової вкладки (Text Fusen Segment)   , 
+   ID   . 
+  ,  ID  , 0 〜 127     TAD  та , 
+  128 〜 255   ( додаток )  та . 
+  додаток Сегмент текстової вкладки (Text Fusen Segment)  , 
+  додаток ID  , 
+  додаток   . 
+</P>
+
+<A name="acm">
+<CENTER><IMG src="gif/text_fusen.gif" alt="Наліпка (Fusene) "></CENTER>
+</A>
+<CENTER>Мал.  13 : Наліпка (Fusene) </CENTER>
+
+<P>
+  Наліпка (Fusene), Наліпка (Fusene) , 
+   ID  Наліпка (Fusene) та Наліпка (Fusene)    та . 
+   Сегмент текстової вкладки (Text Fusen Segment) , 
+       , 
+  ,    та . 
+  Сегмент текстової вкладки (Text Fusen Segment)    , 
+   та  Сегмент текстової вкладки (Text Fusen Segment) , 
+    додаток , 
+   та  також   також   та . 
+</P>
+
+<H3><A name="acn">3.5.2 Специфічна вкладка (Specified Fusen)</A></H3>
+
+<P>
+  Специфічна вкладка (Specified Fusen) , 
+    
+      Наліпка (Fusene) є, 
+  Мал.   випадок ігнорується. 
+</P>
+
+<H4>Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+     . 
+     ,  є, 
+     (  )   . 
+    ,    , 
+     ( ,  (  /  )  , 
+    . 
+    A4  ,  ,   A5  та  та , 
+  A4   , 
+  A5   та  . 
+</P>
+
 <PRE>
-#define TS_TPAGE    0x10    /* Параметри сторінки (розмір паперу, орієнтація) */
-#define TS_TPMSZ    0x11    /* Розмір друкованого поля сторінки */
-#define TS_TPMMG    0x12    /* Поля сторінки (зліва, справа, зверху, знизу) */
+LEN  :  14
+SUBID:  0
+ATTR :  UB      attr            -- , 
+DATA :  UH      length          --  
+        UH      width           --  
+        UH      top             --  (  )
+        UH      bottom          --  (  )
+        UH      left            --  (  )
+        UH      right           --  (  )
 </PRE>
 
-<H3><A name="acz">3.5.3 Вкладки форматування рядка та абзацу (Paragraph & Ruler Fusen)</A></H3>
+<DL compact>
+ <DT>attr :   xxxx xxDP
+     <DD>
+     <DL>
+      <DT>P : 
+      <DD>0 : 1. <BR>
+          1  . <BR>
+          1 : 2. <BR>
+          2   . 
+           ,  , 
+            , 
+            застосовується. 
+      <DT>D : 
+      <DD>0 : . <BR>
+            . <BR>
+          1 : . <BR>
+            .  , , 
+            , 
+            застосовується. 
+          <UL>
+           <LI>  (  )
+                , , 
+                  та  . 
+          </UL>
+     </DL>
+</DL>
+
+<P>
+   ,   є, 
+       . 
+   ,   , 
+    . <BR>
+   та    . 
+</P>
+
+<A name="aco">
+<CENTER><IMG src="gif/layout_overlay.gif" alt=" та "></CENTER>
+</A>
+<CENTER>Мал.  14 :  та </CENTER>
+
+<H4>Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+      . 
+</P>
+
 <PRE>
-#define TS_TRULER   0x20    /* Лінійка форматування абзацу */
-#define TS_TLIND    0x21    /* Лівий відступ абзацу (Left Indent) */
-#define TS_TRIND    0x22    /* Правий відступ абзацу (Right Indent) */
-#define TS_TFIND    0x23    /* Відступ першого рядка / абзацний відступ (First Line Indent) */
-#define TS_TLSPC    0x24    /* Міжрядковий інтервал (Line Spacing) */
-#define TS_TPSPC    0x25    /* Інтервал між абзацами (Paragraph Spacing) */
+LEN  :  10
+SUBID:  1
+ATTR :  UB      −              -- 
+DATA :  UH      top             --  (  )
+        UH      bottom          --  (  )
+        UH      left            --  (  )
+        UH      right           --  (  )
 </PRE>
 
-<H3><A name="adj">3.5.4 Вкладки параметрів символів та шрифту (Font & Character Specifier)</A></H3>
+<P>
+     ,    . 
+  ,   . 
+    2   , 
+    ,  . 
+  ,    також ,  . 
+    , <CODE>0xFFFF</CODE>  випадок , 
+        та  . 
+  ,    , , 
+  ,    <CODE>0xFFFF</CODE>  та . 
+    ,   . 
+</P>
+
+<A name="acp">
+<CENTER><IMG src="gif/layout_margin.gif" alt=" та "></CENTER></A>
+<CENTER>Мал.  15 :  та </CENTER>
+
+<H4>Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+     ( Багатоколонковий макет (Columns) )    є, 
+   та ,  ( Поля сторінки (Margins) )  . 
+    та . 
+</P>
+
 <PRE>
-#define TS_TFONT    0x30    /* Зміна сімейства шрифту (Font Family) */
-#define TS_TSIZE    0x31    /* Зміна розміру шрифту (Font Size) */
-#define TS_TATTR    0x32    /* Атрибути стилю (напівжирний, курсив, підкреслення) */
+LEN  :  4, 6
+SUBID:  2
+ATTR :  UB      column          -- , 
+DATA :  UH  colsp               -- 
+      [ UH  colline             --  ]
+</PRE>
+<DL>
+ <DT>column : Kxxx CCCC
+     <DD>
+     <DL compact>
+      <DT>CCCC :
+          <DD> ( 0 〜 15 )
+            0, 1  випадок ,  1  та , 
+           . 
+      <DT>K :
+          <DD>
+           0 :   . 
+           1 :   . 
+     </DL>
+ <DT>colsp:
+     <DD>  . 
+     column = 0, 1    . 
+ <DT>colline :
+     <DD>    (   ). 
+          
+        (   ). 
+<PRE>
+      DIWW KKKK
+</PRE>
+     <DL compact>
+      <DT>D :
+      <DD> <BR>
+          0 :  <BR>
+          1 :  
+      <DT>I :
+      <DD> <BR>
+          0 : 100 %<BR>
+          1 :  50 %
+      <DT>W :
+      <DD> <BR>
+          0 : (   )<BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>K :
+      <DD> <BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : <BR>
+          4 : <BR>
+          5 : <BR>
+          6 : <BR>
+          7 : (  ) <BR>
+          8〜 :  ( додаток )
+     </DL>
+</DL>
 
-typedef struct {
-    TAD_SEG_HDR hdr;        /* id = TS_TFONT */
-    TC          name[12];   /* Назва сімейства шрифту (TRON Code) */
-} TS_TFONT_SEG;
+<P>
+  Багатоколонковий макет (Columns) випадок , Код (Code) ( <CODE>0x0B</CODE> )  , 
+   (  )   . 
+  , column = 3   ,  Багатоколонковий макет (Columns) та . 
+</P>
 
-typedef struct {
-    TAD_SEG_HDR hdr;        /* id = TS_TSIZE */
-    SIZE        size;       /* Розмір шрифту (ширина, висота) */
-} TS_TSIZE_SEG;
+<A name="acq">
+<CENTER><IMG src="gif/column_layout.gif" alt="Багатоколонковий макет (Columns)"></CENTER>
+</A>
+<CENTER>Мал.  16 : Багатоколонковий макет (Columns)</CENTER>
+
+
+<P>
+    , 
+   Специфічна вкладка (Specified Fusen)      , 
+      . 
+     та   випадок . 
+     , Код (Code) , 
+       . 
+</P>
+
+<A name="acr">
+<CENTER><IMG src="gif/balance.gif" alt=" "></CENTER>
+</A>
+<CENTER>Мал.  17 :  </CENTER>
+
+
+<P>
+    ,   , 
+    , 
+   випадок  існує. 
+  , 2   . 
+</P>
+
+<A name="acs">
+<CENTER><IMG src="gif/change_col1.gif" alt=" (1)"></CENTER>
+</A>
+<CENTER>Мал.  18 :   ( 1 )</CENTER>
+
+
+<A name="act">
+<CENTER><IMG src="gif/change_col2.gif" alt=" (2)"></CENTER>
+</A>
+<CENTER>Мал.  19 :   ( 2 )</CENTER>
+
+
+<H4>3.4.2.4  Наліпка (Fusene):</H4>
+
+<P>
+    . 
+    16   та   . 
+    ,  ,    , 
+    (  )  та  (  ) , 
+      також  також  існує. 
+   Специфічна вкладка (Specified Fusen)  визначення  , 
+      та   , 
+  Специфічна вкладка (Specified Fusen)   існує. 
+</P>
+
+<PRE>
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      attr            --  / 
+DATA :  UB      data[]          -- 
+</PRE>
+<DL>
+<DT>attr:
+    <DD>/
+<PRE>
+     xxPP NNNN
+</PRE>
+ <DD>
+    <DL compact>
+     <DT>N :
+     <DD> ( 0 〜 15 )
+     <DT>P :
+     <DD><BR>
+         0 :  /  та  також  . <BR>
+         1 :   . <BR>
+         2 :   . 
+    </DL>
+     ,    є, 
+       та   . 
+     
+      має також     , 
+     визначення  та . 
+     0    , 
+     15    . 
+ <DT>data :
+    <DD>   
+      є, 
+     ,  , 
+       також   існує. 
+        Мал.   та   . 
+        . 
+</DL>
+ та , ,  ,   . 
+<PRE>
+【Розмір (Size) 】
+AAA【】BBB【】CCC&lt;&gt;
+【】
+DDD【】【:】【】FFF&lt;&gt;
 </PRE>
 
-<H3><A name="ado">3.5.5 Вкладка спеціальних символів (Symbol Fusen)</A></H3>
+<A name="acu">
+<CENTER><IMG src="gif/paper_overlay.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  20 : </CENTER>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+   , 
+   Наліпка (Fusene)   та  . 
+  Специфічна вкладка (Specified Fusen)  та     та , 
+   Наліпка (Fusene)   . 
+     , 
+    1  також Специфічна вкладка (Specified Fusen)   та . 
+     та , 
+     . 
+</P>
+
 <PRE>
-#define TS_TSYM     0x40    /* Спеціальний символ або математичний знак */
+LEN  :  4
+SUBID:  4
+ATTR :  UB        ---    -- 
+DATA :  UH      overlay  -- 
 </PRE>
 
-<H3><A name="adt">3.5.6 Вкладки вирівнювання та позиціювання (Alignment & Tabs)</A></H3>
-<PRE>
-#define TS_TALIGN   0x50    /* Вирівнювання тексту (зліва, по центру, справа, по ширині) */
-#define TS_TTAB     0x51    /* Позиції табуляції (Tab Stops) */
+<DL>
+ <DT>overlay :
+ <DD> . 
+     &quot;1&quot;     . 
+     &quot;1&quot;    , 
+        0 
+       та  . 
+      ,    . 
+       ,   ігнорується. 
+</DL>
 
-#define TA_LEFT     0       /* По лівому краю */
-#define TA_CENTER   1       /* По центру */
-#define TA_RIGHT    2       /* По правому краю */
-#define TA_JUSTIFY  3       /* По ширині (Justify) */
+<A name="acv">
+<CENTER><IMG src="gif/overlay_fusen.gif" alt="Специфічна вкладка (Specified Fusen)"></CENTER>
+</A>
+<CENTER>Мал.  21 : Специфічна вкладка (Specified Fusen)</CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+     та  . 
+   Наліпка (Fusene)  Мал.   , 
+   Мал.    . 
+</P>
+
+<PRE>
+LEN  :  10
+SUBID:  5
+ATTR :  UB      attr            -- 
+DATA :  RECT    area            -- 
 </PRE>
 
-<H3><A name="ady">3.5.7 Вкладки колірного та графічного оформлення (Text Color & Style)</A></H3>
+<DL>
+ <DT>attr:
+ <DD>
 <PRE>
-#define TS_TCOLOR   0x60    /* Колір тексту та колір фону під текстом */
+   APKx HHVV
+</PRE>
+     <DL compact>
+      <DT>A :
+      <DD>0 <BR>
+          1 
+      <DT>P :
+      <DD>0 Наліпка (Fusene)  . <BR>
+          1 Наліпка (Fusene)  та . 
+      <DT>K :
+      <DD>0 (   )<BR>
+          1 (   )
+      <DT>H :
+      <DD>  ( A = 0    )<BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>V :
+      <DD>  ( A = 0    )<BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+     </DL>
+     <DL compact>
+      <DT>※
+      <DD>H = 0, V = 0  випадок    . 
+     </DL>
+ <DT>area :
+ <DD> .   . 
+     <DL>
+      <DT> випадок :
+      <DD>area   .  , 
+          attr    . 
+          Багатоколонковий макет (Columns) випадок ,     . 
+      <DT> випадок :
+      <DD>area  ,  та  також   є, 
+              ( 0 , 0 )  та  . 
+          Багатоколонковий макет (Columns) випадок  також ,    та . 
+     </DL>
+     <P>attr    P = 0   , Специфічна вкладка (Specified Fusen)  , 
+     H, V   area    . 
+     , Наліпка (Fusene)   та  . 
+     , P = 1   , Наліпка (Fusene)    , 
+       . </P>
+</DL>
 
-typedef struct {
-    TAD_SEG_HDR hdr;        /* id = TS_TCOLOR */
-    COLOR       fgcol;      /* Колір тексту */
-    COLOR       bgcol;      /* Колір фону під текстом */
-} TS_TCOLOR_SEG;
+<CENTER>: ,  </CENTER>
+
+<A name="acw">
+<CENTER><IMG src="gif/wakuake.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  22 : </CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+   ,   . 
+   Наліпка (Fusene)  та . 
+</P>
+<PRE>
+LEN  :  4
+SUBID:  6
+ATTR :  B   step                --  
+DATA:   UH  num                 -- 
+</PRE>
+<DL compact>
+ <DT>【N1,N2】:
+ <DD>Специфічна вкладка (Specified Fusen)<BR>
+ N1 : <BR>
+ N2 :  <BR>
+ -N3- : 
+</DL>
+
+<A name="acx">
+<CENTER><IMG src="gif/pageno.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  23 : </CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>  ,  . </P>
+<PRE>
+LEN  :  2,4
+SUBID:  7
+ATTR :  UB      cond            -- 
+DATA :[ SCALE   remain          --  ]
 </PRE>
 
-<H3><A name="adz">3.5.8 Вкладки посилань на змінні (Variable Reference)</A></H3>
+<DL compact>
+ <DT>cond :
+ <DD>
+     0 :  , . ()<BR>
+     1 :  , . ()<BR>
+     2 :   , remain   , . <BR>
+     3〜 :     
+ <DT>remain :
+ <DD>   SCALE Тип (Type) . 
+     ,   (   )     випадок . 
+      випадок  ,  Розмір (Size) (   )  та . 
+     cond ≠ 2  випадок ,  ,  . 
+</DL>
+<DL compact>
+ <DT> 1 :
+     <DD><P>   та    , 
+      Параметри Наліпка (Fusene)   
+     (   ,  Специфічна вкладка (Specified Fusen)  P = 1  випадок  ). </P>
 <PRE>
-#define TS_TVAR     0x70    /* Динамічне поле / змінна (номер сторінки, дата, час) */
+cond (  ) = 2
+remain = (   ) + (  ) + (   )
+</PRE>
+ <DT> 2 :
+ <DD>1    1    , 
+      Параметри Наліпка (Fusene)    
+     (   , Специфічна вкладка (Specified Fusen)  P = 2  випадок ). 
+<PRE>
+cond (  ) = 2
+remain = (   (  також  ) )
+</PRE>
+</DL>
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+     . 
+  1      , 
+      та . 
+</P>
+
+<PRE>
+LEN  :  2
+SUBID:  8
+ATTR :  UB      −              -- 
 </PRE>
 
-<H3><A name="aea">3.5.9 Вкладки текстових коментарів (Text Memo)</A></H3>
+<A name="acy">
+<CENTER><IMG src="gif/cond_bp.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  24 : </CENTER>
+
+
+
+<H3><A name="acz">3.5.3 Специфічна вкладка (Specified Fusen)</A></H3>
+
+<P>
+  Специфічна вкладка (Specified Fusen) , 
+    Наліпка (Fusene) є, 
+     . 
+      , 
+   Наліпка (Fusene)     існує також   та . 
+      , 
+     Код (Code) ( <CODE>0x0A</CODE> )  , 
+  Код (Code) ( <CODE>0x0D</CODE> )     . 
+    та  , 
+  Код (Code) випадок   , 
+  Код (Code) випадок   . 
+   та  ,   2  є, 
+   також   та  . 
+</P>
+<DL>
+ <DT>:
+ <DD>
+     <UL>
+      <LI>Код (Code)  Табл.   Табл.   є, 
+            1  Код (Code) та ,  
+           Код (Code)   1   та . 
+      <LI>1      ,  
+            . 
+              , 
+            , 
+              та  . 
+      <LI>     та   , 
+           та  Табл.  Табл.   . 
+      <LI> ,  , , 
+          Абзацний відступ (Indent)   . 
+      <LI> Код (Code)   . 
+          <DL>
+           <DT>Код (Code) :
+               <DD><P> (  )  . <BR>
+                  Код (Code)  (  )
+                . </P>
+           <DT>Код (Code) :
+               <DD>  
+           <DT>Код (Code) :
+           <DD> ,  (  )   . 
+          </DL>
+     </UL>
+ <DT> :
+ <DD>
+     <UL>
+      <LI>Код (Code)    є, 
+          1     1  . 
+      <LI>   , 
+          Код (Code)    . 
+      <LI> та   є, 
+          Код (Code)   випадок , 
+             . 
+     </UL>
+</DL>
+
+<A name="ada">
+<CENTER><IMG src="gif/field_format.gif" alt=" "></CENTER>
+</A>
+<CENTER>Мал.  25 :  </CENTER>
+
+<H4>Міжрядковий інтервал (Line Spacing)Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    .   та . 
+</P>
+
 <PRE>
-#define TS_TMEMO    0x78    /* Текстова замітка / примітка / коментар автора */
+LEN  :  4
+SUBID:  0
+ATTR :  UB      attr            -- 
+DATA :  SCALE   pitch           -- 
+</PRE>
+<DL>
+ <DT>attr :
+<PRE>
+   Dxxx xxxG
+</PRE>
+     <DL compact>
+      <DT>D :
+          <DD> ( 0 : + 1 : - )
+      <DT>G :
+          <DD> ( 0 :  1 :  )
+     </DL>
+     <P> випадок ,   . </P>
+
+<A name="adaa">
+<CENTER><IMG src="gif/line_skip.gif" alt="Міжрядковий інтервал (Line Spacing)"></CENTER>
+</A>
+<CENTER>Мал.  26 : Міжрядковий інтервал (Line Spacing)</CENTER>
+
+
+     <P> визначення , 
+        
+     (   )  існує. 
+     ,   
+          . 
+     Мал. Віртуальний об'єкт (Virtual Object)    , 
+     Міжрядковий інтервал (Line Spacing)   . </P>
+ <DT>pitch :
+ <DD><P>Міжрядковий інтервал (Line Spacing)  SCALE Тип (Type) . 
+      випадок  
+     ( , Мал. , Віртуальний об'єкт (Virtual Object)   )  та . </P>
+</DL>
+
+<UL>
+ <LI> Міжрядковий інтервал (Line Spacing) , 
+Міжрядковий інтервал (Line Spacing)Специфічна вкладка (Specified Fusen)  та   та   
+( Міжрядковий інтервал (Line Spacing)   (  )   ). 
+ <LI> Міжрядковий інтервал (Line Spacing)  - (  )  , 
+ 
+( ,   →  випадок       )
+  стосовно , . <BR>
+,   - (  )  ,      , 
+ ,   - (  )  стосовно 
+(   ,    ). 
+</UL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    .   та . 
+</P>
+
+<PRE>
+LEN  :  2
+SUBID:  1
+ATTR :  UB      align           --  
+align:   
+        0: Вирівнювання по лівому краю
+        1: Вирівнювання по центру
+        2: Вирівнювання по правому краю
+        3: Вирівнювання по ширині (Justify)
+        4: 
 </PRE>
 
-<H3><A name="aeb">3.5.10 Вкладки специфічних даних додатків (Application Fusen)</A></H3>
+<P>
+  Вирівнювання по ширині (Justify) та   , 
+      , 
+       існує. 
+</P>
+
+<A name="adb">
+<CENTER><IMG src="gif/line_align.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  27 : </CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+   .   та . 
+</P>
+
 <PRE>
-#define TS_TAPPL    0x7F    /* Приватні дані прикладної програми */
+LEN  :  〜
+SUBID:  2
+ATTR :  UB      attr            -- 
+DATA :  SCALE   height          -- 
+        SCALE   pargap          -- 
+        H       left            -- 
+        H       right           -- 
+        H       indent          -- Абзацний відступ (Indent)
+        H       ntabs           -- 
+        UH      tabs[]          --  ( ntabs  )
 </PRE>
 
+<DL>
+ <DT>attr :
+<PRE>
+    Rxxx xxPP
+</PRE>
+     <DL compact>
+      <DT>R :
+      <DD><BR>
+          0 :  (  ,   )<BR>
+          1 :  (  ,   )
+      <DT>P :
+      <DD>  <BR>
+          0 : <BR>
+          1 : <BR>
+          (   та ,   та  також 1  
+           )
+          2 : <BR>
+          (  ,          )
+          3 : 
+     </DL>
+ <DT>height :
+ <DD>  SCALE Тип (Type) . 
+ <DT>pargap :
+ <DD>  SCALE Тип (Type) . 
+      випадок  
+     ( , Мал. , Віртуальний об'єкт (Virtual Object)   )  та . 
+     height  Специфічна вкладка (Specified Fusen) , , 
+       та  та   , 
+     pargap      . 
+     <DL>
+      <DT> :
+      <DD>
+<PRE>
+＜ 1＞
+＜Специфічна вкладка (Specified Fusen) A＞
+＜ 2＞
+＜ 3＞
+＜ 4＞
+＜Специфічна вкладка (Specified Fusen) B＞
+＜ 5＞
+ 1  та  2   : A   height
+ 2  та  3   : A   pargap
+ 3  та  4   : A   pargap
+ 4  та  5   : B   height
+</PRE>
+     </DL>
+ <DT>left :
+ <DD> (     ). 
+       та ,   випадок  &lt;0  також . 
+ <DT>right :
+ <DD> (     ). 
+       та ,   випадок  &lt;0  також . 
+ <DT>indent :
+ <DD>Абзацний відступ (Indent) (  ). 
+       застосовується є, 
+       . 
+       та , &lt;0 також . 
+ <DT>ntabs :
+ <DD> . 
+     0 випадок   , 
+     &lt;0 випадок  . 
+ <DT>tabs :
+ <DD>  ntabs   
+     (     ). 
+      випадок ,   . 
+       та , &lt;0  . 
+      , 
+       та  також   та . 
+       ( ntabs )   0  випадок  також   та . 
+     ,   Код (Code)     та . 
+       ,   . 
+
+<A name="adc">
+<CENTER><IMG src="gif/tab_format.gif" alt=""></CENTER>
+</A>
+<CENTER>Мал.  28 : </CENTER>
+
+</DL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+   .   та . 
+    , 
+   Код (Code)   , 
+  Код (Code)  . 
+    , Код (Code) 1  та Табл. 
+  Формат / Синтаксис Табл.  . 
+</P>
+
+<PRE>
+LEN  :  〜
+SUBID:  3
+ATTR :  UB      attr    -- 
+DATA:   SCALE   height  -- Специфічна вкладка (Specified Fusen) 
+        SCALE   pargap  -- 
+        UH      line    -- 
+        H       nfld    -- 
+        -- UH   fld     -- 
+        │ UH   left    -- 
+        │ UH   right   -- 
+        │ UH   margin  -- ／Абзацний відступ (Indent)
+        -- UH   f_attr  -- 
+        :        :
+          . 
+</PRE>
+
+<DL>
+ <DT>attr:
+<PRE>
+    Rxxx xxPP
+</PRE>
+     <DL compact>
+      <DT>R :
+      <DD><BR>
+          0 :  (  ,   )<BR>
+          1 :  (  ,   )
+      <DT>P:
+      <DD>  <BR>
+          0 : <BR>
+          1 : <BR>
+          (   та ,   та  також 1   )<BR>
+          2 : <BR>
+          (  ,          )<BR>
+          3 : 
+     </DL>
+ <DT>height :
+ <DD>Специфічна вкладка (Specified Fusen)   SCALE Тип (Type) . 
+ <DT>pargap :
+ <DD>   SCALE Тип (Type) . <BR>
+      випадок  
+     ( , Мал. , Віртуальний об'єкт (Virtual Object)   )  та . 
+     height   Специфічна вкладка (Specified Fusen) , ,   та  та  
+      , pargap      . 
+ <DT>line :
+ <DD>    . 
+      , 
+        (  )   . 
+          . 
+      ,     (  )   . 
+        ,  . <BR>
+      ,  Формат / Синтаксис . 
+<PRE>
+    DIWW KKKK
+</PRE>
+     <DL compact>
+      <DT>D :
+      <DD> <BR>
+          0 : <BR>
+          1 :  
+      <DT>I : 
+      <DD> <BR>
+          0 : 100 %<BR>
+          1 :  50 %
+      <DT>W :
+      <DD> <BR>
+          0 :  (   )<BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>K :
+      <DD> <BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : <BR>
+          4 : <BR>
+          5 : <BR>
+          6 : <BR>
+          7 : (  )<BR>
+          8〜 :  ( додаток )
+     </DL>
+ <DT>nfld :
+ <DD>. 
+         , 
+          , 
+       + 1  та . 
+     nfld&lt;0  та     та    ,  
+        та , 
+      ( height ), 
+      ( pargap )  та  ( line )    та   існує. 
+ <DT>fld :
+ <DD> (   ). 
+         . 
+ <DT>left :
+ <DD> 
+     (     ) . 
+ <DT>right :
+ <DD> 
+     (      ) . 
+ <DT>margin :
+ <DD> / Абзацний відступ (Indent)
+     (     ) . 
+       . 
+<PRE>
+Вирівнювання по лівому краю          -- Абзацний відступ (Indent)
+Вирівнювання по центру        -- ігнорується
+Вирівнювання по правому краю          -- ігнорується
+Вирівнювання по ширині (Justify)        -- Абзацний відступ (Indent)
+        -- ігнорується
+      -- 
+</PRE>
+ <DT>f_attr :
+ <DT> . <BR>
+      ,    ,  , 
+       . 
+<PRE>
+    HxWW  KKKK xxxx xAAA
+</PRE>
+     <DL compact>
+      <DT>H :
+      <DD>   . <BR>
+          0 : <BR>
+          1 : <BR>
+          H = 1   , line      . 
+      <DT>W，K :
+      <DD>   . <BR>
+          W，K  , 
+          line  випадок та  є, 
+          W ≠ 0 випадок   . <BR>
+          <DL compact>
+           <DT>A :
+           <DD> <BR>
+               0 : Вирівнювання по лівому краю<BR>
+               1 : Вирівнювання по центру<BR>
+               2 : Вирівнювання по правому краю<BR>
+               3 : Вирівнювання по ширині (Justify)<BR>
+               4 : <BR>
+               5 : 
+          </DL>
+     </DL>
+</DL>
+
+<A name="add">
+<CENTER><IMG src="gif/fieldformatg.gif" alt="()"></CENTER>
+</A>
+<CENTER>Мал.  29 : ()</CENTER>
+
+
+<A name="ade">
+<CENTER><IMG src="gif/fieldformat1.gif" alt=" -1"></CENTER>
+</A>
+<CENTER>Мал.  30 :  -1</CENTER>
+
+
+<A name="adf">
+<CENTER><IMG src="gif/fieldformat2.gif" alt=" -2"></CENTER>
+</A>
+<CENTER>Мал.  31 :  -2</CENTER>
+
+
+<A name="adg">
+<CENTER><IMG src="gif/fieldformat3.gif" alt=" -3"></CENTER>
+</A>
+<CENTER>Мал.  32 :  -3</CENTER>
+
+
+<DL>
+ <DT>【】 
+ <DD>
+     <UL>
+      <LI>   ( line )<BR>
+           :    :   ( ,  )
+      <LI> ( nfld )  ---  3
+      <LI>  ( fld )
+          <TABLE>
+           <TR><TD> 1</TD><TD> 5</TD></TR>
+           <TR><TD> 2</TD><TD>10</TD></TR>
+           <TR><TD> 3</TD><TD>25</TD></TR>
+          </TABLE>
+      <LI> ,  ( right, left )   --- 0
+      <LI>
+          <TABLE>
+           <TR><TD> 1</TD><TD>Вирівнювання по центру, </TD></TR>
+           <TR><TD> 2</TD><TD>Вирівнювання по лівому краю, </TD></TR>
+           <TR><TD> 3</TD><TD></TD></TR>
+          </TABLE>
+     </UL>
+</DL>
+
+<A name="adh">
+<CENTER><IMG src="gif/fieldformat4.gif" alt=" -4"></CENTER>
+</A>
+<CENTER>Мал.  33 :  -4</CENTER>
+
+<DL>
+ <DT>【 1】  :
+ <DD>
+     <UL>
+      <LI>   ( line )
+          <TABLE>
+           <TR><TD>&nbsp;</TD><TD> </TD><TD> </TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+          </TABLE>
+      <LI> ( nfld )  ---  5
+      <LI>  ( fld )
+          <TABLE>
+           <TR><TD>1</TD><TD> 5</TD></TR>
+           <TR><TD>2</TD><TD>10</TD></TR>
+           <TR><TD>3</TD><TD>20</TD></TR>
+           <TR><TD>4</TD><TD>30</TD></TR>
+           <TR><TD>5</TD><TD>40</TD></TR>
+          </TABLE>
+      <LI> ,  ( right,left )   --- 0
+      <LI>
+          <TABLE>
+           <TR><TD>&nbsp;</TD><TD></TD><TD></TD><TD> </TD></TR>
+           <TR><TD>1</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>2</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>3</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>4</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>5</TD><TD>    </TD><TD></TD><TD></TD></TR>
+          </TABLE>
+     </UL>
+ <DT>【2】  :
+ <DD>
+     <UL>
+      <LI>   ( line )
+          <TABLE>
+           <TR><TD>&nbsp;</TD><TD> </TD><TD> </TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+          </TABLE>
+      <LI> ( nfld )  ---  5
+      <LI>  ( fld )
+          <TABLE>
+           <TR><TD>1</TD><TD> 5</TD></TR>
+           <TR><TD>2</TD><TD>10</TD></TR>
+           <TR><TD>3</TD><TD>20</TD></TR>
+           <TR><TD>4</TD><TD>30</TD></TR>
+           <TR><TD>5</TD><TD>40</TD></TR>
+          </TABLE>
+      <LI> ,  ( right, left )   --- 0
+      <LI>
+          <TABLE>
+           <TR><TD>&nbsp;</TD><TD></TD><TD></TD><TD> </TD></TR>
+           <TR><TD>1</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>2</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>3</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>4</TD><TD>Вирівнювання по центру</TD><TD></TD><TD></TD></TR>
+           <TR><TD>5</TD><TD>    </TD><TD></TD><TD></TD></TR>
+          </TABLE>
+     </UL>
+ <DT>【】  :
+ <DD>
+     <UL>
+      <LI>   ( line )
+          <TABLE>
+           <TR><TD>&nbsp;</TD><TD> </TD><TD> </TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+           <TR><TD>:</TD><TD></TD><TD></TD></TR>
+          </TABLE>
+      <LI> ( nfld )  ---  1
+     </UL>
+ <DT>  :
+ <DD>
+     <DL>
+      <DT>【 1 】
+      <DD>
+<PRE>
+&lt;TAB&gt;&lt;TAB&gt;&lt;TAB&gt;&lt;TAB&gt;&lt;&gt;
+</PRE>
+      <DT>【 2 】
+      <DD>
+<PRE>
+1&lt;TAB&gt;42,000&lt;TAB&gt;10,000&lt;TAB&gt;6,200&lt;TAB&gt;&lt;&gt;
+2&lt;TAB&gt;51,000&lt;TAB&gt;6,500&lt;TAB&gt;12,000&lt;TAB&gt;&lt;&gt;
+3&lt;TAB&gt;44,000&lt;TAB&gt;40,000&lt;TAB&gt;10,000&lt;TAB&gt;&lt;&gt;
+</PRE>
+      <DT>【 3 】
+      <DD>
+<PRE>
+&lt;&gt;
+</PRE>
+     </DL>
+</DL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    .   та . 
+</P>
+
+<PRE>
+LEN  :  2
+SUBID:  4
+ATTR :  UB      txdir           -- 
+txdir:   , ,  . 
+        0 :  (→)
+        1 :  (→)
+        2 : 
+</PRE>
+
+<P>
+        . 
+</P>
+
+<A name="adi">
+<CENTER><IMG src="gif/char_direction.gif" alt="Специфічна вкладка (Specified Fusen)"></CENTER>
+</A>
+<CENTER>Мал.  34 : Специфічна вкладка (Specified Fusen)</CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    . 
+</P>
+
+<PRE>
+LEN  :  2
+SUBID:  5
+ATTR :  UB      ---              -- 
+</PRE>
+
+<P>
+       . 
+  , , Код (Code),  також  , ,  Наліпка (Fusene)   та . <BR>
+  1  «Специфічна вкладка (Specified Fusen)»  ,   та , 
+  2 ігнорується. 
+</P>
+
+
+<H3><A name="adj">3.5.4 Вкладки параметрів символів та шрифтуНаліпка (Fusene)</A></H3>
+
+
+<P>Специфічна вкладка (Specified Fusen) ,  Табл.   Сегмент текстової вкладки (Text Fusen Segment) існує. </P>
+
+<H4>Шрифт (Font)Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+      Шрифт (Font) , 
+  Шрифт (Font)Шрифт (Font) (  )  . 
+</P>
+<PRE>
+LEN  :  4〜
+SUBID:  0
+ATTR :  UB      −              -- 
+DATA :  UH      class           -- Шрифт (Font)
+       [UB      name[]]         -- Шрифт (Font) (  ) 
+</PRE>
+
+<DL>
+ <DT>class:
+ <DD>Шрифт (Font)   Табл.   існує. 
+
+<A name="adl">
+<CENTER><IMG src="gif/fontclass.gif" alt="Шрифт (Font)"></CENTER>
+</A>
+<CENTER>Мал.  35 : Шрифт (Font)</CENTER>
+
+
+ <DT>name :
+ <DD>Шрифт (Font) (  )   (  ). <BR>
+        Шрифт (Font)   ігнорується , 
+     Шрифт (Font) (  )  Шрифт (Font)  , 
+     Шрифт (Font) Шрифт (Font)  також  
+     ( Шрифт (Font)   також   )
+     Шрифт (Font) застосовується. 
+</DL>
+
+<H4>Шрифт (Font)Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+  Шрифт (Font)  та  Шрифт (Font) . 
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  1
+ATTR :  UB      −              -- 
+DATA :  UH  attr                -- Шрифт (Font)
+</PRE>
+
+<DL>
+ <DT>attr :
+ <DD> Шрифт (Font) . <BR>
+        та  ,     та . 
+<A name="adm">
+<CENTER><IMG src="gif/font_attr.gif" alt="Шрифт (Font)"></CENTER>
+</A>
+<CENTER>Мал.  36 : Шрифт (Font)</CENTER>
+
+     <UL>
+      <LI>  /  (1) 〜 (3)   , 
+           (1) від (3)     та  . 
+           ,  ( ultra )    ( extra ) від також   та  . 
+      <LI>  ,     існує. 
+      <LI>  (  )      існує. 
+     </UL>
+</DL>
+
+<H4>Розмір (Size)Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+  Розмір (Size)  . 
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  2
+ATTR :  UB      −              -- 
+DATA :  CHSIZE  size            -- Розмір (Size)
+</PRE>
+<DL compact>
+ <DT>size :
+ <DD>Розмір (Size) ( CHSIZE Тип (Type) ). 
+</DL>
+<P>
+   Наліпка (Fusene)  та Розмір (Size) , /Специфічна вкладка (Specified Fusen), 
+    Розмір (Size)Специфічна вкладка (Specified Fusen) ,  Розмір (Size) Табл. . 
+  Розмір (Size)Специфічна вкладка (Specified Fusen)  , 
+  додаток  Розмір (Size)  та . 
+</P>
+
+<H4> / Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>Розмір (Size)  /   . </P>
+
+<PRE>
+LEN  :  6
+SUBID:  3
+ATTR :  UB      −       -- 
+DATA :  RATIO   h_ratio  --  ( Розмір (Size) )  
+        RATIO   w_ratio  --  
+</PRE>
+<DL>
+ <DT>h_ratio :
+ <DD> ( Розмір (Size) )   , RATIO Тип (Type) . 
+ <DT>w_ratio :
+ <DD>  , RATIO Тип (Type) . 
+</DL>
+
+<P>
+   /   та Розмір (Size) , 
+   Розмір (Size)Специфічна вкладка (Specified Fusen)  є, 
+  /  
+  ( додаток  Розмір (Size)  та  ) . 
+  ,  ==&gt; 1 / 2 ==&gt; 
+   Табл.   Наліпка (Fusene)   , 
+    1 / 2  Наліпка (Fusene)    1 / 2  та , 
+     1  ( 2    )  Наліпка (Fusene)    та . 
+</P>
+
+<H4>Міжсимвольний інтервал (Character Spacing)Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+    . 
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  4
+ATTR :  UB      attr            -- 
+DATA :  SCALE   pitch           -- 
+</PRE>
+
+<DL>
+ <DT>attr:
+ <DD>
+<PRE>
+    DSxx xxxG
+</PRE>
+     <DL compact>
+      <DT>D :
+          <DD> ( 0 : +  1 : - )
+      <DT>S:
+          <DD> / kerning  ( 0 :  1 :  )
+      <DT>G:
+          <DD> ( 0 :  1 :  )
+     </DL>
+      / Kerning  випадок , 
+       Міжсимвольний інтервал (Character Spacing) , 
+         ( ігнорується ). 
+      (  →  )  випадок ,   . 
+
+<A name="adn">
+<CENTER><IMG src="gif/char_skip.gif" alt="Міжсимвольний інтервал (Character Spacing)"></CENTER>
+<CENTER>Мал.  37 : Міжсимвольний інтервал (Character Spacing)</CENTER>
+</A>
+
+ <DT>pitch:
+ <DD>Міжсимвольний інтервал (Character Spacing)  SCALE Тип (Type) . 
+      випадок    
+     (  /   )  та . <BR>
+      / Kerning  випадок ,     ( ігнорується ). 
+</DL>
+
+<UL>
+ <LI>Міжсимвольний інтервал (Character Spacing) , 
+        та , 
+       та     . 
+ <LI>Міжсимвольний інтервал (Character Spacing) − , 
+      
+     ( , → випадок       )
+       стосовно , . 
+     ,  − ,      ,  
+      ,   − стосовно (   , 
+        ). 
+</UL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    . 
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  5
+ATTR :  UB      abs             --  / 
+DATA :  UH      angle           --    
+                                   ( 360    )
+</PRE>
+
+<DL>
+ <DT>abs :
+ <DD>
+<PRE>
+    xxxx xxxA
+</PRE>
+     <DL compact>
+      <DT>A
+      <DD>0 : . <BR>
+               
+          (  0  та ). 
+      <DD>1 : . <BR>
+               
+          (    0  та ). 
+     </DL>
+</DL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    . 
+</P>
+
+<PRE>
+LEN  :  6
+SUBID:  6
+ATTR :  UB      −      -- 
+DATA :  COLOR   color   --  
+</PRE>
+
+<H4>Наліпка (Fusene) : </H4>
+
+<P>
+    (  )   . 
+</P>
+
+<PRE>
+LEN  :  4
+SUBID:  7
+ATTR :  UB      attr            -- 
+DATA :  SCALE   base            -- 
+</PRE>
+
+<DL>
+ <DT>attr:
+<PRE>
+    Dxxx xxxx
+</PRE>
+     <DL compact>
+      <DT>D :
+      <DD> ( 0 : +  1 : -  )
+     </DL>
+ <DT>base:
+ <DD>    SCALE Тип (Type) . 
+      випадок  ,    
+     ( ) та . 
+         та . 
+</DL>
+
+
+<H3><A name="ado">3.5.5 Вкладки спеціальних символівНаліпка (Fusene)</A></H3>
+
+<P>
+  Специфічна вкладка (Specified Fusen) , 
+  1   та Сегмент текстової вкладки (Text Fusen Segment) існує. 
+</P>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+     . 
+   , 1   та , 
+     та  . 
+  ,    , 
+     (     )  . 
+</P>
+<PRE>
+LEN  :  4
+SUBID:  0
+ATTR :  UB      −              -- 
+DATA :  SCALE   width           --  
+</PRE>
+<DL>
+ <DT>width:
+ <DD>   SCALE Тип (Type) . 
+      випадок  , Розмір (Size) та . 
+</DL>
+
+<H4>Специфічна вкладка (Specified Fusen):</H4>
+
+<P>
+  1   1     . 
+  1   1      , 
+      та . 
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  1
+ATTR :  UB      −              -- 
+DATA:   UB      str[]           -- 
+</PRE>
+
+<DL>
+ <DT>str:
+     <DD> ,    , 
+        1  . 
+       ( 1  )   та . 
+      ,  та  1    та  . 
+</DL>
+<P>     є,  
+  . </P>
+
+<PRE>
+(1) 【:】AA&lt;&gt;
+(2) 【:】AA【:】&lt;&gt;
+(3)  AA【:】BB&lt;&gt;
+(4)  AA【:】BB【:】CC&lt;&gt;
+(5) 【:】A【:】B【:】&lt;&gt;
+(6)  ○○【:abc】&lt;&gt;
+(7)  1【:--】1&lt;&gt;&lt;TAB&gt;1.1【:--】2&lt;&gt;
+</PRE>
+
+<A name="adp">
+<CENTER><IMG src="gif/fill_char.gif" alt=""></CENTER>
+<CENTER>Мал.  38 : </CENTER>
+</A>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+   .  Наліпка (Fusene)      та . 
+</P>
+
+<PRE>
+LEN  :  4 + 
+SUBID:  2
+ATTR :  UB      type            --  Тип (Type)
+DATA :  UH  count               --  
+        UH   lines[]            -- ( LEN   )
+</PRE>
+
+<DL>
+ <DT>type:
+<PRE>
+    UUUU KKKK
+</PRE>
+     <DL compact>
+      <DT>K :
+      <DD> <BR>
+          0 :  ( 1    )<BR>
+          1 :  / <BR>
+          2 :  (    )<BR>
+          3〜 : (  )
+      <DT>U :
+      <DD> ( додаток)
+     </DL>
+ <DT>count :
+ <DD>   . 
+     0  випадок  1  та . 
+
+<A name="adq">
+<CENTER><IMG src="gif/char_keisen.gif" alt=""></CENTER>
+<CENTER>Мал.  39 : </CENTER>
+</A>
+
+ <DT>lines :
+ <DD>  ,    . <BR>
+      випадок ( type 0 ) :
+<PRE>
+UH  vline       :   (   )
+UH  hline       :   (   )
+          :  :            (   2   )
+</PRE>
+       /  випадок ( type 1 ) :
+<PRE>
+UH  tlline      :   (   )
+         :  :            (   1   )
+</PRE>
+       випадок ( type 2 ):
+<PRE>
+UH  code                :   TRON Код (Code)
+          :  :            (  1  )
+</PRE>
+ <DT>vqline, hline :
+ <DD>(  ) <BR>
+      Розмір (Size)  Мал.    4   , 
+          також  . 
+<PRE>
+  -- vline  
+  -- vline  
+  -- hline  
+  -- hline  
+</PRE>
+
+<A name="adr">
+<CENTER><IMG src="gif/char_kei_norm.gif" alt="()"></CENTER>
+<CENTER>Мал.  40 :  (  )</CENTER>
+</A>
+
+ <DT>tlline:
+ <DD>(  /  )<BR>
+      /    
+     (   )   , 
+       (   )   Табл. . 
+     Код (Code)   /  , 
+      та    та    Табл. . 
+     <UL>
+      <LI>     також   та . 
+     </UL>
+
+<A name="ads">
+<CENTER><IMG src="gif/char_kei_in.gif" alt="(／)"></CENTER>
+</A>
+<CENTER>Мал.  41 :  (  /  )</CENTER>
+
+ <DT>code :
+ <DD><P>(  )<BR>
+      та   TRON Код (Code) . 
+     vline, hline, tlline    ,   є, 
+      = 0  випадок ,     та  . </P>
+<PRE>
+    DIWW KKKK
+</PRE>
+     <DL compact>
+      <DT>D :
+      <DD> <BR>
+          0 : <BR>
+          1 : 
+      <DT>I :
+      <DD> <BR>
+          0 : 100 %<BR>
+          1 : 50 %
+      <DT>W :  
+      <DD>0 :  (   )<BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>K :  <BR>
+      <DD>0 :  <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : <BR>
+          4 : <BR>
+          5 : <BR>
+          6 : <BR>
+          7 : (  )<BR>
+          8〜:  ( додаток )
+     </DL>
+</DL>
+
+
+<H3><A name="adt">3.5.6 Специфічна вкладка (Specified Fusen)</A></H3>
+
+<P>
+  Специфічна вкладка (Specified Fusen) ,     також   , 
+  Наліпка (Fusene) та Наліпка (Fusene)    та . 
+</P>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+       та  Наліпка (Fusene) є,  та 
+   ,     . 
+    1     . 
+</P>
+
+<PRE>
+LEN  :  2
+SUBID:  0                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      −              -- 
+LEN  :  2
+SUBID:  1                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      −              -- 
+</PRE>
+
+<A name="adu">
+<CENTER><IMG src="gif/joint.gif" alt="Специфічна вкладка (Specified Fusen)"></CENTER>
+</A>
+<CENTER>Мал.  42 : Специфічна вкладка (Specified Fusen)</CENTER>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+       та  . 
+   Наліпка (Fusene) , Специфічна вкладка (Specified Fusen) та , 
+        та . 
+</P>
+<PRE>
+LEN  :  4
+SUBID:  2                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      kind            -- 
+DATA :  SCALE   width           -- 
+LEN  :  2
+SUBID:  3                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      −              -- 
+</PRE>
+
+<DL>
+ <DT>kind :
+ <DD><BR>
+     0 : Вирівнювання по лівому краю<BR>
+     1 : Вирівнювання по правому краю<BR>
+     2 : Вирівнювання по центру<BR>
+     3 : Вирівнювання по ширині (Justify)<BR>
+     4 : <BR>
+ <DT>width :
+ <DD>  SCALE Тип (Type) . 
+      випадок  , Розмір (Size) та . 
+     <UL>
+      <LI>  та  , 
+          Наліпка (Fusene)  Наліпка (Fusene)    та . 
+<PRE>
+【】【】
+</PRE>
+      <LI>  ,    . 
+     </UL>
+</DL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+     ,  /   . 
+      ,     Наліпка (Fusene) . 
+</P>
+
+<PRE>
+LEN  :  6
+SUBID:  4                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      type            -- Тип (Type)
+DATA :  SCALE   pos             --  
+        RATIO   size            -- Розмір (Size) 
+LEN  :  2
+SUBID:  5                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      −              -- 
+</PRE>
+
+<PRE>
+    Fxxx xxDU
+</PRE>
+<DL compact>
+ <DT>type :
+ <DD>
+     <DL compact>
+      <DT>U :
+      <DD>0 : <BR>
+          1 : 
+      <DT>F :
+      <DD>0 : <BR>
+          1 : 
+      <DT>D
+      <DD>0 :    <BR>
+
+          1 :    
+     </DL>
+ <DT>pos :
+ <DD>    SCALE Тип (Type) . <BR>
+      випадок   Розмір (Size)( ) та . 
+      , type   D   та . 
+
+<A name="adv">
+<CENTER><IMG src="gif/soeji1.gif" alt="(1)"></CENTER>
+</A>
+<CENTER>Мал.  43 : (1)</CENTER>
+
+
+       , 
+       також   та  . 
+     , type   /   та , 
+        є, 
+       та     також . 
+       , 
+          є, 
+         . 
+ <DT>size :
+ <DD> Розмір (Size)  Розмір (Size)  , 
+     RATIO Тип (Type) . 
+      Розмір (Size)  та Розмір (Size) , 
+        ( ) існує. 
+     <UL>
+      <LI>Наліпка (Fusene)  , 
+          Наліпка (Fusene)    ,  та . 
+<PRE>
+【】【】 -- 
+【】【】 -- 
+</PRE>
+      <LI>Специфічна вкладка (Specified Fusen) 【】  , 
+          Тип (Type) (  /  )  випадок ,  , 
+          Тип (Type) випадок ,  . 
+          <DL>
+           <DT>1 : 
+           <DD>
+<PRE>
+(1) 【】AA【】BB【】□
+(2) 【】AA【】BB【】□
+(3) 【】AA【】【】BB【】□
+(4) 【】AA【】【】BB【】□
+</PRE>
+               <P>※ (2)
+                 2    та </P>
+<A name="adw">
+<CENTER><IMG src="gif/soeji2.gif" alt="(2)"></CENTER>
+</A>
+<CENTER>Мал.  44 : (2)</CENTER>
+
+           <DT>2: 
+           <DD>
+<PRE>
+(1) □【】AA【】BB【】
+(2) □【】AA【】BB【】
+(3) □【】AA【】【】BB【】
+(4) □【】AA【】【】BB【】
+</PRE>
+                <P>※ (2)
+                 2    та </P>
+<A name="adx">
+<CENTER><IMG src="gif/soeji3.gif" alt="(3)"></CENTER>
+</A>
+<CENTER>Мал.  45 : (3)</CENTER>
+          </DL>
+     </UL>
+</DL>
+
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+     існує. 
+</P>
+
+<PRE>
+LEN  :  〜
+SUBID:  6                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      attr            -- 
+DATA :  UB      rubi[]          -- 
+LEN  :  2
+SUBID:  7                       -- Специфічна вкладка (Specified Fusen)
+ATTR :  UB      −              -- 
+</PRE>
+
+<PRE>
+    UUUU xxxP
+</PRE>
+<DL>
+ <DT>attr :
+ <DD>
+     <DL compact>
+      <DT>P :
+      <DD><BR>
+          0 :  (    )<BR>
+          1 :  (    )
+      <DT>U :
+      <DD> ( додаток )
+     </DL>
+     Наліпка (Fusene) випадок  ігнорується. 
+ <DT>rubi :
+ <DD>  є, 
+         Наліпка (Fusene) Розмір (Size) . 
+       випадок   0  . 
+       Шрифт (Font), Розмір (Size) ,  Шрифт (Font), 
+      Розмір (Size)  також   . 
+</DL>
+     <UL>
+      <LI>  та  , 
+          Наліпка (Fusene)  Наліпка (Fusene)   та . 
+<PRE>
+【()】【】
+</PRE>
+      <LI>    стосовно ,  . 
+          ( ). 
+</UL>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+  ,    існує. 
+</P>
+
+<PRE>
+LEN  :  〜
+SUBID:  8                       -- 
+ATTR :  UB      kind            -- Тип (Type)
+[DATA : UB      ch[]]           -- 
+LEN  :  〜
+SUBID:  9                       -- 
+ATTR :  UB      kind            -- Тип (Type)
+[DATA : UB      ch[]]           -- 
+</PRE>
+
+<PRE>
+    XXXL KKKK
+</PRE>
+
+<DL compact>
+ <DT>kind :
+ <DD>
+     <DL compact>
+      <DT>L :
+      <DD><BR>
+          0 : 1<BR>
+          1 : 
+      <DT>K :
+      <DD><BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 :  <BR>
+          4〜 : <BR>
+          15 :   (   )
+          <DL>
+           <DT> :
+           <DD> ,    . <BR>
+                ,    . 
+           <DT> :
+           <DD> ,    . <BR>
+                ,    . 
+           <DT>  :
+           <DD>  1  , 
+                ,     . <BR>
+                ,     . 
+          </DL>
+     </DL>
+ <DT>ch[ ] :
+ <DD> , <BR>
+         . 
+      ,   та . 
+</DL>
+
+<UL>
+ <LI>Специфічна вкладка (Specified Fusen)   та . 
+</UL>
+
+
+<H3><A name="ady">3.5.7 Специфічна вкладка (Specified Fusen)</A></H3>
+
+<P>Специфічна вкладка (Specified Fusen) ,    також   , 
+   Наліпка (Fusene) та Наліпка (Fusene)    . </P>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    . 
+</P>
+
+<PRE>
+LEN  :  2,6
+SUBID:  type            -- Наліпка (Fusene)
+ATTR :  UB      attr    -- 
+DATA : [COLOR color]    -- ()
+LEN  :  2
+SUBID:  type + 1        -- Наліпка (Fusene)
+ATTR :  UB      −      -- 
+SUBID:    Тип (Type) ( Наліпка (Fusene) випадок  SUBID   + 1  та . )
+</PRE>
+
+<TABLE>
+<TR><TD>0 : </TD><TD>      </TD><TD>1: </TD><TD></TD></TR>
+<TR><TD>2 : </TD><TD>      </TD><TD>3: </TD><TD></TD></TR>
+<TR><TD>4 : </TD><TD></TD><TD>5: </TD><TD></TD></TR>
+<TR><TD>6 : </TD><TD>  </TD><TD>7: </TD><TD></TD></TR>
+<TR><TD>8 : </TD><TD> (  ) </TD><TD>9: </TD><TD> (  ) </TD></TR>
+<TR><TD>10 :</TD><TD> (  ) </TD><TD>11:</TD><TD> (  ) </TD></TR>
+<TR><TD>12 :</TD><TD>      </TD><TD>13:</TD><TD></TD></TR>
+<TR><TD>14 :</TD><TD>      </TD><TD>15:</TD><TD></TD></TR>
+<TR><TD>18 :</TD><TD colspan=3> ( Наліпка (Fusene)    )</TD></TR>
+<TR><TD>19 :</TD><TD colspan=3></TD></TR>
+<TR><TD>20〜127 :</TD><TD colspan=3>(  ) </TD></TR>
+<TR><TD>128〜 :</TD><TD colspan=3> ( додаток )</TD></TR>
+</TABLE>
+
+<DL compact>
+ <DT>attr:
+ <DD><P>, , ,   випадок :  </P>
+<PRE>
+    DIWW KKKK
+</PRE>
+     <DL compact>
+      <DT>D :
+      <DD> <BR>
+          0 : <BR>
+          1 : 
+      <DT>I:
+      <DD> <BR>
+          0 : 100 %<BR>
+          1 : 50 %
+      <DT>W :
+      <DD> <BR>
+          0 : ( )<BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>K :
+      <DD> <BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : <BR>
+          4 : <BR>
+          5 : <BR>
+          6 : <BR>
+          7 : (  )<BR>
+          8〜 :  ( додаток )
+     </DL>
+ <DD><P>,  випадок :  </P>
+<PRE>
+    xxxx KKKK
+</PRE>
+     <DL compact>
+      <DT>K :
+      <DD> <BR>
+          0 : «»<BR>
+          1 : «, »<BR>
+          2〜7 : (  )<BR>
+          8〜  :  ( додаток )
+     </DL>
+ <DD><P> :  </P>
+<PRE>
+    Axxx xxxx
+</PRE>
+     <DL compact>
+      <DT>A :
+      <DD><BR>
+          0 :  <BR>
+          1 :  (  також  )
+          <UL>
+           <LI>  . 
+          </UL>
+     </DL>
+ <DD><P> /  :  </P>
+<PRE>
+    AIDD  KKKK
+</PRE>
+     <DL compact>
+      <DT>A :
+      <DD><BR>
+          0 :  <BR>
+          1 :  (  також  )
+          <UL>
+           <LI>  . 
+          </UL>
+      <DT>D :
+      <DD><BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : 
+      <DT>I :
+      <DD><BR>
+          0 : <BR>
+          1 : 
+      <DT>K :
+      <DD><BR>
+          0 : <BR>
+          1 : <BR>
+          2 : <BR>
+          3 : <BR>
+          4 : <BR>
+          5 : <BR>
+          6〜7: (  )<BR>
+          8〜  :  ( додаток )<BR>
+     </DL>
+ <DD><P> випадок :  . </P>
+<DT>color :
+ <DD>   є,   та  та . 
+      випадок   (  ). <BR>
+     Наліпка (Fusene) випадок   (  ) . 
+     <UL>
+      <LI> ,     та  ,  ,      та  . 
+      <LI>Наліпка (Fusene)  ,  Тип (Type) Наліпка (Fusene)    ,   та . 
+<PRE>
+【】【】
+</PRE>
+,  (,  та )   та   . 
+<PRE>
+【】AA【】BB【】CC【】
+
+                        
+                    |------|
+                AABBCC
+                |------|
+                 
+</PRE>
+     </UL>
+</DL>
+
+
+<H3><A name="adz">3.5.8 Специфічна вкладка (Specified Fusen)</A></H3>
+<P>
+  Специфічна вкладка (Specified Fusen) ,  Наліпка (Fusene) є, 
+     Табл.   та  . 
+</P>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    Табл.  . 
+    та , ID   та , 
+    існує. 
+</P>
+<PRE>
+LEN  :  4
+SUBID:  0               -- 
+ATTR :  UB  −          -- 
+DATA :  H   var_id      -- ID
+LEN  :  〜
+SUBID:  1               -- 
+ATTR :  UB  −          -- 
+DATA :  UB  name[]      -- 
+</PRE>
+<P>
+   ,   ID     
+   є,    Налаштувальна вкладка (Setting Fusen) . 
+    ID   Система (System) , 
+    також   . 
+</P>
+<PRE>
+  0 :  Реальний об'єкт (Real Object)
+100 :  (  2  )
+101 :  (  )
+110 :  (  )
+111 :  (  2  )
+112 :  (  3  )
+113 :  (  3  )
+120 :  (  )
+121 :  (  2  )
+200 :  ( Табл.  )
+201 :  ( Табл.  )
+202 :  ( Табл.  )
+250 :  ( Табл.  )
+251 :  ( Табл.  )
+252 :  ( Табл.  )
+</PRE>
+<P>
+    ID  , додаток  та . 
+</P>
+
+<H3><A name="aea">3.5.9 Специфічна вкладка (Specified Fusen)</A></H3>
+
+<P>
+  Специфічна вкладка (Specified Fusen) ,    Наліпка (Fusene) існує. 
+     та   існує , 
+  додаток  , 
+      та   , 
+     також існує. 
+</P>
+
+<H4>Специфічна вкладка (Specified Fusen) : </H4>
+
+<P>
+    . 
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  0
+ATTR :  UB      −              -- 
+DATA :  UB      memo[]          -- 
+</PRE>
+
+
+<H3><A name="aeb">3.5.10 додатокСпецифічна вкладка (Specified Fusen)</A></H3>
+
+<P>
+  додатокСпецифічна вкладка (Specified Fusen) , 
+  додаток  Наліпка (Fusene) є, 
+    додаток . 
+   додаток ID   , 
+  Типи даних ID  додаток , 
+      та  . 
+</P>
+
+<H4>додатокСпецифічна вкладка (Specified Fusen) : </H4>
+
+<P>
+додаток  . 
+</P>
+<PRE>
+LEN  :  〜
+SUBID:  −              -- додаток
+ATTR :  UB      −      -- додаток
+DATA :  UH  appl[3]     -- додатокID
+        UB      param[] -- додатокПараметри
+appl:   Наліпка (Fusene)  додаток ID. 
+        додаток ID   ID   Наліпка (Fusene)  
+        . 
+</PRE>
 <HR>
-<A href="../index.html">Повернутися до загального змісту всієї специфікації</A><BR>
-<A href="tad1.html">Попередня сторінка: 3.1-3.4 Огляд формату TAD (Повернутися)</A><BR>
-<A href="tad3.html">Наступна сторінка: 3.6 Сегменти графічного креслення (Перейти)</A><BR>
+<A href="index.html">Повернутися до змісту цього розділу</A><BR>
+<A href="tad1.html">Попередня сторінка: Глава 3 TAD (Повернутися)</A><BR>
+<A href="tad3.html">Наступна сторінка: 3.6 Мал.  (Перейти)</A><BR>
 </BODY>
 </HTML>
