@@ -1,115 +1,129 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <HTML>
 <HEAD>
-<TITLE>
-  Частина 1. Загальні структури даних (Shared Data Specifications)
-</TITLE>
+<META CHARSET="UTF-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<TITLE>Частина 1. Загальні структури даних (Shared Data Specifications)</TITLE>
+<LINK REL="stylesheet" HREF="../doc.css">
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="next" HREF="indexfig.html">
 </HEAD>
 <BODY>
-<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Частина 1: Загальні структури даних (Shared Data)
-</DIV>
-<A href="../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
-<A href="indexfig.html">Перейти до змісту ілюстрацій та діаграм частини 1</A><BR>
-<HR>
+    <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation Banner -->
+    <DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+      Специфікація BTRON3 (Український переклад) | Частина 1: Загальні структури даних (Shared Data)
+    </DIV>
 
-<H1>Частина 1. Загальні структури даних (Shared Data Specifications)</H1>
+    <A href="../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+    <A href="indexfig.html">Перейти до змісту ілюстрацій та діаграм частини 1</A><BR>
+    <HR>
 
-<H2>Зміст частини 1</H2>
+    <H1>Частина 1. Загальні структури даних (Shared Data Specifications)</H1>
 
-<DL>
- <DT><B><a href="data_type.html#aaa">Розділ 1. Базові типи даних та системні константи (Basic Data Types)</a></B>
- <DD><a href="data_type.html#aaa">1.1 Вступ</a><BR>
-     <a href="data_type.html#aab">1.2 Типи даних ядра та мови C</a><BR>
-     <a href="data_type.html#aac">1.3 Коди помилок BTRON (System Error Codes)</a><BR>
-     <a href="data_type.html#aad">1.4 Формат структури TRON Code</a>
- <BR><BR>
+    <H2>Зміст частини 1</H2>
 
- <DT><B><a href="tron_code.html#aas">Розділ 2. Система кодування TRON Code (Character Encoding)</a></B>
- <DD><a href="tron_code.html#aat">2.1 Загальні відомості про специфікацію TRON Code</a><BR>
-     <a href="tron_code.html#aau">2.1.1 Багатомовна підтримка (Multilingual Support)</a><BR>
-     <a href="tron_code.html#aav">2.1.2 Набори символів (Character Sets / Скрипти)</a><BR>
-     <a href="tron_code.html#aaw">2.1.3 Набори шрифтових гарнітур (Font Sets)</a><BR>
-     <a href="tron_code.html#aax">2.2 Зв'язок з існуючими стандартами кодування</a><BR>
-     <a href="tron_code.html#aay">2.2.1 JIS X 0201</a><BR>
-     <a href="tron_code.html#aaz">2.2.2 JIS X 0208</a><BR>
-     <a href="tron_code.html#aba">2.3 Кодування японських символів у TRON Code</a><BR>
-     <a href="tron_code.html#abb">2.3.1 Огляд структури</a><BR>
-     <a href="tron_code.html#abd">2.3.2 Таблиці кодів японських символів TRON</a><BR>
-     <a href="tron_code.html#abf">2.3.3 Пояснення до кодових площин TRON</a><BR>
-     <a href="tron_code.html#abg">2.3.4 Додаткові відомості</a>
- <BR><BR>
+    <DL>
+     <DT><B><a href="data_type.html#aaa">Розділ 1. Базові типи даних та системні константи (Basic Data Types)</a></B>
+     <DD><a href="data_type.html#aaa">1.1 Вступ</a><BR>
+         <a href="data_type.html#aab">1.2 Типи даних ядра та мови C</a><BR>
+         <a href="data_type.html#aac">1.3 Коди помилок BTRON (System Error Codes)</a><BR>
+         <a href="data_type.html#aad">1.4 Формат структури TRON Code</a>
+     <BR><BR>
 
- <DT><B><a href="tad1.html#abh">Розділ 3. Детальна специфікація формату документів TAD (TRON Application Databox)</a></B>
- <DD><a href="tad1.html#abj">3.1 Вступ</a><BR>
-     <a href="tad1.html#abk">3.2 Структура Реального об'єкта TAD (Real Object Layout)</a><BR>
-     <a href="tad1.html#abl">3.2.1 Загальні відомості</a><BR>
-     <a href="tad1.html#abm">3.2.2 Структура записів Реального об'єкта</a><BR>
-     <a href="tad1.html#abn">3.3 Огляд структури даних TAD</a><BR>
-     <a href="tad1.html#abo">3.3.1 Формат сегментів TAD</a><BR>
-     <a href="tad1.html#abq">3.3.2 Текстові та графічні дані</a><BR>
-     <a href="tad1.html#abw">3.3.3 Растрові зображення (Image Data)</a><BR>
-     <a href="tad1.html#abx">3.3.4 Опис структур даних TAD мовою C</a><BR>
-     <a href="tad1.html#aby">3.4 Детальний опис сегментів TAD</a><BR>
-     <a href="tad1.html#abz">3.4.1 Огляд базових сегментів</a><BR>
-     <a href="tad1.html#acb">3.4.2 Сегмент службової інформації керування</a><BR>
-     <a href="tad1.html#acc">3.4.3 Сегменти початку та завершення тексту</a><BR>
-     <a href="tad1.html#accc">3.4.4 Сегменти початку та завершення графіки</a><BR>
-     <a href="tad1.html#acd">3.4.5 Сегмент растрового зображення</a><BR>
-     <a href="tad1.html#ach">3.4.6 Сегмент Віртуального об'єкта (Virtual Object / Link)</a><BR>
-     <a href="tad1.html#aci">3.4.7 Сегмент функціональної вкладки (Фусена)</a><BR>
-     <a href="tad1.html#acj">3.4.8 Сегмент вкладки специфікації</a><BR>
-     <a href="tad2.html#ack">3.5 Сегменти текстових вкладок (Текстові фусени)</a><BR>
-     <a href="tad2.html#acl">3.5.1 Огляд текстових вкладок</a><BR>
-     <a href="tad2.html#acn">3.5.2 Вкладка параметрів сторінки та макета тексту</a><BR>
-     <a href="tad2.html#acz">3.5.3 Вкладка форматування рядка та абзацу</a><BR>
-     <a href="tad2.html#adj">3.5.4 Вкладка параметрів символів та шрифту</a><BR>
-     <a href="tad2.html#ado">3.5.5 Вкладка спеціальних символів</a><BR>
-     <a href="tad2.html#adt">3.5.6 Вкладка вирівнювання та позиціювання тексту</a><BR>
-     <a href="tad2.html#ady">3.5.7 Вкладка графічного оформлення тексту</a><BR>
-     <a href="tad2.html#adz">3.5.8 Вкладка посилань на змінні</a><BR>
-     <a href="tad2.html#aea">3.5.9 Вкладка текстових коментарів (Memo)</a><BR>
-     <a href="tad2.html#aeb">3.5.10 Вкладка специфічних даних додатків</a><BR>
-     <a href="tad3.html#aec">3.6 Сегменти графічного креслення та 2D-векторів</a><BR>
-     <a href="tad3.html#aed">3.6.1 Огляд векторної графіки TAD</a><BR>
-     <a href="tad3.html#aef">3.6.2 Сегменти геометричних фігур та примітивів</a><BR>
-     <a href="tad3.html#aeh">3.6.3 Сегменти визначення графічних даних</a><BR>
-     <a href="tad3.html#aem">3.6.4 Сегменти групування графічних об'єктів</a><BR>
-     <a href="tad3.html#aen">3.6.5 Сегменти макровизначень та посилань</a><BR>
-     <a href="tad3.html#aeo">3.6.6 Сегменти оформлення та заливки графіки</a><BR>
-     <a href="tad3.html#aeq">3.6.7 Вкладка параметрів графічної сторінки</a><BR>
-     <a href="tad3.html#aer">3.6.8 Вкладка графічних коментарів (Memo)</a><BR>
-     <a href="tad3.html#aes">3.6.9 Вкладка графічних даних додатків</a><BR>
-     <a href="tad3.html#aet">Додаток A: Повний перелік ідентифікаторів сегментів TAD</a><BR>
-     <a href="tad3.html#aev">Додаток B: Квазі-стандартні розширення TAD</a>
- <BR><BR>
+     <DT><B><a href="tron_code.html#aas">Розділ 2. Система кодування TRON Code (Character Encoding)</a></B>
+     <DD><a href="tron_code.html#aat">2.1 Загальні відомості про специфікацію TRON Code</a><BR>
+         <a href="tron_code.html#aau">2.1.1 Багатомовна підтримка (Multilingual Support)</a><BR>
+         <a href="tron_code.html#aav">2.1.2 Набори символів (Character Sets / Скрипти)</a><BR>
+         <a href="tron_code.html#aaw">2.1.3 Набори шрифтових гарнітур (Font Sets)</a><BR>
+         <a href="tron_code.html#aax">2.2 Зв'язок з існуючими стандартами кодування</a><BR>
+         <a href="tron_code.html#aay">2.2.1 JIS X 0201</a><BR>
+         <a href="tron_code.html#aaz">2.2.2 JIS X 0208</a><BR>
+         <a href="tron_code.html#aba">2.3 Кодування японських символів у TRON Code</a><BR>
+         <a href="tron_code.html#abb">2.3.1 Огляд структури</a><BR>
+         <a href="tron_code.html#abd">2.3.2 Таблиці кодів японських символів TRON</a><BR>
+         <a href="tron_code.html#abf">2.3.3 Пояснення до кодових площин TRON</a><BR>
+         <a href="tron_code.html#abg">2.3.4 Додаткові відомості</a>
+     <BR><BR>
 
- <DT><B><a href="fd_format.html#aey">Розділ 4. Формат дискети та файлової системи (Floppy Disk Format)</a></B>
- <DD><a href="fd_format.html#aez">4.1 Огляд формату носіїв BTRON</a><BR>
-     <a href="fd_format.html#afa">4.2 Структура файлової системи BTRON FS</a><BR>
-     <a href="fd_format.html#afb">4.2.1 Загальна схема розміщення блоків</a><BR>
-     <a href="fd_format.html#afd">4.2.2 Структура системного блоку (System Block)</a><BR>
-     <a href="fd_format.html#afh">4.2.3 Таблиця ідентифікаторів файлів (File ID Table)</a><BR>
-     <a href="fd_format.html#afj">4.2.4 Таблиця коротких назв файлів</a><BR>
-     <a href="fd_format.html#afm">4.2.5 Область зберігання тіл файлів</a><BR>
-     <a href="fd_format.html#afn">4.3 Внутрішня організація файлу BTRON</a><BR>
-     <a href="fd_format.html#afo">4.3.1 Загальна схема</a><BR>
-     <a href="fd_format.html#afs">4.3.2 Структура блоку заголовка файлу (Header Block)</a><BR>
-     <a href="fd_format.html#afu">4.3.3 Структура заголовка файлу (File Header)</a><BR>
-     <a href="fd_format.html#afx">4.3.4 Таблиця фрагментів (Fragment Table)</a><BR>
-     <a href="fd_format.html#afz">4.3.5 Індекс записів файлу (Record Index)</a><BR>
-     <a href="fd_format.html#agb">4.3.6 Структура непрямих індексів</a><BR>
-     <a href="fd_format.html#agd">4.3.7 Приклад розміщення індексів записів</a><BR>
-     <a href="fd_format.html#agf">4.3.8 Структура блоків даних (Data Blocks)</a><BR>
-     <a href="fd_format.html#agh">Додаток A: Квазі-стандартний формат дискет</a><BR>
-     <a href="fd_format.html#agk">Додаток B: Приклад практичної реалізації драйвера дискети</a>
-</DL>
+     <DT><B><a href="tad1.html#abh">Розділ 3. Детальна специфікація формату документів TAD (TRON Application Databox)</a></B>
+     <DD><a href="tad1.html#abj">3.1 Вступ</a><BR>
+         <a href="tad1.html#abk">3.2 Структура Реального об'єкта TAD (Real Object Layout)</a><BR>
+         <a href="tad1.html#abl">3.2.1 Загальні відомості</a><BR>
+         <a href="tad1.html#abm">3.2.2 Структура записів Реального об'єкта</a><BR>
+         <a href="tad1.html#abn">3.3 Огляд структури даних TAD</a><BR>
+         <a href="tad1.html#abo">3.3.1 Формат сегментів TAD</a><BR>
+         <a href="tad1.html#abq">3.3.2 Текстові та графічні дані</a><BR>
+         <a href="tad1.html#abw">3.3.3 Растрові зображення (Image Data)</a><BR>
+         <a href="tad1.html#abx">3.3.4 Опис структур даних TAD мовою C</a><BR>
+         <a href="tad1.html#aby">3.4 Детальний опис сегментів TAD</a><BR>
+         <a href="tad1.html#abz">3.4.1 Огляд базових сегментів</a><BR>
+         <a href="tad1.html#acb">3.4.2 Сегмент службової інформації керування</a><BR>
+         <a href="tad1.html#acc">3.4.3 Сегменти початку та завершення тексту</a><BR>
+         <a href="tad1.html#accc">3.4.4 Сегменти початку та завершення графіки</a><BR>
+         <a href="tad1.html#acd">3.4.5 Сегмент растрового зображення</a><BR>
+         <a href="tad1.html#ach">3.4.6 Сегмент Віртуального об'єкта (Virtual Object / Link)</a><BR>
+         <a href="tad1.html#aci">3.4.7 Сегмент функціональної вкладки (Фусена)</a><BR>
+         <a href="tad1.html#acj">3.4.8 Сегмент вкладки специфікації</a><BR>
+         <a href="tad2.html#ack">3.5 Сегменти текстових вкладок (Текстові фусени)</a><BR>
+         <a href="tad2.html#acl">3.5.1 Огляд текстових вкладок</a><BR>
+         <a href="tad2.html#acn">3.5.2 Вкладка параметрів сторінки та макета тексту</a><BR>
+         <a href="tad2.html#acz">3.5.3 Вкладка форматування рядка та абзацу</a><BR>
+         <a href="tad2.html#adj">3.5.4 Вкладка параметрів символів та шрифту</a><BR>
+         <a href="tad2.html#ado">3.5.5 Вкладка спеціальних символів</a><BR>
+         <a href="tad2.html#adt">3.5.6 Вкладка вирівнювання та позиціювання тексту</a><BR>
+         <a href="tad2.html#ady">3.5.7 Вкладка графічного оформлення тексту</a><BR>
+         <a href="tad2.html#adz">3.5.8 Вкладка посилань на змінні</a><BR>
+         <a href="tad2.html#aea">3.5.9 Вкладка текстових коментарів (Memo)</a><BR>
+         <a href="tad2.html#aeb">3.5.10 Вкладка специфічних даних додатків</a><BR>
+         <a href="tad3.html#aec">3.6 Сегменти графічного креслення та 2D-векторів</a><BR>
+         <a href="tad3.html#aed">3.6.1 Огляд векторної графіки TAD</a><BR>
+         <a href="tad3.html#aef">3.6.2 Сегменти геометричних фігур та примітивів</a><BR>
+         <a href="tad3.html#aeh">3.6.3 Сегменти визначення графічних даних</a><BR>
+         <a href="tad3.html#aem">3.6.4 Сегменти групування графічних об'єктів</a><BR>
+         <a href="tad3.html#aen">3.6.5 Сегменти макровизначень та посилань</a><BR>
+         <a href="tad3.html#aeo">3.6.6 Сегменти оформлення та заливки графіки</a><BR>
+         <a href="tad3.html#aeq">3.6.7 Вкладка параметрів графічної сторінки</a><BR>
+         <a href="tad3.html#aer">3.6.8 Вкладка графічних коментарів (Memo)</a><BR>
+         <a href="tad3.html#aes">3.6.9 Вкладка графічних даних додатків</a><BR>
+         <a href="tad3.html#aet">Додаток A: Повний перелік ідентифікаторів сегментів TAD</a><BR>
+         <a href="tad3.html#aev">Додаток B: Квазі-стандартні розширення TAD</a>
+     <BR><BR>
 
-<HR>
-<A href="../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
-<A href="indexfig.html">Перейти до змісту ілюстрацій та діаграм частини 1</A><BR>
+     <DT><B><a href="fd_format.html#aey">Розділ 4. Формат дискети та файлової системи (Floppy Disk Format)</a></B>
+     <DD><a href="fd_format.html#aez">4.1 Огляд формату носіїв BTRON</a><BR>
+         <a href="fd_format.html#afa">4.2 Структура файлової системи BTRON FS</a><BR>
+         <a href="fd_format.html#afb">4.2.1 Загальна схема розміщення блоків</a><BR>
+         <a href="fd_format.html#afd">4.2.2 Структура системного блоку (System Block)</a><BR>
+         <a href="fd_format.html#afh">4.2.3 Таблиця ідентифікаторів файлів (File ID Table)</a><BR>
+         <a href="fd_format.html#afj">4.2.4 Таблиця коротких назв файлів</a><BR>
+         <a href="fd_format.html#afm">4.2.5 Область зберігання тіл файлів</a><BR>
+         <a href="fd_format.html#afn">4.3 Внутрішня організація файлу BTRON</a><BR>
+         <a href="fd_format.html#afo">4.3.1 Загальна схема</a><BR>
+         <a href="fd_format.html#afs">4.3.2 Структура блоку заголовка файлу (Header Block)</a><BR>
+         <a href="fd_format.html#afu">4.3.3 Структура заголовка файлу (File Header)</a><BR>
+         <a href="fd_format.html#afx">4.3.4 Таблиця фрагментів (Fragment Table)</a><BR>
+         <a href="fd_format.html#afz">4.3.5 Індекс записів файлу (Record Index)</a><BR>
+         <a href="fd_format.html#agb">4.3.6 Структура непрямих індексів</a><BR>
+         <a href="fd_format.html#agd">4.3.7 Приклад розміщення індексів записів</a><BR>
+         <a href="fd_format.html#agf">4.3.8 Структура блоків даних (Data Blocks)</a><BR>
+         <a href="fd_format.html#agh">Додаток A: Квазі-стандартний формат дискет</a><BR>
+         <a href="fd_format.html#agk">Додаток B: Приклад практичної реалізації драйвера дискети</a>
+    </DL>
+
+    <HR>
+    <A href="../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+    <A href="indexfig.html">Перейти до змісту ілюстрацій та діаграм частини 1</A><BR>
+
+    <footer class="doc-footer">
+        <div class="doc-footer-container">
+            <div>Специфікація Sakamura BTRON / BTRON3 (Версія 3.20.00)</div>
+            <ul class="doc-footer-links">
+                <li><a href="../index.html">Головний зміст</a></li>
+                <li><a href="index.html">Частина 1</a></li>
+                <li><a href="../os_spec/index.html">Частина 2</a></li>
+                <li><a href="../../index.html">BTRON Home</a></li>
+            </ul>
+        </div>
+    </footer>
 </BODY>
 </HTML>
