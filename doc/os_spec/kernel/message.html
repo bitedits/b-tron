@@ -2,20 +2,16 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.2 Система міжпроцесних повідомлень (Message Passing)
+  1.2 
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="proc.html">
 <LINK REL="next" HREF="taskcomm.html">
 </HEAD>
 <BODY>
-<!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
-</DIV>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="proc.html">Попередня сторінка: 1.1 Управління процесами та задачами (Повернутися)</A><BR>
-<A href="taskcomm.html">:1.3 /</A><BR>
+<A href="taskcomm.html">:1.3 /синхронно</A><BR>
 <HR>
 
 <H2><A name="aap">1.2 Система міжпроцесних повідомлень (Message Passing)</A></H2>
@@ -23,14 +19,23 @@
 <H3><A name="aaq">1.2.1 Огляд міжпроцесних повідомлень (Overview)</A></H3>
 
 <P>
-  Кожен процес володіє власною системною чергою повідомлень, через яку здійснюється міжпроцесний обмін даними. Ця підсистема використовується як для зв'язку між прикладними програмами, так і для надсилання системних сповіщень ядра (наприклад, повідомлень про завершення дочірніх процесів). З цієї причини формати базових системних повідомлень чітко регламентуються специфікацією ядра BTRON3.
+  черга повідомлень、
+  черга повідомленьміжпроцесні повідомлення。
+  、、
+  дочірній процес。
+  、。
 </P>
 
 <P>
-  Повідомлення адресуються в чергу цільового процесу за його унікальним ідентифікатором PID. Процес-відправник також однозначно ідентифікується за своїм PID.
+  、черга повідомлень、
+   ID 。
+   ID 。
 </P>
 <P>
-  Кожне повідомлення має чітку структуру і поділяється на 31 тип за допомогою поля <CODE>msg_type</CODE> (значення 1 – 31). Завдяки бітовій масці типів (Type Mask) у системних викликах <CODE>rcv_msg()</CODE> та <CODE>clr_msg()</CODE> можна вибірково приймати або очищати повідомлення кількох типів одночасно.
+  1 、<CODE>msg_type</CODE>  1 〜 31  31 。
+  、
+  Прийом повідомлення з черги / 、 (  )
+  。
 </P>
 
 <PRE>
@@ -38,503 +43,941 @@ typedef union {
     struct {
         W   pid;
         W   code;
-    } ABORT;        /* Повідомлення про аварійне завершення процесу (MS_ABORT) */
+    } ABORT;        /*  */
     struct {
         W   pid;
         W   code;
-    } EXIT;         /* Повідомлення про нормальне завершення процесу (MS_EXIT) */
+    } EXIT;         /* Успішне виконання */
     struct {
         W   pid;
         W   code;
-    } TERM;         /* Повідомлення про примусове завершення процесу (MS_TERM) */
+    } TERM;         /*  */
     struct {
         W   code;
-    } TMOUT;        /* Повідомлення про спливання таймауту (MS_TIMEOUT) */
+    } TMOUT;        /* таймаут / очікування */
     struct {
         W   code;
-    } SYSEVT;       /* Повідомлення про системні події (MS_SYS1..MS_SYS31) */
+    } SYSEVT;       /*  */
     struct {
         UB  msg_str[32];
-    } ANYMSG;       /* Загальні повідомлення користувача (MS_USER) */
+    } ANYMSG;       /*  */
 } MSGBODY;
 </PRE>
 
 <PRE>
 typedef struct message {
-    W       msg_type;   /* Тип повідомлення (1 .. 31) */
-    W       msg_size;   /* Розмір тіла повідомлення в байтах */
-    MSGBODY msg_body;   /* Буфер тіла повідомлення */
+    W       msg_type;   /*  */
+    W       msg_size;   /* () */
+    MSGBODY msg_body;   /*  */
 } MESSAGE;
 </PRE>
 
 <P>
-  У чергу повідомлень процесу можуть надходити як повідомлення від сторонніх процесів, так і внутрішні повідомлення від власного процесу (якщо відправником і отримувачем є один і той самий процес), наприклад сповіщення про спливання таймауту <CODE>MS_TIMEOUT</CODE>. Крім того, при завершенні дочірніх процесів у чергу батьківського процесу автоматично надсилаються повідомлення про завершення.
+  черга повідомленьвласний процес
+  ( власний процес ) 、
+  таймаут / очікування。
+  、дочірній процесчерга повідомлень。
 </P>
 
 <P>
-  Черга повідомлень працює за принципом FIFO (First-In First-Out) — повідомлення вилучаються строго у порядку їх надходження. Якщо під час відправлення черга отримувача заповнена, відправник може заблокуватися до появи вільного місця або негайно повернути код помилки.
+  черга повідомлень FIFO 、。
+  черга повідомлень、
+  、。
 </P>
 
 <P>
-  Зазвичай прийняті повідомлення накопичуються у черзі та вилучаються за запитом викликом <CODE>rcv_msg()</CODE>. Проте за допомогою реєстрації обробника повідомлень (Message Handler) можна налаштувати асинхронну обробку повідомлень вказаного типу у формі системного переривання.
+  、черга повідомлень、
+  Прийом повідомлення з черги、
+  、
+  、
+  асинхронно。
+  。
 </P>
 
 <H3><A name="aar">1.2.2 Класифікація та типи системних повідомлень</A></H3>
 
 <P>
-  Повідомлення поділяються на 31 тип за їхніми номерами 1 – 31:
-  <UL>
-    <LI><B>Типи 1 – 5</B>: Зарезервовані ядром для фундаментальних системних подій (завершення процесів, таймаути, системні події).
-    <LI><B>Типи 6 – 23</B>: Зарезервовані розширеннями ядра та системною оболонкою (Shell Manager).
-    <LI><B>Типи 24 – 31</B>: Доступні для довільного використання прикладними програмами (Application Messages).
-  </UL>
+   1 〜 31  31 、
+   1 〜 、
+  6 〜 23 、。
+   24 〜 31 。
 </P>
 
 <P>
-  Константи типів повідомлень у C:
+  。
 </P>
 
 <PRE>
-    #define MS_ABORT    ( 1)    /* Аварійне завершення процесу */
-    #define MS_EXIT     ( 2)    /* Нормальне завершення процесу */
-    #define MS_TERM     ( 3)    /* Примусове завершення процесу */
-    #define MS_TMOUT    ( 4)    /* Спливання таймауту */
-    #define MS_SYSEVT   ( 5)    /* Критична системна подія */
+    #define MS_ABORT    ( 1)    /*  */
+    #define MS_EXIT     ( 2)    /* Успішне виконання */
+    #define MS_TERM     ( 3)    /*  */
+    #define MS_TMOUT    ( 4)    /* таймаут / очікування     */
+    #define MS_SYSEVT   ( 5)    /* () */
 
-    #define MS_SYS1     ( 6)    /* Системне резервування ядра 1 */
-    #define MS_SYS2     ( 7)    /* Системне резервування ядра 2 */
-    #define MS_SYS3     ( 8)    /* Системне резервування ядра 3 */
-    #define MS_SYS4     ( 9)    /* Системне резервування ядра 4 */
-    #define MS_SYS5     (10)    /* Системне резервування ядра 5 */
-    #define MS_MNG0     (11)    /* Резервування оболонки Shell 0 */
-    #define MS_MNG1     (12)    /* Резервування оболонки Shell 1 */
-    #define MS_MNG2     (13)    /* Резервування оболонки Shell 2 */
-    #define MS_MNG3     (14)    /* Резервування оболонки Shell 3 */
-    #define MS_MNG4     (15)    /* Резервування оболонки Shell 4 */
-    #define MS_MNG5     (16)    /* Резервування оболонки Shell 5 */
-    #define MS_MNG6     (17)    /* Резервування оболонки Shell 6 */
-    #define MS_MNG7     (18)    /* Резервування оболонки Shell 7 */
-    #define MS_MNG8     (19)    /* Резервування оболонки Shell 8 */
-    #define MS_MNG9     (20)    /* Резервування оболонки Shell 9 */
-    #define MS_MNG10    (21)    /* Резервування оболонки Shell 10 */
-    #define MS_MNG11    (22)    /* Резервування оболонки Shell 11 */
-    #define MS_MNG12    (23)    /* Резервування оболонки Shell 12 */
+    #define MS_SYS1     ( 6)    /*  */
+    #define MS_SYS2     ( 7)    /*  */
+    #define MS_SYS3     ( 8)    /*  */
+    #define MS_SYS4     ( 9)    /*  */
+    #define MS_SYS5     (10)    /*  */
+    #define MS_MNG0     (11)    /*  */
+    #define MS_MNG1     (12)    /*  */
+    #define MS_MNG2     (13)    /*  */
+    #define MS_MNG3     (14)    /*  */
+    #define MS_MNG4     (15)    /*  */
+    #define MS_MNG5     (16)    /*  */
+    #define MS_MNG6     (17)    /*  */
+    #define MS_MNG7     (18)    /*  */
+    #define MS_MNG8     (19)    /*  */
+    #define MS_MNG9     (20)    /*  */
+    #define MS_MNG10    (21)    /*  */
+    #define MS_MNG11    (22)    /*  */
+    #define MS_MNG12    (23)    /*  */
 
-    #define MS_TYPE0    (24)    /* Користувацьке повідомлення додатків 0 */
-    #define MS_TYPE1    (25)    /* Користувацьке повідомлення додатків 1 */
-    #define MS_TYPE2    (26)    /* Користувацьке повідомлення додатків 2 */
-    #define MS_TYPE3    (27)    /* Користувацьке повідомлення додатків 3 */
-    #define MS_TYPE4    (28)    /* Користувацьке повідомлення додатків 4 */
-    #define MS_TYPE5    (29)    /* Користувацьке повідомлення додатків 5 */
-    #define MS_TYPE6    (30)    /* Користувацьке повідомлення додатків 6 */
-    #define MS_TYPE7    (31)    /* Користувацьке повідомлення додатків 7 */
+    #define MS_TYPE0    (24)    /*  */
+    #define MS_TYPE1    (25)
+    #define MS_TYPE2    (26)
+    #define MS_TYPE3    (27)
+    #define MS_TYPE4    (28)
+    #define MS_TYPE5    (29)
+    #define MS_TYPE6    (30)
+    #define MS_TYPE7    (31)
 
-    #define MS_MIN      ( 1)    /* Мінімальний номер типу повідомлення */
-    #define MS_MAX      (31)    /* Максимальний номер типу повідомлення */
+    #define MS_MIN      ( 1)    /*  */
+    #define MS_MAX      (31)    /*  */
 </PRE>
 
 <P>
-  Кожному типу повідомлення відповідає бітовий прапор у 32-бітній масці типів (Type Mask). Побітова комбінація (OR) масок дозволяє одночасно приймати або очищати групи повідомлень.
+  、
+   OR 、
+  。
+</P>
+<P>
+  。
 </P>
 
 <PRE>
-    #define MSGMASK(msgtype)    (1 << ((msgtype) - 1))
+    #define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
 
-    #define MM_ABORT    MSGMASK(MS_ABORT)   /* Аварійне завершення */
-    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Нормальне завершення */
-    #define MM_TERM     MSGMASK(MS_TERM)    /* Примусове завершення */
-    #define MM_TMOUT    MSGMASK(MS_TMOUT)   /* Спливання таймауту */
-    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* Системна подія */
+    #define MM_ABORT    MSGMASK(MS_ABORT)   /*    */
+    #define MM_EXIT     MSGMASK(MS_EXIT)    /* Успішне виконання   */
+    #define MM_TERM     MSGMASK(MS_TERM)    /*  */
+    #define MM_TMOUT    MSGMASK(MS_TMOUT)   /* таймаут / очікування */
+    #define MM_SYSEVT   MSGMASK(MS_SYSEVT)  /* () */
+    #define MM_SYS1     MSGMASK(MS_SYS1)    /*  */
+    #define MM_SYS2     MSGMASK(MS_SYS2)    /*  */
+    #define MM_SYS3     MSGMASK(MS_SYS3)    /*  */
+    #define MM_SYS4     MSGMASK(MS_SYS4)    /*  */
+    #define MM_SYS5     MSGMASK(MS_SYS5)    /*  */
+    #define MM_MNG0     MSGMASK(MS_MNG0)    /*  */
+    #define MM_MNG1     MSGMASK(MS_MNG1)    /*  */
+    #define MM_MNG2     MSGMASK(MS_MNG2)    /*  */
+    #define MM_MNG3     MSGMASK(MS_MNG3)    /*  */
+    #define MM_MNG4     MSGMASK(MS_MNG4)    /*  */
+    #define MM_MNG5     MSGMASK(MS_MNG5)    /*  */
+    #define MM_MNG6     MSGMASK(MS_MNG6)    /*  */
+    #define MM_MNG7     MSGMASK(MS_MNG7)    /*  */
+    #define MM_MNG8     MSGMASK(MS_MNG8)    /*  */
+    #define MM_MNG9     MSGMASK(MS_MNG9)    /*  */
+    #define MM_MNG10    MSGMASK(MS_MNG10)   /*  */
+    #define MM_MNG11    MSGMASK(MS_MNG11)   /*  */
+    #define MM_MNG12    MSGMASK(MS_MNG12)   /*  */
 
-    #define MM_ALL      0x7fffffff          /* Маска всіх типів повідомлень */
+    #define MM_TYPE0    MSGMASK(MS_TYPE0)   /*  */
+    #define MM_TYPE1    MSGMASK(MS_TYPE1)
+    #define MM_TYPE2    MSGMASK(MS_TYPE2)
+    #define MM_TYPE3    MSGMASK(MS_TYPE3)
+    #define MM_TYPE4    MSGMASK(MS_TYPE4)
+    #define MM_TYPE5    MSGMASK(MS_TYPE5)
+    #define MM_TYPE6    MSGMASK(MS_TYPE6)
+    #define MM_TYPE7    MSGMASK(MS_TYPE7)
+
+    #define MM_ALL      (0x7fffffff)    /*  */
+    #define MM_NULL     (0)             /*  */
 </PRE>
+
+<P>
+  、、
+  。
+  、черга повідомлень、
+  。
+  、1 〜 7 。
+</P>
+
+<DL>
+ <DT><CODE>MS_ABORT</CODE> -- дочірній процес
+ <DD><P>
+     、
+     батьківський процесдочірній процес。
+     </P>
+<PRE>
+        W   1       /*  = MS_ABORT */
+        W   8       /*  */
+        W   pid     /* дочірній процес ID  */
+        W   code    /*  */
+</PRE>
+     <P>
+     <CODE>code</CODE> 、
+     <CODE>MH_TERM</CODE> 、0 。
+     </P>
+
+ <DT><CODE>MS_EXIT</CODE> -- дочірній процесУспішне виконання
+ <DD><P>
+      <CODE>ext_prc()</CODE> Успішне виконання、
+     батьківський процесдочірній процес。
+     </P>
+<PRE>
+        W   2          /*  = MS_EXIT */
+        W   8          /*  */
+        W   pid        /* дочірній процес ID  */
+        W   code       /* ext_prc () */
+</PRE>
+ <DT><CODE>MS_TERM</CODE> -- дочірній процес
+ <DD><P>
+      <CODE>ter_prc()</CODE> 、
+     батьківський процесдочірній процес。
+     </P>
+<PRE>
+        W   3           /*  = MS_TERM */
+        W   8           /*  */
+        W   pid         /* дочірній процес ID  */
+        W   code        /* ter_prc() */
+</PRE>
+ <DT><CODE>MS_TMOUT</CODE> -- власний процестаймаут / очікування
+ <DD><P>
+     <CODE>req_tmg()</CODE> таймаут / очікування、
+     、власний процес。
+     </P>
+<PRE>
+        W   4           /*  = MS_TMOUT */
+        W   4           /*  */
+        W   code        /* req_tmg () */
+</PRE>
+</DL>
+
 <H3><A name="aas">1.2.3 Обробники повідомлень (Message Handlers)</A></H3>
 
 <P>
-  Обробник повідомлень (Message Handler) — це функція, призначена для асинхронної обробки отриманих повідомлень паралельно з основним потоком виконання програми. Обробники реєструються шляхом зв'язування типу повідомлення з відповідною функцією. Таким чином, у системі можна одночасно визначити до 31 незалежного обробника (по одному для кожного з 31 типів повідомлень).
+  、
+  асинхронно、
+  、。
+  、 31 。
 </P>
 
 <P>
-  Обробники повідомлень викликаються та виконуються у наступних випадках:
+  。
 </P>
 
 <UL>
  <LI><P>
-     При надходженні повідомлення відповідного типу обробник викликається асинхронно у формі переривання поточної роботи головної задачі процесу.
+     、
+     、。
      </P>
  <LI><P>
-     Якщо повідомлення надходить у момент, коли головна задача перебуває у стані очікування (заблокована системним викликом), обробник також негайно активується, переводячи головну задачу в стан виконання (Run).<BR>
-     У цьому випадку заблокований системний виклик очікування безумовно переривається, а після завершення обробника даний виклик повертає код помилки <CODE>ER_MINTR</CODE>.
+     、
+     。<BR>
+     、、
+     。
+     、、
+      <CODE>ER_MINTR</CODE> 。
      </P>
  <LI><P>
-     Обробник повідомлень виконується у загальному адресному просторі та контексті процесу і не має обмежень на використання інших системних викликів.
+     、
+     。
      </P>
- <LI><P>
-     Після завершення обробника виконання головної задачі зазвичай автоматично відновлюється з точки переривання. Проте обробник може виконати прямий перехід за допомогою виклику <CODE>longjmp()</CODE> у будь-яку довільну точку коду, попередньо збережену викликом <CODE>setjmp()</CODE>.
+ <LI><P>、
+     、、
+      <CODE>longjmp ()</CODE> 、
+      ( <CODE>setjmp</CODE>  )
+     。
      </P>
- <LI><P>
-     Обробники повідомлень не є вкладеними. Якщо під час виконання обробника надходить нове повідомлення (навіть іншого типу), його обробник буде заблокований у черзі до повного завершення поточного обробника.
+    <LI><P>
+     。
+     、
+     (  ) 、
+     。
      </P>
- <LI><P>
-     При активації обробника відповідне повідомлення вилучається з черги повідомлень, а вказівник на нього разом із PID відправника передаються як параметри функції обробника.
+    <LI><P>
+     、
+     черга повідомлень、
+     。
      </P>
- <LI><P>
-     Обробник повідомлень обов'язково повинен завершуватися викликом системного функціоналу <CODE>ret_msg()</CODE>.
+    <LI><P>
+     、 <CODE>ret_msg ()</CODE>
+     。
      </P>
 </UL>
 
 <P>
-  Функція обробника повідомлень визначається за наступною сигнатурою C:
+  、。
 </P>
 
 <PRE>
     VOID msg_hdr(W pid, MESSAGE *r_msg)
     {
-        /* pid — ідентифікатор процесу-відправника (0 якщо відправник — власний процес) */
-        /* r_msg — вказівник на структуру прийнятого повідомлення */
+    /*  pid   ID 。(власний процес 0) */
+    /*  r_msg 。 */
 
-        /* Обробка прийнятого повідомлення */
+        
 
-        ret_msg (0);            /* Завершення (повернення в точку переривання) */
+        ret_msg (0);            /*  () */
 
-        /* АБО */
+        
 
-        ret_msg (1);            /* Завершення (перехід за заздалегідь збереженою адресою) */
-        longjmp (reent, code);  /* Прямий перехід у точку reent */
+        ret_msg (1);            /*  () */
+        longjmp (reent, code);  /* reent  */
     }
 </PRE>
 
 <P>
-  Система надає наступні 3 готові системні обробники за замовчуванням:
+  、。
 </P>
 
 <DL>
  <DT><CODE>MH_NONE</CODE> :
  <DD><P>
-     Повідомлення ігнорується без виконання дій. Виняток: блокуючі системні виклики очікування при цьому НЕ перериваються. Застосовується для повного ігнорування повідомлень певного типу без занесення їх у чергу.
+     、。
+     、。
+     、。
      </P>
  <DT><CODE>MH_BREAK</CODE> :
  <DD><P>
-     Повідомлення ігнорується, але заблоковані системні виклики очікування перериваються і повертають код помилки <CODE>ER_MINTR</CODE>. Використовується для переривання очікування при таймаутах.
+     、。
+     、、
+     <CODE>ER_MINTR</CODE> 。
+     、таймаут / очікування。
      </P>
  <DT><CODE>MH_TERM</CODE> :
  <DD><P>
-     Аварійно завершує поточний процес та надсилає батьківському процесу системне повідомлення <CODE>MS_ABORT</CODE> з кодом помилки 0.
+     власний процес、
+     <CODE>MS_ABORT</CODE>  
+     (  0 ) батьківський процес。
      </P>
 </DL>
 
 <H3><A name="aat">1.2.4 Визначення типів даних та констант (Data Types & Constants)</A></H3>
 
-<H4>□ Базова структура системних повідомлень</H4>
+<H4>□ Структура системного повідомлення (MESSAGE)</H4>
 
 <PRE>
-typedef struct {
-    W   msg_type;       /* Тип повідомлення (MS_USER, MS_SYS1..MS_SYS31) */
-    W   msg_size;       /* Розмір тіла повідомлення (у байтах) */
-    UB  msg_body[n];    /* Буфер даних тіла повідомлення */
+typedef union {
+    struct {            /* MS_ABORT */
+        W   pid;
+        W   code;
+    } ABORT;
+    struct {            /* MS_EXIT */
+        W   pid;
+        W   code;
+    } EXIT;
+    struct {            /* MS_TERM */
+        W   pid;
+        W   code;
+    } TERM;
+    struct {            /* MS_TMOUT */
+        W   code;
+    } TMOUT;
+    struct {            /* MS_SYSEVT */
+        W   code;
+    } SYSEVT;
+    struct {            /*  */
+        UB  msg_str[32];
+    } ANYMSG;
+} MSGBODY;
+
+typedef struct message {
+    W       msg_type;       /*  */
+    W       msg_size;       /* () */
+    MSGBODY msg_body;       /*  */
 } MESSAGE;
+
+#define MSGSIZE(msgsz)          (offsetof(MESSAGE,msg_body) + msgsz)
 </PRE>
 
-<H4>□ Режими обробників повідомлень</H4>
+<H4>□ Типи системних повідомлень (Message Types)</H4>
 
 <PRE>
-#define MH_NONE     (FP)0       /* Ігнорування повідомлень без переривання викликів */
-#define MH_BREAK    (FP)1       /* Ігнорування повідомлень з перериванням ER_MINTR */
-#define MH_TERM     (FP)2       /* Аварійне завершення процесу та MS_ABORT */
+#define MS_ABORT    ( 1)        /*  */
+#define MS_EXIT     ( 2)        /* Успішне виконання */
+#define MS_TERM     ( 3)        /*  */
+#define MS_TMOUT    ( 4)        /* таймаут / очікування */
+#define MS_SYSEVT   ( 5)        /*  (  ) */
+#define MS_SYS1     ( 6)        /*  */
+#define MS_SYS2     ( 7)        /*  */
+#define MS_SYS3     ( 8)        /*  */
+#define MS_SYS4     ( 9)        /*  */
+#define MS_SYS5     (10)        /*  */
+#define MS_MNG0     (11)        /*  */
+#define MS_MNG1     (12)        /*  */
+#define MS_MNG2     (13)        /*  */
+#define MS_MNG3     (14)        /*  */
+#define MS_MNG4     (15)        /*  */
+#define MS_MNG5     (16)        /*  */
+#define MS_MNG6     (17)        /*  */
+#define MS_MNG7     (18)        /*  */
+#define MS_MNG8     (19)        /*  */
+#define MS_MNG9     (20)        /*  */
+#define MS_MNG10    (21)        /*  */
+#define MS_MNG11    (22)        /*  */
+#define MS_MNG12    (23)        /*  */
+
+#define MS_TYPE0    (24)        /*  */
+#define MS_TYPE1    (25)
+#define MS_TYPE2    (26)
+#define MS_TYPE3    (27)
+#define MS_TYPE4    (28)
+#define MS_TYPE5    (29)
+#define MS_TYPE6    (30)
+#define MS_TYPE7    (31)
+
+#define MS_MIN      ( 1)        /*  */
+#define MS_MAX      (31)        /*  */
 </PRE>
 
-<H4>□ Системні маски типів повідомлень</H4>
+<H4>□ Типи системних повідомлень (Message Types)</H4>
 
 <PRE>
-#define MS_ALL      0x7fffffff  /* Маска всіх системних та користувацьких типів */
-#define MS_USER     0x0001      /* Загальне повідомлення користувача */
-#define MS_SYS1     0x0002      /* Системне повідомлення 1 */
-#define MS_SYS2     0x0004      /* Системне повідомлення 2 */
-#define MS_SYS3     0x0008      /* Системне повідомлення 3 */
-#define MS_SYS4     0x0010      /* Системне повідомлення 4 */
-#define MS_SYS5     0x0020      /* Повідомлення системної події EV_DEVICE */
+#define MSGMASK(msgtype)    (1 &lt;&lt; ((msgtype) - 1))
+
+#define MM_ABORT    MSGMASK(MS_ABORT)
+#define MM_EXIT     MSGMASK(MS_EXIT)
+#define MM_TERM     MSGMASK(MS_TERM)
+#define MM_TMOUT    MSGMASK(MS_TMOUT)
+#define MM_SYSEVT   MSGMASK(MS_SYSEVT)
+#define MM_SYS1     MSGMASK(MS_SYS1)
+#define MM_SYS2     MSGMASK(MS_SYS2)
+#define MM_SYS3     MSGMASK(MS_SYS3)
+#define MM_SYS4     MSGMASK(MS_SYS4)
+#define MM_SYS5     MSGMASK(MS_SYS5)
+#define MM_MNG0     MSGMASK(MS_MNG0)
+#define MM_MNG1     MSGMASK(MS_MNG1)
+#define MM_MNG2     MSGMASK(MS_MNG2)
+#define MM_MNG3     MSGMASK(MS_MNG3)
+#define MM_MNG4     MSGMASK(MS_MNG4)
+#define MM_MNG5     MSGMASK(MS_MNG5)
+#define MM_MNG6     MSGMASK(MS_MNG6)
+#define MM_MNG7     MSGMASK(MS_MNG7)
+#define MM_MNG8     MSGMASK(MS_MNG8)
+#define MM_MNG9     MSGMASK(MS_MNG9)
+#define MM_MNG10    MSGMASK(MS_MNG10)
+#define MM_MNG11    MSGMASK(MS_MNG11)
+#define MM_MNG12    MSGMASK(MS_MNG12)
+
+#define MM_TYPE0    MSGMASK(MS_TYPE0)
+#define MM_TYPE1    MSGMASK(MS_TYPE1)
+#define MM_TYPE2    MSGMASK(MS_TYPE2)
+#define MM_TYPE3    MSGMASK(MS_TYPE3)
+#define MM_TYPE4    MSGMASK(MS_TYPE4)
+#define MM_TYPE5    MSGMASK(MS_TYPE5)
+#define MM_TYPE6    MSGMASK(MS_TYPE6)
+#define MM_TYPE7    MSGMASK(MS_TYPE7)
+
+#define MM_ALL      (0x7fffffff)    /*  */
+#define MM_NULL     (0)             /*  */
 </PRE>
+
+<H4>□ Режими та опції надсилання (Message Options)</H4>
+
+<PRE>
+#define WAIT        0x0000          /*  */
+#define NOWAIT      0x0001          /*  */
+#define CONFM       0x0002          /* () */
+#define CHECK       0x0002          /*  */
+#define WAIEVT      0x0004          /*  */
+</PRE>
+
+<H4>□ Системні обробники за замовчуванням</H4>
+<PRE>
+#define MH_NONE     ((FUNCP)1)      /*  */
+#define MH_BREAK    ((FUNCP)2)      /*  */
+#define MH_TERM     ((FUNCP)3)      /*  */
+</PRE>
+
 <H3><A name="aau">1.2.5 Системні виклики обміну повідомленнями (Message System Calls)</A></H3>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">snd_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Надсилання міжпроцесного повідомлення (Send Message)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
+
 <PRE>
-ERR     snd_msg(W pid, MESSAGE* msg, W opt)
+ERR snd_msg(W pid, MESSAGE* msg, W opt)
 </PRE>
 
 <H4>【Параметри】</H4>
+
 <PRE>
-W        pid  PID процесу-отримувача ( > 0 або 0 для власного процесу)
-MESSAGE* msg  Вказівник на структуру надсиланого повідомлення
-W        opt  Опції надсилання (0 або WAIT_CLR / WAIT_ERR)
+W        pid     ID
+                   &gt; 0   
+                   = 0   власний процес
+                   =-1   батьківський процес
+MESSAGE* msg    
+W        opt     ( NOWAIT ‖ WAIT ‖ CONFM )
 </PRE>
+
+<DL>
+ <DT><CODE>NOWAIT</CODE> :
+ <DD><P>
+     черга повідомленьУспішне виконання。
+     черга повідомлень。
+     </P>
+ <DT><CODE>WAIT</CODE> :
+ <DD><P>
+     черга повідомленьУспішне виконання。
+     черга повідомлень。
+     。
+     </P>
+ <DT><CODE>CONFM</CODE> :
+ <DD><P>
+     черга повідомлень、
+     、
+     черга повідомленьУспішне виконання。
+     。
+     </P>
+     <P>
+     <CODE>rcv_msg()</CODE>  <CODE>CHECK</CODE>
+     、
+     。
+     <CODE>NOCLR</CODE> 、
+     。
+     。
+     власний процес、<CODE>CONFM</CODE> 。
+     </P>
+</DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+＝0    
+＜0    Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Надсилає повідомлення msg у системну чергу повідомлень цільового процесу pid. Якщо черга отримувача заповнена, відправник заблоковується до появи вільного місця або повертає помилку залежно від прапорця opt.
+  <CODE>pid</CODE> 。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_ID      : Неприпустимий ідентифікатор ID об'єкта або процесу.
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-ER_LIMIT   : Перевищено системний ліміт кількості відкритих об'єктів або файлів.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_ADR      : Неприпустима адреса вказівника (msg) у віртуальній пам'яті.
+ER_MINTR    : Обробку перервано внаслідок надходження системного сигналу (ER_MINTR).。
+ER_NOPRC    : Вказаний процес (pid) не існує в системі.
+              черга повідомлень、。
+ER_NOSPC    : 
+              (черга повідомлень(NOWAIT))。
+ER_PAR      : Неприпустиме значення один з параметрів системного виклику.(,)。
+ER_SELF     : власний процес(pid = 0 власний процесPID)(CONFM)。
+ER_SZOVR    : 、0。
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">rcv_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Прийом повідомлення з черги (Receive Message)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
+
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    rcv_msg(MESSAGE* r_msg, W t_mask, W time)
+WERR    rcv_msg(W t_mask, MESSAGE* msg, W msgsz, W opt)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-MESSAGE* r_msg   Буфер для збереження прийнятого повідомлення
-W        t_mask  Маска типів повідомлень (Type Mask)
-W        time    Максимальний інтервал очікування в мілісекундах (-1 для нескінченного очікування)
+W        t_mask 
+MESSAGE* msg    
+W        msgsz  
+                 msgsz ≧ 8。
+W        opt     (WAIT ‖ NOWAIT ‖ WAIEVT) | (CLR ‖ NOCLR) | (CHECK)
 </PRE>
+<DL>
+  <DT><CODE>WAIT</CODE> :
+  <DD><P>
+      、。
+      </P>
+  <DT><CODE>NOWAIT</CODE> :
+  <DD><P>
+      、。
+      </P>
+  <DT><CODE>WAIEVT</CODE> :
+  <DD><P>
+      、
+      、。
+      </P>
+  <DT><CODE>CLR</CODE> :
+  <DD><P>
+      。
+      </P>
+  <DT><CODE>NOCLR</CODE> :
+  <DD><P>
+      。
+      </P>
+  <DT><CODE>CHECK</CODE>
+  <DD><P>
+      。
+      </P>
+</DL>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-> 0      Успішне виконання (PID відправника прийнятого повідомлення)
-< 0      Помилка (Код помилки)
+＞0   ( ID)
+＝0   (власний процес)
+＜0   Помилка (Код помилки)
 </PRE>
-
+ 
 <H4>【Детальний опис】</H4>
 <P>
-  Вилучає з власної черги повідомлень наступне повідомлення, що відповідає масці типів t_mask, та скопіює його у буфер r_msg. Якщо підходящі повідомлення відсутні, задача чекає до надходження повідомлення або спливання таймауту time.
+  власний процес。
+</P>
+<P>
+  、
+  <CODE>msgsz</CODE> 
+  <CODE>msg</CODE> 。
+  、<CODE>CLR</CODE> 。
+  、<CODE>msgsz &lt; 8</CODE>  <CODE>msg</CODE>
+  。
+  、
+  、
+  。
+</P>
+<P>
+  <CODE>CHECK</CODE> 、
+  。
 </P>
 
+<OL>
+  <LI><P>
+      、<CODE>WAIT</CODE> 
+      <CODE>WAIEVT</CODE> 、
+      <CODE>NOWAIT</CODE> 。
+      </P>
+ <LI><P>
+      、
+      <CODE>msg</CODE> Успішне виконання。
+      <CODE>CLR</CODE> 、
+      <CODE>NOCLR</CODE> 。
+      </P>
+ <LI><P>
+      、
+      、
+       8  ( <CODE>msg_type</CODE>  <CODE>msg_size</CODE> )
+       <CODE>msg</CODE> Успішне виконання。
+      、<CODE>CLR</CODE> 。
+      </P>
+</OL>
+<P>
+  <CODE>CHECK</CODE> 、
+  、
+  。
+</P>
+<P>
+  <CODE>WAIEVT</CODE> 
+  <CODE>WAIT</CODE> 、
+  、
+  <CODE>brk_msg()</CODE> 。
+  、 ( <CODE>ER_NOME</CODE> ) 。
+</P>
+<P>
+  <CODE>WAIEVT</CODE> 、
+  <CODE>t_mask = 0</CODE> 。
+  、Прийом повідомлення з черги、。
+</P>
+<P>
+  <CODE>WAIEVT</CODE>  1 、
+   <CODE>WAIEVT</CODE>  <CODE>rcv_msg()</CODE> 、
+  
+  <CODE>WAIEVT</CODE> 。
+   <CODE>WAIT</CODE> 。
+</P>
+<P>
+  <CODE>WAIEVT</CODE>  (  )  
+  <CODE>wget_evt()</CODE> 。
+   <CODE>WAIEVT</CODE> 。
+</P>
+          
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_NOMSG   : Помилка виконання системного виклику.
-ER_MINTR   : Обробку перервано внаслідок надходження системного сигналу.
-ER_ADR     : Неприпустима адреса вказівника у віртуальній пам'яті.
-
+ER_ADR      : Неприпустима адреса вказівника (msg) у віртуальній пам'яті.
+ER_MINTR    : Обробку перервано внаслідок надходження системного сигналу (ER_MINTR).。
+ER_NONE     : (t_mask)(NOWAIT)。
+ER_PAR      : Неприпустиме значення один з параметрів системного виклику.
+              (msgsz 、
+               WAIEVT t_mask≦0、WAIEVT t_mask&lt;0)。
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">clr_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Очищення черги повідомлень (Clear Messages)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    clr_msg(W t_mask)
+ERR clr_msg(W t_mask, W last_mask)
 </PRE>
 
 <H4>【Параметри】</H4>
+
 <PRE>
-W   t_mask  Маска типів повідомлень для видалення
+W   t_mask      
+                = MM_ALL     
+
+W   last_mask   
+                = MM_NULL    черга повідомлень
+                = MM_ALL     1
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання (кількість видалених з черги повідомлень)
-< 0      Помилка (Код помилки)
+＝0    
+＜0    Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Видаляє та очищає з власної черги повідомлень усі накопичені повідомлення, типи яких відповідають масці t_mask.
+  власний процес。
 </P>
+<P>
+  власний процесчерга повідомлень、
+  <CODE>t_mask</CODE> 
+  <CODE>last_mask</CODE> 。
+  <CODE>last_mask</CODE> 、
+  <CODE>last_mask = MM_ALL</CODE> 、
+   1 。
+</P>
+<P>
+  <CODE>t_mask</CODE>  <CODE>last_mask</CODE> 。
+</P>
+<TABLE>
+  <TR><TH>t_mask</TH><TH>last_mask</TH><TH></TH></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_NULL  </TD><TD></TD></TR>
+  <TR><TD>  −  </TD><TD>MM_ALL   </TD><TD><CODE>t_mask</CODE>  1 </TD></TR>
+  <TR><TD>MM_ALL</TD><TD>MM_ALL   </TD><TD>1</TD></TR>
+</TABLE>
+
 
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_PAR  : Неприпустиме значення один з параметрів системного виклику.(t_mask≦0、last_mask&lt;0)。
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">req_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Запит таймерного повідомлення (Request Timer Message)</TD></TR>
+<TR><TD>таймаут / очікування</TD></TR>
 </TABLE></TD></TR></TABLE>
+
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    req_tmg(W time, W code)
+ERR req_tmg(W time, W code)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-W   time    Інтервал спрацьовування таймера в мілісекундах
-W   code    Корисний код, що передається у повідомленні MS_TIMEOUT
+W   time    ()
+W   code    таймаут / очікування
 </PRE>
-
 <H4>【Значення, що повертається】</H4>
+
 <PRE>
-> 0      Успішне виконання (ідентифікатор створеного таймера)
-< 0      Помилка (Код помилки)
+＝0    
+＜0    Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
+
 <P>
-  Реєструє системний таймер, який після спливання інтервалу time надсилає у чергу власного процесу повідомлення MS_TIMEOUT з кодом code.
+  власний процестаймаут / очікування
+  ( <CODE>MS_TMOUT</CODE> ) 。
+</P>
+<P>
+  、
+  таймаут / очікування。
 </P>
 
 <H4>【Коди помилок】</H4>
 <PRE>
-
-ER_LIMIT   : Перевищено системний ліміт кількості відкритих об'єктів або файлів.
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_NOSPC    : 。
+ER_PAR      : Неприпустиме значення один з параметрів системного виклику.(time≦0)。
 </PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">can_tmg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Скасування таймерного повідомлення (Cancel Timer Message)</TD></TR>
+<TR><TD>таймаут / очікування</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     can_tmg(W tmgid)
+     ERR can_tmg()
 </PRE>
-
 <H4>【Параметри】</H4>
-<PRE>
-W   tmgid   Ідентифікатор таймера, отриманий при виклику req_tmg()
-</PRE>
-
+<P>
+     
+</P>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+＝0    
 </PRE>
-
 <H4>【Детальний опис】</H4>
 <P>
-  Скасовує раніше зареєстрований системний таймер tmgid і зупиняє надсилання таймерного повідомлення.
+  власний процестаймаут / очікування。
+  таймаут / очікування。
+</P>
+
+<P>
+  черга повідомленьтаймаут / очікування。
 </P>
 
 <H4>【Коди помилок】</H4>
-<PRE>
+<P>
+  。
+</P>
 
-ER_ID      : Неприпустимий ідентифікатор ID об'єкта або процесу.
-
-</PRE>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">def_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Реєстрація обробника повідомлень (Define Message Handler)</TD></TR>
+<TR><TD>Реєстрація обробника повідомлень</TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     def_msg(W msg_type, FP msg_hdr)
+  ERR def_msg(W t_mask, FP msghdr)
 </PRE>
-
 <H4>【Параметри】</H4>
 <PRE>
-W   msg_type  Тип повідомлення (1..31)
-FP  msg_hdr   Вказівник на функцію обробника або системні константи MH_NONE, MH_BREAK, MH_TERM
+W   t_mask  
+
+FP  msghdr  
+            = NULL      
+            = MH_NONE   ()
+            = MH_BREAK  ()
+            = MH_TERM   ()
 </PRE>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+＝0    
+＜0    Помилка (Код помилки)
 </PRE>
 
 <H4>【Детальний опис】</H4>
 <P>
-  Зв'язує тип повідомлення msg_type з вказаною функцією обробника msg_hdr або встановлює системні обробники за замовчуванням (MH_NONE, MH_BREAK, MH_TERM).
+  。
+</P>
+
+<P>
+  、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
+
 <PRE>
-
-ER_PAR     : Неприпустиме значення одного з параметрів системного виклику.
-
+ER_ADR  : (msg_hdr)。
+ER_PAR  : Неприпустиме значення один з параметрів системного виклику.(t_mask≦0)。
 </PRE>
+
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">ret_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Завершення виконання обробника (Return Message Handler)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
+
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-VOID    ret_msg(W mode)
+ERR ret_msg(W ret)
 </PRE>
 
 <H4>【Параметри】</H4>
 <PRE>
-W   mode    Режим завершення обробника (0: повернення в точку переривання, 1: перехід longjmp)
+W   ret 
 </PRE>
+<DL compact>
+ <DT>＝0 :
+ <DD>、
+     。<BR>
+     、
+     、
+     。
+ <DT>≠0 :
+ <DD>、
+     、
+     。
+     、 <CODE>longjmp ()</CODE>
+     。
+</DL>
 
 <H4>【Значення, що повертається】</H4>
-<P>Функція не повертає значення (відновлює потік або виконує transition).</P>
+<PRE>
+(ret = 0 )
+＝0     (ret≠ 0 )
+</PRE>
 
 <H4>【Детальний опис】</H4>
+
 <P>
-  Завершує функцію обробника повідомлень та повертає головну задачу процесу у точку переривання (при mode = 0) або дозволяє виконати перехід longjmp() (при mode = 1).
+  。
+</P>
+<P>
+  。
+  、、
+  。
+</P>
+<P>
+  、
+  。
 </P>
 
 <H4>【Коди помилок】</H4>
-<P>Помилок немає.</P>
+
+<P>
+  。
+</P>
 
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">brk_msg</FONT></TD></TR>
 <TR><TD>&nbsp;</TD></TR>
-<TR><TD>Переривання очікування повідомлення (Break Message Waiting)</TD></TR>
+<TR><TD></TD></TR>
 </TABLE></TD></TR></TABLE>
 
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     brk_msg(W tskid)
+ERR brk_msg()
 </PRE>
 
 <H4>【Параметри】</H4>
-<PRE>
-W   tskid   Ідентифікатор заблокованої задачі
-</PRE>
+<P>
+  
+</P>
 
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+＝0    
 </PRE>
 
 <H4>【Детальний опис】</H4>
+
 <P>
-  Примусово перериває виклик rcv_msg() у вказаній заблокованій задачі tskid. Виклик rcv_msg() переривається і повертає код помилки ER_MINTR.
+  <CODE>WAIEVT</CODE>  <CODE>rcv_msg()</CODE> 。
+  <CODE>brk_msg()</CODE>  <CODE>WAIEVT</CODE>
+  、
+  。
+  、。
 </P>
 
 <H4>【Коди помилок】</H4>
-<PRE>
+<P>
+  。
+</P>
 
-ER_ID      : Неприпустимий ідентифікатор ID об'єкта або процесу.
-
-</PRE>
 <HR>
 <A href="../index.html">Повернутися до змісту цього розділу</A><BR>
 <A href="proc.html">Попередня сторінка: 1.1 Управління процесами та задачами (Повернутися)</A><BR>
-<A href="taskcomm.html">Наступна сторінка: 1.3 Синхронізація та комунікація задач (Перейти)</A><BR>
+<A href="taskcomm.html">:1.3 /синхронно</A><BR>
 </BODY>
 </HTML>
