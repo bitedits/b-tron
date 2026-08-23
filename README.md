@@ -4,8 +4,11 @@ A cleanroom recreation of the **B-TRON** (Business TRON / TRON OS Architecture f
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
 and organized into a authentic Japanese BTRON tree structure.
 
-Current Status
---------------
+## Specification
+
+* [B-TRON SPEC 3.20](doc/index.html)
+
+## Current Status
 
 <img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://github.com/user-attachments/assets/da957512-0be4-439e-ad52-f57fa33b6d7a" />
 
