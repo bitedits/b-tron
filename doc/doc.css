@@ -158,18 +158,48 @@ img {
     border-radius: 6px;
 }
 
-dl {
-    margin: 1.2rem 0;
+/* UNIFIED TOC LISTS STYLING */
+.toc-container, dl {
+    margin: 1.5rem 0;
 }
 
-dt {
+.toc-container dt, dt {
     font-weight: 600;
+    margin-top: 1.2rem;
+    margin-bottom: 0.4rem;
+}
+
+.toc-container dt h3 {
     margin-top: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.toc-sublist, dd ul {
+    list-style: none;
+    padding-left: 1.2rem;
+    margin: 0.4rem 0 1.2rem 0;
+}
+
+.toc-sublist li, dd li {
+    margin: 0.45rem 0;
+    line-height: 1.5;
+}
+
+.toc-sublist li a, dd li a {
+    color: var(--doc-text);
+    text-decoration: none;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+    display: inline-block;
+}
+
+.toc-sublist li a:hover, dd li a:hover {
+    color: var(--doc-accent);
+    padding-left: 0.25rem;
 }
 
 dd {
-    margin-left: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-left: 0;
+    margin-bottom: 1rem;
 }
 
 /* DOCUMENTATION-SPECIFIC FOOTER */
@@ -234,6 +264,6 @@ footer.doc-footer {
         gap: 0.8rem;
     }
     dd {
-        margin-left: 0.8rem;
+        margin-left: 0;
     }
 }
