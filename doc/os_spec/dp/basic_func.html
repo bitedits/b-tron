@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  2.3 Базові графічні функції та системний контекст (Core Graphics Functions)
+  2.3 Базові функції графічного порту (Basic Display Functions)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="basic_concept.html">
@@ -10,182 +10,392 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 2: Графічні примітиви (Display Primitives)
 </DIV>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
-<A href="basic_concept.html">Попередня сторінка: 2.2 Фундаментальні концепції графіки (Повернутися)</A><BR>
+<A href="basic_concept.html">Попередня сторінка: 2.2 Базові графічні концепції (Повернутися)</A><BR>
 <A href="figure_func.html">Наступна сторінка: 2.4 Функції малювання геометричних фігур (Перейти)</A><BR>
 <HR>
 
-<H2><A name="adu">2.3 Базові графічні функції та системний контекст (Core Graphics Functions)</A></H2>
+<H2><A name="adu">2.3 Базові функції (Basic Display Functions)</A></H2>
 
-<P>
-Усі функції підсистеми графічних примітивів (Display Primitives) повертають значення типу <CODE>W</CODE> (або цілочисельний ідентифікатор). У разі виникнення помилки функція повертає від'ємне значення коду помилки. При успішному виконанні повертається <CODE>0</CODE> або додатне значення ідентифікатора.
-</P>
-
-<P>
-Загальні коди помилок підсистеми графічних примітивів:
-</P>
-
-<DL>
-  <DT><B>EG_ADR ( ((-64) &lt;&lt; 16) )</B>
-    <DD>Неприпустима адреса вказівника у графічному контексті або буфері.
-  <DT><B>EG_PAR ( ((-65) &lt;&lt; 16) )</B>
-    <DD>Некоректний параметр операції або значення виходить за допустимі межі.
-  <DT><B>EG_NOSPT ( ((-66) &lt;&lt; 16) )</B>
-    <DD>Запитана графічна функція чи режим не підтримується даною реалізацією ядра.
-  <DT><B>EG_NOSPC ( ((-67) &lt;&lt; 16) )</B>
-    <DD>Недостатньо оперативної пам'яті ядра для виділення растрового буфера.
-  <DT><B>EG_GID ( ((-68) &lt;&lt; 16) )</B>
-    <DD>Недійсний ідентифікатор графічного контексту GID (контекст відсутній або знищений).
-  <DT><B>EG_LOCK ( ((-69) &lt;&lt; 16) )</B>
-    <DD>Графічний контекст заблокований іншим паралельним процесом.
-  <DT><B>EG_LIMIT ( ((-70) &lt;&lt; 16) )</B>
-    <DD>Перевищено системний ліміт кількості відкритих графічних портів.
-  <DT><B>EG_NOEXS ( ((-71) &lt;&lt; 16) )</B>
-    <DD>Зазначений графічний пристрій не зареєстрований у системі.
-  <DT><B>EG_DEV ( ((-72) &lt;&lt; 16) )</B>
-    <DD>Некоректний тип пристрою або невідповідність форматів BitMap.
-  <DT><B>EG_ERDEV ( ((-73) &lt;&lt; 16) )</B>
-    <DD>Апаратна помилка графічного адаптера або відеопам'яті VRAM.
-</DL>
-
-<P>
-Усі координати малювання задаються у декартовій системі зі значеннями від $-32768$ до $+32767$.
-</P>
-
-<H3><A name="adv">2.3.1 Створення та видалення графічного контексту (Environment Allocation)</A></H3>
+<H3><A name="adv">2.3.1 Створення та видалення середовища малювання</A></H3>
 
 <!-- gini_dsp -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gini_dsp</FONT></TD></TR>
-<TR><TD align="right">Initialize Display Primitive Subsystem</TD></TR>
+<TR><TD align="right">Initialize Display Primitive</TD></TR>
 <TR><TD>Ініціалізація підсистеми графічних примітивів</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gini_dsp(W mode)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-W   mode    Режим ініціалізації системної графіки
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+ERR gini_dsp(void)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  Виконує початкову системну ініціалізацію підсистеми графічних примітивів BTRON3. Викликається ядром при старті графічної оболонки.
-</P>
-<H4>【Коди помилок】</H4>
+<P>Виконує початкову ініціалізацію Display Primitives. Зазвичай викликається системою при старті.</P>
+<H4>【Значення, що повертається / Коди помилок】</H4>
 <PRE>
-EG_NOSPC   : Недостатньо системної пам'яті для графічних структур.
+= 0 (E_OK) : Успіх
+< 0        : EG_NOSP (Нестача системної пам'яті)
 </PRE>
+
+<!-- gfin_dsp -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gfin_dsp</FONT></TD></TR>
+<TR><TD align="right">Finish Display Primitive</TD></TR>
+<TR><TD>Завершення роботи підсистеми графічних примітивів</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gfin_dsp(void)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>Завершує роботу підсистеми Display Primitives та звільняє виділені ресурси.</P>
 
 <!-- gcls_env -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gcls_env</FONT></TD></TR>
 <TR><TD align="right">Delete Drawing Environment</TD></TR>
-<TR><TD>Видалення графічного контексту</TD></TR>
+<TR><TD>Видалення середовища малювання</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gcls_env(GID gid)
+ERR gcls_env(GID gid)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-GID gid     Ідентифікатор видаляємого графічного контексту
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+GID gid     ID середовища малювання
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  Знищує графічний контекст gid та вивільняє пов'язану з ним оперативну пам'ять і буфери. Контекст може бути видалений лише тим процесом, що його створив.
-</P>
+<P>Видаляє середовище малювання <CODE>gid</CODE>. Викликати може лише процес-власник.</P>
 <H4>【Коди помилок】</H4>
 <PRE>
-EG_GID     : Недійсний ідентифікатор контексту gid або спроба видалення стороннім процесом.
+EG_GID  : Недійсний дескриптор gid.
 </PRE>
 
 <!-- gopn_dev -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gopn_dev</FONT></TD></TR>
 <TR><TD align="right">Open Device Drawing Environment</TD></TR>
-<TR><TD>Створення графічного контексту пристрою</TD></TR>
+<TR><TD>Створення середовища малювання для графічного пристрою</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-GID     gopn_dev(TC *dev, B *par)
+GID gopn_dev(TC *dev, B *par)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC *dev     Логічне ім'я пристрою відображення (наприклад, "disp0")
+TC *dev     Назва графічного пристрою (екрана/вікна)
 B  *par     Параметри пристрою
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання (Новий ідентифікатор контексту GID)
-< 0      Помилка (Код помилки)
+>= 0    Дескриптор середовища малювання (GID)
+ < 0    Помилка (EG_ADR, EG_DEV, EG_LIMIT, EG_NOEXS, EG_NOSPC)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  Створює новий графічний контекст пристрою для безпосереднього виведення на екран/пристрій dev та повертає дескриптор GID.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника dev.
-EG_DEV     : Вказаний пристрій не підтримує графічний вивід.
-EG_LIMIT   : Перевищено системний ліміт відкритих портів.
-EG_NOEXS   : Пристрій dev відсутній у системі.
-EG_NOSPC   : Недостатньо оперативної пам'яті.
-</PRE>
+<P>Створює екземпляр <CODE>GID</CODE>, прив'язаний до фізичного екрана чи VRAM пристрою <CODE>dev</CODE>.</P>
 
 <!-- gopn_mem -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gopn_mem</FONT></TD></TR>
 <TR><TD align="right">Open Memory Drawing Environment</TD></TR>
-<TR><TD>Створення контексту малювання в пам'яті</TD></TR>
+<TR><TD>Створення середовища малювання в оперативній пам'яті (Off-screen)</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-GID     gopn_mem(TC *dev, BMP *bmap, B *par)
+GID gopn_mem(TC *dev, BITMAP *bmap, B *par)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-TC  *dev    Пристрій прив'язки (NULL — загальний растровий контекст)
-BMP *bmap   Вказівник на структуру растрового масиву BitMap у пам'яті
-B   *par    Додаткові кольорові параметри
+TC     *dev     Назва пристрою (або NULL для універсального середовища)
+BITMAP *bmap    Опис цільової бітової карти у пам'яті
+B      *par     Параметри кольору CSPEC (NULL = без колірної інформації)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
->= 0     Успішне виконання (Новий ідентифікатор контексту GID)
-< 0      Помилка (Код помилки)
+>= 0    GID
+ < 0    Помилка (EG_ADR, EG_DEV, EG_LIMIT, EG_NOSPC, EG_PAR)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  Створює новий контекст малювання в пам'яті на основі растрового масиву bmap. Усі наступні операції малювання спрямовуватимуться у виділений буфер у пам'яті.
-</P>
-<H4>【Коди помилок】</H4>
+<P>Створює позаекранний графічний буфер у пам'яті RAM для малювання подвійної буферизації.</P>
+
+<!-- gnew_env -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gnew_env</FONT></TD></TR>
+<TR><TD align="right">Duplicate Drawing Environment</TD></TR>
+<TR><TD>Дублювання середовища малювання</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-EG_ADR     : Неприпустима адреса вказівника dev або bmap.
-EG_DEV     : Невідповідність формату пікселів буфера bmap.
-EG_LIMIT   : Перевищено ліміт відкритих портів.
-EG_NOSPC   : Недостатньо пам'яті.
+GID gnew_env(GID gid)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>Створює точну копію середовища малювання <CODE>gid</CODE>, що розділяє ту саму бітову карту.</P>
+
+<!-- gini_env -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gini_env</FONT></TD></TR>
+<TR><TD align="right">Reset Drawing Environment</TD></TR>
+<TR><TD>Скидання параметрів середовища малювання до значень за замовчуванням</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gini_env(GID gid)
+</PRE>
+
+<!-- gget_spc -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_spc</FONT></TD></TR>
+<TR><TD align="right">Get Device Specification</TD></TR>
+<TR><TD>Отримання характеристик пристрою</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gget_spc(TC *dev, DEV_SPEC *spec)
+</PRE>
+
+<!-- gget_dev -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_dev</FONT></TD></TR>
+<TR><TD align="right">Get Drawing Environment Device</TD></TR>
+<TR><TD>Отримання назви пристрою середовища</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gget_dev(GID gid, TC *dev)
+</PRE>
+
+<!-- gget_dsp -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_dsp</FONT></TD></TR>
+<TR><TD align="right">Get Device Specification by GID</TD></TR>
+<TR><TD>Отримання специфікації пристрою за GID</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gget_dsp(GID gid, DEV_SPEC *spec)
+</PRE>
+
+<!-- gget_csp -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_csp</FONT></TD></TR>
+<TR><TD align="right">Get Color Specification</TD></TR>
+<TR><TD>Отримання специфікації кольору середовища</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gget_csp(GID gid, CSPEC *cspec)
+</PRE>
+
+<!-- gset_bcs -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_bcs</FONT></TD></TR>
+<TR><TD align="right">Set Color Conversion Specification</TD></TR>
+<TR><TD>Встановлення специфікації колірної конверсії</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gset_bcs(GID gid, CSPEC *cspec)
+</PRE>
+
+<!-- gget_bcs -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_bcs</FONT></TD></TR>
+<TR><TD align="right">Get Color Conversion Specification</TD></TR>
+<TR><TD>Отримання специфікації колірної конверсії</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gget_bcs(GID gid, CSPEC *cspec)
+</PRE>
+
+<H3><A name="adw">2.3.2 Управління палітрою (Color Map)</A></H3>
+
+<!-- gset_col -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_col</FONT></TD></TR>
+<TR><TD align="right">Set Color Map Entries</TD></TR>
+<TR><TD>Запис елементів у колірну палітру</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+W   gset_col(GID gid, UW p, COLOR *cv, UW cnt)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID     gid     ID середовища малювання
+UW      p       Початковий індекс палітри
+COLOR  *cv      Масив кольорів для запису
+UW      cnt     Кількість записів
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+>= 0    Кількість успішно встановлених кольорів
+ < 0    Помилка (EG_ADR, EG_ENV, EG_GID, EG_PAR)
+</PRE>
+
+<!-- gget_col -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_col</FONT></TD></TR>
+<TR><TD align="right">Get Color Map Entries</TD></TR>
+<TR><TD>Зчитування елементів колірної палітри</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+W   gget_col(GID gid, UW p, COLOR *cv, UW cnt)
+</PRE>
+
+<!-- gcnv_col -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcnv_col</FONT></TD></TR>
+<TR><TD align="right">Convert Color to Pixel Value</TD></TR>
+<TR><TD>Перетворення кольору RGB у значення пікселя</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+W   gcnv_col(GID gid, COLOR cv, PIXVAL *pixv)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+>= 0    Похибка наближення кольору (0 = точний збіг, 100 = протилежний колір)
+ < 0    Помилка
+</PRE>
+
+<H3><A name="adx">2.3.3 Доступ до параметрів середовища малювання</A></H3>
+
+<!-- gset_msk / gget_msk -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_msk / gget_msk</FONT></TD></TR>
+<TR><TD align="right">Set/Get Mask Pixel Value</TD></TR>
+<TR><TD>Встановлення та зчитування маскового пікселя</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_msk(GID gid, PIXVAL pixv)
+ERR gget_msk(GID gid, PIXVAL *pixv)
+</PRE>
+
+<!-- gset_clp / gget_clp -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_clp / gget_clp</FONT></TD></TR>
+<TR><TD align="right">Set/Get Clipping Region</TD></TR>
+<TR><TD>Встановлення та зчитування області відсікання</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_clp(GID gid, GRGN *clip)
+ERR gget_clp(GID gid, GRGN *clip, W csize, W *a_size)
+</PRE>
+
+<!-- gset_fra / gget_fra -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_fra / gget_fra</FONT></TD></TR>
+<TR><TD align="right">Set/Get Frame Rectangle</TD></TR>
+<TR><TD>Встановлення та зчитування прямокутника кадру (FrameRect)</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_fra(GID gid, RECT *rp)
+ERR gget_fra(GID gid, RECT *rp)
+</PRE>
+
+<!-- gset_vis / gget_vis -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_vis / gget_vis</FONT></TD></TR>
+<TR><TD align="right">Set/Get Visible Rectangle</TD></TR>
+<TR><TD>Встановлення та зчитування прямокутника видимості (VisibleRect)</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_vis(GID gid, RECT *rp)
+ERR gget_vis(GID gid, RECT *rp)
+</PRE>
+
+<!-- gset_for / gget_for -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_for / gget_for</FONT></TD></TR>
+<TR><TD align="right">Set/Get Forward Rectangle List</TD></TR>
+<TR><TD>Встановлення та зчитування списку передніх прямокутників перекриття</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_for(GID gid, RLIST *rlp)
+ERR gget_for(GID gid, RLIST *rlp, W size, W *a_size)
+</PRE>
+
+<!-- gsiz_pat / gcre_pat -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gsiz_pat / gcre_pat</FONT></TD></TR>
+<TR><TD align="right">Size/Create Pattern Image</TD></TR>
+<TR><TD>Визначення розміру та створення внутрішнього патерну малювання</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gsiz_pat(GID gid, UW kind, UW hsize, UW vsize, W *size)
+ERR gcre_pat(GID gid, PAT *def, UB *loc, UB **pat, W *size, W cvt)
+</PRE>
+
+<!-- gset_lmk / gget_lmk -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_lmk / gget_lmk</FONT></TD></TR>
+<TR><TD align="right">Set/Get Line Mask Pattern</TD></TR>
+<TR><TD>Встановлення та зчитування бітової маски лінії (пунктир)</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_lmk(GID gid, UW nbytes, UB *mask)
+W   gget_lmk(GID gid, UB *mask)
+</PRE>
+
+<!-- gget_bmp / gget_bnd -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_bmp / gget_bnd</FONT></TD></TR>
+<TR><TD align="right">Get Bitmap / Bounds</TD></TR>
+<TR><TD>Отримання цільової бітової карти та меж растру</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gget_bmp(GID gid, BITMAP *bmap)
+ERR gget_bnd(GID gid, RECT *rp)
+</PRE>
+
+<!-- gmov_bnd / gmov_cor -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmov_bnd / gmov_cor</FONT></TD></TR>
+<TR><TD align="right">Move Bitmap Bounds / Coordination</TD></TR>
+<TR><TD>Зсув меж растру та переміщення системи координат</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gmov_bnd(GID gid, W dh, W dv)
+ERR gmov_cor(GID gid, W dh, W dv)
+</PRE>
+
+<H3><A name="aea">2.3.4 Перетворення координат та блокування</A></H3>
+
+<!-- gcnv_abs / gcnv_rel -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gcnv_abs / gcnv_rel</FONT></TD></TR>
+<TR><TD align="right">Convert Coordinates (Absolute <-> Relative)</TD></TR>
+<TR><TD>Перетворення між абсолютними та відносними координатами</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gcnv_abs(GID gid, PNT *pp)
+ERR gcnv_rel(GID gid, PNT *pp)
+</PRE>
+
+<!-- gloc_env -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gloc_env</FONT></TD></TR>
+<TR><TD align="right">Lock/Unlock Drawing Environment</TD></TR>
+<TR><TD>Блокування / розблокування середовища малювання</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gloc_env(GID gid, W lock)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID gid     ID середовища малювання
+W   lock    1 = заблокувати доступ іншим процесам; 0 = розблокувати
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
-<A href="basic_concept.html">Попередня сторінка: 2.2 Фундаментальні концепції графіки (Повернутися)</A><BR>
+<A href="basic_concept.html">Попередня сторінка: 2.2 Базові графічні концепції (Повернутися)</A><BR>
 <A href="figure_func.html">Наступна сторінка: 2.4 Функції малювання геометричних фігур (Перейти)</A><BR>
 </BODY>
 </HTML>

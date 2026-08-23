@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-  2.5 Функції виведення тексту та шрифтів (Text & Font Functions)
+  2.5 Функції виводу тексту та символів (Text & Character Functions)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="figure_func.html">
@@ -10,249 +10,143 @@
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 2: Графічні примітиви (Display Primitives)
 </DIV>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
 <A href="figure_func.html">Попередня сторінка: 2.4 Функції малювання геометричних фігур (Повернутися)</A><BR>
-<A href="pointer_func.html">Наступна сторінка: 2.6 Функції управління курсором (Перейти)</A><BR>
+<A href="pointer_func.html">Наступна сторінка: 2.6 Функції керування вказівником (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aeg">2.5 Функції виведення тексту та шрифтів (Text & Font Functions)</A></H2>
+<H2><A name="aes">2.5 Функції виводу тексту та символів (Text & Character Functions)</A></H2>
 
-<H3><A name="aeh">2.5.1 Доступ до системних атрибутів символів у контексті</A></H3>
+<H3><A name="aet">2.5.1 Налаштування параметрів текстового середовища</A></H3>
 
-<!-- gset_chp -->
+<!-- gset_chp / gget_chp -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gset_chp</FONT></TD></TR>
-<TR><TD align="right">Set Character Position</TD></TR>
-<TR><TD>Налаштування початкової позиції друку символу</TD></TR>
+<TR><TD><FONT size="+2">gset_chp / gget_chp</FONT></TD></TR>
+<TR><TD align="right">Set / Get Text Position</TD></TR>
+<TR><TD>Встановлення та отримання поточної позиції виведення тексту</TD></TR>
 </TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_chp(GID gid, PNT *pos)
+ERR gget_chp(GID gid, PNT *pos)
+</PRE>
 
+<!-- gset_chc / gget_chc -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_chc / gget_chc</FONT></TD></TR>
+<TR><TD align="right">Set / Get Text Color</TD></TR>
+<TR><TD>Встановлення та отримання кольору тексту (передній план / фон)</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_chc(GID gid, COLOR fg, COLOR bg)
+ERR gget_chc(GID gid, COLOR *fg, COLOR *bg)
+</PRE>
+
+<!-- gset_chd / gget_chd -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_chd / gget_chd</FONT></TD></TR>
+<TR><TD align="right">Set / Get Text Direction and Spacing</TD></TR>
+<TR><TD>Встановлення та отримання напрямку письма й міжсимвольних інтервалів</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_chd(GID gid, W dir, CGAP *gap)
+ERR gget_chd(GID gid, W *dir, CGAP *gap)
+</PRE>
+
+<!-- gset_fon / gget_fon -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_fon / gget_fon</FONT></TD></TR>
+<TR><TD align="right">Set / Get Font Specifier</TD></TR>
+<TR><TD>Призначення та зчитування специфікації шрифту FSSPEC</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_fon(GID gid, FSSPEC *spec)
+ERR gget_fon(GID gid, FSSPEC *spec, FNTINFO *info)
+</PRE>
+
+<!-- gset_scr / gget_scr -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gset_scr / gget_scr</FONT></TD></TR>
+<TR><TD align="right">Set / Get Script Language</TD></TR>
+<TR><TD>Встановлення та отримання кодової площини / мовного скрипту</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+ERR gset_scr(GID gid, W script)
+ERR gget_scr(GID gid, W *script)
+</PRE>
+
+<H3><A name="aeu">2.5.2 Метрики та вимірювання тексту</A></H3>
+
+<!-- gget_chw / gget_chh -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_chw / gget_chh</FONT></TD></TR>
+<TR><TD align="right">Get Character Width / Height</TD></TR>
+<TR><TD>Отримання ширини та висоти окремого символу</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+W   gget_chw(GID gid, TC ch)
+W   gget_chh(GID gid, TC ch)
+</PRE>
+
+<!-- gget_stw / gget_sth / gget_str -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gget_stw / gget_sth / gget_str</FONT></TD></TR>
+<TR><TD align="right">Get String Metrics / Bounding Box</TD></TR>
+<TR><TD>Вимірювання повної довжини, висоти та обмежувального прямокутника рядка</TD></TR>
+</TABLE></TD></TR></TABLE>
+<PRE>
+W   gget_stw(GID gid, TC *str, W len)
+W   gget_sth(GID gid, TC *str, W len)
+ERR gget_str(GID gid, TC *str, W len, RECT *r)
+</PRE>
+
+<H3><A name="aev">2.5.3 Функції малювання символів та рядків</A></H3>
+
+<!-- gdra_chr / gdra_chp -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdra_chr / gdra_chp</FONT></TD></TR>
+<TR><TD align="right">Draw Character (Auto / Specified Position)</TD></TR>
+<TR><TD>Малювання символу у поточній або вказаній позиції</TD></TR>
+</TABLE></TD></TR></TABLE>
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gset_chp(GID gid, W x, W y, Bool abs)
+ERR gdra_chr(GID gid, TC ch, W mode)
+ERR gdra_chp(GID gid, PNT *pos, TC ch, W mode)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-GID     gid     Ідентифікатор графічного контексту
-W       x       Горизонтальне зміщення чи координата X
-W       y       Вертикальне зміщення чи координата Y
-Bool    abs     Прапорець режиму: 0 — відносне зміщення, 1 — абсолютні координати
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Встановлює поточну позицію друку текстового пера в графічному контексті gid. Якщо abs = 0, координати додаються до поточного положення пера. Якщо abs != 0, встановлюються абсолютні координати (x, y).
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_GID     : Недійсний ідентифікатор контексту gid.
-EG_PAR     : Переповнення координат при відносному позиціонуванні.
+GID  gid    ID середовища малювання
+PNT *pos    Точка виведення (NULL = поточна позиція chp)
+TC   ch     Код символу TRON Code
+W    mode   Режим накладання (DM_PAINT, DM_OVER тощо)
 </PRE>
 
-<!-- gget_chp -->
+<!-- gdra_str / gdra_stp -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gget_chp</FONT></TD></TR>
-<TR><TD align="right">Get Character Position</TD></TR>
-<TR><TD>Зчитання поточної позиції текстового пера</TD></TR>
+<TR><TD><FONT size="+2">gdra_str / gdra_stp</FONT></TD></TR>
+<TR><TD align="right">Draw String (Auto / Specified Position)</TD></TR>
+<TR><TD>Малювання рядка символів</TD></TR>
 </TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gget_chp(GID gid, W *x, W *y)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-W      *x       Буфер для збереження координати X (Вихід)
-W      *y       Буфер для збереження координати Y (Вихід)
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Повертає поточні координати (x, y) текстового пера у графічному контексті gid.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника x або y.
-EG_GID     : Недійсний графічний контекст gid.
+ERR gdra_str(GID gid, TC *str, W len, W mode)
+ERR gdra_stp(GID gid, PNT *pos, TC *str, W len, W mode)
 </PRE>
 
-<!-- gset_chc -->
+<!-- gcop_chr -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gset_chc</FONT></TD></TR>
-<TR><TD align="right">Set Character Color</TD></TR>
-<TR><TD>Налаштування кольорів символу та фону</TD></TR>
+<TR><TD><FONT size="+2">gcop_chr</FONT></TD></TR>
+<TR><TD align="right">Get Glyph Mask Bitmap</TD></TR>
+<TR><TD>Отримання растрової бітової маски гліфа у буфер</TD></TR>
 </TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gset_chc(GID gid, COLOR fgc, COLOR bgc)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-COLOR   fgc     Колір переднього плану (символу)
-COLOR   bgc     Колір заднього плану (фону)
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Змінює передній колір символів fgc та колір фонного прямокутника bgc для текстового друку у контексті gid.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_GID     : Недійсний графічний контекст gid.
-</PRE>
-
-<!-- gget_chc -->
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gget_chc</FONT></TD></TR>
-<TR><TD align="right">Get Character Color</TD></TR>
-<TR><TD>Зчитання кольорів символу та фону</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR     gget_chc(GID gid, COLOR *fgc, COLOR *bgc)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-COLOR  *fgc     Буфер для збереження кольору символів (Вихід)
-COLOR  *bgc     Буфер для збереження кольору фону (Вихід)
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Зчитує поточні налаштування кольорів тексту та фону з контексту gid.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника fgc або bgc.
-EG_GID     : Недійсний графічний контекст gid.
-</PRE>
-
-<!-- gset_chd -->
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gset_chd</FONT></TD></TR>
-<TR><TD align="right">Set Character Direction</TD></TR>
-<TR><TD>Налаштування напрямку та інтервалів тексту</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR     gset_chd(GID gid, W dir, CGAP *gap)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-W       dir     Напрямок друку (TORIGHT=0, TOLEFT=1, TODOWN=2, TOUP=3)
-CGAP   *gap     Структура додаткових інтервалів між символами та рядками
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Встановлює напрямок друку dir (горизонтальний зліва направо, справа наліво, вертикальний зверху вниз чи знизу вгору) та додаткові міжсимвольні інтервали gap.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника gap.
-EG_GID     : Недійсний графічний контекст gid.
-EG_PAR     : Некоректний напрямок dir.
-</PRE>
-
-<!-- gdra_chr -->
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gdra_chr</FONT></TD></TR>
-<TR><TD align="right">Draw Character</TD></TR>
-<TR><TD>Виведення одного символу TRON Code</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR     gdra_chr(GID gid, TC ch, PAT *pat, DCM mode)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-TC      ch      Код символу в системному кодуванні TRON Code
-PAT    *pat     Візерунок малювання (NULL — поточний колір fgc)
-DCM     mode    Режим змішування пікселів
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Малює один символ ch у поточному положенні пера контексту gid та зміщує перо на ширину даного символу.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника pat.
-EG_GID     : Недійсний графічний контекст gid.
-</PRE>
-
-<!-- gdra_str -->
-<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
-<TR><TD><FONT size="+2">gdra_str</FONT></TD></TR>
-<TR><TD align="right">Draw Text String</TD></TR>
-<TR><TD>Виведення текстового рядка TRON Code</TD></TR>
-</TABLE></TD></TR></TABLE>
-
-<H4>【Синтаксис / Прототип】</H4>
-<PRE>
-ERR     gdra_str(GID gid, TC *str, W len, PAT *pat, DCM mode)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-GID     gid     Ідентифікатор графічного контексту
-TC     *str     Масив символів TRON Code
-W       len     Кількість символів (або -1 для нуль-термінованого рядка)
-PAT    *pat     Візерунок заповнення або колір тексту
-DCM     mode    Режим змішування растрових пікселів
-</PRE>
-<H4>【Значення, що повертається】</H4>
-<PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Послідовно виводить текстовий рядок str у графічному контексті gid з автоматичним оновленням позиції пера.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника str або pat.
-EG_GID     : Недійсний ідентифікатор контексту gid.
+ERR gcop_chr(GID gid, TC ch, BITMAP *bmap, PNT *offset)
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
 <A href="figure_func.html">Попередня сторінка: 2.4 Функції малювання геометричних фігур (Повернутися)</A><BR>
-<A href="pointer_func.html">Наступна сторінка: 2.6 Функції управління курсором (Перейти)</A><BR>
+<A href="pointer_func.html">Наступна сторінка: 2.6 Функції керування вказівником (Перейти)</A><BR>
 </BODY>
 </HTML>

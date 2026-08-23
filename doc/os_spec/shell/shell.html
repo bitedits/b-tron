@@ -2,36 +2,109 @@
 <HTML>
 <HEAD>
 <TITLE>
-  Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell Specification)
+  Розділ 3. Графічна оболонка (GUI Shell Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="../dp/pointer_func.html">
 <LINK REL="next" HREF="window.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 3: Графічна оболонка (GUI Shell)
 </DIV>
-<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
+<A href="../index.html">Повернутися до змісту частини 2 (Специфікація ОС)</A><BR>
+<A href="../../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції керування вказівником (Повернутися)</A><BR>
+<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
 <HR>
 
-<H2>Розділ 3: Графічна оболонка та віконний менеджер (GUI Shell)</H2>
+<H1><A name="afe">Розділ 3. Графічна оболонка (GUI Shell Specification)</A></H1>
 
-<UL>
-  <LI><A HREF="window.html">3.1 Менеджер вікон (Window Management)</A>
-  <LI><A HREF="panel.html">3.2 Менеджер панелей та діалогів (Panel & Dialog Management)</A>
-  <LI><A HREF="menu.html">3.3 Системні меню (Menu System)</A>
-  <LI><A HREF="omgr.html">3.4 Менеджер Реальних та Віртуальних об'єктів (Real/Virtual Object Manager)</A>
-  <LI><A HREF="parts.html">3.5 Елементи інтерфейсу та віджети (GUI Control Parts)</A>
-  <LI><A HREF="data.html">3.6 Буфер обміну та взаємообмін даними (Data Exchange & Clipboard)</A>
-  <LI><A HREF="font_mgr.html">3.7 Менеджер шрифтів (Font Manager)</A>
-  <LI><A HREF="printmgr.html">3.8 Підсистема друку (Print Manager)</A>
-  <LI><A HREF="tip.html">3.9 Метод введення TRON (Input Process FEP)</A>
-  <LI><A HREF="tray.html">3.10 Системний трей та сповіщення (System Tray & Notifications)</A>
-  <LI><A HREF="tcpip.html">3.11 Менеджер мережі та TCP/IP (Network Integration)</A>
-</UL>
+<H2>Зміст розділу 3</H2>
+
+<DL>
+ <DT><B><a href="window.html#aff">3.1 Менеджер вікон (Window Manager)</a></B>
+ <DD><a href="window.html#afg">3.1.1 Огляд підсистеми Менеджера вікон</a><BR>
+     <a href="window.html#afh">3.1.1.1 Загальні відомості</a><BR>
+     <a href="window.html#afi">3.1.1.2 Типи вікон</a><BR>
+     <a href="window.html#afj">3.1.1.3 Атрибути вікна (WDATTR / WDDISP)</a><BR>
+     <a href="window.html#afk">3.1.1.4 Форма вказівника</a><BR>
+     <a href="window.html#afl">3.1.1.5 Операції з вікнами</a><BR>
+     <a href="window.html#afm">3.1.1.6 Вікнові події (WEVENT)</a><BR>
+     <a href="window.html#afn">3.1.1.7 Функція переднього плану (Frontend)</a><BR>
+     <a href="window.html#afo">3.1.2 Системні виклики Менеджера вікон</a>
+ <BR><BR>
+
+ <DT><B><a href="menu.html#aha">3.2 Менеджер меню (Menu Manager)</a></B>
+ <DD><a href="menu.html#ahb">3.2.1 Огляд підсистеми меню</a><BR>
+     <a href="menu.html#ahc">3.2.1.7 Узагальнене меню (Generic Menu)</a><BR>
+     <a href="menu.html#ahj">3.2.2 Системні виклики Менеджера меню</a>
+ <BR><BR>
+
+ <DT><B><a href="parts.html#ahu">3.3 Менеджер елементів управління (Parts Manager)</a></B>
+ <DD><a href="parts.html#ahv">3.3.1 Огляд підсистеми</a><BR>
+     <a href="parts.html#ahv2">3.3.2 Типи елементів управління</a><BR>
+     <a href="parts.html#ahj2">3.3.3 Структури та константи</a><BR>
+     <a href="parts.html#aiw">3.3.4 Системні виклики Менеджера елементів управління</a>
+ <BR><BR>
+
+ <DT><B><a href="panel.html#aia">3.4 Менеджер панелей (Panel Manager)</a></B>
+ <DD><a href="panel.html#aib">3.4.1 Огляд підсистеми панелей</a><BR>
+     <a href="panel.html#aid">3.4.1.2 Структури даних панелі</a><BR>
+     <a href="panel.html#ajn">3.4.3 Системні виклики Менеджера панелей</a>
+ <BR><BR>
+
+ <DT><B><a href="tray.html#ajo">3.5 Менеджер трею / буфера обміну (Tray Manager)</a></B>
+ <DD><a href="tray.html#ajp">3.5.1 Функції Менеджера трею</a><BR>
+     <a href="tray.html#aka">3.5.2 Структури даних та константи</a><BR>
+     <a href="tray.html#akb">3.5.3 Системні виклики Менеджера трею</a>
+ <BR><BR>
+
+ <DT><B><a href="data.html#akc">3.6 Менеджер даних (Data Manager)</a></B>
+ <DD><a href="data.html#akd">3.6.1 Функції Менеджера даних</a><BR>
+     <a href="data.html#akj">3.6.2 Структури та константи</a><BR>
+     <a href="data.html#ako">3.6.3 Системні виклики Менеджера даних</a>
+ <BR><BR>
+
+ <DT><B><a href="tip.html#akp">3.7 Текстові примітиви введення (TIP)</a></B>
+ <DD><a href="tip.html#akq">3.7.1 Функції примітивів введення тексту</a><BR>
+     <a href="tip.html#aky">3.7.2 Константи та прапори</a><BR>
+     <a href="tip.html#akz">3.7.3 Системні виклики TIP</a>
+ <BR><BR>
+
+ <DT><B><a href="omgr.html#ala">3.8 Менеджер Реальних та Віртуальних об'єктів (Real/Virtual Object Manager)</a></B>
+ <DD><a href="omgr.html#alb">3.8.1 Функції Менеджера об'єктів</a><BR>
+     <a href="omgr.html#alz">3.8.4 Структури даних та константи</a><BR>
+     <a href="omgr.html#ama">3.8.5 Системні виклики Менеджера об'єктів</a><BR>
+     <a href="omgr.html#amb">3.8.6 Допоміжні функції для додатків</a>
+ <BR><BR>
+
+ <DT><B><a href="font_mgr.html#amc">3.9 Менеджер шрифтів (Font Manager)</a></B>
+ <DD><a href="font_mgr.html#amd">3.9.1 Функції Менеджера шрифтів</a><BR>
+     <a href="font_mgr.html#amt">3.9.2 Структури даних та константи</a><BR>
+     <a href="font_mgr.html#amu">3.9.3 Системні виклики Менеджера шрифтів</a>
+ <BR><BR>
+
+ <DT><B><a href="tcpip.html#anc">3.10 Менеджер TCP/IP</a></B>
+ <DD><a href="tcpip.html#and">3.10.1 Архітектура</a><BR>
+     <a href="tcpip.html#anh">3.10.2 Протоколи TCP/IP</a><BR>
+     <a href="tcpip.html#ani">3.10.3 Коди помилок</a><BR>
+     <a href="tcpip.html#anj">3.10.4 Системні виклики</a>
+ <BR><BR>
+
+ <DT><B><a href="printmgr.html#ann">3.11 Менеджер друку (Print Manager)</a></B>
+ <DD><a href="printmgr.html#ano">3.11.1 Функції Менеджера друку</a><BR>
+     <a href="printmgr.html#anq">3.11.2 Управління друком та параметри сторінки</a><BR>
+     <a href="printmgr.html#anv">3.11.3 Управління чергою друку (Спулер)</a><BR>
+     <a href="printmgr.html#anz">3.11.4 Конфігурація принтерів</a><BR>
+     <a href="printmgr.html#aod">3.11.5 Системні виклики Менеджера друку</a>
+</DL>
 
 <HR>
-<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
+<A href="../index.html">Повернутися до змісту частини 2 (Специфікація ОС)</A><BR>
+<A href="../../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+<A href="../dp/pointer_func.html">Попередня сторінка: 2.6 Функції керування вказівником (Повернутися)</A><BR>
+<A href="window.html">Наступна сторінка: 3.1 Менеджер вікон (Перейти)</A><BR>
 </BODY>
 </HTML>

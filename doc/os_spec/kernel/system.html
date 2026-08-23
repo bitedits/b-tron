@@ -2,62 +2,134 @@
 <HTML>
 <HEAD>
 <TITLE>
-  1.10 Загальне системне управління (System Management)
+  1.10 Системне управління (System Management)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="clk.html">
+<LINK REL="next" HREF="../dp/dp.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 1: Ядро операційної системи (Kernel)
 </DIV>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="clk.html">Попередня сторінка: 1.9 Системний годинник та таймери (Повернутися)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Ядра</A><BR>
+<A href="clk.html">Попередня сторінка: 1.9 Системний годинник (Повернутися)</A><BR>
+<A href="../dp/dp.html">Наступна сторінка: Розділ 2. Графічні примітиви (Перейти)</A><BR>
 <HR>
 
-<H2><A name="acs">1.10 Загальне системне управління (System Management)</A></H2>
-
-<H3><A name="act">1.10.1 Огляд загальносистемних викликів (Overview)</A></H3>
+<H2><A name="acs">1.10 Системне управління (System Management)</A></H2>
 
 <P>
-  Розділ загального системного управління містить системні виклики для отримання версії ядра ОС Sakamura BTRON3, перевірки системної конфігурації та примусового перезавантаження чи зупинки системи.
+  Функції системного управління забезпечують:
 </P>
+<UL>
+ <LI>Обробку виняткових ситуацій (Exceptions)
+ <LI>Отримання інформації про версію ОС та апаратну платформу
+ <LI>Зчитування параметрів конфігурації системи
+</UL>
 
-<H3><A name="acu">1.10.2 Системні виклики загального управління (System Calls)</A></H3>
+<H3><A name="act">1.10.1 Структури даних та константи</A></H3>
+
+<H4>□ Інформація про версію ОС (T_VER)</H4>
+<PRE>
+typedef struct {
+    UH  maker;      /* Виробник (Maker Code) */
+    UH  id;         /* ID моделі/формату */
+    UH  spver;      /* Версія специфікації BTRON (наприклад, 0x0300 для BTRON3) */
+    UH  prver;      /* Версія комерційного продукту */
+    UH  prno[4];    /* Серійний/керуючий номер продукту */
+    UH  cpu;        /* Архітектура процесора (CPU) */
+    UH  var;        /* Варіативний дескриптор */
+} T_VER;
+</PRE>
+
+<H3><A name="acu">1.10.2 Системні виклики</A></H3>
+
+<!-- def_exc -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">def_exc</FONT></TD></TR>
+<TR><TD align="right">Define Exception Handler</TD></TR>
+<TR><TD>Визначення обробника виняткових ситуацій для поточної задачі</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR def_exc(W exckind, FP exchdr)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+W   exckind Тип винятку (залежить від платформи/архітектури)
+FP  exchdr  Адреса процедури обробника (NULL = скасувати реєстрацію)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0     Успішне виконання
+&lt; 0     Помилка (ER_ADR, ER_CTX, ER_PAR)
+</PRE>
+
+<!-- ret_exc -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">ret_exc</FONT></TD></TR>
+<TR><TD align="right">Return from Exception Handler</TD></TR>
+<TR><TD>Завершення обробника винятку</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+void ret_exc(W ret)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+W   ret     Режим повернення:
+              = 0 : відновити виконання з місця виникнення винятку (не повертається)
+             != 0 : продовжити виконання коду обробника (наприклад, для longjmp)
+</PRE>
 
 <!-- get_ver -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">get_ver</FONT></TD></TR>
-<TR><TD>&nbsp;</TD></TR>
-<TR><TD>Отримання версії та специфікації ядра (Get System Version)</TD></TR>
+<TR><TD align="right">Get OS Version</TD></TR>
+<TR><TD>Отримання версії ОС та процесора</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-WERR    get_ver(UH *ver, UH *subver)
+ERR get_ver(T_VER *version)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-UH  *ver    Змінна для збереження мажорного номера версії ядра BTRON3 (Вихід)
-UH  *subver Змінна для збереження мінорного номера версії (Вихід)
+T_VER *version  Буфер для збереження версії
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання (Номери версій записано у ver та subver)
-< 0      Помилка (Код помилки)
+= 0     Успішне виконання
+&lt; 0     Помилка (ER_ADR)
 </PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Повертає точні номери специфікації та релізу ядра BTRON3.
-</P>
-<H4>【Коди помилок】</H4>
+
+<!-- get_cnf -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">get_cnf</FONT></TD></TR>
+<TR><TD align="right">Get System Configuration Information</TD></TR>
+<TR><TD>Отримання параметрів конфігурації системи за назвою</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ER_ADR     : Неприпустима адреса вказівника ver або subver.
+WERR get_cnf(TC *name, VP value, W len)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+TC *name    Назва параметра конфігурації
+VP  value   Буфер для значення
+W   len     Розмір буфера у байтах
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0     Успіх (числове значення типу W)
+> 0     Успіх (довжина отриманого рядка TC у символах)
+< 0     Помилка (ER_ADR, ER_NOEXS, ER_PAR)
 </PRE>
 
 <HR>
-<A href="../index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="clk.html">Попередня сторінка: 1.9 Системний годинник та таймери (Повернутися)</A><BR>
+<A href="../index.html">Повернутися до змісту розділу Ядра</A><BR>
+<A href="clk.html">Попередня сторінка: 1.9 Системний годинник (Повернутися)</A><BR>
+<A href="../dp/dp.html">Наступна сторінка: Розділ 2. Графічні примітиви (Перейти)</A><BR>
 </BODY>
 </HTML>

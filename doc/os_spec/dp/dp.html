@@ -2,31 +2,76 @@
 <HTML>
 <HEAD>
 <TITLE>
-  Розділ 2: Підсистема графічних примітивів (Display Primitives Specification)
+  Розділ 2. Графічні примітиви (Display Primitives Specification)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
+<LINK REL="previous" HREF="../kernel/system.html">
 <LINK REL="next" HREF="intro.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
   Специфікація BTRON3 (Український переклад) | Розділ 2: Графічні примітиви (Display Primitives)
 </DIV>
-<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
+<A href="../index.html">Повернутися до змісту частини 2 (Специфікація ОС)</A><BR>
+<A href="../../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+<A href="../kernel/system.html">Попередня сторінка: 1.10 Системне управління (Повернутися)</A><BR>
+<A href="intro.html">Наступна сторінка: 2.1 Вступ (Перейти)</A><BR>
 <HR>
 
-<H2>Розділ 2: Графічні примітиви (Display Primitives)</H2>
+<H1><A name="acv">Розділ 2. Графічні примітиви (Display Primitives Specification)</A></H1>
 
-<UL>
-  <LI><A HREF="intro.html">2.1 Огляд підсистеми графічних примітивів (Display Primitives Overview)</A>
-  <LI><A HREF="basic_concept.html">2.2 Фундаментальні концепції графіки (Basic Graphics Concepts)</A>
-  <LI><A HREF="basic_func.html">2.3 Базові графічні функції та системний контекст (Core Graphics Functions)</A>
-  <LI><A HREF="figure_func.html">2.4 Функції малювання геометричних фігур (Geometric Drawing Functions)</A>
-  <LI><A HREF="character_func.html">2.5 Функції виведення тексту та шрифтів (Text & Font Functions)</A>
-  <LI><A HREF="pointer_func.html">2.6 Функції управління курсором та поінтером (Pointer & Cursor Functions)</A>
-</UL>
+<H2>Зміст розділу 2</H2>
+
+<DL>
+ <DT><B><a href="intro.html#acw">2.1 Вступ та огляд підсистеми</a></B>
+ <DD><a href="intro.html#acx">2.1.1 Загальні відомості про графічні примітиви</a>
+ <BR><BR>
+
+ <DT><B><a href="basic_concept.html#acy">2.2 Базові графічні концепції</a></B>
+ <DD><a href="basic_concept.html#acz">2.2.1 Координатна площина / Точки / Прямокутники</a><BR>
+     <a href="basic_concept.html#ada">2.2.2 Бітові карти (Bitmaps)</a><BR>
+     <a href="basic_concept.html#adh">2.2.3 Представлення кольору (Color / Color Map)</a><BR>
+     <a href="basic_concept.html#adj">2.2.4 Середовище малювання (Drawing Environment / GID)</a>
+ <BR><BR>
+
+ <DT><B><a href="basic_func.html#adu">2.3 Базові функції графічного порту</a></B>
+ <DD><a href="basic_func.html#adv">2.3.1 Створення та видалення середовища малювання</a><BR>
+     <a href="basic_func.html#adw">2.3.2 Управління палітрою (Color Map)</a><BR>
+     <a href="basic_func.html#adx">2.3.3 Доступ до параметрів середовища малювання</a><BR>
+     <a href="basic_func.html#aea">2.3.4 Перетворення координат</a>
+ <BR><BR>
+
+ <DT><B><a href="figure_func.html#aeb">2.4 Функції малювання геометричних фігур</a></B>
+ <DD><a href="figure_func.html#aec">2.4.1 Малювання ліній та точок</a><BR>
+     <a href="figure_func.html#aee">2.4.2 Малювання прямокутників</a><BR>
+     <a href="figure_func.html#aeg">2.4.3 Малювання прямокутників із закругленими кутами</a><BR>
+     <a href="figure_func.html#aeh">2.4.4 Малювання еліпсів та кіл</a><BR>
+     <a href="figure_func.html#aej">2.4.5 Малювання дуг, секторів та сегментів</a><BR>
+     <a href="figure_func.html#aek">2.4.6 Малювання полігонів та ламаних ліній</a><BR>
+     <a href="figure_func.html#aem">2.4.7 Малювання довільних фігур</a><BR>
+     <a href="figure_func.html#aen">2.4.8 Малювання кривих (Сплайни / Безьє)</a><BR>
+     <a href="figure_func.html#aeo">2.4.9 Операції з бітовими картами (BitBlt, RasterOps)</a><BR>
+     <a href="figure_func.html#aer">2.4.10 Обробка потрапляння (Picking)</a>
+ <BR><BR>
+
+ <DT><B><a href="character_func.html#aes">2.5 Функції виведення тексту та символів</a></B>
+ <DD><a href="character_func.html#aet">2.5.1 Налаштування текстового середовища малювання</a><BR>
+     <a href="character_func.html#aeu">2.5.2 Функції перевірки символів та рядків</a><BR>
+     <a href="character_func.html#aev">2.5.3 Функції малювання символів та тексту</a>
+ <BR><BR>
+
+ <DT><B><a href="pointer_func.html#aex">2.6 Функції керування вказівником</a></B>
+ <DD><a href="pointer_func.html#aey">2.6.1 Вказівник миші (Pointer)</a><BR>
+     <a href="pointer_func.html#aez">2.6.2 Стан та форми вказівника</a><BR>
+     <a href="pointer_func.html#afb">2.6.3 Системні виклики керування вказівником</a><BR>
+     <a href="pointer_func.html#afc">Стандартні форми покажчиків курсора</a>
+</DL>
 
 <HR>
-<A href="../index.html">Повернутися до головного змісту специфікації BTRON3</A><BR>
+<A href="../index.html">Повернутися до змісту частини 2 (Специфікація ОС)</A><BR>
+<A href="../../index.html">Повернутися до головного змісту всієї специфікації</A><BR>
+<A href="../kernel/system.html">Попередня сторінка: 1.10 Системне управління (Повернутися)</A><BR>
+<A href="intro.html">Наступна сторінка: 2.1 Вступ (Перейти)</A><BR>
 </BODY>
 </HTML>

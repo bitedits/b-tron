@@ -2,91 +2,156 @@
 <HTML>
 <HEAD>
 <TITLE>
-  2.6 Функції управління курсором та поінтером (Pointer & Cursor Functions)
+  2.6 Функції керування вказівником (Pointer & Cursor Functions)
 </TITLE>
 <LINK REL="parent" HREF="../index.html">
 <LINK REL="previous" HREF="character_func.html">
+<LINK REL="next" HREF="../shell/shell.html">
 </HEAD>
 <BODY>
 <!-- Sakamura BTRON / BTRON3 Specification - Ukrainian Translation -->
-<DIV STYLE='background:#0057b7; color:#ffd700; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
-  Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
+<DIV STYLE='background:#0057b7; color:#ffd700; padding:8px 15px; font-weight:bold; font-family:sans-serif; margin-bottom:15px; border-radius:4px;'>
+  Специфікація BTRON3 (Український переклад) | Розділ 2: Графічні примітиви (Display Primitives)
 </DIV>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
-<A href="character_func.html">Попередня сторінка: 2.5 Функції виведення тексту та шрифтів (Повернутися)</A><BR>
+<A href="character_func.html">Попередня сторінка: 2.5 Функції виводу тексту (Повернутися)</A><BR>
+<A href="../shell/shell.html">Наступна сторінка: Розділ 3. Графічна оболонка (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aej">2.6 Функції управління курсором та поінтером (Pointer & Cursor Functions)</A></H2>
+<H2><A name="aex">2.6 Функції керування вказівником (Pointer Functions)</A></H2>
 
-<H3><A name="aek">2.6.1 Огляд підсистеми відображення графичного курсора</A></H3>
+<H3><A name="aey">2.6.1 Вказівник миші (Pointer)</A></H3>
 
 <P>
-  Підсистема управління курсором контролює візуальне відображення маски курсора миші/поінтера на екрані, обробляє відсікання з іншими вікнами та забезпечує плавне апаратне чи програмне переміщення курсора при русі миші.
+  Вказівник миші (покажчик курсора) відображається поверх усіх вікон і растрових площин,
+  автоматично слідуючи за фізичними переміщеннями координатно-вказівного пристрою (миші, тачпада чи планшета).
 </P>
+
+<H3><A name="aez">2.6.2 Стан та форми вказівника</A></H3>
+<UL>
+ <LI><B>Видимість</B> : видимий / прихований (лічильник вимог приховування).
+ <LI><B>Форма та колір</B> : стандартний системний стиль або довільний растровий бітовий патерн <CODE>PTRIMG</CODE> з точкою гарячого фокусу (Hot Spot).
+ <LI><B>Режим руху</B> : відстеження пристрою (Tracking) або фіксована позиція (Non-tracking).
+</UL>
+
+<H4>Структура образу покажчика (PTRIMG / PTRSTS)</H4>
+<PRE>
+typedef struct {
+    PNT     hotpt;      /* Точка гарячого фокусу (Hot Spot) відносно лівого верхнього кута */
+    B       data[72];   /* Бітова маска образу покажчика */
+    B       mask[72];   /* Бітова маска прозорості/трафарету */
+} PTRIMG;
+
+typedef struct {
+    W       sts;        /* Стан видимості (0 = видимий, > 0 = лічильник приховувань) */
+    H       style;      /* Стиль форми (>= 0: системний, < 0: довільний PTRIMG) */
+    COLOR   fgcol;      /* Колір переднього плану покажчика */
+    COLOR   bgcol;      /* Колір фону/обводки покажчика */
+    PNT     pos;        /* Поточна абсолютна позиція на екрані */
+} PTRSTS;
+</PRE>
+
+<H3><A name="afb">2.6.3 Системні виклики керування вказівником</A></H3>
+
+<!-- gini_ptr -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gini_ptr</FONT></TD></TR>
+<TR><TD align="right">Initialize Pointer</TD></TR>
+<TR><TD>Ініціалізація та скидання стану вказівника</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+ERR gini_ptr(void)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>Скидає стан покажчика до стандартної стрілки зі стандартними кольорами (чорний передній план, білий фон).</P>
+
+<!-- gdsp_ptr -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gdsp_ptr</FONT></TD></TR>
+<TR><TD align="right">Show / Hide Pointer</TD></TR>
+<TR><TD>Керування видимістю вказівника</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
+<PRE>
+W   gdsp_ptr(W req)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+W   req     0 = приховати (+1 до лічильника приховування)
+            > 0 = показати (-1 до лічильника приховування)
+            < 0 = примусово показати (скинути лічильник в 0)
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+>= 0    Поточне значення лічильника приховування (0 = покажчик видимий)
+</PRE>
 
 <!-- gset_ptr -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gset_ptr</FONT></TD></TR>
-<TR><TD align="right">Set Cursor BitMap</TD></TR>
-<TR><TD>Встановлення форми та растрової маски курсора</TD></TR>
+<TR><TD align="right">Set Pointer Shape and Color</TD></TR>
+<TR><TD>Зміна форми та кольорів покажчика</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gset_ptr(BMP *bmp, PNT hot)
+ERR gset_ptr(PTRSTL style, PTRIMG *img, COLOR fgcol, COLOR bgcol)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-BMP    *bmp     Вказівник на структуру растрового масиву курсора BitMap
-PNT     hot     Координати активної точки (Hotspot) всередині курсора (X, Y)
+PTRSTL  style   Номер системного стилю (>= 0) або < 0 (використати img)
+PTRIMG *img     Довільний образ покажчика
+COLOR   fgcol   Передній колір (< 0 = за замовчуванням)
+COLOR   bgcol   Колір фону (< 0 = за замовчуванням)
 </PRE>
-<H4>【Значення, що повертається】</H4>
+
+<!-- gmov_ptr -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmov_ptr</FONT></TD></TR>
+<TR><TD align="right">Move Pointer Position</TD></TR>
+<TR><TD>Програмне переміщення покажчика на екрані</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
+ERR gmov_ptr(PNT pos)
 </PRE>
 <H4>【Детальний опис】</H4>
-<P>
-  Встановлює нову растрову форму маски курсора bmp та прив'язує гарячу точку (Hotspot) hot.
-</P>
-<H4>【Коди помилок】</H4>
+<P>Переміщує вказівник у точку <CODE>pos</CODE> (працює лише у режимі Non-tracking, <CODE>gmot_ptr(0)</CODE>).</P>
+
+<!-- gmot_ptr -->
+<TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
+<TR><TD><FONT size="+2">gmot_ptr</FONT></TD></TR>
+<TR><TD align="right">Set Pointer Motion Tracking</TD></TR>
+<TR><TD>Увімкнення / вимкнення відстеження фізичної миші</TD></TR>
+</TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
-EG_ADR     : Неприпустима адреса вказівника bmp.
-EG_PAR     : Некоректні координати hot.
+ERR gmot_ptr(W sts)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+W   sts     0 = зафіксувати позицію (Non-tracking); 1 = слідкувати за мишею (Tracking)
 </PRE>
 
 <!-- gget_ptr -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gget_ptr</FONT></TD></TR>
-<TR><TD align="right">Get Pointer Position</TD></TR>
-<TR><TD>Отримання координат та стану курсора</TD></TR>
+<TR><TD align="right">Get Pointer Status</TD></TR>
+<TR><TD>Отримання поточного стану та форми покажчика</TD></TR>
 </TABLE></TD></TR></TABLE>
-
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
-ERR     gget_ptr(PNT *pos, H *stat)
-</PRE>
-<H4>【Параметри】</H4>
-<PRE>
-PNT    *pos     Буфер для збереження поточних екранних координат курсора (Вихід)
-H      *stat    Буфер для збереження стану кнопок миші (Вихід)
+W   gget_ptr(PTRSTS *sts, PTRIMG *img)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0      Успішне виконання
-< 0      Помилка (Код помилки)
-</PRE>
-<H4>【Детальний опис】</H4>
-<P>
-  Повертає поточні екранні координати курсора pos та побітовий стан його кнопок stat.
-</P>
-<H4>【Коди помилок】</H4>
-<PRE>
-EG_ADR     : Неприпустима адреса вказівника pos або stat.
+>= 0    Розмір покажчика у пікселях (24x24 або 32x32)
+ < 0    Помилка (EG_ADR)
 </PRE>
 
 <HR>
 <A href="../index.html">Повернутися до змісту розділу Графічних примітивів</A><BR>
-<A href="character_func.html">Попередня сторінка: 2.5 Функції виведення тексту та шрифтів (Повернутися)</A><BR>
+<A href="character_func.html">Попередня сторінка: 2.5 Функції виводу тексту (Повернутися)</A><BR>
+<A href="../shell/shell.html">Наступна сторінка: Розділ 3. Графічна оболонка (Перейти)</A><BR>
 </BODY>
 </HTML>
