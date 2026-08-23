@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Plane (BTRON) — Synrc Virtualization Environment VE OS.1</title>
+    <link rel="stylesheet" href="index.css?v=1">
+    <style>
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="https://hv.synrc.com/index.html" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://n2o.dev/img/synrc.svg"></a>
+            <ul class="nav-links">
+                <li><a href="https://hv.synrc.com/index.html">Intro</a></li>
+                <li><a href="https://hv.synrc.com/products.html">Products</a></li>
+                <li><a href="https://hv.synrc.com/applications.html">Applications</a></li>
+                <li><a href="https://hv.synrc.com/downloads.html">Downloads</a></li>
+                <li><a href="https://hv.synrc.com/web.html">Web</a></li>
+                <li><a href="https://hv.synrc.com/compute.html">Compute</a></li>
+                <li><a href="https://hv.synrc.com/security.html">Security</a></li>
+                <li><a href="https://hv.synrc.com/control.html">Control</a></li>
+                <li><a href="https://hv.synrc.com/service.html">Service</a></li>
+                <li><a href="https://hv.synrc.com/system_alpine.html">Alpine</a></li>
+                <li><a href="https://hv.synrc.com/system_netbsd.html">NetBSD</a></li>
+                <li class="active">BTRON</li>
+                <li><a href="https://hv.synrc.com/hypervision.html">Hypervision</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        <div class="hero-content">
+            <h1>System Plane (BTRON)</h1>
+            <p class="hero-subtitle">The native retro desktop, multilingual character system, and real-object hyper-data engine for Synrc Virtualization Environment VE OS.1.</p>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <h2>BTRON Guest Environment</h2>
+            <div style="max-width:850px;margin:0 auto;text-align:center;">
+                <p>The <b>BTRON System Plane</b> provides a cleanroom implementation of the Japanese Business TRON (BTRON3) specification for OS.1 instances requiring real-time μITRON task execution, authentic Sakamura windowing, multilingual TRON Code, and the Real Object / Virtual Object hyper-data engine. Designed using standard C99, rendering through VirtIO / SDL2 graphics primitives.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="package-card">
+                    <h3><a href="doc/os_spec/kernel/kernel.html">μITRON KERNEL</a> &amp; <a href="include/btron/itron.h">ITRON.H</a></h3>
+                    <hr>
+                    <p>Real-time microkernel primitives powering task scheduling, semaphores, event flags, and inter-process communication.</p>
+                    <pre class="code-snippet">
+/* μITRON Real-Time Task Creation */
+ID tskid = cre_tsk(&amp;ctsk);
+sta_tsk(tskid, stacd);
+wai_sem(semid);</pre>
+                </div>
+                
+                <div class="package-card">
+                    <h3><a href="doc/os_spec/dp/dp.html">DISPLAY PRIMITIVES</a> &amp; <a href="include/btron/dp.h">DP.H</a></h3>
+                    <hr>
+                    <p>Sakamura graphics engine supporting 2D vector/raster rendering, pattern fills (PAT), clipping regions (RGN), and VirtIO framebuffers.</p>
+                    <pre class="code-snippet">
+/* BTRON Display Primitives */
+PAT pat = { .fill = PAT_SOLID, .color = COLOR_TEAL };
+gd_rect(&amp;rect, &amp;pat);
+gd_draw_text(pnt, "BTRON3", &amp;pat);</pre>
+                </div>
+
+                <div class="package-card">
+                    <h3><a href="doc/os_spec/shell/shell.html">WINDOW MANAGER</a> &amp; <a href="include/btron/wnd.h">WND.H</a></h3>
+                    <hr>
+                    <p>Authentic Sakamura Cho-Kanji retro desktop layout, teal workspace, top status panel, z-order window manager, and cabinet launcher.</p>
+                    <pre class="code-snippet">
+/* Sakamura Window Creation */
+WND wnd;
+wnd_create(&amp;wnd, "T-Editor", 100, 100, 640, 480);
+wnd_show(&amp;wnd);</pre>
+                </div>
+
+                <div class="package-card">
+                    <h3><a href="include/btron/vobj.h">REAL / VIRTUAL OBJECT ENGINE</a></h3>
+                    <hr>
+                    <p>Sakamura hyper-data object model: documents contain live embedded pointers (Virtual Objects) linked to Real Objects stored in disk cabinets.</p>
+                    <pre class="code-snippet">
+/* Real Object / Virtual Object Link */
+VOBJ link;
+vobj_read_link(&amp;link, obj_id);
+vobj_open_cabinet(link.real_obj_id);</pre>
+                </div>
+
+                <div class="product-card">
+                    <h3>TRON Multilingual &amp; Fonts</h3>
+                    <hr>
+                    <ul>
+                        <li><a href="doc/shared_data/tron_code.html">TRON Code</a> — Multilingual character system &amp; plane switching</li>
+                        <li><a href="doc/shared_data/tad1.html">TAD Specification</a> — TRON Application Document format &amp; 2D segments</li>
+                        <li><a href="include/btron/troncode.h">Pixel Fonts</a> — High-legibility Japanese &amp; Latin bitmap renderer</li>
+                        <li><a href="apps/t_editor.c">T-Editor</a> — TRON Text Editor with virtual object embedding</li>
+                    </ul>
+                </div>
+
+                <div class="product-card">
+                    <h3>Applications &amp; Tooling</h3>
+                    <hr>
+                    <ul>
+                        <li><a href="apps/gterm.c">gterm</a> — BTRON Terminal Console window</li>
+                        <li><a href="apps/vobj_manager.c">vobj_manager</a> — Real Object Cabinet &amp; Link Explorer</li>
+                        <li><a href="doc/shared_data/fd_format.html">BTRON FS</a> — Diskette &amp; Real-Object file system format</li>
+                        <li><a href="Makefile">BSD Makefile</a> — Standalone build system in C99</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Specification &amp; Architecture</h2>
+            <div class="story-container">
+                <div class="plane-header">0. BTRON Specification 3.20</div>
+                <p>The complete Sakamura BTRON3 specification is documented within the workspace, organized into <a href="doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and <a href="doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters:</p>
+                
+                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
+                    <div class="package-card" style="padding: 1.8rem;">
+                        <h3><a href="doc/shared_data/index.html">Part 1. Shared Data</a></h3>
+                        <hr>
+                        <ul>
+                            <li><a href="doc/shared_data/data_type.html"><b>1. Basic Data Types &amp; Error Codes</b></a></li>
+                            <li><a href="doc/shared_data/tron_code.html"><b>2. TRON Code Character Encoding</b></a></li>
+                            <li><a href="doc/shared_data/tad1.html"><b>3. TAD Document Format &amp; Segments</b></a></li>
+                            <li><a href="doc/shared_data/fd_format.html"><b>4. BTRON FS File System Layout</b></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="package-card" style="padding: 1.8rem;">
+                        <h3><a href="doc/os_spec/index.html">Part 2. OS Specification</a></h3>
+                        <hr>
+                        <ul>
+                            <li><a href="doc/os_spec/kernel/kernel.html"><b>1. μITRON Kernel &amp; Tasking</b></a></li>
+                            <li><a href="doc/os_spec/dp/dp.html"><b>2. Display Primitives (DP Engine)</b></a></li>
+                            <li><a href="doc/os_spec/shell/shell.html"><b>3. GUI Shell &amp; Window Manager</b></a></li>
+                            <li><a href="doc/os_spec/indexfig.html"><b>4. Diagrams &amp; Figures Index</b></a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="plane-header">1. VirtIO &amp; Hypervisor Handoff</div>
+                <p>When running as a System Plane image in Synrc VE OS.1, BTRON boots via <b>Limine</b>, <b>TianoCore EDK II</b>, or raw <b>seL4 Protection Domains (PDs)</b>. Display output routes directly through VirtIO-GPU or SDL2 surface, providing low-latency real-time rendering inside isolated capability-managed sandboxes.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-columns">
+            <div>
+                <h4>Synrc VE OS.1</h4>
+                <p>High-Assurance VirtIO Hypervisor</p>
+                <p>Deployment Platform for Unikernels</p>
+                <p>By <a rel="me" href="https://mathstodon.xyz/@5ht">5HT</a> in C99 &amp; Erlang/OTP</p>
+            </div>
+
+            <div>
+                <h4>Planes Architecture</h4>
+                <ul>
+                    <li><b>0. Bedrock:</b> Hypervision (seL4)</li>
+                    <li><b>1. Control:</b> CHIMERA, LAND, NET</li>
+                    <li><b>2. Security:</b> TPM 2.0, CA, AU, CM</li>
+                    <li><b>3. Service:</b> X11, WM, CHAT, MQTT</li>
+                    <li><b>4. Applications:</b> BPE, KVS, N2O</li>
+                    <li><b>5. Products:</b> Enterprise Suites</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>System Images</h4>
+                <ul>
+                    <li><a href="https://hv.synrc.com/system_alpine.html"><b>Alpine:</b> Musl, OpenRC, Landlock</a></li>
+                    <li><a href="https://hv.synrc.com/system_netbsd.html"><b>NetBSD:</b> Veriexec, Kauth, NPF</a></li>
+                    <li><a href="index.html"><b>BTRON:</b> μITRON, DP, VOBJ</a></li>
+                    <li><a href="https://hv.synrc.com/hypervision.html"><b>Unikernels:</b> Erlang &amp; C99</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>Whitepapers</h4>
+                <ul>
+                    <li><a href="https://os.synrc.com/os-hyper.pdf">2026-08-19 VirtIO Xen ESXi</a></li>
+                    <li><a href="https://os.synrc.com/os.pdf">2026-07-19 Guest Alpine</a></li>
+                    <li><a href="https://os.synrc.com/os-bsd.pdf">2026-07-19 Guest NetBSD</a></li>
+                    <li><a href="https://os.synrc.com/os.txt">2026-07-29 NIST 53 Architecture</a></li>
+                    <li><a href="https://hv.synrc.com/hv.pdf">2026-08-10 OTP 20 seL4</a></li>
+                    <li><a href="https://hv.synrc.com/hv-smp.pdf">2026-08-13 OTP 30 4-Core</a></li>
+                    <li><a href="https://hv.synrc.com/hv-bc.pdf">2026-08-13 Byte-code VMs</a></li>
+                    <li><a href="https://hv.synrc.com/hv-infosec.pdf">2026-08-14 Infosec Architecture</a></li>
+                    <li><a href="https://hv.synrc.com/hv-crypto.pdf">2026-08-19 LibreSSL Crypto</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
