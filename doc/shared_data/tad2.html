@@ -24,200 +24,143 @@
 <H3><A name="acl">3.5.1 Загальний огляд</A></H3>
 
 <P>
-  Сегмент текстової вкладки (Text Fusen Segment) , 
-   Специфічна вкладка (Specified Fusen) є, 
-  , , , 
-      2  Табл.   . 
-  Сегмент текстової вкладки (Text Fusen Segment)  ,  . 
-  , , Табл.  Табл.  також , 
-  Сегмент текстової вкладки (Text Fusen Segment) Табл.  додаток . 
-  Сегмент текстової вкладки (Text Fusen Segment) та ,   також   . 
+  Сегменти текстових вкладок (Text Fusen Segments) використовуються у форматі TAD 
+  для керування форматуванням, атрибутами символів, версткою сторінок та стилями тексту. 
+  Усі сегменти текстових вкладок поділяються на системні (ідентифікатори підтипів 0–127) 
+  та розширення додатків (ідентифікатори 128–255).
 </P>
 
 <TABLE>
-<TR><TH>Сегмент текстової вкладки (Text Fusen Segment)</TH><TH colspan=2>ID</TH></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)    </TD><TD><CODE>TS_TPAGE</CODE></TD><TD><CODE>(0xA0)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)              </TD><TD><CODE>TS_TRULER</CODE></TD><TD><CODE>(0xA1)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)                </TD><TD><CODE>TS_TFONT</CODE></TD><TD><CODE>(0xA2)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TCHAR</CODE></TD><TD><CODE>(0xA3)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)          </TD><TD><CODE>TS_TATTR</CODE></TD><TD><CODE>(0xA4)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TSTYLE</CODE></TD><TD><CODE>(0xA5)</CODE></TD></TR>
-<TR><TD>()                      </TD><TD><CODE>------ </CODE></TD><TD><CODE>(0xA6</CODE>〜<CODE>0xAC)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TVAR  </CODE></TD><TD><CODE>(0xAD)</CODE></TD></TR>
-<TR><TD>Специфічна вкладка (Specified Fusen)            </TD><TD><CODE>TS_TMEMO </CODE></TD><TD><CODE>(0xAE)</CODE></TD></TR>
-<TR><TD>додатокСпецифічна вкладка (Specified Fusen)</TD><TD><CODE>TS_TAPPL </CODE></TD><TD><CODE>(0xAF)</CODE></TD></TR>
+<TR><TH>Сегмент текстової вкладки</TH><TH colspan=2>ID</TH></TR>
+<TR><TD>Сегмент сторінки тексту (Text Page Fusen)</TD><TD><CODE>TS_TPAGE</CODE></TD><TD><CODE>(0xA0)</CODE></TD></TR>
+<TR><TD>Сегмент лінійки тексту / абзацу (Text Ruler Fusen)</TD><TD><CODE>TS_TRULER</CODE></TD><TD><CODE>(0xA1)</CODE></TD></TR>
+<TR><TD>Сегмент шрифту тексту (Text Font Fusen)</TD><TD><CODE>TS_TFONT</CODE></TD><TD><CODE>(0xA2)</CODE></TD></TR>
+<TR><TD>Сегмент атрибутів символів (Text Character Fusen)</TD><TD><CODE>TS_TCHAR</CODE></TD><TD><CODE>(0xA3)</CODE></TD></TR>
+<TR><TD>Сегмент атрибутів тексту (Text Attribute Fusen)</TD><TD><CODE>TS_TATTR</CODE></TD><TD><CODE>(0xA4)</CODE></TD></TR>
+<TR><TD>Сегмент стилю тексту (Text Style Fusen)</TD><TD><CODE>TS_TSTYLE</CODE></TD><TD><CODE>(0xA5)</CODE></TD></TR>
+<TR><TD>(Зарезервовано)</TD><TD><CODE>------</CODE></TD><TD><CODE>(0xA6〜0xAC)</CODE></TD></TR>
+<TR><TD>Змінна тексту (Text Variable Fusen)</TD><TD><CODE>TS_TVAR</CODE></TD><TD><CODE>(0xAD)</CODE></TD></TR>
+<TR><TD>Замітка тексту (Text Memo Fusen)</TD><TD><CODE>TS_TMEMO</CODE></TD><TD><CODE>(0xAE)</CODE></TD></TR>
+<TR><TD>Сегмент текстової вкладки додатка (Application Text Fusen)</TD><TD><CODE>TS_TAPPL</CODE></TD><TD><CODE>(0xAF)</CODE></TD></TR>
 </TABLE>
 
 <P>
-  Сегмент текстової вкладки (Text Fusen Segment)   , 
-   ID   . 
-  ,  ID  , 0 〜 127     TAD  та , 
-  128 〜 255   ( додаток )  та . 
-  додаток Сегмент текстової вкладки (Text Fusen Segment)  , 
-  додаток ID  , 
-  додаток   . 
+  Сегмент текстової вкладки визначає свій підтип у полі SUBID. 
+  Додаток, який зустрічає незнайомий сегмент вкладки, може пропустити його 
+  без порушення обробки решти текстового документа.
 </P>
 
 <A name="acm">
-<CENTER><IMG src="gif/text_fusen.gif" alt="Наліпка (Fusene) "></CENTER>
+<CENTER><IMG src="gif/text_fusen.gif" alt="Структура текстової вкладки"></CENTER>
 </A>
-<CENTER>Мал.  13 : Наліпка (Fusene) </CENTER>
+<CENTER>Мал. 13 : Структура текстової вкладки</CENTER>
 
 <P>
-  Наліпка (Fusene), Наліпка (Fusene) , 
-   ID  Наліпка (Fusene) та Наліпка (Fusene)    та . 
-   Сегмент текстової вкладки (Text Fusen Segment) , 
-       , 
-  ,    та . 
-  Сегмент текстової вкладки (Text Fusen Segment)    , 
-   та  Сегмент текстової вкладки (Text Fusen Segment) , 
-    додаток , 
-   та  також   також   та . 
+  Вкладки форматування застосовуються послідовно в порядку їх появи у тексті. 
+  Вони впливають на наступні текстові символи до появи нової вкладки того самого типу.
 </P>
 
-<H3><A name="acn">3.5.2 Специфічна вкладка (Specified Fusen)</A></H3>
+<H3><A name="acn">3.5.2 Сегменти налаштування сторінки тексту (TS_TPAGE)</A></H3>
 
 <P>
-  Специфічна вкладка (Specified Fusen) , 
-    
-      Наліпка (Fusene) є, 
-  Мал.   випадок ігнорується. 
+  Сегмент TS_TPAGE визначає параметри сторінки, такі як розмір паперу, орієнтація, 
+  поля сторінки та багатоколонкова верстка.
 </P>
 
-<H4>Специфічна вкладка (Specified Fusen):</H4>
+<H4>Сегмент формату сторінки (Page Format Fusen / SUBID 0):</H4>
 
 <P>
-     . 
-     ,  є, 
-     (  )   . 
-    ,    , 
-     ( ,  (  /  )  , 
-    . 
-    A4  ,  ,   A5  та  та , 
-  A4   , 
-  A5   та  . 
+  Визначає фізичний розмір сторінки, орієнтацію паперу та поля.
 </P>
 
 <PRE>
 LEN  :  14
 SUBID:  0
-ATTR :  UB      attr            -- , 
-DATA :  UH      length          --  
-        UH      width           --  
-        UH      top             --  (  )
-        UH      bottom          --  (  )
-        UH      left            --  (  )
-        UH      right           --  (  )
+ATTR :  UB      attr            -- Орієнтація та напрямок верстки (attr)
+DATA :  UH      length          -- Довжина (висота) сторінки
+        UH      width           -- Ширина сторінки
+        UH      top             -- Верхнє поле
+        UH      bottom          -- Нижнє поле
+        UH      left            -- Ліве поле
+        UH      right           -- Праве поле
 </PRE>
 
 <DL compact>
  <DT>attr :   xxxx xxDP
      <DD>
-     <DL>
-      <DT>P : 
-      <DD>0 : 1. <BR>
-          1  . <BR>
-          1 : 2. <BR>
-          2   . 
-           ,  , 
-            , 
-            застосовується. 
-      <DT>D : 
-      <DD>0 : . <BR>
-            . <BR>
-          1 : . <BR>
-            .  , , 
-            , 
-            застосовується. 
-          <UL>
-           <LI>  (  )
-                , , 
-                  та  . 
-          </UL>
+     <DL compact>
+      <DT>P : Орієнтація паперу
+      <DD>0 : Книжкова / портретна орієнтація (Portrait)<BR>
+          1 : Альбомна орієнтація (Landscape)
+      <DT>D : Напрямок верстки тексту
+      <DD>0 : Горизонтальний напрямок тексту (ліворуч-праворуч)<BR>
+          1 : Вертикальний напрямок тексту (згори-вниз)
      </DL>
+ </DD>
 </DL>
 
 <P>
-   ,   є, 
-       . 
-   ,   , 
-    . <BR>
-   та    . 
+  Параметри прямокутника сторінки та полів визначають область верстки тексту. 
+  При роздрукуванні або відображенні сторінка форматується згідно з вказаними межами.
 </P>
 
 <A name="aco">
-<CENTER><IMG src="gif/layout_overlay.gif" alt=" та "></CENTER>
+<CENTER><IMG src="gif/layout_overlay.gif" alt="Формат сторінки та поля"></CENTER>
 </A>
-<CENTER>Мал.  14 :  та </CENTER>
+<CENTER>Мал. 14 : Формат сторінки та поля</CENTER>
 
-<H4>Специфічна вкладка (Specified Fusen):</H4>
+<H4>Сегмент полів сторінки (Page Margins Fusen / SUBID 1):</H4>
 
 <P>
-      . 
+  Змінює значення верхнього, нижнього, лівого та правого полів для наступних сторінок.
 </P>
 
 <PRE>
 LEN  :  10
 SUBID:  1
-ATTR :  UB      −              -- 
-DATA :  UH      top             --  (  )
-        UH      bottom          --  (  )
-        UH      left            --  (  )
-        UH      right           --  (  )
+ATTR :  UB      -               -- (Зарезервовано)
+DATA :  UH      top             -- Верхнє поле
+        UH      bottom          -- Нижнє поле
+        UH      left            -- Ліве поле
+        UH      right           -- Праве поле
 </PRE>
 
 <P>
-     ,    . 
-  ,   . 
-    2   , 
-    ,  . 
-  ,    також ,  . 
-    , <CODE>0xFFFF</CODE>  випадок , 
-        та  . 
-  ,    , , 
-  ,    <CODE>0xFFFF</CODE>  та . 
-    ,   . 
+  Якщо для якогось із полів вказано значення 0xFFFF, поточний розмір цього поля залишається без змін.
 </P>
 
 <A name="acp">
-<CENTER><IMG src="gif/layout_margin.gif" alt=" та "></CENTER></A>
-<CENTER>Мал.  15 :  та </CENTER>
+<CENTER><IMG src="gif/layout_margin.gif" alt="Макет полів сторінки"></CENTER></A>
+<CENTER>Мал. 15 : Макет полів сторінки</CENTER>
 
-<H4>Специфічна вкладка (Specified Fusen):</H4>
+<H4>Сегмент колонкового макета сторінки (Page Columns Fusen / SUBID 2):</H4>
 
 <P>
-     ( Багатоколонковий макет (Columns) )    є, 
-   та ,  ( Поля сторінки (Margins) )  . 
-    та . 
+  Визначає багатоколонкову верстку тексту (кількість колонок та проміжки між ними).
 </P>
 
 <PRE>
 LEN  :  4, 6
 SUBID:  2
-ATTR :  UB      column          -- , 
-DATA :  UH  colsp               -- 
-      [ UH  colline             --  ]
+ATTR :  UB      column          -- Кількість колонок та режим (column)
+DATA :  UH      colsp           -- Міжколонковий інтервал
+      [ UH      colline         -- Стиль розділювальної лінії ]
 </PRE>
-<DL>
+<DL compact>
  <DT>column : Kxxx CCCC
      <DD>
      <DL compact>
-      <DT>CCCC :
-          <DD> ( 0 〜 15 )
-            0, 1  випадок ,  1  та , 
-           . 
-      <DT>K :
-          <DD>
-           0 :   . 
-           1 :   . 
+      <DT>CCCC : Кількість колонок (від 0 до 15).
+          <DD>Значення 0 або 1 означає одноколонкову верстку.
+      <DT>K : Режим вирівнювання колонок
+          <DD>0 : Колонки однакової ширини.<BR>
+              1 : Колонки змінної ширини.
      </DL>
  <DT>colsp:
-     <DD>  . 
-     column = 0, 1    . 
- <DT>colline :
-     <DD>    (   ). 
-          
-        (   ). 
+     <DD>Відстань (проміжок) між сусідніми колонками.
+ <DT>colline:
+     <DD>Стиль розділювальної лінії між колонками (опціональний параметр).
+</DL>
 <PRE>
       DIWW KKKK
 </PRE>
@@ -251,69 +194,55 @@ DATA :  UH  colsp               --
 </DL>
 
 <P>
-  Багатоколонковий макет (Columns) випадок , Код (Code) ( <CODE>0x0B</CODE> )  , 
-   (  )   . 
-  , column = 3   ,  Багатоколонковий макет (Columns) та . 
+  При використанні багатоколонкової верстки код розриву колонки (символ керування <CODE>0x0B</CODE>) 
+  примусово переносить обробку наступного тексту у верхню частину наступної колонки. 
+  Наприклад, для 3-колонкового макета (<CODE>column = 3</CODE>) символ <CODE>0x0B</CODE> виконує послідовний 
+  перехід між колонками на поточній сторінці.
 </P>
 
 <A name="acq">
-<CENTER><IMG src="gif/column_layout.gif" alt="Багатоколонковий макет (Columns)"></CENTER>
+<CENTER><IMG src="gif/column_layout.gif" alt="Багатоколонковий макет"></CENTER>
 </A>
-<CENTER>Мал.  16 : Багатоколонковий макет (Columns)</CENTER>
-
+<CENTER>Мал. 16 : Багатоколонковий макет</CENTER>
 
 <P>
-    , 
-   Специфічна вкладка (Specified Fusen)      , 
-      . 
-     та   випадок . 
-     , Код (Code) , 
-       . 
+  Якщо сторінка завершується або вставляється розрив сторінки, система може автоматично 
+  вирівнювати висоту тексту в усіх колонках (балансування колонок), щоб вони мали однакову довжину.
 </P>
 
 <A name="acr">
-<CENTER><IMG src="gif/balance.gif" alt=" "></CENTER>
+<CENTER><IMG src="gif/balance.gif" alt="Балансування колонок"></CENTER>
 </A>
-<CENTER>Мал.  17 :  </CENTER>
-
+<CENTER>Мал. 17 : Балансування колонок</CENTER>
 
 <P>
-    ,   , 
-    , 
-   випадок  існує. 
-  , 2   . 
+  Зміна кількості колонок (наприклад, з 1 на 2 колонки або навпаки) допускається в будь-якому місці сторінки. 
+  Нижче наведено приклади зміни кількості колонок на одній сторінці:
 </P>
 
 <A name="acs">
-<CENTER><IMG src="gif/change_col1.gif" alt=" (1)"></CENTER>
+<CENTER><IMG src="gif/change_col1.gif" alt="Зміна кількості колонок (варіант 1)"></CENTER>
 </A>
-<CENTER>Мал.  18 :   ( 1 )</CENTER>
-
+<CENTER>Мал. 18 : Зміна кількості колонок (варіант 1)</CENTER>
 
 <A name="act">
-<CENTER><IMG src="gif/change_col2.gif" alt=" (2)"></CENTER>
+<CENTER><IMG src="gif/change_col2.gif" alt="Зміна кількості колонок (варіант 2)"></CENTER>
 </A>
-<CENTER>Мал.  19 :   ( 2 )</CENTER>
+<CENTER>Мал. 19 : Зміна кількості колонок (варіант 2)</CENTER>
 
-
-<H4>3.4.2.4  Наліпка (Fusene):</H4>
+<H4>Сегмент колонтитулів сторінки (Page Header / Footer Fusen / SUBID 3):</H4>
 
 <P>
-    . 
-    16   та   . 
-    ,  ,    , 
-    (  )  та  (  ) , 
-      також  також  існує. 
-   Специфічна вкладка (Specified Fusen)  визначення  , 
-      та   , 
-  Специфічна вкладка (Specified Fusen)   існує. 
+  Визначає верхні та нижні колонтитули сторінки (до 16 різних типів колонтитулів). 
+  Дозволяє задавати вирівнювання (по центру, зліва, справа), номери сторінок, поточну дату 
+  та верхній/нижній розмежувальний кант.
 </P>
 
 <PRE>
-LEN  :  〜
+LEN  :  Змінна
 SUBID:  3
-ATTR :  UB      attr            --  / 
-DATA :  UB      data[]          -- 
+ATTR :  UB      attr            -- Тип колонтитула (верхній/нижній, парна/непарна сторінка)
+DATA :  UB      data[]          -- Дані або текстовий рядок колонтитула
 </PRE>
 <DL>
 <DT>attr:
