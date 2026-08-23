@@ -1,8 +1,8 @@
- <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <HTML>
 <HEAD>
 <TITLE>
-  3.6 Мал. 
+  3.6 Графічні сегменти (Figure Fusen)
 </TITLE>
 <LINK REL="parent" HREF="index.html">
 <LINK REL="previous" HREF="tad2.html">
@@ -14,166 +14,145 @@
   Специфікація BTRON3 (Український переклад) | Специфікація ОС Sakamura BTRON / BTRON3
 </DIV>
 <A href="index.html">Повернутися до змісту цього розділу</A><BR>
-<A href="tad2.html">Попередня сторінка: 3.5 Наліпка (Fusene) (Повернутися)</A><BR>
+<A href="tad2.html">Попередня сторінка: 3.5 Наліпка / Сегмент (Fusen) (Повернутися)</A><BR>
 <A href="fd_format.html">Наступна сторінка: Глава 4 Формат / Синтаксис (Перейти)</A><BR>
 <HR>
 
-<H2><A name="aec">3.6 Мал. </A></H2>
+<H2><A name="aec">3.6 Графічні сегменти (Figure Fusen)</A></H2>
 
 
 <H3><A name="aed">3.6.1 Загальний огляд</A></H3>
 
 <P>
-  Мал.  , 
-  Мал.  Табл.  Мал.   існує. 
-  Мал.  та ,   також   . 
+  Графічні сегменти (Figure Fusen) призначені для представлення векторних та растрових 
+  графічних елементів у форматі TAD. Перелік основних типів графічних сегментів та їхні 
+  ідентифікатори (ID) наведено у таблиці нижче.
 </P>
 
 <TABLE>
-<TR><TH>Мал. </TH><TH colspan=2>ID</TH></TR>
-<TR><TD>Мал.           </TD><TD><CODE>TS_FPRIM</CODE></TD><TD><CODE>(0xB0)</CODE></TD></TR>
-<TR><TD>        </TD><TD><CODE>TS_FDEF</CODE></TD><TD><CODE>(0xB1)</CODE></TD></TR>
-<TR><TD>      </TD><TD><CODE>TS_FGRP</CODE></TD><TD><CODE>(0xB2)</CODE></TD></TR>
-<TR><TD>／  </TD><TD><CODE>TS_FMAC</CODE></TD><TD><CODE>(0xB3)</CODE></TD></TR>
-<TR><TD>Мал.           </TD><TD><CODE>TS_FATTR</CODE></TD><TD><CODE>(0xB4)</CODE></TD></TR>
-<TR><TD>Мал. Наліпка (Fusene)    </TD><TD><CODE>TS_FPAGE</CODE></TD><TD><CODE>(0xB5)</CODE></TD></TR>
-<TR><TD>()                      </TD><TD><CODE>------</CODE></TD><TD><CODE>(0xB6〜0xBD)</CODE></TD></TR>
-<TR><TD>Мал. Наліпка (Fusene)            </TD><TD><CODE>TS_FMEMO</CODE></TD><TD><CODE>(0xBE)</CODE></TD></TR>
-<TR><TD>Мал. додатокНаліпка (Fusene)</TD><TD><CODE>TS_FAPPL</CODE></TD><TD><CODE>(0xBF)</CODE></TD></TR>
+<TR><TH>Графічний сегмент</TH><TH colspan=2>ID</TH></TR>
+<TR><TD>Графічний примітив (Figure Primitive)</TD><TD><CODE>TS_FPRIM</CODE></TD><TD><CODE>(0xB0)</CODE></TD></TR>
+<TR><TD>Визначення графіки (Figure Definition)</TD><TD><CODE>TS_FDEF</CODE></TD><TD><CODE>(0xB1)</CODE></TD></TR>
+<TR><TD>Графічна група (Figure Group)</TD><TD><CODE>TS_FGRP</CODE></TD><TD><CODE>(0xB2)</CODE></TD></TR>
+<TR><TD>Графічний макрос / виклик (Figure Macro/Call)</TD><TD><CODE>TS_FMAC</CODE></TD><TD><CODE>(0xB3)</CODE></TD></TR>
+<TR><TD>Графічні атрибути (Figure Attribute)</TD><TD><CODE>TS_FATTR</CODE></TD><TD><CODE>(0xB4)</CODE></TD></TR>
+<TR><TD>Сторінка графічного сегмента (Figure Page Fusen)</TD><TD><CODE>TS_FPAGE</CODE></TD><TD><CODE>(0xB5)</CODE></TD></TR>
+<TR><TD>(Зарезервовано)</TD><TD><CODE>------</CODE></TD><TD><CODE>(0xB6〜0xBD)</CODE></TD></TR>
+<TR><TD>Замітка графічного сегмента (Figure Memo Fusen)</TD><TD><CODE>TS_FMEMO</CODE></TD><TD><CODE>(0xBE)</CODE></TD></TR>
+<TR><TD>Графічний сегмент додатка (Application Figure Fusen)</TD><TD><CODE>TS_FAPPL</CODE></TD><TD><CODE>(0xBF)</CODE></TD></TR>
 </TABLE>
 
 <P>
-  Мал.    , 
-  ID  . 
-  ,  ID  , 0〜127   TAD та , 
-  128〜255 (додаток) та . 
-  додаток Мал.   , 
-  додатокID , 
-  додаток   . 
+  Кожен графічний сегмент містить ідентифікатор типу (ID). 
+  Ідентифікатори підтипів від 0 до 127 визначені специфікацією TAD як системні, 
+  а значення від 128 до 255 відведені для специфічних розширень додатків (Application Fusen). 
+  Для сегментів додатків указується додатковий ідентифікатор додатка.
 </P>
 
 <A name="aee">
-<CENTER><IMG src="gif/figure_segment.gif" alt="Мал.  "></CENTER>
+<CENTER><IMG src="gif/figure_segment.gif" alt="Структура графічного сегмента"></CENTER>
 </A>
-<CENTER>Мал.  46 : Мал.  </CENTER>
+<CENTER>Мал. 46 : Структура графічного сегмента</CENTER>
 
 
 <P>
-  Мал.  також Наліпка (Fusene) та  , 
-   та  , 
-   Мал.  додаток , 
-   та  також   також   та . 
+  Графічні сегменти, як і інші види сегментів TAD, можуть розширюватися додатками. 
+  Додатки, які не підтримують окремі графічні сегменти, можуть безпечно пропускати їх 
+  без порушення обробки решти документа.
 </P>
 
-<H3><A name="aef">3.6.2 Мал. </A></H3>
+<H3><A name="aef">3.6.2 Графічні примітиви (Figure Primitive Segment TS_FPRIM)</A></H3>
 
 <H4>Загальний огляд</H4>
 
 <P>
-  Мал.  , 
-  Мал.  та Табл.  Мал.   є, 
-   Мал.  та ,   також   існує. 
-   Мал.  
-  () , Графічні примітиви (Display Primitives)   . 
+  Сегмент графічних примітивів (TS_FPRIM) визначає елементарні геометричні фігури. 
+  Примітиви поділяються на заповнені фігури, контурні (лінійні) фігури, текстові елементи 
+  та растрові зображення. Вони безпосередньо відображаються функціями графічних примітивів (Display Primitives).
 </P>
 
-&lt;Мал. &gt;
+&lt;Заповнені фігури&gt;
 <PRE>
-Прямокутник (Rectangle)          -- Прямокутник (Rectangle)
-Прямокутник (Rectangle)      --  Прямокутник (Rectangle)
-Еліпс / Коло (Ellipse / Circle)            -- Еліпс / Коло (Ellipse / Circle)
-Сектор (Pie / Sector)            -- ()Дуга (Arc) та ,   та   Мал. 
-Хорда (Chord)            -- ()Дуга (Arc) та ,    Мал. 
-Багатокутник (Polygon)          -- Багатокутник (Polygon),  Багатокутник (Polygon)
-            --   Мал. 
+Прямокутник (Rectangle)           -- Заповнений прямокутник
+Скруглений прямокутник            -- Прямокутник зі скругленими кутами
+Еліпс / Коло (Ellipse / Circle)   -- Заповнений еліпс або коло
+Сектор (Pie / Sector)             -- Сектор, обмежений дугою та радіусами
+Хорда (Chord)                     -- Сегмент, обмежений дугою та хордою
+Багатокутник (Polygon)            -- Заповнений багатокутник
 </PRE>
-&lt;Мал. &gt;
+&lt;Контурні / Лінійні фігури&gt;
 <PRE>
-Відрізок прямої (Line)            -- Відрізок прямої (Line)
-Еліпс / Коло (Ellipse / Circle)          -- Еліпс / Коло (Ellipse / Circle)Дуга (Arc)
-Ламана лінія (Polyline)          -- Відрізок прямої (Line)
-            --  
+Відрізок прямої (Line)            -- Лінійний відрізок
+Дуга (Arc)                        -- Дуга еліпса або кола
+Ламана лінія (Polyline)           -- Послідовність з'єднаних відрізків
+Крива / Сплайн (Curve)            -- Довільна крива або сплайн
 </PRE>
-&lt;Мал. &gt;
+&lt;Текстовий примітив&gt;
 <PRE>
-      --   
+Текст (Text Primitive)            -- Текстовий елемент у графіці
 </PRE>
-&lt;Мал. &gt;
+&lt;Растрове зображення&gt;
 <PRE>
-Мал.         --   Мал. 
+Бітова матриця (Bitmap)           -- Растрове зображення
 </PRE>
 <P>
-  Мал.   ,  Параметри . 
-   Параметри , Мал.  . 
+  Кожен графічний примітив містить параметри малювання, які визначають режим 
+  накладання (Mode), товщину лінії, візерунки лінії та заповнення, а також координати.
 </P>
-&lt;Режим (Mode)&gt;
+&lt;Режим малювання (Mode)&gt;
 <P>
-  Режим (Mode) ,   та  , 
-  (src) та , 
-     (dest)  та , 
-    (result)  та    також   є, 
-    також   . 
+  Режим малювання задає логічну операцію між пікселями джерела (src) та пікселями 
+  призначального зображення (dest) з виведенням результату (result):
 </P>
 <PRE>
-        0       STORE   : (src)                         →  (result)
-        1       XOR     : (src) XOR (dest)              →  (result)
-        2       OR      : (src) OR  (dest)              →  (result)
-        3       AND     : (src) AND (dest)              →  (result)
-        4       CPYN    : (NOT (src))                   →  (result)
+        0       STORE   : (src)                         →  (result) (Прямий запис)
+        1       XOR     : (src) XOR (dest)              →  (result) (Виключне АБО)
+        2       OR      : (src) OR  (dest)              →  (result) (Логічне АБО)
+        3       AND     : (src) AND (dest)              →  (result) (Логічне І)
+        4       CPYN    : (NOT (src))                   →  (result) (Інверсія джерела)
         5       XORN    : (NOT (src)) XOR (dest)        →  (result)
         6       ORN     : (NOT (src)) OR  (dest)        →  (result)
         7       ANDN    : (NOT (src)) AND (dest)        →  (result)
-        8〜 
+        8〜255   Зарезервовано
 </PRE>
-&lt;&gt;
+&lt;Атрибут лінії (l_atr)&gt;
 <P>
-  Мал. , 
-  Мал.       UH  . <BR>
-  Мал.   . </P>
+  Параметр l_atr описується величиною типу UH (16 біт), де молодші 8 біт задають 
+  товщину лінії (0-255 пікселів), а старші 8 біт задають ідентифікатор стилю лінії.
+</P>
 <PRE>
     TTTT TTTT WWWW WWWW
 </PRE>
 <DL>
- <DT>W : Товщина лінії (Line Width) (8) (0〜255)
- <DD> ()    також  . 
-      та    ,   
-      також   та . 
-     0 випадок ,  . 
- <DT>T : ID (8) (0〜255)
- <DD>«» ID. 
+ <DT>W : Товщина лінії (Line Width) (8 біт) (0〜255)
+ <DD>Задає товщину лінії в пікселях. Якщо товщина дорівнює 0, лінія не малюється.
+ <DT>T : ID стилю лінії (8 біт) (0〜255)
+ <DD>Ідентифікатор стилю або візерунка контуру.
 </DL>
-&lt;&gt;
+&lt;Візерунок контуру та заповнення (l_pat, f_pat)&gt;
 <P>
-  Мал. , 
-  Мал.     UH  . 
-<BR>
-   Товщина лінії (Line Width) 0 , Мал.   . 
+  Параметр l_pat визначає ID візерунка для контурної лінії, а f_pat — ID візерунка 
+  заповнення внутрішньої області фігури. Якщо товщина лінії дорівнює 0, контур не виводиться.
 </P>
 <PRE>
     0       : 
     0: «<A href="tad3.html#aeia"></A>» ID
 </PRE>
-&lt;&gt;
+&lt;Візерунок лінії / контуру (l_pat)&gt;
 <P>
-  Мал. , 
-  Мал.      UH  . 
-<BR>
-  Мал.   . 
+  Параметр l_pat визначає ідентифікатор (ID) візерунка контурної лінії.
+  Значення 0 відповідає суцільній лінії за замовчуванням.
 </P>
-<PRE>
-        0       : 
-        0: «<A href="tad3.html#aeia"></A>» ID
-</PRE>
-&lt;&gt;
+&lt;Візерунок заповнення (f_pat)&gt;
 <P>
-  Прямокутник (Rectangle), Еліпс / Коло (Ellipse / Circle), Еліпс / Коло (Ellipse / Circle) Мал.  , 
-   Прямокутник (Rectangle) Мал.  . 
-   Прямокутник (Rectangle) , ()  Прямокутник (Rectangle) , 
-      та , 
-   Мал.  та Табл. . <BR>
-   ,   . UH   , 360    та . 
-  <BR>
-  Багатокутник (Polygon), Відрізок прямої (Line), Ламана лінія (Polyline), , Мал.   . 
+  Параметр f_pat визначає ідентифікатор (ID) візерунка заповнення внутрішньої області фігури.
+  Значення 0 відповідає суцільному заповненню за замовчуванням.
+</P>
+&lt;Описовий прямокутник та кут обертання&gt;
+<P>
+  Для фігур (прямокутник, еліпс, сектор тощо) задається описовий прямокутник (RECT frame) 
+  та кут обертання (angle). Якщо кут angle ≠ 0, фігура повертається навколо центра прямокутника frame 
+  проти годинникової стрілки (повне коло виражається значенням 360 градусів або 65536).
 </P>
 
 <H4>Прямокутник (Rectangle):</H4>
@@ -199,85 +178,76 @@ DATA :  UH      l_atr           --
 <PRE>
 LEN  :  22
 SUBID:  1
-ATTR :  UB      mode            -- Режим (Mode)
-DATA :  UH      l_atr           -- 
-        UH      l_pat           -- ID
-        UH      f_pat           -- ID
-        UH      angle           -- 
-        UH      rh              --  
-        UH      rv              --  
-        RECT    frame           -- Прямокутник (Rectangle)
+ATTR :  UB      mode            -- Режим малювання (Mode)
+DATA :  UH      l_atr           -- Атрибути лінії (Line Attribute)
+        UH      l_pat           -- ID візерунка контуру (Line Pattern ID)
+        UH      f_pat           -- ID візерунка заповнення (Fill Pattern ID)
+        UH      angle           -- Кут обертання (Angle)
+        UH      rh              -- Горизонтальний радіус скруглення
+        UH      rv              -- Вертикальний радіус скруглення
+        RECT    frame           -- Описовий прямокутник (Frame)
 </PRE>
 <DL>
  <DT>rh, rv:
- <DD>Прямокутник (Rectangle)   для Еліпс / Коло (Ellipse / Circle)  , 
-       . 
+ <DD>Радіуси закруглення кутів прямокутника по горизонталі та вертикалі відповідно.
 </DL>
 
 <H4>Еліпс / Коло (Ellipse / Circle):</H4>
 <P>
-  Еліпс / Коло (Ellipse / Circle),   . 
+  Заповнений еліпс або коло, вписане у прямокутну рамку frame.
 </P>
 <PRE>
 LEN  :  18
 SUBID:  2
-ATTR :  UB      mode            -- Режим (Mode)
-DATA :  UH      l_atr           -- 
-        UH      l_pat           -- ID
-        UH      f_pat           -- ID
-        UH      angle           -- 
-        RECT    frame           -- Прямокутник (Rectangle)
+ATTR :  UB      mode            -- Режим малювання (Mode)
+DATA :  UH      l_atr           -- Атрибути лінії (Line Attribute)
+        UH      l_pat           -- ID візерунка контуру (Line Pattern ID)
+        UH      f_pat           -- ID візерунка заповнення (Fill Pattern ID)
+        UH      angle           -- Кут обертання (Angle)
+        RECT    frame           -- Описовий прямокутник (Frame)
 </PRE>
 
 <H4>Сектор (Pie / Sector):</H4>
 
 <P>
-Сектор (Pie / Sector) . <BR>
-Сектор (Pie / Sector) ()Дуга (Arc) та ,   та   Мал.  існує. 
+  Графічний сектор, обмежений дугою кола/еліпса та двома радіусами від центра.
 </P>
 <PRE>
 LEN  :  26
 SUBID:  3
-ATTR :  UB      mode            -- Режим (Mode)
-DATA :  UH      l_atr           -- 
-        UH      l_pat           -- ID
-        UH      f_pat           -- ID
-        UH      angle           -- 
-        RECT    frame           -- Прямокутник (Rectangle)
-        PNT     start           -- 
-        PNT     end             -- 
+ATTR :  UB      mode            -- Режим малювання (Mode)
+DATA :  UH      l_atr           -- Атрибути лінії (Line Attribute)
+        UH      l_pat           -- ID візерунка контуру (Line Pattern ID)
+        UH      f_pat           -- ID візерунка заповнення (Fill Pattern ID)
+        UH      angle           -- Кут обертання (Angle)
+        RECT    frame           -- Описовий прямокутник (Frame)
+        PNT     start           -- Початкова точка дуги
+        PNT     end             -- Кінцева точка дуги
 </PRE>
 <DL>
- <DD>start, end:
- <DD>frame  Прямокутник (Rectangle) та () ,  та  start   
-      та ()   ,  та  end  Відрізок прямої (Line) та ()
-          та ()Дуга (Arc) та . (start, end  ()
-       ). 
+ <DT>start, end:
+ <DD>Точки start та end задають промені з центра прямокутника frame, які визначають початковий та кінцевий кути дуги сектора.
 </DL>
 
 <H4>Хорда (Chord):</H4>
 <P>
-Хорда (Chord) . <BR>
-Хорда (Chord) ()Дуга (Arc) та ,   Мал.  існує. 
+  Сегмент еліпса/кола, обмежений дугою та прямим відрізком (хордою) між точками start і end.
 </P>
 <PRE>
 LEN  :  26
 SUBID:  4
-ATTR :  UB      mode            -- Режим (Mode)
-DATA :  UH      l_atr           -- 
-        UH      l_pat           -- ID
-        UH      f_pat           -- ID
-        UH      angle           -- 
-        RECT    frame           -- Прямокутник (Rectangle)
-        PNT     start           -- 
-        PNT     end             -- 
+ATTR :  UB      mode            -- Режим малювання (Mode)
+DATA :  UH      l_atr           -- Атрибути лінії (Line Attribute)
+        UH      l_pat           -- ID візерунка контуру (Line Pattern ID)
+        UH      f_pat           -- ID візерунка заповнення (Fill Pattern ID)
+        UH      angle           -- Кут обертання (Angle)
+        RECT    frame           -- Описовий прямокутник (Frame)
+        PNT     start           -- Початкова точка дуги
+        PNT     end             -- Кінцева точка дуги
 </PRE>
 <DL>
  <DT>start, end:
- <DD>frame  Прямокутник (Rectangle) та () ,  та  start   
-      та ()   ,  та  end  Відрізок прямої (Line) та ()
-          та ()Дуга (Arc) та . (start, end  ()
-       ). 
+ <DD>Точки start та end визначають початковий і кінцевий кути дуги еліпса, а також кінці хорди.
 </DL>
 
 <H4>Багатокутник (Polygon):</H4>
@@ -456,7 +426,7 @@ DATA :  UH  f_pat               -- ID
 </A>
 <CENTER>Мал.  47 : Мал.  </CENTER>
 
-<H3><A name="aeh">3.6.3 </A></H3>
+<H3><A name="aeh">3.6.3 Визначення графічних об'єктів (Figure Definition Segment TS_FDEF)</A></H3>
 
 <H4>Загальний огляд</H4>
 <P>
@@ -716,7 +686,7 @@ DATA :  UH      id              -- ID
 </DL>
 
 
-<H3><A name="aem">3.6.4 </A></H3>
+<H3><A name="aem">3.6.4 Графічні групи (Figure Group Segment TS_FGRP)</A></H3>
 
 <H4>:</H4>
 
@@ -747,7 +717,7 @@ ATTR :  UB      −              --
 </DL>
 
 
-<H3><A name="aen">3.6.5 ／</A></H3>
+<H3><A name="aen">3.6.5 Графічні макроси / виклики (Figure Macro/Call Segment TS_FMAC)</A></H3>
 
 <H4>:</H4>
 
@@ -783,7 +753,7 @@ DATA :  UH  id                  -- ID
 </PRE>
 
 
-<H3><A name="aeo">3.6.6 Мал. </A></H3>
+<H3><A name="aeo">3.6.6 Графічні атрибути (Figure Attribute Segment TS_FATTR)</A></H3>
 <P>
   Мал.  ,    . 
    та  ,  Мал.   , 
@@ -883,7 +853,7 @@ DATA :  H       dh              --
 </P>
 
 
-<H3><A name="aeq">3.6.7 Мал. Наліпка (Fusene)</A></H3>
+<H3><A name="aeq">3.6.7 Сторінки графічного сегмента (Figure Page Fusen TS_FPAGE)</A></H3>
 
 <P>
 Мал. Наліпка (Fusene) , 
@@ -913,7 +883,7 @@ DATA :  H       dh              --
 </P>
 
 
-<H3><A name="aer">3.6.8 Мал. Наліпка (Fusene)</A></H3>
+<H3><A name="aer">3.6.8 Замітки графічного сегмента (Figure Memo Fusen TS_FMEMO)</A></H3>
 
 <P>
   Мал. Наліпка (Fusene) ,    Наліпка (Fusene) існує. 
@@ -938,7 +908,7 @@ DATA :  UB      memo[]          --
 </PRE>
 
 
-<H3><A name="aes">3.6.9 Мал. додатокНаліпка (Fusene)</A></H3>
+<H3><A name="aes">3.6.9 Графічні сегменти додатків (Application Figure Fusen TS_FAPPL)</A></H3>
 
 <P>
   Мал. додатокНаліпка (Fusene) , 
