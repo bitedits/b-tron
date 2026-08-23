@@ -26,7 +26,7 @@
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gdra_lin</FONT></TD></TR>
 <TR><TD align="right">Draw Line</TD></TR>
-<TR><TD>Малювання відрізка прямої лінії</TD></TR>
+<TR><TD>Малювання відрізка прямої лінії (Draw Line)</TD></TR>
 </TABLE></TD></TR></TABLE>
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
@@ -34,39 +34,60 @@ ERR gdra_lin(GID gid, PNT *p1, PNT *p2, PAT *pat, W mode)
 </PRE>
 <H4>【Параметри】</H4>
 <PRE>
-GID  gid    ID середовища малювання
-PNT *p1     Початкова точка відрізка
-PNT *p2     Кінцева точка відрізка
-PAT *pat    Патерн малювання лінії (NULL = колір за замовчуванням)
-W    mode   Режим накладання (DM_PAINT, DM_OVER, DM_XOR тощо)
+GID  gid    Дескриптор середовища малювання
+PNT *p1     Початкова точка відрізка (X1, Y1)
+PNT *p2     Кінцева точка відрізка (X2, Y2)
+PAT *pat    Патерн малювання лінії (NULL = суцільний колір за замовчуванням)
+W    mode   Режим накладання пікселів (DM_PAINT, DM_OVER, DM_XOR тощо)
 </PRE>
 <H4>【Значення, що повертається】</H4>
 <PRE>
-= 0     Успішне виконання (E_OK)
-&lt; 0     Помилка (EG_GID, EG_ADR, EG_PAR)
+= 0 (E_OK) : Успішне малювання
+&lt; 0        : Помилка (EG_GID, EG_ADR, EG_PAR)
 </PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  Проводить прямолінійний відрізок між точками <CODE>p1</CODE> та <CODE>p2</CODE> у середовищі <CODE>gid</CODE> з урахуванням товщини лінії, стилю та режиму малювання <CODE>mode</CODE>.
+</P>
 
 <!-- gtst_pnt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gtst_pnt</FONT></TD></TR>
 <TR><TD align="right">Test Pixel Value</TD></TR>
-<TR><TD>Отримання значення пікселя в точці</TD></TR>
+<TR><TD>Отримання кольору та значення пікселя в точці (Test Point)</TD></TR>
 </TABLE></TD></TR></TABLE>
 <H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gtst_pnt(GID gid, PNT *p, COLOR *col, PIXVAL *pixv)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID     gid   Дескриптор середовища малювання
+PNT    *p     Координати тестової точки (X, Y)
+COLOR  *col   Буфер для збереження структури кольору (COLOR)
+PIXVAL *pixv  Буфер для збереження сирого значення пікселя в растрі
+</PRE>
+<H4>【Значення, що повертається】</H4>
+<PRE>
+= 0 (E_OK) : Успішно отримано колір пікселя
+&lt; 0        : Помилка (EG_GID, EG_ADR, EG_PAR)
 </PRE>
 
 <!-- gdra_pnt / gfil_pnt -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gdra_pnt / gfil_pnt</FONT></TD></TR>
 <TR><TD align="right">Draw Point / Fill Seed</TD></TR>
-<TR><TD>Малювання одиночної точки та заливка замкненої області</TD></TR>
+<TR><TD>Малювання точкового пікселя та заливка замкненої області</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gdra_pnt(GID gid, PNT *p, PAT *pat, W mode)
 ERR gfil_pnt(GID gid, PNT *seed, PAT *pat, W mode)
 </PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  <CODE>gdra_pnt()</CODE> видобуває та зафарбовує одиночний піксель у точці <CODE>p</CODE>. <CODE>gfil_pnt()</CODE> виконує алгоритм заливки замкненої суцільної області патерном <CODE>pat</CODE>, починаючи з початкової точки заповнення <CODE>seed</CODE> (Flood Fill).
+</P>
 
 <H3><A name="aee">2.4.2 Прямокутники</A></H3>
 
@@ -76,10 +97,22 @@ ERR gfil_pnt(GID gid, PNT *seed, PAT *pat, W mode)
 <TR><TD align="right">Frame / Fill Rectangle</TD></TR>
 <TR><TD>Малювання контуру та заповнення прямокутника</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gfra_rec(GID gid, RECT *r, PAT *pat, W mode)
 ERR gfil_rec(GID gid, RECT *r, PAT *pat, W mode)
 </PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   gid   Дескриптор середовища малювання
+RECT *r     Координати прямокутника (left, top, right, bottom)
+PAT  *pat   Патерн малювання лінії контуру або заповнення внутрішньої області
+W     mode  Режим растрових операцій малювання (DM_PAINT, DM_OVER, DM_XOR)
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  <CODE>gfra_rec()</CODE> малює рамку/контур прямокутника <CODE>r</CODE>. <CODE>gfil_rec()</CODE> зафарбовує суцільну прямокутну область <CODE>r</CODE> патерном <CODE>pat</CODE>.
+</P>
 
 <H3><A name="aeg">2.4.3 Прямокутники із закругленими кутами</A></H3>
 
@@ -89,9 +122,18 @@ ERR gfil_rec(GID gid, RECT *r, PAT *pat, W mode)
 <TR><TD align="right">Frame / Fill Round Rectangle</TD></TR>
 <TR><TD>Малювання контуру та заповнення скругленого прямокутника</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gfra_rrc(GID gid, RECT *r, SIZE *rad, PAT *pat, W mode)
 ERR gfil_rrc(GID gid, RECT *r, SIZE *rad, PAT *pat, W mode)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   gid   Дескриптор середовища малювання
+RECT *r     Координати прямокутника
+SIZE *rad   Радіуси скруглення кутів (rad->w по X, rad->h по Y)
+PAT  *pat   Патерн заповнення або контуру
+W     mode  Режим малювання
 </PRE>
 
 <H3><A name="aeh">2.4.4 Еліпси та кола</A></H3>
@@ -100,12 +142,17 @@ ERR gfil_rrc(GID gid, RECT *r, SIZE *rad, PAT *pat, W mode)
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gfra_ovl / gfil_ovl</FONT></TD></TR>
 <TR><TD align="right">Frame / Fill Oval</TD></TR>
-<TR><TD>Малювання контуру та заповнення еліпса</TD></TR>
+<TR><TD>Малювання контуру та заповнення еліпса / кола</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gfra_ovl(GID gid, RECT *r, PAT *pat, W mode)
 ERR gfil_ovl(GID gid, RECT *r, PAT *pat, W mode)
 </PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  Малюють контур або заповнюють еліпс (або коло), вписаний у прямокутник <CODE>r</CODE>.
+</P>
 
 <H3><A name="aej">2.4.5 Дуги, сектори та сегменти</A></H3>
 
@@ -115,12 +162,22 @@ ERR gfil_ovl(GID gid, RECT *r, PAT *pat, W mode)
 <TR><TD align="right">Arcs, Sectors, and Chords</TD></TR>
 <TR><TD>Малювання дуги, контуру/заповнення сектора та хорди (сегмента)</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gdra_arc(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
 ERR gfra_sec(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
 ERR gfil_sec(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
 ERR gfra_cho(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
 ERR gfil_cho(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   gid     Дескриптор середовища малювання
+RECT *r       Описовий прямокутник еліпса
+W     start   Початковий кут у градусах (0 = 3 години, за годинниковою стрілкою)
+W     extent  Кутовий діапазон дуги у градусах
+PAT  *pat     Патерн малювання
+W     mode    Режим растрової операції
 </PRE>
 
 <H3><A name="aek">2.4.6 Багатокутники та ламані лінії</A></H3>
@@ -131,11 +188,24 @@ ERR gfil_cho(GID gid, RECT *r, W start, W extent, PAT *pat, W mode)
 <TR><TD align="right">Polyline / Frame Polygon / Fill Polygon</TD></TR>
 <TR><TD>Малювання ламаної лінії, контуру багатокутника та заповнення полігону</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gdra_pln(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 ERR gfra_pol(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 ERR gfil_pol(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 </PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID  gid    Дескриптор середовища малювання
+PNT *pts    Масив вершин / точок
+W    npts   Кількість точок у масиві pts
+PAT *pat    Патерн малювання
+W    mode   Режим малювання
+</PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  <CODE>gdra_pln()</CODE> малює незамкнену ламану лінію. <CODE>gfra_pol()</CODE> малює замкнений контур багатокутника. <CODE>gfil_pol()</CODE> зафарбовує внутрішню область багатокутника будь-якої складності.
+</P>
 
 <H3><A name="aem">2.4.7 Довільні фігури та регіони</A></H3>
 
@@ -145,6 +215,7 @@ ERR gfil_pol(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 <TR><TD align="right">Fill Generic Shape / Fill Region</TD></TR>
 <TR><TD>Заповнення узагальненої фігури та графічного регіону GRGN</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gfil_gen(GID gid, GSHP *shp, PAT *pat, W mode)
 ERR gfil_rgn(GID gid, GRGN *rgn, PAT *pat, W mode)
@@ -156,11 +227,20 @@ ERR gfil_rgn(GID gid, GRGN *rgn, PAT *pat, W mode)
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gdra_spl / gfil_spl</FONT></TD></TR>
 <TR><TD align="right">Draw / Fill Spline Curve</TD></TR>
-<TR><TD>Малювання та заповнення замкненої кривої Безьє / сплайна</TD></TR>
+<TR><TD>Малювання та заповнення замкненої кривої Безьє / В-сплайна</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gdra_spl(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 ERR gfil_spl(GID gid, PNT *pts, W npts, PAT *pat, W mode)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID  gid    Дескриптор середовища малювання
+PNT *pts    Масив керуючих точок сплайна
+W    npts   Кількість точок
+PAT *pat    Патерн малювання
+W    mode   Режим малювання
 </PRE>
 
 <H3><A name="aeo">2.4.9 Операції з бітовими картами (BitBlt, Rotate, Scroll, Compress)</A></H3>
@@ -169,10 +249,19 @@ ERR gfil_spl(GID gid, PNT *pts, W npts, PAT *pat, W mode)
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gcop_bmp</FONT></TD></TR>
 <TR><TD align="right">Copy Bitmap (BitBlt)</TD></TR>
-<TR><TD>Копіювання блоку пікселів між бітовими картами</TD></TR>
+<TR><TD>Копіювання блоку пікселів між бітовими картами (BitBlt)</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gcop_bmp(GID dst_gid, RECT *dst_r, GID src_gid, RECT *src_r, W mode)
+</PRE>
+<H4>【Параметри】</H4>
+<PRE>
+GID   dst_gid   Дескриптор призначального середовища
+RECT *dst_r     Прямокутник призначення у dst_gid
+GID   src_gid   Дескриптор джерельного середовища
+RECT *src_r     Прямокутник джерела у src_gid
+W     mode      Режим накладання (DM_PAINT, DM_OVER, DM_XOR)
 </PRE>
 
 <!-- gsav_bmp / grst_bmp / grst_mbm -->
@@ -181,6 +270,7 @@ ERR gcop_bmp(GID dst_gid, RECT *dst_r, GID src_gid, RECT *src_r, W mode)
 <TR><TD align="right">Save / Restore Bitmap</TD></TR>
 <TR><TD>Збереження та відновлення прямокутної області пікселів</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR gsav_bmp(GID gid, RECT *r, BITMAP *bmap)
 ERR grst_bmp(GID gid, RECT *r, BITMAP *bmap, W mode)
@@ -193,17 +283,23 @@ ERR grst_mbm(GID gid, RECT *r, BITMAP *bmap, BITMAP *mask, W mode)
 <TR><TD align="right">Rotate Bitmap / Scroll Rectangle</TD></TR>
 <TR><TD>Поворот растру (90/180/270°) та апаратне прокручування прямокутника</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 ERR grot_bmp(GID dst_gid, RECT *dst_r, GID src_gid, RECT *src_r, W angle, W mode)
 ERR gscr_rec(GID gid, RECT *r, W dh, W dv, PAT *pat, W mode)
 </PRE>
+<H4>【Детальний опис】</H4>
+<P>
+  <CODE>grot_bmp()</CODE> виконує поворот растрового прямокутника на кут <CODE>angle</CODE> (90°, 180°, 270°). <CODE>gscr_rec()</CODE> здійснює швидке скролювання вмісту прямокутника <CODE>r</CODE> на <CODE>(dh, dv)</CODE> пікселів.
+</P>
 
 <!-- gsiz_cbm / gcom_bmp / gunc_bmp -->
 <TABLE border=2 width="100%"><TR><TD><TABLE width="100%">
 <TR><TD><FONT size="+2">gsiz_cbm / gcom_bmp / gunc_bmp</FONT></TD></TR>
 <TR><TD align="right">Compress / Decompress Bitmap</TD></TR>
-<TR><TD>Стиснення та розпакування бітових карт алгоритмом RLE/PackBits</TD></TR>
+<TR><TD>Стиснення та розпакування бітових карт (RLE/PackBits)</TD></TR>
 </TABLE></TD></TR></TABLE>
+<H4>【Синтаксис / Прототип】</H4>
 <PRE>
 W   gsiz_cbm(BITMAP *bmap, W format)
 ERR gcom_bmp(BITMAP *bmap, B *dst, W *dst_size, W format)
