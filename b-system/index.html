@@ -3,54 +3,68 @@
 <HEAD>
 <META CHARSET="UTF-8">
 <META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
-<TITLE>Документація B-System (BSD BTRON)</TITLE>
+<TITLE>Документація B-System (BSD/MIT BTRON 3.20 - 2026)</TITLE>
 <LINK REL="stylesheet" HREF="doc.css">
 </HEAD>
 <BODY>
     <DIV CLASS="doc-header-banner" STYLE="background:#0057b7;">
-      Специфікація B-System OS | Головний зміст (BSD-licensed BTRON)
+      Специфікація B-System OS | Головний зміст (B-TRON 3.20 BSD/MIT)
     </DIV>
 
     <A href="../index.html">← Головна сторінка BTRON System Plane (OS.1)</A><BR><BR>
-    <H1>Специфікація B-System (Версія 1.0.0)</H1>
+    <H1>Специфікація B-System (B-TRON 3.20)</H1>
 
     <P>
-      <B>B-System</B> — це майбутня сучасна реалізація стандартів B-TRON та ITRON, розповсюджувана під вільними та пермісивними ліцензіями <B>ICS / MIT / X11 / BSD</B>. Система орієнтована на інтеграцію з мікрогіпервізорами типу seL4 та VirtIO-пристроями у складі платформи Synrc VE OS.1.
+      <B>B-System</B> — це сучасна ергономічна реалізація стандартів B-TRON 3.20 та µITRON, розповсюджувана під пермісивними ліцензіями <B>MIT / BSD 2-Clause / ISC</B>. Система спроектована для віртуалізованих середовищ <B>VirtIO 1.4</B>, гіпервізорів <B>seL4 / Synrc VE OS.1</B>, радіотехнічної обробки сигналів (DSP/SDR) та неонової векторної wireframe-графіки (TRON / NetWars).
     </P>
     
     <DIV STYLE='background:#e0f2fe; border: 1px solid #bae6fd; padding:15px; border-radius:6px; margin: 20px 0;'>
-      <H3 STYLE='margin-top:0; color:#0369a1;'>Примітка щодо ліцензування</H3>
-      На відміну від історичного проекту B-Free (який базувався на ліцензії GPL), код B-System розробляється з нуля як комерційно придатна, повністю чиста реалізація (clean-room) під пермісивними ліцензіями BSD/MIT. Детальніше див. на сторінці <A href="license.html"><B>Умови ліцензії B-System</B></A>.
+      <H3 STYLE='margin-top:0; color:#0369a1;'>Примітка щодо сучасної архітектури 2026 року</H3>
+      Усі архаїчні апаратні обмеження (FDC, CHS, 16-бітна сегментація, ISA/VLB, COM-порти 8250/16550) повністю вилучені. B-System спирається на плоску адресацію RISC-V 64 / ARM64 / x86_64, VirtIO-MMIO/PCI, безблокувальні черги Virtqueue та хостовий біт-блітінг <B>SDL2</B>. Детальніше див. <A href="license.html"><B>Умови ліцензії B-System</B></A>.
     </DIV>
 
     <HR>
     <H2>Зміст специфікації B-System за розділами</H2>
 
     <DL class="toc-container">
-      <DT><H3>Частина 1. Специфікації мікроядер та менеджерів</H3></DT>
+      <DT><H3>Частина 1. Мікроядра та Менеджери</H3></DT>
       <DD>
         <UL class="toc-sublist">
           <LI><A href="kernel.html">Розділ 1: Вступ та загальна архітектура B-System</A></LI>
-          <LI><A href="kernel.html#ch2">Розділ 2: Специфікація ядра мікроконтролера µITRON</A></LI>
+          <LI><A href="kernel.html#ch2">Розділ 2: Ядро мікроконтролера µITRON (DSP / Real-time)</A></LI>
           <LI><A href="kernel.html#ch3">Розділ 3: Менеджер системного ядра BTRON</A></LI>
         </UL>
       </DD>
 
-      <DT><H3>Частина 2. Графіка, Об'єкти та Інтерфейс користувача</H3></DT>
+      <DT><H3>Частина 2. Графіка, Об'єкти та Wireframe Engine</H3></DT>
       <DD>
         <UL class="toc-sublist">
-          <LI><A href="btron_spec.html">Розділ 4: Графічні примітиви та рушій рендерингу Display Primitives (DP)</A></LI>
+          <LI><A href="btron_spec.html">Розділ 4: Графічні примітиви DP та Wireframe Engine (TRON/NetWars)</A></LI>
           <LI><A href="btron_spec.html#ch5">Розділ 5: Менеджер вікон (Window Manager) та Графічна оболонка</A></LI>
           <LI><A href="btron_spec.html#ch6">Розділ 6: Архітектура Реальних та Віртуальних об'єктів (VOBJ)</A></LI>
         </UL>
       </DD>
 
-      <DT><H3>Частина 3. Дані та Апаратна інтеграція</H3></DT>
+      <DT><H3>Частина 3. Дані, Віртуалізація та VirtIO</H3></DT>
       <DD>
         <UL class="toc-sublist">
           <LI><A href="../doc/shared_data/tad1.html">Розділ 7: Уніфіковані формати документів TRON Application Document (TAD)</A></LI>
-          <LI><A href="../doc/shared_data/fd_format.html">Розділ 8: Специфікація файлової системи BTRON FS та розмітки дисків</A></LI>
-          <LI><A href="kernel.html#ch9">Розділ 9: Віртуалізація VirtIO, seL4 та запуск під керуванням Synrc VE OS.1</A></LI>
+          <LI><A href="../doc/shared_data/fd_format.html">Розділ 8: Файлова система BTRON FS та структура об'єктних накопичувачів</A></LI>
+          <LI><A href="virtio.html">Розділ 9: Віртуалізація VirtIO & Synrc VE</A></LI>
+          <DD>
+            <UL class="toc-sublist" style="margin-top:0.2rem;">
+              <LI><A href="virtio.html#ch9-1">9.1: Матриця Хостів Synrc VE</A></LI>
+              <LI><A href="virtio.html#ch9-2">9.2: Кільцеві Буфери Virtqueue</A></LI>
+              <LI><A href="virtio.html#ch9-3">9.3: Транспорт MMIO/PCI</A></LI>
+              <LI><A href="virtio.html#ch9-4">9.4: Графіка VirtIO-GPU & SDL2</A></LI>
+              <LI><A href="virtio.html#ch9-5">9.5: Дискові Накопичувачі</A></LI>
+              <LI><A href="virtio.html#ch9-6">9.6: Мережевий Адаптер</A></LI>
+              <LI><A href="virtio.html#ch9-7">9.7: Консоль та SDR-Телеметрія</A></LI>
+              <LI><A href="virtio.html#ch9-8">9.8: Апаратна Криптографія</A></LI>
+              <LI><A href="virtio.html#ch9-9">9.9: Автовизначення Шини</A></LI>
+              <LI><A href="virtio.html#ch9-10">9.10: Безпека VirtIO 1.4</A></LI>
+            </UL>
+          </DD>
         </UL>
       </DD>
     </DL>
@@ -61,8 +75,10 @@
             <div>Специфікація B-System (Ліцензія BSD/MIT)</div>
             <ul class="doc-footer-links">
                 <li><a href="index.html">Головний зміст</a></li>
+                <li><a href="kernel.html">Ядро</a></li>
+                <li><a href="btron_spec.html">GUI & DP</a></li>
+                <li><a href="virtio.html">VirtIO & VE</a></li>
                 <li><a href="license.html">Ліцензування</a></li>
-                <li><a href="kernel.html">Специфікація Ядра</a></li>
                 <li><a href="../index.html">BTRON Home</a></li>
             </ul>
         </div>
