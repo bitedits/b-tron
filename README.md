@@ -7,6 +7,8 @@ and organized into a authentic Japanese BTRON tree structure.
 ## Specification
 
 * [B-TRON SPEC 3.20](https://bitedits.github.io/btron/doc/)
+* [B-FREE OS 1994](https://bitedits.github.io/btron/b-free/)
+* [B-SYSTEM OS 2026](https://bitedits.github.io/btron/b-system/)
 
 ## Current Status
 
