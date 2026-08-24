@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META CHARSET="UTF-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<TITLE>B-System: Специфікація VirtIO & VE (B-TRON 3.20)</TITLE>
+<LINK REL="stylesheet" HREF="doc.css">
+</HEAD>
+<BODY>
+    <DIV CLASS="doc-header-banner" STYLE="background:#0057b7;">
+      B-System OS | Розділ 9: Віртуалізація VirtIO 1.4 & Synrc VE
+    </DIV>
+
+    <A href="index.html">← Головний зміст B-System</A><BR><BR>
+    
+    <H1>Специфікація VirtIO & Synrc VE</H1>
+    
+    <DIV STYLE='background:#e0f2fe; border: 1px solid #bae6fd; padding:15px; border-radius:6px; margin: 20px 0;'>
+      <H3 STYLE='margin-top:0; color:#0369a1;'>Модернізована Віртуалізація VirtIO 1.4</H3>
+      Взаємодія з пристроями реалізована за стандартом <B>VirtIO 1.4</B> із підтримкою апаратної ізоляції пам'яті <B>DMB (Device Memory Buffer)</B> та мікроядра <B>seL4</B>. Застарілий legacy-код вилучено. Нижче наведено опис підсистем C-бібліотеки <CODE>synrc/vio</CODE> із типами та функціями C99.
+    </DIV>
+
+    <HR>
+
+    <H2 id="ch9-1">1. Матриця Хостів Synrc VE</H2>
+    <P>
+      Віртуальне середовище B-System спирається на хостову платформу <B>Synrc VE</B> (VirtIO-MMIO / VirtIO-PCI):
+    </P>
+    <UL>
+      <LI><B>macOS (Darwin):</B> <CODE>Hypervisor.framework</CODE> + <CODE>libkrun</CODE> + Host SDL2 / Metal Window.</LI>
+      <LI><B>Linux (Kernel 6.x+):</B> KVM / QEMU / kvmtool / libkrun + SDL2 / Wayland / DRM-KMS.</LI>
+      <LI><B>FreeBSD:</B> Гіпервізор <CODE>bhyve</CODE> з прямим проходженням (Passthrough) VirtIO-пристроїв.</LI>
+      <LI><B>seL4 Microkernel:</B> Protection Domain із capability IPC на RISC-V 64, ARM64 та x86_64.</LI>
+    </UL>
+
+    <HR>
+
+    <H2 id="ch9-2">2. Кільцеві Буфери Virtqueue (vio_queue.h)</H2>
+    <P>
+      Обмін даними виконується через кільцеві буфери <B>Virtqueue</B> (Split Virtqueue): Таблицю Дескрипторів (<CODE>desc</CODE>), Кільце Доступних Буферів (<CODE>avail</CODE>) та Використаних Буферів (<CODE>used</CODE>).
+    </P>
+
+    <H3>C99 Структури Черги Virtqueue:</H3>
+<PRE><CODE>/* Дескриптор буфера в пам'яті (VirtIO v1.4) */
+struct vio_vring_desc {
+    uint64_t addr;   /* Фізична адреса в RAM */
+    uint32_t len;    /* Довжина у байтах */
+    uint16_t flags;  /* Прапорці (VIO_VRING_DESC_F_NEXT, F_WRITE, F_INDIRECT) */
+    uint16_t next;   /* Індекс наступного дескриптора */
+};
+
+/* Заголовок кільця доступних дескрипторів */
+struct vio_vring_avail {
+    uint16_t flags;
+    uint16_t idx;
+    uint16_t ring[];
+};
+
+/* Елемент кільця використаних буферів */
+struct vio_vring_used_elem {
+    uint32_t id;     /* Індекс обробленого дескриптора */
+    uint32_t len;    /* Записано байтів */
+};
+
+/* Заголовок кільця використаних дескрипторів */
+struct vio_vring_used {
+    uint16_t flags;
+    uint16_t idx;
+    struct vio_vring_used_elem ring[];
+};
+
+/* Контекст черги у runtime */
+struct vio_virtqueue {
+    uint16_t queue_size;
+    uint16_t last_avail_idx;
+    uint16_t last_used_idx;
+    struct vio_vring_desc *desc;
+    struct vio_vring_avail *avail;
+    struct vio_vring_used *used;
+};</CODE></PRE>
+
+    <H3>C99 Функції Управління Чергами:</H3>
+<PRE><CODE>/* Ініціалізація черги зі спільної пам'яті */
+vio_status_t vio_queue_init(struct vio_virtqueue *vq, void *mem, uint16_t size);
+
+/* Перевірка наявності оброблених елементів */
+int vio_queue_has_used(const struct vio_virtqueue *vq);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-3">3. Транспорт MMIO/PCI (vio_transport.h)</H2>
+    <P>
+      Шар транспорту абстрагує читання/запис регістрів VirtIO MMIO та PCI BAR для RISC-V 64, ARM64 та x86_64.
+    </P>
+
+    <H3>C99 Структури Транспорту та Платформи:</H3>
+<PRE><CODE>/* Основний екземпляр VirtIO-пристрою */
+struct vio_device {
+    const struct vio_transport_ops *ops;
+    void *transport_ctx;
+    uint32_t device_id;
+    uint32_t vendor_id;
+    uint64_t device_features;
+    uint64_t driver_features;
+};
+
+/* Таблиця методів транспорту */
+struct vio_transport_ops {
+    uint32_t (*read32)(struct vio_device *dev, uint32_t offset);
+    void (*write32)(struct vio_device *dev, uint32_t offset, uint32_t val);
+    uint8_t (*read8)(struct vio_device *dev, uint32_t offset);
+    void (*write8)(struct vio_device *dev, uint32_t offset, uint8_t val);
+    vio_status_t (*negotiate_features)(struct vio_device *dev, uint64_t driver_features);
+    vio_status_t (*setup_queue)(struct vio_device *dev, uint16_t queue_index, void *mem);
+    void (*notify_queue)(struct vio_device *dev, uint16_t queue_index);
+};
+
+/* Абстракція хостової платформи */
+struct vio_platform_ops {
+    void *(*map_memory)(uint64_t phys_addr, uint32_t len);
+    void (*unmap_memory)(void *virt_addr, uint32_t len);
+    vio_status_t (*register_irq)(uint32_t irq, void (*handler)(void *ctx), void *ctx);
+    void (*mask_irq)(uint32_t irq);
+    void (*unmask_irq)(uint32_t irq);
+};</CODE></PRE>
+
+    <H3>C99 Функції Платформи:</H3>
+<PRE><CODE>/* Реєстрація хостової платформи */
+void vio_platform_register(const struct vio_platform_ops *ops);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-4">4. Графіка VirtIO-GPU & SDL2 (vio_gpu.h)</H2>
+    <P>
+      Підсистема <CODE>virtio-gpu</CODE> виконує вивід 2D-графіки, векторного wireframe-рендерингу (TRON / NetWars) та обробку Waterfall спектрограм у хостовому вікні <B>SDL2</B> зі швидкістю 60-120 FPS.
+    </P>
+
+    <H3>C99 Структури VirtIO-GPU та SDL2 Blitter:</H3>
+<PRE><CODE>/* Заголовок командного пакета GPU */
+struct virtio_gpu_ctrl_hdr {
+    uint32_t type;
+    uint32_t flags;
+    uint64_t fence_id;
+    uint32_t ctx_id;
+    uint32_t padding;
+};
+
+/* Прямокутник геометрії */
+struct virtio_gpu_rect {
+    uint32_t x;
+    uint32_t y;
+    uint32_t width;
+    uint32_t height;
+};
+
+/* Пакет створення 2D ресурсу */
+struct virtio_gpu_resource_create_2d {
+    struct virtio_gpu_ctrl_hdr hdr;
+    uint32_t resource_id;
+    uint32_t format;
+    uint32_t width;
+    uint32_t height;
+};
+
+/* Пакет передачі даних на хост */
+struct virtio_gpu_transfer_to_host_2d {
+    struct virtio_gpu_ctrl_hdr hdr;
+    struct virtio_gpu_rect r;
+    uint64_t offset;
+    uint32_t resource_id;
+    uint32_t padding;
+};
+
+/* Пакет оновлення екрану */
+struct virtio_gpu_resource_flush {
+    struct virtio_gpu_ctrl_hdr hdr;
+    struct virtio_gpu_rect r;
+    uint32_t resource_id;
+    uint32_t padding;
+};
+
+/* Пакет прив'язки Scanout */
+struct virtio_gpu_set_scanout {
+    struct virtio_gpu_ctrl_hdr hdr;
+    struct virtio_gpu_rect r;
+    uint32_t scanout_id;
+    uint32_t resource_id;
+};
+
+/* Контекст блітера хостового SDL2 */
+struct vio_gpu_sdl2_blitter {
+    uint32_t host_window_width;
+    uint32_t host_window_height;
+    uint32_t active_resource_id;
+    uint32_t format;
+    void *framebuffer;
+    size_t framebuffer_size;
+    bool dirty;
+};
+
+/* Пристрій VirtIO-GPU */
+struct vio_gpu_device {
+    struct vio_device *base;
+    struct vio_gpu_sdl2_blitter blitter;
+    uint32_t active_scanout;
+    uint32_t current_resource_id;
+};</CODE></PRE>
+
+    <H3>C99 Функції VirtIO-GPU та SDL2 Blitter:</H3>
+<PRE><CODE>/* Ініціалізація GPU та SDL2 блітера */
+vio_status_t vio_gpu_init(struct vio_gpu_device **out_dev, struct vio_device *base_dev);
+
+/* Створення 2D ресурсу */
+vio_status_t vio_gpu_create_resource_2d(struct vio_gpu_device *dev, uint32_t resource_id, uint32_t format, uint32_t width, uint32_t height);
+
+/* Передача прямокутника фреймбуфера на хост */
+vio_status_t vio_gpu_transfer_to_host_2d(struct vio_gpu_device *dev, uint32_t resource_id, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint64_t offset);
+
+/* Синхронізація (Flush) екрану */
+vio_status_t vio_gpu_resource_flush(struct vio_gpu_device *dev, uint32_t resource_id, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+
+/* Прив'язка scanout виходу */
+vio_status_t vio_gpu_set_scanout(struct vio_gpu_device *dev, uint32_t scanout_id, uint32_t resource_id, uint32_t width, uint32_t height);
+
+/* Прямий біт-блітінг у фреймбуфер SDL2 */
+vio_status_t vio_gpu_sdl2_blit_frame(struct vio_gpu_device *dev, const void *src_buf, size_t buf_size);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-5">5. Дискові Накопичувачі (vio_blk.h)</H2>
+    <P>
+      Асинхронний доступ до секторів 512Б / 4096Б для об'єктної файлової системи BTRON FS (Real & Virtual Objects).
+    </P>
+
+    <H3>C99 Функції Блочного Накопичувача:</H3>
+<PRE><CODE>/* Ініціалізація блочного диска */
+vio_status_t vio_blk_init(struct vio_blk_device **out_dev, struct vio_device *base_dev);
+
+/* Читання секторів у буфер */
+vio_status_t vio_blk_read(struct vio_blk_device *dev, uint64_t sector, void *buf, uint32_t count);
+
+/* Асинхронний запис секторів */
+vio_status_t vio_blk_write(struct vio_blk_device *dev, uint64_t sector, const void *buf, uint32_t count);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-6">6. Мережевий Адаптер (vio_net.h)</H2>
+    <P>
+      Транзит IP-пакетів та інкапсульованих радіокадрів (AX.25, LoRa, Ethernet-over-VirtIO) через RX/TX Virtqueue.
+    </P>
+
+    <H3>C99 Функції Мережевого Адаптера:</H3>
+<PRE><CODE>/* Ініціалізація мережевого пристрою */
+vio_status_t vio_net_init(struct vio_net_device **out_dev, struct vio_device *base_dev);
+
+/* Передача пакета у TX чергу */
+vio_status_t vio_net_tx(struct vio_net_device *dev, const void *pkt, uint32_t len);
+
+/* Отримання пакета з RX черги */
+vio_status_t vio_net_rx(struct vio_net_device *dev, void *buf, uint32_t *len);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-7">7. Консоль та SDR-Телеметрія (vio_console.h)</H2>
+    <P>
+      Багатоканальний потік: Порт 0 (системні логи ядра µITRON), Порт 1 (SDR IQ-телеметрія радіоприймачів).
+    </P>
+
+    <H3>C99 Функції Консолі:</H3>
+<PRE><CODE>/* Ініціалізація консолі */
+vio_status_t vio_console_init(struct vio_console_device **out_dev, struct vio_device *base_dev);
+
+/* Запис логів або IQ-потоку */
+vio_status_t vio_console_write(struct vio_console_device *dev, const char *buf, uint32_t len);
+
+/* Читання символьного потоку */
+vio_status_t vio_console_read(struct vio_console_device *dev, char *buf, uint32_t max_len, uint32_t *out_len);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-8">8. Апаратна Криптографія (vio_crypto.h)</H2>
+    <P>
+      Шифрування радіотелеметрії та перевірка підписів у TPM / Hardware Enclave / seL4 TSS.
+    </P>
+
+    <H3>C99 Функції Криптоприскорювача:</H3>
+<PRE><CODE>/* Ініціалізація криптографічного модулю */
+vio_status_t vio_crypto_init(struct vio_crypto_device **out_dev, struct vio_device *base_dev);
+
+/* Апаратне шифрування */
+vio_status_t vio_crypto_encrypt(struct vio_crypto_device *dev, const void *in, void *out, uint32_t len);
+
+/* Апаратне розшифрування */
+vio_status_t vio_crypto_decrypt(struct vio_crypto_device *dev, const void *in, void *out, uint32_t len);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-9">9. Автовизначення Шини (vio_bus.h)</H2>
+    <P>
+      Сканування пристроїв на шині VirtIO MMIO/PCI та автопошук за індексами пристрою.
+    </P>
+
+    <H3>C99 Функції Шини:</H3>
+<PRE><CODE>/* Сканування пристроїв на шині */
+vio_status_t vio_bus_probe(void);
+
+/* Пошук пристрою за device_id */
+struct vio_device *vio_bus_find_device(uint32_t device_id);</CODE></PRE>
+
+    <HR>
+
+    <H2 id="ch9-10">10. Безпека VirtIO 1.4</H2>
+    <P>
+      Перехід на стандарт <B>VirtIO 1.4</B> принципово підвищує рівень безпеки B-System у ключових компонентах:
+    </P>
+    <UL>
+      <LI><B>Ізоляція Пам'яті DMB (Device Memory Buffer):</B> Буфери DMA локалізовано у захищених регіонах пристрою. Гіпервізор або скомпрометований хостовий процес не має доступу до оперативної пам'яті ядра B-System та приватних кабінетів BTRON FS, реалізуючи принцип Zero-Trust (NIST 53) під seL4.</LI>
+      <LI><B>Захист Радіотелеметрії Packet Timestamping:</B> Апаратне мічення часу у <CODE>virtio-net 1.4</CODE> унеможливлює супутникові replay-атаки та спуфінг фазових IQ-потоків у SDR-каналах.</LI>
+      <LI><B>Enclave-Ізоляція Ключів (`virtio-crypto`):</B> Ключі шифрування зберігаються у невидимому для хоста середовищі Hardware Enclave, запобігаючи витокам ключів через побічні канали (side-channel attacks).</LI>
+      <LI><B>Захищений Графічний Буфер Blob (`virtio-gpu`):</B> Вирівнювання джерел <CODE>VIRTIO_GPU_F_BLOB_ALIGNMENT</CODE> гарантує ізоляцію текстур відеокарт від кабінетного сховища VOBJ.</LI>
+    </UL>
+
+    <HR>
+    <footer class="doc-footer">
+        <div class="doc-footer-container">
+            <div>B-System VirtIO & VE Specification (2026 Edition)</div>
+            <ul class="doc-footer-links">
+                <li><a href="index.html">Головний зміст</a></li>
+                <li><a href="kernel.html">Ядро</a></li>
+                <li><a href="btron_spec.html">GUI & DP</a></li>
+                <li><a href="virtio.html">VirtIO & VE</a></li>
+                <li><a href="license.html">Ліцензування</a></li>
+            </ul>
+        </div>
+    </footer>
+</BODY>
+</HTML>
