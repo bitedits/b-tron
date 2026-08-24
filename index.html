@@ -167,6 +167,33 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                     </div>
                 </div>
 
+                                <div class="plane-header">0.1. B-Free OS &amp; B-System Specifications (UA)</div>
+                <p>Додаткова документація щодо реалізацій та розробок BTRON:</p>
+                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(0, 128, 128, 0.3);">
+                        <h3><a href="b-free/index.html" style="color: #008073;">B-Free OS (GPL)</a></h3>
+                        <hr style="border-top-color: rgba(0, 128, 128, 0.2);">
+                        <p>Опис та архітектурний аналіз історичної вільної реалізації BTRON3 поверх мікроядра µITRON 3.0 та сумісності з POSIX.</p>
+                        <ul>
+                            <li><a href="b-free/manifest.html"><b>Маніфест B-Free</b></a></li>
+                            <li><a href="b-free/kernel.html"><b>Мікроядро µITRON</b></a></li>
+                            <li><a href="b-free/posix.html"><b>POSIX-сумісність</b></a></li>
+                            <li><a href="b-free/source_tree.html"><b>Структура коду</b></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(30, 58, 138, 0.3);">
+                        <h3><a href="b-system/index.html" style="color: #1e3a8a;">B-System (BSD/MIT)</a></h3>
+                        <hr style="border-top-color: rgba(30, 58, 138, 0.2);">
+                        <p>Специфікація та концепція нової пермісивної реалізації B-TRON для віртуалізації VirtIO та інтеграції з Synrc VE OS.1.</p>
+                        <ul>
+                            <li><a href="b-system/license.html"><b>BSD-ліцензування</b></a></li>
+                            <li><a href="b-system/kernel.html"><b>Архітектура Ядра (Р. 1-3)</b></a></li>
+                            <li><a href="b-system/btron_spec.html"><b>Дисплей та GUI (Р. 4-6)</b></a></li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="plane-header">1. VirtIO &amp; Hypervisor Handoff</div>
                 <p>When running as a System Plane image in Synrc VE OS.1, BTRON boots via <b>Limine</b>, <b>TianoCore EDK II</b>, or raw <b>seL4 Protection Domains (PDs)</b>. Display output routes directly through VirtIO-GPU or SDL2 surface, providing low-latency real-time rendering inside isolated capability-managed sandboxes.</p>
             </div>
