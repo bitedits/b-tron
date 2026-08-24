@@ -22,21 +22,34 @@
 <body>
     <nav class="sticky">
         <div class="nav-container">
-            <a href="https://hv.synrc.com/index.html" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://n2o.dev/img/synrc.svg"></a>
+            <a href="index.html" class="logo"><img width="50" style="" src="https://n2o.dev/img/synrc.svg"></a>
+            <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open'); this.classList.toggle('open');">
+                <span class="hamburger"></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="https://hv.synrc.com/index.html">Intro</a></li>
-                <li><a href="https://hv.synrc.com/products.html">Products</a></li>
                 <li><a href="https://hv.synrc.com/applications.html">Applications</a></li>
+                <li><a href="https://hv.synrc.com/products.html">Products</a></li>
                 <li><a href="https://hv.synrc.com/downloads.html">Downloads</a></li>
-                <li><a href="https://hv.synrc.com/web.html">Web</a></li>
-                <li><a href="https://hv.synrc.com/compute.html">Compute</a></li>
-                <li><a href="https://hv.synrc.com/security.html">Security</a></li>
-                <li><a href="https://hv.synrc.com/control.html">Control</a></li>
-                <li><a href="https://hv.synrc.com/service.html">Service</a></li>
-                <li><a href="https://hv.synrc.com/system_alpine.html">Alpine</a></li>
-                <li><a href="https://hv.synrc.com/system_netbsd.html">NetBSD</a></li>
-                <li class="active">BTRON</li>
-                <li><a href="https://hv.synrc.com/hypervision.html">Hypervision</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">Planes  <span class="arrow">▾</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://hv.synrc.com/security.html">Security</a></li>
+                        <li><a href="https://hv.synrc.com/control.html">Control</a></li>
+                        <li><a href="https://hv.synrc.com/web.html">Web</a></li>
+                        <li><a href="https://hv.synrc.com/compute.html">Compute</a></li>
+                        <li><a href="https://hv.synrc.com/service.html">Service</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">Systems <span class="arrow">▾</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://hv.synrc.com/system_alpine.html">Alpine</a></li>
+                        <li><a href="https://hv.synrc.com/system_netbsd.html">NetBSD</a></li>
+                        <li><a href="https://hv.synrc.com/system_btron.html" class="active">BTRON</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://hv.synrc.com/hypervision.html">HV</a></li>
             </ul>
         </div>
     </nav>
@@ -128,28 +141,60 @@ vobj_open_cabinet(link.real_obj_id);</pre>
             <h2>Specification &amp; Architecture</h2>
             <div class="story-container">
                 <div class="plane-header">0. BTRON Specification 3.20</div>
-                <p>The complete Sakamura BTRON3 specification is documented within the workspace, organized into <a href="doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and <a href="doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters:</p>
+                <p>The complete Sakamura BTRON3 specification is documented within the workspace, organized into 
+              <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and 
+              <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters:</p>
                 
                 <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
                     <div class="package-card" style="padding: 1.8rem;">
-                        <h3><a href="doc/shared_data/index.html">Part 1. Shared Data</a></h3>
+                        <h3><a href="https://bitedits.github.io/btron/doc/shared_data/index.html" style="color: var(--accent);">BTRON3 SPEC</a></h3>
                         <hr>
                         <ul>
-                            <li><a href="doc/shared_data/data_type.html"><b>1. Basic Data Types &amp; Error Codes</b></a></li>
-                            <li><a href="doc/shared_data/tron_code.html"><b>2. TRON Code Character Encoding</b></a></li>
-                            <li><a href="doc/shared_data/tad1.html"><b>3. TAD Document Format &amp; Segments</b></a></li>
-                            <li><a href="doc/shared_data/fd_format.html"><b>4. BTRON FS File System Layout</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>1. Basic Data Types &amp; Error Codes</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>2. TRON Code Character Encoding</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>3. TAD Document Format &amp; Segments</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html"><b>4. BTRON FS File System Layout</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/kernel/kernel.html"><b>5. μITRON Kernel &amp; Tasking</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html"><b>6. Display Primitives (DP Engine)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/shell/shell.html"><b>7. GUI Shell &amp; Window Manager</b></a></li>
                         </ul>
                     </div>
 
                     <div class="package-card" style="padding: 1.8rem;">
-                        <h3><a href="doc/os_spec/index.html">Part 2. OS Specification</a></h3>
+                        <h3><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html" style="color: var(--accent);">NASA / TRON Code Policy</a></h3>
                         <hr>
                         <ul>
-                            <li><a href="doc/os_spec/kernel/kernel.html"><b>5. μITRON Kernel &amp; Tasking</b></a></li>
-                            <li><a href="doc/os_spec/dp/dp.html"><b>6. Display Primitives (DP Engine)</b></a></li>
-                            <li><a href="doc/os_spec/shell/shell.html"><b>7. GUI Shell &amp; Window Manager</b></a></li>
-                            <li><a href="doc/os_spec/indexfig.html"><b>8. Diagrams &amp; Figures Index</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Character Encoding</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>Bounded Heap &amp; Fixed Scope</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Verification</b></a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                                <div class="plane-header">0.1. B-Free OS &amp; B-System Specifications (UA)</div>
+                <p>Додаткова документація щодо реалізацій та розробок BTRON:</p>
+                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(0, 128, 128, 0.3);">
+                        <h3><a href="https://bitedits.github.io/btron/b-free/index.html" style="color: #008073;">B-Free OS (GPL)</a></h3>
+                        <hr style="border-top-color: rgba(0, 128, 128, 0.2);">
+                        <p>Опис та архітектурний аналіз історичної вільної реалізації BTRON3 поверх мікроядра µITRON 3.0 та сумісності з POSIX.</p>
+                        <ul>
+                            <li><a href="https://bitedits.github.io/btron/b-free/manifest.html"><b>Маніфест B-Free</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-free/kernel.html"><b>Мікроядро µITRON</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-free/posix.html"><b>POSIX-сумісність</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-free/source_tree.html"><b>Структура коду</b></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(30, 58, 138, 0.3);">
+                        <h3><a href="https://bitedits.github.io/btron/b-system/index.html" style="color: #1e3a8a;">B-System (BSD/MIT)</a></h3>
+                        <hr style="border-top-color: rgba(30, 58, 138, 0.2);">
+                        <p>Специфікація та концепція нової пермісивної реалізації B-TRON для віртуалізації VirtIO та інтеграції з Synrc VE OS.1.</p>
+                        <ul>
+                            <li><a href="https://bitedits.github.io/btron/b-system/license.html"><b>BSD-ліцензування</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html"><b>Архітектура Ядра (Р. 1-3)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html"><b>Дисплей та GUI (Р. 4-6)</b></a></li>
                         </ul>
                     </div>
                 </div>
