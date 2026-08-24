@@ -22,21 +22,34 @@
 <body>
     <nav class="sticky">
         <div class="nav-container">
-            <a href="https://hv.synrc.com/index.html" class="logo"><img width="50" style="margin-bottom:-15px;" src="https://n2o.dev/img/synrc.svg"></a>
+            <a href="index.html" class="logo"><img width="50" style="" src="https://n2o.dev/img/synrc.svg"></a>
+            <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open'); this.classList.toggle('open');">
+                <span class="hamburger"></span>
+            </button>
             <ul class="nav-links">
-                <li><a href="https://hv.synrc.com/index.html">Intro</a></li>
-                <li><a href="https://hv.synrc.com/products.html">Products</a></li>
-                <li><a href="https://hv.synrc.com/applications.html">Applications</a></li>
-                <li><a href="https://hv.synrc.com/downloads.html">Downloads</a></li>
-                <li><a href="https://hv.synrc.com/web.html">Web</a></li>
-                <li><a href="https://hv.synrc.com/compute.html">Compute</a></li>
-                <li><a href="https://hv.synrc.com/security.html">Security</a></li>
-                <li><a href="https://hv.synrc.com/control.html">Control</a></li>
-                <li><a href="https://hv.synrc.com/service.html">Service</a></li>
-                <li><a href="https://hv.synrc.com/system_alpine.html">Alpine</a></li>
-                <li><a href="https://hv.synrc.com/system_netbsd.html">NetBSD</a></li>
-                <li class="active">BTRON</li>
-                <li><a href="https://hv.synrc.com/hypervision.html">Hypervision</a></li>
+                <li><a href="index.html">Intro</a></li>
+                <li><a href="applications.html">Applications</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="downloads.html">Downloads</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">Planes  <span class="arrow">▾</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="control.html">Control</a></li>
+                        <li><a href="web.html">Web</a></li>
+                        <li><a href="compute.html">Compute</a></li>
+                        <li><a href="service.html">Service</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">System <span class="arrow">▾</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="system_alpine.html">Alpine</a></li>
+                        <li><a href="system_netbsd.html">NetBSD</a></li>
+                        <li><a href="system_btron.html" class="active">BTRON</a></li>
+                    </ul>
+                </li>
+                <li><a href="hypervision.html">HV</a></li>
             </ul>
         </div>
     </nav>
