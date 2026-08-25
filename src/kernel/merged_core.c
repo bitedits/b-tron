@@ -1,6 +1,9 @@
 /*
  * B-TRON Real-Time Kernel Core: Merged Single-File Core (merged_core.c)
  * Function-level #ifdef BTRON_QEMU_TARGET branching model.
+ *
+ * NOTE: not reaaly used, just to prove that merged code is
+ *       ugly way of managing things, they are just TRON implementations.
  */
 
 #include <btron/itron.h>
