@@ -45,6 +45,14 @@
                         <li><a href="https://hv.synrc.com/service.html">Service</a></li>
                     </ul>
                 </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">Languages <span class="arrow">▾</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="language_beam.html">BEAM Elixir/Erlang</a></li>
+                        <li><a href="language_clr.html">CLR F#/C#</a></li>
+                        <li><a href="language_jvm.html">JVM Scala/Java</a></li>
+                    </ul>
+                </li>
                 <li class="dropdown active">
                     <a href="#" class="dropdown-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');">Systems <span class="arrow">▾</span></a>
                     <ul class="dropdown-menu">
@@ -150,7 +158,10 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                 <div class="plane-header">0. BTRON Specification 3.20</div>
                 <p>The complete Sakamura BTRON3 specification is documented within the workspace, organized into 
               <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and 
-              <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters:</p>
+              <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters, complying with 
+              <a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a>, 
+              <a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy</b></a>, and 
+              <a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope</b></a>:</p>
                 
                 <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
                     <div class="package-card" style="padding: 1.8rem;">
@@ -167,19 +178,20 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                         </ul>
                     </div>
 
-                    <div class="package-card" style="padding: 1.8rem;">
-                        <h3><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html" style="color: var(--accent);">NASA / TRON Code Policy</a></h3>
-                        <hr>
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(30, 58, 138, 0.3);">
+                        <h3><a href="t-kernel/index.html" style="color: #1e3a8a;">T-Kernel 2.0 SPEC</a></h3>
+                        <hr style="border-top-color: rgba(30, 58, 138, 0.2);">
+                        <p>Standardized real-time operating system kernel specification, deterministic task scheduling, and QEMU deployment guides.</p>
                         <ul>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Character Encoding</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>Bounded Heap &amp; Fixed Scope</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Verification</b></a></li>
+                            <li><a href="t-kernel/index.html"><b>0. TOC Index</b></a></li>
+                            <li><a href="t-kernel/tkernel_spec.html"><b>1. T-Kernel 2.0 Core Architecture</b></a></li>
+                            <li><a href="t-kernel/tkernel_startup.html"><b>2. Boot &amp; Initialization Sequence</b></a></li>
+                            <li><a href="t-kernel/tkernel_qemu.html"><b>3. QEMU &amp; Board Deployment</b></a></li>
                         </ul>
                     </div>
                 </div>
 
-                                <div class="plane-header">0.1. B-Free OS &amp; B-System Specifications (UA)</div>
+                <div class="plane-header">0.1. B-Free OS &amp; B-System Specifications (UA)</div>
                 <p>Додаткова документація щодо реалізацій та розробок BTRON:</p>
                 <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
                     <div class="package-card" style="padding: 1.8rem; border-color: rgba(0, 128, 128, 0.3);">
@@ -202,7 +214,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                             <li><a href="https://bitedits.github.io/btron/b-system/license.html"><b>BSD-ліцензування</b></a></li>
                             <li><a href="https://bitedits.github.io/btron/b-system/kernel.html"><b>Архітектура Ядра (Р. 1-3)</b></a></li>
                             <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html"><b>Дисплей та GUI (Р. 4-6)</b></a></li>
-                            <li><a href="t-kernel/index.html"><b>T-Kernel 2.0 Specification</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/virtio.html"><b>VirtIO &amp; VE (Р. 9)</b></a></li>
                         </ul>
                     </div>
                 </div>
