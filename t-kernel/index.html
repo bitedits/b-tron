@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META CHARSET="UTF-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<TITLE>T-Kernel 2.0 Specification & Technical Guides</TITLE>
+<LINK REL="stylesheet" HREF="doc.css">
+</HEAD>
+<BODY>
+    <DIV CLASS="doc-header-banner">
+      T-Kernel Specification | Real-Time Operating System Kernel Architecture
+    </DIV>
+
+    <A href="../index.html">← Return to Root Specification</A><BR><BR>
+    
+    <H1>T-Kernel 2.0 Technical Documentation</H1>
+    
+    <P>
+      <B>T-Kernel 2.0</B> is a standardized, highly-efficient Real-Time Operating System (RTOS) kernel designed for embedded systems and multi-core processors. It provides fine-grained task management, priority-based preemptive scheduling, synchronization primitives, memory management, and hardware abstraction stubs.
+    </P>
+    
+    <DIV STYLE='background:#e0f2fe; border: 1px solid #bae6fd; padding:15px; border-radius:6px; margin: 20px 0;'>
+      <H3 STYLE='margin-top:0; color:#0369a1;'>Documentation Index Overview</H3>
+      Adapted from the official T-Kernel 2.0 specification sources (`tkernel_source/doc/T-Kernel2.0/doc/en/`). All sections are formatted using clean HTML syntax with single-line titles and modern typography.
+    </DIV>
+
+    <HR>
+
+    <H2>Documentation Sections</H2>
+    
+    <UL STYLE="list-style-type: none; padding-left: 0;">
+      <LI STYLE="margin-bottom: 1.2rem;">
+        <H3><A href="tkernel_spec.html">1. T-Kernel 2.0 Core Kernel Specification</A></H3>
+        <P STYLE="margin-top: 0.2rem; color: #475569;">
+          Detailed architecture of Task Control Blocks (TCB), Task State Transitions, Priority Scheduling, Semaphores, Eventflags, Mailboxes, Mutexes, Memory Pools, Timers, and Subsystems.
+        </P>
+      </LI>
+
+      <LI STYLE="margin-bottom: 1.2rem;">
+        <H3><A href="tkernel_startup.html">2. T-Kernel Startup & Initialization Sequence</A></H3>
+        <P STYLE="margin-top: 0.2rem; color: #475569;">
+          Hardware boot sequence, early system memory layout, interrupt vector configuration, `tkstart` entry point, and handover to the `sysmain` entry task.
+        </P>
+      </LI>
+
+      <LI STYLE="margin-bottom: 1.2rem;">
+        <H3><A href="tkernel_qemu.html">3. QEMU Emulation & Hardware Reference Deployment</A></H3>
+        <P STYLE="margin-top: 0.2rem; color: #475569;">
+          Setting up QEMU emulation targets (`TEF_EM1D`, Raspberry Pi, ARM virt), VirtIO MMIO device bus binding, serial console output, and bare-metal debugging.
+        </P>
+      </LI>
+    </UL>
+
+    <HR>
+    <footer class="doc-footer">
+        <div class="doc-footer-container">
+            <div>T-Kernel 2.0 Open Specification (TRON Forum)</div>
+            <ul class="doc-footer-links">
+                <li><a href="../index.html">Root Index</a></li>
+                <li><a href="index.html">T-Kernel Home</a></li>
+                <li><a href="tkernel_spec.html">Core Spec</a></li>
+                <li><a href="tkernel_startup.html">Startup</a></li>
+                <li><a href="tkernel_qemu.html">QEMU & Board</a></li>
+            </ul>
+        </div>
+    </footer>
+</BODY>
+</HTML>
