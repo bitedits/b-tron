@@ -5,7 +5,7 @@
 
 #include <btron/dp.h>
 #include <SDL.h>
-#include "virtio.h"
+#include <device/virtio.h>
 #include <stdio.h>
 
 static SDL_Window   *g_sdl_window = NULL;

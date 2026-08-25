@@ -1,10 +1,10 @@
 /*
- * B-TRON Real-Time Kernel: POSIX Microkernel Abstraction Engine (posix_core.c)
+ * B-TRON Real-Time Kernel: POSIX Microkernel Abstraction Engine (core_posix.c)
  * Pure POSIX pthread-backed implementation of µITRON & T-Kernel specification APIs.
  */
 
 #include <btron/itron.h>
-#include "virtio.h"
+#include <device/virtio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

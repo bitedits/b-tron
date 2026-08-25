@@ -58,7 +58,9 @@ int main(int argc, char **argv) {
 
     printf("[B-TRON] Initializing B-TRON Retro OS Environment...\n");
 
-#ifdef BTRON_QEMU_TARGET
+#ifdef BTRON_SAKAMURA_TARGET
+    btron_kernel_init(2);
+#elif defined(BTRON_QEMU_TARGET)
     btron_kernel_init(1);
 #else
     btron_kernel_init(0);

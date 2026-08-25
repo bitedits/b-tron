@@ -1,10 +1,10 @@
 #
 # B-TRON Retro OS Desktop Environment - Multi-Target Makefile
-# Cleanroom implementation of BTRON Specification API & T-Kernel / POSIX Backends
+# Cleanroom implementation of BTRON Specification API & Sakamura T-Kernel / POSIX Backends
 #
 
 CC ?= gcc
-CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Isrc/kernel
+CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 # Detect OS & SDL2 flags
 UNAME_S := $(shell uname -s)
@@ -30,34 +30,66 @@ COMMON_SRCS = src/graphics/dp_core.c \
               src/vobject/vobj.c \
               src/desktop/desktop.c \
               src/desktop/main.c \
-              apps/vobj_manager.c \
-              apps/t_editor.c \
-              apps/gterm.c
+              src/apps/vobj_manager.c \
+              src/apps/t_editor.c \
+              src/apps/gterm.c
 
-# POSIX Kernel Sources
-POSIX_SRCS = src/kernel/posix_core.c \
-             src/kernel/virtio.c \
-             src/kernel/kernel_init.c \
+# POSIX Kernel Sources (Target 0: BTRON_POSIX)
+POSIX_SRCS = src/kernel/core_posix.c \
+             src/drivers/virtio.c \
+             src/kernel/core_init.c \
              $(COMMON_SRCS)
 
-# QEMU / T-Kernel Sources
-QEMU_SRCS = src/kernel/tkernel_core.c \
-            src/kernel/virtio.c \
-            src/kernel/kernel_init.c \
-            src/kernel/multiboot.c \
+# QEMU / VirtIO Sources (Target 1: BTRON_QEMU)
+QEMU_SRCS = src/kernel/core_virtio.c \
+            src/drivers/virtio.c \
+            src/kernel/core_init.c \
+            src/kernel/core_boot.c \
             $(COMMON_SRCS)
 
-POSIX_OBJS = $(POSIX_SRCS:.c=.posix.o)
-QEMU_OBJS  = $(QEMU_SRCS:.c=.qemu.o)
+# Unmodified Sakamura T-Kernel 2.0 Engine Source Files in src/kernel (Target 2: BTRON_SAKAMURA)
+TKERNEL_SAKAMURA_SRCS = src/kernel/task.c \
+                        src/kernel/task_manage.c \
+                        src/kernel/task_sync.c \
+                        src/kernel/semaphore.c \
+                        src/kernel/eventflag.c \
+                        src/kernel/mailbox.c \
+                        src/kernel/messagebuf.c \
+                        src/kernel/rendezvous.c \
+                        src/kernel/mutex.c \
+                        src/kernel/mempool.c \
+                        src/kernel/mempfix.c \
+                        src/kernel/subsystem.c \
+                        src/kernel/time_calls.c \
+                        src/kernel/timer.c \
+                        src/kernel/klock.c \
+                        src/kernel/wait.c \
+                        src/kernel/objname.c \
+                        src/kernel/misc_calls.c \
+                        src/kernel/version.c
 
-# Additional .o targets for clean pattern matching
-GEN_OBJS = $(POSIX_SRCS:.c=.o) $(QEMU_SRCS:.c=.o)
+TKERNEL_SRCS = src/kernel/core_tkernel.c \
+               src/drivers/virtio.c \
+               src/kernel/core_init.c \
+               src/kernel/core_boot.c \
+               $(TKERNEL_SAKAMURA_SRCS) \
+               $(COMMON_SRCS)
 
-POSIX_TARGET = btron-posix
-QEMU_TARGET  = btron-qemu.elf
+POSIX_OBJS   = $(POSIX_SRCS:.c=.posix.o)
+QEMU_OBJS    = $(QEMU_SRCS:.c=.qemu.o)
+TKERNEL_OBJS = $(TKERNEL_SRCS:.c=.tkernel.o)
+
+POSIX_TARGET   = btron-posix
+QEMU_TARGET    = btron-qemu.elf
+TKERNEL_TARGET = btron-tkernel.elf
 DEFAULT_TARGET = btron
 
-.PHONY: all posix qemu clean run-posix run-qemu
+TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=1 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
+              -Iinclude \
+              -Iinclude/arch/pi4 \
+              -Isrc/kernel
+
+.PHONY: all posix qemu t-kernel clean run-posix run-qemu run-t-kernel
 
 all: posix
 
@@ -72,10 +104,19 @@ posix: $(POSIX_TARGET)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
 %.qemu.o: %.c
-	$(CC) $(CFLAGS) -DBTRON_QEMU_TARGET $(SDL_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
-$(POSIX_OBJS): CFLAGS += -UBTRON_QEMU_TARGET
-$(QEMU_OBJS): CFLAGS += -DBTRON_QEMU_TARGET
+# Rules for Sakamura T-Kernel core files in src/kernel
+src/kernel/%.tkernel.o: src/kernel/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -c $< -o $@
+
+# Rule for general BTRON application sources under Sakamura target mode
+%.tkernel.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(POSIX_OBJS): CFLAGS += -UBTRON_QEMU_TARGET -UBTRON_SAKAMURA_TARGET
+$(QEMU_OBJS): CFLAGS += -DBTRON_QEMU_TARGET -UBTRON_SAKAMURA_TARGET
+$(TKERNEL_OBJS): CFLAGS += -DBTRON_SAKAMURA_TARGET -UBTRON_QEMU_TARGET
 
 $(POSIX_TARGET): $(POSIX_OBJS)
 	$(CC) $(POSIX_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
@@ -90,12 +131,19 @@ qemu: $(QEMU_TARGET)
 $(QEMU_TARGET): $(QEMU_OBJS)
 	$(CC) $(QEMU_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
+t-kernel: $(TKERNEL_TARGET)
+	@echo "=========================================================="
+	@echo " Sakamura T-Kernel 2.0 Engine Image successfully built!"
+	@echo " Output: $(TKERNEL_TARGET)"
+	@echo " Run 'make run-t-kernel' to launch under QEMU."
+	@echo "=========================================================="
+
+$(TKERNEL_TARGET): $(TKERNEL_OBJS)
+	$(CC) $(TKERNEL_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
 clean:
-	rm -f $(POSIX_OBJS) $(QEMU_OBJS) $(GEN_OBJS) $(POSIX_TARGET) $(QEMU_TARGET) $(DEFAULT_TARGET)
-	rm -f src/desktop/*.o src/font/*.o src/graphics/*.o src/kernel/*.o src/vobject/*.o src/window/*.o apps/*.o
+	rm -f $(POSIX_OBJS) $(QEMU_OBJS) $(TKERNEL_OBJS) $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(DEFAULT_TARGET)
+	find src -type f \( -name "*.o" -o -name "*.posix.o" -o -name "*.qemu.o" -o -name "*.tkernel.o" \) -delete 2>/dev/null || true
 
 run-posix: posix
 	./$(POSIX_TARGET)
@@ -103,3 +151,7 @@ run-posix: posix
 run-qemu: qemu
 	@echo "Running B-TRON T-Kernel QEMU VirtIO Environment..."
 	@./$(QEMU_TARGET)
+
+run-t-kernel: t-kernel
+	@echo "Running Sakamura T-Kernel 2.0 Engine Environment..."
+	@./$(TKERNEL_TARGET)

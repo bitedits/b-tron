@@ -1,10 +1,10 @@
 /*
- * T-Kernel 2.0 / ITRON RTOS Kernel Core: tkernel_core.c
+ * B-Kernel / ITRON T-Kernel RTOS Kernel Core: core_virtio.c
  * Bare-Metal & QEMU Target Implementation (ARM / VirtIO MMIO)
  */
 
 #include <btron/itron.h>
-#include "virtio.h"
+#include <device/virtio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

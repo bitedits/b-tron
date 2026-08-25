@@ -17,6 +17,10 @@ typedef uint32_t ATR;
 typedef void (*FP)(VW exinf);
 typedef int32_t  PRI;
 typedef uint64_t SYSTIME;
+typedef W        TMOUT;
+
+#define TMO_POL  (0)
+#define TMO_FEVR (-1)
 
 typedef struct {
     VW  exinf;     /* Extended Information */
