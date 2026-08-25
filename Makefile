@@ -35,8 +35,7 @@ COMMON_SRCS = src/graphics/dp_core.c \
               apps/gterm.c
 
 # POSIX Kernel Sources
-POSIX_SRCS = src/kernel/task.c \
-             src/kernel/posix_kernel.c \
+POSIX_SRCS = src/kernel/posix_core.c \
              src/kernel/virtio.c \
              src/kernel/kernel_init.c \
              $(COMMON_SRCS)

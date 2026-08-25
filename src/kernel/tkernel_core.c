@@ -1,6 +1,6 @@
 /*
- * T-Kernel 2.0 / ITRON RTOS Kernel Core
- * Imported & Adapted from ./tkernel_source/ for Bare-Metal & QEMU Targets
+ * T-Kernel 2.0 / ITRON RTOS Kernel Core: tkernel_core.c
+ * Bare-Metal & QEMU Target Implementation (ARM / VirtIO MMIO)
  */
 
 #include <btron/itron.h>
@@ -11,7 +11,6 @@
 
 #define MAX_TK_TASKS 64
 #define MAX_TK_SEMS  64
-#define MAX_TK_FLGS  32
 
 typedef enum {
     TK_TS_NONEXS = 0,
@@ -39,6 +38,7 @@ typedef struct {
 static TK_TCB  g_tk_tasks[MAX_TK_TASKS];
 static TK_SEMB g_tk_sems[MAX_TK_SEMS];
 static ID      g_current_tskid = 1;
+static SYSTIME g_tk_system_ticks = 0;
 
 void tkernel_init(void) {
     (void)g_current_tskid;
@@ -48,7 +48,11 @@ void tkernel_init(void) {
     virtio_mmio_init(0x10001000);
 }
 
-ID tkernel_cre_tsk(const T_CTSK *pk_ctsk) {
+void btron_posix_kernel_init(void) {
+    tkernel_init();
+}
+
+ID cre_tsk(const T_CTSK *pk_ctsk) {
     if (!pk_ctsk || !pk_ctsk->task) return E_PAR;
 
     for (int i = 0; i < MAX_TK_TASKS; i++) {
@@ -63,7 +67,7 @@ ID tkernel_cre_tsk(const T_CTSK *pk_ctsk) {
     return E_NOMEM;
 }
 
-ER tkernel_sta_tsk(ID tskid, VW exinf) {
+ER sta_tsk(ID tskid, VW exinf) {
     if (tskid <= 0 || tskid > MAX_TK_TASKS) return E_ID;
     TK_TCB *tcb = &g_tk_tasks[tskid - 1];
     if (tcb->state == TK_TS_NONEXS) return E_NOEXS;
@@ -73,6 +77,87 @@ ER tkernel_sta_tsk(ID tskid, VW exinf) {
     return E_OK;
 }
 
+void ext_tsk(void) {
+    if (g_current_tskid > 0 && g_current_tskid <= MAX_TK_TASKS) {
+        g_tk_tasks[g_current_tskid - 1].state = TK_TS_DORM;
+    }
+}
+
+ER slp_tsk(void) {
+    if (g_current_tskid > 0 && g_current_tskid <= MAX_TK_TASKS) {
+        g_tk_tasks[g_current_tskid - 1].state = TK_TS_WAIT;
+    }
+    return E_OK;
+}
+
+ER wup_tsk(ID tskid) {
+    if (tskid <= 0 || tskid > MAX_TK_TASKS) return E_ID;
+    TK_TCB *tcb = &g_tk_tasks[tskid - 1];
+    if (tcb->state == TK_TS_WAIT) {
+        tcb->state = TK_TS_READY;
+    }
+    return E_OK;
+}
+
+ID cre_sem(const T_CSEM *pk_csem) {
+    if (!pk_csem) return E_PAR;
+    for (int i = 0; i < MAX_TK_SEMS; i++) {
+        if (!g_tk_sems[i].active) {
+            g_tk_sems[i].semid = i + 1;
+            g_tk_sems[i].config = *pk_csem;
+            g_tk_sems[i].count = pk_csem->isemcnt;
+            g_tk_sems[i].active = TRUE;
+            return g_tk_sems[i].semid;
+        }
+    }
+    return E_NOMEM;
+}
+
+ER wai_sem(ID semid) {
+    if (semid <= 0 || semid > MAX_TK_SEMS) return E_ID;
+    TK_SEMB *sem = &g_tk_sems[semid - 1];
+    if (!sem->active) return E_NOEXS;
+    if (sem->count > 0) {
+        sem->count--;
+        return E_OK;
+    }
+    return E_TMOUT;
+}
+
+ER sig_sem(ID semid) {
+    if (semid <= 0 || semid > MAX_TK_SEMS) return E_ID;
+    TK_SEMB *sem = &g_tk_sems[semid - 1];
+    if (!sem->active) return E_NOEXS;
+    if (sem->count < sem->config.maxsem) {
+        sem->count++;
+    }
+    return E_OK;
+}
+
+ER del_sem(ID semid) {
+    if (semid <= 0 || semid > MAX_TK_SEMS) return E_ID;
+    g_tk_sems[semid - 1].active = FALSE;
+    return E_OK;
+}
+
+ER get_tim(SYSTIME *p_time) {
+    if (!p_time) return E_PAR;
+    *p_time = ++g_tk_system_ticks;
+    return E_OK;
+}
+
+void dly_tsk(W dlytim) {
+    (void)dlytim;
+}
+
+ID tkernel_cre_tsk(const T_CTSK *pk_ctsk) {
+    return cre_tsk(pk_ctsk);
+}
+
+ER tkernel_sta_tsk(ID tskid, VW exinf) {
+    return sta_tsk(tskid, exinf);
+}
+
 void tkernel_dispatch(void) {
-    /* T-Kernel preemptive priority dispatcher loop */
+    /* Preemptive priority dispatcher loop */
 }
