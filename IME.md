@@ -112,22 +112,38 @@ The design shall allow future addition of:
 
 ### REQ-4.3 Host Integration
 
-When running under a host operating system, the implementation may initially
-leverage the host IME and convert the resulting UTF-8 text into the internal
-representation. A native B-TRON IME remains the target architecture.
+When running under a host operating system, the implementation may initially leverage
+the host IME and convert the resulting UTF-8 text into the internal representation.
+A native B-System IME remains the target architecture.
+Note that No binary compatibility with legacy B-right is required or planned.
 
-## 5. Summary of Design Intent
+## 5. Visual Identity & User Experience
 
-The requirements preserve the original B-TRON character-set philosophy (multi-plane, non-unified encoding)
-while mandating UTF-8 as the practical external standard and a modern, usable Japanese IME.
-This enables both authentic retro behaviour and contemporary usability for Japanese text processing.
+To avoid the “invisible upgrade” problem observed when Mozc was ported to commercial B-right/V,
+the modern conversion engine shall be made lightly visible:
 
-## 6. Wireframe Mockups – B-TRON Japanese IME Windows
+* Small persistent engine indicator (e.g. “Mozc”) in the composition or candidate window.
+* Distinct but still B-TRON-styled candidate annotations or list appearance.
+* Optional status information (engine name / dictionary version).
+* Clear first-run or settings indication that a modern open-source conversion engine is active.
+
+The classic double-bordered Sakamura window style and overall interaction model shall be preserved.
+
+## 6. Summary of Design Intent
+
+B-System IME keeps the original B-TRON character-set philosophy (multi-plane TRON Code,
+Real/Virtual Object model, separated front-end/conversion architecture) while adopting
+modern libraries and practices (UTF-8, Mozc, FreeType, SDL2).
+
+The design deliberately rejects legacy binary constraints and the complete visual invisibility
+of engine changes, ensuring both historical fidelity and a satisfying contemporary user experience.
+
+## 7. Wireframe Mockups – B-TRON Japanese IME Windows
 
 Here are clean wireframe concepts for the IME UI, designed in the classic B-TRON / Sakamura style (double-bordered windows,
 simple title bars, minimal chrome, clear hierarchy).
 
-### 6.1. Composition Window (Inline / Floating)
+### 7.1. Composition Window (Inline / Floating)
 
 ```
 ┌══════════════════════════════════════════════════════┐
@@ -149,7 +165,7 @@ Notes:
 * Optional small mode indicator (あ / A / ア).
 * Can appear as a floating window or as an overlay directly above the caret in the text editor.
 
-### 6.2. Candidate Window (Selection List)
+### 7.2. Candidate Window (Selection List)
 
 ```
 ┌══════════════════════════════┐
@@ -182,7 +198,7 @@ Variant with annotations (recommended):
 ╚══════════════════════════════════╝
 ```
 
-### 6.3. Combined View (Typical Usage)
+### 7.3. Combined View (Typical Usage)
 
 Text Editor Window:
 
@@ -208,7 +224,7 @@ Text Editor Window:
               ╚══════════════════════════════╝
 ```
 
-7. Design Rules Applied
+## 8. Design Rules
 
 * Strict double-line outer borders
 * Single-line inner separators
@@ -220,4 +236,7 @@ Text Editor Window:
 These wireframes can be implemented directly with the existing B-TRON window manager (wnd.h) primitives.
 We need a more detailed pixel-level version or additional states (e.g. prediction list, error state, or vertical candidate layout).
 
+# Credits
+
+* Namdak Tonpa
 
