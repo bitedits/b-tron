@@ -27,6 +27,7 @@ typedef uint64_t          UD;  /* 64-bit unsigned integer */
 
 /* Variable Word types */
 typedef void*             VW;  /* Pointer / variable word */
+typedef void*             VP;  /* Generic pointer */
 typedef int16_t           VH;  /* Variable halfword */
 typedef int8_t            VB;  /* Variable byte */
 

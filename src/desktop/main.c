@@ -18,6 +18,8 @@ extern void flush_gdev_to_sdl(GDEV *dev);
 extern void shutdown_sdl_backend(void);
 extern void raise_sdl_window(void);
 
+extern void btron_kernel_init(int target_mode);
+
 #include <termios.h>
 #include <unistd.h>
 
@@ -55,6 +57,12 @@ int main(int argc, char **argv) {
     H screen_h = 768;
 
     printf("[B-TRON] Initializing B-TRON Retro OS Environment...\n");
+
+#ifdef BTRON_QEMU_TARGET
+    btron_kernel_init(1);
+#else
+    btron_kernel_init(0);
+#endif
 
     if (!init_sdl_backend(screen_w, screen_h, "B-TRON Retro OS Desktop Environment (SDL2)")) {
         fprintf(stderr, "[B-TRON] Failed to initialize SDL2 backend.\n");

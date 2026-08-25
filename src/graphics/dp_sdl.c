@@ -5,6 +5,7 @@
 
 #include <btron/dp.h>
 #include <SDL.h>
+#include "virtio.h"
 #include <stdio.h>
 
 static SDL_Window   *g_sdl_window = NULL;
@@ -132,6 +133,12 @@ void flush_gdev_to_sdl(GDEV *dev) {
         g_first_frame = FALSE;
         raise_sdl_window();
     }
+
+#ifdef BTRON_QEMU_TARGET
+    /* Route Display Primitives framebuffer through VirtIO-GPU 2D driver */
+    size_t frame_bytes = (size_t)dev->width * dev->height * sizeof(COLOR);
+    vio_gpu_sdl2_blit_frame(NULL, dev->pixels, frame_bytes);
+#endif
 
     SDL_UpdateTexture(g_sdl_texture, NULL, dev->pixels, dev->width * sizeof(COLOR));
     SDL_RenderClear(g_sdl_renderer);
