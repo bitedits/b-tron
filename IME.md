@@ -18,14 +18,14 @@ TOC:
 
 ## 1. Character Encoding Model
 
-REQ-1.1 Hybrid Representation
+### REQ-1.1 Hybrid Representation
 
 The system shall use a hybrid character model:
 
 * Internal native representation: TRON Code (multi-plane), extended with a Unicode mapping plane.
 * External interchange format: UTF-8.
 
-REQ-1.2 Conversion Functions
+### REQ-1.2 Conversion Functions
 
 The system shall provide bidirectional, lossless conversion for the common Japanese character repertoire:
 
@@ -35,13 +35,13 @@ The system shall provide bidirectional, lossless conversion for the common Japan
 Conversion shall correctly handle ASCII, Hiragana, Katakana, JIS X 0208, and frequently used Unicode CJK characters.
 Unsupported or rare characters shall map to a defined fallback or private plane without data loss where possible.
 
-REQ-1.3 Storage Rules
+### REQ-1.3 Storage Rules
 
 * TAD documents and internal text objects shall prefer TRON Code.
 * Plain-text files, clipboard data, and host-OS interchange shall use UTF-8 by default.
 * Full-width / half-width distinction shall be handled via TAD formatting attributes (fusen), not by distinct code points.
 
-REQ-1.4 Glyph Rendering
+### REQ-1.4 Glyph Rendering
 
 * The font engine shall support:Classic bitmap glyphs (8×16 / 16×16) for retro compatibility.
 * Modern scalable fonts (via FreeType or equivalent) for Unicode coverage.
@@ -49,27 +49,27 @@ REQ-1.4 Glyph Rendering
 
 ## 2. Japanese Input Method (IME)
 
-REQ-2.1 Architecture
+### REQ-2.1 Architecture
 
 The system shall implement a separated IME architecture consistent with original B-TRON design:
 
 * Input front-end (composition UI and candidate display)
 * Conversion engine (Romaji/Kana → Kanji)
 
-REQ-2.2 Supported Input Modes
+### REQ-2.2 Supported Input Modes
 
 The IME shall support at minimum:
 
 * Romaji input (primary mode for modern users)
 * Direct Kana input
 
-REQ-2.3 Conversion Engine
+### REQ-2.3 Conversion Engine
 
 The conversion engine shall provide accurate kana-kanji conversion.
 Integration of Mozc (or an equivalent high-quality open engine) is the preferred implementation path.
 A minimal dictionary-based engine is acceptable as an interim solution.
 
-REQ-2.4 Composition Handling
+### REQ-2.4 Composition Handling
 
 The system shall:
 
@@ -79,18 +79,18 @@ The system shall:
 * Support standard confirmation, cancellation, and candidate selection actions.
 * Integrate cleanly with the existing B-TRON event queue.
 
-REQ-2.5 User Dictionary
+### REQ-2.5 User Dictionary
 
 The system shall support a persistent user dictionary stored as a Real Object.
 
 ## 3. Application Integration
 
-REQ-3.1 Text Components
+### REQ-3.1 Text Components
 
 The text editor (t_editor) and terminal (gterm) shall accept both UTF-8 and TRON Code input streams
 and render them correctly.
 
-REQ-3.2 Event Flow
+### REQ-3.2 Event Flow
 
 Keyboard events shall be routed through the IME front-end when Japanese input mode is active.
 Confirmed text shall be inserted into the target application as TRON Code or UTF-8 according to
@@ -98,11 +98,11 @@ the storage rules in REQ-1.3.
 
 ## 4. Compatibility and Extensibility
 
-REQ-4.1 Round-trip Safety
+### REQ-4.1 Round-trip Safety
 
 Common Japanese text shall survive UTF-8 <-> TRON Code conversion without corruption.
 
-REQ-4.2 Extensibility
+### REQ-4.2 Extensibility
 
 The design shall allow future addition of:
 
@@ -110,7 +110,7 @@ The design shall allow future addition of:
 * Additional TRON Code planes for rare/historical characters
 * TRON keyboard layout support
 
-REQ-4.3 Host Integration
+### REQ-4.3 Host Integration
 
 When running under a host operating system, the implementation may initially
 leverage the host IME and convert the resulting UTF-8 text into the internal
