@@ -13,8 +13,9 @@ TOC:
 * [2]. Japanese Input Method (IME)
 * [3]. Application Integration
 * [4]. Compatibility and Extensibility
-* [5]. Summary of Design Intent
-* [6]. Wireframe Mockups – B-TRON Japanese IME Windows
+* [5]. Visual Identity & User Experience
+* [6]. Summary of Design Intent
+* [7]. IME Windows
 
 ## 1. Character Encoding Model
 
@@ -138,9 +139,9 @@ modern libraries and practices (UTF-8, Mozc, FreeType, SDL2).
 The design deliberately rejects legacy binary constraints and the complete visual invisibility
 of engine changes, ensuring both historical fidelity and a satisfying contemporary user experience.
 
-## 7. Wireframe Mockups – B-TRON Japanese IME Windows
+## 7. IME Windows
 
-Here are clean wireframe concepts for the IME UI, designed in the classic B-TRON / Sakamura style (double-bordered windows,
+Here are clean wireframe concepts for the IME UI, designed in the classic B-TRON style (double-bordered windows,
 simple title bars, minimal chrome, clear hierarchy).
 
 ### 7.1. Composition Window (Inline / Floating)
