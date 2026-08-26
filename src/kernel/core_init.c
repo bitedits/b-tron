@@ -38,6 +38,6 @@ void btron_kernel_init(int target_mode) {
 #elif BTRON_TARGET == 2
     /* Mode 2: Unmodified Sakamura T-Kernel 2.0 Real-Time Engine Mode */
     sakamura_tkernel_init();
-    virtio_driver_init_all();
+    // virtio_driver_init_all();
 #endif
 }

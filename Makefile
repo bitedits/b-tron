@@ -153,11 +153,11 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 
-.PHONY: all posix qemu t-kernel arm-elf arm64-elf \
+.PHONY: all posix qemu tkernel arm-elf arm64-elf \
         run-posix run-qemu run-tkernel test-tkernel \
         debug-virtio debug-gdb clean
 
-all: posix
+all: posix qemu tkernel
 
 # ═══════════════════════════════════════════════════════════════════
 # POSIX Desktop
@@ -203,7 +203,7 @@ test-qemu: qemu
 # ═══════════════════════════════════════════════════════════════════
 # T-Kernel SDL2 host build (development / debug on host)
 # ═══════════════════════════════════════════════════════════════════
-t-kernel: $(TKERNEL_TARGET)
+tkernel: $(TKERNEL_TARGET)
 	@echo "=========================================================="
 	@echo " Sakamura T-Kernel 2.0 Engine built: $(TKERNEL_TARGET)"
 	@echo "=========================================================="
