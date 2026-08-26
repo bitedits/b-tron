@@ -17,7 +17,7 @@ $ make tkernel
 $ make run-tkernel
 ```
 
-<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/doc/img/yokobayashi.png" />
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/btron/doc/img/yokobayashi.png" />
 
 ## QEMU VirtIO T-Kernel 2.0 `Sakamura`
 
@@ -26,7 +26,7 @@ $ make sakamura
 $ ./btron-sakamura.elf
 ```
 
-<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/sakamura.png" />
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/btron/b-system/img/sakamura.png" />
 
 ## QEMU VirtIO `Synrc`
 
@@ -35,7 +35,7 @@ $ make qemu
 $ make run-qemu
 ```
 
-<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/qemu.png" />
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/btron/b-system/img/qemu.png" />
 
 ## POSIX `Light`
 
@@ -44,7 +44,7 @@ $ make posix
 $ make run-posix
 ```
 
-<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/posix.png" />
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/btron/b-system/img/posix.png" />
 
 ## Japanese BTRON Lineage & Subsystem Layout
 
