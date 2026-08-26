@@ -35,7 +35,7 @@ $ make qemu
 $ make run-qemu
 ```
 
-<img src="https://bitedits.github.io/btron/b-system/img/qemu.png" width="800" alt="QEMU VirtIO Synrc" />
+<img src="https://bitedits.github.io/btron/b-system/img/virtio.png" width="800" alt="QEMU VirtIO Synrc" />
 
 ## POSIX `Light`
 
