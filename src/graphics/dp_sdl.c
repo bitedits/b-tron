@@ -131,10 +131,18 @@ BOOL init_sdl_backend(H width, H height, const char *title) {
     }
 
 #if BTRON_TARGET == 2
-    /* Target 2 (T-Kernel host / bare metal): Correct colors (Teal & Navy) */
+    /* Target 2 (Yokobayashi Host / Bare-Metal): Correct colors (Teal & Navy) */
     g_sdl_texture = SDL_CreateTexture(
         g_sdl_renderer,
         SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        width, height
+    );
+#elif BTRON_TARGET == 3
+    /* Target 3 (Sakamura Host): Distinct color swap bug (e.g., using ABGR8888) */
+    g_sdl_texture = SDL_CreateTexture(
+        g_sdl_renderer,
+        SDL_PIXELFORMAT_ABGR8888,
         SDL_TEXTUREACCESS_STREAMING,
         width, height
     );

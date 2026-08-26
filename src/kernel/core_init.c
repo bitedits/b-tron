@@ -3,9 +3,10 @@
  * Manages runtime target_mode selection and VirtIO driver initialization based on BTRON_TARGET.
  *
  * Target Modes (BTRON_TARGET):
- *   0: BTRON_POSIX    (B-Kernel POSIX Microkernel Abstraction)
- *   1: BTRON_QEMU     (B-Kernel VirtIO Emulation Mode)
- *   2: BTRON_SAKAMURA (QEMU Raspberry Pi 4 Sakamura T-Kernel 2.0 Engine)
+ *   0: BTRON_POSIX       (B-Kernel POSIX Microkernel Abstraction)
+ *   1: BTRON_QEMU        (B-Kernel VirtIO Emulation Mode)
+ *   2: BTRON_YOKOBAYASHI (QEMU Raspberry Pi 4 Yokobayashi T-Kernel 2.0 Engine)
+ *   3: BTRON_SAKAMURA    (UART and VirtIO only kernels)
  */
 
 #include <btron/itron.h>
@@ -21,12 +22,13 @@ extern void btron_posix_kernel_init(void);
 #elif BTRON_TARGET == 1
 extern void tkernel_init(void);
 #elif BTRON_TARGET == 2
+extern void yokobayashi_tkernel_init(void);
+#elif BTRON_TARGET == 3
 extern void sakamura_tkernel_init(void);
 #endif
 
 void btron_kernel_init(int target_mode) {
     (void)target_mode;
-
 #if BTRON_TARGET == 0
     /* Mode 0: POSIX Microkernel Abstraction Mode */
     btron_posix_kernel_init();
@@ -36,7 +38,11 @@ void btron_kernel_init(int target_mode) {
     virtio_mmio_init(0x10001000);
     virtio_driver_init_all();
 #elif BTRON_TARGET == 2
-    /* Mode 2: Unmodified Sakamura T-Kernel 2.0 Real-Time Engine Mode */
+    /* Mode 2: Yokobayashi T-Kernel 2.0 Real-Time Engine Mode */
+    yokobayashi_tkernel_init();
+#elif BTRON_TARGET == 3
+    /* Mode 3: Sakamura T-Kernel 2.0 Real-Time Engine Mode (UART & VirtIO only) */
     sakamura_tkernel_init();
+    virtio_driver_init_all();
 #endif
 }

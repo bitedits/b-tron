@@ -140,11 +140,13 @@ QEMU_OBJS    = $(QEMU_SRCS:.c=.qemu.o)
 TKERNEL_OBJS = $(TKERNEL_SRCS:.c=.tkernel.o)
 ARM32_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm32.o)
 ARM64_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm64.o)
+SAKAMURA_OBJS  = $(TKERNEL_SRCS:.c=.sakamura.o)
 
 # ── Output names ──────────────────────────────────────────────────
 POSIX_TARGET   = btron-posix
 QEMU_TARGET    = btron-qemu.elf
 TKERNEL_TARGET = btron-tkernel.elf
+SAKAMURA_TARGET = btron-sakamura.elf
 ARM32_TARGET   = btron-arm-baremetal.elf     # Pi 2B — BCM2836, Cortex-A7, ARMv7
 ARM64_TARGET   = btron-aarch64-baremetal.elf # Pi 4B — BCM2711, Cortex-A72, AArch64
 DEFAULT_TARGET = btron
@@ -153,11 +155,11 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 
-.PHONY: all posix qemu tkernel arm-elf arm64-elf \
+.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf \
         run-posix run-qemu run-tkernel test-tkernel \
         debug-virtio debug-gdb clean
 
-all: posix qemu tkernel
+all: posix qemu tkernel sakamura
 
 # ═══════════════════════════════════════════════════════════════════
 # POSIX Desktop
@@ -222,6 +224,27 @@ src/drivers/bcm283x/screen/%.tkernel.o: src/drivers/bcm283x/screen/%.c
 
 $(TKERNEL_TARGET): $(TKERNEL_OBJS)
 	$(CC) $(TKERNEL_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+
+# ===================================================================
+sakamura: $(SAKAMURA_TARGET)
+	@echo "=========================================================="
+	@echo " Sakamura T-Kernel 2.0 Engine (UART/VirtIO Mode) built: $(SAKAMURA_TARGET)"
+	@echo "=========================================================="
+
+src/kernel/%.sakamura.o: src/kernel/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
+
+src/drivers/bcm283x/cpu/%.sakamura.o: src/drivers/bcm283x/cpu/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
+
+src/drivers/bcm283x/screen/%.sakamura.o: src/drivers/bcm283x/screen/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
+
+%.sakamura.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
+
+$(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
+	$(CC) $(SAKAMURA_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
 # ═══════════════════════════════════════════════════════════════════
 # Bare-Metal ARM32 ELF — BCM283x Pi 2B (Cortex-A7 / ARMv7 / BCM2836)
@@ -305,8 +328,8 @@ debug-virtio: arm64-elf
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
-	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) \
+	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
 	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET)
 	find src -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
-	    -o -name "*.tkernel.o" -o -name "*.arm32.o" \
+	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.o" \) -delete 2>/dev/null || true

@@ -29,11 +29,37 @@ extern ER alarmhandler_initialize(void);
 extern ER subsystem_initialize(void);
 extern ER resource_group_initialize(void);
 
+void yokobayashi_tkernel_init(void) {
+    printf("\n==========================================================\n");
+    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
+    printf(" Target Mode 2: BTRON_YOKOBAYASHI Active\n");
+    printf(" Initializing Sakamura T-Kernel Core Modules...\n");
+    printf("==========================================================\n\n");
+
+    /* Initialize Sakamura T-Kernel 2.0 Real-Time Kernel Subsystems */
+    task_initialize();
+    semaphore_initialize();
+    eventflag_initialize();
+    mailbox_initialize();
+    messagebuffer_initialize();
+    rendezvous_initialize();
+    mutex_initialize();
+    memorypool_initialize();
+    fix_memorypool_initialize();
+    cyclichandler_initialize();
+    alarmhandler_initialize();
+    subsystem_initialize();
+    resource_group_initialize();
+    timer_initialize();
+
+    printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
+}
+
 void sakamura_tkernel_init(void) {
     printf("\n==========================================================\n");
     printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
-    printf(" Target Mode 2: BTRON_SAKAMURA Active\n");
-    printf(" Initializing Sakamura T-Kernel Core Modules...\n");
+    printf(" Target Mode 3: BTRON_SAKAMURA Active\n");
+    printf(" Initializing Sakamura T-Kernel Core Modules (UART & VirtIO)...\n");
     printf("==========================================================\n\n");
 
     /* Initialize Sakamura T-Kernel 2.0 Real-Time Kernel Subsystems */
