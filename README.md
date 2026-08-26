@@ -10,14 +10,41 @@ and organized into a authentic Japanese BTRON tree structure.
 * [B-FREE OS 1994](https://bitedits.github.io/btron/b-free/)
 * [B-SYSTEM OS 2026](https://bitedits.github.io/btron/b-system/)
 
-## Current Status
+## Raspberry Pi 2/3 T-Kernel 2.0 `Yokobayashi`
 
-<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://github.com/user-attachments/assets/da957512-0be4-439e-ad52-f57fa33b6d7a" />
+```
+$ make tkernel
+$ make run-tkernel
+```
 
-Goal
-----
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/doc/img/yokobayashi.png" />
 
-<img width="1228" height="518" alt="Screenshot 2026-08-22 at 21 09 27" src="https://github.com/user-attachments/assets/826f7605-8c6e-4786-a8a5-eb0f979ac314" />
+## QEMU VirtIO T-Kernel 2.0 `Sakamura`
+
+```
+$ make sakamura
+$ ./btron-sakamura.elf
+```
+
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/sakamura.png" />
+
+## QEMU VirtIO `Synrc`
+
+```
+$ make qemu
+$ make run-qemu
+```
+
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/qemu.png" />
+
+## POSIX `Light`
+
+```
+$ make posix
+$ make run-posix
+```
+
+<img width="1070" height="844" alt="Screenshot 2026-08-22 at 23 22 22" src="https://bitedits.github.io/b-system/img/posix.png" />
 
 ## Japanese BTRON Lineage & Subsystem Layout
 
