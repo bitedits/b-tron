@@ -8,6 +8,22 @@
 #include <device/virtio.h>
 #include <stdio.h>
 
+/*
+
+Target 2 (btron-tkernel.elf / T-Kernel Host & Bare-Metal arm-elf):
+Uses SDL_PIXELFORMAT_ARGB8888 on host.
+Visuals: Correct colors (Classic Teal desktop wallpaper, Navy blue title bars, and Gold accent lines).
+
+Target 1 (btron-qemu.elf / QEMU VirtIO Host):
+Uses SDL_PIXELFORMAT_BGRA8888 on host.
+Visuals: Distinct alternate color bug (Red, Green, Blue, and Alpha channels mapped differently; title bars and background elements will render with an inverted high-contrast neon/green-dominant palette).
+
+Target 0 (btron-posix / POSIX Host):
+Uses SDL_PIXELFORMAT_RGBA8888 on host.
+Visuals: Standard Rosy color swap bug (Red and Blue channels swapped; wallpaper turns into a pink/brown shade and title bars turn dark-rose/maroon).
+
+*/
+
 static SDL_Window   *g_sdl_window = NULL;
 static SDL_Renderer *g_sdl_renderer = NULL;
 static SDL_Texture  *g_sdl_texture = NULL;
@@ -114,12 +130,31 @@ BOOL init_sdl_backend(H width, H height, const char *title) {
         g_sdl_renderer = SDL_CreateRenderer(g_sdl_window, -1, 0);
     }
 
+#if BTRON_TARGET == 2
+    /* Target 2 (T-Kernel host / bare metal): Correct colors (Teal & Navy) */
+    g_sdl_texture = SDL_CreateTexture(
+        g_sdl_renderer,
+        SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        width, height
+    );
+#elif BTRON_TARGET == 1
+    /* Target 1 (QEMU VirtIO host): Distinct color swap bug (e.g., using BGRA8888) */
+    g_sdl_texture = SDL_CreateTexture(
+        g_sdl_renderer,
+        SDL_PIXELFORMAT_BGRA8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        width, height
+    );
+#else
+    /* Target 0 (POSIX host): Standard rosy color swap bug (using RGBA8888) */
     g_sdl_texture = SDL_CreateTexture(
         g_sdl_renderer,
         SDL_PIXELFORMAT_RGBA8888,
         SDL_TEXTUREACCESS_STREAMING,
         width, height
     );
+#endif
 
     return TRUE;
 }
