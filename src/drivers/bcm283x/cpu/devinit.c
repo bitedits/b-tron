@@ -52,7 +52,7 @@ EXPORT void DispProgress( W n )
  */
 EXPORT ER ROM_startup( void )
 {
-	W	val[L_DEVCONF_VAL];
+	INT	val[L_DEVCONF_VAL];
 	W	n;
 
 	/* Set SYSCONF/DEVCONF */
@@ -96,7 +96,8 @@ IMPORT	void	CountWaitUsec( void );	/* cntwus.c */
 /* Low level memory manager information */
 IMPORT	UW	lowmem_top;
 
-	W	n, v[SYSCONF_VAL_MAX];
+	W	n;
+	INT	v[SYSCONF_VAL_MAX];
 
 	/* Compute loop count of micro second wait */
 	CountWaitUsec();

@@ -197,7 +197,7 @@ EXPORT	ER	ScreenDrv(INT ac, UB *av[])
 		writefn,	/* write */
 		eventfn,	/* event */
 	};
-	W	v[L_DEVCONF_VAL];
+	INT	v[L_DEVCONF_VAL];
 
         /* effective? */
 	if (GetDevConf("ScreenDrvEnable", v) > 0 && !v[0]) return E_NOSPT;

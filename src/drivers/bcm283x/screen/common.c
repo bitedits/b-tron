@@ -160,7 +160,7 @@ EXPORT	ER	mapFrameBuf(void *paddr, W len, void **laddr)
 EXPORT	ER	initSCREEN(void)
 {
 	W	i, n;
-	W	v[L_DEVCONF_VAL];
+	INT	v[L_DEVCONF_VAL];
 
         /* initialize video information */
 	MEMSET(&Vinf, 0, sizeof(VideoInf));
