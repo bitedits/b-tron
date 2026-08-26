@@ -87,7 +87,11 @@ ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
                 src/drivers/bcm283x/cpu/devinit.c    \
                 src/drivers/bcm283x/cpu/patch.c      \
                 src/drivers/bcm283x/cpu/power.c      \
-                src/drivers/bcm283x/cpu/tkdev_init.c
+                src/drivers/bcm283x/cpu/tkdev_init.c \
+                src/drivers/bcm283x/screen/bcm283x_screen.c \
+                src/drivers/bcm283x/screen/conf.c    \
+                src/drivers/bcm283x/screen/common.c  \
+                src/drivers/bcm283x/screen/main.c
 
 TKERNEL_SAKAMURA_SRCS = \
     src/kernel/task.c         \

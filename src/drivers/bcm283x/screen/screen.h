@@ -163,4 +163,4 @@ IMPORT	W	getSpecSCRXSPEC(DEV_SPEC *spec, W mode);
 IMPORT	W	getSpecSCRLIST(TC *str, W pos);
 
 /* Get "DEVCONF" entry */
-IMPORT	W	GetDevConf(UB *name, W *val);
+IMPORT	INT	GetDevConf(CONST UB *name, INT *val);

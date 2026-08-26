@@ -20,13 +20,13 @@
  */
 #include	<basic.h>
 
-/* EM1 LCD controller initialization processing */
-IMPORT	W	EM1LCDCInit(void);
+/* Raspberry Pi 2B (BCM283x) screen controller initialization processing */
+IMPORT	W	BCM283xScreenInit(void);
 
 /*
         initialization table that is tailored to the needs of video board and chip
 */
 EXPORT	FUNCP	VideoFunc[] = {
-	(FUNCP)EM1LCDCInit,	/* internal */
+	(FUNCP)BCM283xScreenInit,	/* internal */
 	NULL,
 };

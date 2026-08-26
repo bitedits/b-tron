@@ -18,6 +18,7 @@
  *
  */
 #include "screen.h"
+IMPORT void tm_putstring(const char *s);
 
 LOCAL	BOOL	suspended;		/* suspended state     */
 LOCAL	SDI	ScrSdi;			/* device driver I/F handle */
@@ -176,6 +177,8 @@ LOCAL	INT	eventfn(INT evttyp, void *evtinf, SDI sdi)
 
 	return er;
 }
+extern void uart_puts(const char *s);
+
 /*
         startup
 */
@@ -198,6 +201,8 @@ EXPORT	ER	ScreenDrv(INT ac, UB *av[])
 	};
 	W	v[L_DEVCONF_VAL];
 
+	uart_puts("   [SDRV 1]\n");
+
         /* effective? */
 	if (GetDevConf("ScreenDrvEnable", v) > 0 && !v[0]) return E_NOSPT;
 
@@ -210,13 +215,16 @@ EXPORT	ER	ScreenDrv(INT ac, UB *av[])
         /* initialization */
 	suspended = FALSE;
 
+	uart_puts("   [SDRV 2]\n");
         /* device initialization processing */
 	if ((er = initSCREEN()) < E_OK) goto EEXIT;
 
+	uart_puts("   [SDRV 3]\n");
         /* register device */
 	er = SDefDevice(&ddev, &idev, &ScrSdi);
 	if (er < E_OK) finishSCREEN();
 
+	uart_puts("   [SDRV 4]\n");
  EEXIT:
 	return er;
 }
