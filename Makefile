@@ -115,6 +115,7 @@ TKERNEL_SAKAMURA_SRCS = \
     src/kernel/version.c
 
 TKERNEL_SRCS = src/kernel/core_tkernel.c \
+               src/kernel/core_yoko.c \
                src/drivers/virtio/virtio.c \
                src/kernel/core_init.c     \
                src/kernel/core_boot.c     \
@@ -132,7 +133,7 @@ COMMON_NO_SDL_SRCS = \
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
 BAREMETAL_LD       = src/drivers/bcm283x/cpu/link.ld
-ARM_BAREMETAL_SRCS = $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM_BAREMETAL_SRCS = src/kernel/core_yoko.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
 
 # ── Object lists ─────────────────────────────────────────────────
 POSIX_OBJS   = $(POSIX_SRCS:.c=.posix.o)
