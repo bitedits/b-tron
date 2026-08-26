@@ -68,6 +68,20 @@ void* tkl_memcpy(void *dst, const void *src, size_t n) { return memcpy(dst, src,
 void* tkl_memset(void *s, int c, size_t n) { return memset(s, c, n); }
 char* tkl_strncpy(char *dst, const char *src, size_t n) { return strncpy(dst, src, n); }
 
+void BitSet(void *base, UW offset) {
+    uint32_t *p = (uint32_t *)base;
+    int idx = offset / 32;
+    int bit = offset % 32;
+    p[idx] |= (1U << bit);
+}
+
+void BitClr(void *base, UW offset) {
+    uint32_t *p = (uint32_t *)base;
+    int idx = offset / 32;
+    int bit = offset % 32;
+    p[idx] &= ~(1U << bit);
+}
+
 int BitSearch0_w(const uint32_t *base, int offset, int width) {
     for (int i = 0; i < width; i++) {
         int pos = offset + i;
@@ -112,6 +126,10 @@ void *unhook_svc = NULL;
 
 ER no_support(void) { return -70; /* E_NOSPT */ }
 void timer_handler_startup(void) {}
+
+void request_tex(TCB *tcb) { (void)tcb; }
+void low_pow(void) {}
+void off_pow(void) {}
 void tm_monitor(void) {}
 void tm_putstring(const char *s) { if (s) printf("%s", s); }
 

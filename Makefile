@@ -29,7 +29,7 @@ ARM64_CC ?= clang --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffree
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC    = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 ARM_CFLAGS = -O2 -Wall -Wextra -std=c99 \
-             -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 \
+             -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
              $(BCM_INC)
 
 # Host OS / SDL2 detection
@@ -88,7 +88,7 @@ ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
                 src/drivers/bcm283x/cpu/patch.c      \
                 src/drivers/bcm283x/cpu/power.c      \
                 src/drivers/bcm283x/cpu/tkdev_init.c \
-                src/drivers/bcm283x/screen/bcm283x_screen.c \
+                src/drivers/bcm283x/screen/em1d512.c \
                 src/drivers/bcm283x/screen/conf.c    \
                 src/drivers/bcm283x/screen/common.c  \
                 src/drivers/bcm283x/screen/main.c
@@ -112,8 +112,7 @@ TKERNEL_SAKAMURA_SRCS = \
     src/kernel/wait.c         \
     src/kernel/objname.c      \
     src/kernel/misc_calls.c   \
-    src/kernel/version.c      \
-    $(ARCH_BCM_SRCS)
+    src/kernel/version.c
 
 TKERNEL_SRCS = src/kernel/core_tkernel.c \
                src/drivers/virtio/virtio.c \
@@ -133,7 +132,7 @@ COMMON_NO_SDL_SRCS = \
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
 BAREMETAL_LD       = src/drivers/bcm283x/cpu/link.ld
-ARM_BAREMETAL_SRCS = $(TKERNEL_SAKAMURA_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM_BAREMETAL_SRCS = $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
 
 # ── Object lists ─────────────────────────────────────────────────
 POSIX_OBJS   = $(POSIX_SRCS:.c=.posix.o)
@@ -213,6 +212,9 @@ src/kernel/%.tkernel.o: src/kernel/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
 
 src/drivers/bcm283x/cpu/%.tkernel.o: src/drivers/bcm283x/cpu/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
+
+src/drivers/bcm283x/screen/%.tkernel.o: src/drivers/bcm283x/screen/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
 
 %.tkernel.o: %.c

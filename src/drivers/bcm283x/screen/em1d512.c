@@ -348,6 +348,18 @@ LOCAL	void	em1_suspend(BOOL suspend)
      configure PC Config registers, etc.
 
 */
+EXPORT ER em1d512_iicspi_svc( BOOL start )
+{
+	(void)start;
+	return E_OK;
+}
+
+EXPORT ER em1d512_spixfer( W cs, UB *xmit, UB *recv, W len )
+{
+	(void)cs; (void)xmit; (void)recv; (void)len;
+	return E_OK;
+}
+
 EXPORT	W	EM1LCDCInit(void)
 {
 	W	fbsz, rowb, result;
@@ -392,4 +404,9 @@ EXPORT	W	EM1LCDCInit(void)
 	result = 1;
 fin0:
 	return result;
+}
+
+EXPORT W BCM283xScreenInit( void )
+{
+	return EM1LCDCInit();
 }

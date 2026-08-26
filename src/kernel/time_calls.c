@@ -158,6 +158,18 @@ LOCAL CONST WSPEC wspec_dly = { TTW_DLY, NULL, NULL };
 /*
  * Task delay
  */
+#if defined(__arm__) && !defined(__aarch64__)
+EXPORT ER tk_dly_tsk( RELTIM dlytim )
+{
+	return _tk_dly_tsk(dlytim);
+}
+
+EXPORT ER tk_dly_tsk_u( RELTIM_U dlytim_u )
+{
+	return _tk_dly_tsk_u(dlytim_u);
+}
+#endif
+
 SYSCALL ER _tk_dly_tsk( RELTIM dlytim )
 {
 	return _tk_dly_tsk_u(to_usec(dlytim));

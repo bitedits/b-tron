@@ -37,11 +37,18 @@
 __attribute__ ((noinline))
 LOCAL void WaitLoop( UW count )
 {
+#if defined(__arm__) && !defined(__aarch64__)
 	Asm("	_loop:	subs	%0, %0, #1	\n"
 	"		bhi	_loop		"
 		: "=r"(count)
 		: "0"(count + 1)
 	);
+#else
+	/* Non-ARM fallback (host SDL2 simulation/debug build) */
+	while (count-- > 0) {
+		__asm__ volatile("" : "+g"(count));
+	}
+#endif
 }
 
 /*
@@ -77,6 +84,14 @@ EXPORT void CountWaitUsec( void )
 	SCInfo.loop64us = d / (cnt * (50/2)) * (64/2);
 }
 
+
+EXPORT void WaitUsec( UINT usec )
+{
+	UW	loop;
+
+	loop = ( (UD)usec * SCInfo.loop64us ) / 64;
+	WaitLoop( loop );
+}
 
 /*----------------------------------------------------------------------
 #|History of "cntwus.c"
