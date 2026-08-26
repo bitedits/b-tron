@@ -158,7 +158,7 @@ ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_c
     H cur_x = x;
     H cur_y = y;
     const char *p = text;
-    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    COLOR *pix = dev->pixels;
     H width = dev->width;
 
     while (*p) {

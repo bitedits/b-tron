@@ -33,36 +33,57 @@ ER init_wnd_mgr(GDEV *screen_dev) {
 }
 
 WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
+    uart_puts("   [OPN_WND_ENTER]\n");
     WND *wnd = (WND*)calloc(1, sizeof(WND));
-    if (!wnd) return NULL;
+    if (!wnd) {
+        uart_puts("   [OPN_WND_FAIL_CALLOC]\n");
+        return NULL;
+    }
+    uart_puts("   [OPN_WND_CALLOC_OK]\n");
 
     wnd->id = g_next_wnd_id++;
-    strncpy(wnd->title, title ? title : "BTRON Window", sizeof(wnd->title) - 1);
+    wnd->paint = NULL;
+    wnd->event_handler = NULL;
+    wnd->user_data = 0;
+
+    const char *src_t = title ? title : "BTRON Window";
+    int ti = 0;
+    for (; ti < 63 && src_t[ti] != '\0'; ti++) {
+        wnd->title[ti] = src_t[ti];
+    }
+    wnd->title[ti] = '\0';
+
+    uart_puts("   [OPN_WND_TITLE_OK]\n");
     wnd->bounds.left = x;
     wnd->bounds.top = y;
     wnd->bounds.right = x + w;
     wnd->bounds.bottom = y + h;
 
+    uart_puts("   [OPN_WND_BOUNDS_OK]\n");
     H title_h = (attr & WND_ATTR_TITLE) ? 22 : 0;
     wnd->client.left = x + 4;
     wnd->client.top = y + title_h + 4;
     wnd->client.right = x + w - 4;
     wnd->client.bottom = y + h - 4;
 
+    uart_puts("   [OPN_WND_CLIENT_OK]\n");
     wnd->attr = attr;
     wnd->visible = TRUE;
     wnd->focused = TRUE;
 
+    uart_puts("   [OPN_WND_BEFORE_OPN_DEV]\n");
     wnd->dev = opn_dev(w - 8, h - title_h - 8);
 
     /* Insert at head of z-stack */
+    wnd->next = g_wnd_head;
+    wnd->prev = NULL;
     if (g_wnd_head) {
         g_wnd_head->focused = FALSE;
-        wnd->next = g_wnd_head;
         g_wnd_head->prev = wnd;
     }
     g_wnd_head = wnd;
 
+    uart_puts("   [OPN_WND_DONE]\n");
     return wnd;
 }
 
@@ -124,28 +145,24 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
     uart_puts(wnd->title);
     uart_puts("'\n");
 
+    uart_puts("   [STEP-A] Before outer copy...\n");
     RECT outer;
     outer.left = wnd->bounds.left;
     outer.top = wnd->bounds.top;
     outer.right = wnd->bounds.right;
     outer.bottom = wnd->bounds.bottom;
+    uart_puts("   [STEP-B] After outer copy...\n");
 
-    /* Window outer shadow and frame */
-    uart_puts("      [TRACE-GFX] fill_rec outer background...\n");
     fill_rec(dev, &outer, COLOR_LTGRAY);
-    uart_puts("      [TRACE-GFX] drw_rec outer border...\n");
     drw_rec(dev, &outer);
 
-    /* Double retro border line */
     RECT inner_b;
     inner_b.left = outer.left + 2;
     inner_b.top = outer.top + 2;
     inner_b.right = outer.right - 2;
     inner_b.bottom = outer.bottom - 2;
-    uart_puts("      [TRACE-GFX] drw_rec inner border...\n");
     drw_rec(dev, &inner_b);
 
-    /* Titlebar */
     if (wnd->attr & WND_ATTR_TITLE) {
         RECT title_r;
         title_r.left = outer.left + 3;
@@ -154,14 +171,10 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
         title_r.bottom = outer.top + 22;
 
         COLOR title_col = wnd->focused ? COLOR_NAVY : COLOR_GRAY;
-        uart_puts("      [TRACE-GFX] fill_rec titlebar...\n");
         fill_rec(dev, &title_r, title_col);
 
-        /* Title text */
-        uart_puts("      [TRACE-GFX] drw_tc_string title text...\n");
         drw_tc_string(dev, title_r.left + 6, title_r.top + 3, wnd->title, COLOR_WHITE, 0x00000000);
 
-        /* Close Button [X] */
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
             close_btn.left = outer.right - 20;
@@ -174,7 +187,7 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
             drw_tc_string(dev, close_btn.left + 4, close_btn.top + 1, "x", COLOR_BLACK, 0x00000000);
         }
     }
-    uart_puts("   [TRACE-GFX] Window Frame Rendered Successfully!\n");
+    uart_puts("   [TRACE-GFX] Frame Done!\n");
 }
 
 void redraw_all_windows(void) {

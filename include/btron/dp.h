@@ -43,6 +43,7 @@ void uart_puts(const char *s);
 typedef struct {
     H width;
     H height;
+    UW pad0;
     COLOR *pixels;
     RECT clip;
 } GDEV;

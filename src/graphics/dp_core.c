@@ -20,27 +20,28 @@ static inline int abs(int n) { return n < 0 ? -n : n; }
 
 GDEV* opn_dev(H w, H h) {
     if (w <= 0 || h <= 0) return NULL;
+    uart_puts("      [DEV-1] Calling calloc GDEV...\n");
     GDEV *dev = (GDEV*)calloc(1, sizeof(GDEV));
     if (!dev) return NULL;
 
+    uart_puts("      [DEV-2] Setting width/height...\n");
     dev->width = w;
     dev->height = h;
+
+    uart_puts("      [DEV-3] Calling calloc pixels...\n");
     dev->pixels = (COLOR*)calloc(w * h, sizeof(COLOR));
     if (!dev->pixels) {
         free(dev);
         return NULL;
     }
 
+    uart_puts("      [DEV-4] Setting clip...\n");
     dev->clip.left = 0;
     dev->clip.top = 0;
     dev->clip.right = w;
     dev->clip.bottom = h;
 
-    /* Fill background with default transparent/black */
-    for (int i = 0; i < w * h; i++) {
-        dev->pixels[i] = 0x00000000;
-    }
-
+    uart_puts("      [DEV-5] Returning dev!\n");
     return dev;
 }
 
@@ -102,7 +103,7 @@ ER drw_lin(GDEV *dev, H x1, H y1, H x2, H y2) {
     H err = dx + dy, e2;
 
     H x = x1, y = y1;
-    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    COLOR *pix = dev->pixels;
     H width = dev->width;
 
     while (1) {
@@ -141,12 +142,13 @@ ER fill_rec(GDEV *dev, const RECT *r, COLOR col) {
 
     if (left >= right || top >= bottom) return E_OK;
 
-    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    COLOR *pix = dev->pixels;
     H width = dev->width;
+    H span = right - left;
 
     for (H y = top; y < bottom; y++) {
-        volatile COLOR *row = pix + (y * width);
-        for (H x = left; x < right; x++) {
+        COLOR *row = pix + (y * width + left);
+        for (H x = 0; x < span; x++) {
             row[x] = col;
         }
     }

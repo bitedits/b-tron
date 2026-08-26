@@ -23,13 +23,15 @@ extern "C" {
 
 typedef struct WND {
     ID    id;
+    char  pad0[12];    /* 12 bytes alignment padding -> title starts at offset 16 (16-byte aligned!) */
     char  title[64];
-    RECT  bounds;
-    RECT  client;
+    RECT  bounds;      /* starts at offset 80 (8-byte aligned!) */
+    RECT  client;      /* starts at offset 88 (8-byte aligned!) */
     UW    attr;
     BOOL  visible;
     BOOL  focused;
-    GDEV  *dev;
+    UW    pad1;        /* 4 bytes alignment padding for 8-byte pointer boundary! */
+    GDEV  *dev;        /* starts at offset 112 (8-byte aligned!) */
     void (*paint)(struct WND *wnd, GDEV *dev);
     void (*event_handler)(struct WND *wnd, const EVT *evt);
     VW    user_data;
