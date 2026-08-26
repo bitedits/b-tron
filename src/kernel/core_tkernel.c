@@ -30,11 +30,11 @@ extern ER subsystem_initialize(void);
 extern ER resource_group_initialize(void);
 
 void sakamura_tkernel_init(void) {
-    printf("==========================================================\n");
-    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (TRON Forum Spec)\n");
+    printf("\n==========================================================\n");
+    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
     printf(" Target Mode 2: BTRON_SAKAMURA Active\n");
     printf(" Initializing Sakamura T-Kernel Core Modules...\n");
-    printf("==========================================================\n");
+    printf("==========================================================\n\n");
 
     /* Initialize Sakamura T-Kernel 2.0 Real-Time Kernel Subsystems */
     task_initialize();

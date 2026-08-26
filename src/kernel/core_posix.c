@@ -43,7 +43,10 @@ void btron_posix_kernel_init(void) {
     memset(g_tasks, 0, sizeof(g_tasks));
     memset(g_sems, 0, sizeof(g_sems));
     pthread_mutex_unlock(&g_kernel_mutex);
-    printf("[KERNEL] POSIX microkernel abstraction initialized.\n");
+    printf("\n==========================================================\n");
+    printf(" POSIX Microkernel Abstraction Engine (Host PC Mode)\n");
+    printf(" Target Mode 0: BTRON_POSIX Active\n");
+    printf("==========================================================\n\n");
 }
 
 void tkernel_init(void) {

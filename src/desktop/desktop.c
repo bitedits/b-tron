@@ -330,6 +330,7 @@ void btron_main(void) {
     uart_puts(" Sakamura T-Kernel 2.0 Real-Time OS Engine (BCM283x ARM)\n");
     uart_puts(" QEMU Bare-Metal Hardware Machine Execution Active!\n");
     uart_puts("==========================================================\n\n");
+    uart_puts("[QEMU-ARM] Notice: Running bundled QEMU emulation. Hardware VRAM format active (no color format bugs).\n\n");
 
     uart_puts("[QEMU-ARM] Heap base: ");
     uart_hex32((uint32_t)HEAP_BASE);

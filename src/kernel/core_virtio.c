@@ -44,7 +44,10 @@ void tkernel_init(void) {
     (void)g_current_tskid;
     memset(g_tk_tasks, 0, sizeof(g_tk_tasks));
     memset(g_tk_sems, 0, sizeof(g_tk_sems));
-    printf("[T-KERNEL] Real-Time ITRON Core initialized (Raspberry Pi / QEMU target).\n");
+    printf("\n==========================================================\n");
+    printf(" B-Kernel / ITRON RTOS Core (QEMU VirtIO Mode)\n");
+    printf(" Target Mode 1: BTRON_QEMU Active\n");
+    printf("==========================================================\n\n");
     virtio_mmio_init(0x10001000);
 }
 
