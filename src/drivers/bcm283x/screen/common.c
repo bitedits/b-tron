@@ -162,12 +162,8 @@ EXPORT	ER	initSCREEN(void)
 	W	i, n;
 	W	v[L_DEVCONF_VAL];
 
-	extern void uart_puts(const char *s);
-	uart_puts("  [IS 1]\n");
-
         /* initialize video information */
 	MEMSET(&Vinf, 0, sizeof(VideoInf));
-	uart_puts("  [IS 2]\n");
 
         /* PCI address of effective VIDEO board: PCI is not used */
 	Vinf.pciaddr    = -1;
@@ -205,9 +201,7 @@ EXPORT	ER	initSCREEN(void)
 	Vinf.banksize   = 0;
 	Vinf.bankshift  = 0;
 	Vinf.cmap       = Cmap;
-	uart_puts("  [IS 3]\n");
 	STRNCPY(Vinf.oemname, OEMName, L_OEMNAME);
-	uart_puts("  [IS 4]\n");
 
 	/*
          * for the following parameters, the individual driver for a specific video chip sets them
@@ -217,15 +211,11 @@ EXPORT	ER	initSCREEN(void)
 	 */
 
         /* initialize according the needs of video board and chip */
-	uart_puts("  [IS 5]\n");
 	n = 0;
 	for (i = 0; VideoFunc[i] != NULL; i++) {
-		uart_puts("  [IS 5a calling VideoFunc]\n");
 		n = (*VideoFunc[i])();
-		uart_puts("  [IS 5b VideoFunc returned]\n");
 		if (n != 0) break;
 	}
-	uart_puts("  [IS 6]\n");
 
 	if (n < 0) return E_NOEXS;	/* error */
 
@@ -237,7 +227,6 @@ EXPORT	ER	initSCREEN(void)
 	Vinf.vramsz     = Vinf.framebuf_rowb * Vinf.fb_height;
 	if (Vinf.framebuf_total > 0 &&
 		Vinf.vramsz > Vinf.framebuf_total) return E_OBJ;
-	uart_puts("  [IS 7]\n");
 
         /* obtain the effective size of screen */
 	Vinf.act_width	= (v[2] >= 160 && v[2] < Vinf.width) ?
@@ -251,10 +240,8 @@ EXPORT	ER	initSCREEN(void)
 		else if (Vinf.vfreq > MAX_VFREQ) Vinf.vfreq = MAX_VFREQ;
 	}
 
-	uart_puts("  [IS 8]\n");
         /* configure actual video mode */
 	(*Vinf.fn_setmode)(1);
-	uart_puts("  [IS 9]\n");
 
         /* set effective VRAM address */
 	Vinf.baseaddr = Vinf.f_addr;
@@ -275,7 +262,6 @@ EXPORT	ER	initSCREEN(void)
 		(*Vinf.fn_setcmap)(Vinf.cmap, 0, 1);
 	}
 
-	uart_puts("  [IS 10]\n");
 	return E_OK;
 }
 /*

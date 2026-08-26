@@ -267,9 +267,11 @@ run-tkernel: arm-elf
 	@echo " Launching T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
 	@echo " ELF     : $(ARM32_TARGET)"
+	@echo " Devices : USB Mouse / Tablet & VideoCore GPU Display"
 	@echo "=========================================================="
 	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
 	    $(QEMU_AARCH64) -M raspi2b -m 1G $(QEMU_DISPLAY) \
+	        -usb -device usb-tablet \
 	        -kernel $(ARM32_TARGET) -serial mon:stdio -monitor null; \
 	else \
 	    echo "[ERROR] $(QEMU_AARCH64) not found — install qemu-system-aarch64"; \
@@ -296,15 +298,6 @@ test-tkernel: arm-elf
 debug-virtio: arm64-elf
 	$(QEMU_AARCH64) -M raspi4b -m 2G -trace "virtio_*" \
 	    -kernel $(ARM64_TARGET) -serial stdio
-
-debug-gdb: arm-elf
-	@echo "=========================================================="
-	@echo " QEMU GDB stub — Pi 2B (-M raspi2b)"
-	@echo " Connect: gdb-multiarch $(ARM32_TARGET)"
-	@echo "          (gdb) target remote localhost:1234"
-	@echo "=========================================================="
-	$(QEMU_AARCH64) -M raspi2b -m 1G $(QEMU_DISPLAY) \
-	    -kernel $(ARM32_TARGET) -serial stdio -s -S
 
 # ═══════════════════════════════════════════════════════════════════
 # Clean

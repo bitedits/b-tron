@@ -27,18 +27,19 @@ void uart_puts(const char *s);
 #define ROP_AND    3
 #define ROP_INVERT 4
 
-/* TRON Standard Palette Colors */
-#define COLOR_BLACK     0x000000FF
+/* TRON Standard Palette Colors (0xAARRGGBB format) */
+#define COLOR_BLACK     0xFF000000
 #define COLOR_WHITE     0xFFFFFFFF
-#define COLOR_DKGRAY    0x404040FF
-#define COLOR_GRAY      0x808080FF
-#define COLOR_LTGRAY    0xC0C0C0FF
-#define COLOR_TEAL      0x008080FF   /* Classic BTRON Desktop Background */
-#define COLOR_NAVY      0x000080FF   /* Active Title Bar */
-#define COLOR_YELLOW    0xFFFF00FF
-#define COLOR_RED       0xFF0000FF
-#define COLOR_GREEN     0x00FF00FF
-#define COLOR_CYAN      0x00FFFFFF
+#define COLOR_DKGRAY    0xFF404040
+#define COLOR_GRAY      0xFF808080
+#define COLOR_LTGRAY    0xFFD4D0C8   /* Classic Retro 3D Chrome Gray */
+#define COLOR_TEAL      0xFF008080   /* Classic B-TRON Teal Desktop */
+#define COLOR_NAVY      0xFF000080   /* Classic Navy Title Bar */
+#define COLOR_YELLOW    0xFFFFFF00
+#define COLOR_RED       0xFFFF0000
+#define COLOR_GREEN     0xFF00C040
+#define COLOR_CYAN      0xFF00FFFF
+#define COLOR_GOLD      0xFFFFCC00
 
 typedef struct {
     H width;
