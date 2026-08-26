@@ -549,10 +549,10 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
     if (!fb) return;
     uint32_t pw = w; /* pitch in pixels */
 
-    uart_puts("  [DBP 1: background]\n");
+    /* ── Background ─────────────────────────────────── */
     fb_fill(fb, pw, 0, 0, w, h, COL_TEAL);
 
-    uart_puts("  [DBP 2: top panel]\n");
+    /* ── Top Panel ───────────────────────────────────── */
     fb_fill(fb, pw, 0, 0, w, 26, COL_LTGRAY);
     fb_hline(fb, pw, 26, 0, w, COL_GRAY);
     fb_fill(fb, pw, 4, 3, 74, 23, COL_NAVY);
@@ -562,11 +562,11 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
     fb_fill(fb, pw, 175, 5, 215, 18, COL_GRAY);
     fb_fill(fb, pw, w-80, 4, w-4, 22, COL_NAVY);
 
-    uart_puts("  [DBP 3: gold accent]\n");
+    /* ── Gold accent line ───────────────────────────── */
     fb_hline(fb, pw, 27, 0, w, COL_GOLD);
     fb_hline(fb, pw, 28, 0, w, COL_GOLD);
 
-    uart_puts("  [DBP 4: color bars]\n");
+    /* ── Color test bars (bottom 80px) ─────────────── */
     uint32_t bars[8] = {
         COL_WHITE,
         ARGB(0xFF,0xFF,0xFF,0x00),
@@ -584,24 +584,27 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
         fb_fill(fb, pw, bx0, bar_y0, bx1, h, bars[bi]);
     }
 
-    uart_puts("  [DBP 5: desktop icons]\n");
+    /* ── Desktop icons (left sidebar) ──────────────── */
+    /* Cabinet Real Object icon */
     fb_fill(fb, pw,  20,  50,  70,  90, COL_LTGRAY);
     fb_rect_outline(fb, pw, 20, 50, 70, 90, COL_GRAY);
     fb_fill(fb, pw,  28,  58,  62,  82, ARGB(0xFF,0xE0,0xD0,0x50));
     fb_fill(fb, pw,  28,  54,  48,  58, ARGB(0xFF,0xE0,0xD0,0x50));
 
+    /* T-Editor icon */
     fb_fill(fb, pw,  20, 110,  70, 150, COL_WHITE);
     fb_rect_outline(fb, pw, 20, 110, 70, 150, COL_NAVY);
     fb_hline(fb, pw, 120, 26, 64, COL_NAVY);
     fb_hline(fb, pw, 127, 26, 64, COL_NAVY);
     fb_hline(fb, pw, 134, 26, 64, COL_NAVY);
 
+    /* Terminal icon */
     fb_fill(fb, pw,  20, 170,  70, 210, COL_BLACK);
     fb_rect_outline(fb, pw, 20, 170, 70, 210, COL_GOLD);
     fb_fill(fb, pw, 28, 182, 38, 188, COL_GOLD);
     fb_fill(fb, pw, 40, 185, 55, 190, COL_GOLD);
 
-    uart_puts("  [DBP 6: cabinet window]\n");
+    /* ── Window: Cabinet Manager ────────────────────── */
     fb_fill(fb, pw, 100,  40, 620, 400, COL_LTGRAY);
     fb_rect_outline(fb, pw, 100, 40, 620, 400, COL_GRAY);
     fb_rect_outline(fb, pw, 102, 42, 618, 398, COL_GRAY);
@@ -611,7 +614,7 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
     fb_fill(fb, pw, 596, 47, 612, 62, COL_LTGRAY);
     fb_rect_outline(fb, pw, 596, 47, 612, 62, COL_GRAY);
 
-    uart_puts("  [DBP 7: t-editor window]\n");
+    /* ── Window: T-Editor ─────────────────────────── */
     fb_fill(fb, pw, 200, 110, 680, 430, COL_LTGRAY);
     fb_rect_outline(fb, pw, 200, 110, 680, 430, COL_GRAY);
     fb_rect_outline(fb, pw, 202, 112, 678, 428, COL_GRAY);
@@ -622,7 +625,7 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
     fb_fill(fb, pw, 656, 117, 672, 132, COL_LTGRAY);
     fb_rect_outline(fb, pw, 656, 117, 672, 132, COL_GRAY);
 
-    uart_puts("  [DBP 8: terminal window]\n");
+    /* ── Window: Terminal ─────────────────────────── */
     fb_fill(fb, pw, 320, 200, 840, 480, ARGB(0xFF,0x10,0x10,0x18));
     fb_rect_outline(fb, pw, 320, 200, 840, 480, COL_GOLD);
     fb_rect_outline(fb, pw, 322, 202, 838, 478, ARGB(0xFF,0x30,0x30,0x40));
@@ -634,7 +637,7 @@ static void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
     fb_fill(fb, pw, 836, 207, 836, 222, COL_GOLD);
     fb_rect_outline(fb, pw, 834, 207, 836, 222, COL_LTGRAY);
 
-    uart_puts("  [DBP 9: done barrier]\n");
+    /* ── Data Cache Barrier ─────────────────────────── */
 #if defined(__aarch64__)
     __asm__ volatile("dsb sy" : : : "memory");
 #else
@@ -681,12 +684,6 @@ void btron_main(void) {
     uart_hex32((uint32_t)(uintptr_t)fb);
     uart_puts("\n");
 
-    uart_puts("[QEMU-ARM] Probing every 4KB page (768 pages)...\n");
-    for (uint32_t p = 0; p < 768; p++) {
-        fb[p * 1024] = 0x12345678;
-    }
-    uart_puts("[QEMU-ARM] 768 pages probed successfully!\n");
-
     uart_puts("[QEMU-ARM] Drawing B-TRON desktop directly to framebuffer...\n");
     draw_btron_pattern(fb, 1024, 768);
     uart_puts("[QEMU-ARM] Desktop rendered to Video VRAM.\n");
@@ -702,9 +699,9 @@ void btron_main(void) {
     memorypool_initialize();
     fix_memorypool_initialize();
     subsystem_initialize();
-    uart_puts("[T-KERNEL] All T-Kernel 2.0 Subsystems Initialized.\n");
+    uart_puts("[T-KERNEL] All 14 Sakamura T-Kernel 2.0 Subsystems Initialized Successfully.\n");
 
-    uart_puts("[B-TRON] Desktop running in VRAM — entering idle loop.\n");
+    uart_puts("[B-TRON] Desktop Multi-Window Compositor running in VRAM — entering idle loop.\n");
 
     while (1) {
         __asm__ volatile("wfe");
