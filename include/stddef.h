@@ -55,8 +55,16 @@ typedef __wchar_t	wchar_t;
 
 
 #if 1	/* wint_tコンパイルエラーの回避の為追加 */
-#ifndef	wint_t
-typedef	int			wint_t;
+#ifndef _WINT_T
+#define _WINT_T
+#ifndef _WINT_T_DECLARED
+#define _WINT_T_DECLARED
+#endif
+#ifdef __WINT_TYPE__
+typedef __WINT_TYPE__ wint_t;
+#else
+typedef int           wint_t;
+#endif
 #endif
 #endif
 
