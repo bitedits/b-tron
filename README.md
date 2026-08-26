@@ -17,7 +17,7 @@ $ make tkernel
 $ make run-tkernel
 ```
 
-<img src="https://bitedits.github.io/btron/doc/img/yokobayashi.png" width="800" alt="Yokobayashi T-Kernel" />
+<img src="https://bitedits.github.io/btron/b-system/img/yokobayashi.png" width="800" alt="Yokobayashi T-Kernel" />
 
 ## QEMU VirtIO T-Kernel 2.0 `Sakamura`
 
