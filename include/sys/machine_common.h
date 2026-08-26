@@ -57,7 +57,7 @@
 #endif
 
 #ifdef _RPI_BCM283x_
-#  include <arch/pi4/machine_depend.h>
+#  include <arch/bcm283x/machine_depend.h>
 #endif
 #ifdef _APP_SH7760_
 #  include <sys/sysdepend/app_sh7760/machine_depend.h>

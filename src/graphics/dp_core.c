@@ -20,28 +20,23 @@ static inline int abs(int n) { return n < 0 ? -n : n; }
 
 GDEV* opn_dev(H w, H h) {
     if (w <= 0 || h <= 0) return NULL;
-    uart_puts("      [DEV-1] Calling calloc GDEV...\n");
     GDEV *dev = (GDEV*)calloc(1, sizeof(GDEV));
     if (!dev) return NULL;
 
-    uart_puts("      [DEV-2] Setting width/height...\n");
     dev->width = w;
     dev->height = h;
 
-    uart_puts("      [DEV-3] Calling calloc pixels...\n");
     dev->pixels = (COLOR*)calloc(w * h, sizeof(COLOR));
     if (!dev->pixels) {
         free(dev);
         return NULL;
     }
 
-    uart_puts("      [DEV-4] Setting clip...\n");
     dev->clip.left = 0;
     dev->clip.top = 0;
     dev->clip.right = w;
     dev->clip.bottom = h;
 
-    uart_puts("      [DEV-5] Returning dev!\n");
     return dev;
 }
 
@@ -98,13 +93,43 @@ ER drw_pnt(GDEV *dev, H x, H y) {
 ER drw_lin(GDEV *dev, H x1, H y1, H x2, H y2) {
     if (!dev || !dev->pixels) return E_PAR;
 
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    H width = dev->width;
+
+    /* Fast path: horizontal line */
+    if (y1 == y2) {
+        if (y1 < dev->clip.top || y1 >= dev->clip.bottom) return E_OK;
+        H min_x = x1 < x2 ? x1 : x2;
+        H max_x = x1 < x2 ? x2 : x1;
+        if (min_x < dev->clip.left) min_x = dev->clip.left;
+        if (max_x >= dev->clip.right) max_x = dev->clip.right - 1;
+        if (min_x > max_x) return E_OK;
+        volatile COLOR *row = pix + y1 * width;
+        for (H x = min_x; x <= max_x; x++) {
+            row[x] = COLOR_BLACK;
+        }
+        return E_OK;
+    }
+
+    /* Fast path: vertical line */
+    if (x1 == x2) {
+        if (x1 < dev->clip.left || x1 >= dev->clip.right) return E_OK;
+        H min_y = y1 < y2 ? y1 : y2;
+        H max_y = y1 < y2 ? y2 : y1;
+        if (min_y < dev->clip.top) min_y = dev->clip.top;
+        if (max_y >= dev->clip.bottom) max_y = dev->clip.bottom - 1;
+        if (min_y > max_y) return E_OK;
+        for (H y = min_y; y <= max_y; y++) {
+            pix[y * width + x1] = COLOR_BLACK;
+        }
+        return E_OK;
+    }
+
     H dx = abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
     H dy = -abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
-    H err = dx + dy, e2;
+    H err = dx + dy;
 
     H x = x1, y = y1;
-    COLOR *pix = dev->pixels;
-    H width = dev->width;
 
     while (1) {
         if (x >= dev->clip.left && x < dev->clip.right &&
@@ -113,7 +138,7 @@ ER drw_lin(GDEV *dev, H x1, H y1, H x2, H y2) {
         }
 
         if (x == x2 && y == y2) break;
-        e2 = 2 * err;
+        H e2 = 2 * err;
         if (e2 >= dy) { err += dy; x += sx; }
         if (e2 <= dx) { err += dx; y += sy; }
     }
@@ -122,12 +147,12 @@ ER drw_lin(GDEV *dev, H x1, H y1, H x2, H y2) {
 }
 
 ER drw_rec(GDEV *dev, const RECT *r) {
-    if (!dev || !r) return E_PAR;
+    if (!dev || !r || !dev->pixels) return E_PAR;
 
     drw_lin(dev, r->left, r->top, r->right - 1, r->top);
     drw_lin(dev, r->right - 1, r->top, r->right - 1, r->bottom - 1);
-    drw_lin(dev, r->right - 1, r->bottom - 1, r->left, r->bottom - 1);
-    drw_lin(dev, r->left, r->bottom - 1, r->left, r->top);
+    drw_lin(dev, r->left, r->bottom - 1, r->right - 1, r->bottom - 1);
+    drw_lin(dev, r->left, r->top, r->left, r->bottom - 1);
 
     return E_OK;
 }
@@ -142,12 +167,12 @@ ER fill_rec(GDEV *dev, const RECT *r, COLOR col) {
 
     if (left >= right || top >= bottom) return E_OK;
 
-    COLOR *pix = dev->pixels;
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
     H width = dev->width;
     H span = right - left;
 
     for (H y = top; y < bottom; y++) {
-        COLOR *row = pix + (y * width + left);
+        volatile COLOR *row = pix + (y * width + left);
         for (H x = 0; x < span; x++) {
             row[x] = col;
         }

@@ -67,8 +67,8 @@
 #endif
 
 #if defined(RPI_BCM283x) || defined(_RPI_BCM283x_)
-#  include <arch/pi4/cpuattr.h>
-#  include <arch/pi4/cpudef.h>
+#  include <arch/bcm283x/cpuattr.h>
+#  include <arch/bcm283x/cpudef.h>
 #endif
 #ifdef APP_SH7760
 #  include <tk/sysdepend/app_sh7760/cpuattr.h>

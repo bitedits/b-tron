@@ -60,7 +60,7 @@
 #endif
 
 #if defined(RPI_BCM283x) || defined(_RPI_BCM283x_)
-#  include <arch/pi4/dbgspt_depend.h>
+#  include <arch/bcm283x/dbgspt_depend.h>
 #endif
 #ifdef APP_SH7760
 #  include <tk/sysdepend/app_sh7760/dbgspt_depend.h>

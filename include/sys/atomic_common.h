@@ -56,7 +56,7 @@
 #include <tk/syslib.h>
 
 #if defined(RPI_BCM283x) || defined(_RPI_BCM283x_)
-#  include <arch/pi4/atomic_depend.h>
+#  include <arch/bcm283x/atomic_depend.h>
 #endif
 
 /*

@@ -62,7 +62,7 @@
 #endif
 
 #if defined(RPI_BCM283x) || defined(_RPI_BCM283x_)
-#  include <arch/pi4/segment_depend.h>
+#  include <arch/bcm283x/segment_depend.h>
 #endif
 #ifdef APP_SH7760
 #  include <sys/sysdepend/app_sh7760/segment_depend.h>

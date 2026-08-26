@@ -158,7 +158,7 @@ ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_c
     H cur_x = x;
     H cur_y = y;
     const char *p = text;
-    COLOR *pix = dev->pixels;
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
     H width = dev->width;
 
     while (*p) {
@@ -175,14 +175,16 @@ ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_c
 
         H gw = 8, gh = 16;
         const UB *bmp = get_glyph_bitmap(code, &gw, &gh);
+        if (!bmp) continue;
 
         for (int row = 0; row < gh; row++) {
             UB line = bmp[row];
+            H py = cur_y + row;
+            if (py < dev->clip.top || py >= dev->clip.bottom) continue;
+
             for (int col = 0; col < gw; col++) {
                 H px = cur_x + col;
-                H py = cur_y + row;
-                if (px >= dev->clip.left && px < dev->clip.right &&
-                    py >= dev->clip.top && py < dev->clip.bottom) {
+                if (px >= dev->clip.left && px < dev->clip.right) {
                     if (line & (0x80 >> (col % 8))) {
                         pix[py * width + px] = fg_col;
                     } else if (bg_col != 0x00000000) {

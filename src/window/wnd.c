@@ -33,13 +33,8 @@ ER init_wnd_mgr(GDEV *screen_dev) {
 }
 
 WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
-    uart_puts("   [OPN_WND_ENTER]\n");
     WND *wnd = (WND*)calloc(1, sizeof(WND));
-    if (!wnd) {
-        uart_puts("   [OPN_WND_FAIL_CALLOC]\n");
-        return NULL;
-    }
-    uart_puts("   [OPN_WND_CALLOC_OK]\n");
+    if (!wnd) return NULL;
 
     wnd->id = g_next_wnd_id++;
     wnd->paint = NULL;
@@ -53,25 +48,21 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     }
     wnd->title[ti] = '\0';
 
-    uart_puts("   [OPN_WND_TITLE_OK]\n");
     wnd->bounds.left = x;
     wnd->bounds.top = y;
     wnd->bounds.right = x + w;
     wnd->bounds.bottom = y + h;
 
-    uart_puts("   [OPN_WND_BOUNDS_OK]\n");
     H title_h = (attr & WND_ATTR_TITLE) ? 22 : 0;
     wnd->client.left = x + 4;
     wnd->client.top = y + title_h + 4;
     wnd->client.right = x + w - 4;
     wnd->client.bottom = y + h - 4;
 
-    uart_puts("   [OPN_WND_CLIENT_OK]\n");
     wnd->attr = attr;
     wnd->visible = TRUE;
     wnd->focused = TRUE;
 
-    uart_puts("   [OPN_WND_BEFORE_OPN_DEV]\n");
     wnd->dev = opn_dev(w - 8, h - title_h - 8);
 
     /* Insert at head of z-stack */
@@ -83,7 +74,6 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     }
     g_wnd_head = wnd;
 
-    uart_puts("   [OPN_WND_DONE]\n");
     return wnd;
 }
 
@@ -141,17 +131,12 @@ ER mov_wnd(WND *wnd, H x, H y) {
 
 static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
     if (!dev || !wnd) return;
-    uart_puts("   [TRACE-GFX] Rendering Window Frame: '");
-    uart_puts(wnd->title);
-    uart_puts("'\n");
 
-    uart_puts("   [STEP-A] Before outer copy...\n");
     RECT outer;
     outer.left = wnd->bounds.left;
     outer.top = wnd->bounds.top;
     outer.right = wnd->bounds.right;
     outer.bottom = wnd->bounds.bottom;
-    uart_puts("   [STEP-B] After outer copy...\n");
 
     fill_rec(dev, &outer, COLOR_LTGRAY);
     drw_rec(dev, &outer);
@@ -187,11 +172,9 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
             drw_tc_string(dev, close_btn.left + 4, close_btn.top + 1, "x", COLOR_BLACK, 0x00000000);
         }
     }
-    uart_puts("   [TRACE-GFX] Frame Done!\n");
 }
 
 void redraw_all_windows(void) {
-    uart_puts("[TRACE-WND] Executing Compositor redraw_all_windows()...\n");
     if (!g_screen_dev) return;
 
     /* Draw windows back to front */
@@ -226,14 +209,13 @@ void redraw_all_windows(void) {
                     if (px >= 0 && px < g_screen_dev->width && py >= 0 && py < g_screen_dev->height) {
                         COLOR c = wnd->dev->pixels[cy * wnd->dev->width + cx];
                         if (c != 0x00000000) {
-                            g_screen_dev->pixels[py * g_screen_dev->width + px] = c;
+                            ((volatile COLOR*)g_screen_dev->pixels)[py * g_screen_dev->width + px] = c;
                         }
                     }
                 }
             }
         }
     }
-    uart_puts("[TRACE-WND] All Window Frames & Content Rendered to VRAM!\n");
 }
 
 WND* find_wnd_at(H x, H y) {

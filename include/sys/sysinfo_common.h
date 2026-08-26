@@ -57,7 +57,7 @@
 #endif
 
 #if defined(RPI_BCM283x) || defined(_RPI_BCM283x_)
-#  include <arch/pi4/sysinfo_depend.h>
+#  include <arch/bcm283x/sysinfo_depend.h>
 #endif
 #ifdef APP_SH7760
 #  include <sys/sysdepend/app_sh7760/sysinfo_depend.h>
