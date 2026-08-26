@@ -28,7 +28,7 @@ $ ./btron-sakamura.elf
 
 <img src="https://bitedits.github.io/btron/b-system/img/sakamura.png" width="800" alt="Sakamura T-Kernel" />
 
-## QEMU VirtIO `Synrc`
+## QEMU VirtIO `Izumina`
 
 ```
 $ make qemu
@@ -37,7 +37,7 @@ $ make run-qemu
 
 <img src="https://bitedits.github.io/btron/b-system/img/virtio.png" width="800" alt="QEMU VirtIO Synrc" />
 
-## POSIX `Light`
+## POSIX `Takada`
 
 ```
 $ make posix
