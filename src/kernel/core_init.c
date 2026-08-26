@@ -3,9 +3,9 @@
  * Manages runtime target_mode selection and VirtIO driver initialization.
  *
  * Target Modes:
- *   0: BTRON_POSIX    (POSIX Microkernel Abstraction)
- *   1: BTRON_QEMU     (T-Kernel VirtIO Emulation Mode)
- *   2: BTRON_SAKAMURA (Unmodified Sakamura T-Kernel 2.0 Engine)
+ *   0: BTRON_POSIX    (B-Kernel POSIX Microkernel Abstraction)
+ *   1: BTRON_QEMU     (B-Kernel VirtIO Emulation Mode)
+ *   2: BTRON_SAKAMURA (QEMU Raspberry Pi 4 Sakamura T-Kernel 2.0 Engine)
  */
 
 #include <btron/itron.h>

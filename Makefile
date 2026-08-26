@@ -91,7 +91,7 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=1 -Wno-int-to-pointer-cast -Wno-pointer
 
 .PHONY: all posix qemu t-kernel clean run-posix run-qemu run-t-kernel
 
-all: posix
+all: posix qemu t-kernel
 
 posix: $(POSIX_TARGET)
 	@ln -sf $(POSIX_TARGET) $(DEFAULT_TARGET)
