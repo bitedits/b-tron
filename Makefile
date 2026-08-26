@@ -15,7 +15,7 @@ QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 
 ARM32_CC     ?= clang --target=arm-none-eabi -mcpu=cortex-a15 -fuse-ld=lld -ffreestanding -nostdlib
-ARM64_CC     ?= clang --target=aarch64-none-elf -mcpu=cortex-a72 -mgeneral-regs-only -fuse-ld=lld -ffreestanding -nostdlib
+ARM64_CC     ?= clang --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
 ARM_CFLAGS   ?= -O2 -Wall -Wextra -std=c99 -D_RPI_BCM283x_ -DTYPE_RPI=1 -DBTRON_TARGET=2 -Iinclude -Iinclude/arch/pi4 -Isrc/kernel
 
 # Detect OS & SDL2 flags
