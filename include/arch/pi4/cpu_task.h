@@ -76,8 +76,8 @@ Inline void setup_task_space( TCB *tcb )
 	INT	lsid;
 	void	*uatb;
 
-	lsid = tcb->wtcxb.lsid;
-	uatb = tcb->wtcxb.uatb;
+	lsid = tcb->tskctxb.lsid;
+	uatb = tcb->tskctxb.uatb;
 
 	/* if no task space to switch to is not specified, use system default. */
 	Asm("mrc p15, 0, %0, cr2, c0, 1": "=r"(ttbr));	/* TTBR1 */
@@ -94,6 +94,11 @@ Inline void setup_task_space( TCB *tcb )
 #else
 	(void)tcb;
 #endif
+}
+
+Inline void change_space(void *uatb, INT lsid) {
+    (void)uatb;
+    (void)lsid;
 }
 
 /*

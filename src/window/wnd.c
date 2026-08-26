@@ -5,9 +5,22 @@
 
 #include <btron/wnd.h>
 #include <btron/troncode.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+extern void* Imalloc(size_t sz);
+extern void Ifree(void *ptr);
+extern void* Icalloc(size_t nmemb, size_t sz);
+extern char* tkl_strncpy(char *dst, const char *src, size_t n);
+#define malloc Imalloc
+#define free Ifree
+#define calloc Icalloc
+#define strncpy tkl_strncpy
+#endif
 
 static WND *g_wnd_head = NULL;
 static ID g_next_wnd_id = 1;
@@ -106,36 +119,66 @@ ER mov_wnd(WND *wnd, H x, H y) {
 }
 
 static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
-    RECT outer = wnd->bounds;
+    if (!dev || !wnd) return;
+    uart_puts("   [TRACE-GFX] Rendering Window Frame: '");
+    uart_puts(wnd->title);
+    uart_puts("'\n");
+
+    RECT outer;
+    outer.left = wnd->bounds.left;
+    outer.top = wnd->bounds.top;
+    outer.right = wnd->bounds.right;
+    outer.bottom = wnd->bounds.bottom;
 
     /* Window outer shadow and frame */
+    uart_puts("      [TRACE-GFX] fill_rec outer background...\n");
     fill_rec(dev, &outer, COLOR_LTGRAY);
+    uart_puts("      [TRACE-GFX] drw_rec outer border...\n");
     drw_rec(dev, &outer);
 
     /* Double retro border line */
-    RECT inner_b = { outer.left + 2, outer.top + 2, outer.right - 2, outer.bottom - 2 };
+    RECT inner_b;
+    inner_b.left = outer.left + 2;
+    inner_b.top = outer.top + 2;
+    inner_b.right = outer.right - 2;
+    inner_b.bottom = outer.bottom - 2;
+    uart_puts("      [TRACE-GFX] drw_rec inner border...\n");
     drw_rec(dev, &inner_b);
 
     /* Titlebar */
     if (wnd->attr & WND_ATTR_TITLE) {
-        RECT title_r = { outer.left + 3, outer.top + 3, outer.right - 3, outer.top + 22 };
+        RECT title_r;
+        title_r.left = outer.left + 3;
+        title_r.top = outer.top + 3;
+        title_r.right = outer.right - 3;
+        title_r.bottom = outer.top + 22;
+
         COLOR title_col = wnd->focused ? COLOR_NAVY : COLOR_GRAY;
+        uart_puts("      [TRACE-GFX] fill_rec titlebar...\n");
         fill_rec(dev, &title_r, title_col);
 
         /* Title text */
+        uart_puts("      [TRACE-GFX] drw_tc_string title text...\n");
         drw_tc_string(dev, title_r.left + 6, title_r.top + 3, wnd->title, COLOR_WHITE, 0x00000000);
 
         /* Close Button [X] */
         if (wnd->attr & WND_ATTR_CLOSE) {
-            RECT close_btn = { outer.right - 20, outer.top + 5, outer.right - 6, outer.top + 19 };
+            RECT close_btn;
+            close_btn.left = outer.right - 20;
+            close_btn.top = outer.top + 5;
+            close_btn.right = outer.right - 6;
+            close_btn.bottom = outer.top + 19;
+
             fill_rec(dev, &close_btn, COLOR_LTGRAY);
             drw_rec(dev, &close_btn);
             drw_tc_string(dev, close_btn.left + 4, close_btn.top + 1, "x", COLOR_BLACK, 0x00000000);
         }
     }
+    uart_puts("   [TRACE-GFX] Window Frame Rendered Successfully!\n");
 }
 
 void redraw_all_windows(void) {
+    uart_puts("[TRACE-WND] Executing Compositor redraw_all_windows()...\n");
     if (!g_screen_dev) return;
 
     /* Draw windows back to front */
@@ -149,13 +192,13 @@ void redraw_all_windows(void) {
 
     for (int i = count - 1; i >= 0; i--) {
         WND *wnd = stack[i];
-        if (!wnd->visible) continue;
+        if (!wnd || !wnd->visible) continue;
 
         /* Draw window decoration frame */
         draw_retro_window_frame(g_screen_dev, wnd);
 
         /* Render application client area */
-        if (wnd->paint && wnd->dev) {
+        if (wnd->paint && wnd->dev && wnd->dev->pixels) {
             wnd->paint(wnd, wnd->dev);
 
             /* Composite client pixels onto main screen */
@@ -167,8 +210,7 @@ void redraw_all_windows(void) {
                 for (H cx = 0; cx < wnd->dev->width; cx++) {
                     H px = dest_x + cx;
                     H py = dest_y + cy;
-                    if (px >= 0 && px < g_screen_dev->width &&
-                        py >= 0 && py < g_screen_dev->height) {
+                    if (px >= 0 && px < g_screen_dev->width && py >= 0 && py < g_screen_dev->height) {
                         COLOR c = wnd->dev->pixels[cy * wnd->dev->width + cx];
                         if (c != 0x00000000) {
                             g_screen_dev->pixels[py * g_screen_dev->width + px] = c;
@@ -178,6 +220,7 @@ void redraw_all_windows(void) {
             }
         }
     }
+    uart_puts("[TRACE-WND] All Window Frames & Content Rendered to VRAM!\n");
 }
 
 WND* find_wnd_at(H x, H y) {

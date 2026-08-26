@@ -7,8 +7,10 @@
 #include <btron/troncode.h>
 #include <btron/vobj.h>
 #include <btron/wnd.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <time.h>
+#endif
 
 static BTRON_DESKTOP g_desktop;
 
@@ -16,6 +18,18 @@ ER init_desktop(H width, H height) {
     g_desktop.width = width;
     g_desktop.height = height;
     g_desktop.screen = opn_dev(width, height);
+    g_desktop.running = TRUE;
+
+    init_wnd_mgr(g_desktop.screen);
+    init_vobj_sys("./btron_store");
+
+    return E_OK;
+}
+
+ER init_desktop_vram(H width, H height, COLOR *vram_ptr) {
+    g_desktop.width = width;
+    g_desktop.height = height;
+    g_desktop.screen = opn_dev_vram(width, height, vram_ptr);
     g_desktop.running = TRUE;
 
     init_wnd_mgr(g_desktop.screen);
@@ -81,10 +95,13 @@ void render_system_panel(GDEV *dev) {
     drw_tc_string(dev, 400, 5, "Help", COLOR_BLACK, 0x00000000);
 
     /* System Real-Time Clock */
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
     char time_buf[32];
     snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
-
-    drw_tc_string(dev, dev->width - 80, 5, time_buf, COLOR_NAVY, 0x00000000);
+    drw_tc_string(dev, dev->width - 90, 8, time_buf, COLOR_WHITE, COLOR_NAVY);
+#else
+    drw_tc_string(dev, dev->width - 90, 8, "12:00:00", COLOR_WHITE, COLOR_NAVY);
+#endif
 }

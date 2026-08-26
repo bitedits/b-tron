@@ -6,7 +6,12 @@
 #include <btron/wnd.h>
 #include <btron/vobj.h>
 #include <btron/troncode.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#endif
 
 static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;

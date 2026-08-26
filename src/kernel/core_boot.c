@@ -31,5 +31,5 @@ extern void btron_kernel_init(int mode);
 
 void multiboot_main(void) {
     printf("[MULTIBOOT] QEMU direct kernel boot started.\n");
-    btron_kernel_init(1);
+    btron_kernel_init(BTRON_TARGET);
 }

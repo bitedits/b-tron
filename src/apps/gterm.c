@@ -9,6 +9,7 @@
 #include <btron/dp.h>
 #include <btron/event.h>
 
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +18,23 @@
 #include <dirent.h>
 #include <time.h>
 #include <SDL.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+extern void* Imalloc(size_t sz);
+extern void Ifree(void *ptr);
+extern void* Icalloc(size_t nmemb, size_t sz);
+extern char* tkl_strncpy(char *dst, const char *src, size_t n);
+extern void* tkl_memset(void *s, int c, size_t n);
+extern void* tkl_memcpy(void *dst, const void *src, size_t n);
+#define malloc Imalloc
+#define free Ifree
+#define calloc Icalloc
+#define strncpy tkl_strncpy
+#define memset tkl_memset
+#define memcpy tkl_memcpy
+static inline size_t strlen(const char *s) { size_t n = 0; while (s && s[n]) n++; return n; }
+#endif
 
 #define GTERM_MAX_COLS     64
 #define GTERM_MAX_ROWS     18

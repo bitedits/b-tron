@@ -3,8 +3,20 @@
  */
 
 #include <btron/dp.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdlib.h>
 #include <string.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+extern void* Imalloc(size_t sz);
+extern void Ifree(void *ptr);
+extern void* Icalloc(size_t nmemb, size_t sz);
+#define malloc Imalloc
+#define free Ifree
+#define calloc Icalloc
+static inline int abs(int n) { return n < 0 ? -n : n; }
+#endif
 
 GDEV* opn_dev(H w, H h) {
     if (w <= 0 || h <= 0) return NULL;
@@ -32,9 +44,25 @@ GDEV* opn_dev(H w, H h) {
     return dev;
 }
 
+GDEV* opn_dev_vram(H w, H h, COLOR *vram_buffer) {
+    if (w <= 0 || h <= 0 || !vram_buffer) return NULL;
+    GDEV *dev = (GDEV*)calloc(1, sizeof(GDEV));
+    if (!dev) return NULL;
+
+    dev->width = w;
+    dev->height = h;
+    dev->pixels = vram_buffer;
+
+    dev->clip.left = 0;
+    dev->clip.top = 0;
+    dev->clip.right = w;
+    dev->clip.bottom = h;
+
+    return dev;
+}
+
 void cls_dev(GDEV *dev) {
     if (dev) {
-        if (dev->pixels) free(dev->pixels);
         free(dev);
     }
 }
@@ -74,11 +102,13 @@ ER drw_lin(GDEV *dev, H x1, H y1, H x2, H y2) {
     H err = dx + dy, e2;
 
     H x = x1, y = y1;
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    H width = dev->width;
 
     while (1) {
         if (x >= dev->clip.left && x < dev->clip.right &&
             y >= dev->clip.top && y < dev->clip.bottom) {
-            dev->pixels[y * dev->width + x] = COLOR_BLACK;
+            pix[y * width + x] = COLOR_BLACK;
         }
 
         if (x == x2 && y == y2) break;
@@ -109,9 +139,15 @@ ER fill_rec(GDEV *dev, const RECT *r, COLOR col) {
     H right  = r->right > dev->clip.right ? dev->clip.right : r->right;
     H bottom = r->bottom > dev->clip.bottom ? dev->clip.bottom : r->bottom;
 
+    if (left >= right || top >= bottom) return E_OK;
+
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    H width = dev->width;
+
     for (H y = top; y < bottom; y++) {
+        volatile COLOR *row = pix + (y * width);
         for (H x = left; x < right; x++) {
-            dev->pixels[y * dev->width + x] = col;
+            row[x] = col;
         }
     }
 

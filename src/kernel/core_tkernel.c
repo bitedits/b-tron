@@ -111,8 +111,6 @@ void *hook_svc = NULL;
 void *unhook_svc = NULL;
 
 ER no_support(void) { return -70; /* E_NOSPT */ }
-void off_pow(void) {}
-void request_tex(TCB *tcb) { (void)tcb; }
 void timer_handler_startup(void) {}
 void tm_monitor(void) {}
 void tm_putstring(const char *s) { if (s) printf("%s", s); }
@@ -126,6 +124,23 @@ INT _tk_get_cfn(UB *name, INT *val, INT max) {
 INT __tk_get_cfn(UB *name, INT *val, INT max) {
     return _tk_get_cfn(name, val, max);
 }
+
+INT GetDevConf(CONST UB *name, INT *val) { (void)name; if (val) val[0] = 0; return 0; }
+INT GetSysConf(CONST UB *name, INT *val) { (void)name; if (val) val[0] = 0; return 0; }
+
+char* tkl_strncat(char *dst, const char *src, size_t n) { return strncat(dst, src, n); }
+void tm_command(const char *cmd) { (void)cmd; }
+void tm_exit(int code) { (void)code; }
+
+void *lowmem_top = NULL;
+void call_entry(void) {}
+void dispatch_entry(void) {}
+void rettex_entry(void) {}
+void _tk_ret_int(void) {}
+void call_dbgspt(void) {}
+void defaulthdr_startup(void) {}
+void exchdr_startup(void) {}
+void inthdr_startup(void) {}
 
 /* 
  * Direct Routing to Sakamura T-Kernel 2.0 System Call Implementations

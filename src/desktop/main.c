@@ -58,13 +58,10 @@ int main(int argc, char **argv) {
 
     printf("[B-TRON] Initializing B-TRON Retro OS Environment...\n");
 
-#ifdef BTRON_SAKAMURA_TARGET
-    btron_kernel_init(2);
-#elif defined(BTRON_QEMU_TARGET)
-    btron_kernel_init(1);
-#else
-    btron_kernel_init(0);
+#ifndef BTRON_TARGET
+#define BTRON_TARGET 0
 #endif
+    btron_kernel_init(BTRON_TARGET);
 
     if (!init_sdl_backend(screen_w, screen_h, "B-TRON Retro OS Desktop Environment (SDL2)")) {
         fprintf(stderr, "[B-TRON] Failed to initialize SDL2 backend.\n");

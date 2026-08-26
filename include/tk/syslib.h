@@ -57,6 +57,9 @@ IMPORT ER UnlockSpace( CONST void *addr, INT len );
  */
 IMPORT INT CnvPhysicalAddr( CONST void *vaddr, INT len, void **paddr );
 
+IMPORT INT GetDevConf( CONST UB *name, INT *val );
+IMPORT INT GetSysConf( CONST UB *name, INT *val );
+
 /*
  * Wait
  */

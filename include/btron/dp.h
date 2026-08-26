@@ -13,6 +13,13 @@
 extern "C" {
 #endif
 
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+#include <stdio.h>
+#define uart_puts(s) printf("%s", (s))
+#else
+void uart_puts(const char *s);
+#endif
+
 /* Raster Operations (ROP) */
 #define ROP_COPY   0
 #define ROP_OR     1
@@ -42,6 +49,7 @@ typedef struct {
 
 /* Display Primitive Operations */
 GDEV* opn_dev(H w, H h);
+GDEV* opn_dev_vram(H w, H h, COLOR *vram_buffer);
 void  cls_dev(GDEV *dev);
 
 void  set_col(GDEV *dev, COLOR fg, COLOR bg);

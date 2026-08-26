@@ -4,8 +4,13 @@
 
 #include <btron/troncode.h>
 #include <btron/dp.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <string.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#endif
 
 /* Embedded 8x16 ASCII Font Matrix (partial representation for clean self-contained build) */
 static const UB font_ascii_8x16[128][16] = {
@@ -148,11 +153,13 @@ const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height) {
 }
 
 ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_col) {
-    if (!dev || !text) return E_PAR;
+    if (!dev || !text || !dev->pixels) return E_PAR;
 
     H cur_x = x;
     H cur_y = y;
     const char *p = text;
+    volatile COLOR *pix = (volatile COLOR*)dev->pixels;
+    H width = dev->width;
 
     while (*p) {
         if (*p == '\n') {
@@ -177,9 +184,9 @@ ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_c
                 if (px >= dev->clip.left && px < dev->clip.right &&
                     py >= dev->clip.top && py < dev->clip.bottom) {
                     if (line & (0x80 >> (col % 8))) {
-                        dev->pixels[py * dev->width + px] = fg_col;
+                        pix[py * width + px] = fg_col;
                     } else if (bg_col != 0x00000000) {
-                        dev->pixels[py * dev->width + px] = bg_col;
+                        pix[py * width + px] = bg_col;
                     }
                 }
             }

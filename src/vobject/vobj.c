@@ -3,9 +3,28 @@
  */
 
 #include <btron/vobj.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+extern void* Imalloc(size_t sz);
+extern void Ifree(void *ptr);
+extern void* Icalloc(size_t nmemb, size_t sz);
+extern char* tkl_strncpy(char *dst, const char *src, size_t n);
+extern void* tkl_memset(void *s, int c, size_t n);
+extern void* tkl_memcpy(void *dst, const void *src, size_t n);
+#define malloc Imalloc
+#define free Ifree
+#define calloc Icalloc
+#define strncpy tkl_strncpy
+#define memset tkl_memset
+#define memcpy tkl_memcpy
+static inline size_t strlen(const char *s) { size_t n = 0; while (s && s[n]) n++; return n; }
+static inline int rand(void) { return 42; }
+#endif
 
 #define MAX_ROBJS 64
 
@@ -38,7 +57,7 @@ ROBJ* cre_robj(const char *name, VOBJ_TYPE type) {
             g_robj_table[i].robj_id = g_next_robj_id++;
             g_robj_table[i].type = type;
             strncpy(g_robj_table[i].name, name ? name : "Untitled Object", sizeof(g_robj_table[i].name) - 1);
-            snprintf(g_robj_table[i].path, sizeof(g_robj_table[i].path), "%s/robj_%d.dat", g_storage_root, g_robj_table[i].robj_id);
+            strncpy(g_robj_table[i].path, name ? name : "vobj.dat", sizeof(g_robj_table[i].path) - 1);
             g_robj_table[i].size = 0;
             return &g_robj_table[i];
         }
