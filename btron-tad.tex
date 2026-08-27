@@ -1,0 +1,263 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{longtable}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!8}
+}
+
+\title{%
+  \textbf{SYNRC NITRO/FORM}\\[0.4em]
+  \large A TAD-native X-Forms Framework\\
+  for BTRON3 SPEC 3.20
+}
+\author{Synrc / B-TRON Cleanroom Working Group}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%----------------------------------------------------------------------
+\section{Introduction}
+
+SYNRC NITRO/FORM is a lightweight, document-centric forms and business-application framework designed as a \emph{natural and legal extension} of BTRON3 SPEC 3.20.  
+It treats a business form as a first-class TAD real object and builds all higher-level structure on top of the existing Window Manager, Panel Manager, Parts Manager, Display Primitives (DP), and the Real/Virtual Object model.
+
+The framework deliberately avoids any modification of core system calls, data structures, or standard TAD segment definitions. All new functionality is expressed through:
+\begin{itemize}[leftmargin=*]
+  \item application-range fusen and segments,
+  \item ordinary application-level libraries,
+  \item registered virtual-object / data-type handlers.
+\end{itemize}
+
+NITRO/FORM therefore remains 100\,\% compatible with any conforming BTRON3 SPEC 3.20 implementation (including the B-System / Synrc cleanroom).
+
+%----------------------------------------------------------------------
+\section{Design Goals}
+
+\begin{enumerate}[leftmargin=*]
+  \item Forms are ordinary TAD documents and participate fully in the 実身/仮身 hypertext model.
+  \item Zero breakage of SPEC 3.20 APIs.
+  \item Simple, predictable structure that maps cleanly to both native rendering and limited HTML5 interchange.
+  \item Support for classic business data-entry applications (X-Forms style) while remaining lightweight.
+  \item Extensibility for custom renderers, layout engines, and semantic components without changing the core.
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Core Abstraction --- The Form}
+
+A \textbf{Form} is defined as a single TAD real object (or a well-formed TAD fragment) with exactly three logical regions:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Region & Content & Purpose \\
+\midrule
+HEADER & TITLES & One or more title / subtitle strings \\
+BODY   & FIELDS & Ordered list of Field tuples \\
+FOOTER & BUTTONS & Ordered list of action buttons \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Field Tuple}
+
+\[
+\text{Field} = (\text{STRING LABEL},\ \text{UI CONTROL})
+\]
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{STRING LABEL} --- human-readable label (TRON Code text).
+  \item \textbf{UI CONTROL} --- reference to a control managed by the Parts Manager or by the higher-level NITRO UI Control library (text box, numeric box, switch, selector, etc.).
+\end{itemize}
+
+This structure is deliberately minimal yet sufficient for the majority of business forms.
+
+%----------------------------------------------------------------------
+\section{TAD Realisation}
+
+The Form is stored as a standard TAD document using only legal mechanisms:
+
+\begin{lstlisting}
+Form TAD
+├── TS_INFO
+├── TS_FIG                    % form canvas / coordinate space
+│   ├── HEADER region
+│   │   └── title text segments + optional text fusen
+│   ├── BODY region
+│   │   ├── Field 1  (label text + control descriptor fusen)
+│   │   ├── Field 2  ...
+│   │   └── ...
+│   └── FOOTER region
+│       └── button descriptors (Parts or higher-level buttons)
+└── optional data-instance record (current field values)
+\end{lstlisting}
+
+\begin{itemize}[leftmargin=*]
+  \item Layout coordinates or a simple layout descriptor may be stored in an application-range fusen.
+  \item Control identity, initial value, validation rules and action identifiers are also carried in application fusen.
+  \item Unaware applications simply skip the application fusen and still see the visible text and graphics --- exactly as TAD was designed.
+\end{itemize}
+
+%----------------------------------------------------------------------
+\section{Architecture Overview}
+
+\begin{verbatim}
+Business Application
+        │
+        ▼
+NITRO/FORM Library
+  • Form parser / serialiser
+  • Field & Button management
+  • Simple layout engine
+  • Data binding & validation
+  • Event dispatch
+        │
+        ▼
+SPEC 3.20 Public Services
+  • Parts Manager   (UI controls)
+  • Panel / Window Manager
+  • Display Primitives (DP)
+  • TAD + 実身/仮身
+  • µITRON tasks (optional background work)
+\end{verbatim}
+
+All drawing is performed through official Drawing Environments (描画環境).  
+All interactive controls are ordinary Parts (or thin wrappers around them).
+
+%----------------------------------------------------------------------
+\section{UI Control Layer}
+
+NITRO/FORM builds a thin, higher-level control library on top of the existing Parts Manager:
+
+\begin{itemize}[leftmargin=*]
+  \item Label + Text / Numeric / Secret box
+  \item Check-box / Radio group
+  \item Combo / Scroll selector
+  \item Button (text or pictogram)
+  \item Simple table / repeating group (dynamic creation of field rows)
+\end{itemize}
+
+Composite controls are created by composing standard Parts and, when necessary, custom-drawn regions using DP.  
+No new system-level control types are introduced.
+
+%----------------------------------------------------------------------
+\section{Layout and Custom Rendering}
+
+SPEC 3.20 provides no automatic high-level layout manager.  
+NITRO/FORM therefore supplies a \emph{simple, application-level} layout engine:
+
+\begin{itemize}[leftmargin=*]
+  \item Vertical stack (default for BODY fields)
+  \item Two-column (label | control)
+  \item Basic grid for tables
+  \item Absolute / relative positioning when required
+\end{itemize}
+
+Custom renderers are ordinary application code that obtain a window’s Drawing Environment and issue DP calls.  
+A Form handler may also embed arbitrary TAD figure data or invoke an optional PostScript/Forth-style interpreter for advanced graphics, still without touching core APIs.
+
+%----------------------------------------------------------------------
+\section{Semantic Mapping (HTML5-inspired)}
+
+For interchange and documentation the following natural mapping is defined:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+HTML5-inspired element & NITRO/FORM / TAD realisation \\
+\midrule
+\texttt{article} / form container & top-level Form TAD \\
+\texttt{header}                  & HEADER region \\
+\texttt{section}                 & nested figure or field group \\
+\texttt{aside}                   & side panel (Panel Manager) \\
+\texttt{nav}                     & FOOTER buttons or navigation bar of virtual objects \\
+\texttt{table}                   & grid of Fields or TAD figure table \\
+\texttt{picture} / \texttt{img}  & \texttt{TS\_IMAGE} or linked real object \\
+\texttt{form} controls           & Field tuples (LABEL + UI CONTROL) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Bidirectional conversion between a useful HTML5 subset and a NITRO/FORM TAD document is supported by the companion TAD Browser component.
+
+%----------------------------------------------------------------------
+\section{Runtime Lifecycle}
+
+\begin{enumerate}[leftmargin=*]
+  \item Open Form TAD (or receive a virtual object pointing to it).
+  \item Parse HEADER / BODY / FOOTER regions.
+  \item Instantiate UI CONTROLS via Parts Manager (or NITRO control library).
+  \item Perform layout and draw titles, fields and buttons into the window’s Drawing Environment.
+  \item Bind field values to a data instance (another TAD record or in-memory model).
+  \item Enter event loop: Parts events + window redraw requests are dispatched by the library.
+  \item On save / submit the current control values are written back into the TAD (or a linked data real object).
+\end{enumerate}
+
+%----------------------------------------------------------------------
+\section{Data Binding and Validation}
+
+\begin{itemize}[leftmargin=*]
+  \item Each Field may declare a simple type, required flag, range, or regular expression (stored in fusen).
+  \item Calculated fields and relevance (show/hide) are evaluated by the library.
+  \item The data instance can itself be a TAD document, preserving the 実身/仮身 model.
+\end{itemize}
+
+%----------------------------------------------------------------------
+\section{Extensibility Points}
+
+\begin{itemize}[leftmargin=*]
+  \item New control types --- implemented as library composites or custom DP drawing.
+  \item Advanced layout engines --- replace the simple layout module.
+  \item Custom renderers --- any code that draws into a Drawing Environment.
+  \item Media (\texttt{video}/\texttt{audio}) --- application fusen + handler.
+  \item Scripting --- optional embedding of a PostScript/Forth subset for dynamic behaviour.
+\end{itemize}
+
+All extensions remain application-level and therefore legal under SPEC 3.20.
+
+%----------------------------------------------------------------------
+\section{Relationship to Existing BTRON Components}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Parts Manager} --- supplies the atomic UI CONTROLS.
+  \item \textbf{Panel / Window Manager} --- provides the surfaces on which Forms are displayed.
+  \item \textbf{Display Primitives} --- used for all custom drawing and title rendering.
+  \item \textbf{TAD + 実身/仮身} --- persistence, hyperlinking, and document-centric nature.
+  \item \textbf{TAD Browser} (companion) --- on-the-fly HTML $\leftrightarrow$ NITRO/FORM conversion for documentation.
+\end{itemize}
+
+%----------------------------------------------------------------------
+\section{Conclusion}
+
+SYNRC NITRO/FORM demonstrates that a practical, modern X-Forms-style framework can be realised as a pure extension of BTRON3 SPEC 3.20.  
+By defining a Form as a TAD document with the simple triple structure
+
+\begin{center}
+HEADER of TITLES \quad+\quad BODY of (LABEL, CONTROL) tuples \quad+\quad FOOTER of BUTTONS
+\end{center}
+
+and by building exclusively on public managers and Drawing Environments, the framework stays completely compatible with the original specification while enabling productive business-application development in the native BTRON environment.
+
+\end{document}
