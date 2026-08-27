@@ -76,7 +76,7 @@ In 2026, the convergence of autonomous robotics, unmanned aerial vehicles (UAVs)
 
 To address this challenge, we revisit the seminal \textbf{TRON} (\emph{The Real-time Operating system Nucleus}) architecture conceived by Ken Sakamura in 1984, specifically focusing on the \textbf{BTRON} (\emph{Business TRON}) workstation standard. Unlike conventional Unix or Windows models, BTRON was designed from first principles around a document-centric hyper-data model, lightweight preemptive multi-tasking, rich multilingual character encodings (TRON Code), and a clean separation between real-time kernel primitives ($\mu$ITRON) and user-facing shell subsystems.
 
-This paper presents the cleanroom reconstruction of BTRON3 SPEC 3.20, designated \textbf{B-SYSTEM OS}, designed for operation within the \textbf{Synrc VE OS.1} hypervision environment. By integrating modern VirtIO 1.4 virtualization, a four-tier compilation pipeline, and a constructive Type-Theoretic formal verification methodology, we demonstrate that the classic TRON architectural principles offer an extraordinarily effective blueprint for next-generation safety-critical computing.
+This paper presents the cleanroom reconstruction of BTRON3 SPEC 3.20, designated \textbf{B-System} or \textbf{B-TRON}, designed for operation within the \textbf{Synrc VE OS.1} hypervision environment. By integrating modern VirtIO 1.4 virtualization, a four-tier compilation pipeline, and a constructive Type-Theoretic formal verification methodology, we demonstrate that the classic TRON architectural principles offer an extraordinarily effective blueprint for next-generation safety-critical computing.
 
 %-------------------------------------------------------------------------
 \section{Operating System Taxonomy and Virtualization}
@@ -138,7 +138,7 @@ Multilingual     & UTF-8 POSIX           & UTF-8 / ASCII              & TRON Mul
 \label{sec:cleanroom}
 
 \subsection{Specification Compliance and Lineage}
-Because BTRON3 SPEC 3.20 is an open, formally documented standard, a complete cleanroom implementation can be authored without proprietary code contamination. Our cleanroom project, \textbf{B-SYSTEM OS}, strictly adheres to the BTRON3 SPEC 3.20 hierarchy, structured into standard C99 modules with zero external dependencies beyond a standard C library and display canvas.
+Because BTRON3 SPEC 3.20 is an open, formally documented standard, a complete cleanroom implementation can be authored without proprietary code contamination. Our cleanroom project, \textbf{B-System}, strictly adheres to the BTRON3 SPEC 3.20 hierarchy, structured into standard C99 modules with zero external dependencies beyond a standard C library and display canvas.
 
 \begin{figure*}[htbp]
 \centering
@@ -214,10 +214,10 @@ Mathematically, the BTRON storage system forms a directed graph $G = (V, E)$, wh
 \section{Multi-Target Execution Matrix}
 \label{sec:execution_matrix}
 
-To validate B-SYSTEM across different deployment scenarios, we implemented a four-backend target matrix controlled via a unified BSD Makefile:
+\textbf{To validate B-System} across different deployment scenarios, we implemented a four-backend target matrix controlled via a unified BSD Makefile:
 
 \begin{table}[htbp]
-\caption{B-SYSTEM Execution Backends}
+\caption{B-System Execution Backends}
 \label{tab:backends}
 \centering
 \footnotesize
@@ -237,7 +237,7 @@ To validate B-SYSTEM across different deployment scenarios, we implemented a fou
 The \emph{Takada} backend maps $\mu$ITRON tasks to POSIX threads (\texttt{pthreads}) and Display Primitives to an SDL2 software rendering buffer. This allows instant compilation and sub-second unit test execution directly on developer workstations running macOS, Linux, or NetBSD.
 
 \subsection{QEMU VirtIO Backend (\emph{Izumina})}
-The \emph{Izumina} backend compiles B-SYSTEM into a standalone bootable image communicating directly with QEMU's virtualized hardware using VirtIO ring buffers. This verifies that all memory-mapped I/O and interrupt service routines behave deterministically under hypervisor scheduling.
+The \emph{Izumina} backend compiles B-System into a standalone bootable image communicating directly with QEMU's virtualized hardware using VirtIO ring buffers. This verifies that all memory-mapped I/O and interrupt service routines behave deterministically under hypervisor scheduling.
 
 \subsection{Baremetal ARM Backend (\emph{Yokobayashi})}
 The \emph{Yokobayashi} backend compiles directly for ARM Cortex-A7 (Raspberry Pi 2) and Cortex-A53 (Raspberry Pi 3) processors without any underlying operating system. The kernel directly programs the ARM generic interrupt controller (GIC), the Mailbox property interface for framebuffer configuration, and the Mini-UART for serial diagnostics.
@@ -289,7 +289,7 @@ We prove the following core invariants:
 \section{Industrial Architecture and Ecosystem}
 \label{sec:ecosystem}
 
-The B-SYSTEM cleanroom implementation forms one layer within the broader \textbf{Synrc VE OS.1} industrial operating infrastructure, organized across five functional architectural planes:
+The B-System cleanroom implementation forms one layer within the broader \textbf{Synrc VE OS.1} industrial operating infrastructure, organized across five functional architectural planes:
 
 \begin{itemize}[leftmargin=*]
     \item \textbf{Security Plane:} Cryptographic primitives (LibreSSL), memory isolation, and NIST SP 800-53 security control compliance.
