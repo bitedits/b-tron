@@ -181,7 +181,15 @@ ER tk_slp_tsk(TMO tmout) {
     return _tk_slp_tsk(tmout);
 }
 
+ER slp_tsk(void) {
+    return _tk_slp_tsk(TMO_FEVR);
+}
+
 ER tk_wup_tsk(ID tskid) {
+    return _tk_wup_tsk(tskid);
+}
+
+ER wup_tsk(ID tskid) {
     return _tk_wup_tsk(tskid);
 }
 

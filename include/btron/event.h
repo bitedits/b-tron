@@ -36,6 +36,19 @@ typedef struct {
     VW      data;
 } EVT;
 
+/* Standard Keyboard Modifier Bitmasks */
+#define BTRON_KMOD_NONE   0x0000
+#define BTRON_KMOD_LSHIFT 0x0001
+#define BTRON_KMOD_RSHIFT 0x0002
+#define BTRON_KMOD_SHIFT  0x0003
+#define BTRON_KMOD_LCTRL  0x0040
+#define BTRON_KMOD_RCTRL  0x0080
+#define BTRON_KMOD_CTRL   0x00C0
+#define BTRON_KMOD_LALT   0x0100
+#define BTRON_KMOD_RALT   0x0200
+#define BTRON_KMOD_ALT    0x0300
+#define BTRON_KMOD_CAPS   0x2000
+
 ER init_evt_sys(void);
 ER get_evt(EVT *p_evt, W timeout_ms);
 ER snd_evt(const EVT *p_evt);

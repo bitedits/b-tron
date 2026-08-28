@@ -27,10 +27,14 @@ ARM32_CC ?= clang --target=arm-none-eabi -mcpu=cortex-a7 -marm -fuse-ld=lld -ffr
 ARM64_CC ?= clang --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
-BCM_INC    = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
-ARM_CFLAGS = -O2 -Wall -Wextra -std=c99 \
-             -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
-             $(BCM_INC)
+BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
+ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 \
+               -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
+               $(BCM_INC)
+ARM64_CFLAGS = -O2 -Wall -Wextra -std=c99 \
+               -D_RPI_BCM283x_ -DTYPE_RPI=3 -DBTRON_TARGET=2 \
+               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-unused-parameter \
+               $(BCM_INC)
 
 # Host OS / SDL2 detection
 UNAME_S := $(shell uname -s)
@@ -50,6 +54,12 @@ else
     QEMU_DISPLAY := -display default
 endif
 
+# ── Text Input Primitives (TIP) / Mozc IME sources ────────────────
+IME_SRCS    = src/ime/mozc_kkc.c       \
+              src/ime/tip_ife.c        \
+              src/ime/tip_task.c       \
+              src/ime/tip_vobj.c
+
 # ── Common SDL2-hosted app sources ────────────────────────────────
 COMMON_SRCS = src/graphics/dp_core.c   \
               src/graphics/dp_sdl.c    \
@@ -61,7 +71,8 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/desktop/main.c       \
               src/apps/vobj_manager.c  \
               src/apps/t_editor.c      \
-              src/apps/gterm.c
+              src/apps/gterm.c         \
+              $(IME_SRCS)
 
 # ── POSIX build (Target 0) ────────────────────────────────────────
 POSIX_STARTUP = src/kernel/core_posix.c
@@ -129,7 +140,8 @@ COMMON_NO_SDL_SRCS = \
     src/window/wnd.c       \
     src/window/event.c     \
     src/vobject/vobj.c     \
-    src/desktop/desktop.c
+    src/desktop/desktop.c  \
+    $(IME_SRCS)
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
 BAREMETAL_LD       = src/drivers/bcm283x/cpu/link.ld
@@ -270,14 +282,14 @@ $(ARM32_TARGET): $(ARM32_OBJS) $(BAREMETAL_LD)
 arm64-elf: $(ARM64_TARGET)
 
 %.arm64.o: %.c
-	$(ARM64_CC) $(ARM_CFLAGS) -c $< -o $@
+	$(ARM64_CC) $(ARM64_CFLAGS) -c $< -o $@
 
 $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 	@echo "=========================================================="
 	@echo " Building AArch64 ELF — Pi 4B (Cortex-A72, BCM2711)"
 	@echo " Startup: $(BAREMETAL_STARTUP)"
 	@echo "=========================================================="
-	$(ARM64_CC) $(ARM_CFLAGS) -Wl,-T,$(BAREMETAL_LD) $(ARM64_OBJS) -o $@
+	$(ARM64_CC) $(ARM64_CFLAGS) -Wl,-T,$(BAREMETAL_LD) $(ARM64_OBJS) -o $@
 	@echo "[ARM64-ELF] Built: $@"
 	@file $@
 
@@ -326,11 +338,54 @@ debug-virtio: arm64-elf
 	    -kernel $(ARM64_TARGET) -serial stdio
 
 # ═══════════════════════════════════════════════════════════════════
+# Mozc Kana-Kanji Conversion & TIP Unit Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_MOZC_SRCS = src/ime/test_mozc.c src/ime/mozc_kkc.c src/ime/tip_ife.c \
+                 src/font/troncode.c src/ime/tip_vobj.c src/window/wnd.c \
+                 src/graphics/dp_core.c
+TEST_MOZC_OBJS = $(TEST_MOZC_SRCS:.c=.test.o)
+TEST_MOZC_BIN  = test_mozc
+
+%.test.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+test-mozc: $(TEST_MOZC_BIN)
+	@echo "=========================================================="
+	@echo " Running Mozc Kana-Kanji Conversion & TIP Unit Tests..."
+	@echo "=========================================================="
+	@./$(TEST_MOZC_BIN)
+
+$(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
+	$(CC) $(TEST_MOZC_OBJS) -o $@ $(LDFLAGS)
+
+# ═══════════════════════════════════════════════════════════════════
+# T-Editor UI & Internal Functions Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/ime/mozc_kkc.c src/ime/tip_ife.c \
+                   src/font/troncode.c src/ime/tip_vobj.c src/window/wnd.c \
+                   src/graphics/dp_core.c
+TEST_EDITOR_OBJS = $(TEST_EDITOR_SRCS:.c=.test.o)
+TEST_EDITOR_BIN  = test_editor
+
+test-editor: $(TEST_EDITOR_BIN)
+	@echo "=========================================================="
+	@echo " Running B-TRON T-Editor UI & Internal Functions Tests..."
+	@echo "=========================================================="
+	@./$(TEST_EDITOR_BIN)
+
+$(TEST_EDITOR_BIN): $(TEST_EDITOR_OBJS)
+	$(CC) $(TEST_EDITOR_OBJS) -o $@ $(LDFLAGS)
+
+# ═══════════════════════════════════════════════════════════════════
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
+	rm -f *.toc
+	rm -f *.aux
+	rm -f *.log
+	rm -f *.out
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN)
 	find src -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
-	    -o -name "*.arm64.o" -o -name "*.o" \) -delete 2>/dev/null || true
+	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

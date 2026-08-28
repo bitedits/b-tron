@@ -237,6 +237,42 @@ Text Editor Window:
 These wireframes can be implemented directly with the existing B-TRON window manager (wnd.h) primitives.
 We need a more detailed pixel-level version or additional states (e.g. prediction list, error state, or vertical candidate layout).
 
+## 9. TRON Language Plane Switching & Input Modality Architecture
+
+### 9.1. Historical TRON Specification Architecture
+In the original TRON and BTRON specifications (Sakamura Lab, TRON Association BTRON3 v3.20, and the TRON Keyboard Hardware standard):
+
+1. **TRON Code Plane Partitioning**:
+   - **Plane 0 (0x0021–0x007E)**: Direct ASCII / English Alphanumeric character set.
+   - **Plane 1 (0x2121–0x7E7E)**: Japanese Kanji, Hiragana, Katakana, and JIS X 0208 character set.
+   - Decoupling character encoding from rendering allows seamless modality switching without stream corruption.
+
+2. **TRON Keyboard Hardware Mode Keys**:
+   - **[英数] (Eisu / Alphanumeric)**: Hardware latch/switch directly activating **Plane 0 (Direct English)** input mode.
+   - **[かな] (Kana) / [漢字] (Kanji)**: Hardware latch activating **Plane 1 (Japanese Kana-Kanji)** conversion front-end.
+   - **[変換] (Henkan)**: Triggers morphological clause segmentation and Viterbi lattice search (Space key fallback).
+   - **[無変換] (Muhenkan)**: Discards conversion candidates or cycles unconverted phonetic readings.
+
+3. **Standard Function Key Mapping (TRON DP / JIS Standard)**:
+   - **F10**: Primary Functional Key toggling between **Plane 0 (Direct English / ASCII)** and **Plane 1 (Japanese IME)**.
+   - **F7**: Converts active composition buffer to **Fullwidth Katakana (全角カタカナ)**.
+   - **F8**: Converts active composition buffer to **Halfwidth Katakana (半角カタカナ)**.
+   - **F9**: Converts active composition buffer to **Fullwidth Alphanumeric (全角英数)**.
+   - **F6**: Converts active composition buffer to **Hiragana (ひらがな)**.
+
+4. **Modern Cross-Platform Shortcuts**:
+   - **Ctrl + Space**, **Shift + Space**, **Alt + Space**: Instant IME mode toggle across macOS, Linux, and B-TRON.
+   - **半角/全角 (Hankaku/Zenkaku)**: Hardware key toggle on standard Japanese PC keyboards.
+
+### 9.2. Per-Window Input Focus & Modality Rules
+1. **Active Window Exclusivity**:
+   - Keystrokes (`EV_KEY_DOWN`) are routed strictly to the topmost focused window (`wnd->focused == TRUE`). Non-active windows shall never receive or process keystrokes.
+2. **Focus-Change Composition Reset**:
+   - Switching active window focus immediately cancels pending composition (`tip_cancel()`) to prevent leakage across applications.
+3. **Application Modality Initialization**:
+   - **Terminal Console (`gterm`)**: Starts strictly in **Direct English (`TIP_MODE_ASCII`)** mode upon launch and initialization.
+   - **Text Editor (`t_editor`)**: Allows dynamic switching with status bar visual feedback (`[Mozc: A]` / `[Mozc: あ]`).
+
 # Credits
 
 * Namdak Tonpa

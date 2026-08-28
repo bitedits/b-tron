@@ -4,6 +4,7 @@
  */
 
 #include <btron/btron.h>
+#include <btron/tip.h>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +75,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    tip_init();
     init_evt_sys();
 
     printf("[B-TRON] Launching Sakamura BTRON Desktop & Accessories...\n");
@@ -102,18 +104,27 @@ int main(int argc, char **argv) {
                 raise_sdl_window();
                 WND *clicked = find_wnd_at(ev.pos.x, ev.pos.y);
                 if (clicked) {
-                    top_wnd(clicked);
+                    if (get_top_wnd() != clicked) {
+                        tip_cancel(); /* Reset pending IME composition on focus switch */
+                        top_wnd(clicked);
+                    }
 
                     /* Titlebar area drag check */
                     if (ev.pos.y >= clicked->bounds.top && ev.pos.y < clicked->bounds.top + 22) {
                         /* Close button click check */
                         if (ev.pos.x >= clicked->bounds.right - 20 && ev.pos.x < clicked->bounds.right - 6) {
                             cls_wnd(clicked);
+                            tip_cancel();
                         } else {
                             dragging = TRUE;
                             drag_wnd = clicked;
                             drag_off_x = ev.pos.x - clicked->bounds.left;
                             drag_off_y = ev.pos.y - clicked->bounds.top;
+                        }
+                    } else {
+                        /* Dispatch mouse click exclusively to clicked window client area */
+                        if (clicked->event_handler) {
+                            clicked->event_handler(clicked, &ev);
                         }
                     }
                 } else if (ev.pos.y > 50 && ev.pos.y < 100 && ev.pos.x < 70) {
@@ -129,18 +140,16 @@ int main(int argc, char **argv) {
             } else if (ev.type == EV_BUT_UP) {
                 dragging = FALSE;
                 drag_wnd = NULL;
+                WND *top = get_top_wnd();
+                if (top && top->focused && top->event_handler) {
+                    top->event_handler(top, &ev);
+                }
             } else if (ev.type == EV_MOUSE_MOVE && dragging && drag_wnd) {
                 mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
             } else if (ev.type == EV_KEY_DOWN) {
+                /* Exclusively route keystrokes to the top focused active window */
                 WND *top = get_top_wnd();
-                printf("[TRACE-MAIN] KEY_DOWN ev.key=%u ('%c') data=%ld -> top_wnd=%s (id=%d, handler=%p)\n",
-                       (unsigned)ev.key, (ev.key >= 32 && ev.key <= 126) ? (char)ev.key : '?',
-                       (long)(uintptr_t)ev.data,
-                       top ? top->title : "NULL",
-                       top ? (int)top->id : 0,
-                       top ? (void*)top->event_handler : NULL);
-                fflush(stdout);
-                if (top && top->event_handler) {
+                if (top && top->focused && top->event_handler) {
                     top->event_handler(top, &ev);
                 }
             }
@@ -149,6 +158,13 @@ int main(int argc, char **argv) {
         /* Render full BTRON desktop composition */
         render_desktop_background(screen_dev);
         redraw_all_windows();
+
+        /* Floating candidate window is rendered exclusively for the active window */
+        WND *top = get_top_wnd();
+        if (top && top->focused && (tip_get_state() == TIP_STATE_CONVERTING || tip_get_state() == TIP_STATE_CANDIDATE_SELECT)) {
+            tip_render_candidate_window(screen_dev, tip_get_caret_x(), tip_get_caret_y());
+        }
+
         render_system_panel(screen_dev);
 
         /* Flush composite buffer to SDL window */

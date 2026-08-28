@@ -18,9 +18,12 @@ typedef void (*FP)(VW exinf);
 typedef int32_t  PRI;
 typedef uint64_t SYSTIME;
 typedef W        TMOUT;
+typedef VW       VP_INT;
 
-#define TMO_POL  (0)
-#define TMO_FEVR (-1)
+#define TMO_POL        (0)
+#define TMO_FEVR       (-1)
+#define TSK_DESKTOP_UI ((ID)1)
+#define TSK_TIP_CONV   ((ID)2)
 
 typedef struct {
     VW  exinf;     /* Extended Information */

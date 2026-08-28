@@ -26,7 +26,7 @@ extern void resource_group_initialize(void);
 extern void timer_initialize(void);
 
 void yokobayashi_tkernel_init(void) {
-#if BTRON_TARGET == 2 && (!defined(__arm__) || defined(__aarch64__))
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1 && BTRON_TARGET == 2
     printf("\n==========================================================\n");
     printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
     printf(" Target Mode 2: BTRON_YOKOBAYASHI Active\n");
@@ -49,12 +49,31 @@ void yokobayashi_tkernel_init(void) {
     resource_group_initialize();
     timer_initialize();
 
-#if !defined(__arm__) || defined(__aarch64__)
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
     printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
 #endif
 }
 
-#if defined(__arm__) && !defined(__aarch64__)
+#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
+extern ER _tk_slp_tsk(W tmout);
+extern ER _tk_wup_tsk(ID tskid);
+extern ER _tk_dly_tsk(W dlytim);
+
+ER slp_tsk(void) {
+    return _tk_slp_tsk(TMO_FEVR);
+}
+
+ER wup_tsk(ID tskid) {
+    return _tk_wup_tsk(tskid);
+}
+
+__attribute__((weak))
+ER tk_dly_tsk(W dlytim) {
+    return _tk_dly_tsk(dlytim);
+}
+#endif
+
+#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0) && (defined(__arm__) || defined(__aarch64__))
 #define HEAP_BASE ((uintptr_t)0x01000000)  /* 16 MB */
 #define HEAP_LIMIT ((uintptr_t)0x1B000000) /* 432 MB limit */
 extern uintptr_t heap_ptr;

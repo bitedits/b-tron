@@ -167,23 +167,9 @@ ER get_evt(EVT *p_evt, W timeout_ms) {
                 snd_evt(&ev);
                 break;
             case SDL_TEXTINPUT:
-                printf("[TRACE-SDL] TEXTINPUT text='%s'\n", sdlev.text.text);
-                fflush(stdout);
-                for (int i = 0; sdlev.text.text[i] != '\0'; i++) {
-                    EVT ev_txt;
-                    memset(&ev_txt, 0, sizeof(EVT));
-                    ev_txt.type = EV_KEY_DOWN;
-                    ev_txt.key = (UW)(unsigned char)sdlev.text.text[i];
-                    ev_txt.data = (VW)1; /* 1 = Text Input Marker */
-                    snd_evt(&ev_txt);
-                }
+                /* Text input is handled directly via SDL_KEYDOWN to avoid duplicate keystroke events */
                 break;
             case SDL_KEYDOWN:
-                printf("[TRACE-SDL] KEYDOWN sym=%d ('%c') mod=0x%x\n",
-                       sdlev.key.keysym.sym,
-                       (sdlev.key.keysym.sym >= 32 && sdlev.key.keysym.sym <= 126) ? (char)sdlev.key.keysym.sym : '?',
-                       sdlev.key.keysym.mod);
-                fflush(stdout);
                 ev.type = EV_KEY_DOWN;
                 ev.key = sdlev.key.keysym.sym;
                 ev.data = (VW)(uintptr_t)sdlev.key.keysym.mod;

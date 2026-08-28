@@ -107,7 +107,7 @@ void render_system_panel(GDEV *dev) {
 }
 
 
-#if defined(__arm__) && !defined(__aarch64__)
+#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0) && (defined(__arm__) || defined(__aarch64__))
 #ifndef ARGB
 #define ARGB(a,r,g,b) (((uint32_t)(a)<<24)|((uint32_t)(r)<<16)|((uint32_t)(g)<<8)|(uint32_t)(b))
 #endif

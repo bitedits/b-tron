@@ -1,13 +1,8 @@
-/*
- * BTRON Accessory: System Terminal Console Window (gterm)
- * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
- */
-
-
 #include <btron/wnd.h>
 #include <btron/troncode.h>
 #include <btron/dp.h>
 #include <btron/event.h>
+#include <btron/tip.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -277,66 +272,119 @@ static void gterm_execute_cmd(WND *wnd, GTERM_STATE *st, const char *cmd_line) {
         }
     }
 }
+
+/* ASCII Key with Shift / CapsLock Translation */
+static char get_ascii_char_with_shift(UW key, uint16_t mod) {
+    BOOL shift = (mod & BTRON_KMOD_SHIFT) != 0;
+    BOOL caps  = (mod & BTRON_KMOD_CAPS) != 0;
+
+    if (key >= 'A' && key <= 'Z') {
+        if (shift ^ caps) return (char)key;
+        return (char)(key - 'A' + 'a');
+    }
+
+    if (key >= 'a' && key <= 'z') {
+        if (shift ^ caps) return (char)(key - 'a' + 'A');
+        return (char)key;
+    }
+
+    if (shift) {
+        switch (key) {
+            case '1': return '!';
+            case '2': return '@';
+            case '3': return '#';
+            case '4': return '$';
+            case '5': return '%';
+            case '6': return '^';
+            case '7': return '&';
+            case '8': return '*';
+            case '9': return '(';
+            case '0': return ')';
+            case '-': return '_';
+            case '=': return '+';
+            case '[': return '{';
+            case ']': return '}';
+            case '\\': return '|';
+            case ';': return ':';
+            case '\'': return '"';
+            case ',': return '<';
+            case '.': return '>';
+            case '/': return '?';
+            case '`': return '~';
+            default: break;
+        }
+    }
+    return (char)key;
+}
+
 static void handle_gterm_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
 
     if (evt->type == EV_KEY_DOWN) {
-        printf("[TRACE-GTERM] handle_gterm_event key=%u ('%c') data=%ld (wnd='%s')\n",
-               (unsigned)evt->key, (evt->key >= 32 && evt->key <= 126) ? (char)evt->key : '?',
-               (long)(uintptr_t)evt->data, wnd->title);
-        fflush(stdout);
-
-        if (evt->data == (VW)1) {
-            /* Direct text input character from SDL_TEXTINPUT */
-            char ch = (char)evt->key;
-            if (ch >= 32 && ch <= 126) {
-                if (g_gterm.input_len < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
-                    g_gterm.input_buf[g_gterm.input_len++] = ch;
-                    g_gterm.input_buf[g_gterm.input_len] = '\0';
-                    printf("[TRACE-GTERM] Appended '%c' -> input_buf='%s'\n", ch, g_gterm.input_buf);
-                    fflush(stdout);
-                }
-            }
-            return;
-        }
-
-        SDL_Keycode sym = (SDL_Keycode)evt->key;
+        char commit_buf[128] = "";
+        UW key_code = evt->key;
         uint16_t mod = (uint16_t)(uintptr_t)evt->data;
 
+        BOOL ctrl = (mod & BTRON_KMOD_CTRL) != 0;
+
         /* Control key combinations */
-        if (mod & KMOD_CTRL) {
-            if (sym == SDLK_c) {
+        if (ctrl) {
+            if (key_code == 'c' || key_code == 'C' || key_code == SDLK_c) {
                 char cancel_msg[280];
                 snprintf(cancel_msg, sizeof(cancel_msg), "%s%s^C", g_gterm.prompt, g_gterm.input_buf);
                 gterm_append_line(&g_gterm, cancel_msg, COLOR_RED);
                 g_gterm.input_buf[0] = '\0';
                 g_gterm.input_len = 0;
+                tip_cancel();
                 return;
-            } else if (sym == SDLK_l) {
+            } else if (key_code == 'l' || key_code == 'L' || key_code == SDLK_l) {
                 g_gterm.total_lines = 0;
                 return;
-            } else if (sym == SDLK_u) {
+            } else if (key_code == 'u' || key_code == 'U' || key_code == SDLK_u) {
                 g_gterm.input_buf[0] = '\0';
                 g_gterm.input_len = 0;
+                tip_cancel();
                 return;
             }
         }
 
-        /* Non-printable navigation & action keys from SDL_KEYDOWN */
-        if (sym == SDLK_RETURN || sym == SDLK_KP_ENTER) {
+        /* Check if TIP handles key (Japanese IME mode or F10 / Ctrl+Space toggle) */
+        if (tip_process_key(key_code, mod, commit_buf, sizeof(commit_buf))) {
+            if (commit_buf[0] != '\0') {
+                int clen = (int)strlen(commit_buf);
+                if (g_gterm.input_len + clen < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
+                    strcat(g_gterm.input_buf, commit_buf);
+                    g_gterm.input_len += clen;
+                }
+            }
+            return;
+        }
+
+        SDL_Keycode sym = (SDL_Keycode)key_code;
+
+        /* Non-printable navigation & action keys */
+        if (sym == SDLK_RETURN || sym == SDLK_KP_ENTER || sym == '\r' || sym == '\n') {
             gterm_execute_cmd(wnd, &g_gterm, g_gterm.input_buf);
             g_gterm.input_buf[0] = '\0';
             g_gterm.input_len = 0;
-        } else if (sym == SDLK_BACKSPACE) {
+            return;
+        } else if (sym == SDLK_BACKSPACE || sym == 0x08) {
             if (g_gterm.input_len > 0) {
-                g_gterm.input_buf[--g_gterm.input_len] = '\0';
+                int prev_c = g_gterm.input_len - 1;
+                while (prev_c > 0 && ((unsigned char)g_gterm.input_buf[prev_c] & 0xC0) == 0x80) {
+                    prev_c--;
+                }
+                g_gterm.input_buf[prev_c] = '\0';
+                g_gterm.input_len = prev_c;
             }
+            return;
         } else if (sym == SDLK_UP) {
             if (g_gterm.cmd_hist_count > 0 && g_gterm.cmd_hist_idx > 0) {
                 g_gterm.cmd_hist_idx--;
                 strncpy(g_gterm.input_buf, g_gterm.cmd_history[g_gterm.cmd_hist_idx], sizeof(g_gterm.input_buf) - 1);
                 g_gterm.input_len = (int)strlen(g_gterm.input_buf);
             }
+            return;
         } else if (sym == SDLK_DOWN) {
             if (g_gterm.cmd_hist_idx < g_gterm.cmd_hist_count - 1) {
                 g_gterm.cmd_hist_idx++;
@@ -347,6 +395,23 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
                 g_gterm.input_buf[0] = '\0';
                 g_gterm.input_len = 0;
             }
+            return;
+        } else if (sym == SDLK_TAB || sym == '\t') {
+            if (g_gterm.input_len + 4 < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
+                strcat(g_gterm.input_buf, "    ");
+                g_gterm.input_len += 4;
+            }
+            return;
+        }
+
+        /* Direct English / Printable ASCII Text Input */
+        if (!ctrl && sym >= 32 && sym <= 126) {
+            char ch = get_ascii_char_with_shift((UW)sym, mod);
+            if (g_gterm.input_len < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
+                g_gterm.input_buf[g_gterm.input_len++] = ch;
+                g_gterm.input_buf[g_gterm.input_len] = '\0';
+            }
+            return;
         }
     }
 }
@@ -358,13 +423,19 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
     RECT r = { 0, 0, dev->width, dev->height };
     fill_rec(dev, &r, COLOR_BLACK);
 
+    /* Visual Mode Indicator in Terminal Header */
+    const char *mode_tag = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[Mode: JP (あ) | F10: Switch]" :
+                           ((tip_get_mode() == TIP_MODE_KATAKANA) ? "[Mode: JP (ア) | F10: Switch]" :
+                            "[Mode: EN (A) | F10: Switch]");
+    drw_tc_string(dev, dev->width - 240, 6, mode_tag, COLOR_CYAN, COLOR_BLACK);
+
     int visible_rows = GTERM_MAX_ROWS - 1; /* Reserve bottom line for prompt */
     int start_line = 0;
     if (g_gterm.total_lines > visible_rows) {
         start_line = g_gterm.total_lines - visible_rows;
     }
 
-    int y = 6;
+    int y = 24;
     for (int i = start_line; i < g_gterm.total_lines; i++) {
         COLOR col = g_gterm.line_cols[i];
         if (col == 0) col = COLOR_WHITE;
@@ -372,10 +443,21 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
         y += 16;
     }
 
-    /* Draw Active Prompt Line with Cursor */
+    /* Draw Active Prompt Line with Cursor and TIP Inline Preview */
     char prompt_line[300];
-    snprintf(prompt_line, sizeof(prompt_line), "%s%s_", g_gterm.prompt, g_gterm.input_buf);
+    snprintf(prompt_line, sizeof(prompt_line), "%s%s", g_gterm.prompt, g_gterm.input_buf);
     drw_tc_string(dev, 8, y, prompt_line, COLOR_WHITE, COLOR_BLACK);
+
+    int prompt_pixel_w = 8 + (int)strlen(prompt_line) * 8;
+    if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
+        char comp_buf[128];
+        tip_get_converted_text(comp_buf, sizeof(comp_buf));
+        BOOL is_dotted = (tip_get_state() == TIP_STATE_PRECOMP);
+        drw_tc_string_underlined(dev, prompt_pixel_w, y, comp_buf, COLOR_CYAN, COLOR_BLACK, is_dotted);
+        tip_set_caret_pos(wnd->bounds.left + prompt_pixel_w, wnd->bounds.top + y);
+    } else if (wnd->focused) {
+        drw_tc_string(dev, prompt_pixel_w, y, "_", COLOR_WHITE, COLOR_BLACK);
+    }
 }
 
 WND* open_gterm_window(void) {
@@ -385,6 +467,8 @@ WND* open_gterm_window(void) {
         gterm_init_banner(&g_gterm);
         wnd->paint = paint_gterm;
         wnd->event_handler = handle_gterm_event;
+        tip_cancel();
+        tip_set_mode(TIP_MODE_ASCII); /* Terminal strictly starts in EN mode */
         top_wnd(wnd);
     }
     return wnd;
