@@ -19,31 +19,16 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-# Detect LLVM Clang and LLD toolchains
-LLVM_DIR := $(shell for p in /opt/homebrew/opt/llvm /usr/local/opt/llvm /usr/lib/llvm-*; do if [ -d "$$p" ]; then echo "$$p"; break; fi; done)
-ifneq ($(LLVM_DIR),)
-    export PATH := $(LLVM_DIR)/bin:$(PATH)
-    LLVM_CLANG  := $(LLVM_DIR)/bin/clang
-    LLVM_LLD    := $(LLVM_DIR)/bin/ld.lld
-else
-    LLVM_CLANG  := $(shell which clang 2>/dev/null || echo "clang")
-    LLVM_LLD    := $(shell which ld.lld 2>/dev/null || echo "ld.lld")
-endif
+QEMU_ARM     ?= qemu-system-arm
+QEMU_AARCH64 ?= qemu-system-aarch64
 
-LLD_BIN := $(shell for p in $(LLVM_LLD) /opt/homebrew/opt/llvm/bin/ld.lld /usr/local/opt/llvm/bin/ld.lld /usr/lib/llvm-*/bin/ld.lld ld.lld; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
+# Detect LLVM Clang toolchain with LLD support
+LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
 
-# ARM32 / ARM64 Freestanding Compilers (no -fuse-ld=lld in CFLAGS to avoid unused-flag warnings)
-ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -ffreestanding -nostdlib
-ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -ffreestanding -nostdlib
-
-# Bare-metal ELF Linker (direct ld.lld if available, otherwise target-specific clang with fuse-ld)
-ifneq ($(LLD_BIN),)
-    ARM32_LINK = $(LLD_BIN) -T $(BAREMETAL_LD)
-    ARM64_LINK = $(LLD_BIN) -T $(BAREMETAL_LD)
-else
-    ARM32_LINK = $(ARM32_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
-    ARM64_LINK = $(ARM64_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
-endif
+# ARM32: Cortex-A7 for Pi 2B (BCM2836)
+ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -fuse-ld=lld -ffreestanding -nostdlib
+# AArch64: Cortex-A72 for Pi 4B (BCM2711) — kept for Pi4-only development
+ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
@@ -297,7 +282,7 @@ $(ARM32_TARGET): $(ARM32_OBJS) $(BAREMETAL_LD)
 	@echo " Building ARM32 ELF — BCM283x Pi 2B (Cortex-A7, ARMv7)"
 	@echo " Startup: $(BAREMETAL_STARTUP)"
 	@echo "=========================================================="
-	$(ARM32_LINK) $(ARM32_OBJS) -o $@
+	$(ARM32_CC) $(ARM_CFLAGS) -Wl,-T,$(BAREMETAL_LD) $(ARM32_OBJS) -o $@
 	@echo "[ARM-ELF] Built: $@"
 	@file $@
 
@@ -314,7 +299,7 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 	@echo " Building AArch64 ELF — Pi 4B (Cortex-A72, BCM2711)"
 	@echo " Startup: $(BAREMETAL_STARTUP)"
 	@echo "=========================================================="
-	$(ARM64_LINK) $(ARM64_OBJS) -o $@
+	$(ARM64_CC) $(ARM64_CFLAGS) -Wl,-T,$(BAREMETAL_LD) $(ARM64_OBJS) -o $@
 	@echo "[ARM64-ELF] Built: $@"
 	@file $@
 
