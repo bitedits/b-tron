@@ -21,7 +21,7 @@
 #include	<device/devconf.h>
 
 /* Get "DEVCONF" entry */
-IMPORT W GetDevConf( UB *name, W *val );
+IMPORT INT GetDevConf( CONST UB *name, INT *val );
 
 EXPORT	ID	CmdTsk;			/* command processing task ID */
 EXPORT	ID	CmdFlg;			/* event flag ID for sending command */

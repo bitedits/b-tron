@@ -138,14 +138,60 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
         return TRUE;
     }
 
-    /* Functional Switch Keys: F6 -> Hiragana, F7 -> Katakana */
-    if (key == BTRON_KEY_F6) {
-        tip_set_mode(TIP_MODE_HIRAGANA);
-        return TRUE;
-    }
-    if (key == BTRON_KEY_F7) {
-        tip_set_mode(TIP_MODE_KATAKANA);
-        return TRUE;
+    /* Functional Key Transformations during composition */
+    if (g_tip.state != TIP_STATE_IDLE) {
+        if (key == BTRON_KEY_F6) {
+            /* F6: Convert active composition to Hiragana */
+            if (g_tip.state == TIP_STATE_PRECOMP) {
+                mozc_lattice_search(g_tip.reading_buf, g_tip.clauses, &g_tip.num_clauses, TIP_MAX_CLAUSES);
+                g_tip.state = TIP_STATE_CONVERTING;
+            }
+            for (int i = 0; i < g_tip.num_clauses; i++) {
+                strncpy(g_tip.clauses[i].converted, g_tip.clauses[i].reading, TIP_MAX_STR_LEN - 1);
+            }
+            return TRUE;
+        }
+        if (key == BTRON_KEY_F7) {
+            /* F7: Convert active composition to Fullwidth Katakana */
+            if (g_tip.state == TIP_STATE_PRECOMP) {
+                mozc_lattice_search(g_tip.reading_buf, g_tip.clauses, &g_tip.num_clauses, TIP_MAX_CLAUSES);
+                g_tip.state = TIP_STATE_CONVERTING;
+            }
+            for (int i = 0; i < g_tip.num_clauses; i++) {
+                mozc_hiragana_to_katakana(g_tip.clauses[i].reading, g_tip.clauses[i].converted, TIP_MAX_STR_LEN);
+            }
+            return TRUE;
+        }
+        if (key == BTRON_KEY_F8) {
+            /* F8: Convert active composition to Halfwidth Katakana */
+            if (g_tip.state == TIP_STATE_PRECOMP) {
+                mozc_lattice_search(g_tip.reading_buf, g_tip.clauses, &g_tip.num_clauses, TIP_MAX_CLAUSES);
+                g_tip.state = TIP_STATE_CONVERTING;
+            }
+            for (int i = 0; i < g_tip.num_clauses; i++) {
+                mozc_hiragana_to_halfwidth_katakana(g_tip.clauses[i].reading, g_tip.clauses[i].converted, TIP_MAX_STR_LEN);
+            }
+            return TRUE;
+        }
+        if (key == BTRON_KEY_F9) {
+            /* F9: Convert active composition to Fullwidth Alphanumeric */
+            g_tip.state = TIP_STATE_CONVERTING;
+            g_tip.num_clauses = 1;
+            g_tip.active_clause = 0;
+            strncpy(g_tip.clauses[0].reading, g_tip.reading_buf, TIP_MAX_STR_LEN - 1);
+            mozc_alphanumeric_to_fullwidth(g_tip.romaji_buf, g_tip.clauses[0].converted, TIP_MAX_STR_LEN);
+            return TRUE;
+        }
+    } else {
+        /* In IDLE mode, F6 / F7 switches global input mode */
+        if (key == BTRON_KEY_F6) {
+            tip_set_mode(TIP_MODE_HIRAGANA);
+            return TRUE;
+        }
+        if (key == BTRON_KEY_F7) {
+            tip_set_mode(TIP_MODE_KATAKANA);
+            return TRUE;
+        }
     }
 
     if (g_tip.mode == TIP_MODE_ASCII) {
@@ -357,4 +403,69 @@ void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y) {
     /* 5. Footer separator and hints */
     drw_lin(dev, win_x + 4, list_y + 2, win_x + win_w - 4, list_y + 2);
     drw_tc_string(dev, win_x + 8, list_y + 5, "1-9 Select   Esc Cancel", COLOR_GRAY, 0x00000000);
+}
+
+/* ── BTRON3 SPEC 3.20 Section 3.7 Syscall Implementation ── */
+#define MAX_TIP_PORTS 16
+static TIP_CONTEXT g_tip_ports[MAX_TIP_PORTS];
+static BOOL g_port_used[MAX_TIP_PORTS] = { FALSE };
+
+ID iopn_tip(WND *wnd) {
+    (void)wnd;
+    for (int i = 0; i < MAX_TIP_PORTS; i++) {
+        if (!g_port_used[i]) {
+            g_port_used[i] = TRUE;
+            memset(&g_tip_ports[i], 0, sizeof(TIP_CONTEXT));
+            g_tip_ports[i].mode = TIP_MODE_HIRAGANA;
+            g_tip_ports[i].state = TIP_STATE_IDLE;
+            return (ID)(i + 1);
+        }
+    }
+    return (ID)E_LIMIT;
+}
+
+ER icls_tip(ID tipid) {
+    int idx = (int)tipid - 1;
+    if (idx < 0 || idx >= MAX_TIP_PORTS || !g_port_used[idx]) return E_ID;
+    g_port_used[idx] = FALSE;
+    return E_OK;
+}
+
+ER ichg_mod(ID tipid, W mode) {
+    int idx = (int)tipid - 1;
+    if (idx < 0 || idx >= MAX_TIP_PORTS || !g_port_used[idx]) return E_ID;
+    g_tip_ports[idx].mode = (TIP_INPUT_MODE)mode;
+    return E_OK;
+}
+
+W iput_key(ID tipid, UW key, UW mod, TIPREC *rec) {
+    (void)tipid;
+    if (!rec) return 0;
+    rec->result = 0;
+
+    char commit[TIP_MAX_PRECOMP_LEN] = "";
+    BOOL handled = tip_process_key(key, mod, commit, sizeof(commit));
+
+    if (commit[0] != '\0') {
+        rec->result |= TIP_OUT;
+        if (rec->out_str && rec->out_len > 0) {
+            strncpy(rec->out_str, commit, rec->out_len - 1);
+            rec->out_str[rec->out_len - 1] = '\0';
+        }
+    }
+
+    if (g_tip.state != TIP_STATE_IDLE) {
+        rec->result |= TIP_CNV;
+        if (rec->cnv_str && rec->cnv_len > 0) {
+            tip_get_converted_text(rec->cnv_str, rec->cnv_len);
+        }
+        rec->car_pos = tip_get_composition_length();
+        rec->result |= TIP_CAR;
+    }
+
+    if (tip_is_candidate_window_visible()) {
+        rec->result |= TIP_CL;
+    }
+
+    return handled ? 1 : 0;
 }

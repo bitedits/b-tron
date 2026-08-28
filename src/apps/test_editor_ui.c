@@ -706,6 +706,42 @@ static void test_f10_and_function_key_switching(void) {
     handled = tip_process_key(BTRON_KEY_F7, 0, commit, sizeof(commit));
     TEST_ASSERT(handled == TRUE && tip_get_mode() == TIP_MODE_KATAKANA, "F7 switches directly to Katakana");
 
+    /* 4. Active Composition Transformations via F6, F7, F8, F9 */
+    tip_set_mode(TIP_MODE_HIRAGANA);
+    tip_cancel();
+
+    tip_process_key('t', 0, commit, sizeof(commit));
+    tip_process_key('o', 0, commit, sizeof(commit));
+    tip_process_key('u', 0, commit, sizeof(commit));
+    tip_process_key('k', 0, commit, sizeof(commit));
+    tip_process_key('y', 0, commit, sizeof(commit));
+    tip_process_key('o', 0, commit, sizeof(commit));
+    tip_process_key('u', 0, commit, sizeof(commit));
+    TEST_ASSERT(tip_get_state() == TIP_STATE_PRECOMP, "Precomposition active for 'とうきょう'");
+
+    /* Press F7 -> Converts to Fullwidth Katakana */
+    tip_process_key(BTRON_KEY_F7, 0, commit, sizeof(commit));
+    char conv_buf[128] = "";
+    tip_get_converted_text(conv_buf, sizeof(conv_buf));
+    TEST_ASSERT(strcmp(conv_buf, "トウキョウ") == 0, "F7 converted active composition to Fullwidth Katakana 'トウキョウ'");
+
+    /* Press F8 -> Converts to Halfwidth Katakana */
+    tip_process_key(BTRON_KEY_F8, 0, commit, sizeof(commit));
+    tip_get_converted_text(conv_buf, sizeof(conv_buf));
+    TEST_ASSERT(strcmp(conv_buf, "ﾄｳｷｮｳ") == 0, "F8 converted active composition to Halfwidth Katakana 'ﾄｳｷｮｳ'");
+
+    /* Press F9 -> Converts to Fullwidth Alphanumeric */
+    tip_process_key(BTRON_KEY_F9, 0, commit, sizeof(commit));
+    tip_get_converted_text(conv_buf, sizeof(conv_buf));
+    TEST_ASSERT(strcmp(conv_buf, "ｔｏｕｋｙｏｕ") == 0, "F9 converted active composition to Fullwidth Alphanumeric 'ｔｏｕｋｙｏｕ'");
+
+    /* Press F6 -> Converts back to Hiragana */
+    tip_process_key(BTRON_KEY_F6, 0, commit, sizeof(commit));
+    tip_get_converted_text(conv_buf, sizeof(conv_buf));
+    TEST_ASSERT(strcmp(conv_buf, "とうきょう") == 0, "F6 converted active composition back to Hiragana 'とうきょう'");
+
+    tip_cancel();
+
     /* Restore to ASCII */
     tip_set_mode(TIP_MODE_ASCII);
 }

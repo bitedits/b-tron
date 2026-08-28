@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
 
     set_terminal_raw_tty();
 
-    H screen_w = 1024;
-    H screen_h = 768;
+    H screen_w = 1280;
+    H screen_h = 800;
 
     printf("[B-TRON] Initializing B-TRON Retro OS Environment...\n");
 

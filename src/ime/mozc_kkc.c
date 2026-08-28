@@ -145,7 +145,7 @@ int mozc_romaji_to_hiragana(const char *romaji, char *out_hiragana, int max_len)
     return out_idx;
 }
 
-/* Transliterate Hiragana UTF-8 to Katakana UTF-8 */
+/* Transliterate Hiragana UTF-8 to Katakana UTF-8 (F7 key) */
 int mozc_hiragana_to_katakana(const char *hiragana, char *out_katakana, int max_len) {
     if (!hiragana || !out_katakana || max_len <= 0) return 0;
     out_katakana[0] = '\0';
@@ -168,6 +168,177 @@ int mozc_hiragana_to_katakana(const char *hiragana, char *out_katakana, int max_
         out_katakana[out_idx++] = *p++;
     }
     out_katakana[out_idx] = '\0';
+    return out_idx;
+}
+
+/* Transliterate Katakana UTF-8 to Hiragana UTF-8 (F6 key) */
+int mozc_katakana_to_hiragana(const char *katakana, char *out_hiragana, int max_len) {
+    if (!katakana || !out_hiragana || max_len <= 0) return 0;
+    out_hiragana[0] = '\0';
+
+    const unsigned char *p = (const unsigned char *)katakana;
+    int out_idx = 0;
+
+    while (*p && out_idx < max_len - 4) {
+        if (p[0] == 0xE3 && (p[1] == 0x82 || p[1] == 0x83)) {
+            UW cp = ((p[0] & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F);
+            if (cp >= 0x30A1 && cp <= 0x30F6) {
+                UW hira_cp = cp - 0x60; /* Shift to Hiragana block U+3041..U+3096 */
+                out_hiragana[out_idx++] = (char)(0xE0 | ((hira_cp >> 12) & 0x0F));
+                out_hiragana[out_idx++] = (char)(0x80 | ((hira_cp >> 6) & 0x3F));
+                out_hiragana[out_idx++] = (char)(0x80 | (hira_cp & 0x3F));
+                p += 3;
+                continue;
+            }
+        }
+        out_hiragana[out_idx++] = *p++;
+    }
+    out_hiragana[out_idx] = '\0';
+    return out_idx;
+}
+
+/* Transliterate Hiragana/Katakana UTF-8 to Halfwidth Katakana (F8 key) */
+int mozc_hiragana_to_halfwidth_katakana(const char *hiragana, char *out_hkana, int max_len) {
+    if (!hiragana || !out_hkana || max_len <= 0) return 0;
+    out_hkana[0] = '\0';
+
+    char kata_buf[256];
+    mozc_hiragana_to_katakana(hiragana, kata_buf, sizeof(kata_buf));
+
+    const unsigned char *p = (const unsigned char *)kata_buf;
+    int out_idx = 0;
+
+    while (*p && out_idx < max_len - 6) {
+        if (p[0] == 0xE3) {
+            UW cp = ((p[0] & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F);
+            p += 3;
+
+            /* Map Katakana codepoints to Halfwidth Katakana UTF-8 bytes */
+            const char *hk = NULL;
+            switch (cp) {
+                case 0x30A1: hk = "\xEF\xBD\xA7"; break; /* ｧ */
+                case 0x30A2: hk = "\xEF\xBD\xB1"; break; /* ｱ */
+                case 0x30A3: hk = "\xEF\xBD\xA8"; break; /* ｨ */
+                case 0x30A4: hk = "\xEF\xBD\xB2"; break; /* ｲ */
+                case 0x30A5: hk = "\xEF\xBD\xA9"; break; /* ｩ */
+                case 0x30A6: hk = "\xEF\xBD\xB3"; break; /* ｳ */
+                case 0x30A7: hk = "\xEF\xBD\xAA"; break; /* ｴ */
+                case 0x30A8: hk = "\xEF\xBD\xB4"; break; /* ｴ */
+                case 0x30A9: hk = "\xEF\xBD\xAB"; break; /* ｫ */
+                case 0x30AA: hk = "\xEF\xBD\xB5"; break; /* ｵ */
+                case 0x30AB: hk = "\xEF\xBD\xB6"; break; /* ｶ */
+                case 0x30AC: hk = "\xEF\xBD\xB6\xEF\xBE\x9E"; break; /* ｶﾞ */
+                case 0x30AD: hk = "\xEF\xBD\xB7"; break; /* ｷ */
+                case 0x30AE: hk = "\xEF\xBD\xB7\xEF\xBE\x9E"; break; /* ｷﾞ */
+                case 0x30AF: hk = "\xEF\xBD\xB8"; break; /* ｸ */
+                case 0x30B0: hk = "\xEF\xBD\xB8\xEF\xBE\x9E"; break; /* ｸﾞ */
+                case 0x30B1: hk = "\xEF\xBD\xB9"; break; /* ｹ */
+                case 0x30B2: hk = "\xEF\xBD\xB9\xEF\xBE\x9E"; break; /* ｹﾞ */
+                case 0x30B3: hk = "\xEF\xBD\xBA"; break; /* ｺ */
+                case 0x30B4: hk = "\xEF\xBD\xBA\xEF\xBE\x9E"; break; /* ｺﾞ */
+                case 0x30B5: hk = "\xEF\xBD\xBB"; break; /* ｻ */
+                case 0x30B6: hk = "\xEF\xBD\xBB\xEF\xBE\x9E"; break; /* ｻﾞ */
+                case 0x30B7: hk = "\xEF\xBD\xBC"; break; /* ｼ */
+                case 0x30B8: hk = "\xEF\xBD\xBC\xEF\xBE\x9E"; break; /* ｼﾞ */
+                case 0x30B9: hk = "\xEF\xBD\xBD"; break; /* ｽ */
+                case 0x30BA: hk = "\xEF\xBD\xBD\xEF\xBE\x9E"; break; /* ｽﾞ */
+                case 0x30BB: hk = "\xEF\xBD\xBE"; break; /* ｾ */
+                case 0x30BC: hk = "\xEF\xBD\xBE\xEF\xBE\x9E"; break; /* ｾﾞ */
+                case 0x30BD: hk = "\xEF\xBD\xBF"; break; /* ｿ */
+                case 0x30BE: hk = "\xEF\xBD\xBF\xEF\xBE\x9E"; break; /* ｿﾞ */
+                case 0x30BF: hk = "\xEF\xBE\x80"; break; /* ﾀ */
+                case 0x30C0: hk = "\xEF\xBE\x80\xEF\xBE\x9E"; break; /* ﾀﾞ */
+                case 0x30C1: hk = "\xEF\xBE\x81"; break; /* ﾁ */
+                case 0x30C2: hk = "\xEF\xBE\x81\xEF\xBE\x9E"; break; /* ﾁﾞ */
+                case 0x30C3: hk = "\xEF\xBD\xAF"; break; /* ｯ */
+                case 0x30C4: hk = "\xEF\xBE\x82"; break; /* ﾂ */
+                case 0x30C5: hk = "\xEF\xBE\x82\xEF\xBE\x9E"; break; /* ﾂﾞ */
+                case 0x30C6: hk = "\xEF\xBE\x83"; break; /* ﾃ */
+                case 0x30C7: hk = "\xEF\xBE\x83\xEF\xBE\x9E"; break; /* ﾃﾞ */
+                case 0x30C8: hk = "\xEF\xBE\x84"; break; /* ﾄ */
+                case 0x30C9: hk = "\xEF\xBE\x84\xEF\xBE\x9E"; break; /* ﾄﾞ */
+                case 0x30CA: hk = "\xEF\xBE\x85"; break; /* ﾅ */
+                case 0x30CB: hk = "\xEF\xBE\x86"; break; /* ﾆ */
+                case 0x30CC: hk = "\xEF\xBE\x87"; break; /* ﾇ */
+                case 0x30CD: hk = "\xEF\xBE\x88"; break; /* ﾈ */
+                case 0x30CE: hk = "\xEF\xBE\x89"; break; /* ﾉ */
+                case 0x30CF: hk = "\xEF\xBE\x8A"; break; /* ﾊ */
+                case 0x30D0: hk = "\xEF\xBE\x8A\xEF\xBE\x9E"; break; /* ﾊﾞ */
+                case 0x30D1: hk = "\xEF\xBE\x8A\xEF\xBE\x9F"; break; /* ﾊﾟ */
+                case 0x30D2: hk = "\xEF\xBE\x8B"; break; /* ﾋ */
+                case 0x30D3: hk = "\xEF\xBE\x8B\xEF\xBE\x9E"; break; /* ﾋﾞ */
+                case 0x30D4: hk = "\xEF\xBE\x8B\xEF\xBE\x9F"; break; /* ﾋﾟ */
+                case 0x30D5: hk = "\xEF\xBE\x8C"; break; /* ﾌ */
+                case 0x30D6: hk = "\xEF\xBE\x8C\xEF\xBE\x9E"; break; /* ﾌﾞ */
+                case 0x30D7: hk = "\xEF\xBE\x8C\xEF\xBE\x9F"; break; /* ﾌﾟ */
+                case 0x30D8: hk = "\xEF\xBE\x8D"; break; /* ﾍ */
+                case 0x30D9: hk = "\xEF\xBE\x8D\xEF\xBE\x9E"; break; /* ﾍﾞ */
+                case 0x30DA: hk = "\xEF\xBE\x8D\xEF\xBE\x9F"; break; /* ﾍﾟ */
+                case 0x30DB: hk = "\xEF\xBE\x8E"; break; /* ﾎ */
+                case 0x30DC: hk = "\xEF\xBE\x8E\xEF\xBE\x9E"; break; /* ﾎﾞ */
+                case 0x30DD: hk = "\xEF\xBE\x8E\xEF\xBE\x9F"; break; /* ﾎﾟ */
+                case 0x30DE: hk = "\xEF\xBE\x8F"; break; /* ﾏ */
+                case 0x30DF: hk = "\xEF\xBE\x90"; break; /* ﾐ */
+                case 0x30E0: hk = "\xEF\xBE\x91"; break; /* ﾑ */
+                case 0x30E1: hk = "\xEF\xBE\x92"; break; /* ﾒ */
+                case 0x30E2: hk = "\xEF\xBE\x93"; break; /* ﾓ */
+                case 0x30E3: hk = "\xEF\xBD\xAC"; break; /* ｬ */
+                case 0x30E4: hk = "\xEF\xBE\x94"; break; /* ﾔ */
+                case 0x30E5: hk = "\xEF\xBD\xAD"; break; /* ｭ */
+                case 0x30E6: hk = "\xEF\xBE\x95"; break; /* ﾕ */
+                case 0x30E7: hk = "\xEF\xBD\xAE"; break; /* ｮ */
+                case 0x30E8: hk = "\xEF\xBE\x96"; break; /* ﾖ */
+                case 0x30E9: hk = "\xEF\xBE\x97"; break; /* ﾗ */
+                case 0x30EA: hk = "\xEF\xBE\x98"; break; /* ﾘ */
+                case 0x30EB: hk = "\xEF\xBE\x99"; break; /* ﾙ */
+                case 0x30EC: hk = "\xEF\xBE\x9A"; break; /* ﾚ */
+                case 0x30ED: hk = "\xEF\xBE\x9B"; break; /* ﾛ */
+                case 0x30EF: hk = "\xEF\xBE\x9C"; break; /* ﾜ */
+                case 0x30F2: hk = "\xEF\xBD\xA6"; break; /* ｦ */
+                case 0x30F3: hk = "\xEF\xBE\x9D"; break; /* ﾝ */
+                case 0x30FC: hk = "\xEF\xBD\xB0"; break; /* ｰ */
+                default: break;
+            }
+            if (hk) {
+                int hlen = (int)strlen(hk);
+                if (out_idx + hlen < max_len) {
+                    memcpy(&out_hkana[out_idx], hk, hlen);
+                    out_idx += hlen;
+                }
+                continue;
+            }
+        }
+        out_hkana[out_idx++] = *p++;
+    }
+    out_hkana[out_idx] = '\0';
+    return out_idx;
+}
+
+/* Transliterate Alphanumeric/ASCII to Fullwidth Alphanumeric (F9 key) */
+int mozc_alphanumeric_to_fullwidth(const char *ascii, char *out_fullwidth, int max_len) {
+    if (!ascii || !out_fullwidth || max_len <= 0) return 0;
+    out_fullwidth[0] = '\0';
+
+    const unsigned char *p = (const unsigned char *)ascii;
+    int out_idx = 0;
+
+    while (*p && out_idx < max_len - 4) {
+        unsigned char c = *p++;
+        if (c == ' ') {
+            /* Fullwidth ideographic space U+3000 */
+            out_fullwidth[out_idx++] = (char)0xE3;
+            out_fullwidth[out_idx++] = (char)0x80;
+            out_fullwidth[out_idx++] = (char)0x80;
+        } else if (c >= 0x21 && c <= 0x7E) {
+            UW full_cp = 0xFF01 + (c - 0x21); /* U+FF01..U+FF5E */
+            out_fullwidth[out_idx++] = (char)(0xE0 | ((full_cp >> 12) & 0x0F));
+            out_fullwidth[out_idx++] = (char)(0x80 | ((full_cp >> 6) & 0x3F));
+            out_fullwidth[out_idx++] = (char)(0x80 | (full_cp & 0x3F));
+        } else {
+            out_fullwidth[out_idx++] = (char)c;
+        }
+    }
+    out_fullwidth[out_idx] = '\0';
     return out_idx;
 }
 
@@ -420,76 +591,128 @@ int mozc_get_candidates(const char *bunsetsu_reading, TIP_CANDIDATE *candidates,
 }
 
 /*
- * Morphological Bunsetsu Segmentation & Viterbi Lattice Search
- * Minimizes Cost(C) = sum [ Cost(c_i) + TransCost(c_{i-1}, c_i) ]
+ * Morphological Bunsetsu Segmentation & True Viterbi Lattice Search
+ * Minimizes Cost(Path) = sum [ WordCost(w_i) + TransCost(POS_{i-1} -> POS_i) ]
  */
+typedef struct {
+    int cost;
+    int prev_pos;
+    MOZC_POS pos;
+} ViterbiLatticeDP;
+
 ER mozc_lattice_search(const char *reading_utf8, TIP_CLAUSE *clauses, int *num_clauses, int max_clauses) {
     if (!reading_utf8 || !clauses || !num_clauses || max_clauses <= 0) return E_PAR;
 
     *num_clauses = 0;
     if (reading_utf8[0] == '\0') return E_OK;
 
-    /*
-     * Viterbi Dynamic Programming over UTF-8 characters:
-     * We segment the reading string into optimal words.
-     */
     int r_len = (int)strlen(reading_utf8);
-    int cur_pos = 0;
-    MOZC_POS prev_pos = POS_BOS;
+    if (r_len > 256) r_len = 256;
 
-    while (cur_pos < r_len && *num_clauses < max_clauses) {
-        /* Find best matching word prefix */
-        int best_match_len = 0;
-        MOZC_POS best_pos = POS_NOUN;
-        int lowest_cost = 999999;
+    ViterbiLatticeDP dp[256 + 1];
+    for (int i = 0; i <= r_len; i++) {
+        dp[i].cost = 9999999;
+        dp[i].prev_pos = -1;
+        dp[i].pos = POS_BOS;
+    }
+    dp[0].cost = 0;
+    dp[0].pos = POS_BOS;
 
-        /* Check user dictionary */
-        for (int i = 0; i < g_num_user_entries; i++) {
-            int wlen = (int)strlen(g_user_dictionary[i].reading);
-            if (cur_pos + wlen <= r_len &&
-                strncmp(&reading_utf8[cur_pos], g_user_dictionary[i].reading, wlen) == 0) {
-                int cost = g_user_dictionary[i].unigram_cost + get_transition_cost(prev_pos, g_user_dictionary[i].pos);
-                if (wlen > best_match_len || (wlen == best_match_len && cost < lowest_cost)) {
-                    best_match_len = wlen;
-                    lowest_cost = cost;
-                    best_pos = g_user_dictionary[i].pos;
+    /* Forward Viterbi DP over byte positions */
+    for (int i = 0; i < r_len; i++) {
+        if (dp[i].cost >= 9999999) continue;
+
+        BOOL has_dict_match = FALSE;
+
+        /* Scan user dictionary matches at position i */
+        for (int u = 0; u < g_num_user_entries; u++) {
+            int wlen = (int)strlen(g_user_dictionary[u].reading);
+            if (i + wlen <= r_len &&
+                strncmp(&reading_utf8[i], g_user_dictionary[u].reading, wlen) == 0) {
+                int trans_cost = get_transition_cost(dp[i].pos, g_user_dictionary[u].pos);
+                int total_cost = dp[i].cost + g_user_dictionary[u].unigram_cost + trans_cost;
+                if (total_cost < dp[i + wlen].cost) {
+                    dp[i + wlen].cost = total_cost;
+                    dp[i + wlen].prev_pos = i;
+                    dp[i + wlen].pos = g_user_dictionary[u].pos;
                 }
+                has_dict_match = TRUE;
             }
         }
 
-        /* Check system dictionary */
-        for (int i = 0; g_system_dictionary[i].reading != NULL; i++) {
-            int wlen = (int)strlen(g_system_dictionary[i].reading);
-            if (cur_pos + wlen <= r_len &&
-                strncmp(&reading_utf8[cur_pos], g_system_dictionary[i].reading, wlen) == 0) {
-                int cost = g_system_dictionary[i].cost + get_transition_cost(prev_pos, g_system_dictionary[i].pos);
-                /* Preference for longer matches with lower cost */
-                if (wlen > best_match_len || (wlen == best_match_len && cost < lowest_cost)) {
-                    best_match_len = wlen;
-                    lowest_cost = cost;
-                    best_pos = g_system_dictionary[i].pos;
+        /* Scan system dictionary matches at position i */
+        for (int s = 0; g_system_dictionary[s].reading != NULL; s++) {
+            int wlen = (int)strlen(g_system_dictionary[s].reading);
+            if (i + wlen <= r_len &&
+                strncmp(&reading_utf8[i], g_system_dictionary[s].reading, wlen) == 0) {
+                int trans_cost = get_transition_cost(dp[i].pos, g_system_dictionary[s].pos);
+                int total_cost = dp[i].cost + g_system_dictionary[s].cost + trans_cost;
+                if (total_cost < dp[i + wlen].cost) {
+                    dp[i + wlen].cost = total_cost;
+                    dp[i + wlen].prev_pos = i;
+                    dp[i + wlen].pos = g_system_dictionary[s].pos;
                 }
+                has_dict_match = TRUE;
             }
         }
 
-        /* If no dictionary match found, consume 1 UTF-8 character (up to 3 bytes) */
-        if (best_match_len == 0) {
-            unsigned char c = (unsigned char)reading_utf8[cur_pos];
-            if ((c & 0x80) == 0) best_match_len = 1;
-            else if ((c & 0xE0) == 0xC0) best_match_len = 2;
-            else if ((c & 0xF0) == 0xE0) best_match_len = 3;
-            else if ((c & 0xF8) == 0xF0) best_match_len = 4;
-            else best_match_len = 1;
-        }
+        /* Fallback single UTF-8 character transition */
+        int step = 1;
+        unsigned char c = (unsigned char)reading_utf8[i];
+        if ((c & 0x80) == 0) step = 1;
+        else if ((c & 0xE0) == 0xC0) step = 2;
+        else if ((c & 0xF0) == 0xE0) step = 3;
+        else if ((c & 0xF8) == 0xF0) step = 4;
 
-        TIP_CLAUSE *clause = &clauses[*num_clauses];
+        if (i + step <= r_len) {
+            int trans_cost = get_transition_cost(dp[i].pos, POS_NOUN);
+            int fallback_cost = dp[i].cost + (has_dict_match ? 3500 : 2000) + trans_cost;
+            if (fallback_cost < dp[i + step].cost) {
+                dp[i + step].cost = fallback_cost;
+                dp[i + step].prev_pos = i;
+                dp[i + step].pos = POS_NOUN;
+            }
+        }
+    }
+
+    if (dp[r_len].prev_pos == -1) {
+        /* Fallback: single clause for entire reading */
+        TIP_CLAUSE *c = &clauses[0];
+        memset(c, 0, sizeof(TIP_CLAUSE));
+        strncpy(c->reading, reading_utf8, TIP_MAX_STR_LEN - 1);
+        c->num_candidates = mozc_get_candidates(c->reading, c->candidates, TIP_MAX_CANDIDATES);
+        c->selected_candidate = 0;
+        if (c->num_candidates > 0) strncpy(c->converted, c->candidates[0].value, TIP_MAX_STR_LEN - 1);
+        else strncpy(c->converted, c->reading, TIP_MAX_STR_LEN - 1);
+        *num_clauses = 1;
+        return E_OK;
+    }
+
+    /* Backtrace optimal Viterbi path from r_len to 0 */
+    int bounds[TIP_MAX_CLAUSES + 1];
+    int num_bounds = 0;
+    int curr = r_len;
+
+    while (curr > 0 && num_bounds < TIP_MAX_CLAUSES) {
+        bounds[num_bounds++] = curr;
+        curr = dp[curr].prev_pos;
+    }
+    bounds[num_bounds++] = 0;
+
+    /* Populate clauses in forward order */
+    int clause_count = 0;
+    for (int k = num_bounds - 1; k > 0 && clause_count < max_clauses; k--) {
+        int start = bounds[k];
+        int end = bounds[k - 1];
+        int clen = end - start;
+
+        TIP_CLAUSE *clause = &clauses[clause_count];
         memset(clause, 0, sizeof(TIP_CLAUSE));
 
-        int copy_len = best_match_len < TIP_MAX_STR_LEN - 1 ? best_match_len : TIP_MAX_STR_LEN - 1;
-        memcpy(clause->reading, &reading_utf8[cur_pos], copy_len);
-        clause->reading[copy_len] = '\0';
+        if (clen >= TIP_MAX_STR_LEN) clen = TIP_MAX_STR_LEN - 1;
+        memcpy(clause->reading, &reading_utf8[start], clen);
+        clause->reading[clen] = '\0';
 
-        /* Populate candidate list for this clause */
         clause->num_candidates = mozc_get_candidates(clause->reading, clause->candidates, TIP_MAX_CANDIDATES);
         clause->selected_candidate = 0;
         if (clause->num_candidates > 0) {
@@ -497,11 +720,9 @@ ER mozc_lattice_search(const char *reading_utf8, TIP_CLAUSE *clauses, int *num_c
         } else {
             strncpy(clause->converted, clause->reading, TIP_MAX_STR_LEN - 1);
         }
-
-        (*num_clauses)++;
-        cur_pos += best_match_len;
-        prev_pos = best_pos;
+        clause_count++;
     }
 
+    *num_clauses = clause_count;
     return E_OK;
 }

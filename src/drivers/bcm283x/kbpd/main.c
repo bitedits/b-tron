@@ -23,7 +23,7 @@
 #include "kbpd.h"
 
 /* Get "DEVCONF" entry */
-IMPORT W GetDevConf ( UB *name, W *val );
+IMPORT INT GetDevConf ( CONST UB *name, INT *val );
 
 /*
  * manager information

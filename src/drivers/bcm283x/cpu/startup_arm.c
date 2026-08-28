@@ -62,9 +62,20 @@ void uart_init(void) {
     pl011[PL011_CR] = (1u << 0) | (1u << 8) | (1u << 9);
 }
 
-static void uart_putc(char c) {
+#define PL011_FR_RXFE (1u << 4) /* Receive FIFO empty */
+
+void uart_putc(char c) {
     while (pl011[PL011_FR] & PL011_FR_TXFF) {}
     pl011[PL011_DR] = (uint32_t)(unsigned char)c;
+}
+
+int uart_has_char(void) {
+    return (pl011[PL011_FR] & PL011_FR_RXFE) == 0;
+}
+
+int uart_getc(void) {
+    while (pl011[PL011_FR] & PL011_FR_RXFE) {}
+    return (int)(pl011[PL011_DR] & 0xFF);
 }
 
 void uart_puts(const char *s) {
@@ -146,6 +157,29 @@ void* tkl_memset(void *s, int c, size_t n) {
 void* memcpy(void *dst, const void *src, size_t n) { return tkl_memcpy(dst, src, n); }
 void* memset(void *s, int c, size_t n) { return tkl_memset(s, c, n); }
 
+void* tkl_memmove(void *dest, const void *src, size_t n) {
+    unsigned char *d = (unsigned char *)dest;
+    const unsigned char *s = (const unsigned char *)src;
+    if (d < s) {
+        for (size_t i = 0; i < n; i++) d[i] = s[i];
+    } else if (d > s) {
+        for (size_t i = n; i > 0; i--) d[i - 1] = s[i - 1];
+    }
+    return dest;
+}
+
+void* memmove(void *dest, const void *src, size_t n) { return tkl_memmove(dest, src, n); }
+
+void __aeabi_memset(void *dest, size_t n, int c) { tkl_memset(dest, c, n); }
+void __aeabi_memset4(void *dest, size_t n, int c) { tkl_memset(dest, c, n); }
+void __aeabi_memset8(void *dest, size_t n, int c) { tkl_memset(dest, c, n); }
+void __aeabi_memclr(void *dest, size_t n) { tkl_memset(dest, 0, n); }
+void __aeabi_memclr4(void *dest, size_t n) { tkl_memset(dest, 0, n); }
+void __aeabi_memclr8(void *dest, size_t n) { tkl_memset(dest, 0, n); }
+void __aeabi_memcpy(void *dest, const void *src, size_t n) { tkl_memcpy(dest, src, n); }
+void __aeabi_memcpy4(void *dest, const void *src, size_t n) { tkl_memcpy(dest, src, n); }
+void __aeabi_memcpy8(void *dest, const void *src, size_t n) { tkl_memcpy(dest, src, n); }
+
 void* Imalloc(size_t sz) {
     if (heap_ptr == 0) heap_ptr = HEAP_BASE;
     uintptr_t aligned = (heap_ptr + 15) & ~(uintptr_t)15;
@@ -188,6 +222,28 @@ char* tkl_strncat(char *dst, const char *src, size_t n) {
     return dst;
 }
 
+char* tkl_strcat(char *dst, const char *src) {
+    size_t dlen = 0;
+    while (dst[dlen] != '\0') dlen++;
+    size_t i = 0;
+    while (src[i] != '\0') {
+        dst[dlen + i] = src[i];
+        i++;
+    }
+    dst[dlen + i] = '\0';
+    return dst;
+}
+
+char* tkl_strcpy(char *dst, const char *src) {
+    size_t i = 0;
+    while (src[i] != '\0') {
+        dst[i] = src[i];
+        i++;
+    }
+    dst[i] = '\0';
+    return dst;
+}
+
 size_t tkl_strlen(const char *s) {
     size_t len = 0;
     while (s && s[len]) len++;
@@ -211,6 +267,88 @@ int tkl_memcmp(const void *s1, const void *s2, size_t n) {
         p2++;
     }
     return 0;
+}
+
+#include <stdarg.h>
+
+int tkl_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
+    if (!str || size == 0) return 0;
+    size_t idx = 0;
+    const char *p = format;
+    while (*p && idx + 1 < size) {
+        if (*p != '%') {
+            str[idx++] = *p++;
+            continue;
+        }
+        p++; /* skip '%' */
+        int width = 0;
+        while (*p >= '0' && *p <= '9') {
+            width = width * 10 + (*p - '0');
+            p++;
+        }
+        if (*p == 's') {
+            const char *s = va_arg(ap, const char*);
+            if (!s) s = "(null)";
+            while (*s && idx + 1 < size) {
+                str[idx++] = *s++;
+            }
+            p++;
+        } else if (*p == 'd' || *p == 'u' || *p == 'x' || *p == 'X') {
+            char type = *p++;
+            int val = va_arg(ap, int);
+            char num_buf[32];
+            int n_idx = 0;
+            if (type == 'd' && val < 0) {
+                if (idx + 1 < size) str[idx++] = '-';
+                val = -val;
+            }
+            unsigned int uval = (unsigned int)val;
+            unsigned int base = (type == 'x' || type == 'X') ? 16 : 10;
+            if (uval == 0) {
+                num_buf[n_idx++] = '0';
+            } else {
+                while (uval > 0 && n_idx < 30) {
+                    int digit = uval % base;
+                    num_buf[n_idx++] = (digit < 10) ? ('0' + digit) : ((type == 'X' ? 'A' : 'a') + (digit - 10));
+                    uval /= base;
+                }
+            }
+            while (n_idx < width && idx + 1 < size) {
+                str[idx++] = ' ';
+                width--;
+            }
+            for (int i = n_idx - 1; i >= 0 && idx + 1 < size; i--) {
+                str[idx++] = num_buf[i];
+            }
+        } else if (*p == 'c') {
+            int ch = va_arg(ap, int);
+            if (idx + 1 < size) str[idx++] = (char)ch;
+            p++;
+        } else if (*p == '%') {
+            if (idx + 1 < size) str[idx++] = '%';
+            p++;
+        } else {
+            if (idx + 1 < size) str[idx++] = *p++;
+        }
+    }
+    str[idx] = '\0';
+    return (int)idx;
+}
+
+int tkl_snprintf(char *str, size_t size, const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    int ret = tkl_vsnprintf(str, size, format, ap);
+    va_end(ap);
+    return ret;
+}
+
+int snprintf(char *str, size_t size, const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    int ret = tkl_vsnprintf(str, size, format, ap);
+    va_end(ap);
+    return ret;
 }
 
 /* Bit manipulation primitives for T-Kernel scheduler */
@@ -281,6 +419,16 @@ int GetSysConf(const uint8_t *name, int *val) { (void)name; if (val) val[0] = 0;
 int SDefDevice(const void *ddev, void *idev, void **sdi) {
     (void)ddev; (void)idev;
     if (sdi) *sdi = (void*)1;
+    return 0;
+}
+
+int KbPdDrv(int ac, unsigned char *av[]) {
+    (void)ac; (void)av;
+    return 0;
+}
+
+int LowKbPdDrv(int ac, unsigned char *av[]) {
+    (void)ac; (void)av;
     return 0;
 }
 

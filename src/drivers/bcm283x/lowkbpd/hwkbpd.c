@@ -23,7 +23,7 @@
 #include <device/em1d512_iic.h>
 
 /* Get "DEVCONF" entry */
-IMPORT	W	GetDevConf(UB *name, W *val);
+IMPORT	INT	GetDevConf(CONST UB *name, INT *val);
 
 LOCAL	ID	FlgID;			/* flag for event notification */
 

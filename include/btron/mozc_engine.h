@@ -67,9 +67,12 @@ typedef struct MozcLatticeNode {
 ER mozc_engine_init(void);
 ER mozc_engine_cleanup(void);
 
-/* Transliteration: Romaji -> Hiragana / Katakana */
+/* Transliteration: Romaji -> Hiragana / Katakana / Halfwidth / Fullwidth */
 int mozc_romaji_to_hiragana(const char *romaji, char *out_hiragana, int max_len);
 int mozc_hiragana_to_katakana(const char *hiragana, char *out_katakana, int max_len);
+int mozc_katakana_to_hiragana(const char *katakana, char *out_hiragana, int max_len);
+int mozc_hiragana_to_halfwidth_katakana(const char *hiragana, char *out_hkana, int max_len);
+int mozc_alphanumeric_to_fullwidth(const char *ascii, char *out_fullwidth, int max_len);
 
 /* Morphological Bunsetsu Segmentation & Viterbi Lattice Search */
 ER mozc_lattice_search(const char *reading_utf8, TIP_CLAUSE *clauses, int *num_clauses, int max_clauses);

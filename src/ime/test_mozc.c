@@ -370,6 +370,78 @@ static void test_rendering_integrity(void) {
     TEST_ASSERT(underline_pixels_2 >= 40, "Explicit drw_tc_string_underlined draws underline properly");
 }
 
+/* ── Test 11: Extended Functional Key Transliterations (F6-F9) ── */
+static void test_extended_transliterations(void) {
+    printf("\n[TEST GROUP 11] Extended Functional Key Transliterations (F6, F7, F8, F9)\n");
+
+    char out[128];
+
+    /* F6: Katakana to Hiragana */
+    mozc_katakana_to_hiragana("ナカノデス", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "なかのです") == 0, "F6 Katakana->Hiragana: 'ナカノデス' -> 'なかのです'");
+
+    /* F7: Hiragana to Fullwidth Katakana */
+    mozc_hiragana_to_katakana("なかのです", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ナカノデス") == 0, "F7 Hiragana->Fullwidth Katakana: 'なかのです' -> 'ナカノデス'");
+
+    /* F8: Hiragana to Halfwidth Katakana */
+    mozc_hiragana_to_halfwidth_katakana("なかのです", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ﾅｶﾉﾃﾞｽ") == 0, "F8 Hiragana->Halfwidth Katakana: 'なかのです' -> 'ﾅｶﾉﾃﾞｽ'");
+
+    /* F8 with voiced and sokuon */
+    mozc_hiragana_to_halfwidth_katakana("がっこう", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ｶﾞｯｺｳ") == 0, "F8 Halfwidth with voiced/sokuon: 'がっこう' -> 'ｶﾞｯｺｳ'");
+
+    /* F9: ASCII to Fullwidth Alphanumeric */
+    mozc_alphanumeric_to_fullwidth("BTRON 3.20", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ＢＴＲＯＮ　３．２０") == 0, "F9 Fullwidth Alphanumeric: 'BTRON 3.20' -> 'ＢＴＲＯＮ　３．２０'");
+}
+
+/* ── Test 12: BTRON3 SPEC 3.20 Section 3.7 Syscall Port API ── */
+static void test_btron3_syscall_port_api(void) {
+    printf("\n[TEST GROUP 12] BTRON3 SPEC 3.20 Section 3.7 Syscall Port API\n");
+
+    /* 1. Open TIP Port */
+    ID tipid = iopn_tip(NULL);
+    TEST_ASSERT(tipid > 0, "iopn_tip returns valid positive port descriptor");
+
+    /* 2. Change Mode */
+    ER er = ichg_mod(tipid, (W)TIP_MODE_HIRAGANA);
+    TEST_ASSERT(er == E_OK, "ichg_mod set mode to TIP_MODE_HIRAGANA");
+
+    /* 3. Feed input keystrokes via iput_key */
+    tip_set_mode(TIP_MODE_HIRAGANA);
+    tip_cancel();
+
+    char out_buf[128] = "";
+    char cnv_buf[128] = "";
+    TIPREC rec;
+    memset(&rec, 0, sizeof(TIPREC));
+    rec.out_str = out_buf;
+    rec.out_len = sizeof(out_buf);
+    rec.cnv_str = cnv_buf;
+    rec.cnv_len = sizeof(cnv_buf);
+
+    W handled = iput_key(tipid, 'k', 0, &rec);
+    TEST_ASSERT(handled == 1, "iput_key handled 'k'");
+    TEST_ASSERT((rec.result & TIP_CNV) != 0, "iput_key updated composition (TIP_CNV)");
+    TEST_ASSERT(rec.car_pos > 0, "iput_key updated caret position (TIP_CAR)");
+
+    handled = iput_key(tipid, 'a', 0, &rec);
+    TEST_ASSERT(handled == 1, "iput_key handled 'a'");
+    TEST_ASSERT(strcmp(cnv_buf, "か") == 0, "Composition contains 'か'");
+
+    /* 4. Confirm with Return */
+    handled = iput_key(tipid, '\r', 0, &rec);
+    TEST_ASSERT(handled == 1, "iput_key handled Return key");
+    TEST_ASSERT((rec.result & TIP_OUT) != 0, "iput_key signaled output committed (TIP_OUT)");
+    TEST_ASSERT(strcmp(out_buf, "か") == 0, "Committed string is 'か'");
+
+    /* 5. Close TIP Port */
+    er = icls_tip(tipid);
+    TEST_ASSERT(er == E_OK, "icls_tip cleanly released port descriptor");
+}
+
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -389,6 +461,8 @@ int main(int argc, char **argv) {
     test_caret_pixel_layout();
     test_multibyte_editing_safety();
     test_rendering_integrity();
+    test_extended_transliterations();
+    test_btron3_syscall_port_api();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

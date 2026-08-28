@@ -62,6 +62,21 @@ typedef struct {
 #define BTRON_KEY_F11     0x40000044
 #define BTRON_KEY_F12     0x40000045
 
+/* Standard Navigation & Editing Keys */
+#define BTRON_KEY_BACKSPACE 8
+#define BTRON_KEY_TAB       9
+#define BTRON_KEY_RETURN    13
+#define BTRON_KEY_ESCAPE    27
+#define BTRON_KEY_SPACE     32
+#define BTRON_KEY_DELETE    127
+#define BTRON_KEY_RIGHT     0x4000004F
+#define BTRON_KEY_LEFT      0x40000050
+#define BTRON_KEY_DOWN      0x40000051
+#define BTRON_KEY_UP        0x40000052
+#define BTRON_KEY_HOME      0x4000004A
+#define BTRON_KEY_END       0x4000004D
+#define BTRON_KEY_KP_ENTER  0x40000058
+
 ER init_evt_sys(void);
 ER get_evt(EVT *p_evt, W timeout_ms);
 ER snd_evt(const EVT *p_evt);

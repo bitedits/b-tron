@@ -101,6 +101,26 @@ void tip_set_caret_pos(H x, H y);
 H tip_get_caret_x(void);
 H tip_get_caret_y(void);
 
+/* ── BTRON3 SPEC 3.20 Section 3.7 TIP Port API Compatibility Layer ── */
+#define TIP_OUT 0x0001 /* Committed characters output */
+#define TIP_CNV 0x0002 /* Converted preedit modified */
+#define TIP_CAR 0x0004 /* Caret position changed */
+#define TIP_CL  0x0008 /* Candidate list changed */
+
+typedef struct {
+    UW result;      /* Result flags: TIP_OUT, TIP_CNV, TIP_CAR, TIP_CL */
+    char *out_str;  /* Buffer for committed string */
+    int  out_len;   /* Length of committed string */
+    char *cnv_str;  /* Buffer for active composition string */
+    int  cnv_len;   /* Length of active composition string */
+    int  car_pos;   /* Caret offset in composition string */
+} TIPREC;
+
+ID iopn_tip(WND *wnd);
+ER icls_tip(ID tipid);
+ER ichg_mod(ID tipid, W mode);
+W  iput_key(ID tipid, UW key, UW mod, TIPREC *rec);
+
 #ifdef __cplusplus
 }
 #endif

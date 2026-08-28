@@ -19,6 +19,7 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
+QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 
 # ARM32: Cortex-A7 for Pi 2B (BCM2836)
@@ -42,16 +43,16 @@ ifeq ($(UNAME_S), Darwin)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/local/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") \
                     -lpthread -framework ApplicationServices -framework Cocoa
-    QEMU_DISPLAY := -display cocoa
+    QEMU_DISPLAY := -display cocoa,show-cursor=on
 else ifeq ($(UNAME_S), Linux)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || pkg-config --cflags sdl2 2>/dev/null || echo "-I/usr/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") \
                     -lm -lpthread
-    QEMU_DISPLAY := -display default
+    QEMU_DISPLAY := -display default,show-cursor=on
 else
     SDL_CFLAGS   := -I/usr/include/SDL2
     SDL_LIBS     := -lSDL2 -lgdi32 -lpthread
-    QEMU_DISPLAY := -display default
+    QEMU_DISPLAY := -display default,show-cursor=on
 endif
 
 # ── Text Input Primitives (TIP) / Mozc IME sources ────────────────
@@ -103,7 +104,8 @@ ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
                 src/drivers/bcm283x/screen/em1d512.c \
                 src/drivers/bcm283x/screen/conf.c    \
                 src/drivers/bcm283x/screen/common.c  \
-                src/drivers/bcm283x/screen/main.c
+                src/drivers/bcm283x/screen/main.c    \
+                src/drivers/bcm283x/usb/dwc2.c
 
 TKERNEL_SAKAMURA_SRCS = \
     src/kernel/task.c         \
@@ -143,6 +145,9 @@ COMMON_NO_SDL_SRCS = \
     src/window/event.c     \
     src/vobject/vobj.c     \
     src/desktop/desktop.c  \
+    src/apps/vobj_manager.c \
+    src/apps/t_editor.c    \
+    src/apps/gterm.c       \
     $(IME_SRCS)
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
@@ -298,23 +303,26 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 # ═══════════════════════════════════════════════════════════════════
 # QEMU Pi 2B — run-tkernel / test-tkernel
 #
-# qemu-system-aarch64 -M raspi2b emulates the Raspberry Pi 2B
-# (BCM2836, Cortex-A7, ARMv7 32-bit) and runs the ARM32 ELF.
-# No qemu-system-arm is needed.
+# Runs B-TRON on Raspberry Pi 2B (BCM2836, Cortex-A7, ARMv7 32-bit).
+# Supports both qemu-system-arm and qemu-system-aarch64.
 # ═══════════════════════════════════════════════════════════════════
 run-tkernel: arm-elf
 	@echo "=========================================================="
 	@echo " Launching T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
 	@echo " ELF     : $(ARM32_TARGET)"
-	@echo " Devices : USB Mouse / Tablet & VideoCore GPU Display"
+	@echo " Devices : USB Keyboard, USB Mouse & VideoCore GPU Display"
 	@echo "=========================================================="
-	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	@if command -v $(QEMU_ARM) >/dev/null 2>&1; then \
+	    $(QEMU_ARM) -M raspi2b -m 1G $(QEMU_DISPLAY) \
+	        -usb -device usb-kbd -device usb-mouse \
+	        -kernel $(ARM32_TARGET) -serial stdio; \
+	elif command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
 	    $(QEMU_AARCH64) -M raspi2b -m 1G $(QEMU_DISPLAY) \
-	        -usb -device usb-tablet \
-	        -kernel $(ARM32_TARGET) -serial mon:stdio -monitor null; \
+	        -usb -device usb-kbd -device usb-mouse \
+	        -kernel $(ARM32_TARGET) -serial stdio; \
 	else \
-	    echo "[ERROR] $(QEMU_AARCH64) not found — install qemu-system-aarch64"; \
+	    echo "[ERROR] QEMU not found — install qemu-system-arm or qemu-system-aarch64"; \
 	    exit 1; \
 	fi
 
@@ -324,11 +332,14 @@ test-tkernel: arm-elf
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
 	@echo " Mode    : headless (-display none), serial output only"
 	@echo "=========================================================="
-	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	@if command -v $(QEMU_ARM) >/dev/null 2>&1; then \
+	    $(QEMU_ARM) -M raspi2b -m 1G -display none \
+	        -kernel $(ARM32_TARGET) -serial stdio; \
+	elif command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
 	    $(QEMU_AARCH64) -M raspi2b -m 1G -display none \
-	        -kernel $(ARM32_TARGET) -serial mon:stdio -monitor null; \
+	        -kernel $(ARM32_TARGET) -serial stdio; \
 	else \
-	    echo "[ERROR] $(QEMU_AARCH64) not found — install qemu-system-aarch64"; \
+	    echo "[ERROR] QEMU not found — install qemu-system-arm or qemu-system-aarch64"; \
 	    exit 1; \
 	fi
 

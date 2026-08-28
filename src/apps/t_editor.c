@@ -14,23 +14,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <SDL.h>
 #else
 #include <stddef.h>
 #include <stdint.h>
+#include <libstr.h>
 extern void* Imalloc(size_t sz);
 extern void Ifree(void *ptr);
 extern void* Icalloc(size_t nmemb, size_t sz);
-extern char* tkl_strncpy(char *dst, const char *src, size_t n);
-extern void* tkl_memset(void *s, int c, size_t n);
-extern void* tkl_memcpy(void *dst, const void *src, size_t n);
-#define malloc Imalloc
-#define free Ifree
-#define calloc Icalloc
+extern int snprintf(char *str, size_t size, const char *format, ...);
+extern void* tkl_memmove(void *dest, const void *src, size_t n);
+#define malloc  Imalloc
+#define free    Ifree
+#define calloc  Icalloc
 #define strncpy tkl_strncpy
-#define memset tkl_memset
-#define memcpy tkl_memcpy
-static inline size_t strlen(const char *s) { size_t n = 0; while (s && s[n]) n++; return n; }
+#define strncat tkl_strncat
+#define memset  tkl_memset
+#define memcpy  tkl_memcpy
+#define memmove tkl_memmove
+#define strlen  tkl_strlen
 #endif
 
 #define TEDITOR_MAX_LINES 500
@@ -215,12 +216,18 @@ static void teditor_paste_clipboard(TEditor *ed) {
     if (strlen(g_clipboard) == 0) return;
     if (ed->sel_active) teditor_delete_selection(ed);
 
-    char *copy = strdup(g_clipboard);
-    if (!copy) return;
-
-    char *line = strtok(copy, "\n");
+    const char *p = g_clipboard;
     BOOL first = TRUE;
-    while (line) {
+    while (*p) {
+        /* Find next line boundary */
+        char line[TEDITOR_MAX_COLS];
+        int line_len = 0;
+        while (*p && *p != '\n' && line_len < TEDITOR_MAX_COLS - 1) {
+            line[line_len++] = *p++;
+        }
+        line[line_len] = '\0';
+        if (*p == '\n') p++;
+
         if (!first) {
             /* Split current line and insert new line */
             if (ed->total_lines < TEDITOR_MAX_LINES - 1) {
@@ -235,7 +242,7 @@ static void teditor_paste_clipboard(TEditor *ed) {
             }
         }
 
-        int insert_len = (int)strlen(line);
+        int insert_len = line_len;
         int cur_len = (int)strlen(ed->lines[ed->cursor_row]);
         if (cur_len + insert_len < TEDITOR_MAX_COLS - 1) {
             memmove(&ed->lines[ed->cursor_row][ed->cursor_col + insert_len],
@@ -246,10 +253,8 @@ static void teditor_paste_clipboard(TEditor *ed) {
         }
 
         first = FALSE;
-        line = strtok(NULL, "\n");
     }
 
-    free(copy);
     ed->is_modified = TRUE;
     teditor_ensure_cursor_visible(ed);
 }
@@ -527,8 +532,8 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
         UW key_code = evt->key;
         uint16_t mod = (uint16_t)(uintptr_t)evt->data;
 
-        BOOL shift = (mod & KMOD_SHIFT) != 0;
-        BOOL ctrl = (mod & KMOD_CTRL) != 0;
+        BOOL shift = (mod & BTRON_KMOD_SHIFT) != 0;
+        BOOL ctrl = (mod & BTRON_KMOD_CTRL) != 0;
 
         /* Check if TIP handles the key event (Japanese IME mode) */
         if (tip_process_key(key_code, mod, commit_buf, sizeof(commit_buf))) {
@@ -538,20 +543,20 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             return;
         }
 
-        SDL_Keycode sym = (SDL_Keycode)key_code;
+        UW sym = key_code;
 
         if (ctrl) {
-            if (sym == SDLK_c || sym == 'c' || sym == 'C') {
+            if (sym == 'c' || sym == 'C') {
                 teditor_copy_selection(&g_teditor);
                 return;
-            } else if (sym == SDLK_x || sym == 'x' || sym == 'X') {
+            } else if (sym == 'x' || sym == 'X') {
                 teditor_copy_selection(&g_teditor);
                 teditor_delete_selection(&g_teditor);
                 return;
-            } else if (sym == SDLK_v || sym == 'v' || sym == 'V') {
+            } else if (sym == 'v' || sym == 'V') {
                 teditor_paste_clipboard(&g_teditor);
                 return;
-            } else if (sym == SDLK_a || sym == 'a' || sym == 'A') {
+            } else if (sym == 'a' || sym == 'A') {
                 g_teditor.sel_active = TRUE;
                 g_teditor.sel_start_r = 0;
                 g_teditor.sel_start_c = 0;
@@ -560,10 +565,10 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
                 g_teditor.cursor_row = g_teditor.sel_end_r;
                 g_teditor.cursor_col = g_teditor.sel_end_c;
                 return;
-            } else if (sym == SDLK_s || sym == 's' || sym == 'S') {
+            } else if (sym == 's' || sym == 'S') {
                 g_teditor.is_modified = FALSE;
                 return;
-            } else if (sym == SDLK_n || sym == 'n' || sym == 'N') {
+            } else if (sym == 'n' || sym == 'N') {
                 teditor_init_default(&g_teditor);
                 g_teditor.total_lines = 1;
                 g_teditor.lines[0][0] = '\0';
@@ -571,16 +576,16 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             }
         }
 
-        if (sym == SDLK_RETURN || sym == SDLK_KP_ENTER || sym == '\r' || sym == '\n') {
+        if (sym == BTRON_KEY_RETURN || sym == BTRON_KEY_KP_ENTER || sym == '\r' || sym == '\n') {
             teditor_insert_newline(&g_teditor);
             return;
-        } else if (sym == SDLK_BACKSPACE || sym == 0x08) {
+        } else if (sym == BTRON_KEY_BACKSPACE || sym == 0x08) {
             teditor_backspace(&g_teditor);
             return;
-        } else if (sym == SDLK_DELETE || sym == 0x7F) {
+        } else if (sym == BTRON_KEY_DELETE || sym == 0x7F) {
             teditor_delete_char_forward(&g_teditor);
             return;
-        } else if (sym == SDLK_LEFT) {
+        } else if (sym == BTRON_KEY_LEFT) {
             if (shift && !g_teditor.sel_active) {
                 g_teditor.sel_active = TRUE;
                 g_teditor.sel_start_r = g_teditor.cursor_row;
@@ -600,7 +605,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             }
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_RIGHT) {
+        } else if (sym == BTRON_KEY_RIGHT) {
             if (shift && !g_teditor.sel_active) {
                 g_teditor.sel_active = TRUE;
                 g_teditor.sel_start_r = g_teditor.cursor_row;
@@ -621,7 +626,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             }
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_UP) {
+        } else if (sym == BTRON_KEY_UP) {
             if (g_teditor.cursor_row > 0) {
                 g_teditor.cursor_row--;
                 int len = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
@@ -630,7 +635,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             g_teditor.sel_active = FALSE;
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_DOWN) {
+        } else if (sym == BTRON_KEY_DOWN) {
             if (g_teditor.cursor_row < g_teditor.total_lines - 1) {
                 g_teditor.cursor_row++;
                 int len = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
@@ -639,17 +644,17 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             g_teditor.sel_active = FALSE;
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_HOME) {
+        } else if (sym == BTRON_KEY_HOME) {
             g_teditor.cursor_col = 0;
             g_teditor.sel_active = FALSE;
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_END) {
+        } else if (sym == BTRON_KEY_END) {
             g_teditor.cursor_col = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
             g_teditor.sel_active = FALSE;
             teditor_ensure_cursor_visible(&g_teditor);
             return;
-        } else if (sym == SDLK_TAB || sym == '\t') {
+        } else if (sym == BTRON_KEY_TAB || sym == '\t') {
             teditor_insert_text(&g_teditor, "    ");
             return;
         }

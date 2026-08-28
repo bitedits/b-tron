@@ -18,6 +18,7 @@ extern "C" {
 #define E_NOSPT   (-17)  /* Feature not supported */
 #define E_RSVR    (-25)  /* Reserved error */
 #define E_PAR     (-33)  /* Parameter error */
+#define E_LIMIT   (-34)  /* Limit exceeded */
 #define E_ID      (-35)  /* Invalid ID */
 #define E_OBJ     (-41)  /* Invalid object state */
 #define E_NOEXS   (-52)  /* Object does not exist */
