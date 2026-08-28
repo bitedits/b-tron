@@ -26,18 +26,20 @@ ifneq ($(LLVM_DIR),)
     LLVM_CLANG  := $(LLVM_DIR)/bin/clang
     LLVM_LLD    := $(LLVM_DIR)/bin/ld.lld
 else
-    LLVM_CLANG  := clang
-    LLVM_LLD    := ld.lld
+    LLVM_CLANG  := $(shell which clang 2>/dev/null || echo "clang")
+    LLVM_LLD    := $(shell which ld.lld 2>/dev/null || echo "ld.lld")
 endif
+
+LLD_BIN := $(shell for p in $(LLVM_LLD) /opt/homebrew/opt/llvm/bin/ld.lld /usr/local/opt/llvm/bin/ld.lld /usr/lib/llvm-*/bin/ld.lld ld.lld; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
 
 # ARM32 / ARM64 Freestanding Compilers (no -fuse-ld=lld in CFLAGS to avoid unused-flag warnings)
 ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -ffreestanding -nostdlib
 ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -ffreestanding -nostdlib
 
 # Bare-metal ELF Linker (direct ld.lld if available, otherwise target-specific clang with fuse-ld)
-ifneq ($(wildcard $(LLVM_LLD)),)
-    ARM32_LINK = $(LLVM_LLD) -T $(BAREMETAL_LD)
-    ARM64_LINK = $(LLVM_LLD) -T $(BAREMETAL_LD)
+ifneq ($(LLD_BIN),)
+    ARM32_LINK = $(LLD_BIN) -T $(BAREMETAL_LD)
+    ARM64_LINK = $(LLD_BIN) -T $(BAREMETAL_LD)
 else
     ARM32_LINK = $(ARM32_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
     ARM64_LINK = $(ARM64_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
