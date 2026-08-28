@@ -59,10 +59,10 @@ else
 endif
 
 # ── Text Input Primitives (TIP) / Mozc IME sources ────────────────
-IME_SRCS    = src/ime/mozc_kkc.c       \
-              src/ime/tip_ife.c        \
-              src/ime/tip_task.c       \
-              src/ime/tip_vobj.c
+IME_SRCS    = src/tip/mozc_kkc.c       \
+              src/tip/tip_ife.c        \
+              src/tip/tip_task.c       \
+              src/tip/tip_vobj.c
 
 # ── Common SDL2-hosted app sources ────────────────────────────────
 COMMON_SRCS = src/graphics/dp_core.c   \
@@ -347,8 +347,8 @@ debug-virtio: arm64-elf
 # ═══════════════════════════════════════════════════════════════════
 # Mozc Kana-Kanji Conversion & TIP Unit Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_MOZC_SRCS = src/ime/test_mozc.c src/ime/mozc_kkc.c src/ime/tip_ife.c \
-                 src/font/troncode.c src/font/jis_fonts.c src/ime/tip_vobj.c src/window/wnd.c \
+TEST_MOZC_SRCS = src/tip/test_mozc.c src/tip/mozc_kkc.c src/tip/tip_ife.c \
+                 src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                  src/graphics/dp_core.c
 TEST_MOZC_OBJS = $(TEST_MOZC_SRCS:.c=.test.o)
 TEST_MOZC_BIN  = test_mozc
@@ -368,8 +368,8 @@ $(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # T-Editor UI & Internal Functions Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/ime/mozc_kkc.c src/ime/tip_ife.c \
-                   src/font/troncode.c src/font/jis_fonts.c src/ime/tip_vobj.c src/window/wnd.c \
+TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/tip/mozc_kkc.c src/tip/tip_ife.c \
+                   src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                    src/graphics/dp_core.c
 TEST_EDITOR_OBJS = $(TEST_EDITOR_SRCS:.c=.test.o)
 TEST_EDITOR_BIN  = test_editor
