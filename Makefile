@@ -34,11 +34,13 @@ endif
 ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -ffreestanding -nostdlib
 ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -ffreestanding -nostdlib
 
-# Bare-metal ELF Linker (direct ld.lld if available, otherwise clang with fuse-ld)
-ifeq ($(shell command -v $(LLVM_LLD) >/dev/null 2>&1 && echo yes),yes)
-    ARM_LINK = $(LLVM_LLD) -T $(BAREMETAL_LD)
+# Bare-metal ELF Linker (direct ld.lld if available, otherwise target-specific clang with fuse-ld)
+ifneq ($(wildcard $(LLVM_LLD)),)
+    ARM32_LINK = $(LLVM_LLD) -T $(BAREMETAL_LD)
+    ARM64_LINK = $(LLVM_LLD) -T $(BAREMETAL_LD)
 else
-    ARM_LINK = $(LLVM_CLANG) -fuse-ld=lld -ffreestanding -nostdlib -Wl,-T,$(BAREMETAL_LD)
+    ARM32_LINK = $(ARM32_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
+    ARM64_LINK = $(ARM64_CC) -fuse-ld=lld -Wl,-T,$(BAREMETAL_LD)
 endif
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
@@ -293,7 +295,7 @@ $(ARM32_TARGET): $(ARM32_OBJS) $(BAREMETAL_LD)
 	@echo " Building ARM32 ELF — BCM283x Pi 2B (Cortex-A7, ARMv7)"
 	@echo " Startup: $(BAREMETAL_STARTUP)"
 	@echo "=========================================================="
-	$(ARM_LINK) $(ARM32_OBJS) -o $@
+	$(ARM32_LINK) $(ARM32_OBJS) -o $@
 	@echo "[ARM-ELF] Built: $@"
 	@file $@
 
@@ -310,7 +312,7 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 	@echo " Building AArch64 ELF — Pi 4B (Cortex-A72, BCM2711)"
 	@echo " Startup: $(BAREMETAL_STARTUP)"
 	@echo "=========================================================="
-	$(ARM_LINK) $(ARM64_OBJS) -o $@
+	$(ARM64_LINK) $(ARM64_OBJS) -o $@
 	@echo "[ARM64-ELF] Built: $@"
 	@file $@
 
