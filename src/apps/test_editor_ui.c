@@ -674,6 +674,42 @@ static void test_verified_jis_font_matrix_coverage(void) {
     TEST_ASSERT(get_jis_glyph_bitmap(0x30FC) != NULL, "Verified font for 'ー'");
 }
 
+/* ── UI Test 14: F10 & Function Key Switching Integrity ── */
+static void test_f10_and_function_key_switching(void) {
+    printf("\n[UI TEST 14] F10 & Function Key Switching Integrity\n");
+
+    /* Verify keycode constants */
+    TEST_ASSERT(BTRON_KEY_F10 == 0x40000043, "BTRON_KEY_F10 keycode is exactly 0x40000043 (SDLK_F10)");
+    TEST_ASSERT(BTRON_KEY_F8  == 0x40000041, "BTRON_KEY_F8 keycode is exactly 0x40000041 (SDLK_F8)");
+    TEST_ASSERT(BTRON_KEY_F7  == 0x40000040, "BTRON_KEY_F7 keycode is exactly 0x40000040 (SDLK_F7)");
+    TEST_ASSERT(BTRON_KEY_F6  == 0x4000003F, "BTRON_KEY_F6 keycode is exactly 0x4000003F (SDLK_F6)");
+
+    /* Start in ASCII */
+    tip_set_mode(TIP_MODE_ASCII);
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Initial mode is Direct ASCII");
+
+    /* 1. Press F10 -> Switches to Hiragana */
+    char commit[128] = "";
+    BOOL handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_HIRAGANA, "F10 successfully switched from ASCII to Hiragana");
+
+    /* 2. Press F10 again -> Switches back to ASCII */
+    handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "F10 successfully switched back from Hiragana to ASCII");
+
+    /* 3. Direct F6 (Hiragana) and F7 (Katakana) functional switching */
+    handled = tip_process_key(BTRON_KEY_F6, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE && tip_get_mode() == TIP_MODE_HIRAGANA, "F6 switches directly to Hiragana");
+
+    handled = tip_process_key(BTRON_KEY_F7, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE && tip_get_mode() == TIP_MODE_KATAKANA, "F7 switches directly to Katakana");
+
+    /* Restore to ASCII */
+    tip_set_mode(TIP_MODE_ASCII);
+}
+
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -695,6 +731,7 @@ int main(int argc, char **argv) {
     test_window_focus_event_isolation_and_terminal_en_mode();
     test_status_bar_and_toolbar_ime_click_toggles();
     test_verified_jis_font_matrix_coverage();
+    test_f10_and_function_key_switching();
 
     printf("\n==========================================================\n");
     printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

@@ -4,6 +4,7 @@
  */
 
 #include <btron/tip.h>
+#include <btron/event.h>
 #include <btron/mozc_engine.h>
 #include <btron/troncode.h>
 #include <btron/wnd.h>
@@ -132,9 +133,18 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
     /* Mode Toggle: Ctrl+Space, Shift+Space, Alt+Space, Hankaku/Zenkaku, or F10 */
     if ((key == ' ' && (modifiers & 0x03C3)) || /* Any Ctrl, Shift, or Alt modifier on Space */
         key == 0x100 ||                          /* Hankaku / Zenkaku key */
-        key == 0x40000044 ||                     /* F10 (IME mode toggle) */
-        key == 0x40000041) {                     /* F7 (Katakana toggle) */
+        key == BTRON_KEY_F10) {                  /* F10 (0x40000043): Standard Mode Toggle */
         tip_toggle_mode();
+        return TRUE;
+    }
+
+    /* Functional Switch Keys: F6 -> Hiragana, F7 -> Katakana */
+    if (key == BTRON_KEY_F6) {
+        tip_set_mode(TIP_MODE_HIRAGANA);
+        return TRUE;
+    }
+    if (key == BTRON_KEY_F7) {
+        tip_set_mode(TIP_MODE_KATAKANA);
         return TRUE;
     }
 

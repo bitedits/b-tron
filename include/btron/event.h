@@ -46,8 +46,21 @@ typedef struct {
 #define BTRON_KMOD_CTRL   0x00C0
 #define BTRON_KMOD_LALT   0x0100
 #define BTRON_KMOD_RALT   0x0200
-#define BTRON_KMOD_ALT    0x0300
 #define BTRON_KMOD_CAPS   0x2000
+
+/* Standard Functional Keys (SDL Scancode compatible) */
+#define BTRON_KEY_F1      0x4000003A
+#define BTRON_KEY_F2      0x4000003B
+#define BTRON_KEY_F3      0x4000003C
+#define BTRON_KEY_F4      0x4000003D
+#define BTRON_KEY_F5      0x4000003E
+#define BTRON_KEY_F6      0x4000003F /* Hiragana */
+#define BTRON_KEY_F7      0x40000040 /* Fullwidth Katakana */
+#define BTRON_KEY_F8      0x40000041 /* Halfwidth Katakana */
+#define BTRON_KEY_F9      0x40000042 /* Fullwidth Alphanumeric */
+#define BTRON_KEY_F10     0x40000043 /* Plane 0 <-> Plane 1 Toggle (EN <-> JP) */
+#define BTRON_KEY_F11     0x40000044
+#define BTRON_KEY_F12     0x40000045
 
 ER init_evt_sys(void);
 ER get_evt(EVT *p_evt, W timeout_ms);
