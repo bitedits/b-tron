@@ -36,7 +36,9 @@ jobs:
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install sdl2 qemu
+          brew install sdl2 qemu llvm
+          echo "/opt/homebrew/opt/llvm/bin" >> "$GITHUB_PATH"
+          echo "/usr/local/opt/llvm/bin" >> "$GITHUB_PATH"
 
       - name: Build Host Desktop & T-Kernel Engines
         run: |

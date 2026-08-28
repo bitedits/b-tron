@@ -22,10 +22,13 @@ CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 
+# Detect LLVM Clang toolchain with LLD support
+LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
+
 # ARM32: Cortex-A7 for Pi 2B (BCM2836)
-ARM32_CC ?= clang --target=arm-none-eabi -mcpu=cortex-a7 -marm -fuse-ld=lld -ffreestanding -nostdlib
+ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -fuse-ld=lld -ffreestanding -nostdlib
 # AArch64: Cortex-A72 for Pi 4B (BCM2711) — kept for Pi4-only development
-ARM64_CC ?= clang --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
+ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
