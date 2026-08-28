@@ -12,6 +12,7 @@
 #include <btron/dp.h>
 #include <btron/wnd.h>
 #include <btron/troncode.h>
+#include <btron/jis_fonts.h>
 #include <btron/tip.h>
 
 /* Mock SDL keysyms for testing */
@@ -622,6 +623,57 @@ static void test_status_bar_and_toolbar_ime_click_toggles(void) {
     TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "Cancel closes candidate window");
 }
 
+/* ── UI Test 13: Verified 16x16 JIS X 0208 Dot-Matrix Font Coverage ── */
+static void test_verified_jis_font_matrix_coverage(void) {
+    printf("\n[UI TEST 13] Verified 16x16 JIS X 0208 Font Matrix Coverage\n");
+
+    /* Test Kanji */
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5B9B) != NULL, "Verified font for '宛' (Ate)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5148) != NULL, "Verified font for '先' (Saki)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x7A81) != NULL, "Verified font for '突' (Totsu)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x7136) != NULL, "Verified font for '然' (Zen)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5931) != NULL, "Verified font for '失' (Shitsu)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x793C) != NULL, "Verified font for '礼' (Rei)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x8CB4) != NULL, "Verified font for '貴' (Ki)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x56E3) != NULL, "Verified font for '団' (Dan)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x4F53) != NULL, "Verified font for '体' (Tai)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5CF6) != NULL, "Verified font for '島' (Jima)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x79C0) != NULL, "Verified font for '秀' (Hide)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6A39) != NULL, "Verified font for '樹' (Ki)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5742) != NULL, "Verified font for '坂' (Saka)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6751) != NULL, "Verified font for '村' (Mura)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5065) != NULL, "Verified font for '健' (Ken)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6771) != NULL, "Verified font for '東' (Tou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x4EAC) != NULL, "Verified font for '京' (Kyou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x96FB) != NULL, "Verified font for '電' (Den)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x8ECA) != NULL, "Verified font for '車' (Sha)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5927) != NULL, "Verified font for '大' (Dai)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5B66) != NULL, "Verified font for '学' (Gaku)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6821) != NULL, "Verified font for '校' (Kou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x958B) != NULL, "Verified font for '開' (Kai)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x767A) != NULL, "Verified font for '発' (Hatsu)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6A5F) != NULL, "Verified font for '機' (Ki)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x80FD) != NULL, "Verified font for '能' (Nou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x60C5) != NULL, "Verified font for '情' (Jou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5831) != NULL, "Verified font for '報' (Hou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5206) != NULL, "Verified font for '分' (Bun)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x6563) != NULL, "Verified font for '散' (San)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x74B0) != NULL, "Verified font for '環' (Kan)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x5883) != NULL, "Verified font for '境' (Kyou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x8A08) != NULL, "Verified font for '計' (Kei)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x8D85) != NULL, "Verified font for '超' (Chou)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x4EEE) != NULL, "Verified font for '仮' (Ka)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x8EAB) != NULL, "Verified font for '身' (Shin)");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x826F) != NULL, "Verified font for '良' (Yoi)");
+
+    /* Test Symbols */
+    TEST_ASSERT(get_jis_glyph_bitmap(0x3010) != NULL, "Verified font for '【'");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x3011) != NULL, "Verified font for '】'");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x300C) != NULL, "Verified font for '「'");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x300D) != NULL, "Verified font for '」'");
+    TEST_ASSERT(get_jis_glyph_bitmap(0x30FC) != NULL, "Verified font for 'ー'");
+}
+
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -642,6 +694,7 @@ int main(int argc, char **argv) {
     test_multilingual_switching();
     test_window_focus_event_isolation_and_terminal_en_mode();
     test_status_bar_and_toolbar_ime_click_toggles();
+    test_verified_jis_font_matrix_coverage();
 
     printf("\n==========================================================\n");
     printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
