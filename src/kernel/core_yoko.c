@@ -77,7 +77,7 @@ ER tk_dly_tsk(W dlytim) {
 #include <btron/wnd.h>
 #include <btron/tip.h>
 #include <btron/apps.h>
-#include <drivers/bcm283x/dwc2.h>
+#include <dwc2.h>
 
 extern GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
 extern void redraw_baremetal_desktop(GDEV *screen, H w, H h);

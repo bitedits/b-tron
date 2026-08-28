@@ -3,7 +3,7 @@
  * Cleanroom implementation for Raspberry Pi 2B (BCM2836) and QEMU.
  */
 
-#include <drivers/bcm283x/dwc2.h>
+#include <dwc2.h>
 #include <btron/event.h>
 #include <stdint.h>
 #include <stdbool.h>

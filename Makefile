@@ -330,18 +330,9 @@ test-tkernel: arm-elf
 	@echo "=========================================================="
 	@echo " Testing T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
-	@echo " Mode    : headless (-display none), serial output only"
+	@echo " Mode    : automated CI test (headless, serial validation)"
 	@echo "=========================================================="
-	@if command -v $(QEMU_ARM) >/dev/null 2>&1; then \
-	    $(QEMU_ARM) -M raspi2b -m 1G -display none \
-	        -kernel $(ARM32_TARGET) -serial stdio; \
-	elif command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
-	    $(QEMU_AARCH64) -M raspi2b -m 1G -display none \
-	        -kernel $(ARM32_TARGET) -serial stdio; \
-	else \
-	    echo "[ERROR] QEMU not found — install qemu-system-arm or qemu-system-aarch64"; \
-	    exit 1; \
-	fi
+	@bash scripts/test_tkernel.sh
 
 # ═══════════════════════════════════════════════════════════════════
 # Debug

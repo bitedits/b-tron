@@ -1,0 +1,74 @@
+name: B-TRON Retro OS CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            lld \
+            llvm \
+            libsdl2-dev \
+            qemu-system-arm \
+            qemu-system-misc
+
+      - name: Install Dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install sdl2 qemu
+
+      - name: Build Host Desktop & T-Kernel Engines
+        run: |
+          make clean
+          make all
+
+      - name: Build Bare-Metal ARM Targets (BCM283x Pi 2B & Pi 4B)
+        run: |
+          make arm-elf
+          make arm64-elf
+
+      - name: Run T-Editor UI & Functional Unit Tests
+        run: |
+          make test-editor
+
+      - name: Run Google Mozc & TIP IME Unit Tests
+        run: |
+          make test-mozc
+
+      - name: Run QEMU Bare-Metal Headless Boot Test
+        run: |
+          make test-tkernel
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: btron-binaries-${{ matrix.os }}
+          path: |
+            btron-posix
+            btron-qemu.elf
+            btron-tkernel.elf
+            btron-sakamura.elf
+            btron-arm-baremetal.elf
+            btron-aarch64-baremetal.elf
+          if-no-files-found: ignore
