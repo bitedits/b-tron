@@ -969,51 +969,18 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     int view_h = client_rect->bottom - client_rect->top;
     tb->page_height = view_h - 60; /* Account for toolbar & status bar */
 
-    /* ── Fixed Navigation Toolbar (Top: 0..30px) ───────────────────────────── */
-    RECT tb_bar = { 0, 0, dev->width, 30 };
-    fill_rec(dev, &tb_bar, COLOR_LTGRAY);
-    drw_lin(dev, 0, 30, dev->width, 30);
+    /* ── Render Visible Document Spans (Strictly Clipped to Content Viewport) ── */
+    RECT orig_clip = dev->clip;
+    RECT content_clip = { 0, 32, dev->width, dev->height - 22 };
+    set_clip(dev, &content_clip);
 
-    /* [◄ Назад] Button */
-    RECT btn_back = { 6, 4, 70, 26 };
-    fill_rec(dev, &btn_back, tad_browser_can_go_back(tb) ? COLOR_WHITE : COLOR_LTGRAY);
-    drw_rec(dev, &btn_back);
-    drw_tc_string(dev, 10, 8, "[◄ Назад]", tad_browser_can_go_back(tb) ? COLOR_BLACK : COLOR_GRAY, 0x00000000);
-
-    /* [► Вперед] Button */
-    RECT btn_fwd = { 76, 4, 144, 26 };
-    fill_rec(dev, &btn_fwd, tad_browser_can_go_forward(tb) ? COLOR_WHITE : COLOR_LTGRAY);
-    drw_rec(dev, &btn_fwd);
-    drw_tc_string(dev, 80, 8, "[► Вперед]", tad_browser_can_go_forward(tb) ? COLOR_BLACK : COLOR_GRAY, 0x00000000);
-
-    /* [⌂ Дім] Button */
-    RECT btn_home = { 150, 4, 210, 26 };
-    fill_rec(dev, &btn_home, COLOR_WHITE);
-    drw_rec(dev, &btn_home);
-    drw_tc_string(dev, 154, 8, "[⌂ Дім]", COLOR_NAVY, 0x00000000);
-
-    /* [↻ Оновити] Button */
-    RECT btn_reload = { 216, 4, 286, 26 };
-    fill_rec(dev, &btn_reload, COLOR_WHITE);
-    drw_rec(dev, &btn_reload);
-    drw_tc_string(dev, 220, 8, "[↻ Оновити]", COLOR_BLACK, 0x00000000);
-
-    /* Location Bar / Current Filepath */
-    RECT loc_box = { 292, 4, dev->width - 16, 26 };
-    fill_rec(dev, &loc_box, COLOR_WHITE);
-    drw_rec(dev, &loc_box);
-    char loc_text[128];
-    snprintf(loc_text, sizeof(loc_text), "📄 %s", tb->file_path[0] ? tb->file_path : "TAD Document");
-    drw_tc_string(dev, 298, 8, loc_text, COLOR_DKGRAY, 0x00000000);
-
-    /* ── Render Visible Document Spans ─────────────────────────────────────── */
     for (int i = 0; i < tb->span_count; i++) {
         TAD_SPAN *s = &tb->spans[i];
         int vy = s->bounds.top - tb->scroll_y;
         int span_h = s->bounds.bottom - s->bounds.top;
 
-        /* Clipping check (between top toolbar at 32px and bottom status at height-22px) */
-        if (vy + span_h < 32 || vy > dev->height - 24) continue;
+        /* Skip items entirely outside the vertical viewport */
+        if (vy + span_h < 32 || vy >= dev->height - 22) continue;
 
         if (s->style.is_image) {
             /* ── BTRON3 Figure / Picture Box Container (TS_FPRIM 0xFFB0 SubID 10) ── */
@@ -1064,6 +1031,46 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
             }
         }
     }
+
+    /* Restore device clip for window chrome layer */
+    set_clip(dev, &orig_clip);
+
+    /* ── Fixed Navigation Toolbar (Top: 0..30px) ───────────────────────────── */
+    RECT tb_bar = { 0, 0, dev->width, 30 };
+    fill_rec(dev, &tb_bar, COLOR_LTGRAY);
+    drw_lin(dev, 0, 30, dev->width, 30);
+
+    /* [◄ Назад] Button */
+    RECT btn_back = { 6, 4, 70, 26 };
+    fill_rec(dev, &btn_back, tad_browser_can_go_back(tb) ? COLOR_WHITE : COLOR_LTGRAY);
+    drw_rec(dev, &btn_back);
+    drw_tc_string(dev, 10, 8, "[◄ Назад]", tad_browser_can_go_back(tb) ? COLOR_BLACK : COLOR_GRAY, 0x00000000);
+
+    /* [► Вперед] Button */
+    RECT btn_fwd = { 76, 4, 144, 26 };
+    fill_rec(dev, &btn_fwd, tad_browser_can_go_forward(tb) ? COLOR_WHITE : COLOR_LTGRAY);
+    drw_rec(dev, &btn_fwd);
+    drw_tc_string(dev, 80, 8, "[► Вперед]", tad_browser_can_go_forward(tb) ? COLOR_BLACK : COLOR_GRAY, 0x00000000);
+
+    /* [⌂ Дім] Button */
+    RECT btn_home = { 150, 4, 210, 26 };
+    fill_rec(dev, &btn_home, COLOR_WHITE);
+    drw_rec(dev, &btn_home);
+    drw_tc_string(dev, 154, 8, "[⌂ Дім]", COLOR_NAVY, 0x00000000);
+
+    /* [↻ Оновити] Button */
+    RECT btn_reload = { 216, 4, 286, 26 };
+    fill_rec(dev, &btn_reload, COLOR_WHITE);
+    drw_rec(dev, &btn_reload);
+    drw_tc_string(dev, 220, 8, "[↻ Оновити]", COLOR_BLACK, 0x00000000);
+
+    /* Location Bar / Current Filepath */
+    RECT loc_box = { 292, 4, dev->width - 16, 26 };
+    fill_rec(dev, &loc_box, COLOR_WHITE);
+    drw_rec(dev, &loc_box);
+    char loc_text[128];
+    snprintf(loc_text, sizeof(loc_text), "📄 %s", tb->file_path[0] ? tb->file_path : "TAD Document");
+    drw_tc_string(dev, 298, 8, loc_text, COLOR_DKGRAY, 0x00000000);
 
     /* ── Scrollbar Indicator (Right Margin) ────────────────────────────────── */
     if (tb->doc_height > dev->height - 54 && dev->height > 60) {
