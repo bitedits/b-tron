@@ -501,38 +501,9 @@ defmodule BtronTAD.Compiler do
       {:pre, "ER tk_cre_tsk(T_CTSK *pk_ctsk);\nER tk_sta_tsk(ID tskid, INT stacd);\nER tk_ext_tsk(void);\nER tk_dly_tsk(TMO dlytim);\nER tk_wai_sem(ID semid, INT cnt, TMO tmout);"}
     ]
 
-    tron_hmi_elements = [
-      {:h1, "TRON 人間・機械インタフェース (HMI) 設計仕様書及び標準カタログ"},
-      {:image, "doc/os_spec/shell/gif/title_bar.gif", "図 3: BTRON3 標準ウィンドウとタイトルバー意匠 (Window Geometry)"},
-      {:link, "b-hmi/index.tad", "第1章 TRON HMI 統合仕様書・設計指針ガイド (HMI Specification)"},
-      {:link, "b-hmi/part1/chap03_sui.tad", "第2章 SUI 実身操作パネル標準仕様 (Standard User Interface)"},
-      {:link, "b-hmi/part1/chap04_gui.tad", "第3章 GUI ウィンドウマネージャと角枠リサイズ意匠 (GUI Blueprint)"},
-      {:link, "b-hmi/part_book/switches.tad", "第4章 HMI部品カタログ：プッシュ・シーソー・トグルスイッチ仕様"},
-      {:link, "b-hmi/part_book/volumes.tad", "第5章 HMI部品カタログ：ロータリーダイヤル・ポテンショメータ仕様"},
-      {:link, "b-hmi/part_book/selectors.tad", "第6章 HMI部品カタログ：ラジオボタン・マトリクスセレクタ仕様"},
-      {:link, "os_spec/shell/parts.tad", "第7章 BTRON3 シェル標準GUI部品仕様 (Shell Parts Book)"},
-      {:h2, "標準動作三原則 (The Standard Action Triad)"},
-      {:ol, [
-        "操作対象の指定 (Target Selection)",
-        "操作内容の指定 (Operation Specification)",
-        "実行の確認／確定 (Execution Confirmation)"
-      ]},
-      {:h2, "標準HMI部品カタログ (Parts Book)"},
-      {:ul, [
-        "プッシュスイッチ (Push Switch - モメンタリ／オルタネート)",
-        "アップダウンスステッパ (Up/Down Stepper)",
-        "ラジオボタンマトリクス (Radio Matrix - 排他的選択)",
-        "ロータリーダイヤル (Rotary Dial - 270度連続角度調整)",
-        "セグメントVUメーター (Bar VU Meter - ピークホールド付き)",
-        "ユニバーサルコントローラ (Universal Controller - 7キー統一リモート)"
-      ]},
-      {:h2, "カノニカル実証：SONY TC-K777ES ステレオデッキ"},
-      {:p, "B-Systemオーディオデッキ (src/apps/audio_player.c) におけるテープリール回転、VUメーター減衰、ポテンショメータ制御の完全実装。"}
-    ]
-
     bfree_elements = [
       {:h1, "B-Free 自由なBTRON3オペレーティングシステム技術解説書"},
-      {:image, "doc/os_spec/kernel/gif/filesystem.gif", "図 4: BTRON ファイルシステム構造仕様 (Filesystem Structure)"},
+      {:image, "doc/os_spec/kernel/gif/filesystem.gif", "図 3: BTRON ファイルシステム構造仕様 (Filesystem Structure)"},
       {:link, "b-free/manifest.tad", "第1章 B-Free マニフェストと自由ソフトウェアの理念"},
       {:link, "b-free/kernel.tad", "第2章 μITRON 3.0 マイクロカーネルアーキテクチャ"},
       {:link, "b-free/posix.tad", "第3章 POSIXエミュレーション層とシステムコール"},
@@ -546,8 +517,7 @@ defmodule BtronTAD.Compiler do
     books = [
       {"01_btron3_spec", "BTRON3 3.20 Specification Book", btron3_elements},
       {"02_tkernel_book", "T-Kernel 2.0 Real-Time OS Book", tkernel_elements},
-      {"03_tron_hmi_book", "TRON Human-Machine Interface Book", tron_hmi_elements},
-      {"04_bfree_os_book", "B-Free Operating System Book", bfree_elements}
+      {"03_bfree_os_book", "B-Free Operating System Book", bfree_elements}
     ]
 
     IO.puts("======================================================================")
@@ -570,7 +540,7 @@ defmodule BtronTAD.Compiler do
     end)
 
     IO.puts("======================================================================")
-    IO.puts(" Successfully generated all 4 Canonical Binary TAD books in ./#{target_dir}/")
+    IO.puts(" Successfully generated all 3 Canonical Binary TAD books in ./#{target_dir}/")
     IO.puts("======================================================================\n")
   end
 
@@ -591,19 +561,17 @@ end
 out_dir = "tad_bin"
 File.mkdir_p!(out_dir)
 
-# 1. Compile 4 Canonical BTRON3 Books directly into ./tad_bin/
+# 1. Compile 3 Canonical BTRON3 Books directly into ./tad_bin/
 BtronTAD.Compiler.compile_foundational_books(out_dir)
 
-# 2. Unified HTML -> TAD Conversion for all 5 Source Catalogs
+# 2. Unified HTML -> TAD Conversion for all 4 Source Catalogs
 # Catalog Profiles:
 #   - doc/      : BTRON3 Standard Specification (Shared Data, μITRON Kernel, DP Graphics, Shell)
-#   - b-hmi/    : TRON Human-Machine Interface Design Guidelines & 220+ Parts Catalog
 #   - b-free/   : Free Software BTRON3 Architecture Manifesto & Cleanroom Kernel
 #   - b-system/ : B-System Posix & VirtIO Core Architecture & System Specifications
 #   - t-kernel/ : T-Kernel 2.0 Real-Time OS & Board Deployment Manuals
 source_trees = [
   {"doc", out_dir},
-  {"b-hmi", "b-hmi"},
   {"b-free", Path.join(out_dir, "b-free")},
   {"b-system", Path.join(out_dir, "b-system")},
   {"t-kernel", Path.join(out_dir, "t-kernel")}

@@ -19,7 +19,7 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu t-kernel dharma html2tad clean test-mozc test-editor test-hmi test-tad
+.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf t-kernel dharma html2tad tad_bin clean test-mozc test-editor test-hmi test-tad
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -198,7 +198,7 @@ all: posix qemu tkernel sakamura
 # ═══════════════════════════════════════════════════════════════════
 # POSIX Desktop
 # ═══════════════════════════════════════════════════════════════════
-posix: $(POSIX_TARGET)
+posix: tad_bin $(POSIX_TARGET)
 	@ln -sf $(POSIX_TARGET) $(DEFAULT_TARGET)
 	@echo "=========================================================="
 	@echo " B-TRON POSIX Kernel & Desktop successfully built!"
@@ -218,7 +218,7 @@ run-posix: posix
 # ═══════════════════════════════════════════════════════════════════
 # QEMU VirtIO Desktop
 # ═══════════════════════════════════════════════════════════════════
-qemu: $(QEMU_TARGET)
+qemu: tad_bin $(QEMU_TARGET)
 	@echo "=========================================================="
 	@echo " B-TRON QEMU VirtIO Desktop built!"
 	@echo " Run 'make run-qemu' to launch."
@@ -239,7 +239,7 @@ test-qemu: qemu
 # ═══════════════════════════════════════════════════════════════════
 # T-Kernel SDL2 host build (development / debug on host)
 # ═══════════════════════════════════════════════════════════════════
-tkernel: $(TKERNEL_TARGET)
+tkernel: tad_bin $(TKERNEL_TARGET)
 	@echo "=========================================================="
 	@echo " Sakamura T-Kernel 2.0 Engine built: $(TKERNEL_TARGET)"
 	@echo "=========================================================="
@@ -260,7 +260,7 @@ $(TKERNEL_TARGET): $(TKERNEL_OBJS)
 	$(CC) $(TKERNEL_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
 # ===================================================================
-sakamura: $(SAKAMURA_TARGET)
+sakamura: tad_bin $(SAKAMURA_TARGET)
 	@echo "=========================================================="
 	@echo " Sakamura T-Kernel 2.0 Engine (UART/VirtIO Mode) built: $(SAKAMURA_TARGET)"
 	@echo "=========================================================="
@@ -283,7 +283,7 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # Bare-Metal ARM32 ELF — BCM283x Pi 2B (Cortex-A7 / ARMv7 / BCM2836)
 # ═══════════════════════════════════════════════════════════════════
-arm-elf: $(ARM32_TARGET)
+arm-elf: tad_bin $(ARM32_TARGET)
 
 %.arm32.o: %.c
 	$(ARM32_CC) $(ARM_CFLAGS) -c $< -o $@
@@ -300,7 +300,7 @@ $(ARM32_TARGET): $(ARM32_OBJS) $(BAREMETAL_LD)
 # ═══════════════════════════════════════════════════════════════════
 # Bare-Metal AArch64 ELF — Pi 4B (Cortex-A72 / BCM2711)
 # ═══════════════════════════════════════════════════════════════════
-arm64-elf: $(ARM64_TARGET)
+arm64-elf: tad_bin $(ARM64_TARGET)
 
 %.arm64.o: %.c
 	$(ARM64_CC) $(ARM64_CFLAGS) -c $< -o $@

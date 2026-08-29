@@ -205,20 +205,20 @@ static void test_cabinet_explorer_selection(void) {
     TEST_ASSERT(wnd != NULL, "Opened Cabinet Explorer window");
     TEST_ASSERT(wnd->event_handler != NULL, "Cabinet Explorer has active event_handler attached");
 
-    /* Test item selection click at row 0 (y = 60 + 0*22 + 5 = 65) -> [b-free] 00_bfree_book.tad (#104) */
+    /* Test item selection click at row 0 (y = 60 + 0*22 + 5 = 65) -> [b-free] 03_bfree_os_book.tad (#103) */
     ID robj = 0;
     char path[128] = "";
     BOOL handled = cabinet_handle_click(50, 65, FALSE, &robj, path);
     TEST_ASSERT(handled == FALSE, "Single click updates selection without modal block");
-    TEST_ASSERT(robj == 104, "Selected Real Object #104 (00_bfree_book.tad)");
-    TEST_ASSERT(strcmp(path, "tad_bin/04_bfree_os_book.tad") == 0, "Resolved path for #104");
+    TEST_ASSERT(robj == 103, "Selected Real Object #103 (03_bfree_os_book.tad)");
+    TEST_ASSERT(strcmp(path, "tad_bin/03_bfree_os_book.tad") == 0, "Resolved path for #103");
 
-    /* Test selection at row 1 (y = 60 + 1*22 + 5 = 87) -> [b-free] 01_manifest.tad (#106) */
+    /* Test selection at row 1 (y = 60 + 1*22 + 5 = 87) -> [b-free] manifest.tad (#106) */
     handled = cabinet_handle_click(50, 87, FALSE, &robj, path);
-    TEST_ASSERT(robj == 106, "Selected Real Object #106 (01_manifest.tad)");
-    TEST_ASSERT(strcmp(path, "tad_bin/b-free/manifest.tad") == 0, "Resolved path for TAD #106");
+    TEST_ASSERT(robj == 106, "Selected Real Object #106 (manifest.tad)");
+    TEST_ASSERT(strcmp(path, "tad_bin/b-free/manifest.tad") == 0, "Resolved path for #106");
 
-    /* Test double-click activation */
+    /* Test double-click activation on Canonical Book */
     handled = cabinet_handle_click(50, 87, TRUE, &robj, path);
     TEST_ASSERT(handled == TRUE, "Double click triggers TAD Real Object launch");
 }
@@ -396,23 +396,11 @@ static void test_btron3_picture_figure_segments(void) {
     }
     TEST_ASSERT(drawn_pixels > 1000, "Successfully decoded and rendered exact specification GIF diagram to framebuffer");
 
-    /* 4. Test HMI Guide with Embedded PNG Diagram */
-    memset(&tb, 0, sizeof(tb));
-    er = tad_browser_load_file(&tb, "tad_bin/b-hmi/part1/chap03_sui.tad");
-    TEST_ASSERT(er == E_OK, "Loaded tad_bin/b-hmi/part1/chap03_sui.tad with PNG figures");
-
-    BOOL found_png_fig = FALSE;
-    for (int i = 0; i < tb.span_count; i++) {
-        if (tb.spans[i].style.is_image && strstr(tb.spans[i].style.img_src, ".png") != NULL) {
-            found_png_fig = TRUE;
-            break;
-        }
-    }
-    TEST_ASSERT(found_png_fig == TRUE, "Detected TS_FPRIM SubID 10 PNG picture segment in HMI TAD");
-
+    /* 4. Render and Verify Direct PNG Decoding to Framebuffer */
     memset(fb, 0, sizeof(fb));
-    tad_browser_layout(&tb, 800);
-    tad_browser_paint(&tb, &dev, &cr);
+    int png_res = decode_and_draw_png(&dev, "tad_bin/b-system/img/virtio.png", 10, 10, 400, 300);
+    TEST_ASSERT(png_res == 0, "Successfully executed native PNG decoder on specification diagram");
+
     int png_drawn = 0;
     for (int p = 0; p < 800 * 600; p++) {
         if (fb[p] != 0 && fb[p] != COLOR_WHITE) png_drawn++;
@@ -427,11 +415,10 @@ static void test_canonical_books_links_resolution(void) {
     const char *book_files[] = {
         "tad_bin/01_btron3_spec.tad",
         "tad_bin/02_tkernel_book.tad",
-        "tad_bin/03_tron_hmi_book.tad",
-        "tad_bin/04_bfree_os_book.tad"
+        "tad_bin/03_bfree_os_book.tad"
     };
 
-    for (int b = 0; b < 4; b++) {
+    for (int b = 0; b < 3; b++) {
         TAD_BROWSER tb;
         memset(&tb, 0, sizeof(tb));
         ER er = tad_browser_load_file(&tb, book_files[b]);

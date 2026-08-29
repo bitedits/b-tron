@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #else
 #include <stddef.h>
 #include <stdint.h>
@@ -83,18 +85,114 @@ static int natural_compare(const char *s1, const char *s2) {
     return (*s1 == '\0' && *s2 == '\0') ? 0 : (*s1 == '\0' ? -1 : 1);
 }
 
-/* ── Group by First Column (icon_tag) & Sort by Natural Name Order ─────── */
+/* ── Canonical Table of Contents (TOC) Sequence Weighting ───────────────── */
+static int get_toc_order(const char *path, const char *name) {
+    if (!path) return 1000;
+
+    /* 1. Canonical Foundational Books & Main Portals */
+    if (strstr(path, "01_btron3_spec")) return 10;
+    if (strstr(path, "02_tkernel_book")) return 20;
+    if (strstr(path, "03_bfree_os_book")) return 30;
+
+    /* 2. Top-level portal index */
+    if (name && strcmp(name, "index.tad") == 0 && strcmp(path, "tad_bin/index.tad") == 0) return 40;
+
+    /* 3. [doc] Shared Data Specifications (Chapter 1..6) */
+    if (strstr(path, "shared_data/data_type")) return 100;
+    if (strstr(path, "shared_data/tron_code")) return 110;
+    if (strstr(path, "shared_data/tad1"))      return 120;
+    if (strstr(path, "shared_data/tad2"))      return 130;
+    if (strstr(path, "shared_data/tad3"))      return 140;
+    if (strstr(path, "shared_data/fd_format")) return 150;
+    if (strstr(path, "shared_data/index.tad")) return 160;
+    if (strstr(path, "shared_data/indexfig"))  return 170;
+
+    /* 4. [doc] OS Spec Portals */
+    if (strstr(path, "os_spec/index.tad"))     return 200;
+    if (strstr(path, "os_spec/indexfig.tad"))  return 205;
+
+    /* 5. [doc] μITRON 3.0 Real-Time Kernel Subsystems */
+    if (strstr(path, "os_spec/kernel/kernel"))   return 210;
+    if (strstr(path, "os_spec/kernel/proc"))     return 220;
+    if (strstr(path, "os_spec/kernel/memory"))   return 230;
+    if (strstr(path, "os_spec/kernel/file"))     return 240;
+    if (strstr(path, "os_spec/kernel/event"))    return 250;
+    if (strstr(path, "os_spec/kernel/clk"))      return 260;
+    if (strstr(path, "os_spec/kernel/device"))   return 270;
+    if (strstr(path, "os_spec/kernel/message"))  return 280;
+    if (strstr(path, "os_spec/kernel/taskcomm")) return 290;
+    if (strstr(path, "os_spec/kernel/system"))   return 300;
+    if (strstr(path, "os_spec/kernel/gname"))    return 310;
+
+    /* 6. [doc] 2D Display Primitives Graphics */
+    if (strstr(path, "os_spec/dp/dp.tad"))           return 400;
+    if (strstr(path, "os_spec/dp/basic_concept"))    return 410;
+    if (strstr(path, "os_spec/dp/basic_func"))       return 420;
+    if (strstr(path, "os_spec/dp/character_func"))   return 430;
+    if (strstr(path, "os_spec/dp/figure_func"))      return 440;
+    if (strstr(path, "os_spec/dp/pointer_func"))     return 450;
+    if (strstr(path, "os_spec/dp/intro"))            return 460;
+
+    /* 7. [doc] BTRON3 Graphical User Interface & Shell */
+    if (strstr(path, "os_spec/shell/shell.tad"))     return 500;
+    if (strstr(path, "os_spec/shell/window"))        return 510;
+    if (strstr(path, "os_spec/shell/menu"))          return 520;
+    if (strstr(path, "os_spec/shell/panel"))         return 530;
+    if (strstr(path, "os_spec/shell/parts"))         return 540;
+    if (strstr(path, "os_spec/shell/font_mgr"))      return 550;
+    if (strstr(path, "os_spec/shell/printmgr"))      return 560;
+    if (strstr(path, "os_spec/shell/tip"))           return 570;
+    if (strstr(path, "os_spec/shell/tray"))          return 580;
+    if (strstr(path, "os_spec/shell/tcpip"))         return 590;
+    if (strstr(path, "os_spec/shell/omgr"))          return 600;
+    if (strstr(path, "os_spec/shell/data"))          return 610;
+
+    /* 8. [b-free] B-Free OS Architecture & Manifesto */
+    if (strstr(path, "b-free/manifest"))   return 700;
+    if (strstr(path, "b-free/kernel"))     return 710;
+    if (strstr(path, "b-free/posix"))      return 720;
+    if (strstr(path, "b-free/btron"))      return 730;
+    if (strstr(path, "b-free/boot_arch"))  return 740;
+    if (strstr(path, "b-free/source_tree"))return 750;
+    if (strstr(path, "b-free/index"))      return 760;
+
+    /* 9. [b-system] B-System POSIX & VirtIO Specs */
+    if (strstr(path, "b-system/virtio"))     return 800;
+    if (strstr(path, "b-system/btron_spec")) return 810;
+    if (strstr(path, "b-system/kernel"))     return 820;
+    if (strstr(path, "b-system/license"))    return 830;
+    if (strstr(path, "b-system/index"))      return 840;
+
+    /* 10. [t-kernel] T-Kernel 2.0 Real-Time OS Specs */
+    if (strstr(path, "t-kernel/tkernel_spec"))    return 900;
+    if (strstr(path, "t-kernel/tkernel_startup")) return 910;
+    if (strstr(path, "t-kernel/tkernel_qemu"))    return 920;
+    if (strstr(path, "t-kernel/index"))           return 930;
+
+    return 1000;
+}
+
+/* ── Sort Cabinet Items: Group by First Column (icon_tag) & TOC Order ──── */
 static void cabinet_sort_items(CABINET_EXPLORER *cab) {
     if (!cab || cab->item_count <= 1) return;
     for (int i = 0; i < cab->item_count - 1; i++) {
         for (int j = i + 1; j < cab->item_count; j++) {
+            /* 1. Primary: Group by First Column (icon_tag) */
             int cmp_grp = strcmp(cab->items[i].icon_tag, cab->items[j].icon_tag);
             int swap = 0;
             if (cmp_grp > 0) {
                 swap = 1;
             } else if (cmp_grp == 0) {
-                if (natural_compare(cab->items[i].name, cab->items[j].name) > 0) {
+                /* 2. Secondary: Canonical Table of Contents (TOC) Sequence */
+                int order_i = get_toc_order(cab->items[i].path, cab->items[i].name);
+                int order_j = get_toc_order(cab->items[j].path, cab->items[j].name);
+                if (order_i > order_j) {
                     swap = 1;
+                } else if (order_i == order_j) {
+                    /* 3. Tertiary: Natural Name Order */
+                    if (natural_compare(cab->items[i].name, cab->items[j].name) > 0) {
+                        swap = 1;
+                    }
                 }
             }
             if (swap) {
@@ -106,6 +204,96 @@ static void cabinet_sort_items(CABINET_EXPLORER *cab) {
     }
 }
 
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+
+static ID deduce_robj_id(const char *path) {
+    if (strstr(path, "01_btron3_spec")) return 101;
+    if (strstr(path, "02_tkernel_book")) return 102;
+    if (strstr(path, "03_bfree_os_book")) return 103;
+    if (strstr(path, "b-free/manifest.tad")) return 106;
+    if (strstr(path, "b-system/virtio.tad")) return 107;
+    if (strstr(path, "data_type.tad")) return 111;
+    if (strstr(path, "tron_code.tad")) return 112;
+    if (strstr(path, "tad1.tad")) return 113;
+    if (strstr(path, "tad2.tad")) return 114;
+    if (strstr(path, "tad3.tad")) return 115;
+    if (strstr(path, "fd_format.tad")) return 116;
+    if (strstr(path, "kernel/kernel.tad")) return 121;
+    if (strstr(path, "kernel/proc.tad")) return 122;
+    if (strstr(path, "kernel/memory.tad")) return 123;
+    if (strstr(path, "dp/dp.tad")) return 131;
+    if (strstr(path, "shell/shell.tad")) return 141;
+    if (strstr(path, "shell/window.tad")) return 142;
+    if (strstr(path, "indexfig.tad")) return 161;
+
+    UW h = 5381;
+    for (int i = 0; path[i]; i++) {
+        h = ((h << 5) + h) + (UB)path[i];
+    }
+    return 100 + (h % 900);
+}
+
+static const char* deduce_toc_path(const char *path) {
+    if (strstr(path, "01_btron3_spec") || strstr(path, "02_tkernel_book") ||
+        strstr(path, "03_bfree_os_book")) {
+        return "books/";
+    }
+    if (strstr(path, "shared_data/")) return "shared_data/";
+    if (strstr(path, "os_spec/kernel/")) return "os_spec/kernel/";
+    if (strstr(path, "os_spec/dp/")) return "os_spec/dp/";
+    if (strstr(path, "os_spec/shell/")) return "os_spec/shell/";
+    if (strstr(path, "os_spec/")) return "os_spec/";
+    if (strstr(path, "b-free/")) return "b-free/";
+    if (strstr(path, "b-system/")) return "b-system/";
+    if (strstr(path, "t-kernel/")) return "t-kernel/";
+    return "root/";
+}
+
+static const char* deduce_icon_tag(const char *path) {
+    if (strstr(path, "03_bfree") || strstr(path, "b-free")) return "[b-free]";
+    if (strstr(path, "b-system")) return "[b-system]";
+    if (strstr(path, "02_tkernel") || strstr(path, "t-kernel")) return "[t-kernel]";
+    if (strstr(path, "01_btron3") || strstr(path, "shared_data") || strstr(path, "os_spec") || strstr(path, "doc")) return "[doc]";
+    return "[doc]";
+}
+
+/* ── Dynamic Recursive Filesystem Discovery (Discovered not Hardcoded) ── */
+static void cabinet_discover_dir(CABINET_EXPLORER *cab, const char *dir_path) {
+    DIR *d = opendir(dir_path);
+    if (!d) return;
+
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        if (de->d_name[0] == '.') continue;
+
+        char sub_path[256];
+        snprintf(sub_path, sizeof(sub_path), "%s/%s", dir_path, de->d_name);
+
+        struct stat st;
+        if (stat(sub_path, &st) != 0) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            cabinet_discover_dir(cab, sub_path);
+        } else if (S_ISREG(st.st_mode)) {
+            int len = strlen(de->d_name);
+            if (len > 4 && strcmp(de->d_name + len - 4, ".tad") == 0) {
+                if (cab->item_count < MAX_CABINET_ITEMS) {
+                    CABINET_ITEM *it = &cab->items[cab->item_count++];
+                    it->robj_id = deduce_robj_id(sub_path);
+                    it->type = VOBJ_TYPE_TEXT;
+                    strncpy(it->name, de->d_name, sizeof(it->name) - 1);
+                    strncpy(it->path, sub_path, sizeof(it->path) - 1);
+                    it->size_bytes = (UW)st.st_size;
+                    it->icon_tag = deduce_icon_tag(sub_path);
+                    it->category = deduce_toc_path(sub_path);
+                }
+            }
+        }
+    }
+    closedir(d);
+}
+#endif
+
 static void cabinet_init_defaults(CABINET_EXPLORER *cab) {
     memset(cab, 0, sizeof(CABINET_EXPLORER));
     cab->selected_idx = 0;
@@ -113,80 +301,28 @@ static void cabinet_init_defaults(CABINET_EXPLORER *cab) {
     cab->scroll_offset = 0;
     cab->view_mode = CAB_VIEW_LIST;
 
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    /* Dynamic discovery from tad_bin/ directory tree */
+    cabinet_discover_dir(cab, "tad_bin");
+#endif
+
+    if (cab->item_count > 0) {
+        /* Group by first column & sort by TOC order */
+        cabinet_sort_items(cab);
+        snprintf(cab->status_msg, sizeof(cab->status_msg),
+                 "Cabinet Ready. Discovered %d Real Objects across tad_bin/.", cab->item_count);
+        return;
+    }
+
+    /* Fallback static list for freestanding embedded environments */
     int n = 0;
-
-    /* ── [b-free] Free Software BTRON3 Implementation (b-free/) ────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 104, VOBJ_TYPE_TEXT, "00_bfree_book.tad", "tad_bin/04_bfree_os_book.tad", 1472, "[b-free]", "[和文読本]" };
-    cab->items[n++] = (CABINET_ITEM){ 106, VOBJ_TYPE_TEXT, "01_manifest.tad", "tad_bin/b-free/manifest.tad", 4198, "[b-free]", "[マニフェスト]" };
-    cab->items[n++] = (CABINET_ITEM){ 301, VOBJ_TYPE_TEXT, "02_kernel.tad", "tad_bin/b-free/kernel.tad", 4362, "[b-free]", "[マイクロカーネル]" };
-    cab->items[n++] = (CABINET_ITEM){ 302, VOBJ_TYPE_TEXT, "03_posix.tad", "tad_bin/b-free/posix.tad", 3838, "[b-free]", "[POSIX互換層]" };
-    cab->items[n++] = (CABINET_ITEM){ 303, VOBJ_TYPE_TEXT, "04_btron_env.tad", "tad_bin/b-free/btron.tad", 3845, "[b-free]", "[統合環境]" };
-    cab->items[n++] = (CABINET_ITEM){ 304, VOBJ_TYPE_TEXT, "05_boot_arch.tad", "tad_bin/b-free/boot_arch.tad", 2449, "[b-free]", "[ブート機構]" };
-    cab->items[n++] = (CABINET_ITEM){ 305, VOBJ_TYPE_TEXT, "06_source_tree.tad", "tad_bin/b-free/source_tree.tad", 1923, "[b-free]", "[ソースツリー]" };
-    cab->items[n++] = (CABINET_ITEM){ 306, VOBJ_TYPE_TEXT, "07_bfree_index.tad", "tad_bin/b-free/index.tad", 2386, "[b-free]", "[索引]" };
-
-    /* ── [b-system] B-System POSIX & VirtIO Specs (b-system/) ──────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 107, VOBJ_TYPE_TEXT, "01_virtio.tad", "tad_bin/b-system/virtio.tad", 14871, "[b-system]", "[VirtIO仕様]" };
-    cab->items[n++] = (CABINET_ITEM){ 401, VOBJ_TYPE_TEXT, "02_btron_spec.tad", "tad_bin/b-system/btron_spec.tad", 4378, "[b-system]", "[システムコール]" };
-    cab->items[n++] = (CABINET_ITEM){ 402, VOBJ_TYPE_TEXT, "03_kernel_arch.tad", "tad_bin/b-system/kernel.tad", 4637, "[b-system]", "[カーネル構造]" };
-    cab->items[n++] = (CABINET_ITEM){ 403, VOBJ_TYPE_TEXT, "04_license.tad", "tad_bin/b-system/license.tad", 3619, "[b-system]", "[ライセンス]" };
-    cab->items[n++] = (CABINET_ITEM){ 404, VOBJ_TYPE_TEXT, "05_bsystem_index.tad", "tad_bin/b-system/index.tad", 3063, "[b-system]", "[索引]" };
-
-    /* ── [doc] BTRON3 Standard Specifications (doc/) ───────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 101, VOBJ_TYPE_TEXT, "00_btron3_spec.tad", "tad_bin/01_btron3_spec.tad", 3996, "[doc]", "[和文仕様]" };
-    cab->items[n++] = (CABINET_ITEM){ 111, VOBJ_TYPE_TEXT, "01_data_type.tad", "tad_bin/shared_data/data_type.tad", 10022, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 112, VOBJ_TYPE_TEXT, "02_tron_code.tad", "tad_bin/shared_data/tron_code.tad", 12995, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 113, VOBJ_TYPE_TEXT, "03_tad_spec.tad", "tad_bin/shared_data/tad1.tad", 23533, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 114, VOBJ_TYPE_TEXT, "04_text_fusen.tad", "tad_bin/shared_data/tad2.tad", 34198, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 115, VOBJ_TYPE_TEXT, "05_figure_fusen.tad", "tad_bin/shared_data/tad3.tad", 29942, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 116, VOBJ_TYPE_TEXT, "06_btron_fs.tad", "tad_bin/shared_data/fd_format.tad", 12484, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 117, VOBJ_TYPE_TEXT, "07_shared_index.tad", "tad_bin/shared_data/index.tad", 4588, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 118, VOBJ_TYPE_TEXT, "08_shared_fig.tad", "tad_bin/shared_data/indexfig.tad", 4648, "[doc]", "[Специфікація]" };
-    cab->items[n++] = (CABINET_ITEM){ 121, VOBJ_TYPE_TEXT, "09_kernel_core.tad", "tad_bin/os_spec/kernel/kernel.tad", 6173, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 122, VOBJ_TYPE_TEXT, "10_kernel_proc.tad", "tad_bin/os_spec/kernel/proc.tad", 38370, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 123, VOBJ_TYPE_TEXT, "11_kernel_memory.tad", "tad_bin/os_spec/kernel/memory.tad", 17338, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 124, VOBJ_TYPE_TEXT, "12_kernel_file.tad", "tad_bin/os_spec/kernel/file.tad", 39206, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 125, VOBJ_TYPE_TEXT, "13_kernel_event.tad", "tad_bin/os_spec/kernel/event.tad", 20879, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 126, VOBJ_TYPE_TEXT, "14_kernel_clk.tad", "tad_bin/os_spec/kernel/clk.tad", 17689, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 127, VOBJ_TYPE_TEXT, "15_kernel_device.tad", "tad_bin/os_spec/kernel/device.tad", 18294, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 128, VOBJ_TYPE_TEXT, "16_kernel_message.tad", "tad_bin/os_spec/kernel/message.tad", 32854, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 129, VOBJ_TYPE_TEXT, "17_kernel_taskcomm.tad", "tad_bin/os_spec/kernel/taskcomm.tad", 23328, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 130, VOBJ_TYPE_TEXT, "18_kernel_system.tad", "tad_bin/os_spec/kernel/system.tad", 13837, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 1301, VOBJ_TYPE_TEXT, "19_kernel_gname.tad", "tad_bin/os_spec/kernel/gname.tad", 10475, "[doc]", "[Ядро]" };
-    cab->items[n++] = (CABINET_ITEM){ 131, VOBJ_TYPE_TEXT, "20_dp_graphics.tad", "tad_bin/os_spec/dp/dp.tad", 3139, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 132, VOBJ_TYPE_TEXT, "21_dp_basic_concept.tad", "tad_bin/os_spec/dp/basic_concept.tad", 9237, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 133, VOBJ_TYPE_TEXT, "22_dp_basic_func.tad", "tad_bin/os_spec/dp/basic_func.tad", 26482, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 134, VOBJ_TYPE_TEXT, "23_dp_char_func.tad", "tad_bin/os_spec/dp/character_func.tad", 9397, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 135, VOBJ_TYPE_TEXT, "24_dp_figure_func.tad", "tad_bin/os_spec/dp/figure_func.tad", 15829, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 136, VOBJ_TYPE_TEXT, "25_dp_pointer_func.tad", "tad_bin/os_spec/dp/pointer_func.tad", 8339, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 137, VOBJ_TYPE_TEXT, "26_dp_intro.tad", "tad_bin/os_spec/dp/intro.tad", 4120, "[doc]", "[Графіка]" };
-    cab->items[n++] = (CABINET_ITEM){ 141, VOBJ_TYPE_TEXT, "27_gui_shell.tad", "tad_bin/os_spec/shell/shell.tad", 4430, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 142, VOBJ_TYPE_TEXT, "28_shell_window.tad", "tad_bin/os_spec/shell/window.tad", 87963, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 143, VOBJ_TYPE_TEXT, "29_shell_menu.tad", "tad_bin/os_spec/shell/menu.tad", 32447, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 144, VOBJ_TYPE_TEXT, "30_shell_panel.tad", "tad_bin/os_spec/shell/panel.tad", 24067, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 145, VOBJ_TYPE_TEXT, "31_shell_parts.tad", "tad_bin/os_spec/shell/parts.tad", 58356, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 146, VOBJ_TYPE_TEXT, "32_shell_font_mgr.tad", "tad_bin/os_spec/shell/font_mgr.tad", 23609, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 147, VOBJ_TYPE_TEXT, "33_shell_printmgr.tad", "tad_bin/os_spec/shell/printmgr.tad", 18096, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 148, VOBJ_TYPE_TEXT, "34_shell_tip_ime.tad", "tad_bin/os_spec/shell/tip.tad", 17004, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 149, VOBJ_TYPE_TEXT, "35_shell_tray.tad", "tad_bin/os_spec/shell/tray.tad", 18136, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 150, VOBJ_TYPE_TEXT, "36_shell_tcpip.tad", "tad_bin/os_spec/shell/tcpip.tad", 23101, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 151, VOBJ_TYPE_TEXT, "37_shell_omgr.tad", "tad_bin/os_spec/shell/omgr.tad", 92692, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 152, VOBJ_TYPE_TEXT, "38_shell_data.tad", "tad_bin/os_spec/shell/data.tad", 15670, "[doc]", "[Оболонка]" };
-    cab->items[n++] = (CABINET_ITEM){ 161, VOBJ_TYPE_TEXT, "39_static_analysis.tad", "tad_bin/os_spec/indexfig.tad", 7167, "[doc]", "[Надійність]" };
-
-    /* ── [t-kernel] T-Kernel 2.0 Real-Time OS Specs (t-kernel/) ────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 102, VOBJ_TYPE_TEXT, "00_tkernel_book.tad", "tad_bin/02_tkernel_book.tad", 1745, "[t-kernel]", "[和文仕様]" };
-    cab->items[n++] = (CABINET_ITEM){ 501, VOBJ_TYPE_TEXT, "01_tkernel_spec.tad", "tad_bin/t-kernel/tkernel_spec.tad", 4129, "[t-kernel]", "[T-Kernel]" };
-    cab->items[n++] = (CABINET_ITEM){ 502, VOBJ_TYPE_TEXT, "02_tkernel_startup.tad", "tad_bin/t-kernel/tkernel_startup.tad", 2687, "[t-kernel]", "[T-Kernel]" };
-    cab->items[n++] = (CABINET_ITEM){ 503, VOBJ_TYPE_TEXT, "03_tkernel_qemu.tad", "tad_bin/t-kernel/tkernel_qemu.tad", 2410, "[t-kernel]", "[T-Kernel]" };
-    cab->items[n++] = (CABINET_ITEM){ 504, VOBJ_TYPE_TEXT, "04_tkernel_index.tad", "tad_bin/t-kernel/index.tad", 1506, "[t-kernel]", "[T-Kernel]" };
-
+    cab->items[n++] = (CABINET_ITEM){ 101, VOBJ_TYPE_TEXT, "01_btron3_spec.tad", "tad_bin/01_btron3_spec.tad", 3996, "[doc]", "books/" };
+    cab->items[n++] = (CABINET_ITEM){ 102, VOBJ_TYPE_TEXT, "02_tkernel_book.tad", "tad_bin/02_tkernel_book.tad", 1745, "[t-kernel]", "books/" };
+    cab->items[n++] = (CABINET_ITEM){ 103, VOBJ_TYPE_TEXT, "03_bfree_os_book.tad", "tad_bin/03_bfree_os_book.tad", 1472, "[b-free]", "books/" };
+    cab->items[n++] = (CABINET_ITEM){ 111, VOBJ_TYPE_TEXT, "01_data_type.tad", "tad_bin/shared_data/data_type.tad", 10022, "[doc]", "shared_data/" };
     cab->item_count = n;
-
-    /* Execute automatic natural sorting grouped by first column */
     cabinet_sort_items(cab);
-
-    strncpy(cab->status_msg, "Cabinet Ready. Double-click any Real Object to open in TAD Browser.", sizeof(cab->status_msg) - 1);
+    strncpy(cab->status_msg, "Cabinet Ready (Embedded Static Fallback).", sizeof(cab->status_msg) - 1);
 }
 
 static void paint_vobj_manager(WND *wnd, GDEV *dev) {
@@ -207,9 +343,10 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     drw_lin(dev, 0, 56, dev->width, 56);
 
     drw_tc_string(dev, 10, 33, "[開く (Open)]", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 110, 33, "[閲覧 (View)]", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 210, 33, "[新規 (New)]", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 300, 33, (g_cabinet.view_mode == CAB_VIEW_LIST) ? "[表示: 一覧]" : "[表示: アイコン]", COLOR_BLUE, 0x00000000);
+    drw_tc_string(dev, 100, 33, "[閲覧 (View)]", COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, 190, 33, "[新規 (New)]", COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, 275, 33, (g_cabinet.view_mode == CAB_VIEW_LIST) ? "[表示: 一覧]" : "[表示: アイコン]", COLOR_BLUE, 0x00000000);
+    drw_tc_string(dev, 385, 33, "[↻ 再走査 (Rescan)]", COLOR_NAVY, 0x00000000);
 
     /* List Content Viewport */
     int start_y = 60;
@@ -240,11 +377,24 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
 
         COLOR txt_col = (i == g_cabinet.selected_idx) ? COLOR_WHITE : COLOR_BLACK;
 
-        char line[128];
-        snprintf(line, sizeof(line), "%-11s %-16s #%-4d %-24s %6u B",
-                 it->icon_tag, it->category, it->robj_id, it->name, it->size_bytes);
+        /* Col 1: Icon Tag (e.g. [b-free], [doc], [t-kernel]) */
+        drw_tc_string(dev, 14, item_y, it->icon_tag, txt_col, 0x00000000);
 
-        drw_tc_string(dev, 14, item_y, line, txt_col, 0x00000000);
+        /* Col 2: TOC Hierarchy Path (e.g. os_spec/kernel/, shared_data/, books/) */
+        drw_tc_string(dev, 90, item_y, it->category, txt_col, 0x00000000);
+
+        /* Col 3: Real Object ID */
+        char id_str[16];
+        snprintf(id_str, sizeof(id_str), "#%-4d", it->robj_id);
+        drw_tc_string(dev, 240, item_y, id_str, txt_col, 0x00000000);
+
+        /* Col 4: Document Name */
+        drw_tc_string(dev, 295, item_y, it->name, txt_col, 0x00000000);
+
+        /* Col 5: File Size */
+        char sz_str[24];
+        snprintf(sz_str, sizeof(sz_str), "%6u B", it->size_bytes);
+        drw_tc_string(dev, dev->width - 85, item_y, sz_str, txt_col, 0x00000000);
     }
 
     /* Scrollbar Indicator (Right Margin) */
@@ -313,9 +463,12 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
                     g_cabinet.selected_idx = g_cabinet.item_count;
                     g_cabinet.item_count++;
                 }
-            } else if (rel_x >= 300 && rel_x <= 420) {
+            } else if (rel_x >= 275 && rel_x <= 375) {
                 /* Toggle View Mode */
                 g_cabinet.view_mode = (g_cabinet.view_mode == CAB_VIEW_LIST) ? CAB_VIEW_GRID : CAB_VIEW_LIST;
+            } else if (rel_x >= 380 && rel_x <= 500) {
+                /* [↻ 再走査 (Rescan)] */
+                cabinet_init_defaults(&g_cabinet);
             }
             return;
         }
@@ -391,8 +544,11 @@ BOOL cabinet_handle_click(int mouse_x, int mouse_y, BOOL is_double_click, ID *ou
     (void)mouse_x;
     if (mouse_y >= 28 && mouse_y <= 52) {
         /* Toolbar click */
-        if (mouse_x >= 300 && mouse_x <= 400) {
+        if (mouse_x >= 275 && mouse_x <= 375) {
             g_cabinet.view_mode = (g_cabinet.view_mode == CAB_VIEW_LIST) ? CAB_VIEW_GRID : CAB_VIEW_LIST;
+            return FALSE;
+        } else if (mouse_x >= 380 && mouse_x <= 500) {
+            cabinet_init_defaults(&g_cabinet);
             return FALSE;
         }
     }

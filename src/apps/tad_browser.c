@@ -678,7 +678,7 @@ static UB s_gif_stack[MAX_LZW_DICT + 1];
 static UB s_gif_raw[MAX_GIF_PIXELS];
 
 /* ── Native BTRON3 GIF Specification Diagram Decoder (NASA JPL Rule 3 Bounded) ── */
-static int decode_and_draw_gif(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+int decode_and_draw_gif(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
     if (!dev || !filepath) return -1;
     FILE *fp = fopen(filepath, "rb");
     if (!fp) return -1;
@@ -911,7 +911,7 @@ static inline UB paeth_predictor(UB a, UB b, UB c) {
 }
 
 /* ── Native BTRON3 PNG Image Decoder (NASA JPL Rule 3 Bounded Static) ── */
-static int decode_and_draw_png(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+int decode_and_draw_png(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
     if (!dev || !filepath) return -1;
     FILE *fp = fopen(filepath, "rb");
     if (!fp) return -1;
