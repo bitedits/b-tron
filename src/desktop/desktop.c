@@ -70,6 +70,12 @@ void render_desktop_background(GDEV *dev) {
     drw_rec(dev, &term_icon);
     drw_tc_string(dev, 25, 220, "端末", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 12, 262, "端末シェル", COLOR_WHITE, 0x00000000);
+
+    RECT audio_icon = { 20, 290, 70, 335 };
+    fill_rec(dev, &audio_icon, COLOR_LTGRAY);
+    drw_rec(dev, &audio_icon);
+    drw_tc_string(dev, 25, 300, "音響", COLOR_RED, 0x00000000);
+    drw_tc_string(dev, 12, 342, "音響機器", COLOR_WHITE, 0x00000000);
 }
 
 void render_system_panel(GDEV *dev) {

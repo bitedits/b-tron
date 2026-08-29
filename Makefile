@@ -77,6 +77,14 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/apps/vobj_manager.c  \
               src/apps/t_editor.c      \
               src/apps/gterm.c         \
+              src/apps/audio_player.c  \
+              src/hmi/hmi_core.c       \
+              src/hmi/hmi_switch.c     \
+              src/hmi/hmi_selector.c   \
+              src/hmi/hmi_volume.c     \
+              src/hmi/hmi_meter.c      \
+              src/hmi/hmi_controller.c \
+              src/hmi/hmi_panel.c      \
               $(IME_SRCS)
 
 # ── POSIX build (Target 0) ────────────────────────────────────────
@@ -384,6 +392,25 @@ $(TEST_EDITOR_BIN): $(TEST_EDITOR_OBJS)
 	$(CC) $(TEST_EDITOR_OBJS) -o $@ $(LDFLAGS)
 
 # ═══════════════════════════════════════════════════════════════════
+# TRON HMI Standard Library Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_HMI_SRCS = src/hmi/test_hmi.c src/hmi/hmi_core.c src/hmi/hmi_switch.c \
+                src/hmi/hmi_selector.c src/hmi/hmi_volume.c src/hmi/hmi_meter.c \
+                src/hmi/hmi_controller.c src/hmi/hmi_panel.c src/graphics/dp_core.c \
+                src/font/troncode.c src/font/jis_fonts.c src/window/wnd.c
+TEST_HMI_OBJS = $(TEST_HMI_SRCS:.c=.test.o)
+TEST_HMI_BIN  = test_hmi
+
+test-hmi: $(TEST_HMI_BIN)
+	@echo "=========================================================="
+	@echo " Running TRON HMI Standard Library Unit Tests..."
+	@echo "=========================================================="
+	@./$(TEST_HMI_BIN)
+
+$(TEST_HMI_BIN): $(TEST_HMI_OBJS)
+	$(CC) $(TEST_HMI_OBJS) -o $@ $(LDFLAGS)
+
+# ═══════════════════════════════════════════════════════════════════
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
@@ -392,7 +419,7 @@ clean:
 	rm -f *.log
 	rm -f *.out
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN)
-	find src -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN)
+	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

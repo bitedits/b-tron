@@ -5,6 +5,7 @@
 
 #include <btron/btron.h>
 #include <btron/tip.h>
+#include <btron/apps.h>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,7 @@
 extern WND* open_vobj_manager_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_gterm_window(void);
+extern WND* open_audio_player_window(void);
 
 extern BOOL init_sdl_backend(H width, H height, const char *title);
 extern void flush_gdev_to_sdl(GDEV *dev);
@@ -136,6 +138,9 @@ int main(int argc, char **argv) {
                 } else if (ev.pos.y > 210 && ev.pos.y < 260 && ev.pos.x < 70) {
                     /* Desktop Terminal Icon click -> Open Terminal */
                     open_gterm_window();
+                } else if (ev.pos.y > 290 && ev.pos.y < 340 && ev.pos.x < 70) {
+                    /* Desktop Audio Deck Icon click -> Open Audio Player */
+                    open_audio_player_window();
                 }
             } else if (ev.type == EV_BUT_UP) {
                 dragging = FALSE;

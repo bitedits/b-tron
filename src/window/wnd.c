@@ -129,6 +129,12 @@ ER mov_wnd(WND *wnd, H x, H y) {
     return E_OK;
 }
 
+ER inval_wnd(WND *wnd) {
+    if (!wnd) return E_PAR;
+    /* In immediate composite architecture, dirty window is redrawn on next frame */
+    return E_OK;
+}
+
 static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
     if (!dev || !wnd) return;
 
