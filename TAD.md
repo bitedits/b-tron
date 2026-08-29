@@ -14,35 +14,37 @@ In B-System, TAD serves two critical roles:
 
 ---
 
-## 2. Directory Structure & Contents
+## 2. Directory Structure & Audience Distinction
+
+The B-System documentation ecosystem is organized into two distinct language and target domains:
 
 ```
 btron/
-├── dharma/                       # 4 Foundational Dharma Books (Binary TAD + Annotated Text)
-│   ├── 01_btron3_spec.tad        # BTRON3 3.20 Specification Book (Binary TAD)
+├── dharma/                       # ◄ JAPANESE (JP) AUDIENCE: 4 Foundational Dharma Books [dharma][和文仕様]
+│   ├── 01_btron3_spec.tad        # BTRON3 3.20 共通仕様書 (Binary TAD)
 │   ├── 01_btron3_spec.tad.txt    # Human-readable symbolic TAD representation
-│   ├── 02_tkernel_book.tad       # T-Kernel 2.0 Real-Time OS Book (Binary TAD)
+│   ├── 02_tkernel_book.tad       # T-Kernel 2.0 完全解説 (Binary TAD)
 │   ├── 02_tkernel_book.tad.txt   # Human-readable symbolic TAD representation
-│   ├── 03_tron_hmi_book.tad      # TRON Human-Machine Interface Book (Binary TAD)
+│   ├── 03_tron_hmi_book.tad      # TRON HMI 意匠設計指針 (Binary TAD)
 │   ├── 03_tron_hmi_book.tad.txt  # Human-readable symbolic TAD representation
-│   ├── 04_bfree_os_book.tad      # B-Free Operating System Book (Binary TAD)
+│   ├── 04_bfree_os_book.tad      # B-Free 自由OS読本 (Binary TAD)
 │   └── 04_bfree_os_book.tad.txt  # Human-readable symbolic TAD representation
 │
-├── tad_bin/                      # 41 Ukrainian BTRON3 Specification Documents (Compiled from ./doc/)
-│   ├── index.tad                 # Main Documentation Portal
-│   ├── shared_data/              # Part 1: Shared Data Specifications (10 documents)
-│   │   ├── data_type.tad         # Basic data types, error codes, and C99 bounds
-│   │   ├── tron_code.tad         # TRON multilingual character planes & encoding
-│   │   ├── tad1.tad              # TAD document format & segment specification
-│   │   ├── tad2.tad              # Text Fusen segments specification
-│   │   ├── tad3.tad              # Figure & graphics Fusen segments
-│   │   └── fd_format.tad         # BTRON FS Real/Virtual Object filesystem layout
-│   ├── os_spec/                  # Part 2: Operating System Specifications (31 documents)
-│   │   ├── kernel/               # μITRON Kernel, Tasks, Memory, I/O, IPC, Clock, Device
-│   │   ├── dp/                   # Display Primitives (DP) 2D vector & text engine
-│   │   ├── shell/                # GUI Shell, Window Manager, Menus, Panels, Parts, IME
-│   │   └── indexfig.tad          # NASA JPL Rule 3 & Static Heap Analysis
-│   └── *.tad.txt                 # Companion human-readable symbolic representations
+├── tad_bin/                      # ◄ UKRAINIAN (UA) AUDIENCE: 41 BTRON3 System Specs [tad_bin][Ядро/etc]
+│   ├── index.tad                 # Головний портал документації B-System
+│   ├── shared_data/              # [tad_bin][Специфікація] Загальні специфікації даних
+│   │   ├── data_type.tad         # Типи даних, коди помилок та C99 межі
+│   │   ├── tron_code.tad         # Багатомовне кодування TRON Code
+│   │   ├── tad1.tad              # Специфікація структури TAD сегментів
+│   │   ├── tad2.tad              # Текстові фусени (Text Fusen)
+│   │   ├── tad3.tad              # Графічні фусени (Figure Fusen)
+│   │   └── fd_format.tad         # Файлова система реальних та віртуальних об'єктів
+│   ├── os_spec/                  # Специфікації операційної системи BTRON3
+│   │   ├── kernel/               # [tad_bin][Ядро] Ядро μITRON 3.0, Задачі, Пам'ять, IPC, Таймери
+│   │   ├── dp/                   # [tad_bin][Графіка] Графічні примітиви DP (2D Display Primitives)
+│   │   ├── shell/                # [tad_bin][Оболонка] Графічна оболонка, Вікна, Меню, Панелі, TIP/IME
+│   │   └── indexfig.tad          # [tad_bin][Надійність] Статичний аналіз пам'яті (NASA JPL Rule 3)
+│   └── *.tad.txt                 # Супутні людиночитні TAD файли
 ```
 
 ---
@@ -140,7 +142,9 @@ make test-tad
 ## 5. Runtime Usage in B-System
 
 ### 1. Cabinet Explorer (実身キャビネット - `src/apps/vobj_manager.c`)
-- **Central Storage:** Manages the registry of all Real Objects (`dharma/` and `tad_bin/`).
+- **Central Storage & Categorization:**
+  - **Japanese Dharma Library:** Tagged with `[dharma][和文仕様]`, containing the 4 foundational TRON/BTRON books.
+  - **Ukrainian Specification Library:** Tagged with `[tad_bin][Ядро]`, `[tad_bin][Специфікація]`, `[tad_bin][Графіка]`, `[tad_bin][Оболонка]`, and `[tad_bin][Надійність]`.
 - **Interactive Navigation:**
   - **Single Click / Key Arrow:** Selects an object, highlighting it in BTRON Navy Blue (`COLOR_NAVY`) and displaying metadata (Real Object ID, category, size in bytes) in the status bar.
   - **Double-Click / [開く (Open)] / [閲覧 (View)]:** Instantly opens the selected Real Object in the **TAD Document Browser**.

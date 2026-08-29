@@ -64,59 +64,59 @@ static void cabinet_init_defaults(CABINET_EXPLORER *cab) {
 
     int n = 0;
 
-    /* ── Foundational Dharma Books ─────────────────────────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 101, VOBJ_TYPE_TEXT, "01_btron3_spec.tad", "dharma/01_btron3_spec.tad", 3996, "[DHRM]", "Dharma" };
-    cab->items[n++] = (CABINET_ITEM){ 102, VOBJ_TYPE_TEXT, "02_tkernel_book.tad", "dharma/02_tkernel_book.tad", 1745, "[DHRM]", "Dharma" };
-    cab->items[n++] = (CABINET_ITEM){ 103, VOBJ_TYPE_TEXT, "03_tron_hmi_book.tad", "dharma/03_tron_hmi_book.tad", 1415, "[DHRM]", "Dharma" };
-    cab->items[n++] = (CABINET_ITEM){ 104, VOBJ_TYPE_TEXT, "04_bfree_os_book.tad", "dharma/04_bfree_os_book.tad", 1472, "[DHRM]", "Dharma" };
+    /* ── Foundational Dharma Books (Japanese Audience) ─────────────────────── */
+    cab->items[n++] = (CABINET_ITEM){ 101, VOBJ_TYPE_TEXT, "01_btron3_spec.tad", "dharma/01_btron3_spec.tad", 3996, "[dharma]", "[和文仕様]" };
+    cab->items[n++] = (CABINET_ITEM){ 102, VOBJ_TYPE_TEXT, "02_tkernel_book.tad", "dharma/02_tkernel_book.tad", 1745, "[dharma]", "[和文仕様]" };
+    cab->items[n++] = (CABINET_ITEM){ 103, VOBJ_TYPE_TEXT, "03_tron_hmi_book.tad", "dharma/03_tron_hmi_book.tad", 1415, "[dharma]", "[和文仕様]" };
+    cab->items[n++] = (CABINET_ITEM){ 104, VOBJ_TYPE_TEXT, "04_bfree_os_book.tad", "dharma/04_bfree_os_book.tad", 1472, "[dharma]", "[和文仕様]" };
 
-    /* ── Ukrainian BTRON3 Specifications (Shared Data) ─────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 111, VOBJ_TYPE_TEXT, "01_data_type.tad", "tad_bin/shared_data/data_type.tad", 10022, "[УКР]", "Специфікація" };
-    cab->items[n++] = (CABINET_ITEM){ 112, VOBJ_TYPE_TEXT, "02_tron_code.tad", "tad_bin/shared_data/tron_code.tad", 12774, "[УКР]", "Специфікація" };
-    cab->items[n++] = (CABINET_ITEM){ 113, VOBJ_TYPE_TEXT, "03_tad_spec.tad", "tad_bin/shared_data/tad1.tad", 22677, "[УКР]", "Специфікація" };
-    cab->items[n++] = (CABINET_ITEM){ 114, VOBJ_TYPE_TEXT, "03.5_text_fusen.tad", "tad_bin/shared_data/tad2.tad", 31560, "[УКР]", "Специфікація" };
-    cab->items[n++] = (CABINET_ITEM){ 115, VOBJ_TYPE_TEXT, "03.6_figure_fusen.tad", "tad_bin/shared_data/tad3.tad", 29077, "[УКР]", "Специфікація" };
-    cab->items[n++] = (CABINET_ITEM){ 116, VOBJ_TYPE_TEXT, "04_btron_fs.tad", "tad_bin/shared_data/fd_format.tad", 10525, "[УКР]", "Специфікація" };
+    /* ── Ukrainian BTRON3 Specifications: Shared Data (Ukrainian Audience) ── */
+    cab->items[n++] = (CABINET_ITEM){ 111, VOBJ_TYPE_TEXT, "01_data_type.tad", "tad_bin/shared_data/data_type.tad", 10022, "[tad_bin]", "[Специфікація]" };
+    cab->items[n++] = (CABINET_ITEM){ 112, VOBJ_TYPE_TEXT, "02_tron_code.tad", "tad_bin/shared_data/tron_code.tad", 12774, "[tad_bin]", "[Специфікація]" };
+    cab->items[n++] = (CABINET_ITEM){ 113, VOBJ_TYPE_TEXT, "03_tad_spec.tad", "tad_bin/shared_data/tad1.tad", 22677, "[tad_bin]", "[Специфікація]" };
+    cab->items[n++] = (CABINET_ITEM){ 114, VOBJ_TYPE_TEXT, "03.5_text_fusen.tad", "tad_bin/shared_data/tad2.tad", 31560, "[tad_bin]", "[Специфікація]" };
+    cab->items[n++] = (CABINET_ITEM){ 115, VOBJ_TYPE_TEXT, "03.6_figure_fusen.tad", "tad_bin/shared_data/tad3.tad", 29077, "[tad_bin]", "[Специфікація]" };
+    cab->items[n++] = (CABINET_ITEM){ 116, VOBJ_TYPE_TEXT, "04_btron_fs.tad", "tad_bin/shared_data/fd_format.tad", 10525, "[tad_bin]", "[Специфікація]" };
 
-    /* ── Ukrainian BTRON3 Specifications (Kernel) ──────────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 121, VOBJ_TYPE_TEXT, "05_kernel_core.tad", "tad_bin/os_spec/kernel/kernel.tad", 6501, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 122, VOBJ_TYPE_TEXT, "05.1_kernel_proc.tad", "tad_bin/os_spec/kernel/proc.tad", 38045, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 123, VOBJ_TYPE_TEXT, "05.2_kernel_memory.tad", "tad_bin/os_spec/kernel/memory.tad", 17338, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 124, VOBJ_TYPE_TEXT, "05.3_kernel_file.tad", "tad_bin/os_spec/kernel/file.tad", 38903, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 125, VOBJ_TYPE_TEXT, "05.4_kernel_event.tad", "tad_bin/os_spec/kernel/event.tad", 20879, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 126, VOBJ_TYPE_TEXT, "05.5_kernel_clk.tad", "tad_bin/os_spec/kernel/clk.tad", 17689, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 127, VOBJ_TYPE_TEXT, "05.6_kernel_device.tad", "tad_bin/os_spec/kernel/device.tad", 18294, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 128, VOBJ_TYPE_TEXT, "05.7_kernel_message.tad", "tad_bin/os_spec/kernel/message.tad", 32854, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 129, VOBJ_TYPE_TEXT, "05.8_kernel_taskcomm.tad", "tad_bin/os_spec/kernel/taskcomm.tad", 23328, "[ЯДРО]", "Kernel" };
-    cab->items[n++] = (CABINET_ITEM){ 130, VOBJ_TYPE_TEXT, "05.9_kernel_system.tad", "tad_bin/os_spec/kernel/system.tad", 13837, "[ЯДРО]", "Kernel" };
+    /* ── Ukrainian BTRON3 Specifications: Kernel (Ukrainian Audience) ──────── */
+    cab->items[n++] = (CABINET_ITEM){ 121, VOBJ_TYPE_TEXT, "05_kernel_core.tad", "tad_bin/os_spec/kernel/kernel.tad", 6173, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 122, VOBJ_TYPE_TEXT, "05.1_kernel_proc.tad", "tad_bin/os_spec/kernel/proc.tad", 38045, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 123, VOBJ_TYPE_TEXT, "05.2_kernel_memory.tad", "tad_bin/os_spec/kernel/memory.tad", 17338, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 124, VOBJ_TYPE_TEXT, "05.3_kernel_file.tad", "tad_bin/os_spec/kernel/file.tad", 38903, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 125, VOBJ_TYPE_TEXT, "05.4_kernel_event.tad", "tad_bin/os_spec/kernel/event.tad", 20879, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 126, VOBJ_TYPE_TEXT, "05.5_kernel_clk.tad", "tad_bin/os_spec/kernel/clk.tad", 17689, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 127, VOBJ_TYPE_TEXT, "05.6_kernel_device.tad", "tad_bin/os_spec/kernel/device.tad", 18294, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 128, VOBJ_TYPE_TEXT, "05.7_kernel_message.tad", "tad_bin/os_spec/kernel/message.tad", 32854, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 129, VOBJ_TYPE_TEXT, "05.8_kernel_taskcomm.tad", "tad_bin/os_spec/kernel/taskcomm.tad", 23328, "[tad_bin]", "[Ядро]" };
+    cab->items[n++] = (CABINET_ITEM){ 130, VOBJ_TYPE_TEXT, "05.9_kernel_system.tad", "tad_bin/os_spec/kernel/system.tad", 13837, "[tad_bin]", "[Ядро]" };
 
-    /* ── Ukrainian BTRON3 Specifications (Display Primitives) ──────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 131, VOBJ_TYPE_TEXT, "06_dp_graphics.tad", "tad_bin/os_spec/dp/dp.tad", 3139, "[DP]", "Graphics" };
-    cab->items[n++] = (CABINET_ITEM){ 132, VOBJ_TYPE_TEXT, "06.1_dp_basic_concept.tad", "tad_bin/os_spec/dp/basic_concept.tad", 9237, "[DP]", "Graphics" };
-    cab->items[n++] = (CABINET_ITEM){ 133, VOBJ_TYPE_TEXT, "06.2_dp_basic_func.tad", "tad_bin/os_spec/dp/basic_func.tad", 26482, "[DP]", "Graphics" };
-    cab->items[n++] = (CABINET_ITEM){ 134, VOBJ_TYPE_TEXT, "06.3_dp_char_func.tad", "tad_bin/os_spec/dp/character_func.tad", 9397, "[DP]", "Graphics" };
-    cab->items[n++] = (CABINET_ITEM){ 135, VOBJ_TYPE_TEXT, "06.4_dp_figure_func.tad", "tad_bin/os_spec/dp/figure_func.tad", 15829, "[DP]", "Graphics" };
-    cab->items[n++] = (CABINET_ITEM){ 136, VOBJ_TYPE_TEXT, "06.5_dp_pointer_func.tad", "tad_bin/os_spec/dp/pointer_func.tad", 8339, "[DP]", "Graphics" };
+    /* ── Ukrainian BTRON3 Specifications: Graphics DP (Ukrainian Audience) ─── */
+    cab->items[n++] = (CABINET_ITEM){ 131, VOBJ_TYPE_TEXT, "06_dp_graphics.tad", "tad_bin/os_spec/dp/dp.tad", 3139, "[tad_bin]", "[Графіка]" };
+    cab->items[n++] = (CABINET_ITEM){ 132, VOBJ_TYPE_TEXT, "06.1_dp_basic_concept.tad", "tad_bin/os_spec/dp/basic_concept.tad", 9237, "[tad_bin]", "[Графіка]" };
+    cab->items[n++] = (CABINET_ITEM){ 133, VOBJ_TYPE_TEXT, "06.2_dp_basic_func.tad", "tad_bin/os_spec/dp/basic_func.tad", 26482, "[tad_bin]", "[Графіка]" };
+    cab->items[n++] = (CABINET_ITEM){ 134, VOBJ_TYPE_TEXT, "06.3_dp_char_func.tad", "tad_bin/os_spec/dp/character_func.tad", 9397, "[tad_bin]", "[Графіка]" };
+    cab->items[n++] = (CABINET_ITEM){ 135, VOBJ_TYPE_TEXT, "06.4_dp_figure_func.tad", "tad_bin/os_spec/dp/figure_func.tad", 15829, "[tad_bin]", "[Графіка]" };
+    cab->items[n++] = (CABINET_ITEM){ 136, VOBJ_TYPE_TEXT, "06.5_dp_pointer_func.tad", "tad_bin/os_spec/dp/pointer_func.tad", 8339, "[tad_bin]", "[Графіка]" };
 
-    /* ── Ukrainian BTRON3 Specifications (GUI Shell) ───────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 141, VOBJ_TYPE_TEXT, "07_gui_shell.tad", "tad_bin/os_spec/shell/shell.tad", 4430, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 142, VOBJ_TYPE_TEXT, "07.1_shell_window.tad", "tad_bin/os_spec/shell/window.tad", 87963, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 143, VOBJ_TYPE_TEXT, "07.2_shell_menu.tad", "tad_bin/os_spec/shell/menu.tad", 32447, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 144, VOBJ_TYPE_TEXT, "07.3_shell_panel.tad", "tad_bin/os_spec/shell/panel.tad", 24067, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 145, VOBJ_TYPE_TEXT, "07.4_shell_parts.tad", "tad_bin/os_spec/shell/parts.tad", 58356, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 146, VOBJ_TYPE_TEXT, "07.5_shell_font_mgr.tad", "tad_bin/os_spec/shell/font_mgr.tad", 23609, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 147, VOBJ_TYPE_TEXT, "07.6_shell_printmgr.tad", "tad_bin/os_spec/shell/printmgr.tad", 18096, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 148, VOBJ_TYPE_TEXT, "07.7_shell_tip_ime.tad", "tad_bin/os_spec/shell/tip.tad", 17004, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 149, VOBJ_TYPE_TEXT, "07.8_shell_tray.tad", "tad_bin/os_spec/shell/tray.tad", 18136, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 150, VOBJ_TYPE_TEXT, "07.9_shell_tcpip.tad", "tad_bin/os_spec/shell/tcpip.tad", 23101, "[GUI]", "Shell" };
-    cab->items[n++] = (CABINET_ITEM){ 151, VOBJ_TYPE_TEXT, "07.10_shell_omgr.tad", "tad_bin/os_spec/shell/omgr.tad", 92362, "[GUI]", "Shell" };
+    /* ── Ukrainian BTRON3 Specifications: Shell GUI (Ukrainian Audience) ───── */
+    cab->items[n++] = (CABINET_ITEM){ 141, VOBJ_TYPE_TEXT, "07_gui_shell.tad", "tad_bin/os_spec/shell/shell.tad", 4430, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 142, VOBJ_TYPE_TEXT, "07.1_shell_window.tad", "tad_bin/os_spec/shell/window.tad", 87963, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 143, VOBJ_TYPE_TEXT, "07.2_shell_menu.tad", "tad_bin/os_spec/shell/menu.tad", 32447, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 144, VOBJ_TYPE_TEXT, "07.3_shell_panel.tad", "tad_bin/os_spec/shell/panel.tad", 24067, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 145, VOBJ_TYPE_TEXT, "07.4_shell_parts.tad", "tad_bin/os_spec/shell/parts.tad", 58356, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 146, VOBJ_TYPE_TEXT, "07.5_shell_font_mgr.tad", "tad_bin/os_spec/shell/font_mgr.tad", 23609, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 147, VOBJ_TYPE_TEXT, "07.6_shell_printmgr.tad", "tad_bin/os_spec/shell/printmgr.tad", 18096, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 148, VOBJ_TYPE_TEXT, "07.7_shell_tip_ime.tad", "tad_bin/os_spec/shell/tip.tad", 17004, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 149, VOBJ_TYPE_TEXT, "07.8_shell_tray.tad", "tad_bin/os_spec/shell/tray.tad", 18136, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 150, VOBJ_TYPE_TEXT, "07.9_shell_tcpip.tad", "tad_bin/os_spec/shell/tcpip.tad", 23101, "[tad_bin]", "[Оболонка]" };
+    cab->items[n++] = (CABINET_ITEM){ 151, VOBJ_TYPE_TEXT, "07.10_shell_omgr.tad", "tad_bin/os_spec/shell/omgr.tad", 92362, "[tad_bin]", "[Оболонка]" };
 
-    /* ── Static Scope & Bounded Memory ─────────────────────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 161, VOBJ_TYPE_TEXT, "08_static_analysis.tad", "tad_bin/os_spec/indexfig.tad", 14184, "[JPL]", "Safety" };
+    /* ── Static Scope & Bounded Memory (Ukrainian Audience) ─────────────────── */
+    cab->items[n++] = (CABINET_ITEM){ 161, VOBJ_TYPE_TEXT, "08_static_analysis.tad", "tad_bin/os_spec/indexfig.tad", 7167, "[tad_bin]", "[Надійність]" };
 
     /* ── Accessories & System Apps ─────────────────────────────────────────── */
-    cab->items[n++] = (CABINET_ITEM){ 171, VOBJ_TYPE_TERMINAL, "Terminal_Shell.x", "/bin/gterm", 4096, "[APP]", "System" };
-    cab->items[n++] = (CABINET_ITEM){ 172, VOBJ_TYPE_FOLDER, "System_Preferences", "prefs/", 1024, "[DIR]", "System" };
+    cab->items[n++] = (CABINET_ITEM){ 171, VOBJ_TYPE_TERMINAL, "Terminal_Shell.x", "/bin/gterm", 4096, "[system]", "[Система]" };
+    cab->items[n++] = (CABINET_ITEM){ 172, VOBJ_TYPE_FOLDER, "System_Preferences", "prefs/", 1024, "[system]", "[Система]" };
 
     cab->item_count = n;
     strncpy(cab->status_msg, "Cabinet Ready. Double-click any Real Object to open in TAD Browser.", sizeof(cab->status_msg) - 1);
@@ -129,24 +129,24 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     RECT r = { 0, 0, dev->width, dev->height };
     fill_rec(dev, &r, COLOR_WHITE);
 
-    /* Header Banner */
-    RECT h_bar = { 0, 0, dev->width, 28 };
-    fill_rec(dev, &h_bar, COLOR_NAVY);
+    /* Title Bar / Header */
+    RECT header_r = { 0, 0, dev->width, 26 };
+    fill_rec(dev, &header_r, COLOR_NAVY);
     drw_tc_string(dev, 10, 6, "REAL OBJECT CABINET / HYPER-DATA STORE (実身・仮身キャビネット)", COLOR_WHITE, 0x00000000);
 
-    /* Toolbar */
-    RECT tb_bar = { 0, 28, dev->width, 52 };
-    fill_rec(dev, &tb_bar, COLOR_LTGRAY);
-    drw_lin(dev, 0, 52, dev->width, 52);
+    /* Toolbar Header (y = 26..56) */
+    RECT toolbar_r = { 0, 26, dev->width, 56 };
+    fill_rec(dev, &toolbar_r, COLOR_LTGRAY);
+    drw_lin(dev, 0, 56, dev->width, 56);
 
     drw_tc_string(dev, 10, 33, "[開く (Open)]", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 110, 33, "[閲覧 (View)]", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 210, 33, "[新規 (New)]", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 300, 33, (g_cabinet.view_mode == CAB_VIEW_LIST) ? "[表示: 一覧]" : "[表示: アイコン]", COLOR_BLUE, 0x00000000);
 
-    /* Visible Items Calculation */
+    /* List Content Viewport */
     int start_y = 60;
-    int visible_rows = (dev->height - 85) / 22;
+    int visible_rows = (dev->height - 84) / 22;
     if (visible_rows < 1) visible_rows = 1;
 
     int max_scroll = g_cabinet.item_count - visible_rows;
@@ -174,8 +174,8 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
         COLOR txt_col = (i == g_cabinet.selected_idx) ? COLOR_WHITE : COLOR_BLACK;
 
         char line[128];
-        snprintf(line, sizeof(line), "%-6s #%-4d  %-26s  %6u B",
-                 it->icon_tag, it->robj_id, it->name, it->size_bytes);
+        snprintf(line, sizeof(line), "%-9s %-16s #%-4d %-24s %6u B",
+                 it->icon_tag, it->category, it->robj_id, it->name, it->size_bytes);
 
         drw_tc_string(dev, 14, item_y, line, txt_col, 0x00000000);
     }
@@ -203,7 +203,7 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     drw_lin(dev, 0, dev->height - 22, dev->width, dev->height - 22);
 
     char foot_text[128];
-    snprintf(foot_text, sizeof(foot_text), "Cabinet: %d Real Objects (UA/Dharma) | #%d: %s (%u B)",
+    snprintf(foot_text, sizeof(foot_text), "Cabinet: %d Real Objects [dharma: JP | tad_bin: UA] | #%d: %s (%u B)",
              g_cabinet.item_count,
              g_cabinet.items[g_cabinet.selected_idx].robj_id,
              g_cabinet.items[g_cabinet.selected_idx].name,
