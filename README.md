@@ -4,11 +4,13 @@ A cleanroom recreation of the **B-System** (Business TRON / TRON OS Architecture
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
 and organized into a authentic Japanese BTRON tree structure.
 
-## Specification
+## Specifications B-TRON was one-shoted on
 
 * [BTRON3 SPEC 3.20](https://bitedits.github.io/btron/doc/)
 * [B-FREE OS 1994](https://bitedits.github.io/btron/b-free/)
-* [B-SYSTEM OS 2026](https://bitedits.github.io/btron/b-system/)
+* [B-TRON 2026](https://bitedits.github.io/btron/b-system/)
+* [TRON HMI](https://bitedits.github.io/btron/b-hmi/)
+* [T-KERNEL 2.0](https://bitedits.github.io/btron/t-kernel/)
 
 ## Raspberry Pi 2/3 T-Kernel 2.0 `Yokobayashi`
 
