@@ -53,6 +53,12 @@ static void test_romaji_transliteration(void) {
     mozc_romaji_to_hiragana("sensei", out, sizeof(out));
     TEST_ASSERT(strcmp(out, "せんせい") == 0, "Syllabic nasal (hatsuon): sensei -> せんせい");
 
+    mozc_romaji_to_hiragana("hotokesan", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ほとけさん") == 0, "Transliterate trailing single 'n': hotokesan -> ほとけさん");
+
+    mozc_romaji_to_hiragana("hotokesann", out, sizeof(out));
+    TEST_ASSERT(strcmp(out, "ほとけさん") == 0, "Transliterate explicit double 'nn': hotokesann -> ほとけさん");
+
     char kata[128];
     mozc_hiragana_to_katakana("なかのです", kata, sizeof(kata));
     TEST_ASSERT(strcmp(kata, "ナカノデス") == 0, "Hiragana to Katakana: なかのです -> ナカノデス");
@@ -89,6 +95,17 @@ static void test_viterbi_lattice_search(void) {
     printf("    Result sentence: 'きょうはてんきがいいです' -> '%s'\n", combined);
     TEST_ASSERT(strstr(combined, "今日") != NULL && strstr(combined, "天気") != NULL,
                 "Lattice search: '今日は天気が良いです'");
+
+    /* Buddhist honorific: ほとけさん */
+    num_clauses = 0;
+    mozc_lattice_search("ほとけさん", clauses, &num_clauses, TIP_MAX_CLAUSES);
+    combined[0] = '\0';
+    for (int i = 0; i < num_clauses; i++) {
+        strcat(combined, clauses[i].converted);
+    }
+    printf("    Result sentence: 'ほとけさん' -> '%s'\n", combined);
+    TEST_ASSERT(strstr(combined, "仏") != NULL || strstr(combined, "ほとけ") != NULL,
+                "Lattice search: 'ほとけさん' -> '仏さん'");
 }
 
 /* ── Test 3: Candidate Generation & Semantic Categories ── */
@@ -114,6 +131,12 @@ static void test_candidate_ranking(void) {
     TEST_ASSERT(has_hira, "Contains hiragana candidate: なかの");
     TEST_ASSERT(has_kata, "Contains katakana candidate: ナカノ");
     TEST_ASSERT(has_rare, "Contains rare kanji candidate: 中埜");
+
+    /* Candidate ranking for ほとけさん */
+    int h_count = mozc_get_candidates("ほとけさん", candidates, 16);
+    TEST_ASSERT(h_count >= 2, "Candidate count >= 2 for reading 'ほとけさん'");
+    TEST_ASSERT(strcmp(candidates[0].value, "仏さん") == 0 || strcmp(candidates[0].value, "ほとけさん") == 0,
+                "Candidate 1 for 'ほとけさん' is '仏さん' or 'ほとけさん'");
 }
 
 /* ── Test 4: DFA State Transitions & Theorem 2 Invariant ── */
@@ -160,6 +183,21 @@ static void test_dfa_and_theorem2(void) {
     tip_process_key('\n', 0, commit_buf, sizeof(commit_buf));
     TEST_ASSERT(strcmp(commit_buf, "今日") == 0, "Enter commits active conversion: '今日'");
     TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "DFA returns to IDLE after commit");
+
+    /* Test full typing sequence for hotokesan ending with 'n' */
+    tip_init();
+    const char *hotoke_keys = "hotokesan";
+    for (int i = 0; hotoke_keys[i]; i++) {
+        tip_process_key(hotoke_keys[i], 0, commit_buf, sizeof(commit_buf));
+    }
+    TEST_ASSERT(strcmp(tip_get_reading(), "ほとけさん") == 0, "Precomp reading for 'hotokesan': 'ほとけさん'");
+    tip_process_key(' ', 0, commit_buf, sizeof(commit_buf));
+    TEST_ASSERT(tip_get_state() == TIP_STATE_CONVERTING, "Space triggers conversion for 'ほとけさん'");
+    commit_buf[0] = '\0';
+    tip_process_key('\n', 0, commit_buf, sizeof(commit_buf));
+    TEST_ASSERT(strcmp(commit_buf, "仏さん") == 0 || strcmp(commit_buf, "ほとけさん") == 0,
+                "Enter commits 'hotokesan' -> '仏さん'");
+    TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "DFA returns to IDLE after 'ほとけさん' commit");
 }
 
 /* ── Test 5: Real Object User Dictionary ── */

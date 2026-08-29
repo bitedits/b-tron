@@ -105,18 +105,38 @@ int mozc_romaji_to_hiragana(const char *romaji, char *out_hiragana, int max_len)
             continue;
         }
 
-        /* Check trailing 'n' before consonants (e.g., "nk", "ns", "nt") */
-        if (romaji[r_idx] == 'n' && r_idx + 1 < r_len &&
-            romaji[r_idx + 1] != 'a' && romaji[r_idx + 1] != 'i' && romaji[r_idx + 1] != 'u' &&
-            romaji[r_idx + 1] != 'e' && romaji[r_idx + 1] != 'o' && romaji[r_idx + 1] != 'y') {
-            const char *hatsuon = "ん";
-            int hlen = (int)strlen(hatsuon);
-            if (out_idx + hlen < max_len) {
-                memcpy(&out_hiragana[out_idx], hatsuon, hlen);
-                out_idx += hlen;
+        /* Check hatsuon 'ん': trailing 'n' at end of string, double 'nn' / 'n\'', or 'n' before consonants */
+        if (romaji[r_idx] == 'n') {
+            if (r_idx + 1 < r_len && (romaji[r_idx + 1] == 'n' || romaji[r_idx + 1] == '\'')) {
+                const char *hatsuon = "ん";
+                int hlen = (int)strlen(hatsuon);
+                if (out_idx + hlen < max_len) {
+                    memcpy(&out_hiragana[out_idx], hatsuon, hlen);
+                    out_idx += hlen;
+                }
+                r_idx += 2;
+                continue;
+            } else if (r_idx + 1 == r_len) {
+                /* Single 'n' at the very end of string converts to 'ん' */
+                const char *hatsuon = "ん";
+                int hlen = (int)strlen(hatsuon);
+                if (out_idx + hlen < max_len) {
+                    memcpy(&out_hiragana[out_idx], hatsuon, hlen);
+                    out_idx += hlen;
+                }
+                r_idx++;
+                continue;
+            } else if (romaji[r_idx + 1] != 'a' && romaji[r_idx + 1] != 'i' && romaji[r_idx + 1] != 'u' &&
+                       romaji[r_idx + 1] != 'e' && romaji[r_idx + 1] != 'o' && romaji[r_idx + 1] != 'y') {
+                const char *hatsuon = "ん";
+                int hlen = (int)strlen(hatsuon);
+                if (out_idx + hlen < max_len) {
+                    memcpy(&out_hiragana[out_idx], hatsuon, hlen);
+                    out_idx += hlen;
+                }
+                r_idx++;
+                continue;
             }
-            r_idx++;
-            continue;
         }
 
         /* Match table */
@@ -428,6 +448,15 @@ static const RawDictEntry g_system_dictionary[] = {
     {"もずく", "Mozc", "engine", POS_NOUN, 600},
     {"じっしん", "実身", "real object", POS_NOUN, 800},
     {"かしん", "仮身", "virtual object", POS_NOUN, 800},
+
+    /* Buddhist & Cultural terms */
+    {"ほとけ", "仏", "buddha", POS_NOUN, 900},
+    {"ほとけ", "ほとけ", "hiragana", POS_NOUN, 1300},
+    {"ほとけさん", "仏さん", "buddha polite", POS_NOUN, 800},
+    {"ほとけさん", "ほとけさん", "hiragana", POS_NOUN, 1200},
+    {"ほとけさま", "仏様", "buddha honorific", POS_NOUN, 850},
+    {"さん", "さん", "suffix/honorific", POS_SUFFIX, 400},
+    {"さま", "様", "suffix/honorific", POS_SUFFIX, 400},
 
     /* Verbs & Adjectives */
     {"いく", "行く", "verb", POS_VERB, 900},

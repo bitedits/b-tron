@@ -218,6 +218,46 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                     </div>
                 </div>
 
+                <div class="plane-header">0.2. B-System (ISC/BSD/MIT) &amp; NASA/TRON Code Policy</div>
+                <p>Cleanroom engineering &amp; modern book chapters across 
+                  <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and 
+                  <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> (8 core chapters), adhering to 
+                  <a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a>, 
+                  <a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy</b></a>, and 
+                  <a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope</b></a>:</p>
+                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(126, 34, 206, 0.3);">
+                        <h3><a href="https://bitedits.github.io/btron/b-system/index.html" style="color: #7e22ce;">B-System (ISC/BSD/MIT)</a></h3>
+                        <hr style="border-top-color: rgba(126, 34, 206, 0.2);">
+                        <p>Сучасна віртуалізована та векторна специфікація B-System (RISC-V 64 / ARM64 / x86_64, VirtIO 1.4, seL4/Synrc VE OS.1, DSP/SDR та SDL2):</p>
+                        <ul>
+                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html"><b>Розділ 1: Вступ та архітектура B-System</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html#ch2"><b>Розділ 2: Ядро µITRON (DSP / Real-time)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html#ch3"><b>Розділ 3: Менеджер системного ядра BTRON</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html"><b>Розділ 4: DP &amp; Wireframe Engine (NetWars)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html#ch5"><b>Розділ 5: Window Manager &amp; Графічна оболонка</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html#ch6"><b>Розділ 6: Реальні та Віртуальні об'єкти (VOBJ)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>Розділ 7: Документи TRON TAD</b></a> &bull; <a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html"><b>Розділ 8: FS</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/virtio.html"><b>Розділ 9: VirtIO &amp; Synrc VE (9.1–9.10)</b></a></li>
+                            <li><a href="https://bitedits.github.io/btron/b-system/license.html"><b>Ліцензійна модель (MIT / BSD / ISC)</b></a> &bull; <a href="https://bitedits.github.io/btron/b-system/index.html"><b>Зміст (TOC)</b></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(185, 28, 28, 0.3);">
+                        <h3><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html" style="color: #b91c1c;">NASA / TRON Code Policy</a></h3>
+                        <hr style="border-top-color: rgba(185, 28, 28, 0.2);">
+                        <p>Aerospace determinism &amp; static verification across <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data</b></a> and <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Spec</b></a> (8 chapters):</p>
+                        <ul>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules:</b></a> Zero post-boot heap allocation (<code>JPL Rule 3</code>), volatile barriers (<code>_W</code>, <code>_UW</code>), fixed types (<code>B</code>, <code>H</code>, <code>W</code>, <code>UB</code>, <code>UH</code>, <code>UW</code>).</li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy:</b></a> Deterministic 16-bit plane switching, multilingual script isolation, zero runtime transcoding faults.</li>
+                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>TAD Segments &amp; BTRON FS:</b></a> <a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html">Bounded TAD parsers</a> and <a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html">static FS block tables</a>.</li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/kernel/kernel.html"><b>μITRON Determinism:</b></a> Strict priority preemption, bounded IPC queue depth, predictable WCET without jitter.</li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html"><b>DP Primitives &amp; Shell:</b></a> <a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html">Fixed-point transforms</a> and <a href="https://bitedits.github.io/btron/doc/os_spec/shell/shell.html">bounded control panels (<code>MAX=32</code>)</a>.</li>
+                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope:</b></a> MISRA-C:2012 / JPL compliance and 100% verified test pass rate.</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="plane-header">1. VirtIO &amp; Hypervisor Handoff</div>
                 <p>When running as a System Plane image in Synrc VE OS.1, BTRON boots via <b>seL4 Microkit Loader</b>, <b>Coreboot</b>, or direct <b>seL4 Protection Domain (PD)</b> entry. Display output routes directly through VirtIO-GPU or SDL2 surface, providing low-latency real-time rendering inside isolated capability-managed sandboxes.</p>
             </div>
