@@ -313,6 +313,38 @@ static void test_utf8_cyrillic_font_rendering(void) {
     TEST_ASSERT(gw == 8 && gh == 16, "Verified 8x16 proportional glyph dimensions for 'А'");
 }
 
+/* ── Test 9: BTRON3 3.20 Default Corner Window Resizing ── */
+static void test_btron3_corner_window_resizing(void) {
+    printf("\n[TEST GROUP 9] BTRON3 3.20 Default Corner Window Resizing\n");
+
+    WND *w = opn_wnd("Test Window", 100, 100, 400, 300, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    TEST_ASSERT(w != NULL, "Opened test window");
+    TEST_ASSERT((w->attr & WND_ATTR_RESIZE) != 0, "WND_ATTR_RESIZE is enabled by default (BTRON3 3.20 Conformance)");
+    TEST_ASSERT(w->bounds.right - w->bounds.left == 400, "Initial window width = 400");
+    TEST_ASSERT(w->bounds.bottom - w->bounds.top == 300, "Initial window height = 300");
+
+    /* Resize using rsz_wnd */
+    ER er = rsz_wnd(w, 550, 420);
+    TEST_ASSERT(er == E_OK, "rsz_wnd executed successfully");
+    TEST_ASSERT(w->bounds.right - w->bounds.left == 550, "Updated window width to 550px");
+    TEST_ASSERT(w->bounds.bottom - w->bounds.top == 420, "Updated window height to 420px");
+    TEST_ASSERT(w->dev != NULL && w->dev->width == 550 - 8, "Resized client graphic device width");
+
+    /* Test Minimum Size Constraints */
+    rsz_wnd(w, 50, 50);
+    TEST_ASSERT(w->bounds.right - w->bounds.left >= 160, "Clamped at minimum width >= 160px");
+    TEST_ASSERT(w->bounds.bottom - w->bounds.top >= 100, "Clamped at minimum height >= 100px");
+
+    /* Test wrsz_wnd with RECT */
+    RECT r = { 50, 60, 650, 460 };
+    er = wrsz_wnd(w, &r);
+    TEST_ASSERT(er == E_OK, "wrsz_wnd executed successfully");
+    TEST_ASSERT(w->bounds.left == 50 && w->bounds.top == 60, "Updated window origin");
+    TEST_ASSERT(w->bounds.right - w->bounds.left == 600, "Updated window width via wrsz_wnd");
+
+    cls_wnd(w);
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
@@ -327,6 +359,7 @@ int main(void) {
     test_cabinet_explorer_selection();
     test_browser_history_and_path_resolution();
     test_utf8_cyrillic_font_rendering();
+    test_btron3_corner_window_resizing();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

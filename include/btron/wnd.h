@@ -44,6 +44,8 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr);
 ER   cls_wnd(WND *wnd);
 ER   top_wnd(WND *wnd);
 ER   mov_wnd(WND *wnd, H x, H y);
+ER   rsz_wnd(WND *wnd, H w, H h);
+ER   wrsz_wnd(WND *wnd, const RECT *r);
 ER   inval_wnd(WND *wnd);
 
 void redraw_all_windows(void);

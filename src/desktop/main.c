@@ -89,6 +89,11 @@ int main(int argc, char **argv) {
     WND *drag_wnd = NULL;
     H drag_off_x = 0, drag_off_y = 0;
 
+    BOOL resizing = FALSE;
+    WND *resize_wnd = NULL;
+    H resize_orig_w = 0, resize_orig_h = 0;
+    H resize_start_x = 0, resize_start_y = 0;
+
     GDEV *screen_dev = opn_dev(screen_w, screen_h);
     init_wnd_mgr(screen_dev);
 
@@ -111,8 +116,19 @@ int main(int argc, char **argv) {
                         top_wnd(clicked);
                     }
 
-                    /* Titlebar area drag check */
-                    if (ev.pos.y >= clicked->bounds.top && ev.pos.y < clicked->bounds.top + 22) {
+                    /* 1. BTRON3 Bottom-Right Corner Resize Grip Check (16x16 corner) */
+                    if ((clicked->attr & WND_ATTR_RESIZE) &&
+                        ev.pos.x >= clicked->bounds.right - 16 && ev.pos.x <= clicked->bounds.right &&
+                        ev.pos.y >= clicked->bounds.bottom - 16 && ev.pos.y <= clicked->bounds.bottom) {
+                        resizing = TRUE;
+                        resize_wnd = clicked;
+                        resize_orig_w = clicked->bounds.right - clicked->bounds.left;
+                        resize_orig_h = clicked->bounds.bottom - clicked->bounds.top;
+                        resize_start_x = ev.pos.x;
+                        resize_start_y = ev.pos.y;
+                    }
+                    /* 2. Titlebar area drag check */
+                    else if (ev.pos.y >= clicked->bounds.top && ev.pos.y < clicked->bounds.top + 22) {
                         /* Close button click check */
                         if (ev.pos.x >= clicked->bounds.right - 20 && ev.pos.x < clicked->bounds.right - 6) {
                             cls_wnd(clicked);
@@ -145,12 +161,20 @@ int main(int argc, char **argv) {
             } else if (ev.type == EV_BUT_UP) {
                 dragging = FALSE;
                 drag_wnd = NULL;
+                resizing = FALSE;
+                resize_wnd = NULL;
                 WND *top = get_top_wnd();
                 if (top && top->focused && top->event_handler) {
                     top->event_handler(top, &ev);
                 }
-            } else if (ev.type == EV_MOUSE_MOVE && dragging && drag_wnd) {
-                mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
+            } else if (ev.type == EV_MOUSE_MOVE) {
+                if (resizing && resize_wnd) {
+                    H new_w = resize_orig_w + (ev.pos.x - resize_start_x);
+                    H new_h = resize_orig_h + (ev.pos.y - resize_start_y);
+                    rsz_wnd(resize_wnd, new_w, new_h);
+                } else if (dragging && drag_wnd) {
+                    mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
+                }
             } else if (ev.type == EV_KEY_DOWN) {
                 /* Exclusively route keystrokes to the top focused active window */
                 WND *top = get_top_wnd();

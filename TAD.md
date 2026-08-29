@@ -47,8 +47,6 @@ btron/
 │   └── *.tad.txt                 # Супутні людиночитні TAD файли
 ```
 
----
-
 ## 3. Binary TAD Segment Structure (BTRON3 SPEC 3.20)
 
 Every `.tad` file in `./dharma/` and `./tad_bin/` begins with the 16-bit **TAD Main Record Header** followed by structured Fusen segments:
@@ -83,8 +81,6 @@ Every `.tad` file in `./dharma/` and `./tad_bin/` begins with the 16-bit **TAD M
 | `TS_TCHAR` | `0xFFA3` | Character Fusen | Font size (10..24pt), bold weight (400/700), RGB color |
 | `TS_VOBJ` | `0xFFA8` | Virtual Object Link | Target Real Object ID, Link Name, Target Filepath |
 | `TS_FPRIM` | `0xFFB0` | Figure Primitive | Primitive type (0=Horizontal Rule, 1=Rect), stroke, fill |
-
----
 
 ## 4. Generation Pipeline: Elixir Compiler (`scripts/html2tad.exs`)
 
@@ -136,8 +132,6 @@ make html2tad
 # Run the complete C-level unit test harness:
 make test-tad
 ```
-
----
 
 ## 5. Runtime Usage in B-System
 
@@ -226,8 +220,6 @@ UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────
 - **Dedicated Ukrainian Glyphs:** High-contrast dot-matrix bitmaps for `Є`, `І`, `Ї`, `Ґ`, `є`, `і`, `ї`, `ґ`, `№`, `«`, and `»` ensure sharp, natural legibility in the TAD Document Browser, T-Editor, and Cabinet Explorer.
 - **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout identical in visual elegance to the Dharma books.
 
----
-
 ## 7. Compatibility Matrix
 
 | Feature | Legacy B-right/V Cho-Kanji (超漢字) | B-System Cleanroom OS | Status |
@@ -239,5 +231,6 @@ UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────
 | **Ukrainian & Cyrillic Engine** | Limited JIS extensions | True UTF-8 & TRON Plane 1 Engine | **Full Multilingual Support** |
 | **Memory Allocation Model** | Unmanaged dynamic heap | Static bounded scope (NASA JPL Rule 3) | **Superior Safety & Predictability** |
 | **Multilingual Character Code**| TRON Code Planes 0..3 | TRON Code + UTF-8 Dual Engine | **Modern Unicode Interop** |
+| **Window Corner Resize** | BTRON 3.20 Resize Grip | Default 16x16 Corner Hatch Grip | **100% Spec Conformance** |
 | **Platform Target** | Bare-metal PC-AT (x86) | POSIX, QEMU ARM/AArch64, Pi 2B/3B/4B | **Universal Deployment** |
 

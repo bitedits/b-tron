@@ -59,6 +59,8 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     wnd->client.right = x + w - 4;
     wnd->client.bottom = y + h - 4;
 
+    /* BTRON3 3.20 Conformance: All windows support corner resize by default */
+    attr |= WND_ATTR_RESIZE;
     wnd->attr = attr;
     wnd->visible = TRUE;
     wnd->focused = TRUE;
@@ -129,6 +131,45 @@ ER mov_wnd(WND *wnd, H x, H y) {
     return E_OK;
 }
 
+ER rsz_wnd(WND *wnd, H w, H h) {
+    if (!wnd) return E_PAR;
+    if (w < 160) w = 160;
+    if (h < 100) h = 100;
+
+    wnd->bounds.right = wnd->bounds.left + w;
+    wnd->bounds.bottom = wnd->bounds.top + h;
+
+    H title_h = (wnd->attr & WND_ATTR_TITLE) ? 22 : 0;
+    wnd->client.left = wnd->bounds.left + 4;
+    wnd->client.top = wnd->bounds.top + title_h + 4;
+    wnd->client.right = wnd->bounds.left + w - 4;
+    wnd->client.bottom = wnd->bounds.top + h - 4;
+
+    H new_dev_w = w - 8;
+    H new_dev_h = h - title_h - 8;
+    if (new_dev_w < 10) new_dev_w = 10;
+    if (new_dev_h < 10) new_dev_h = 10;
+
+    if (wnd->dev) {
+        if (wnd->dev->width != new_dev_w || wnd->dev->height != new_dev_h) {
+            cls_dev(wnd->dev);
+            wnd->dev = opn_dev(new_dev_w, new_dev_h);
+        }
+    } else {
+        wnd->dev = opn_dev(new_dev_w, new_dev_h);
+    }
+
+    return E_OK;
+}
+
+ER wrsz_wnd(WND *wnd, const RECT *r) {
+    if (!wnd || !r) return E_PAR;
+    H w = r->right - r->left;
+    H h = r->bottom - r->top;
+    mov_wnd(wnd, r->left, r->top);
+    return rsz_wnd(wnd, w, h);
+}
+
 ER inval_wnd(WND *wnd) {
     if (!wnd) return E_PAR;
     /* In immediate composite architecture, dirty window is redrawn on next frame */
@@ -177,6 +218,19 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
             drw_rec(dev, &close_btn);
             drw_tc_string(dev, close_btn.left + 4, close_btn.top + 1, "x", COLOR_BLACK, 0x00000000);
         }
+    }
+
+    /* BTRON3 3.20 Standard Bottom-Right Corner Resize Handle (右下角枠リサイズ) */
+    if (wnd->attr & WND_ATTR_RESIZE) {
+        H rx = outer.right - 14;
+        H ry = outer.bottom - 14;
+        RECT grip_r = { rx, ry, outer.right - 2, outer.bottom - 2 };
+        fill_rec(dev, &grip_r, COLOR_LTGRAY);
+
+        /* 3 Diagonal hatch grip lines */
+        drw_lin(dev, outer.right - 12, outer.bottom - 3, outer.right - 3, outer.bottom - 12);
+        drw_lin(dev, outer.right - 8,  outer.bottom - 3, outer.right - 3, outer.bottom - 8);
+        drw_lin(dev, outer.right - 4,  outer.bottom - 3, outer.right - 3, outer.bottom - 4);
     }
 }
 
