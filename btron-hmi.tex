@@ -108,9 +108,9 @@ Every basic TRON input part $\mathcal{C}$ is characterized as a 3-tuple:
 \end{equation}
 where:
 \begin{itemize}[leftmargin=*]
-    \item $\mathcal{T}_{\text{Target}} \in \{\text{Switch}, \text{Selector}, \text{Volume}\}$,
-    \item $\mathcal{M}_{\text{State}} \in \{\text{Momentary (\ja{モーメンタリ})}, \text{Alternate (\ja{セットアップ})}\}$,
-    \item $\mathcal{A}_{\text{Action}} \in \{\text{Push}, \text{Pull}, \text{Push-Pull}, \text{Slide}, \text{Rotary}, \text{See-saw}, \text{Tilt}\}$.
+    \item \textbf{Target} $\mathcal{T}_{\text{Target}} \in \{\text{Switch}, \text{Selector}, \text{Volume}\}$,
+    \item \textbf{Mode} $\mathcal{M}_{\text{State}} \in \{\text{Momentary}, \text{Alternate}\}$,
+    \item \textbf{Action} $\mathcal{A}_{\text{Action}} \in \{\text{Push}, \text{Pull}, \text{Slide}, \text{Rotary}, \text{Tilt}\}$.
 \end{itemize}
 
 \begin{table}[htbp]
@@ -188,7 +188,7 @@ TRON HMI mandates deterministic spatial relationships based on human ergonomic m
 \subsection{Standard Switch Layout Order}
 For any dialog, panel, or appliance execution block, interactive switches must be positioned in strict order along the horizontal reading axis:
 \begin{equation}
-[\text{Cancel / \ja{取り消し}}] \longrightarrow [\text{Default / \ja{標準設定}}] \longrightarrow [\text{Start / \ja{実行}}]
+\text{[Cancel]} \;\longrightarrow\; \text{[Default]} \;\longrightarrow\; \text{[Start/Exec]}
 \end{equation}
 \begin{itemize}[leftmargin=*]
     \item \textbf{Cancel (\ja{取り消し}):} Positioned at the leftmost position (or top in vertical stacks), allowing immediate escape.
@@ -207,7 +207,7 @@ For any dialog, panel, or appliance execution block, interactive switches must b
 Accessibility (\emph{Enableware -- \ja{イネーブルウェア}}) is embedded directly into the structural specification:
 \begin{itemize}[leftmargin=*]
     \item \textbf{Tactile Homemark (\ja{ボッチ}):} Raised tactile homemark dots on center keys (key `5' on 10-key pads and primary power switches).
-    \item \textbf{Three-Color Chromatic Protocol (Chapter 9):} $\mathcal{S}_{\text{LED}} \in \{\text{Green (Active/Safe)}, \text{Amber (Standby/Transit)}, \text{Red (Stop/Error)}\}$.
+    \item \textbf{Three-Color Chromatic Protocol (Chapter 9):} Green (Normal/Active), Amber (Standby/Transit), and Red (Stop/Error).
     \item \textbf{Acoustic Redundancy (\ja{音による確認}):} Standardized audio earcons: confirmation chimes ($880\,\text{Hz}$), parameter clicks ($440\,\text{Hz}$), and error alerts ($220\,\text{Hz}$).
 \end{itemize}
 
@@ -262,9 +262,10 @@ To unify appliance control without requiring pointing devices, TRON HMI specifie
 
 \subsection{Current Item Traversal Algebra}
 The Universal Controller navigates a discrete set of panel controls $\mathcal{P} = \{c_0, c_1, \dots, c_{n-1}\}$ through an active focus pointer index $\kappa \in [0, n-1]$ known as the \textbf{Current Item} (\ja{カレント項目}):
-\begin{equation}
-\kappa_{t+1} = (\kappa_t \pm 1) \bmod n, \quad v(\kappa)_{t+1} = \operatorname{clamp}(v(\kappa)_t \pm \delta, v_{\min}, v_{\max})
-\end{equation}
+\begin{align}
+\kappa_{t+1} &= (\kappa_t \pm 1) \bmod n \\
+v(\kappa)_{t+1} &= \operatorname{clamp}(v(\kappa)_t \pm \delta, v_{\min}, v_{\max})
+\end{align}
 
 This guarantees complete operational capability for any multi-item panel over simple 4-way infrared remotes, rotary encoder pulses, or single-switch accessibility scanning.
 
