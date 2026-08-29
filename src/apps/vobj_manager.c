@@ -377,19 +377,19 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
 
         COLOR txt_col = (i == g_cabinet.selected_idx) ? COLOR_WHITE : COLOR_BLACK;
 
-        /* Col 1: Icon Tag (e.g. [b-free], [doc], [t-kernel]) */
+        /* Col 1: Icon Tag (e.g. [b-system], [t-kernel], [b-free], [doc]) */
         drw_tc_string(dev, 14, item_y, it->icon_tag, txt_col, 0x00000000);
 
         /* Col 2: TOC Hierarchy Path (e.g. os_spec/kernel/, shared_data/, books/) */
-        drw_tc_string(dev, 90, item_y, it->category, txt_col, 0x00000000);
+        drw_tc_string(dev, 115, item_y, it->category, txt_col, 0x00000000);
 
         /* Col 3: Real Object ID */
         char id_str[16];
         snprintf(id_str, sizeof(id_str), "#%-4d", it->robj_id);
-        drw_tc_string(dev, 240, item_y, id_str, txt_col, 0x00000000);
+        drw_tc_string(dev, 265, item_y, id_str, txt_col, 0x00000000);
 
         /* Col 4: Document Name */
-        drw_tc_string(dev, 295, item_y, it->name, txt_col, 0x00000000);
+        drw_tc_string(dev, 315, item_y, it->name, txt_col, 0x00000000);
 
         /* Col 5: File Size */
         char sz_str[24];
