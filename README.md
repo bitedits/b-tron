@@ -12,6 +12,60 @@ and organized into a authentic Japanese BTRON tree structure.
 * [TRON HMI](https://bitedits.github.io/btron/b-hmi/)
 * [T-Kernel 2.0](https://bitedits.github.io/btron/t-kernel/)
 
+NOTE: I can't include TRON HMI TAD book to build as it is copyright protected.
+You need to ask PMC to give me non-commercial permission to Ukrainian translation.
+
+## Components
+
+* [x] ITRON
+* [x] VirtIO
+* [x] AArch32
+* [x] POSIX
+* [x] TIP
+* [x] HMI
+* [x] TDA
+* [x] CAB
+* [x] EDIT
+* [x] TERM
+* [x] HTML to TAD Converter
+* [x] GIF
+* [x] PNG
+* [x] Space Casette HMI Sample
+* [x] Own MOZC !!!
+* [x] UTF-8 / TRON Code
+* [x] Four Books Included in TAD format!
+
+## Japanese BTRON Lineage & Subsystem Layout
+
+```
+btron/
+├── Makefile                    # Plain BSD/BeOS/TRON style Makefile
+├── README.md                   # Cleanroom architecture & BTRON spec documentation
+├── include/                    # Authentic Japanese BTRON Header Tree
+│   └── btron/
+│       ├── btron.h             # Master include header
+│       ├── types.h             # Fundamental TRON types (W, H, B, UW, ID, ER, etc.)
+│       ├── error.h             # TRON error codes (E_OK, E_SYS, E_NOMEM, E_PAR, etc.)
+│       ├── itron.h             # μITRON Real-Time Kernel Primitives
+│       ├── dp.h                # Display Primitives (Graphics engine)
+│       ├── wnd.h               # Sakamura Window Manager APIs
+│       ├── event.h             # BTRON System Event Queue
+│       ├── vobj.h              # Real Object / Virtual Object Hyper-Data Model Engine
+│       ├── troncode.h          # TRON Multilingual Character Code & Font Engine
+│       └── desktop.h           # Desktop Shell & Panel Manager APIs
+├── src/                        # Core Subsystems Implementation
+│   ├── kernel/                 # μITRON Task & Synchronization Subsystem
+│   ├── graphics/               # Display Primitives (DP) Vector & Raster Graphics
+│   ├── window/                 # Sakamura BTRON Window Manager & Event Dispatcher
+│   ├── vobject/                # Real Object / Virtual Object Hyper-Data Engine
+│   ├── font/                   # TRON Character Code & Pixel Font Renderer
+│   └── desktop/                # Cho-Kanji / BTRON Desktop Compositor & Main Launcher
+└── apps/                       # Authentic BTRON Accessories
+    ├── vobj_manager.c          # Real Object Cabinet & Virtual Object Explorer Window
+    ├── t_editor.c              # TRON Text Editor (T-Editor) Window
+    └── gterm.c                 # BTRON Terminal Shell (gterm) Window
+```
+
 ## Raspberry Pi 2/3 T-Kernel 2.0 `Yokobayashi`
 
 ```
@@ -48,36 +102,6 @@ $ make run-posix
 
 <img src="https://bitedits.github.io/btron/b-system/img/posix.png" width="800" alt="POSIX Light" />
 
-## Japanese BTRON Lineage & Subsystem Layout
-
-```
-btron/
-├── Makefile                    # Plain BSD/BeOS/TRON style Makefile
-├── README.md                   # Cleanroom architecture & BTRON spec documentation
-├── include/                    # Authentic Japanese BTRON Header Tree
-│   └── btron/
-│       ├── btron.h             # Master include header
-│       ├── types.h             # Fundamental TRON types (W, H, B, UW, ID, ER, etc.)
-│       ├── error.h             # TRON error codes (E_OK, E_SYS, E_NOMEM, E_PAR, etc.)
-│       ├── itron.h             # μITRON Real-Time Kernel Primitives
-│       ├── dp.h                # Display Primitives (Graphics engine)
-│       ├── wnd.h               # Sakamura Window Manager APIs
-│       ├── event.h             # BTRON System Event Queue
-│       ├── vobj.h              # Real Object / Virtual Object Hyper-Data Model Engine
-│       ├── troncode.h          # TRON Multilingual Character Code & Font Engine
-│       └── desktop.h           # Desktop Shell & Panel Manager APIs
-├── src/                        # Core Subsystems Implementation
-│   ├── kernel/                 # μITRON Task & Synchronization Subsystem
-│   ├── graphics/               # Display Primitives (DP) Vector & Raster Graphics
-│   ├── window/                 # Sakamura BTRON Window Manager & Event Dispatcher
-│   ├── vobject/                # Real Object / Virtual Object Hyper-Data Engine
-│   ├── font/                   # TRON Character Code & Pixel Font Renderer
-│   └── desktop/                # Cho-Kanji / BTRON Desktop Compositor & Main Launcher
-└── apps/                       # Authentic BTRON Accessories
-    ├── vobj_manager.c          # Real Object Cabinet & Virtual Object Explorer Window
-    ├── t_editor.c              # TRON Text Editor (T-Editor) Window
-    └── gterm.c                 # BTRON Terminal Shell (gterm) Window
-```
 
 ## Features
 

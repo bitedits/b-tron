@@ -17,11 +17,72 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libstr.h>
-#define memset  tkl_memset
-#define memcpy  tkl_memcpy
-#define strlen  tkl_strlen
-#define strncpy tkl_strncpy
-#define snprintf snprintf
+#define memset   tkl_memset
+#define memcpy   tkl_memcpy
+#define memcmp   tkl_memcmp
+#define strlen   tkl_strlen
+#define strcmp   tkl_strcmp
+#define strcpy   tkl_strcpy
+#define strncpy  tkl_strncpy
+extern int tkl_snprintf(char *str, size_t size, const char *format, ...);
+#define snprintf tkl_snprintf
+
+static inline int local_strncmp(const char *s1, const char *s2, size_t n) {
+    if (!s1 || !s2 || n == 0) return 0;
+    while (n && *s1 && *s2) {
+        if (*s1 != *s2) return (unsigned char)*s1 - (unsigned char)*s2;
+        s1++;
+        s2++;
+        n--;
+    }
+    return (n == 0) ? 0 : ((unsigned char)*s1 - (unsigned char)*s2);
+}
+#define strncmp local_strncmp
+
+static inline char* local_strchr(const char *s, int c) {
+    if (!s) return (void*)0;
+    while (*s) {
+        if (*s == (char)c) return (char*)s;
+        s++;
+    }
+    return (c == 0) ? (char*)s : (void*)0;
+}
+#define strchr local_strchr
+
+static inline char* local_strrchr(const char *s, int c) {
+    if (!s) return (void*)0;
+    const char *last = (void*)0;
+    while (*s) {
+        if (*s == (char)c) last = s;
+        s++;
+    }
+    if (c == 0) return (char*)s;
+    return (char*)last;
+}
+#define strrchr local_strrchr
+
+static inline int local_atoi(const char *s) {
+    if (!s) return 0;
+    int res = 0;
+    while (*s >= '0' && *s <= '9') {
+        res = res * 10 + (*s - '0');
+        s++;
+    }
+    return res;
+}
+#define atoi local_atoi
+
+static inline char* local_strstr(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return (void*)0;
+    size_t nlen = tkl_strlen(needle);
+    if (nlen == 0) return (char*)haystack;
+    while (*haystack) {
+        if (tkl_memcmp(haystack, needle, nlen) == 0) return (char*)haystack;
+        haystack++;
+    }
+    return (void*)0;
+}
+#define strstr local_strstr
 #endif
 
 /* Global Browser Instance for standalone window */
@@ -669,6 +730,8 @@ static void render_figure_diagram(GDEV *dev, const TAD_SPAN *s, const RECT *cvs)
     }
 }
 
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+
 #define MAX_GIF_PIXELS (2048 * 3000)
 #define MAX_LZW_DICT 4096
 
@@ -1060,6 +1123,20 @@ int decode_and_draw_png(GDEV *dev, const char *filepath, int dst_x, int dst_y, i
     return 0;
 }
 
+#else
+
+int decode_and_draw_gif(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+    (void)dev; (void)filepath; (void)dst_x; (void)dst_y; (void)max_w; (void)max_h;
+    return -1;
+}
+
+int decode_and_draw_png(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+    (void)dev; (void)filepath; (void)dst_x; (void)dst_y; (void)max_w; (void)max_h;
+    return -1;
+}
+
+#endif
+
 static int decode_and_draw_image(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
     if (!dev || !filepath) return -1;
     if (strstr(filepath, ".png") || strstr(filepath, ".PNG")) {
@@ -1297,6 +1374,21 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     }
 }
 
+static int file_exists(const char *path) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (!path) return 0;
+    FILE *f = fopen(path, "rb");
+    if (f) {
+        fclose(f);
+        return 1;
+    }
+    return 0;
+#else
+    (void)path;
+    return 0;
+#endif
+}
+
 /* ── Robust Path Resolution ────────────────────────────────────────────────── */
 void tad_browser_resolve_path(const char *current_path, const char *target, char *out_resolved, size_t max_len) {
     if (!target || !out_resolved || max_len == 0) return;
@@ -1316,9 +1408,7 @@ void tad_browser_resolve_path(const char *current_path, const char *target, char
     if (dot_html) strcpy(dot_html, ".tad");
 
     /* 1. Direct path check */
-    FILE *f = fopen(norm_target, "rb");
-    if (f) {
-        fclose(f);
+    if (file_exists(norm_target)) {
         strncpy(out_resolved, norm_target, max_len - 1);
         return;
     }
@@ -1351,9 +1441,7 @@ void tad_browser_resolve_path(const char *current_path, const char *target, char
             snprintf(combined, sizeof(combined), "%s%s", dir, norm_target);
         }
 
-        f = fopen(combined, "rb");
-        if (f) {
-            fclose(f);
+        if (file_exists(combined)) {
             strncpy(out_resolved, combined, max_len - 1);
             return;
         }
@@ -1379,9 +1467,7 @@ void tad_browser_resolve_path(const char *current_path, const char *target, char
     for (int p = 0; prefixes[p] != NULL; p++) {
         char try_path[256];
         snprintf(try_path, sizeof(try_path), "%s%s", prefixes[p], norm_target);
-        f = fopen(try_path, "rb");
-        if (f) {
-            fclose(f);
+        if (file_exists(try_path)) {
             strncpy(out_resolved, try_path, max_len - 1);
             return;
         }

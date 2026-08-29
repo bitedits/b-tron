@@ -21,11 +21,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libstr.h>
-#define memset  tkl_memset
-#define memcpy  tkl_memcpy
-#define strlen  tkl_strlen
-#define strncpy tkl_strncpy
-#define snprintf snprintf
+#define memset   tkl_memset
+#define memcpy   tkl_memcpy
+#define strlen   tkl_strlen
+#define strcmp   tkl_strcmp
+#define strncpy  tkl_strncpy
+extern int tkl_snprintf(char *str, size_t size, const char *format, ...);
+#define snprintf tkl_snprintf
+
+static inline char* local_strstr(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return (void*)0;
+    size_t nlen = tkl_strlen(needle);
+    if (nlen == 0) return (char*)haystack;
+    while (*haystack) {
+        if (tkl_memcmp(haystack, needle, nlen) == 0) return (char*)haystack;
+        haystack++;
+    }
+    return (void*)0;
+}
+#define strstr local_strstr
 #endif
 
 #define MAX_CABINET_ITEMS 128

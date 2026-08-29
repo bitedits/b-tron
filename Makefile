@@ -160,6 +160,7 @@ COMMON_NO_SDL_SRCS = \
     src/vobject/vobj.c     \
     src/desktop/desktop.c  \
     src/apps/vobj_manager.c \
+    src/apps/tad_browser.c \
     src/apps/t_editor.c    \
     src/apps/gterm.c       \
     $(IME_SRCS)
