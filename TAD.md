@@ -220,12 +220,36 @@ UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────
 - **Dedicated Ukrainian Glyphs:** High-contrast dot-matrix bitmaps for `Є`, `І`, `Ї`, `Ґ`, `є`, `і`, `ї`, `ґ`, `№`, `«`, and `»` ensure sharp, natural legibility in the TAD Document Browser, T-Editor, and Cabinet Explorer.
 - **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout identical in visual elegance to the Dharma books.
 
-## 7. Compatibility Matrix
+## 7. BTRON3 3.20 Figure & Picture Segment Fusen (`TS_FPRIM`)
+
+In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded directly into TAD document streams using **Figure Fusen Segments (`TS_FPRIM` / `0xFFB0`)**:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│  TS_FPRIM (0xFFB0) : Segment Tag (16-bit) | Payload Length (32-bit)                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  SubID = 10 (Picture/Figure) | Width (16-bit) | Height (16-bit) | Diagram Type (8-bit) │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  Caption Length (16-bit) | UTF-8 Caption Text (e.g. "図 1: アーキテクチャ階層構造")      │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  Source Path Length (16-bit) | Asset URI / Real Object Path (e.g. "figures/layers.png") │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Visual Frame & Geometry:** Rendered within a distinct 3D beveled BTRON frame with navy header banner (`[🖼 <image_path>]`), clear drawing canvas, and bottom caption.
+- **Exact HTML Specification Image Extraction:** The Elixir batch compiler (`scripts/html2tad.exs`) extracts exact diagram paths (`<IMG src="gif/*.gif">`) directly from the original HTML specification documents, inspects their native dimensions (`w` and `h` in GIF87a/GIF89a headers), and copies all asset directories into `tad_bin/**/gif/`.
+- **Native BTRON3 GIF Raster Decoder:** Built directly into `src/apps/tad_browser.c` conforming strictly to NASA JPL Rule 3 (bounded static memory pools, zero runtime malloc/free). Decodes LZW-compressed 8-bit palette GIF raster streams directly to the `GDEV` pixel buffer with automatic proportional scaling.
+- **Fallback Vector Schematics:** For synthetic documents without on-disk GIF assets, the browser falls back gracefully to topic-matched vector schematics.
+
+---
+
+## 8. Compatibility Matrix
 
 | Feature | Legacy B-right/V Cho-Kanji (超漢字) | B-System Cleanroom OS | Status |
 |:---|:---:|:---:|:---:|
 | **Record Header (Type 1)** | `0x0001` (16-bit) | `0x0001` (16-bit) | **100% Binary Compatible** |
 | **Virtual Object Fusen** | `TS_VOBJ` (`0xFFA8`) | `TS_VOBJ` (`0xFFA8`) | **100% Binary Compatible** |
+| **Figure / Picture Fusen** | `TS_FPRIM` (`0xFFB0`) | `TS_FPRIM` (`0xFFB0` SubID 10) | **100% Binary Compatible** |
 | **Font & Character Fusen** | `TS_TFONT` / `TS_TCHAR` | `TS_TFONT` / `TS_TCHAR` | **100% Binary Compatible** |
 | **In-Place Navigation Stack** | Rudimentary window spawns | Multi-level history + Top Toolbar | **Superior Usability** |
 | **Ukrainian & Cyrillic Engine** | Limited JIS extensions | True UTF-8 & TRON Plane 1 Engine | **Full Multilingual Support** |

@@ -58,7 +58,7 @@ defmodule BtronTAD.Compiler do
     clean_html = filter_html_noise(html)
 
     # Regex token stream for block & inline elements
-    regex = ~r/(<h[1-6]\b[^>]*>.*?<\/h[1-6]>|<pre\b[^>]*>.*?<\/pre>|<p\b[^>]*>.*?<\/p>|<table\b[^>]*>.*?<\/table>|<ul\b[^>]*>.*?<\/ul>|<ol\b[^>]*>.*?<\/ol>|<hr\s*\/?>|<a\s+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>)/is
+    regex = ~r/(<h[1-6]\b[^>]*>.*?<\/h[1-6]>|<pre\b[^>]*>.*?<\/pre>|<p\b[^>]*>.*?<\/p>|<table\b[^>]*>.*?<\/table>|<ul\b[^>]*>.*?<\/ul>|<ol\b[^>]*>.*?<\/ol>|<hr\s*\/?>|<img\s+[^>]*>|<a\s+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>)/is
 
     elements =
       Regex.scan(regex, clean_html)
@@ -71,6 +71,18 @@ defmodule BtronTAD.Compiler do
               [_, href] -> {:link, href, decode_entities(strip_tags(full))}
               _ -> {:text, decode_entities(strip_tags(full))}
             end
+          String.starts_with?(lower, "<img") ->
+            src =
+              case Regex.run(~r/src=['"]([^'"]+)['"]/i, full) do
+                [_, s] -> s
+                _ -> "figure.png"
+              end
+            alt =
+              case Regex.run(~r/alt=['"]([^'"]+)['"]/i, full) do
+                [_, a] -> a
+                _ -> ""
+              end
+            {:image, src, alt}
           String.starts_with?(lower, "<h1") -> {:h1, decode_entities(strip_tags(full))}
           String.starts_with?(lower, "<h2") -> {:h2, decode_entities(strip_tags(full))}
           String.starts_with?(lower, "<h3") -> {:h3, decode_entities(strip_tags(full))}
@@ -163,11 +175,30 @@ defmodule BtronTAD.Compiler do
     make_segment(@ts_vobj, payload)
   end
 
-  # Figure Line Separator (TS_FPRIM = 0xFFB0)
+  # Figure Line Separator (TS_FPRIM = 0xFFB0, SubID = 1)
   def seg_hr(width \\ 600) do
     # subid:1 (Line), mode:0, color:0x888888, x1:0, y1:0, x2:width, y2:0
     payload = <<1::8, 0::8, 0x888888::32-big, 0::16-big, 0::16-big, width::16-big, 0::16-big>>
     make_segment(@ts_fprim, payload)
+  end
+
+  # BTRON3 Figure / Picture Segment (TS_FPRIM = 0xFFB0, SubID = 10)
+  def seg_image(src, caption \\ "", width \\ 480, height \\ 140, type \\ 0) do
+    cap_bytes = :unicode.characters_to_binary(caption, :utf8, :utf8)
+    src_bytes = :unicode.characters_to_binary(src, :utf8, :utf8)
+    c_len = byte_size(cap_bytes)
+    s_len = byte_size(src_bytes)
+
+    # subid:10 (Picture), width:16, height:16, type:8, c_len:16, caption, s_len:16, src
+    payload = <<10::8, width::16-big, height::16-big, type::8, c_len::16-big, cap_bytes::binary, s_len::16-big, src_bytes::binary>>
+    make_segment(@ts_fprim, payload)
+  end
+
+  defp get_gif_dimensions(file_path) do
+    case File.read(file_path) do
+      {:ok, << "GIF", _ver::binary-size(3), w::16-little, h::16-little, _rest::binary >>} -> {w, h}
+      _ -> {480, 140}
+    end
   end
 
   # Text UTF-8 segment
@@ -177,7 +208,7 @@ defmodule BtronTAD.Compiler do
   end
 
   # ── Full Binary Document Compilation ────────────────────────────────────────
-  def compile_to_binary_tad(elements, _doc_title \\ "BTRON Document") do
+  def compile_to_binary_tad(elements, _doc_title \\ "BTRON Document", base_dir \\ "") do
     # 1. Document Page & Default Style Initialization
     init_segments = [
       seg_page(800, 1200, 40, 40),
@@ -269,6 +300,14 @@ defmodule BtronTAD.Compiler do
             seg_vobj(robj_id, label, href)
           ]
 
+        {:image, src, alt} ->
+          caption = if alt != "", do: alt, else: "BTRON3 Figure / Picture: " <> Path.basename(src)
+          actual_path = if base_dir != "" and not File.exists?(src), do: Path.join(base_dir, src), else: src
+          {w, h} = get_gif_dimensions(actual_path)
+          [
+            seg_image(src, caption, w, h, 0)
+          ]
+
         {:hr} ->
           [seg_hr(680)]
 
@@ -285,7 +324,7 @@ defmodule BtronTAD.Compiler do
   end
 
   # ── Symbolic Text TAD Representation ────────────────────────────────────────
-  def compile_to_symbolic_tad(elements, doc_title \\ "BTRON Document") do
+  def compile_to_symbolic_tad(elements, doc_title \\ "BTRON Document", base_dir \\ "") do
     header = """
     ================================================================================
     TAD REAL OBJECT [実身] : #{doc_title}
@@ -313,6 +352,11 @@ defmodule BtronTAD.Compiler do
         {:link, href, label} ->
           robj_id = :erlang.phash2(href, 100_000) + 1000
           "[仮身] ##{robj_id} : #{label} -> [#{href}]"
+        {:image, src, alt} ->
+          actual_path = if base_dir != "" and not File.exists?(src), do: Path.join(base_dir, src), else: src
+          {w, h} = get_gif_dimensions(actual_path)
+          "[付箋: FIGURE w=#{w} h=#{h} src=\"#{src}\" caption=\"#{alt}\"]\n" <>
+          "[画像: #{if(alt != "", do: alt, else: Path.basename(src))}]"
         {:hr} -> String.duplicate("─", 70)
         {:text, text} -> text
       end)
@@ -329,6 +373,12 @@ defmodule BtronTAD.Compiler do
     target_dir = if sub_dir == ".", do: out_dir, else: Path.join(out_dir, sub_dir)
     File.mkdir_p!(target_dir)
 
+    src_gif_dir = Path.join(Path.dirname(html_path), "gif")
+    tgt_gif_dir = Path.join(target_dir, "gif")
+    if File.dir?(src_gif_dir) and not File.dir?(tgt_gif_dir) do
+      File.cp_r!(src_gif_dir, tgt_gif_dir)
+    end
+
     bin_path = Path.join(target_dir, base_name <> ".tad")
     txt_path = Path.join(target_dir, base_name <> ".tad.txt")
 
@@ -341,8 +391,9 @@ defmodule BtronTAD.Compiler do
         _ -> base_name
       end
 
-    binary_tad = compile_to_binary_tad(elements, title)
-    symbolic_tad = compile_to_symbolic_tad(elements, title)
+    base_dir = Path.dirname(html_path)
+    binary_tad = compile_to_binary_tad(elements, title, base_dir)
+    symbolic_tad = compile_to_symbolic_tad(elements, title, base_dir)
 
     File.write!(bin_path, binary_tad)
     File.write!(txt_path, symbolic_tad)
@@ -417,6 +468,7 @@ defmodule BtronTAD.Compiler do
 
     btron3_elements = [
       {:h1, "BTRON3 仕様書 バージョン 3.20.00 (Sakamura BTRON Architecture)"},
+      {:image, "doc/shared_data/gif/all_struct.gif", "図 1: BTRON3 実身・仮身データ構造仕様 (Shared Data Structure)"},
       {:link, "tad_bin/shared_data/index.tad", "Part 1: 共通データ構造仕様 (Shared Data Specifications)"},
       {:link, "tad_bin/os_spec/index.tad", "Part 2: オペレーティングシステム機能仕様 (OS Specification)"},
       {:link, "tad_bin/os_spec/indexfig.tad", "Static Analysis & Bounded Heap Memory Model (NASA JPL Rule 3)"},
@@ -439,6 +491,7 @@ defmodule BtronTAD.Compiler do
 
     tkernel_elements = [
       {:h1, "T-Kernel 2.0 リアルタイムOS仕様書及び開発ガイド"},
+      {:image, "doc/os_spec/kernel/gif/processtask.gif", "図 2: μITRON リアルタイムタスク状態遷移図 (Task State Machine)"},
       {:link, "t-kernel/tkernel_spec.html", "第1章 T-Kernel 2.0 コアアーキテクチャ (Core Architecture)"},
       {:link, "t-kernel/tkernel_startup.html", "第2章 ブート及び初期化シーケンス (Startup Sequence)"},
       {:link, "t-kernel/tkernel_qemu.html", "第3章 QEMU仮想環境とボード展開 (QEMU & Board Deployment)"},
@@ -456,6 +509,7 @@ defmodule BtronTAD.Compiler do
 
     tron_hmi_elements = [
       {:h1, "TRON 人間・機械インタフェース (HMI) 設計仕様書及び標準カタログ"},
+      {:image, "doc/os_spec/shell/gif/title_bar.gif", "図 3: BTRON3 標準ウィンドウとタイトルバー意匠 (Window Geometry)"},
       {:h2, "標準動作三原則 (The Standard Action Triad)"},
       {:ol, [
         "操作対象の指定 (Target Selection)",
@@ -477,6 +531,7 @@ defmodule BtronTAD.Compiler do
 
     bfree_elements = [
       {:h1, "B-Free 自由なBTRON3オペレーティングシステム技術解説書"},
+      {:image, "doc/os_spec/kernel/gif/filesystem.gif", "図 4: BTRON ファイルシステム構造仕様 (Filesystem Structure)"},
       {:link, "b-free/manifest.html", "第1章 B-Free マニフェストと自由ソフトウェアの理念"},
       {:link, "b-free/kernel.html", "第2章 μITRON 3.0 マイクロカーネルアーキテクチャ"},
       {:link, "b-free/posix.html", "第3章 POSIXエミュレーション層とシステムコール"},

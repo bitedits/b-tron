@@ -114,6 +114,25 @@ static void parse_text_tad_lines(TAD_BROWSER *tb, const char *text, UW len) {
             }
             strncpy(span->style.vobj_label, line, sizeof(span->style.vobj_label) - 1);
             strncpy(span->text, line, sizeof(span->text) - 1);
+        } else if (strncmp(line, "[付箋: FIGURE", 13) == 0 || strncmp(line, "[画像:", 7) == 0 || strncmp(line, "[図形:", 7) == 0) {
+            span->style = cur_style;
+            span->style.is_image = TRUE;
+            span->style.img_w = 480;
+            span->style.img_h = 130;
+            span->style.line_pitch = 146;
+            span->style.indent = 20;
+
+            const char *cap_ptr = strstr(line, "caption=\"");
+            if (cap_ptr) {
+                const char *end_cap = strchr(cap_ptr + 9, '"');
+                int len = end_cap ? (int)(end_cap - (cap_ptr + 9)) : 60;
+                if (len > 120) len = 120;
+                memcpy(span->style.img_caption, cap_ptr + 9, len);
+                span->style.img_caption[len] = '\0';
+            } else {
+                strncpy(span->style.img_caption, line, sizeof(span->style.img_caption) - 1);
+            }
+            strncpy(span->text, line, sizeof(span->text) - 1);
         } else if (strncmp(line, "───", 6) == 0 || strncmp(line, "━━━", 6) == 0 || strncmp(line, "===", 3) == 0) {
             span->style = cur_style;
             span->style.is_hr = TRUE;
@@ -230,12 +249,48 @@ ER tad_browser_load_buffer(TAD_BROWSER *tb, const void *buf, UW len, const char 
                         break;
                     case 0xB0: /* TS_FPRIM */
                         {
+                            UB subid = p[offset];
                             TAD_SPAN *span = &tb->spans[tb->span_count++];
                             memset(span, 0, sizeof(TAD_SPAN));
                             span->style = cur_style;
-                            span->style.is_hr = TRUE;
-                            span->style.line_pitch = 12;
-                            span->text[0] = '\0';
+
+                            if (subid == 10) {
+                                /* BTRON3 Figure / Picture Segment (TS_FPRIM SubID 10) */
+                                span->style.is_image = TRUE;
+                                if (seg_len >= 5) {
+                                    span->style.img_w = (p[offset + 1] << 8) | p[offset + 2];
+                                    span->style.img_h = (p[offset + 3] << 8) | p[offset + 4];
+                                    span->style.img_type = (seg_len >= 6) ? p[offset + 5] : 0;
+                                }
+                                if (span->style.img_w <= 0) span->style.img_w = 480;
+                                if (span->style.img_h <= 0) span->style.img_h = 130;
+                                span->style.line_pitch = span->style.img_h + 26;
+                                span->style.indent = 20;
+
+                                if (seg_len >= 8) {
+                                    UH cap_len = (p[offset + 6] << 8) | p[offset + 7];
+                                    if (cap_len > 0 && offset + 8 + cap_len <= offset + seg_len) {
+                                        int copy_c = (cap_len < 127) ? cap_len : 127;
+                                        memcpy(span->style.img_caption, &p[offset + 8], copy_c);
+                                        span->style.img_caption[copy_c] = '\0';
+                                    }
+                                    UW next_off = offset + 8 + cap_len;
+                                    if (next_off + 2 <= offset + seg_len) {
+                                        UH src_len = (p[next_off] << 8) | p[next_off + 1];
+                                        if (src_len > 0 && next_off + 2 + src_len <= offset + seg_len) {
+                                            int copy_s = (src_len < 127) ? src_len : 127;
+                                            memcpy(span->style.img_src, &p[next_off + 2], copy_s);
+                                            span->style.img_src[copy_s] = '\0';
+                                        }
+                                    }
+                                }
+                                snprintf(span->text, sizeof(span->text), "[図形] %s", span->style.img_caption[0] ? span->style.img_caption : "Figure");
+                            } else {
+                                /* SubID 1: Vector separator line */
+                                span->style.is_hr = TRUE;
+                                span->style.line_pitch = 12;
+                                span->text[0] = '\0';
+                            }
                         }
                         break;
                     default:
@@ -309,6 +364,24 @@ void tad_browser_layout(TAD_BROWSER *tb, int view_width) {
     int cur_y = 36; /* Start below the 32px navigation toolbar */
     for (int i = 0; i < tb->span_count; i++) {
         TAD_SPAN *s = &tb->spans[i];
+
+        if (s->style.is_image) {
+            int fig_w = s->style.img_w ? s->style.img_w : 576;
+            int fig_h = s->style.img_h ? s->style.img_h : 180;
+            if (fig_w < 200) fig_w = 200;
+            if (fig_h < 40) fig_h = 40;
+
+            int box_w = fig_w + 16;
+            if (box_w < tb->doc_width - 40) box_w = tb->doc_width - 40;
+
+            s->bounds.left = 16;
+            s->bounds.top = cur_y;
+            s->bounds.right = s->bounds.left + box_w;
+            s->bounds.bottom = cur_y + fig_h + 46;
+            cur_y += fig_h + 52;
+            continue;
+        }
+
         int pitch = s->style.line_pitch;
         if (pitch <= 0) pitch = (s->style.font_size > 0) ? s->style.font_size + 6 : 20;
 
@@ -328,6 +401,562 @@ void tad_browser_layout(TAD_BROWSER *tb, int view_width) {
         cur_y += pitch;
     }
     tb->doc_height = cur_y + 30;
+}
+
+static void render_figure_diagram(GDEV *dev, const TAD_SPAN *s, const RECT *cvs) {
+    if (!dev || !s || !cvs) return;
+
+    UB type = s->style.img_type;
+    /* Auto-detect type from caption/src if type == 0 */
+    if (type == 0) {
+        const char *cap = s->style.img_caption;
+        const char *src = s->style.img_src;
+        if (strstr(cap, "タスク") || strstr(cap, "Task") || strstr(cap, "FSM") || strstr(src, "task") || strstr(cap, "стан") || strstr(cap, "proc")) type = 1;
+        else if (strstr(cap, "ウィンドウ") || strstr(cap, "Window") || strstr(cap, "HMI") || strstr(src, "window") || strstr(cap, "вікн") || strstr(src, "hmi")) type = 2;
+        else if (strstr(cap, "実身") || strstr(cap, "仮身") || strstr(cap, "Real") || strstr(cap, "Virtual") || strstr(src, "store") || strstr(cap, "об'єкт") || strstr(src, "fd")) type = 3;
+        else if (strstr(cap, "TRONコード") || strstr(cap, "Code") || strstr(cap, "文字") || strstr(src, "tron_code") || strstr(cap, "шрифт")) type = 4;
+        else if (strstr(cap, "図形") || strstr(cap, "Display") || strstr(cap, "DP") || strstr(src, "dp") || strstr(cap, "фігур") || strstr(src, "figure")) type = 5;
+        else if (strstr(cap, "メモリ") || strstr(cap, "Memory") || strstr(cap, "JPL") || strstr(src, "indexfig") || strstr(cap, "пам'ят")) type = 6;
+        else if (strstr(cap, "オーディオ") || strstr(cap, "Audio") || strstr(cap, "Meter") || strstr(src, "audio")) type = 7;
+    }
+
+    int mid_y = (cvs->top + cvs->bottom) / 2;
+    int cvs_w = cvs->right - cvs->left;
+
+    switch (type) {
+        case 1: /* ── Type 1: Task State Transition FSM (μITRON / T-Kernel) ── */
+            {
+                int box_w = (cvs_w - 60) / 4;
+                if (box_w > 90) box_w = 90;
+                int b_h = 28;
+
+                RECT b_dorm = { cvs->left + 8, mid_y - b_h/2, cvs->left + 8 + box_w, mid_y + b_h/2 };
+                RECT b_rdy  = { b_dorm.right + 12, cvs->top + 6, b_dorm.right + 12 + box_w, cvs->top + 6 + b_h };
+                RECT b_run  = { b_rdy.right + 12, mid_y - b_h/2, b_rdy.right + 12 + box_w, mid_y + b_h/2 };
+                RECT b_wait = { b_dorm.right + 12, cvs->bottom - 6 - b_h, b_dorm.right + 12 + box_w, cvs->bottom - 6 };
+
+                fill_rec(dev, &b_dorm, COLOR_LTGRAY); drw_rec(dev, &b_dorm);
+                drw_tc_string(dev, b_dorm.left + 6, b_dorm.top + 6, "DORMANT", COLOR_DKGRAY, 0);
+
+                fill_rec(dev, &b_rdy, COLOR_LTGRAY); drw_rec(dev, &b_rdy);
+                drw_tc_string(dev, b_rdy.left + 12, b_rdy.top + 6, "READY", COLOR_BLUE, 0);
+
+                fill_rec(dev, &b_run, COLOR_NAVY); drw_rec(dev, &b_run);
+                drw_tc_string(dev, b_run.left + 10, b_run.top + 6, "RUNNING", COLOR_WHITE, 0);
+
+                fill_rec(dev, &b_wait, COLOR_LTGRAY); drw_rec(dev, &b_wait);
+                drw_tc_string(dev, b_wait.left + 8, b_wait.top + 6, "WAITING", COLOR_BLACK, 0);
+
+                drw_lin(dev, b_dorm.right, b_dorm.top + 8, b_rdy.left, b_rdy.bottom - 4);
+                drw_lin(dev, b_rdy.right, b_rdy.bottom - 4, b_run.left, b_run.top + 8);
+                drw_lin(dev, b_run.left, b_run.bottom - 4, b_wait.right, b_wait.top + 8);
+                drw_lin(dev, b_wait.left, b_wait.top + 8, b_rdy.left + 10, b_rdy.bottom);
+            }
+            break;
+
+        case 2: /* ── Type 2: TRON HMI Window Geometry & Corner Resize Blueprint ── */
+            {
+                RECT w_box = { cvs->left + 10, cvs->top + 6, cvs->left + 220, cvs->bottom - 6 };
+                fill_rec(dev, &w_box, COLOR_LTGRAY);
+                drw_rec(dev, &w_box);
+
+                RECT w_tb = { w_box.left + 2, w_box.top + 2, w_box.right - 2, w_box.top + 16 };
+                fill_rec(dev, &w_tb, COLOR_NAVY);
+                drw_tc_string(dev, w_tb.left + 4, w_tb.top + 1, "[■ Window Title]", COLOR_WHITE, 0);
+                drw_tc_string(dev, w_tb.right - 12, w_tb.top + 1, "x", COLOR_WHITE, 0);
+
+                RECT w_cl = { w_box.left + 4, w_tb.bottom + 2, w_box.right - 14, w_box.bottom - 4 };
+                fill_rec(dev, &w_cl, COLOR_WHITE);
+                drw_rec(dev, &w_cl);
+                drw_tc_string(dev, w_cl.left + 4, w_cl.top + 6, "Client Viewport", COLOR_DKGRAY, 0);
+
+                RECT w_sb = { w_box.right - 12, w_tb.bottom + 2, w_box.right - 2, w_box.bottom - 14 };
+                fill_rec(dev, &w_sb, COLOR_LTGRAY); drw_rec(dev, &w_sb);
+                RECT w_th = { w_sb.left + 1, w_sb.top + 8, w_sb.right - 1, w_sb.top + 20 };
+                fill_rec(dev, &w_th, COLOR_DKGRAY);
+
+                RECT w_rz = { w_box.right - 14, w_box.bottom - 14, w_box.right - 2, w_box.bottom - 2 };
+                fill_rec(dev, &w_rz, COLOR_LTGRAY);
+                drw_lin(dev, w_box.right - 12, w_box.bottom - 3, w_box.right - 3, w_box.bottom - 12);
+                drw_lin(dev, w_box.right - 8,  w_box.bottom - 3, w_box.right - 3, w_box.bottom - 8);
+                drw_lin(dev, w_box.right - 4,  w_box.bottom - 3, w_box.right - 3, w_box.bottom - 4);
+
+                int anno_x = w_box.right + 15;
+                drw_tc_string(dev, anno_x, cvs->top + 8, "▶ Titlebar + Close Button", COLOR_NAVY, 0);
+                drw_tc_string(dev, anno_x, cvs->top + 26, "▶ Client Scroll Viewport", COLOR_BLACK, 0);
+                drw_tc_string(dev, anno_x, cvs->top + 44, "▶ Right Scrollbar & Thumb", COLOR_DKGRAY, 0);
+                drw_tc_string(dev, anno_x, cvs->top + 62, "▶ [▞] 16x16 Corner Resize Grip", COLOR_BLUE, 0);
+            }
+            break;
+
+        case 3: /* ── Type 3: Real Object & Virtual Object Hyper-Tree ── */
+            {
+                RECT r_root = { cvs->left + 10, mid_y - 18, cvs->left + 130, mid_y + 18 };
+                fill_rec(dev, &r_root, COLOR_NAVY);
+                drw_rec(dev, &r_root);
+                drw_tc_string(dev, r_root.left + 6, r_root.top + 3, "[実身 Real Object]", COLOR_WHITE, 0);
+                drw_tc_string(dev, r_root.left + 6, r_root.top + 18, "ID #101: Cabinet", COLOR_WHITE, 0);
+
+                int k_x = r_root.right + 40;
+                int k_w = cvs->right - k_x - 10;
+                if (k_w > 200) k_w = 200;
+
+                RECT k1 = { k_x, cvs->top + 6, k_x + k_w, cvs->top + 24 };
+                RECT k2 = { k_x, mid_y - 9, k_x + k_w, mid_y + 9 };
+                RECT k3 = { k_x, cvs->bottom - 24, k_x + k_w, cvs->bottom - 6 };
+
+                fill_rec(dev, &k1, COLOR_LTGRAY); drw_rec(dev, &k1);
+                drw_tc_string(dev, k1.left + 6, k1.top + 3, "[仮身] 01_btron3_spec.tad", COLOR_BLUE, 0);
+
+                fill_rec(dev, &k2, COLOR_LTGRAY); drw_rec(dev, &k2);
+                drw_tc_string(dev, k2.left + 6, k2.top + 3, "[仮身] 05_kernel_core.tad", COLOR_BLUE, 0);
+
+                fill_rec(dev, &k3, COLOR_LTGRAY); drw_rec(dev, &k3);
+                drw_tc_string(dev, k3.left + 6, k3.top + 3, "[仮身] 07_gui_shell.tad", COLOR_BLUE, 0);
+
+                drw_lin(dev, r_root.right, mid_y, k_x - 12, mid_y);
+                drw_lin(dev, k_x - 12, k1.top + 9, k_x - 12, k3.top + 9);
+                drw_lin(dev, k_x - 12, k1.top + 9, k1.left, k1.top + 9);
+                drw_lin(dev, k_x - 12, k2.top + 9, k2.left, k2.top + 9);
+                drw_lin(dev, k_x - 12, k3.top + 9, k3.left, k3.top + 9);
+            }
+            break;
+
+        case 4: /* ── Type 4: TRON Multilingual Code Map ── */
+            {
+                int col_w = (cvs_w - 40) / 3;
+                RECT c1 = { cvs->left + 10, cvs->top + 6, cvs->left + 10 + col_w, cvs->bottom - 6 };
+                RECT c2 = { c1.right + 10, cvs->top + 6, c1.right + 10 + col_w, cvs->bottom - 6 };
+                RECT c3 = { c2.right + 10, cvs->top + 6, cvs->right - 10, cvs->bottom - 6 };
+
+                fill_rec(dev, &c1, COLOR_LTGRAY); drw_rec(dev, &c1);
+                drw_tc_string(dev, c1.left + 6, c1.top + 4, "Plane 1: ASCII", COLOR_NAVY, 0);
+                drw_tc_string(dev, c1.left + 6, c1.top + 22, "0x00..0x7F (8x16)", COLOR_BLACK, 0);
+                drw_tc_string(dev, c1.left + 6, c1.top + 42, "A B C D E 1 2 3", COLOR_DKGRAY, 0);
+
+                fill_rec(dev, &c2, COLOR_LTGRAY); drw_rec(dev, &c2);
+                drw_tc_string(dev, c2.left + 6, c2.top + 4, "Plane 1: Cyrillic", COLOR_BLUE, 0);
+                drw_tc_string(dev, c2.left + 6, c2.top + 22, "0x2700..0x27FF", COLOR_BLACK, 0);
+                drw_tc_string(dev, c2.left + 6, c2.top + 42, "А Б В Є І Ї Ґ я", COLOR_NAVY, 0);
+
+                fill_rec(dev, &c3, COLOR_LTGRAY); drw_rec(dev, &c3);
+                drw_tc_string(dev, c3.left + 6, c3.top + 4, "Plane 1: JIS CJK", COLOR_BLACK, 0);
+                drw_tc_string(dev, c3.left + 6, c3.top + 22, "0x2100+ (16x16)", COLOR_BLACK, 0);
+                drw_tc_string(dev, c3.left + 6, c3.top + 42, "超漢字 漢 和 日本", COLOR_DKGRAY, 0);
+            }
+            break;
+
+        case 5: /* ── Type 5: 2D Vector Geometry Primitives (DP) ── */
+            {
+                RECT g_r = { cvs->left + 15, cvs->top + 10, cvs->left + 95, cvs->bottom - 10 };
+                fill_rec(dev, &g_r, COLOR_LTGRAY);
+                drw_rec(dev, &g_r);
+                drw_tc_string(dev, g_r.left + 8, g_r.top + 16, "Rectangle", COLOR_BLACK, 0);
+
+                int cx = cvs->left + 160;
+                int cy = mid_y;
+                drw_lin(dev, cx - 35, cy, cx + 35, cy);
+                drw_lin(dev, cx, cy - 30, cx, cy + 30);
+                drw_tc_string(dev, cx + 5, cy - 20, "(x, y)", COLOR_NAVY, 0);
+
+                int tx = cvs->left + 250;
+                drw_lin(dev, tx, cvs->bottom - 10, tx + 35, cvs->top + 10);
+                drw_lin(dev, tx + 35, cvs->top + 10, tx + 70, cvs->bottom - 10);
+                drw_lin(dev, tx + 70, cvs->bottom - 10, tx, cvs->bottom - 10);
+                drw_tc_string(dev, tx + 10, cvs->bottom - 26, "Polygon", COLOR_BLUE, 0);
+
+                int el_x = cvs->right - 85;
+                RECT el_r = { el_x, cvs->top + 10, cvs->right - 10, cvs->bottom - 10 };
+                fill_rec(dev, &el_r, COLOR_LTGRAY);
+                drw_rec(dev, &el_r);
+                drw_tc_string(dev, el_r.left + 10, el_r.top + 16, "Ellipse", COLOR_DKGRAY, 0);
+            }
+            break;
+
+        case 6: /* ── Type 6: NASA JPL Rule 3 Bounded Memory Pool ── */
+            {
+                int p_w = (cvs_w - 40) / 3;
+                RECT m1 = { cvs->left + 10, cvs->top + 6, cvs->left + 10 + p_w, mid_y - 4 };
+                RECT m2 = { m1.right + 10, cvs->top + 6, m1.right + 10 + p_w, mid_y - 4 };
+                RECT m3 = { m2.right + 10, cvs->top + 6, cvs->right - 10, mid_y - 4 };
+
+                fill_rec(dev, &m1, COLOR_LTGRAY); drw_rec(dev, &m1);
+                drw_tc_string(dev, m1.left + 6, m1.top + 4, "T_CMPF: Fixed", COLOR_BLUE, 0);
+                drw_tc_string(dev, m1.left + 6, m1.top + 18, "512 x 64B Blocks", COLOR_DKGRAY, 0);
+
+                fill_rec(dev, &m2, COLOR_LTGRAY); drw_rec(dev, &m2);
+                drw_tc_string(dev, m2.left + 6, m2.top + 4, "T_CMPV: Var Pool", COLOR_NAVY, 0);
+                drw_tc_string(dev, m2.left + 6, m2.top + 18, "Static 256KB Arena", COLOR_DKGRAY, 0);
+
+                fill_rec(dev, &m3, COLOR_LTGRAY); drw_rec(dev, &m3);
+                drw_tc_string(dev, m3.left + 6, m3.top + 4, "Event Buffer", COLOR_BLACK, 0);
+                drw_tc_string(dev, m3.left + 6, m3.top + 18, "256 EVT Slots", COLOR_DKGRAY, 0);
+
+                RECT bar = { cvs->left + 10, mid_y + 4, cvs->right - 10, cvs->bottom - 6 };
+                fill_rec(dev, &bar, COLOR_NAVY);
+                drw_rec(dev, &bar);
+                drw_tc_string(dev, bar.left + 10, bar.top + 4, "NASA JPL Safety Rule 3: Zero Post-Boot Dynamic malloc() Allowed", COLOR_WHITE, 0);
+            }
+            break;
+
+        case 7: /* ── Type 7: SONY TC-K777ES Stereo Audio Deck & Controls ── */
+            {
+                RECT deck = { cvs->left + 10, cvs->top + 6, cvs->left + 170, cvs->bottom - 6 };
+                fill_rec(dev, &deck, COLOR_BLACK);
+                drw_rec(dev, &deck);
+                drw_tc_string(dev, deck.left + 12, mid_y - 8, "(◎)", COLOR_WHITE, 0);
+                drw_lin(dev, deck.left + 40, mid_y, deck.right - 40, mid_y);
+                drw_tc_string(dev, deck.right - 40, mid_y - 8, "(◎)", COLOR_WHITE, 0);
+                drw_tc_string(dev, deck.left + 24, deck.bottom - 16, "SONY TC-K777ES", COLOR_LTGRAY, 0);
+
+                int m_x = deck.right + 15;
+                int m_w = cvs->right - m_x - 10;
+                RECT vu_l = { m_x, cvs->top + 10, m_x + m_w, cvs->top + 24 };
+                RECT vu_r = { m_x, cvs->top + 30, m_x + m_w, cvs->top + 44 };
+
+                fill_rec(dev, &vu_l, COLOR_LTGRAY); drw_rec(dev, &vu_l);
+                RECT vu_l_bar = { vu_l.left + 2, vu_l.top + 2, vu_l.left + (m_w * 7)/10, vu_l.bottom - 2 };
+                fill_rec(dev, &vu_l_bar, COLOR_NAVY);
+                drw_tc_string(dev, vu_l.right - 45, vu_l.top + 1, "L: -2dB", COLOR_BLACK, 0);
+
+                fill_rec(dev, &vu_r, COLOR_LTGRAY); drw_rec(dev, &vu_r);
+                RECT vu_r_bar = { vu_r.left + 2, vu_r.top + 2, vu_r.left + (m_w * 6)/10, vu_r.bottom - 2 };
+                fill_rec(dev, &vu_r_bar, COLOR_BLUE);
+                drw_tc_string(dev, vu_r.right - 45, vu_r.top + 1, "R: -4dB", COLOR_BLACK, 0);
+
+                drw_tc_string(dev, m_x, cvs->bottom - 18, "TRON HMI Standard Audio Instrument Deck", COLOR_DKGRAY, 0);
+            }
+            break;
+
+        case 0:
+        default: /* ── Type 0: Multi-Layer Architecture Stack ── */
+            {
+                int b_w = (cvs_w - 50) / 3;
+                if (b_w > 140) b_w = 140;
+
+                RECT b1 = { cvs->left + 10, cvs->top + 10, cvs->left + 10 + b_w, mid_y - 4 };
+                fill_rec(dev, &b1, COLOR_LTGRAY);
+                drw_rec(dev, &b1);
+                drw_tc_string(dev, b1.left + 6, b1.top + 8, "TAD / Shell", COLOR_NAVY, 0);
+
+                int arr1_x = b1.right + 2;
+                drw_lin(dev, arr1_x, mid_y - 12, arr1_x + 14, mid_y - 12);
+                drw_lin(dev, arr1_x + 14, mid_y - 12, arr1_x + 10, mid_y - 16);
+                drw_lin(dev, arr1_x + 14, mid_y - 12, arr1_x + 10, mid_y - 8);
+
+                RECT b2 = { arr1_x + 16, cvs->top + 10, arr1_x + 16 + b_w, mid_y - 4 };
+                fill_rec(dev, &b2, COLOR_LTGRAY);
+                drw_rec(dev, &b2);
+                drw_tc_string(dev, b2.left + 6, b2.top + 8, "DP Graphics", COLOR_BLUE, 0);
+
+                int arr2_x = b2.right + 2;
+                drw_lin(dev, arr2_x, mid_y - 12, arr2_x + 14, mid_y - 12);
+                drw_lin(dev, arr2_x + 14, mid_y - 12, arr2_x + 10, mid_y - 16);
+                drw_lin(dev, arr2_x + 14, mid_y - 12, arr2_x + 10, mid_y - 8);
+
+                RECT b3 = { arr2_x + 16, cvs->top + 10, cvs->right - 10, mid_y - 4 };
+                fill_rec(dev, &b3, COLOR_LTGRAY);
+                drw_rec(dev, &b3);
+                drw_tc_string(dev, b3.left + 6, b3.top + 8, "μITRON Kernel", COLOR_BLACK, 0);
+
+                RECT base = { cvs->left + 10, mid_y + 4, cvs->right - 10, cvs->bottom - 8 };
+                fill_rec(dev, &base, COLOR_LTGRAY);
+                drw_rec(dev, &base);
+                drw_tc_string(dev, base.left + 10, base.top + 6, "NASA JPL Rule 3 Bounded Memory Engine (Zero Post-Boot malloc)", COLOR_DKGRAY, 0);
+            }
+            break;
+    }
+}
+
+#define MAX_GIF_PIXELS (2048 * 3000)
+#define MAX_LZW_DICT 4096
+
+static UH s_gif_prefix[MAX_LZW_DICT];
+static UB s_gif_suffix[MAX_LZW_DICT];
+static UB s_gif_stack[MAX_LZW_DICT + 1];
+static UB s_gif_raw[MAX_GIF_PIXELS];
+
+/* ── Native BTRON3 GIF Specification Diagram Decoder (NASA JPL Rule 3 Bounded) ── */
+static int decode_and_draw_gif(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+    if (!dev || !filepath) return -1;
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) return -1;
+
+    UB hdr[13];
+    if (fread(hdr, 1, 13, fp) != 13) {
+        fclose(fp);
+        return -1;
+    }
+
+    if (memcmp(hdr, "GIF87a", 6) != 0 && memcmp(hdr, "GIF89a", 6) != 0) {
+        fclose(fp);
+        return -1;
+    }
+
+    UB flags = hdr[10];
+    int has_gct = (flags & 0x80) != 0;
+    int gct_size = 1 << ((flags & 0x07) + 1);
+
+    UW gct[256];
+    memset(gct, 0, sizeof(gct));
+
+    if (has_gct) {
+        UB gct_raw[768];
+        if (fread(gct_raw, 1, gct_size * 3, fp) != (size_t)(gct_size * 3)) {
+            fclose(fp);
+            return -1;
+        }
+        for (int i = 0; i < gct_size; i++) {
+            UB r = gct_raw[i * 3 + 0];
+            UB g = gct_raw[i * 3 + 1];
+            UB b = gct_raw[i * 3 + 2];
+            gct[i] = (r << 16) | (g << 8) | b;
+        }
+    }
+
+    int trans_idx = -1;
+    int img_w = 0, img_h = 0;
+    BOOL img_read = FALSE;
+
+    while (!feof(fp)) {
+        int b = fgetc(fp);
+        if (b == EOF || b == 0x3B) break;
+
+        if (b == 0x21) {
+            /* Extension block */
+            int ext_label = fgetc(fp);
+            if (ext_label == 0xF9) {
+                int block_size = fgetc(fp);
+                if (block_size == 4) {
+                    UB gce[4];
+                    if (fread(gce, 1, 4, fp) == 4 && (gce[0] & 0x01)) {
+                        trans_idx = gce[3];
+                    }
+                }
+                while (1) {
+                    int sub_len = fgetc(fp);
+                    if (sub_len <= 0) break;
+                    fseek(fp, sub_len, SEEK_CUR);
+                }
+            } else {
+                while (1) {
+                    int sub_len = fgetc(fp);
+                    if (sub_len <= 0) break;
+                    fseek(fp, sub_len, SEEK_CUR);
+                }
+            }
+        } else if (b == 0x2C) {
+            /* Image Descriptor */
+            UB desc[9];
+            if (fread(desc, 1, 9, fp) != 9) break;
+
+            img_w = desc[4] | (desc[5] << 8);
+            img_h = desc[6] | (desc[7] << 8);
+            UB iflags = desc[8];
+
+            int has_lct = (iflags & 0x80) != 0;
+            UW palette[256];
+            memcpy(palette, gct, sizeof(palette));
+
+            if (has_lct) {
+                int lct_size = 1 << ((iflags & 0x07) + 1);
+                UB lct_raw[768];
+                if (fread(lct_raw, 1, lct_size * 3, fp) == (size_t)(lct_size * 3)) {
+                    for (int i = 0; i < lct_size; i++) {
+                        UB r = lct_raw[i * 3 + 0];
+                        UB g = lct_raw[i * 3 + 1];
+                        UB b = lct_raw[i * 3 + 2];
+                        palette[i] = (r << 16) | (g << 8) | b;
+                    }
+                }
+            } else if (!has_gct) {
+                palette[0] = 0x00FFFFFF;
+                palette[1] = 0x00000000;
+            }
+
+            int min_code_size = fgetc(fp);
+            if (min_code_size < 2 || min_code_size > 8) min_code_size = 8;
+
+            int clear_code = 1 << min_code_size;
+            int eoi_code = clear_code + 1;
+            int next_code = eoi_code + 1;
+            int code_size = min_code_size + 1;
+            int code_mask = (1 << code_size) - 1;
+
+            for (int i = 0; i < clear_code; i++) {
+                s_gif_prefix[i] = 0;
+                s_gif_suffix[i] = (UB)i;
+            }
+
+            int bit_buf = 0;
+            int bit_count = 0;
+            int old_code = -1;
+            int first_char = 0;
+            int stack_top = 0;
+            int pixel_count = 0;
+            int total_pixels = img_w * img_h;
+            if (total_pixels > MAX_GIF_PIXELS) total_pixels = MAX_GIF_PIXELS;
+
+            UB sub_buf[256];
+            int sub_len = 0;
+            int sub_pos = 0;
+
+            while (pixel_count < total_pixels) {
+                while (bit_count < code_size) {
+                    if (sub_pos >= sub_len) {
+                        sub_len = fgetc(fp);
+                        if (sub_len <= 0) break;
+                        if (fread(sub_buf, 1, sub_len, fp) != (size_t)sub_len) break;
+                        sub_pos = 0;
+                    }
+                    bit_buf |= (sub_buf[sub_pos++] << bit_count);
+                    bit_count += 8;
+                }
+
+                if (bit_count < code_size) break;
+
+                int code = bit_buf & code_mask;
+                bit_buf >>= code_size;
+                bit_count -= code_size;
+
+                if (code == clear_code) {
+                    code_size = min_code_size + 1;
+                    code_mask = (1 << code_size) - 1;
+                    next_code = eoi_code + 1;
+                    old_code = -1;
+                    continue;
+                }
+                if (code == eoi_code) break;
+
+                int cur_code = code;
+                if (cur_code >= next_code) {
+                    s_gif_stack[stack_top++] = (UB)first_char;
+                    cur_code = old_code;
+                }
+
+                while (cur_code >= clear_code && cur_code < MAX_LZW_DICT) {
+                    s_gif_stack[stack_top++] = s_gif_suffix[cur_code];
+                    cur_code = s_gif_prefix[cur_code];
+                }
+                first_char = s_gif_suffix[cur_code];
+                s_gif_stack[stack_top++] = (UB)first_char;
+
+                while (stack_top > 0 && pixel_count < total_pixels) {
+                    s_gif_raw[pixel_count++] = s_gif_stack[--stack_top];
+                }
+
+                if (old_code >= 0 && next_code < MAX_LZW_DICT) {
+                    s_gif_prefix[next_code] = old_code;
+                    s_gif_suffix[next_code] = (UB)first_char;
+                    next_code++;
+                    if (next_code > code_mask && code_size < 12) {
+                        code_size++;
+                        code_mask = (1 << code_size) - 1;
+                    }
+                }
+                old_code = code;
+            }
+
+            /* Draw 1:1 Pixel-Perfect (Centered if max_w > img_w) */
+            int draw_x = dst_x;
+            if (max_w > img_w) {
+                draw_x = dst_x + (max_w - img_w) / 2;
+            }
+            int draw_y = dst_y;
+
+            for (int y = 0; y < img_h; y++) {
+                int out_y = draw_y + y;
+                /* Clip between toolbar (32px) and statusbar (height - 22px) */
+                if (out_y < 32 || out_y >= dev->height - 22) continue;
+                if (max_h > 0 && y >= max_h) break;
+
+                for (int x = 0; x < img_w; x++) {
+                    int out_x = draw_x + x;
+                    if (out_x < dst_x || out_x >= dst_x + max_w) continue;
+                    if (out_x < 0 || out_x >= dev->width) continue;
+
+                    UB p_idx = s_gif_raw[y * img_w + x];
+                    if (p_idx == trans_idx) continue;
+
+                    UW col = palette[p_idx];
+                    dev->pixels[out_y * dev->width + out_x] = (COLOR)(0xFF000000 | col);
+                }
+            }
+
+            img_read = TRUE;
+            break;
+        }
+    }
+
+    fclose(fp);
+    return img_read ? 0 : -1;
+}
+
+static int resolve_and_draw_gif(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN *s, const RECT *cvs) {
+    if (!dev || !s || !cvs || s->style.img_src[0] == '\0') return -1;
+
+    char candidate[256];
+    int max_w = cvs->right - cvs->left;
+    int max_h = cvs->bottom - cvs->top;
+
+    /* 1. Direct path as specified */
+    if (decode_and_draw_gif(dev, s->style.img_src, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+        return 0;
+    }
+
+    /* 2. Relative to tb->file_path */
+    if (tb && tb->file_path[0] != '\0') {
+        char doc_dir[256];
+        strncpy(doc_dir, tb->file_path, sizeof(doc_dir) - 1);
+        doc_dir[sizeof(doc_dir) - 1] = '\0';
+        char *last_slash = strrchr(doc_dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+            snprintf(candidate, sizeof(candidate), "%s/%s", doc_dir, s->style.img_src);
+            if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+                return 0;
+            }
+        }
+    }
+
+    /* 3. Substituted tad_bin/ -> doc/ path */
+    if (tb && tb->file_path[0] != '\0') {
+        const char *p = tb->file_path;
+        if (strncmp(p, "tad_bin/", 8) == 0) {
+            char doc_dir[256];
+            snprintf(doc_dir, sizeof(doc_dir), "doc/%s", p + 8);
+            char *last_slash = strrchr(doc_dir, '/');
+            if (last_slash) {
+                *last_slash = '\0';
+                snprintf(candidate, sizeof(candidate), "%s/%s", doc_dir, s->style.img_src);
+                if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    /* 4. Common specification directories */
+    const char *common_dirs[] = {
+        "doc/shared_data",
+        "doc/os_spec/shell",
+        "doc/os_spec/kernel",
+        "doc/os_spec/dp",
+        "tad_bin/shared_data",
+        "tad_bin/os_spec/shell",
+        "tad_bin/os_spec/kernel",
+        "tad_bin/os_spec/dp",
+        NULL
+    };
+
+    for (int i = 0; common_dirs[i]; i++) {
+        snprintf(candidate, sizeof(candidate), "%s/%s", common_dirs[i], s->style.img_src);
+        if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+            return 0;
+        }
+    }
+
+    return -1;
 }
 
 void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
@@ -381,11 +1010,38 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     for (int i = 0; i < tb->span_count; i++) {
         TAD_SPAN *s = &tb->spans[i];
         int vy = s->bounds.top - tb->scroll_y;
+        int span_h = s->bounds.bottom - s->bounds.top;
 
         /* Clipping check (between top toolbar at 32px and bottom status at height-22px) */
-        if (vy + s->style.line_pitch < 32 || vy > dev->height - 24) continue;
+        if (vy + span_h < 32 || vy > dev->height - 24) continue;
 
-        if (s->style.is_hr) {
+        if (s->style.is_image) {
+            /* ── BTRON3 Figure / Picture Box Container (TS_FPRIM 0xFFB0 SubID 10) ── */
+            RECT pic_box = { s->bounds.left, vy, s->bounds.right, vy + span_h - 4 };
+            fill_rec(dev, &pic_box, COLOR_LTGRAY);
+            drw_rec(dev, &pic_box);
+
+            /* Title Header */
+            RECT hdr = { pic_box.left, pic_box.top, pic_box.right, pic_box.top + 20 };
+            fill_rec(dev, &hdr, COLOR_NAVY);
+            char hdr_title[128];
+            snprintf(hdr_title, sizeof(hdr_title), "[🖼 %s]", s->style.img_src[0] ? s->style.img_src : "BTRON3 図形・実身画像");
+            drw_tc_string(dev, hdr.left + 8, hdr.top + 3, hdr_title, COLOR_WHITE, 0x00000000);
+
+            /* Canvas Area */
+            RECT cvs = { pic_box.left + 4, pic_box.top + 22, pic_box.right - 4, pic_box.bottom - 22 };
+            fill_rec(dev, &cvs, COLOR_WHITE);
+            drw_rec(dev, &cvs);
+
+            /* Decode and render exact specification GIF diagram */
+            int ret = resolve_and_draw_gif(tb, dev, s, &cvs);
+            if (ret != 0) {
+                render_figure_diagram(dev, s, &cvs);
+            }
+
+            /* Caption */
+            drw_tc_string(dev, pic_box.left + 8, pic_box.bottom - 17, s->style.img_caption[0] ? s->style.img_caption : "BTRON3 Figure Segment", COLOR_BLACK, 0x00000000);
+        } else if (s->style.is_hr) {
             /* Vector horizontal separator */
             drw_lin(dev, s->bounds.left, vy + 6, dev->width - 30, vy + 6);
         } else if (s->style.is_vobj || s->is_link) {

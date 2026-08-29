@@ -345,6 +345,59 @@ static void test_btron3_corner_window_resizing(void) {
     cls_wnd(w);
 }
 
+/* ── Test 10: BTRON3 3.20 Figure & Picture Segment Fusen (TS_FPRIM SubID 10) ── */
+static void test_btron3_picture_figure_segments(void) {
+    printf("\n[TEST GROUP 10] BTRON3 3.20 Figure & Picture Segment Fusen (TS_FPRIM)\n");
+
+    /* 1. Test Dharma Book with embedded Figure */
+    TAD_BROWSER tb;
+    memset(&tb, 0, sizeof(tb));
+    ER er = tad_browser_load_file(&tb, "dharma/01_btron3_spec.tad");
+    TEST_ASSERT(er == E_OK, "Loaded dharma/01_btron3_spec.tad with embedded figures");
+
+    BOOL found_img = FALSE;
+    for (int i = 0; i < tb.span_count; i++) {
+        if (tb.spans[i].style.is_image) {
+            found_img = TRUE;
+            TEST_ASSERT(strstr(tb.spans[i].style.img_caption, "図 1") != NULL, "Found BTRON3 Architecture Layer Figure");
+            TEST_ASSERT(tb.spans[i].style.img_w >= 400, "Figure width is valid");
+            TEST_ASSERT(tb.spans[i].bounds.bottom - tb.spans[i].bounds.top >= 130, "Figure layout height computed correctly");
+            break;
+        }
+    }
+    TEST_ASSERT(found_img == TRUE, "Detected TS_FPRIM SubID 10 picture segment in Dharma book");
+
+    /* 2. Test Ukrainian Specification TAD with Figure */
+    memset(&tb, 0, sizeof(tb));
+    er = tad_browser_load_file(&tb, "tad_bin/shared_data/tad3.tad");
+    TEST_ASSERT(er == E_OK, "Loaded tad_bin/shared_data/tad3.tad");
+
+    BOOL found_ua_fig = FALSE;
+    for (int i = 0; i < tb.span_count; i++) {
+        if (tb.spans[i].style.is_image) {
+            found_ua_fig = TRUE;
+            TEST_ASSERT(tb.spans[i].style.img_caption[0] != '\0', "Ukrainian figure has valid caption text");
+            TEST_ASSERT(strstr(tb.spans[i].style.img_src, ".gif") != NULL, "Referenced original specification GIF file");
+            break;
+        }
+    }
+    TEST_ASSERT(found_ua_fig == TRUE, "Detected TS_FPRIM SubID 10 picture segment in Ukrainian TAD3");
+
+    /* 3. Render and Verify Direct GIF Decoding to Framebuffer */
+    COLOR fb[800 * 600];
+    memset(fb, 0, sizeof(fb));
+    GDEV dev = { .width = 800, .height = 600, .pixels = fb, .clip = { 0, 0, 800, 600 } };
+    RECT cr = { 0, 0, 800, 600 };
+    tad_browser_layout(&tb, 800);
+    tad_browser_paint(&tb, &dev, &cr);
+
+    int drawn_pixels = 0;
+    for (int p = 0; p < 800 * 600; p++) {
+        if (fb[p] != 0 && fb[p] != COLOR_WHITE) drawn_pixels++;
+    }
+    TEST_ASSERT(drawn_pixels > 1000, "Successfully decoded and rendered exact specification GIF diagram to framebuffer");
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
@@ -360,6 +413,7 @@ int main(void) {
     test_browser_history_and_path_resolution();
     test_utf8_cyrillic_font_rendering();
     test_btron3_corner_window_resizing();
+    test_btron3_picture_figure_segments();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

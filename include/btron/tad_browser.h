@@ -32,6 +32,12 @@ typedef struct {
     UH line_pitch;  /* Line height in pixels */
     BOOL is_hr;     /* Horizontal vector separator */
     BOOL is_vobj;   /* Virtual Object Link */
+    BOOL is_image;  /* BTRON3 Figure / Picture Segment (TS_FPRIM SubID 10/2) */
+    H img_w;        /* Image width in pixels */
+    H img_h;        /* Image height in pixels */
+    UB img_type;    /* 0=Architecture Diagram, 1=State Transition, 2=Hyper-Object Tree, 3=Window Schema */
+    char img_src[128];
+    char img_caption[128];
     ID target_robj; /* Target Real Object ID if VOBJ */
     char vobj_label[64];
     char vobj_path[128];
