@@ -38,7 +38,7 @@
     tabsize=2
 }
 
-\title{\LARGE \textbf{B-TRON Virtualization and Formal Foundations:\\A Cleanroom Architecture for Real-Time Operating Systems from Embedded MCUs to Modern Hypervisors}}
+\title{\LARGE \textbf{B-System Virtualization and Formal Foundations:\\A Cleanroom Architecture for Real-Time Operating Systems from Embedded MCUs to Modern Hypervisors}}
 
 \author{
     \textbf{Maxim Sokhatsky (Namdak Tonpa)}\\[0.3em]
@@ -50,7 +50,7 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\small \textit{B-TRON Virtualization and Formal Foundations}}
+\rhead{\small \textit{B-System Virtualization and Formal Foundations}}
 \lhead{\small \textit{Synrc Research Report}}
 \cfoot{\thepage}
 
@@ -76,7 +76,7 @@ In 2026, the convergence of autonomous robotics, unmanned aerial vehicles (UAVs)
 
 To address this challenge, we revisit the seminal \textbf{TRON} (\emph{The Real-time Operating system Nucleus}) architecture conceived by Ken Sakamura in 1984, specifically focusing on the \textbf{BTRON} (\emph{Business TRON}) workstation standard. Unlike conventional Unix or Windows models, BTRON was designed from first principles around a document-centric hyper-data model, lightweight preemptive multi-tasking, rich multilingual character encodings (TRON Code), and a clean separation between real-time kernel primitives ($\mu$ITRON) and user-facing shell subsystems.
 
-This paper presents the cleanroom reconstruction of BTRON3 SPEC 3.20, designated \textbf{B-System} or \textbf{B-TRON}, designed for operation within the \textbf{Synrc VE OS.1} hypervision environment. By integrating modern VirtIO 1.4 virtualization, a four-tier compilation pipeline, and a constructive Type-Theoretic formal verification methodology, we demonstrate that the classic TRON architectural principles offer an extraordinarily effective blueprint for next-generation safety-critical computing.
+This paper presents the cleanroom reconstruction of BTRON3 SPEC 3.20, designated \textbf{B-System}, designed for operation within the \textbf{Synrc VE OS.1} hypervision environment. By integrating modern VirtIO 1.4 virtualization, a four-tier compilation pipeline, and a constructive Type-Theoretic formal verification methodology, we demonstrate that the classic TRON architectural principles offer an extraordinarily effective blueprint for next-generation safety-critical computing.
 
 %-------------------------------------------------------------------------
 \section{Operating System Taxonomy and Virtualization}
@@ -134,7 +134,7 @@ Multilingual     & UTF-8 POSIX           & UTF-8 / ASCII              & TRON Mul
 \end{enumerate}
 
 %-------------------------------------------------------------------------
-\section{B-TRON Cleanroom Architecture}
+\section{B-System BTRON3 Cleanroom Architecture}
 \label{sec:cleanroom}
 
 \subsection{Specification Compliance and Lineage}
@@ -296,7 +296,7 @@ The B-System cleanroom implementation forms one layer within the broader \textbf
     \item \textbf{Control Plane:} Deterministic hypervision orchestration, stage management, and RTOS telemetry for autonomous drone swarms.
     \item \textbf{Web \& Visualization Plane:} TAD-native browser, HTML5 bidirectional transcompilation, and NITRO/FORM document applications.
     \item \textbf{Compute Plane:} Bytecode virtual machines, including BEAM (Erlang/Elixir OTP), CLR (C\#/F\#), and JVM (Scala).
-    \item \textbf{Service Plane:} Lightweight microkernel services running Alpine Linux, NetBSD, FreeBSD, and B-TRON guests in isolated Proxmox VE VirtIO slices.
+    \item \textbf{Service Plane:} Lightweight microkernel services running Alpine Linux, NetBSD, FreeBSD, and B-System guests in isolated Proxmox VE VirtIO slices.
 \end{itemize}
 
 %-------------------------------------------------------------------------

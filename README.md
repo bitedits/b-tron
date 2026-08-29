@@ -1,12 +1,12 @@
-# B-TRON Retro OS for Synrc VE OS.1
+# B-System (BTRON3 3.20 HMI) for Synrc VE OS.1
 
-A cleanroom recreation of the **B-TRON** (Business TRON / TRON OS Architecture for personal computers)
+A cleanroom recreation of the **B-System** (Business TRON / TRON OS Architecture for personal computers)
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
 and organized into a authentic Japanese BTRON tree structure.
 
 ## Specification
 
-* [B-TRON SPEC 3.20](https://bitedits.github.io/btron/doc/)
+* [BTRON3 SPEC 3.20](https://bitedits.github.io/btron/doc/)
 * [B-FREE OS 1994](https://bitedits.github.io/btron/b-free/)
 * [B-SYSTEM OS 2026](https://bitedits.github.io/btron/b-system/)
 
