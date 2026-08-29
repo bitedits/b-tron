@@ -35,6 +35,22 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 * [x] UTF-8 / TRON Code
 * [x] Four Books Included in TAD format!
 
+## Screenshots
+
+<img src="b-system/img/screen1.png" width="" alt="" />
+
+<img src="b-system/img/screen2.png" width="" alt="" />
+
+<img src="b-system/img/screen3.jpeg" width="" alt="" />
+
+<img src="b-system/img/screen4.jpeg" width="" alt="" />
+
+<img src="b-system/img/screen5.png" width="" alt="" />
+
+<img src="b-system/img/screen6.png" width="" alt="" />
+
+<img src="b-system/img/screen7.png" width="" alt="" />
+
 ## Japanese BTRON Lineage & Subsystem Layout
 
 ```
