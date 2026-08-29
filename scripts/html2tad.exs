@@ -266,8 +266,7 @@ defmodule BtronTAD.Compiler do
         {:link, href, label} ->
           robj_id = :erlang.phash2(href, 100_000) + 1000
           [
-            seg_vobj(robj_id, label, href),
-            seg_text("[仮身] #" <> Integer.to_string(robj_id) <> " : " <> label <> " (" <> href <> ")")
+            seg_vobj(robj_id, label, href)
           ]
 
         {:hr} ->

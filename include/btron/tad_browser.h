@@ -20,6 +20,7 @@ extern "C" {
 #define TAD_MAX_LINKS   128
 #define TAD_MAX_TITLE   128
 #define TAD_MAX_PATH    256
+#define TAD_MAX_HISTORY 32
 
 /* Text Span Style Attributes */
 typedef struct {
@@ -44,6 +45,12 @@ typedef struct {
     BOOL is_link;           /* Clickable VOBJ link */
 } TAD_SPAN;
 
+/* Browser Navigation History Item */
+typedef struct {
+    char path[TAD_MAX_PATH];
+    int scroll_y;
+} TAD_HISTORY_ENTRY;
+
 /* TAD Browser State */
 typedef struct {
     char doc_title[TAD_MAX_TITLE];
@@ -60,6 +67,11 @@ typedef struct {
     int hovered_link_idx;   /* Currently mouse-hovered link span index (-1 if none) */
     int active_link_idx;    /* Clicked link span index */
 
+    /* Navigation History Stack */
+    TAD_HISTORY_ENTRY history[TAD_MAX_HISTORY];
+    int history_count;
+    int history_idx;
+
     BOOL is_binary_tad;     /* TRUE if parsed from binary TAD stream */
     UW total_bytes;         /* Document byte size */
 } TAD_BROWSER;
@@ -73,7 +85,17 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect);
 BOOL tad_browser_handle_mouse(TAD_BROWSER *tb, int mouse_x, int mouse_y, BOOL is_click, ID *out_clicked_robj, char *out_clicked_path);
 void tad_browser_scroll(TAD_BROWSER *tb, int delta_y);
 
-/* Factory Window Launcher */
+/* In-place Navigation & Path Resolution APIs */
+void tad_browser_resolve_path(const char *current_path, const char *target, char *out_resolved, size_t max_len);
+ER tad_browser_navigate(TAD_BROWSER *tb, const char *target_path);
+BOOL tad_browser_can_go_back(const TAD_BROWSER *tb);
+BOOL tad_browser_can_go_forward(const TAD_BROWSER *tb);
+void tad_browser_go_back(TAD_BROWSER *tb);
+void tad_browser_go_forward(TAD_BROWSER *tb);
+void tad_browser_go_home(TAD_BROWSER *tb);
+void tad_browser_reload(TAD_BROWSER *tb);
+
+/* Open Standard Application Windows */
 WND* open_tad_browser_window(const char *filepath, const char *title);
 
 #ifdef __cplusplus

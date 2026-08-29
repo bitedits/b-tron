@@ -147,19 +147,93 @@ make test-tad
   - **Smooth Scrolling:** Scrollbar thumb and keyboard scrolling (<kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>j</kbd>, <kbd>k</kbd>) for navigating large document libraries.
 
 ### 2. Native TAD Document Browser (`src/apps/tad_browser.c`)
-- **Linear Stream Layout Engine:** Parses binary TAD segments into sequential layout spans (`TAD_SPAN`) with precomputed bounding boxes, font heights, and colors.
-- **Hyper-Data Link Dispatch:** Embedded Virtual Objects (`[仮身]`) are rendered with interactive blue borders and hover indicators. Clicking a Virtual Object opens the referenced target document.
-- **NASA JPL Safety-Critical Compliance:** Computes all layout coordinates in static bounded scope with zero runtime heap allocation.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│ [◄ Назад] [► Вперед] [⌂ Дім] [↻ Оновити]  [ 📄 tad_bin/os_spec/kernel/kernel.tad      ] │ ◄ Fixed Toolbar (0..30px)
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ ■ 第5章 μITRON リアルタイムカーネル (Real-Time Kernel & Tasking)                         │ │
+│ ────────────────────────────────────────────────────────────────────────                 │ │
+│ B-System μITRON 3.0 コアアーキテクチャ。タスクコンテキスト、ディスパッチャ、セマフォ。    │ │ Content Area
+│                                                                                          │ │
+│ [仮身] 第1節 タスク管理とコンテキスト切替 (proc.tad) ───────────────────────► [Click]    │█│ Scrollbar Track
+│ [仮身] 第2節 リアルタイムメモリプール (memory.tad)                                       │ │
+│                                                                                          │ │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ 🔗 [仮身] Перехід до: proc.tad (Real Object #122) [Клацніть для переходу]                 │ ◄ Status Bar (Preview)
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### How to Navigate in TAD Browser
+
+1. **Hyper-Link Navigation (Virtual Objects `[仮身]`):**
+   - **Click on any Link Box:** Clicking any blue `[仮身] ...` box loads the destination document in-place.
+   - **Hover Preview:** Hovering over any link highlights it with a light-gray border and displays the exact target path and Real Object ID in the bottom status bar (`🔗 [仮身] Перехід до: ...`).
+   - **Automatic Path Resolution (`tad_browser_resolve_path`):**
+     - Automatically translates legacy `.html` links to native `.tad` files.
+     - Resolves relative child paths (e.g. `kernel/kernel.tad`), sibling paths (`../dp/dp.tad`), and fallback lookups (`tad_bin/`, `dharma/`).
+
+2. **Toolbar Navigation Controls:**
+   - **`[◄ Назад (Back)]`**: Jumps back to the previous document in the history stack.
+   - **`[► Вперед (Forward)]`**: Navigates forward in the history stack.
+   - **`[⌂ Дім (Home)]`**: Instantly returns to the foundational dharma portal (`dharma/01_btron3_spec.tad`).
+   - **`[↻ Оновити (Reload)]`**: Re-reads the current document from disk and preserves the active scroll position.
+   - **Location / Breadcrumb Bar:** Displays the current active Real Object path (`📄 tad_bin/...`).
+
+3. **Keyboard Shortcuts:**
+
+| Action | Primary Key | Alternate Key | Description |
+|:---|:---:|:---:|:---|
+| **Go Back** | <kbd>Backspace</kbd> | <kbd>b</kbd> / <kbd>B</kbd> | Navigate to the previous document in history |
+| **Go Forward** | <kbd>f</kbd> / <kbd>F</kbd> | <kbd>Alt+Right</kbd> | Navigate forward in history |
+| **Go Home** | <kbd>h</kbd> / <kbd>H</kbd> | <kbd>Alt+Home</kbd> | Jump to `dharma/01_btron3_spec.tad` |
+| **Reload** | <kbd>r</kbd> / <kbd>R</kbd> | <kbd>F5</kbd> | Reload current document |
+| **Scroll Line Down** | <kbd>↓</kbd> | <kbd>j</kbd> | Scroll down by 24 pixels |
+| **Scroll Line Up** | <kbd>↑</kbd> | <kbd>k</kbd> | Scroll up by 24 pixels |
+| **Scroll Page Down**| <kbd>Page Down</kbd> | <kbd>Space</kbd> | Scroll down by one viewport page |
+| **Scroll Page Up**  | <kbd>Page Up</kbd> | <kbd>Shift+Space</kbd> | Scroll up by one viewport page |
+
+4. **NASA Safety-Critical C (JPL Rule 3) Layout:**
+   - Single-pass layout engine strictly computes bounding boxes without dynamic heap allocations, ensuring sub-millisecond document loading and guaranteed bounded memory execution on all embedded targets.
 
 ---
 
-## 6. Compatibility Matrix
+## 6. UTF-8 Cyrillic & Ukrainian Font Engine
+
+BTRON3 SPEC 3.20 specifies that TRON Code Plane 1 (`0x2700..0x27FF`) is dedicated to **Cyrillic (ISO 8859-5) & Ukrainian Extensions**:
+
+```
+UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────► TRON Code Plane 1 (0x27xx)
+  - А..Я (U+0410..U+042F)                                - 0x2710..0x272F
+  - а..я (U+0430..U+044F)                                - 0x2730..0x274F
+  - Є, І, Ї, Ґ (U+0404, 0406, 0407, 0490)                - 0x2704, 0x2706, 0x2707, 0x2790
+  - є, і, ї, ґ (U+0454, 0456, 0457, 0491)                - 0x2754, 0x2756, 0x2757, 0x2791
+                                                                  │
+                                                                  ▼
+                                                      [ get_glyph_bitmap ]
+                                                                  │
+                                                                  ▼
+                                                      16x16 Dot-Matrix Bitmap
+                                                      (Pixel-Perfect Rendering)
+```
+
+- **Collision Resolution:** Cyrillic 2-byte sequences are mapped directly to `0x2700..0x27FF`, completely avoiding collision with Japanese Hiragana (`0x2400..0x245F`) and Katakana (`0x2500..0x255F`).
+- **Proportional 8x16 Typography (Zero Inter-Character Gap):** Cyrillic & Ukrainian glyphs are rendered in crisp 8x16 dot-matrix cells (`gw = 8, gh = 16`), matching English ASCII text width and kerning instead of wide 16x16 Zenkaku boxes.
+- **Dedicated Ukrainian Glyphs:** High-contrast dot-matrix bitmaps for `Є`, `І`, `Ї`, `Ґ`, `є`, `і`, `ї`, `ґ`, `№`, `«`, and `»` ensure sharp, natural legibility in the TAD Document Browser, T-Editor, and Cabinet Explorer.
+- **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout identical in visual elegance to the Dharma books.
+
+---
+
+## 7. Compatibility Matrix
 
 | Feature | Legacy B-right/V Cho-Kanji (超漢字) | B-System Cleanroom OS | Status |
 |:---|:---:|:---:|:---:|
 | **Record Header (Type 1)** | `0x0001` (16-bit) | `0x0001` (16-bit) | **100% Binary Compatible** |
 | **Virtual Object Fusen** | `TS_VOBJ` (`0xFFA8`) | `TS_VOBJ` (`0xFFA8`) | **100% Binary Compatible** |
 | **Font & Character Fusen** | `TS_TFONT` / `TS_TCHAR` | `TS_TFONT` / `TS_TCHAR` | **100% Binary Compatible** |
+| **In-Place Navigation Stack** | Rudimentary window spawns | Multi-level history + Top Toolbar | **Superior Usability** |
+| **Ukrainian & Cyrillic Engine** | Limited JIS extensions | True UTF-8 & TRON Plane 1 Engine | **Full Multilingual Support** |
 | **Memory Allocation Model** | Unmanaged dynamic heap | Static bounded scope (NASA JPL Rule 3) | **Superior Safety & Predictability** |
 | **Multilingual Character Code**| TRON Code Planes 0..3 | TRON Code + UTF-8 Dual Engine | **Modern Unicode Interop** |
 | **Platform Target** | Bare-metal PC-AT (x86) | POSIX, QEMU ARM/AArch64, Pi 2B/3B/4B | **Universal Deployment** |
+

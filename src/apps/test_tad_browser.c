@@ -179,7 +179,9 @@ static void test_viewport_scrolling(void) {
     printf("\n[TEST GROUP 5] Deterministic Viewport Scrolling\n");
 
     TAD_BROWSER tb;
+    tad_browser_init(&tb);
     tad_browser_load_file(&tb, "dharma/01_btron3_spec.tad");
+    tb.doc_height = 800;
     tb.page_height = 200;
 
     tad_browser_scroll(&tb, 50);
@@ -221,6 +223,96 @@ static void test_cabinet_explorer_selection(void) {
     TEST_ASSERT(handled == TRUE, "Double click triggers Ukrainian TAD Real Object launch");
 }
 
+/* ── Test 7: Navigation History & Robust Path Resolution ── */
+static void test_browser_history_and_path_resolution(void) {
+    printf("\n[TEST GROUP 7] In-Place Navigation, History Stack & Path Resolution\n");
+
+    /* 1. Test relative path resolution */
+    char resolved[256] = "";
+    tad_browser_resolve_path("tad_bin/os_spec/index.tad", "kernel/kernel.html", resolved, sizeof(resolved));
+    TEST_ASSERT(strcmp(resolved, "tad_bin/os_spec/kernel/kernel.tad") == 0, "Resolved child relative path kernel/kernel.html -> tad_bin/os_spec/kernel/kernel.tad");
+
+    tad_browser_resolve_path("tad_bin/os_spec/kernel/kernel.tad", "../dp/dp.html", resolved, sizeof(resolved));
+    TEST_ASSERT(strcmp(resolved, "tad_bin/os_spec/dp/dp.tad") == 0, "Resolved sibling path ../dp/dp.html -> tad_bin/os_spec/dp/dp.tad");
+
+    tad_browser_resolve_path("dharma/01_btron3_spec.tad", "02_tkernel_book.tad", resolved, sizeof(resolved));
+    TEST_ASSERT(strcmp(resolved, "dharma/02_tkernel_book.tad") == 0, "Resolved neighbor dharma file");
+
+    /* 2. Test In-place Browser History Navigation */
+    TAD_BROWSER tb;
+    tad_browser_init(&tb);
+
+    tad_browser_navigate(&tb, "dharma/01_btron3_spec.tad");
+    TEST_ASSERT(tb.history_idx == 0, "Initial page at history_idx = 0");
+    TEST_ASSERT(tad_browser_can_go_back(&tb) == FALSE, "Cannot go back from first page");
+
+    tad_browser_navigate(&tb, "dharma/02_tkernel_book.tad");
+    TEST_ASSERT(tb.history_idx == 1, "Navigated to page 2 (history_idx = 1)");
+    TEST_ASSERT(tad_browser_can_go_back(&tb) == TRUE, "Can go back to page 1");
+    TEST_ASSERT(tad_browser_can_go_forward(&tb) == FALSE, "Cannot go forward past current head");
+
+    /* Navigate back */
+    tad_browser_go_back(&tb);
+    TEST_ASSERT(tb.history_idx == 0, "Went back to history_idx = 0");
+    TEST_ASSERT(strcmp(tb.file_path, "dharma/01_btron3_spec.tad") == 0, "Current document restored to page 1");
+    TEST_ASSERT(tad_browser_can_go_forward(&tb) == TRUE, "Can go forward to page 2");
+
+    /* Navigate forward */
+    tad_browser_go_forward(&tb);
+    TEST_ASSERT(tb.history_idx == 1, "Went forward to history_idx = 1");
+    TEST_ASSERT(strcmp(tb.file_path, "dharma/02_tkernel_book.tad") == 0, "Current document restored to page 2");
+
+    /* Test Toolbar Button Click in handle_mouse */
+    BOOL nav_hit = tad_browser_handle_mouse(&tb, 20, 15, TRUE, NULL, NULL);
+    TEST_ASSERT(nav_hit == TRUE, "Clicked [◄ Back] toolbar button");
+    TEST_ASSERT(tb.history_idx == 0, "Toolbar back returned to page 1");
+}
+
+/* ── Test 8: UTF-8 Cyrillic & Ukrainian Multilingual Glyph Font Engine ── */
+extern const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height);
+
+static void test_utf8_cyrillic_font_rendering(void) {
+    printf("\n[TEST GROUP 8] UTF-8 Cyrillic & Ukrainian TRON Code Font Engine\n");
+
+    /* Test 1: Ukrainian letters UTF-8 -> TRON Code Plane 1 */
+    int consumed = 0;
+    TC tc_ye = utf8_to_tc("Є", &consumed);
+    TEST_ASSERT(consumed == 2, "Consumed 2 UTF-8 bytes for 'Є'");
+    TEST_ASSERT(tc_ye == 0x2704, "Mapped 'Є' (U+0404) to TRON Code Plane 1 (0x2704)");
+
+    TC tc_i = utf8_to_tc("І", &consumed);
+    TEST_ASSERT(tc_i == 0x2706, "Mapped 'І' (U+0406) to TRON Code Plane 1 (0x2706)");
+
+    TC tc_yi = utf8_to_tc("Ї", &consumed);
+    TEST_ASSERT(tc_yi == 0x2707, "Mapped 'Ї' (U+0407) to TRON Code Plane 1 (0x2707)");
+
+    TC tc_ge = utf8_to_tc("Ґ", &consumed);
+    TEST_ASSERT(tc_ge == 0x2790, "Mapped 'Ґ' (U+0490) to TRON Code Plane 1 (0x2790)");
+
+    /* Test 2: Standard Cyrillic А, Б, В */
+    TC tc_a = utf8_to_tc("А", &consumed);
+    TEST_ASSERT(tc_a == 0x2710, "Mapped 'А' (U+0410) to TRON Code Plane 1 (0x2710)");
+
+    /* Test 3: TRON Code -> UTF-8 Round-trip */
+    char u8[8] = "";
+    int len = tc_to_utf8(tc_ye, u8, sizeof(u8));
+    TEST_ASSERT(len == 2, "Decoded TRON Code 0x2704 to 2-byte UTF-8");
+    TEST_ASSERT(strcmp(u8, "Є") == 0, "Round-trip preserved 'Є'");
+
+    len = tc_to_utf8(tc_ge, u8, sizeof(u8));
+    TEST_ASSERT(strcmp(u8, "Ґ") == 0, "Round-trip preserved 'Ґ'");
+
+    /* Test 4: 8x16 Proportional Bitmap Glyph Detection */
+    H gw = 0, gh = 0;
+    const UB *bmp_ye = get_glyph_bitmap(tc_ye, &gw, &gh);
+    TEST_ASSERT(bmp_ye != NULL, "Retrieved 8x16 dot-matrix bitmap for 'Є'");
+    TEST_ASSERT(gw == 8 && gh == 16, "Verified 8x16 proportional glyph dimensions without gaps");
+
+    const UB *bmp_a = get_glyph_bitmap(tc_a, &gw, &gh);
+    TEST_ASSERT(bmp_a != NULL, "Retrieved 8x16 dot-matrix bitmap for 'А'");
+    TEST_ASSERT(gw == 8 && gh == 16, "Verified 8x16 proportional glyph dimensions for 'А'");
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
@@ -233,6 +325,8 @@ int main(void) {
     test_elixir_compiled_tad_loading();
     test_viewport_scrolling();
     test_cabinet_explorer_selection();
+    test_browser_history_and_path_resolution();
+    test_utf8_cyrillic_font_rendering();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
