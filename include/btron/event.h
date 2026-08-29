@@ -74,7 +74,9 @@ typedef struct {
 #define BTRON_KEY_DOWN      0x40000051
 #define BTRON_KEY_UP        0x40000052
 #define BTRON_KEY_HOME      0x4000004A
+#define BTRON_KEY_PAGE_UP   0x4000004B
 #define BTRON_KEY_END       0x4000004D
+#define BTRON_KEY_PAGE_DOWN 0x4000004E
 #define BTRON_KEY_KP_ENTER  0x40000058
 
 ER init_evt_sys(void);

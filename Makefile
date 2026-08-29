@@ -19,6 +19,8 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
+.PHONY: all posix qemu t-kernel dharma html2tad clean test-mozc test-editor test-hmi test-tad
+
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 
@@ -75,6 +77,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/desktop/desktop.c    \
               src/desktop/main.c       \
               src/apps/vobj_manager.c  \
+              src/apps/tad_browser.c   \
               src/apps/t_editor.c      \
               src/apps/gterm.c         \
               src/apps/audio_player.c  \
@@ -411,6 +414,33 @@ $(TEST_HMI_BIN): $(TEST_HMI_OBJS)
 	$(CC) $(TEST_HMI_OBJS) -o $@ $(LDFLAGS)
 
 # ═══════════════════════════════════════════════════════════════════
+# TAD Dharma Packing Pipeline & Elixir Batch Compiler
+# ═══════════════════════════════════════════════════════════════════
+dharma:
+	@python3 scripts/pack_dharma_tad.py
+
+html2tad:
+	@elixir scripts/html2tad.exs --test
+
+# ═══════════════════════════════════════════════════════════════════
+# Native TAD Document Browser & Cabinet Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c \
+                src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c \
+                src/window/wnd.c src/graphics/dp_core.c
+TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
+TEST_TAD_BIN  = test_tad_browser
+
+test-tad: $(TEST_TAD_BIN)
+	@echo "=========================================================="
+	@echo " Running B-TRON Native TAD Browser & Cabinet Tests..."
+	@echo "=========================================================="
+	@./$(TEST_TAD_BIN)
+
+$(TEST_TAD_BIN): $(TEST_TAD_OBJS)
+	$(CC) $(TEST_TAD_OBJS) -o $@ $(LDFLAGS)
+
+# ═══════════════════════════════════════════════════════════════════
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
@@ -419,7 +449,7 @@ clean:
 	rm -f *.log
 	rm -f *.out
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

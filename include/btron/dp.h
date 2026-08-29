@@ -35,6 +35,7 @@ void uart_puts(const char *s);
 #define COLOR_LTGRAY    0xFFD4D0C8   /* Classic Retro 3D Chrome Gray */
 #define COLOR_TEAL      0xFF008080   /* Classic B-TRON Teal Desktop */
 #define COLOR_NAVY      0xFF000080   /* Classic Navy Title Bar */
+#define COLOR_BLUE      0xFF0000FF
 #define COLOR_YELLOW    0xFFFFFF00
 #define COLOR_RED       0xFFFF0000
 #define COLOR_GREEN     0xFF00C040
