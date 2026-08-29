@@ -23,7 +23,7 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 * [x] POSIX
 * [x] TIP
 * [x] HMI
-* [x] TDA
+* [x] TAD
 * [x] CAB
 * [x] EDIT
 * [x] TERM
@@ -33,7 +33,7 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 * [x] Space Casette HMI Sample
 * [x] Own MOZC !!!
 * [x] UTF-8 / TRON Code
-* [x] Four Books Included in TAD format!
+* [x] Four Books Included in TAD format (BTRON3 3.20 Spec, T-Kernel, B-Free, B-System)
 
 ## Screenshots
 
