@@ -51,6 +51,10 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 
 <img src="b-system/img/screen7.png" width="" alt="" />
 
+<img src="b-system/img/screen8.png" width="" alt="" />
+
+<img src="b-system/img/screen9.png" width="" alt="" />
+
 ## Japanese BTRON Lineage & Subsystem Layout
 
 ```
