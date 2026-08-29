@@ -288,18 +288,18 @@ The test harness is organized into six structured verification groups:
 \begin{tabular}{@{}lcc@{}}
 \toprule
 \textbf{Test Module / Verification Group} & \textbf{Assertions} & \textbf{Pass Rate} \\ \midrule
-1. Romaji / Kana Transliteration (F6--F9) & 7 & 100.0\% \\
-2. Viterbi Lattice Bunsetsu Segmentation & 6 & 100.0\% \\
-3. Candidate Ranking \& Semantic Tags & 5 & 100.0\% \\
-4. DFA State Transitions \& $O(1)$ Escape & 5 & 100.0\% \\
+1. Romaji / Kana Transliteration (F6--F9) & 9 & 100.0\% \\
+2. Viterbi Lattice Bunsetsu Segmentation & 7 & 100.0\% \\
+3. Candidate Ranking \& Semantic Tags & 7 & 100.0\% \\
+4. DFA State Transitions \& $O(1)$ Escape & 9 & 100.0\% \\
 5. User Dictionary Real Object Learning & 5 & 100.0\% \\
-6. Lossless TRON Code / UTF-8 Bridge & 4 & 100.0\% \\ \midrule
-\textbf{Total Test Suite Coverage} & \textbf{32 / 32} & \textbf{100.0\%} \\ \bottomrule
+6. Lossless TRON Code / UTF-8 Bridge & 5 & 100.0\% \\ \midrule
+\textbf{Total Core Mozc Test Coverage} & \textbf{42 / 42} & \textbf{100.0\%} \\ \bottomrule
 \end{tabular}
 }
 \end{table}
 
-As summarized in Table~\ref{tab:test_results}, the test suite achieves a 100.0\% pass rate across all 32 core assertions, verifying both theoretical safety invariants and practical linguistic conversion accuracy.
+As summarized in Table~\ref{tab:test_results}, the test suite achieves a 100.0\% pass rate across all core assertions, verifying both theoretical safety invariants and practical linguistic conversion accuracy.
 
 %-------------------------------------------------------------------------
 \section{Real Object User Dictionary Architecture}
