@@ -30,13 +30,16 @@ jobs:
             lld \
             llvm \
             libsdl2-dev \
+            zlib1g-dev \
+            elixir \
+            erlang-base \
             qemu-system-arm \
             qemu-system-misc
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install sdl2 qemu llvm
+          brew install sdl2 qemu llvm elixir
           echo "/opt/homebrew/opt/llvm/bin" >> "$GITHUB_PATH"
           echo "/usr/local/opt/llvm/bin" >> "$GITHUB_PATH"
 
@@ -49,6 +52,10 @@ jobs:
         run: |
           make arm-elf
           make arm64-elf
+
+      - name: Run TAD Browser & Cabinet Unit Tests
+        run: |
+          make test-tad
 
       - name: Run T-Editor UI & Functional Unit Tests
         run: |

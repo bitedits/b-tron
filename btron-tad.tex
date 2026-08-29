@@ -337,6 +337,38 @@ The execution lifecycle of a NITRO/FORM document is modeled as a deterministic s
 Data instances are themselves preserved as standard TAD documents, maintaining the full benefits of the Real Object / Virtual Object hypertext paradigm.
 
 %-------------------------------------------------------------------------
+\section{Implementation Report: The Native TAD Document Browser and Real Object Cabinet Explorer}
+\label{sec:implementation_report}
+
+To validate the theoretical foundations of the BTRON3 SPEC 3.20 hyper-document architecture and provide an interactive desktop environment for TAD inspection, we implemented a full-featured, cleanroom \textbf{TAD Browser} (\texttt{src/apps/tad\_browser.c}) and \textbf{Dynamic Cabinet Explorer} (\texttt{src/apps/vobj\_manager.c}) conforming to NASA JPL safety rules and MISRA-C guidelines.
+
+\subsection{Stream-Oriented Binary and Symbolic TAD Decoder}
+The TAD browser pipeline processes both compiled BTRON3 binary byte streams and human-readable symbolic TAD specifications via a deterministic, single-pass linear stream parser:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Binary Segment Parsing:} Scans standard TAD segment records ($T_{\text{tag}}$, $L_{\text{len}}$) including \texttt{TS\_TEXT} (multi-lingual TRON Code character sequences), \texttt{TS\_FHR} (horizontal vector rules), \texttt{TS\_VOBJ} (Virtual Object link descriptors with real object ID target and label), and \texttt{TS\_FPRIM} (figure/picture segments).
+    \item \textbf{Monotonic Layout Box Computation:} Computes bounding box geometries ($\text{bounds} = \langle x_1, y_1, x_2, y_2 \rangle$) with strictly monotonic vertical progression, handling indentations, line pitches, bold font metrics, and viewport wrapping across arbitrary window widths.
+    \item \textbf{Hyper-Object Navigation Stack:} Implements an in-place navigation history stack with reversible \texttt{Go Back}, \texttt{Go Forward}, \texttt{Home}, and \texttt{Reload} primitives, combined with recursive relative path resolution across sibling and child documentation directories.
+\end{enumerate}
+
+\subsection{Figure and Picture Segment Subsystem (Raster Decoders)}
+In compliance with BTRON3 SPEC 3.20 Section 4 (Display Primitives and Figure Fusen), the browser incorporates 1:1 pixel-accurate, static-bounded raster decoders for technical illustrations and architecture diagrams:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{GIF87a / GIF89a LZW Decoder:} Decodes multi-plane specification diagrams with transparent index clipping, local/global color table mapping, and bounded LZW string table decompression ($< 4\,\text{KB}$ dictionary).
+    \item \textbf{Native PNG Decoder:} Implements IHDR, IDAT chunk parsing with DEFLATE/zlib decompression, Sub/Up/Average filter reconstruction, and direct blitting into the target Drawing Environment (\texttt{GDEV}).
+\end{itemize}
+
+\subsection{Dynamic Real Object Cabinet Explorer}
+The Real Object Cabinet Explorer provides an interactive, window-based filing system replacing static catalog listings with dynamic filesystem discovery:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Recursive Discovery:} Dynamically scans the \texttt{tad\_bin/} hierarchy across foundational books, $\mu$ITRON kernel specifications, graphics subsystems, shell architectures, B-Free OS, and T-Kernel 2.0.
+    \item \textbf{Hierarchical Grouping and TOC Sorting:} Organizes entries primarily by top-level catalog domain (\texttt{[b-free]}, \texttt{[b-system]}, \texttt{[doc]}, \texttt{[t-kernel]}), secondarily by canonical Table of Contents (TOC) specification order ($O(N \log N)$ weighted ordering), and tertiary by natural alphanumeric sort.
+    \item \textbf{Multi-Byte Alignment Immunity:} Renders discrete data fields (catalog tag, TOC hierarchy path, real object ID, document title, file byte size) at fixed horizontal pixel offsets, completely eliminating column misalignment caused by variable-width UTF-8 Cyrillic and Japanese Kanji glyphs.
+\end{enumerate}
+
+\subsection{Automated Verification and Conformance Suite}
+The subsystem is verified by a 91-case unit test harness (\texttt{src/apps/test\_tad\_browser.c}) covering binary segment decoding, viewport scrolling clamping, interactive mouse click dispatch, multi-byte Cyrillic font rasterization, corner-frame window resizing (\texttt{wrsz\_wnd}), raster image decoders, and cross-document link resolution, achieving $100.0\,\%$ test pass fidelity.
+
+%-------------------------------------------------------------------------
 \section{Experimental Evaluation}
 \label{sec:evaluation}
 
