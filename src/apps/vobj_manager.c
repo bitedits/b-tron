@@ -93,6 +93,7 @@ static int get_toc_order(const char *path, const char *name) {
     if (strstr(path, "01_btron3_spec")) return 10;
     if (strstr(path, "02_tkernel_book")) return 20;
     if (strstr(path, "03_bfree_os_book")) return 30;
+    if (strstr(path, "04_tron_hmi_book")) return 35;
 
     /* 2. Top-level portal index */
     if (name && strcmp(name, "index.tad") == 0 && strcmp(path, "tad_bin/index.tad") == 0) return 40;
@@ -147,7 +148,14 @@ static int get_toc_order(const char *path, const char *name) {
     if (strstr(path, "os_spec/shell/omgr"))          return 600;
     if (strstr(path, "os_spec/shell/data"))          return 610;
 
-    /* 8. [b-free] B-Free OS Architecture & Manifesto */
+    /* 8. [b-hmi] TRON HMI Design Guidelines & Parts Book */
+    if (strstr(path, "b-hmi/index"))      return 640;
+    if (strstr(path, "b-hmi/part1"))      return 650;
+    if (strstr(path, "b-hmi/part2"))      return 660;
+    if (strstr(path, "b-hmi/part_book"))  return 670;
+    if (strstr(path, "b-hmi"))            return 680;
+
+    /* 9. [b-free] B-Free OS Architecture & Manifesto */
     if (strstr(path, "b-free/manifest"))   return 700;
     if (strstr(path, "b-free/kernel"))     return 710;
     if (strstr(path, "b-free/posix"))      return 720;
@@ -156,14 +164,14 @@ static int get_toc_order(const char *path, const char *name) {
     if (strstr(path, "b-free/source_tree"))return 750;
     if (strstr(path, "b-free/index"))      return 760;
 
-    /* 9. [b-system] B-System POSIX & VirtIO Specs */
+    /* 10. [b-system] B-System POSIX & VirtIO Specs */
     if (strstr(path, "b-system/virtio"))     return 800;
     if (strstr(path, "b-system/btron_spec")) return 810;
     if (strstr(path, "b-system/kernel"))     return 820;
     if (strstr(path, "b-system/license"))    return 830;
     if (strstr(path, "b-system/index"))      return 840;
 
-    /* 10. [t-kernel] T-Kernel 2.0 Real-Time OS Specs */
+    /* 11. [t-kernel] T-Kernel 2.0 Real-Time OS Specs */
     if (strstr(path, "t-kernel/tkernel_spec"))    return 900;
     if (strstr(path, "t-kernel/tkernel_startup")) return 910;
     if (strstr(path, "t-kernel/tkernel_qemu"))    return 920;
@@ -210,6 +218,8 @@ static ID deduce_robj_id(const char *path) {
     if (strstr(path, "01_btron3_spec")) return 101;
     if (strstr(path, "02_tkernel_book")) return 102;
     if (strstr(path, "03_bfree_os_book")) return 103;
+    if (strstr(path, "04_tron_hmi_book")) return 104;
+    if (strstr(path, "b-hmi/index.tad")) return 105;
     if (strstr(path, "b-free/manifest.tad")) return 106;
     if (strstr(path, "b-system/virtio.tad")) return 107;
     if (strstr(path, "data_type.tad")) return 111;
@@ -235,7 +245,7 @@ static ID deduce_robj_id(const char *path) {
 
 static const char* deduce_toc_path(const char *path) {
     if (strstr(path, "01_btron3_spec") || strstr(path, "02_tkernel_book") ||
-        strstr(path, "03_bfree_os_book")) {
+        strstr(path, "03_bfree_os_book") || strstr(path, "04_tron_hmi_book")) {
         return "books/";
     }
     if (strstr(path, "shared_data/")) return "shared_data/";
@@ -243,6 +253,10 @@ static const char* deduce_toc_path(const char *path) {
     if (strstr(path, "os_spec/dp/")) return "os_spec/dp/";
     if (strstr(path, "os_spec/shell/")) return "os_spec/shell/";
     if (strstr(path, "os_spec/")) return "os_spec/";
+    if (strstr(path, "b-hmi/part1")) return "b-hmi/part1/";
+    if (strstr(path, "b-hmi/part2")) return "b-hmi/part2/";
+    if (strstr(path, "b-hmi/part_book")) return "b-hmi/parts/";
+    if (strstr(path, "b-hmi/")) return "b-hmi/";
     if (strstr(path, "b-free/")) return "b-free/";
     if (strstr(path, "b-system/")) return "b-system/";
     if (strstr(path, "t-kernel/")) return "t-kernel/";
@@ -250,6 +264,7 @@ static const char* deduce_toc_path(const char *path) {
 }
 
 static const char* deduce_icon_tag(const char *path) {
+    if (strstr(path, "04_tron_hmi") || strstr(path, "b-hmi")) return "[b-hmi]";
     if (strstr(path, "03_bfree") || strstr(path, "b-free")) return "[b-free]";
     if (strstr(path, "b-system")) return "[b-system]";
     if (strstr(path, "02_tkernel") || strstr(path, "t-kernel")) return "[t-kernel]";

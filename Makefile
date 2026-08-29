@@ -451,6 +451,7 @@ clean:
 	rm -f *.aux
 	rm -f *.log
 	rm -f *.out
+	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
 	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
