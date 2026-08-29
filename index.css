@@ -729,3 +729,68 @@ footer {
     .library-index { padding: 2.5rem 1rem 5rem; }
     .library-index h1 { margin-bottom: 3.2rem; font-size: clamp(2.6rem, 9vw, 4rem); }
 }
+
+/* Completely remove animation from image blocks */
+.image-block-card,
+.gallery-card,
+.gallery-grid-2 > div,
+.package-card:has(img),
+.image-block-card *,
+.gallery-card *,
+.gallery-grid-2 > div *,
+.package-card:has(img) * {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+.image-block-card:hover,
+.gallery-card:hover,
+.gallery-grid-2 > div:hover,
+.package-card:has(img):hover {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* High-visibility PDF Badges and Publication Links */
+.pdf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: HotPink;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(255, 105, 180, 0.35);
+    text-decoration: none !important;
+    vertical-align: middle;
+    transition: none !important;
+}
+
+.pdf-card {
+    background: #ffffff;
+    border: 2px solid HotPink;
+    border-radius: 14px;
+    padding: 1.35rem 1.6rem;
+    box-shadow: 0 4px 18px rgba(255, 105, 180, 0.12);
+}
+
+.pdf-link {
+    color: HotPink !important;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 105, 180, 0.4);
+}
+
+.pdf-link:hover {
+    color: #ff69b4 !important;
+    text-decoration-color: #ff69b4;
+}
+
+

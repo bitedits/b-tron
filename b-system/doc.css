@@ -267,3 +267,25 @@ footer.doc-footer {
         margin-left: 0;
     }
 }
+
+/* Completely remove animation from image blocks */
+.gallery-card,
+.image-block-card,
+.gallery-grid-2 > div,
+.gallery-card *,
+.image-block-card *,
+.gallery-grid-2 > div *,
+img {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+.gallery-card:hover,
+.image-block-card:hover,
+.gallery-grid-2 > div:hover {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+}
+
