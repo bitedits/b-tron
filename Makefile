@@ -47,16 +47,16 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/local/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") \
-                    -lpthread -framework ApplicationServices -framework Cocoa
+                    -lz -lpthread -framework ApplicationServices -framework Cocoa
     QEMU_DISPLAY := -display cocoa,show-cursor=on
 else ifeq ($(UNAME_S), Linux)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || pkg-config --cflags sdl2 2>/dev/null || echo "-I/usr/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") \
-                    -lm -lpthread
+                    -lz -lm -lpthread
     QEMU_DISPLAY := -display default,show-cursor=on
 else
     SDL_CFLAGS   := -I/usr/include/SDL2
-    SDL_LIBS     := -lSDL2 -lgdi32 -lpthread
+    SDL_LIBS     := -lSDL2 -lz -lgdi32 -lpthread
     QEMU_DISPLAY := -display default,show-cursor=on
 endif
 
@@ -414,10 +414,12 @@ $(TEST_HMI_BIN): $(TEST_HMI_OBJS)
 	$(CC) $(TEST_HMI_OBJS) -o $@ $(LDFLAGS)
 
 # ═══════════════════════════════════════════════════════════════════
-# TAD Dharma Packing Pipeline & Elixir Batch Compiler
+# TAD Unified Packing Pipeline & Elixir Batch Compiler
 # ═══════════════════════════════════════════════════════════════════
-dharma:
-	@elixir scripts/html2tad.exs --dharma
+tad_bin:
+	@elixir scripts/html2tad.exs
+
+dharma: tad_bin
 
 html2tad:
 	@elixir scripts/html2tad.exs --test
@@ -431,7 +433,7 @@ TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
 TEST_TAD_BIN  = test_tad_browser
 
-test-tad: $(TEST_TAD_BIN) dharma
+test-tad: $(TEST_TAD_BIN) tad_bin
 	@if [ ! -f tad_bin/shared_data/data_type.tad ]; then elixir scripts/html2tad.exs >/dev/null 2>&1; fi
 	@echo "=========================================================="
 	@echo " Running B-TRON Native TAD Browser & Cabinet Tests..."
@@ -439,7 +441,7 @@ test-tad: $(TEST_TAD_BIN) dharma
 	@./$(TEST_TAD_BIN)
 
 $(TEST_TAD_BIN): $(TEST_TAD_OBJS)
-	$(CC) $(TEST_TAD_OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(TEST_TAD_OBJS) -o $@ $(LDFLAGS) -lz
 
 # ═══════════════════════════════════════════════════════════════════
 # Clean

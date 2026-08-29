@@ -1,6 +1,6 @@
 # TRON Application Databus (TAD) in B-System
 
-This document provides a comprehensive technical overview of **TAD (TRON Application Databus)** in B-System, explaining the `./dharma/` and `./tad_bin/` directories, their generation pipeline, binary segment format conforming to **BTRON3 SPEC 3.20**, compatibility with **B-right/V Cho-Kanji (超漢字)**, and their runtime usage across the **Cabinet Explorer** and **Native TAD Document Browser**.
+This document provides a comprehensive technical overview of **TAD (TRON Application Databus)** in B-System, explaining the unified `./tad_bin/` ecosystem, the Elixir multi-catalog batch compiler, native **GIF & PNG** diagram rasterization, binary segment format conforming to **BTRON3 SPEC 3.20**, compatibility with **B-right/V Cho-Kanji (超漢字)**, and runtime usage across the **Cabinet Explorer** and **Native TAD Document Browser**.
 
 ---
 
@@ -14,42 +14,60 @@ In B-System, TAD serves two critical roles:
 
 ---
 
-## 2. Directory Structure & Audience Distinction
+## 2. Directory Structure & Unified Packaging Pipeline
 
-The B-System documentation ecosystem is organized into two distinct language and target domains:
+All documentation, specifications, and foundational books in B-System are packaged into a single, canonical directory: `./tad_bin/`.
 
 ```
 btron/
-├── dharma/                       # ◄ JAPANESE (JP) AUDIENCE: 4 Foundational Dharma Books [dharma][和文仕様]
-│   ├── 01_btron3_spec.tad        # BTRON3 3.20 共通仕様書 (Binary TAD)
-│   ├── 01_btron3_spec.tad.txt    # Human-readable symbolic TAD representation
-│   ├── 02_tkernel_book.tad       # T-Kernel 2.0 完全解説 (Binary TAD)
-│   ├── 02_tkernel_book.tad.txt   # Human-readable symbolic TAD representation
-│   ├── 03_tron_hmi_book.tad      # TRON HMI 意匠設計指針 (Binary TAD)
-│   ├── 03_tron_hmi_book.tad.txt  # Human-readable symbolic TAD representation
-│   ├── 04_bfree_os_book.tad      # B-Free 自由OS読本 (Binary TAD)
-│   └── 04_bfree_os_book.tad.txt  # Human-readable symbolic TAD representation
-│
-├── tad_bin/                      # ◄ UKRAINIAN (UA) AUDIENCE: 41 BTRON3 System Specs [tad_bin][Ядро/etc]
-│   ├── index.tad                 # Головний портал документації B-System
-│   ├── shared_data/              # [tad_bin][Специфікація] Загальні специфікації даних
-│   │   ├── data_type.tad         # Типи даних, коди помилок та C99 межі
-│   │   ├── tron_code.tad         # Багатомовне кодування TRON Code
-│   │   ├── tad1.tad              # Специфікація структури TAD сегментів
-│   │   ├── tad2.tad              # Текстові фусени (Text Fusen)
-│   │   ├── tad3.tad              # Графічні фусени (Figure Fusen)
-│   │   └── fd_format.tad         # Файлова система реальних та віртуальних об'єктів
-│   ├── os_spec/                  # Специфікації операційної системи BTRON3
-│   │   ├── kernel/               # [tad_bin][Ядро] Ядро μITRON 3.0, Задачі, Пам'ять, IPC, Таймери
-│   │   ├── dp/                   # [tad_bin][Графіка] Графічні примітиви DP (2D Display Primitives)
-│   │   ├── shell/                # [tad_bin][Оболонка] Графічна оболонка, Вікна, Меню, Панелі, TIP/IME
-│   │   └── indexfig.tad          # [tad_bin][Надійність] Статичний аналіз пам'яті (NASA JPL Rule 3)
-│   └── *.tad.txt                 # Супутні людиночитні TAD файли
+└── tad_bin/                      # ◄ Unified Canonical TAD Real Objects Ecosystem
+    ├── 01_btron3_spec.tad        # Book 1: BTRON3 3.20 共通仕様書 (Canonical Book)
+    ├── 02_tkernel_book.tad       # Book 2: T-Kernel 2.0 リアルタイムOS完全解説
+    ├── 03_tron_hmi_book.tad      # Book 3: TRON HMI 意匠設計指針と部品カタログ
+    ├── 04_bfree_os_book.tad      # Book 4: B-Free 自由OS読本とマニフェスト
+    ├── index.tad                 # Головний портал документації B-System
+    │
+    ├── shared_data/              # [tad_bin][Специфікація] Загальні специфікації даних
+    │   ├── data_type.tad         # Типи даних, коди помилок та C99 межі
+    │   ├── tron_code.tad         # Багатомовне кодування TRON Code
+    │   ├── tad1.tad              # Специфікація структури TAD сегментів
+    │   ├── tad2.tad              # Текстові фусени (Text Fusen)
+    │   ├── tad3.tad              # Графічні фусени (Figure Fusen)
+    │   ├── fd_format.tad         # Файлова система реальних та віртуальних об'єктів
+    │   └── gif/*.gif             # 218 Genuine Specification GIF Diagrams
+    │
+    ├── os_spec/                  # Специфікації операційної системи BTRON3
+    │   ├── kernel/*.tad          # [tad_bin][Ядро] Ядро μITRON 3.0, Задачі, Пам'ять, IPC, Таймери
+    │   ├── dp/*.tad              # [tad_bin][Графіка] Графічні примітиви DP (2D Display Primitives)
+    │   ├── shell/*.tad           # [tad_bin][Оболонка] Графічна оболонка, Вікна, Меню, Панелі, TIP/IME
+    │   └── indexfig.tad          # [tad_bin][Надійність] Статичний аналіз пам'яті (NASA JPL Rule 3)
+    │
+    ├── b-hmi/                    # TRON Human-Machine Interface Guidelines & 220+ Parts
+    │   ├── part1/*.tad           # SUI, GUI, Panels, Display Standards
+    │   ├── part2/*.tad           # Layout, Procedures, Multipanel, Safety Standards
+    │   ├── part_book/*.tad       # Switches, Volumes, Selectors Catalog
+    │   └── img/*.png             # 220+ PNG High-Resolution Technical Illustrations
+    │
+    ├── b-free/                   # Free Software BTRON3 Implementation
+    │   ├── manifest.tad          # B-Free Manifesto
+    │   ├── kernel.tad            # Microkernel Architecture
+    │   └── posix.tad             # POSIX Compatibility Layer
+    │
+    ├── b-system/                 # B-System POSIX & VirtIO Specs
+    │   ├── virtio.tad            # VirtIO Core Architecture & System Specifications
+    │   └── btron_spec.tad        # System Call Matrix
+    │
+    ├── t-kernel/                 # T-Kernel 2.0 Deployment Manuals
+    │   ├── tkernel_spec.tad      # T-Kernel Core Specifications
+    │   ├── tkernel_startup.tad   # Startup & Boot Sequence
+    │   └── tkernel_qemu.tad      # QEMU Virtual Machine Manual
+    │
+    └── *.tad.txt                 # Companion human-readable symbolic TAD files
 ```
 
 ## 3. Binary TAD Segment Structure (BTRON3 SPEC 3.20)
 
-Every `.tad` file in `./dharma/` and `./tad_bin/` begins with the 16-bit **TAD Main Record Header** followed by structured Fusen segments:
+Every `.tad` file in `./tad_bin/` begins with the 16-bit **TAD Main Record Header** followed by structured Fusen segments:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
@@ -65,7 +83,7 @@ Every `.tad` file in `./dharma/` and `./tad_bin/` begins with the 16-bit **TAD M
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │  TS_VOBJ    (0xFFA8) : Embedded Virtual Object Link [仮身] (Target Real Object)  │
 ├──────────────────────────────────────────────────────────────────────────────────┤
-│  TS_FPRIM   (0xFFB0) : Figure Primitive (Vector separator lines, Box containers) │
+│  TS_FPRIM   (0xFFB0) : Figure Primitive (Vector lines, Boxes, GIF & PNG Pictures)│
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │  Raw Text Payload    : Multi-byte TRON-Code / UTF-8 character byte stream        │
 └──────────────────────────────────────────────────────────────────────────────────┘
@@ -78,67 +96,22 @@ Every `.tad` file in `./dharma/` and `./tad_bin/` begins with the 16-bit **TAD M
 | `TS_TPAGE` | `0xFFA0` | Text Page Fusen | Page width, page height, margin top/bottom/left/right |
 | `TS_TRULER` | `0xFFA1` | Text Ruler Fusen | Line pitch (px), paragraph indent, tab stops |
 | `TS_TFONT` | `0xFFA2` | Text Font Fusen | Font typeface (0=System, 1=Mincho, 2=Gothic, 3=Mono), TRON Plane |
-| `TS_TCHAR` | `0xFFA3` | Character Fusen | Font size (10..24pt), bold weight (400/700), RGB color |
-| `TS_VOBJ` | `0xFFA8` | Virtual Object Link | Target Real Object ID, Link Name, Target Filepath |
-| `TS_FPRIM` | `0xFFB0` | Figure Primitive | Primitive type (0=Horizontal Rule, 1=Rect), stroke, fill |
-
-## 4. Generation Pipeline: Elixir Compiler (`scripts/html2tad.exs`)
-
-All TAD files are compiled deterministically using the Elixir batch compiler tool:
-
-```
-                      ┌──────────────────────────────────────┐
-                      │    Input HTML Sources (./doc/)       │
-                      │    Dharma Book Definitions (AST)     │
-                      └──────────────────┬───────────────────┘
-                                         │
-                                         ▼
-                      ┌──────────────────────────────────────┐
-                      │   Stage 1: Noise Filtering           │
-                      │   - Strip navigation banners         │
-                      │   - Remove breadcrumbs & scripts     │
-                      │   - Decode HTML entities (&copy;...) │
-                      └──────────────────┬───────────────────┘
-                                         │
-                                         ▼
-                      ┌──────────────────────────────────────┐
-                      │   Stage 2: Semantic DOM Tokenizer    │
-                      │   - Headings (H1..H6) -> TS_TCHAR    │
-                      │   - Code blocks (<pre>) -> TS_TFONT  │
-                      │   - Anchors (<a href>) -> TS_VOBJ    │
-                      │   - Rules (<hr>) -> TS_FPRIM         │
-                      └──────────────────┬───────────────────┘
-                                         │
-                                         ▼
-                      ┌──────────────────────────────────────┐
-                      │   Stage 3: Binary & Text Generation  │
-                      ├──────────────────┬───────────────────┤
-                      ▼                                      ▼
-        ┌─────────────────────────┐            ┌─────────────────────────┐
-        │  Binary TAD (*.tad)     │            │  Symbolic TAD (*.tad.txt│
-        │  SPEC 3.20 Byte Stream  │            │  Annotated Human-Readable
-        └─────────────────────────┘            └─────────────────────────┘
-```
-
-### Build Commands
+| `TS_TCHAR` | `0xFFA3` | Character Fusen | Font size (10..24pt), bold w### Build Commands
 
 ```bash
-# Compile the 4 Dharma Books into ./dharma/*.tad:
-make dharma
+# Compile all documentation trees and 4 canonical books into ./tad_bin/:
+make tad_bin
 
-# Compile all 41 HTML specification documents into ./tad_bin/*.tad and run Elixir tests:
-make html2tad
-
-# Run the complete C-level unit test harness:
+# Run the complete C-level unit test harness (95 tests):
 make test-tad
 ```
 
 ## 5. Runtime Usage in B-System
 
 ### 1. Cabinet Explorer (実身キャビネット - `src/apps/vobj_manager.c`)
-- **Central Storage & Categorization:**
-  - **Japanese Dharma Library:** Tagged with `[dharma][和文仕様]`, containing the 4 foundational TRON/BTRON books.
-  - **Ukrainian Specification Library:** Tagged with `[tad_bin][Ядро]`, `[tad_bin][Специфікація]`, `[tad_bin][Графіка]`, `[tad_bin][Оболонка]`, and `[tad_bin][Надійність]`.
+- **Central Real Object Library:**
+  - **Canonical Books:** Tagged with `[TAD Spec]`, `[T-Kernel]`, `[HMI Guide]`, `[B-Free OS]`.
+  - **System Specifications:** Tagged with `[tad_bin][Ядро]`, `[tad_bin][Специфікація]`, `[tad_bin][Графіка]`, `[tad_bin][Оболонка]`, and `[tad_bin][Надійність]`.
 - **Interactive Navigation:**
   - **Single Click / Key Arrow:** Selects an object, highlighting it in BTRON Navy Blue (`COLOR_NAVY`) and displaying metadata (Real Object ID, category, size in bytes) in the status bar.
   - **Double-Click / [開く (Open)] / [閲覧 (View)]:** Instantly opens the selected Real Object in the **TAD Document Browser**.
@@ -169,12 +142,13 @@ make test-tad
    - **Hover Preview:** Hovering over any link highlights it with a light-gray border and displays the exact target path and Real Object ID in the bottom status bar (`🔗 [仮身] Перехід до: ...`).
    - **Automatic Path Resolution (`tad_browser_resolve_path`):**
      - Automatically translates legacy `.html` links to native `.tad` files.
-     - Resolves relative child paths (e.g. `kernel/kernel.tad`), sibling paths (`../dp/dp.tad`), and fallback lookups (`tad_bin/`, `dharma/`).
+     - Strips anchor `#fragments` and `?queries`.
+     - Resolves relative child paths (e.g. `kernel/kernel.tad`), sibling paths (`../dp/dp.tad`), and fallback lookups (`tad_bin/`, `tad_bin/b-hmi/`, etc.).
 
 2. **Toolbar Navigation Controls:**
    - **`[◄ Назад (Back)]`**: Jumps back to the previous document in the history stack.
    - **`[► Вперед (Forward)]`**: Navigates forward in the history stack.
-   - **`[⌂ Дім (Home)]`**: Instantly returns to the foundational dharma portal (`dharma/01_btron3_spec.tad`).
+   - **`[⌂ Дім (Home)]`**: Instantly returns to the foundational canonical portal (`tad_bin/01_btron3_spec.tad`).
    - **`[↻ Оновити (Reload)]`**: Re-reads the current document from disk and preserves the active scroll position.
    - **Location / Breadcrumb Bar:** Displays the current active Real Object path (`📄 tad_bin/...`).
 
@@ -184,7 +158,7 @@ make test-tad
 |:---|:---:|:---:|:---|
 | **Go Back** | <kbd>Backspace</kbd> | <kbd>b</kbd> / <kbd>B</kbd> | Navigate to the previous document in history |
 | **Go Forward** | <kbd>f</kbd> / <kbd>F</kbd> | <kbd>Alt+Right</kbd> | Navigate forward in history |
-| **Go Home** | <kbd>h</kbd> / <kbd>H</kbd> | <kbd>Alt+Home</kbd> | Jump to `dharma/01_btron3_spec.tad` |
+| **Go Home** | <kbd>h</kbd> / <kbd>H</kbd> | <kbd>Alt+Home</kbd> | Jump to `tad_bin/01_btron3_spec.tad` |
 | **Reload** | <kbd>r</kbd> / <kbd>R</kbd> | <kbd>F5</kbd> | Reload current document |
 | **Scroll Line Down** | <kbd>↓</kbd> | <kbd>j</kbd> | Scroll down by 24 pixels |
 | **Scroll Line Up** | <kbd>↑</kbd> | <kbd>k</kbd> | Scroll up by 24 pixels |
@@ -218,9 +192,9 @@ UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────
 - **Collision Resolution:** Cyrillic 2-byte sequences are mapped directly to `0x2700..0x27FF`, completely avoiding collision with Japanese Hiragana (`0x2400..0x245F`) and Katakana (`0x2500..0x255F`).
 - **Proportional 8x16 Typography (Zero Inter-Character Gap):** Cyrillic & Ukrainian glyphs are rendered in crisp 8x16 dot-matrix cells (`gw = 8, gh = 16`), matching English ASCII text width and kerning instead of wide 16x16 Zenkaku boxes.
 - **Dedicated Ukrainian Glyphs:** High-contrast dot-matrix bitmaps for `Є`, `І`, `Ї`, `Ґ`, `є`, `і`, `ї`, `ґ`, `№`, `«`, and `»` ensure sharp, natural legibility in the TAD Document Browser, T-Editor, and Cabinet Explorer.
-- **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout identical in visual elegance to the Dharma books.
+- **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout.
 
-## 7. BTRON3 3.20 Figure & Picture Segment Fusen (`TS_FPRIM`)
+## 7. BTRON3 3.20 Figure & Picture Segment Fusen (`TS_FPRIM`) with GIF & PNG Support
 
 In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded directly into TAD document streams using **Figure Fusen Segments (`TS_FPRIM` / `0xFFB0`)**:
 
@@ -232,14 +206,17 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │  Caption Length (16-bit) | UTF-8 Caption Text (e.g. "図 1: アーキテクチャ階層構造")      │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│  Source Path Length (16-bit) | Asset URI / Real Object Path (e.g. "figures/layers.png") │
+│  Source Path Length (16-bit) | Asset URI / Real Object Path (e.g. "img/fig_01.png")    │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Visual Frame & Geometry:** Rendered within a distinct 3D beveled BTRON frame with navy header banner (`[🖼 <image_path>]`), clear drawing canvas, and bottom caption.
-- **Exact HTML Specification Image Extraction:** The Elixir batch compiler (`scripts/html2tad.exs`) extracts exact diagram paths (`<IMG src="gif/*.gif">`) directly from the original HTML specification documents, inspects their native dimensions (`w` and `h` in GIF87a/GIF89a headers), and copies all asset directories into `tad_bin/**/gif/`.
-- **Native BTRON3 GIF Raster Decoder:** Built directly into `src/apps/tad_browser.c` conforming strictly to NASA JPL Rule 3 (bounded static memory pools, zero runtime malloc/free). Decodes LZW-compressed 8-bit palette GIF raster streams directly to the `GDEV` pixel buffer with automatic proportional scaling.
-- **Fallback Vector Schematics:** For synthetic documents without on-disk GIF assets, the browser falls back gracefully to topic-matched vector schematics.
+- **Dual Raster Decoders (GIF & PNG):**
+  - **GIF Decoder:** Decodes LZW-compressed 8-bit palette GIF specification diagrams (218 spec diagrams across `tad_bin/**/gif/`).
+  - **PNG Decoder:** Decodes Deflate-compressed RGB and RGBA PNG diagrams with full scanline unfiltering (Paeth, Sub, Up, Average, None) (220+ illustrations across `tad_bin/b-hmi/img/`).
+  - Implemented strictly with bounded static memory conforming to **NASA JPL Safety Rule 3** (zero dynamic heap allocation).
+- **Exact HTML Specification Image Extraction:** The Elixir batch compiler (`scripts/html2tad.exs`) extracts exact diagram paths (`<IMG src="gif/*.gif">` and `<IMG src="img/*.png">`) directly from the original HTML specification documents, inspects their native dimensions (`w` and `h` in GIF87a/GIF89a and PNG IHDR headers), and copies all asset directories into `tad_bin/**/`.
+- **Fallback Vector Schematics:** For synthetic documents without on-disk image assets, the browser falls back gracefully to topic-matched vector schematics.
 
 ---
 

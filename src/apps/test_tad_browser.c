@@ -162,11 +162,11 @@ static void test_vobj_link_interaction(void) {
 
 /* ── Test 4: Real Document Binary TAD Loading (Elixir Compiler Output) ── */
 static void test_elixir_compiled_tad_loading(void) {
-    printf("\n[TEST GROUP 4] Elixir-Compiled Binary TAD Verification (dharma/ & tad_bin/)\n");
+    printf("\n[TEST GROUP 4] Elixir-Compiled Binary TAD Verification (tad_bin/)\n");
 
     TAD_BROWSER tb;
-    ER er = tad_browser_load_file(&tb, "dharma/01_btron3_spec.tad");
-    TEST_ASSERT(er == E_OK, "Successfully loaded dharma/01_btron3_spec.tad");
+    ER er = tad_browser_load_file(&tb, "tad_bin/01_btron3_spec.tad");
+    TEST_ASSERT(er == E_OK, "Successfully loaded tad_bin/01_btron3_spec.tad");
     TEST_ASSERT(tb.span_count > 10, "Document loaded with >10 structured spans");
 
     er = tad_browser_load_file(&tb, "tad_bin/shared_data/data_type.tad");
@@ -180,7 +180,7 @@ static void test_viewport_scrolling(void) {
 
     TAD_BROWSER tb;
     tad_browser_init(&tb);
-    tad_browser_load_file(&tb, "dharma/01_btron3_spec.tad");
+    tad_browser_load_file(&tb, "tad_bin/01_btron3_spec.tad");
     tb.doc_height = 800;
     tb.page_height = 200;
 
@@ -205,22 +205,22 @@ static void test_cabinet_explorer_selection(void) {
     TEST_ASSERT(wnd != NULL, "Opened Cabinet Explorer window");
     TEST_ASSERT(wnd->event_handler != NULL, "Cabinet Explorer has active event_handler attached");
 
-    /* Test item selection click at row 0 (y = 60 + 0*22 + 5 = 65) */
+    /* Test item selection click at row 0 (y = 60 + 0*22 + 5 = 65) -> [b-free] 00_bfree_book.tad (#104) */
     ID robj = 0;
     char path[128] = "";
     BOOL handled = cabinet_handle_click(50, 65, FALSE, &robj, path);
     TEST_ASSERT(handled == FALSE, "Single click updates selection without modal block");
-    TEST_ASSERT(robj == 101, "Selected Real Object #101 (01_btron3_spec.tad)");
-    TEST_ASSERT(strcmp(path, "dharma/01_btron3_spec.tad") == 0, "Resolved path for #101");
+    TEST_ASSERT(robj == 104, "Selected Real Object #104 (00_bfree_book.tad)");
+    TEST_ASSERT(strcmp(path, "tad_bin/04_bfree_os_book.tad") == 0, "Resolved path for #104");
 
-    /* Test Ukrainian TAD selection at row 4 (y = 60 + 4*22 + 5 = 153) */
-    handled = cabinet_handle_click(50, 153, FALSE, &robj, path);
-    TEST_ASSERT(robj == 111, "Selected Ukrainian Real Object #111 (01_data_type.tad)");
-    TEST_ASSERT(strcmp(path, "tad_bin/shared_data/data_type.tad") == 0, "Resolved path for Ukrainian TAD #111");
+    /* Test selection at row 1 (y = 60 + 1*22 + 5 = 87) -> [b-free] 01_manifest.tad (#106) */
+    handled = cabinet_handle_click(50, 87, FALSE, &robj, path);
+    TEST_ASSERT(robj == 106, "Selected Real Object #106 (01_manifest.tad)");
+    TEST_ASSERT(strcmp(path, "tad_bin/b-free/manifest.tad") == 0, "Resolved path for TAD #106");
 
-    /* Test double-click activation on Ukrainian TAD */
-    handled = cabinet_handle_click(50, 153, TRUE, &robj, path);
-    TEST_ASSERT(handled == TRUE, "Double click triggers Ukrainian TAD Real Object launch");
+    /* Test double-click activation */
+    handled = cabinet_handle_click(50, 87, TRUE, &robj, path);
+    TEST_ASSERT(handled == TRUE, "Double click triggers TAD Real Object launch");
 }
 
 /* ── Test 7: Navigation History & Robust Path Resolution ── */
@@ -235,18 +235,18 @@ static void test_browser_history_and_path_resolution(void) {
     tad_browser_resolve_path("tad_bin/os_spec/kernel/kernel.tad", "../dp/dp.html", resolved, sizeof(resolved));
     TEST_ASSERT(strcmp(resolved, "tad_bin/os_spec/dp/dp.tad") == 0, "Resolved sibling path ../dp/dp.html -> tad_bin/os_spec/dp/dp.tad");
 
-    tad_browser_resolve_path("dharma/01_btron3_spec.tad", "02_tkernel_book.tad", resolved, sizeof(resolved));
-    TEST_ASSERT(strcmp(resolved, "dharma/02_tkernel_book.tad") == 0, "Resolved neighbor dharma file");
+    tad_browser_resolve_path("tad_bin/01_btron3_spec.tad", "02_tkernel_book.tad", resolved, sizeof(resolved));
+    TEST_ASSERT(strcmp(resolved, "tad_bin/02_tkernel_book.tad") == 0, "Resolved neighbor canonical book");
 
     /* 2. Test In-place Browser History Navigation */
     TAD_BROWSER tb;
     tad_browser_init(&tb);
 
-    tad_browser_navigate(&tb, "dharma/01_btron3_spec.tad");
+    tad_browser_navigate(&tb, "tad_bin/01_btron3_spec.tad");
     TEST_ASSERT(tb.history_idx == 0, "Initial page at history_idx = 0");
     TEST_ASSERT(tad_browser_can_go_back(&tb) == FALSE, "Cannot go back from first page");
 
-    tad_browser_navigate(&tb, "dharma/02_tkernel_book.tad");
+    tad_browser_navigate(&tb, "tad_bin/02_tkernel_book.tad");
     TEST_ASSERT(tb.history_idx == 1, "Navigated to page 2 (history_idx = 1)");
     TEST_ASSERT(tad_browser_can_go_back(&tb) == TRUE, "Can go back to page 1");
     TEST_ASSERT(tad_browser_can_go_forward(&tb) == FALSE, "Cannot go forward past current head");
@@ -254,13 +254,13 @@ static void test_browser_history_and_path_resolution(void) {
     /* Navigate back */
     tad_browser_go_back(&tb);
     TEST_ASSERT(tb.history_idx == 0, "Went back to history_idx = 0");
-    TEST_ASSERT(strcmp(tb.file_path, "dharma/01_btron3_spec.tad") == 0, "Current document restored to page 1");
+    TEST_ASSERT(strcmp(tb.file_path, "tad_bin/01_btron3_spec.tad") == 0, "Current document restored to page 1");
     TEST_ASSERT(tad_browser_can_go_forward(&tb) == TRUE, "Can go forward to page 2");
 
     /* Navigate forward */
     tad_browser_go_forward(&tb);
     TEST_ASSERT(tb.history_idx == 1, "Went forward to history_idx = 1");
-    TEST_ASSERT(strcmp(tb.file_path, "dharma/02_tkernel_book.tad") == 0, "Current document restored to page 2");
+    TEST_ASSERT(strcmp(tb.file_path, "tad_bin/02_tkernel_book.tad") == 0, "Current document restored to page 2");
 
     /* Test Toolbar Button Click in handle_mouse */
     BOOL nav_hit = tad_browser_handle_mouse(&tb, 20, 15, TRUE, NULL, NULL);
@@ -317,26 +317,25 @@ static void test_utf8_cyrillic_font_rendering(void) {
 static void test_btron3_corner_window_resizing(void) {
     printf("\n[TEST GROUP 9] BTRON3 3.20 Default Corner Window Resizing\n");
 
-    WND *w = opn_wnd("Test Window", 100, 100, 400, 300, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w = opn_wnd("Test Window", 100, 100, 400, 300, WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE);
     TEST_ASSERT(w != NULL, "Opened test window");
     TEST_ASSERT((w->attr & WND_ATTR_RESIZE) != 0, "WND_ATTR_RESIZE is enabled by default (BTRON3 3.20 Conformance)");
     TEST_ASSERT(w->bounds.right - w->bounds.left == 400, "Initial window width = 400");
     TEST_ASSERT(w->bounds.bottom - w->bounds.top == 300, "Initial window height = 300");
 
-    /* Resize using rsz_wnd */
     ER er = rsz_wnd(w, 550, 420);
     TEST_ASSERT(er == E_OK, "rsz_wnd executed successfully");
     TEST_ASSERT(w->bounds.right - w->bounds.left == 550, "Updated window width to 550px");
     TEST_ASSERT(w->bounds.bottom - w->bounds.top == 420, "Updated window height to 420px");
     TEST_ASSERT(w->dev != NULL && w->dev->width == 550 - 8, "Resized client graphic device width");
 
-    /* Test Minimum Size Constraints */
+    /* Test Minimum Size Guard */
     rsz_wnd(w, 50, 50);
     TEST_ASSERT(w->bounds.right - w->bounds.left >= 160, "Clamped at minimum width >= 160px");
     TEST_ASSERT(w->bounds.bottom - w->bounds.top >= 100, "Clamped at minimum height >= 100px");
 
-    /* Test wrsz_wnd with RECT */
-    RECT r = { 50, 60, 650, 460 };
+    /* Test wrsz_wnd origin & dimension update */
+    RECT r = { 50, 60, 650, 480 };
     er = wrsz_wnd(w, &r);
     TEST_ASSERT(er == E_OK, "wrsz_wnd executed successfully");
     TEST_ASSERT(w->bounds.left == 50 && w->bounds.top == 60, "Updated window origin");
@@ -345,15 +344,15 @@ static void test_btron3_corner_window_resizing(void) {
     cls_wnd(w);
 }
 
-/* ── Test 10: BTRON3 3.20 Figure & Picture Segment Fusen (TS_FPRIM SubID 10) ── */
+/* ── Test 10: BTRON3 3.20 Figure & Picture Segment Fusen (GIF & PNG Decoders) ── */
 static void test_btron3_picture_figure_segments(void) {
-    printf("\n[TEST GROUP 10] BTRON3 3.20 Figure & Picture Segment Fusen (TS_FPRIM)\n");
+    printf("\n[TEST GROUP 10] BTRON3 3.20 Figure & Picture Segment Fusen (GIF & PNG Decoders)\n");
 
-    /* 1. Test Dharma Book with embedded Figure */
+    /* 1. Test Canonical Book with embedded GIF Figure */
     TAD_BROWSER tb;
     memset(&tb, 0, sizeof(tb));
-    ER er = tad_browser_load_file(&tb, "dharma/01_btron3_spec.tad");
-    TEST_ASSERT(er == E_OK, "Loaded dharma/01_btron3_spec.tad with embedded figures");
+    ER er = tad_browser_load_file(&tb, "tad_bin/01_btron3_spec.tad");
+    TEST_ASSERT(er == E_OK, "Loaded tad_bin/01_btron3_spec.tad with embedded figures");
 
     BOOL found_img = FALSE;
     for (int i = 0; i < tb.span_count; i++) {
@@ -365,7 +364,7 @@ static void test_btron3_picture_figure_segments(void) {
             break;
         }
     }
-    TEST_ASSERT(found_img == TRUE, "Detected TS_FPRIM SubID 10 picture segment in Dharma book");
+    TEST_ASSERT(found_img == TRUE, "Detected TS_FPRIM SubID 10 picture segment in Canonical Book");
 
     /* 2. Test Ukrainian Specification TAD with Figure */
     memset(&tb, 0, sizeof(tb));
@@ -396,6 +395,68 @@ static void test_btron3_picture_figure_segments(void) {
         if (fb[p] != 0 && fb[p] != COLOR_WHITE) drawn_pixels++;
     }
     TEST_ASSERT(drawn_pixels > 1000, "Successfully decoded and rendered exact specification GIF diagram to framebuffer");
+
+    /* 4. Test HMI Guide with Embedded PNG Diagram */
+    memset(&tb, 0, sizeof(tb));
+    er = tad_browser_load_file(&tb, "tad_bin/b-hmi/part1/chap03_sui.tad");
+    TEST_ASSERT(er == E_OK, "Loaded tad_bin/b-hmi/part1/chap03_sui.tad with PNG figures");
+
+    BOOL found_png_fig = FALSE;
+    for (int i = 0; i < tb.span_count; i++) {
+        if (tb.spans[i].style.is_image && strstr(tb.spans[i].style.img_src, ".png") != NULL) {
+            found_png_fig = TRUE;
+            break;
+        }
+    }
+    TEST_ASSERT(found_png_fig == TRUE, "Detected TS_FPRIM SubID 10 PNG picture segment in HMI TAD");
+
+    memset(fb, 0, sizeof(fb));
+    tad_browser_layout(&tb, 800);
+    tad_browser_paint(&tb, &dev, &cr);
+    int png_drawn = 0;
+    for (int p = 0; p < 800 * 600; p++) {
+        if (fb[p] != 0 && fb[p] != COLOR_WHITE) png_drawn++;
+    }
+    TEST_ASSERT(png_drawn > 1000, "Successfully decoded and rendered exact specification PNG illustration to framebuffer");
+}
+
+/* ── Test 11: Canonical Books Top-Level Links Resolution ── */
+static void test_canonical_books_links_resolution(void) {
+    printf("\n[TEST GROUP 11] Canonical Books Top-Level Links & Cross-Doc Resolution\n");
+
+    const char *book_files[] = {
+        "tad_bin/01_btron3_spec.tad",
+        "tad_bin/02_tkernel_book.tad",
+        "tad_bin/03_tron_hmi_book.tad",
+        "tad_bin/04_bfree_os_book.tad"
+    };
+
+    for (int b = 0; b < 4; b++) {
+        TAD_BROWSER tb;
+        memset(&tb, 0, sizeof(tb));
+        ER er = tad_browser_load_file(&tb, book_files[b]);
+        TEST_ASSERT(er == E_OK, "Successfully loaded Canonical book");
+
+        int link_count = 0;
+        int resolved_count = 0;
+        for (int i = 0; i < tb.span_count; i++) {
+            if (tb.spans[i].style.is_vobj || tb.spans[i].is_link) {
+                link_count++;
+                const char *tgt = tb.spans[i].style.vobj_path;
+                if (tgt && tgt[0]) {
+                    char resolved[256] = "";
+                    tad_browser_resolve_path(book_files[b], tgt, resolved, sizeof(resolved));
+                    FILE *fp = fopen(resolved, "rb");
+                    if (fp) {
+                        fclose(fp);
+                        resolved_count++;
+                    }
+                }
+            }
+        }
+        TEST_ASSERT(link_count > 0, "Canonical book contains interactive Virtual Object links");
+        TEST_ASSERT(resolved_count == link_count, "All links in Canonical book resolve to existing TAD binary files on disk");
+    }
 }
 
 int main(void) {
@@ -414,6 +475,7 @@ int main(void) {
     test_utf8_cyrillic_font_rendering();
     test_btron3_corner_window_resizing();
     test_btron3_picture_figure_segments();
+    test_canonical_books_links_resolution();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

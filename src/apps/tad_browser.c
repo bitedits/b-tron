@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 #else
 #include <stddef.h>
 #include <stdint.h>
@@ -892,7 +893,182 @@ static int decode_and_draw_gif(GDEV *dev, const char *filepath, int dst_x, int d
     return img_read ? 0 : -1;
 }
 
-static int resolve_and_draw_gif(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN *s, const RECT *cvs) {
+#define MAX_PNG_IDAT (1024 * 1024 * 4)
+#define MAX_PNG_RAW  (2048 * 2048 * 4)
+
+static UB s_png_idat_buf[MAX_PNG_IDAT];
+static UB s_png_decomp_buf[MAX_PNG_RAW];
+static UB s_png_scan_buf[MAX_PNG_RAW];
+
+static inline UB paeth_predictor(UB a, UB b, UB c) {
+    int p = (int)a + (int)b - (int)c;
+    int pa = abs(p - (int)a);
+    int pb = abs(p - (int)b);
+    int pc = abs(p - (int)c);
+    if (pa <= pb && pa <= pc) return a;
+    if (pb <= pc) return b;
+    return c;
+}
+
+/* ── Native BTRON3 PNG Image Decoder (NASA JPL Rule 3 Bounded Static) ── */
+static int decode_and_draw_png(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+    if (!dev || !filepath) return -1;
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) return -1;
+
+    UB sig[8];
+    if (fread(sig, 1, 8, fp) != 8 || sig[0] != 0x89 || sig[1] != 'P' || sig[2] != 'N' || sig[3] != 'G') {
+        fclose(fp);
+        return -1;
+    }
+
+    int img_w = 0, img_h = 0;
+    int color_type = 0;
+    int idat_len = 0;
+
+    while (!feof(fp)) {
+        UB chdr[8];
+        if (fread(chdr, 1, 8, fp) != 8) break;
+        UW clen = (chdr[0] << 24) | (chdr[1] << 16) | (chdr[2] << 8) | chdr[3];
+        char ctype[5] = { chdr[4], chdr[5], chdr[6], chdr[7], 0 };
+
+        if (strcmp(ctype, "IHDR") == 0) {
+            UB ihdr[13];
+            if (fread(ihdr, 1, 13, fp) != 13) break;
+            img_w = (ihdr[0] << 24) | (ihdr[1] << 16) | (ihdr[2] << 8) | ihdr[3];
+            img_h = (ihdr[4] << 24) | (ihdr[5] << 16) | (ihdr[6] << 8) | ihdr[7];
+            color_type = ihdr[9];
+            fseek(fp, 4, SEEK_CUR);
+        } else if (strcmp(ctype, "IDAT") == 0) {
+            if (idat_len + clen <= MAX_PNG_IDAT) {
+                if (fread(s_png_idat_buf + idat_len, 1, clen, fp) == clen) {
+                    idat_len += clen;
+                }
+            } else {
+                fseek(fp, clen, SEEK_CUR);
+            }
+            fseek(fp, 4, SEEK_CUR);
+        } else if (strcmp(ctype, "IEND") == 0) {
+            break;
+        } else {
+            fseek(fp, clen + 4, SEEK_CUR);
+        }
+    }
+    fclose(fp);
+
+    if (img_w <= 0 || img_h <= 0 || idat_len <= 0) return -1;
+
+    int bpp = 3;
+    if (color_type == 6) bpp = 4;
+    else if (color_type == 0) bpp = 1;
+    else if (color_type == 2) bpp = 3;
+
+    int row_bytes = img_w * bpp;
+    int stride = row_bytes + 1;
+    uLongf dest_len = MAX_PNG_RAW;
+
+    if (uncompress(s_png_decomp_buf, &dest_len, s_png_idat_buf, idat_len) != Z_OK) {
+        return -2;
+    }
+
+    /* Unfilter scanlines */
+    for (int y = 0; y < img_h; y++) {
+        UB *src_row = s_png_decomp_buf + y * stride;
+        UB filter = src_row[0];
+        UB *raw = src_row + 1;
+        UB *dst = s_png_scan_buf + y * row_bytes;
+        UB *prev = (y > 0) ? s_png_scan_buf + (y - 1) * row_bytes : NULL;
+
+        switch (filter) {
+            case 0:
+                memcpy(dst, raw, row_bytes);
+                break;
+            case 1:
+                for (int x = 0; x < row_bytes; x++) {
+                    UB a = (x >= bpp) ? dst[x - bpp] : 0;
+                    dst[x] = raw[x] + a;
+                }
+                break;
+            case 2:
+                for (int x = 0; x < row_bytes; x++) {
+                    UB b = prev ? prev[x] : 0;
+                    dst[x] = raw[x] + b;
+                }
+                break;
+            case 3:
+                for (int x = 0; x < row_bytes; x++) {
+                    UB a = (x >= bpp) ? dst[x - bpp] : 0;
+                    UB b = prev ? prev[x] : 0;
+                    dst[x] = raw[x] + ((a + b) >> 1);
+                }
+                break;
+            case 4:
+                for (int x = 0; x < row_bytes; x++) {
+                    UB a = (x >= bpp) ? dst[x - bpp] : 0;
+                    UB b = prev ? prev[x] : 0;
+                    UB c = (prev && x >= bpp) ? prev[x - bpp] : 0;
+                    dst[x] = raw[x] + paeth_predictor(a, b, c);
+                }
+                break;
+            default:
+                memcpy(dst, raw, row_bytes);
+                break;
+        }
+    }
+
+    /* Draw 1:1 Pixel-Perfect (Centered horizontally if max_w > img_w) */
+    int draw_x = dst_x;
+    if (max_w > img_w) {
+        draw_x = dst_x + (max_w - img_w) / 2;
+    }
+    int draw_y = dst_y;
+
+    for (int y = 0; y < img_h; y++) {
+        int out_y = draw_y + y;
+        if (out_y < 32 || out_y >= dev->height - 22) continue;
+        if (max_h > 0 && y >= max_h) break;
+
+        for (int x = 0; x < img_w; x++) {
+            int out_x = draw_x + x;
+            if (out_x < dst_x || out_x >= dst_x + max_w) continue;
+            if (out_x < 0 || out_x >= dev->width) continue;
+
+            UB *pix_ptr = s_png_scan_buf + (y * row_bytes) + (x * bpp);
+            COLOR col = COLOR_BLACK;
+
+            if (bpp == 4) {
+                UB r = pix_ptr[0];
+                UB g = pix_ptr[1];
+                UB b = pix_ptr[2];
+                UB a = pix_ptr[3];
+                if (a < 16) continue;
+                col = (COLOR)(0xFF000000 | (r << 16) | (g << 8) | b);
+            } else if (bpp == 3) {
+                UB r = pix_ptr[0];
+                UB g = pix_ptr[1];
+                UB b = pix_ptr[2];
+                col = (COLOR)(0xFF000000 | (r << 16) | (g << 8) | b);
+            } else if (bpp == 1) {
+                UB v = pix_ptr[0];
+                col = (COLOR)(0xFF000000 | (v << 16) | (v << 8) | v);
+            }
+
+            dev->pixels[out_y * dev->width + out_x] = col;
+        }
+    }
+
+    return 0;
+}
+
+static int decode_and_draw_image(GDEV *dev, const char *filepath, int dst_x, int dst_y, int max_w, int max_h) {
+    if (!dev || !filepath) return -1;
+    if (strstr(filepath, ".png") || strstr(filepath, ".PNG")) {
+        return decode_and_draw_png(dev, filepath, dst_x, dst_y, max_w, max_h);
+    }
+    return decode_and_draw_gif(dev, filepath, dst_x, dst_y, max_w, max_h);
+}
+
+static int resolve_and_draw_image(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN *s, const RECT *cvs) {
     if (!dev || !s || !cvs || s->style.img_src[0] == '\0') return -1;
 
     char candidate[256];
@@ -900,7 +1076,7 @@ static int resolve_and_draw_gif(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN
     int max_h = cvs->bottom - cvs->top;
 
     /* 1. Direct path as specified */
-    if (decode_and_draw_gif(dev, s->style.img_src, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+    if (decode_and_draw_image(dev, s->style.img_src, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
         return 0;
     }
 
@@ -913,24 +1089,27 @@ static int resolve_and_draw_gif(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN
         if (last_slash) {
             *last_slash = '\0';
             snprintf(candidate, sizeof(candidate), "%s/%s", doc_dir, s->style.img_src);
-            if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+            if (decode_and_draw_image(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
                 return 0;
             }
         }
     }
 
-    /* 3. Substituted tad_bin/ -> doc/ path */
+    /* 3. Substituted tad_bin/ -> source trees */
     if (tb && tb->file_path[0] != '\0') {
         const char *p = tb->file_path;
         if (strncmp(p, "tad_bin/", 8) == 0) {
-            char doc_dir[256];
-            snprintf(doc_dir, sizeof(doc_dir), "doc/%s", p + 8);
-            char *last_slash = strrchr(doc_dir, '/');
-            if (last_slash) {
-                *last_slash = '\0';
-                snprintf(candidate, sizeof(candidate), "%s/%s", doc_dir, s->style.img_src);
-                if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
-                    return 0;
+            const char *src_dirs[] = { "doc", "b-hmi", "b-system", "b-free", "t-kernel", NULL };
+            for (int i = 0; src_dirs[i]; i++) {
+                char doc_dir[256];
+                snprintf(doc_dir, sizeof(doc_dir), "%s/%s", src_dirs[i], p + 8);
+                char *last_slash = strrchr(doc_dir, '/');
+                if (last_slash) {
+                    *last_slash = '\0';
+                    snprintf(candidate, sizeof(candidate), "%s/%s", doc_dir, s->style.img_src);
+                    if (decode_and_draw_image(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+                        return 0;
+                    }
                 }
             }
         }
@@ -938,20 +1117,26 @@ static int resolve_and_draw_gif(const TAD_BROWSER *tb, GDEV *dev, const TAD_SPAN
 
     /* 4. Common specification directories */
     const char *common_dirs[] = {
-        "doc/shared_data",
-        "doc/os_spec/shell",
-        "doc/os_spec/kernel",
-        "doc/os_spec/dp",
+        "tad_bin/b-hmi",
+        "b-hmi",
+        "tad_bin/b-system",
+        "b-system",
         "tad_bin/shared_data",
+        "doc/shared_data",
         "tad_bin/os_spec/shell",
+        "doc/os_spec/shell",
         "tad_bin/os_spec/kernel",
+        "doc/os_spec/kernel",
         "tad_bin/os_spec/dp",
+        "doc/os_spec/dp",
+        "tad_bin/b-free",
+        "tad_bin/t-kernel",
         NULL
     };
 
     for (int i = 0; common_dirs[i]; i++) {
         snprintf(candidate, sizeof(candidate), "%s/%s", common_dirs[i], s->style.img_src);
-        if (decode_and_draw_gif(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
+        if (decode_and_draw_image(dev, candidate, cvs->left + 2, cvs->top + 2, max_w - 4, max_h - 4) == 0) {
             return 0;
         }
     }
@@ -1000,8 +1185,8 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
             fill_rec(dev, &cvs, COLOR_WHITE);
             drw_rec(dev, &cvs);
 
-            /* Decode and render exact specification GIF diagram */
-            int ret = resolve_and_draw_gif(tb, dev, s, &cvs);
+            /* Decode and render exact specification GIF/PNG diagram */
+            int ret = resolve_and_draw_image(tb, dev, s, &cvs);
             if (ret != 0) {
                 render_figure_diagram(dev, s, &cvs);
             }
@@ -1120,6 +1305,12 @@ void tad_browser_resolve_path(const char *current_path, const char *target, char
     strncpy(norm_target, target, sizeof(norm_target) - 1);
     norm_target[sizeof(norm_target) - 1] = '\0';
 
+    /* Strip URI anchor fragments (#section) and queries (?param) */
+    char *hash = strchr(norm_target, '#');
+    if (hash) *hash = '\0';
+    char *query = strchr(norm_target, '?');
+    if (query) *query = '\0';
+
     /* Convert .html to .tad */
     char *dot_html = strstr(norm_target, ".html");
     if (dot_html) strcpy(dot_html, ".tad");
@@ -1168,8 +1359,23 @@ void tad_browser_resolve_path(const char *current_path, const char *target, char
         }
     }
 
-    /* 3. Prefix fallbacks: tad_bin/ or dharma/ */
-    const char *prefixes[] = { "tad_bin/", "tad_bin/shared_data/", "tad_bin/os_spec/", "dharma/", NULL };
+    /* 3. Prefix fallbacks: tad_bin/ subtrees */
+    const char *prefixes[] = {
+        "tad_bin/",
+        "tad_bin/shared_data/",
+        "tad_bin/os_spec/",
+        "tad_bin/os_spec/kernel/",
+        "tad_bin/os_spec/shell/",
+        "tad_bin/os_spec/dp/",
+        "tad_bin/b-hmi/",
+        "tad_bin/b-hmi/part1/",
+        "tad_bin/b-hmi/part2/",
+        "tad_bin/b-hmi/part_book/",
+        "tad_bin/t-kernel/",
+        "tad_bin/b-free/",
+        "tad_bin/b-system/",
+        NULL
+    };
     for (int p = 0; prefixes[p] != NULL; p++) {
         char try_path[256];
         snprintf(try_path, sizeof(try_path), "%s%s", prefixes[p], norm_target);
@@ -1229,7 +1435,7 @@ void tad_browser_go_forward(TAD_BROWSER *tb) {
 }
 
 void tad_browser_go_home(TAD_BROWSER *tb) {
-    tad_browser_navigate(tb, "dharma/01_btron3_spec.tad");
+    tad_browser_navigate(tb, "tad_bin/01_btron3_spec.tad");
 }
 
 void tad_browser_reload(TAD_BROWSER *tb) {
