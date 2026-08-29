@@ -82,6 +82,10 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
 ER cls_wnd(WND *wnd) {
     if (!wnd) return E_PAR;
 
+    if (wnd->destroy) {
+        wnd->destroy(wnd);
+    }
+
     if (wnd->prev) wnd->prev->next = wnd->next;
     if (wnd->next) wnd->next->prev = wnd->prev;
     if (g_wnd_head == wnd) g_wnd_head = wnd->next;

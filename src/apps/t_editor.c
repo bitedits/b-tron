@@ -462,8 +462,17 @@ static char get_ascii_char_with_shift(UW key, uint16_t mod) {
     return (char)key;
 }
 
+static void destroy_t_editor(WND *wnd) {
+    if (wnd && wnd->user_data) {
+        TEditor *ed = (TEditor*)(uintptr_t)wnd->user_data;
+        free(ed);
+        wnd->user_data = 0;
+    }
+}
+
 static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
+    TEditor *ed = (wnd->user_data) ? (TEditor*)(uintptr_t)wnd->user_data : &g_teditor;
 
     if (evt->type == EV_BUT_DOWN) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
@@ -473,25 +482,25 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
         if (rel_y >= 0 && rel_y <= 24) {
             if (rel_x >= 4 && rel_x <= 40) {
                 /* [New] */
-                teditor_init_default(&g_teditor);
-                g_teditor.total_lines = 1;
-                g_teditor.lines[0][0] = '\0';
+                teditor_init_default(ed);
+                ed->total_lines = 1;
+                ed->lines[0][0] = '\0';
             } else if (rel_x >= 44 && rel_x <= 84) {
                 /* [Open] */
-                teditor_init_default(&g_teditor);
+                teditor_init_default(ed);
             } else if (rel_x >= 88 && rel_x <= 128) {
                 /* [Save] */
-                g_teditor.is_modified = FALSE;
+                ed->is_modified = FALSE;
             } else if (rel_x >= 132 && rel_x <= 168) {
                 /* [Cut] */
-                teditor_copy_selection(&g_teditor);
-                teditor_delete_selection(&g_teditor);
+                teditor_copy_selection(ed);
+                teditor_delete_selection(ed);
             } else if (rel_x >= 172 && rel_x <= 212) {
                 /* [Copy] */
-                teditor_copy_selection(&g_teditor);
+                teditor_copy_selection(ed);
             } else if (rel_x >= 216 && rel_x <= 260) {
                 /* [Paste] */
-                teditor_paste_clipboard(&g_teditor);
+                teditor_paste_clipboard(ed);
             } else if (rel_x >= 266 && rel_x <= 306) {
                 /* [ - ] Shrink Editor Window */
                 if (wnd->bounds.right - wnd->bounds.left > 480) wnd->bounds.right -= 60;
@@ -516,12 +525,12 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
 
         /* Editor client click -> Move cursor */
         if (rel_y >= 30) {
-            int click_r = (rel_y - 30) / 18 + g_teditor.scroll_row;
-            if (click_r >= 0 && click_r < g_teditor.total_lines) {
-                g_teditor.cursor_row = click_r;
-                g_teditor.cursor_col = teditor_find_byte_offset_from_x(g_teditor.lines[click_r], rel_x);
-                g_teditor.sel_active = FALSE;
-                teditor_ensure_cursor_visible(&g_teditor);
+            int click_r = (rel_y - 30) / 18 + ed->scroll_row;
+            if (click_r >= 0 && click_r < ed->total_lines) {
+                ed->cursor_row = click_r;
+                ed->cursor_col = teditor_find_byte_offset_from_x(ed->lines[click_r], rel_x);
+                ed->sel_active = FALSE;
+                teditor_ensure_cursor_visible(ed);
             }
         }
         return;
@@ -538,7 +547,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
         /* Check if TIP handles the key event (Japanese IME mode) */
         if (tip_process_key(key_code, mod, commit_buf, sizeof(commit_buf))) {
             if (commit_buf[0] != '\0') {
-                teditor_insert_text(&g_teditor, commit_buf);
+                teditor_insert_text(ed, commit_buf);
             }
             return;
         }
@@ -547,122 +556,122 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
 
         if (ctrl) {
             if (sym == 'c' || sym == 'C') {
-                teditor_copy_selection(&g_teditor);
+                teditor_copy_selection(ed);
                 return;
             } else if (sym == 'x' || sym == 'X') {
-                teditor_copy_selection(&g_teditor);
-                teditor_delete_selection(&g_teditor);
+                teditor_copy_selection(ed);
+                teditor_delete_selection(ed);
                 return;
             } else if (sym == 'v' || sym == 'V') {
-                teditor_paste_clipboard(&g_teditor);
+                teditor_paste_clipboard(ed);
                 return;
             } else if (sym == 'a' || sym == 'A') {
-                g_teditor.sel_active = TRUE;
-                g_teditor.sel_start_r = 0;
-                g_teditor.sel_start_c = 0;
-                g_teditor.sel_end_r = g_teditor.total_lines - 1;
-                g_teditor.sel_end_c = (int)strlen(g_teditor.lines[g_teditor.total_lines - 1]);
-                g_teditor.cursor_row = g_teditor.sel_end_r;
-                g_teditor.cursor_col = g_teditor.sel_end_c;
+                ed->sel_active = TRUE;
+                ed->sel_start_r = 0;
+                ed->sel_start_c = 0;
+                ed->sel_end_r = ed->total_lines - 1;
+                ed->sel_end_c = (int)strlen(ed->lines[ed->total_lines - 1]);
+                ed->cursor_row = ed->sel_end_r;
+                ed->cursor_col = ed->sel_end_c;
                 return;
             } else if (sym == 's' || sym == 'S') {
-                g_teditor.is_modified = FALSE;
+                ed->is_modified = FALSE;
                 return;
             } else if (sym == 'n' || sym == 'N') {
-                teditor_init_default(&g_teditor);
-                g_teditor.total_lines = 1;
-                g_teditor.lines[0][0] = '\0';
+                teditor_init_default(ed);
+                ed->total_lines = 1;
+                ed->lines[0][0] = '\0';
                 return;
             }
         }
 
         if (sym == BTRON_KEY_RETURN || sym == BTRON_KEY_KP_ENTER || sym == '\r' || sym == '\n') {
-            teditor_insert_newline(&g_teditor);
+            teditor_insert_newline(ed);
             return;
         } else if (sym == BTRON_KEY_BACKSPACE || sym == 0x08) {
-            teditor_backspace(&g_teditor);
+            teditor_backspace(ed);
             return;
         } else if (sym == BTRON_KEY_DELETE || sym == 0x7F) {
-            teditor_delete_char_forward(&g_teditor);
+            teditor_delete_char_forward(ed);
             return;
         } else if (sym == BTRON_KEY_LEFT) {
-            if (shift && !g_teditor.sel_active) {
-                g_teditor.sel_active = TRUE;
-                g_teditor.sel_start_r = g_teditor.cursor_row;
-                g_teditor.sel_start_c = g_teditor.cursor_col;
+            if (shift && !ed->sel_active) {
+                ed->sel_active = TRUE;
+                ed->sel_start_r = ed->cursor_row;
+                ed->sel_start_c = ed->cursor_col;
             }
-            if (g_teditor.cursor_col > 0) {
-                g_teditor.cursor_col = utf8_prev_offset(g_teditor.lines[g_teditor.cursor_row], g_teditor.cursor_col);
-            } else if (g_teditor.cursor_row > 0) {
-                g_teditor.cursor_row--;
-                g_teditor.cursor_col = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
+            if (ed->cursor_col > 0) {
+                ed->cursor_col = utf8_prev_offset(ed->lines[ed->cursor_row], ed->cursor_col);
+            } else if (ed->cursor_row > 0) {
+                ed->cursor_row--;
+                ed->cursor_col = (int)strlen(ed->lines[ed->cursor_row]);
             }
             if (shift) {
-                g_teditor.sel_end_r = g_teditor.cursor_row;
-                g_teditor.sel_end_c = g_teditor.cursor_col;
+                ed->sel_end_r = ed->cursor_row;
+                ed->sel_end_c = ed->cursor_col;
             } else {
-                g_teditor.sel_active = FALSE;
+                ed->sel_active = FALSE;
             }
-            teditor_ensure_cursor_visible(&g_teditor);
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_RIGHT) {
-            if (shift && !g_teditor.sel_active) {
-                g_teditor.sel_active = TRUE;
-                g_teditor.sel_start_r = g_teditor.cursor_row;
-                g_teditor.sel_start_c = g_teditor.cursor_col;
+            if (shift && !ed->sel_active) {
+                ed->sel_active = TRUE;
+                ed->sel_start_r = ed->cursor_row;
+                ed->sel_start_c = ed->cursor_col;
             }
-            int len = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
-            if (g_teditor.cursor_col < len) {
-                g_teditor.cursor_col = utf8_next_offset(g_teditor.lines[g_teditor.cursor_row], g_teditor.cursor_col);
-            } else if (g_teditor.cursor_row < g_teditor.total_lines - 1) {
-                g_teditor.cursor_row++;
-                g_teditor.cursor_col = 0;
+            int len = (int)strlen(ed->lines[ed->cursor_row]);
+            if (ed->cursor_col < len) {
+                ed->cursor_col = utf8_next_offset(ed->lines[ed->cursor_row], ed->cursor_col);
+            } else if (ed->cursor_row < ed->total_lines - 1) {
+                ed->cursor_row++;
+                ed->cursor_col = 0;
             }
             if (shift) {
-                g_teditor.sel_end_r = g_teditor.cursor_row;
-                g_teditor.sel_end_c = g_teditor.cursor_col;
+                ed->sel_end_r = ed->cursor_row;
+                ed->sel_end_c = ed->cursor_col;
             } else {
-                g_teditor.sel_active = FALSE;
+                ed->sel_active = FALSE;
             }
-            teditor_ensure_cursor_visible(&g_teditor);
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_UP) {
-            if (g_teditor.cursor_row > 0) {
-                g_teditor.cursor_row--;
-                int len = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
-                if (g_teditor.cursor_col > len) g_teditor.cursor_col = len;
+            if (ed->cursor_row > 0) {
+                ed->cursor_row--;
+                int len = (int)strlen(ed->lines[ed->cursor_row]);
+                if (ed->cursor_col > len) ed->cursor_col = len;
             }
-            g_teditor.sel_active = FALSE;
-            teditor_ensure_cursor_visible(&g_teditor);
+            ed->sel_active = FALSE;
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_DOWN) {
-            if (g_teditor.cursor_row < g_teditor.total_lines - 1) {
-                g_teditor.cursor_row++;
-                int len = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
-                if (g_teditor.cursor_col > len) g_teditor.cursor_col = len;
+            if (ed->cursor_row < ed->total_lines - 1) {
+                ed->cursor_row++;
+                int len = (int)strlen(ed->lines[ed->cursor_row]);
+                if (ed->cursor_col > len) ed->cursor_col = len;
             }
-            g_teditor.sel_active = FALSE;
-            teditor_ensure_cursor_visible(&g_teditor);
+            ed->sel_active = FALSE;
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_HOME) {
-            g_teditor.cursor_col = 0;
-            g_teditor.sel_active = FALSE;
-            teditor_ensure_cursor_visible(&g_teditor);
+            ed->cursor_col = 0;
+            ed->sel_active = FALSE;
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_END) {
-            g_teditor.cursor_col = (int)strlen(g_teditor.lines[g_teditor.cursor_row]);
-            g_teditor.sel_active = FALSE;
-            teditor_ensure_cursor_visible(&g_teditor);
+            ed->cursor_col = (int)strlen(ed->lines[ed->cursor_row]);
+            ed->sel_active = FALSE;
+            teditor_ensure_cursor_visible(ed);
             return;
         } else if (sym == BTRON_KEY_TAB || sym == '\t') {
-            teditor_insert_text(&g_teditor, "    ");
+            teditor_insert_text(ed, "    ");
             return;
         }
 
         /* Direct English / Printable ASCII Text Input */
         if (!ctrl && sym >= 32 && sym <= 126) {
             char ch = get_ascii_char_with_shift((UW)sym, mod);
-            teditor_insert_char(&g_teditor, ch);
+            teditor_insert_char(ed, ch);
             return;
         }
     }
@@ -670,6 +679,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
 
 static void paint_t_editor(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
+    TEditor *ed = (wnd->user_data) ? (TEditor*)(uintptr_t)wnd->user_data : &g_teditor;
 
     /* Background page */
     RECT r = { 0, 0, dev->width, dev->height };
@@ -703,15 +713,15 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
     /* Document Status Title */
     char title_buf[128];
-    snprintf(title_buf, sizeof(title_buf), "%s%s", g_teditor.filename, g_teditor.is_modified ? " *" : "");
+    snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
     drw_tc_string(dev, dev->width - 120, 4, title_buf, COLOR_NAVY, COLOR_LTGRAY);
 
     /* Render Gutter & Text Lines */
     int view_rows = (dev->height - 60) / 18;
     if (view_rows < 1) view_rows = 1;
-    int start_r = g_teditor.scroll_row;
+    int start_r = ed->scroll_row;
     int end_r = start_r + view_rows;
-    if (end_r > g_teditor.total_lines) end_r = g_teditor.total_lines;
+    if (end_r > ed->total_lines) end_r = ed->total_lines;
 
     int y = 30;
     for (int r_idx = start_r; r_idx < end_r; r_idx++) {
@@ -721,7 +731,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
         drw_tc_string(dev, 6, y, num_str, COLOR_GRAY, COLOR_WHITE);
 
         /* Line content */
-        const char *line = g_teditor.lines[r_idx];
+        const char *line = ed->lines[r_idx];
         const char *p = line;
         int byte_idx = 0;
         int x = 36;
@@ -739,9 +749,9 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
             /* Check if character is inside CUA selection range */
             BOOL is_selected = FALSE;
-            if (g_teditor.sel_active) {
-                int r1 = g_teditor.sel_start_r, c1 = g_teditor.sel_start_c;
-                int r2 = g_teditor.sel_end_r, c2 = g_teditor.sel_end_c;
+            if (ed->sel_active) {
+                int r1 = ed->sel_start_r, c1 = ed->sel_start_c;
+                int r2 = ed->sel_end_r, c2 = ed->sel_end_c;
                 if (r1 > r2 || (r1 == r2 && c1 > c2)) {
                     int tr = r1; r1 = r2; r2 = tr;
                     int tc = c1; c1 = c2; c2 = tc;
@@ -763,11 +773,11 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
         }
 
         /* Draw Blinking/Solid Cursor and Inline TIP Composition */
-        if (r_idx == g_teditor.cursor_row) {
+        if (r_idx == ed->cursor_row) {
             int cur_x = 36;
             const char *lp = line;
             int bi = 0;
-            while (*lp && bi < g_teditor.cursor_col) {
+            while (*lp && bi < ed->cursor_col) {
                 int consumed = 0;
                 TC code = utf8_to_tc(lp, &consumed);
                 int step = (consumed > 0 ? consumed : 1);
@@ -793,12 +803,12 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     }
 
     /* Embedded Virtual Object Icon inside Document */
-    if (g_teditor.has_vobj) {
+    if (ed->has_vobj) {
         RECT embed_vobj = { 36, dev->height - 45, 230, dev->height - 20 };
         fill_rec(dev, &embed_vobj, COLOR_LTGRAY);
         drw_rec(dev, &embed_vobj);
         char vobj_str[64];
-        snprintf(vobj_str, sizeof(vobj_str), "[VOBJ: %s]", g_teditor.vobj_name);
+        snprintf(vobj_str, sizeof(vobj_str), "[VOBJ: %s]", ed->vobj_name);
         drw_tc_string(dev, 42, dev->height - 38, vobj_str, COLOR_NAVY, COLOR_LTGRAY);
     }
 
@@ -811,7 +821,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
                            ((tip_get_mode() == TIP_MODE_KATAKANA) ? "ア" : "A");
     char status_buf[128];
     snprintf(status_buf, sizeof(status_buf), " Line %d, Col %d  |  TRON-Code  |  [CUA INS]",
-             g_teditor.cursor_row + 1, g_teditor.cursor_col + 1);
+             ed->cursor_row + 1, ed->cursor_col + 1);
     drw_tc_string(dev, 8, dev->height - 16, status_buf, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Interactive Status Bar Mozc Mode Badge Button */
@@ -824,12 +834,19 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 }
 
 WND* open_t_editor_window(void) {
+    TEditor *ed = (TEditor*)calloc(1, sizeof(TEditor));
+    if (!ed) return NULL;
+    teditor_init_default(ed);
+
     WND *wnd = opn_wnd("T-Editor - BTRON3_Report.txt", 220, 50, 760, 480,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (wnd) {
-        teditor_init_default(&g_teditor);
+        wnd->user_data = (VW)(uintptr_t)ed;
         wnd->paint = paint_t_editor;
         wnd->event_handler = handle_t_editor_event;
+        wnd->destroy = destroy_t_editor;
+    } else {
+        free(ed);
     }
     return wnd;
 }

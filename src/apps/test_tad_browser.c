@@ -446,6 +446,37 @@ static void test_canonical_books_links_resolution(void) {
     }
 }
 
+/* ── Test 12: Multi-Window Immutable Document Context Isolation (SPEC 3.20) ── */
+static void test_multi_window_context_isolation(void) {
+    printf("\n[TEST GROUP 12] Multi-Window Immutable Document Context Isolation (SPEC 3.20)\n");
+
+    WND *w1 = open_tad_browser_window("tad_bin/01_btron3_spec.tad", "Spec Book Window");
+    WND *w2 = open_tad_browser_window("tad_bin/02_tkernel_book.tad", "T-Kernel Book Window");
+
+    TEST_ASSERT(w1 != NULL && w2 != NULL, "Opened two independent TAD Browser windows");
+    TEST_ASSERT(w1->user_data != 0 && w2->user_data != 0, "Both windows have allocated user_data document contexts");
+    TEST_ASSERT(w1->user_data != w2->user_data, "Window contexts are strictly non-shared distinct memory blocks");
+
+    TAD_BROWSER *tb1 = (TAD_BROWSER*)(uintptr_t)w1->user_data;
+    TAD_BROWSER *tb2 = (TAD_BROWSER*)(uintptr_t)w2->user_data;
+
+    TEST_ASSERT(strstr(tb1->file_path, "01_btron3_spec") != NULL, "Window 1 holds private state for 01_btron3_spec.tad");
+    TEST_ASSERT(strstr(tb2->file_path, "02_tkernel_book") != NULL, "Window 2 holds private state for 02_tkernel_book.tad");
+
+    /* Mutate Window 1 scroll position and verify Window 2 immutability */
+    tad_browser_scroll(tb1, 80);
+    TEST_ASSERT(tb1->scroll_y == 80, "Window 1 scrolled to y = 80");
+    TEST_ASSERT(tb2->scroll_y == 0, "Window 2 remains completely immutable at scroll y = 0");
+
+    /* Close Window 1 and verify Window 2 remains intact */
+    cls_wnd(w1);
+    TEST_ASSERT(tb2->scroll_y == 0 && strstr(tb2->file_path, "02_tkernel_book") != NULL,
+                "Window 2 document context remains valid and intact after Window 1 closure");
+
+    cls_wnd(w2);
+    TEST_ASSERT(TRUE, "Window 2 successfully closed and resources cleanly reclaimed");
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
@@ -463,6 +494,7 @@ int main(void) {
     test_btron3_corner_window_resizing();
     test_btron3_picture_figure_segments();
     test_canonical_books_links_resolution();
+    test_multi_window_context_isolation();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

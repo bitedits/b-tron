@@ -17,6 +17,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libstr.h>
+extern void* Imalloc(size_t sz);
+extern void Ifree(void *ptr);
+extern void* Icalloc(size_t nmemb, size_t sz);
+#define malloc   Imalloc
+#define free     Ifree
+#define calloc   Icalloc
 #define memset   tkl_memset
 #define memcpy   tkl_memcpy
 #define memcmp   tkl_memcmp
@@ -1590,8 +1596,17 @@ void tad_browser_scroll(TAD_BROWSER *tb, int delta_y) {
     if (tb->scroll_y > max_scroll) tb->scroll_y = max_scroll;
 }
 
+static void destroy_browser_wnd(WND *wnd) {
+    if (wnd && wnd->user_data) {
+        TAD_BROWSER *tb = (TAD_BROWSER*)(uintptr_t)wnd->user_data;
+        free(tb);
+        wnd->user_data = 0;
+    }
+}
+
 static void handle_tad_browser_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
+    TAD_BROWSER *tb = (wnd->user_data) ? (TAD_BROWSER*)(uintptr_t)wnd->user_data : &g_active_browser;
 
     H rel_x = evt->pos.x - (wnd->bounds.left + 4);
     H rel_y = evt->pos.y - (wnd->bounds.top + 26);
@@ -1599,58 +1614,65 @@ static void handle_tad_browser_event(WND *wnd, const EVT *evt) {
     if (evt->type == EV_BUT_DOWN) {
         ID clicked_robj = 0;
         char clicked_path[128] = "";
-        if (tad_browser_handle_mouse(&g_active_browser, rel_x, rel_y, TRUE, &clicked_robj, clicked_path)) {
+        if (tad_browser_handle_mouse(tb, rel_x, rel_y, TRUE, &clicked_robj, clicked_path)) {
             if (clicked_path[0] != '\0') {
-                tad_browser_navigate(&g_active_browser, clicked_path);
+                tad_browser_navigate(tb, clicked_path);
             }
         }
         return;
     }
 
     if (evt->type == EV_MOUSE_MOVE) {
-        tad_browser_handle_mouse(&g_active_browser, rel_x, rel_y, FALSE, NULL, NULL);
+        tad_browser_handle_mouse(tb, rel_x, rel_y, FALSE, NULL, NULL);
         return;
     }
 
     if (evt->type == EV_KEY_DOWN) {
         UW key = evt->key;
         if (key == BTRON_KEY_BACKSPACE || key == 'b' || key == 'B') {
-            tad_browser_go_back(&g_active_browser);
+            tad_browser_go_back(tb);
         } else if (key == 'f' || key == 'F') {
-            tad_browser_go_forward(&g_active_browser);
+            tad_browser_go_forward(tb);
         } else if (key == 'h' || key == 'H') {
-            tad_browser_go_home(&g_active_browser);
+            tad_browser_go_home(tb);
         } else if (key == 'r' || key == 'R') {
-            tad_browser_reload(&g_active_browser);
+            tad_browser_reload(tb);
         } else if (key == BTRON_KEY_UP || key == 'k') {
-            tad_browser_scroll(&g_active_browser, -24);
+            tad_browser_scroll(tb, -24);
         } else if (key == BTRON_KEY_DOWN || key == 'j') {
-            tad_browser_scroll(&g_active_browser, 24);
+            tad_browser_scroll(tb, 24);
         } else if (key == BTRON_KEY_PAGE_UP) {
-            tad_browser_scroll(&g_active_browser, -g_active_browser.page_height + 40);
+            tad_browser_scroll(tb, -tb->page_height + 40);
         } else if (key == BTRON_KEY_PAGE_DOWN || key == ' ') {
-            tad_browser_scroll(&g_active_browser, g_active_browser.page_height - 40);
+            tad_browser_scroll(tb, tb->page_height - 40);
         }
     }
 }
 
 static void paint_browser_wnd(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
+    TAD_BROWSER *tb = (wnd->user_data) ? (TAD_BROWSER*)(uintptr_t)wnd->user_data : &g_active_browser;
     RECT cr = { 0, 0, dev->width, dev->height };
-    tad_browser_paint(&g_active_browser, dev, &cr);
+    tad_browser_paint(tb, dev, &cr);
 }
 
 WND* open_tad_browser_window(const char *filepath, const char *title) {
-    tad_browser_init(&g_active_browser);
+    TAD_BROWSER *tb = (TAD_BROWSER*)calloc(1, sizeof(TAD_BROWSER));
+    if (!tb) return NULL;
+    tad_browser_init(tb);
     if (filepath) {
-        tad_browser_navigate(&g_active_browser, filepath);
+        tad_browser_navigate(tb, filepath);
     }
     const char *w_title = title ? title : (filepath ? filepath : "BTRON TAD Browser (TAD文書ブラウザ)");
     WND *wnd = opn_wnd(w_title, 60, 40, 720, 500,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE | WND_ATTR_BORDER);
     if (wnd) {
+        wnd->user_data = (VW)(uintptr_t)tb;
         wnd->paint = paint_browser_wnd;
         wnd->event_handler = handle_tad_browser_event;
+        wnd->destroy = destroy_browser_wnd;
+    } else {
+        free(tb);
     }
     return wnd;
 }

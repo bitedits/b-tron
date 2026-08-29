@@ -34,6 +34,7 @@ typedef struct WND {
     GDEV  *dev;        /* starts at offset 112 (8-byte aligned!) */
     void (*paint)(struct WND *wnd, GDEV *dev);
     void (*event_handler)(struct WND *wnd, const EVT *evt);
+    void (*destroy)(struct WND *wnd);
     VW    user_data;
     struct WND *next;
     struct WND *prev;
