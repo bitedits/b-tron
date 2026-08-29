@@ -417,7 +417,7 @@ $(TEST_HMI_BIN): $(TEST_HMI_OBJS)
 # TAD Dharma Packing Pipeline & Elixir Batch Compiler
 # ═══════════════════════════════════════════════════════════════════
 dharma:
-	@python3 scripts/pack_dharma_tad.py
+	@elixir scripts/html2tad.exs --dharma
 
 html2tad:
 	@elixir scripts/html2tad.exs --test
@@ -431,7 +431,8 @@ TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
 TEST_TAD_BIN  = test_tad_browser
 
-test-tad: $(TEST_TAD_BIN)
+test-tad: $(TEST_TAD_BIN) dharma
+	@if [ ! -f tad_bin/shared_data/data_type.tad ]; then elixir scripts/html2tad.exs >/dev/null 2>&1; fi
 	@echo "=========================================================="
 	@echo " Running B-TRON Native TAD Browser & Cabinet Tests..."
 	@echo "=========================================================="

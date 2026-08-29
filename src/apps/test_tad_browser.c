@@ -203,22 +203,22 @@ static void test_cabinet_explorer_selection(void) {
     TEST_ASSERT(wnd != NULL, "Opened Cabinet Explorer window");
     TEST_ASSERT(wnd->event_handler != NULL, "Cabinet Explorer has active event_handler attached");
 
-    /* Test item selection click at row 0 (y = 62 + 0*22 + 5 = 67) */
+    /* Test item selection click at row 0 (y = 60 + 0*22 + 5 = 65) */
     ID robj = 0;
     char path[128] = "";
-    BOOL handled = cabinet_handle_click(50, 67, FALSE, &robj, path);
+    BOOL handled = cabinet_handle_click(50, 65, FALSE, &robj, path);
     TEST_ASSERT(handled == FALSE, "Single click updates selection without modal block");
     TEST_ASSERT(robj == 101, "Selected Real Object #101 (01_btron3_spec.tad)");
     TEST_ASSERT(strcmp(path, "dharma/01_btron3_spec.tad") == 0, "Resolved path for #101");
 
-    /* Test item selection click at row 2 (y = 62 + 2*22 + 5 = 111) */
-    handled = cabinet_handle_click(50, 111, FALSE, &robj, path);
-    TEST_ASSERT(robj == 103, "Selected Real Object #103 (03_tron_hmi_book.tad)");
-    TEST_ASSERT(strcmp(path, "dharma/03_tron_hmi_book.tad") == 0, "Resolved path for #103");
+    /* Test Ukrainian TAD selection at row 4 (y = 60 + 4*22 + 5 = 153) */
+    handled = cabinet_handle_click(50, 153, FALSE, &robj, path);
+    TEST_ASSERT(robj == 111, "Selected Ukrainian Real Object #111 (01_data_type.tad)");
+    TEST_ASSERT(strcmp(path, "tad_bin/shared_data/data_type.tad") == 0, "Resolved path for Ukrainian TAD #111");
 
-    /* Test double-click activation */
-    handled = cabinet_handle_click(50, 111, TRUE, &robj, path);
-    TEST_ASSERT(handled == TRUE, "Double click triggers Real Object launch");
+    /* Test double-click activation on Ukrainian TAD */
+    handled = cabinet_handle_click(50, 153, TRUE, &robj, path);
+    TEST_ASSERT(handled == TRUE, "Double click triggers Ukrainian TAD Real Object launch");
 }
 
 int main(void) {

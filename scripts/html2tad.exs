@@ -532,14 +532,13 @@ if "--test" in args do
   BtronTAD.Compiler.run_tests()
 end
 
-if "--dharma" in args do
-  BtronTAD.Compiler.compile_dharma_books("dharma")
-end
+# Always compile dharma books
+BtronTAD.Compiler.compile_dharma_books("dharma")
 
 doc_dir = "doc"
 out_dir = "tad_bin"
 
-if File.dir?(doc_dir) and not ("--dharma" in args) do
+if File.dir?(doc_dir) do
   html_files = Path.wildcard(Path.join(doc_dir, "**/*.html"))
   File.mkdir_p!(out_dir)
 
