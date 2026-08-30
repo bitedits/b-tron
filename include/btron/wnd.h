@@ -15,11 +15,13 @@
 extern "C" {
 #endif
 
-#define WND_ATTR_TITLE    (1 << 0)
-#define WND_ATTR_CLOSE    (1 << 1)
-#define WND_ATTR_MAX      (1 << 2)
-#define WND_ATTR_RESIZE   (1 << 3)
-#define WND_ATTR_BORDER   (1 << 4)
+#define WND_ATTR_TITLE       (1 << 0)
+#define WND_ATTR_CLOSE       (1 << 1)
+#define WND_ATTR_MAX         (1 << 2)
+#define WND_ATTR_RESIZE      (1 << 3)
+#define WND_ATTR_BORDER      (1 << 4)
+#define WND_ATTR_COMPACT_TAB (1 << 5)
+#define WND_ATTR_SLIDING_TAB (1 << 6)
 
 typedef struct WND {
     ID    id;
@@ -30,7 +32,8 @@ typedef struct WND {
     UW    attr;
     BOOL  visible;
     BOOL  focused;
-    UW    pad1;        /* 4 bytes alignment padding for 8-byte pointer boundary! */
+    H     tab_offset_x;/* Horizontal offset of compact sliding tab from window left */
+    H     tab_width;   /* Dynamic compact tab width */
     GDEV  *dev;        /* starts at offset 112 (8-byte aligned!) */
     void (*paint)(struct WND *wnd, GDEV *dev);
     void (*event_handler)(struct WND *wnd, const EVT *evt);
@@ -48,6 +51,11 @@ ER   mov_wnd(WND *wnd, H x, H y);
 ER   rsz_wnd(WND *wnd, H w, H h);
 ER   wrsz_wnd(WND *wnd, const RECT *r);
 ER   inval_wnd(WND *wnd);
+
+ER   wset_tab_offset(WND *wnd, H offset_x);
+ER   wget_tab_rect(const WND *wnd, RECT *tab_rect);
+BOOL whit_test_tab(const WND *wnd, H x, H y);
+BOOL whit_test_close_btn(const WND *wnd, H x, H y);
 
 void redraw_all_windows(void);
 WND* find_wnd_at(H x, H y);

@@ -32,6 +32,86 @@ ER init_wnd_mgr(GDEV *screen_dev) {
     return E_OK;
 }
 
+static H calculate_title_display_width(const char *s) {
+    if (!s) return 0;
+    H w = 0;
+    int i = 0;
+    while (s[i] != '\0') {
+        unsigned char c = (unsigned char)s[i];
+        if (c < 0x80) {
+            w += 8;
+            i += 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            w += 8;
+            i += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            w += 16;
+            i += 3;
+        } else {
+            w += 8;
+            i += 1;
+        }
+    }
+    return w;
+}
+
+ER wget_tab_rect(const WND *wnd, RECT *tab_rect) {
+    if (!wnd || !tab_rect) return E_PAR;
+    if (!(wnd->attr & WND_ATTR_TITLE)) {
+        tab_rect->left = tab_rect->right = tab_rect->top = tab_rect->bottom = 0;
+        return E_OK;
+    }
+    H w = wnd->bounds.right - wnd->bounds.left;
+    H tw = wnd->tab_width;
+    if (tw <= 0 || tw > w - 6 || !(wnd->attr & WND_ATTR_COMPACT_TAB)) {
+        tw = w - 6;
+    }
+    H off_x = wnd->tab_offset_x;
+    if (off_x < 0) off_x = 0;
+    if (off_x + tw > w - 6) {
+        off_x = w - 6 - tw;
+        if (off_x < 0) off_x = 0;
+    }
+
+    tab_rect->left = wnd->bounds.left + 3 + off_x;
+    tab_rect->top = wnd->bounds.top + 3;
+    tab_rect->right = tab_rect->left + tw;
+    tab_rect->bottom = wnd->bounds.top + 22;
+    return E_OK;
+}
+
+BOOL whit_test_tab(const WND *wnd, H x, H y) {
+    if (!wnd || !(wnd->attr & WND_ATTR_TITLE)) return FALSE;
+    RECT tr;
+    if (wget_tab_rect(wnd, &tr) != E_OK) return FALSE;
+    return (x >= tr.left && x < tr.right && y >= tr.top && y < tr.bottom);
+}
+
+BOOL whit_test_close_btn(const WND *wnd, H x, H y) {
+    if (!wnd || !(wnd->attr & WND_ATTR_TITLE) || !(wnd->attr & WND_ATTR_CLOSE)) return FALSE;
+    RECT tr;
+    if (wget_tab_rect(wnd, &tr) != E_OK) return FALSE;
+    H btn_right = tr.right - 4;
+    H btn_left = btn_right - 14;
+    H btn_top = tr.top + 2;
+    H btn_bottom = tr.bottom - 2;
+    return (x >= btn_left && x < btn_right && y >= btn_top && y < btn_bottom);
+}
+
+ER wset_tab_offset(WND *wnd, H offset_x) {
+    if (!wnd) return E_PAR;
+    H w = wnd->bounds.right - wnd->bounds.left;
+    H tw = wnd->tab_width;
+    if (tw <= 0 || tw > w - 6 || !(wnd->attr & WND_ATTR_COMPACT_TAB)) {
+        tw = w - 6;
+    }
+    H max_off = (w - 6 > tw) ? (w - 6 - tw) : 0;
+    if (offset_x < 0) offset_x = 0;
+    if (offset_x > max_off) offset_x = max_off;
+    wnd->tab_offset_x = offset_x;
+    return E_OK;
+}
+
 WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     WND *wnd = (WND*)calloc(1, sizeof(WND));
     if (!wnd) return NULL;
@@ -59,11 +139,20 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     wnd->client.right = x + w - 4;
     wnd->client.bottom = y + h - 4;
 
-    /* BTRON3 3.20 Conformance: All windows support corner resize by default */
-    attr |= WND_ATTR_RESIZE;
+    /* BTRON3 3.20 Conformance: All windows support corner resize and compact sliding tabs by default */
+    attr |= WND_ATTR_RESIZE | WND_ATTR_COMPACT_TAB | WND_ATTR_SLIDING_TAB;
     wnd->attr = attr;
     wnd->visible = TRUE;
     wnd->focused = TRUE;
+    wnd->tab_offset_x = 0;
+
+    /* Calculate dynamic compact tab width based on title content */
+    H text_w = calculate_title_display_width(wnd->title);
+    H tw = text_w + 44; /* text + left margin/grip + close box + padding */
+    if (tw < 100) tw = 100;
+    H max_tw = (w > 12) ? (w - 6) : w;
+    if (tw > max_tw) tw = max_tw;
+    wnd->tab_width = tw;
 
     wnd->dev = opn_dev(w - 8, h - title_h - 8);
 
@@ -149,6 +238,13 @@ ER rsz_wnd(WND *wnd, H w, H h) {
     wnd->client.right = wnd->bounds.left + w - 4;
     wnd->client.bottom = wnd->bounds.top + h - 4;
 
+    /* Re-clamp tab width and sliding offset */
+    H max_tw = (w > 12) ? (w - 6) : w;
+    if (wnd->tab_width > max_tw) {
+        wnd->tab_width = max_tw;
+    }
+    wset_tab_offset(wnd, wnd->tab_offset_x);
+
     H new_dev_w = w - 8;
     H new_dev_h = h - title_h - 8;
     if (new_dev_w < 10) new_dev_w = 10;
@@ -200,23 +296,46 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
     drw_rec(dev, &inner_b);
 
     if (wnd->attr & WND_ATTR_TITLE) {
-        RECT title_r;
-        title_r.left = outer.left + 3;
-        title_r.top = outer.top + 3;
-        title_r.right = outer.right - 3;
-        title_r.bottom = outer.top + 22;
+        /* Draw top rail groove line underneath title tab area */
+        drw_lin(dev, outer.left + 2, outer.top + 22, outer.right - 2, outer.top + 22);
+
+        RECT tab_r;
+        wget_tab_rect(wnd, &tab_r);
 
         COLOR title_col = wnd->focused ? COLOR_NAVY : COLOR_GRAY;
-        fill_rec(dev, &title_r, title_col);
+        fill_rec(dev, &tab_r, title_col);
+        drw_rec(dev, &tab_r);
 
-        drw_tc_string(dev, title_r.left + 6, title_r.top + 3, wnd->title, COLOR_WHITE, 0x00000000);
+        /* 3D Bevel highlights on the compact tab */
+        drw_lin(dev, tab_r.left + 1, tab_r.top + 1, tab_r.right - 2, tab_r.top + 1);
+        drw_lin(dev, tab_r.left + 1, tab_r.top + 1, tab_r.left + 1, tab_r.bottom - 2);
+
+        /* Slide grip indicator on the left side of the tab if sliding is possible */
+        H text_start_x = tab_r.left + 6;
+        if ((wnd->attr & WND_ATTR_SLIDING_TAB) && (wnd->tab_width < (outer.right - outer.left - 16))) {
+            RECT d1 = { tab_r.left + 4, tab_r.top + 7,  tab_r.left + 5, tab_r.top + 8 };
+            RECT d2 = { tab_r.left + 4, tab_r.top + 11, tab_r.left + 5, tab_r.top + 12 };
+            RECT d3 = { tab_r.left + 4, tab_r.top + 15, tab_r.left + 5, tab_r.top + 16 };
+            RECT d4 = { tab_r.left + 6, tab_r.top + 7,  tab_r.left + 7, tab_r.top + 8 };
+            RECT d5 = { tab_r.left + 6, tab_r.top + 11, tab_r.left + 7, tab_r.top + 12 };
+            RECT d6 = { tab_r.left + 6, tab_r.top + 15, tab_r.left + 7, tab_r.top + 16 };
+            fill_rec(dev, &d1, COLOR_LTGRAY);
+            fill_rec(dev, &d2, COLOR_LTGRAY);
+            fill_rec(dev, &d3, COLOR_LTGRAY);
+            fill_rec(dev, &d4, COLOR_WHITE);
+            fill_rec(dev, &d5, COLOR_WHITE);
+            fill_rec(dev, &d6, COLOR_WHITE);
+            text_start_x = tab_r.left + 12;
+        }
+
+        drw_tc_string(dev, text_start_x, tab_r.top + 3, wnd->title, COLOR_WHITE, 0x00000000);
 
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
-            close_btn.left = outer.right - 20;
-            close_btn.top = outer.top + 5;
-            close_btn.right = outer.right - 6;
-            close_btn.bottom = outer.top + 19;
+            close_btn.left = tab_r.right - 18;
+            close_btn.top = tab_r.top + 3;
+            close_btn.right = tab_r.right - 4;
+            close_btn.bottom = tab_r.top + 17;
 
             fill_rec(dev, &close_btn, COLOR_LTGRAY);
             drw_rec(dev, &close_btn);

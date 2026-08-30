@@ -477,6 +477,64 @@ static void test_multi_window_context_isolation(void) {
     TEST_ASSERT(TRUE, "Window 2 successfully closed and resources cleanly reclaimed");
 }
 
+/* ── Test 13: BTRON3 Spec 3.20 BeOS-Style Compact Sliding Window Tabs ── */
+static void test_btron3_compact_sliding_tabs(void) {
+    printf("\n[TEST GROUP 13] BTRON3 Spec 3.20 BeOS-Style Compact Sliding Window Tabs\n");
+
+    WND *w = opn_wnd("T-Editor", 100, 100, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE);
+    TEST_ASSERT(w != NULL, "Opened window with compact sliding tabs");
+    TEST_ASSERT((w->attr & WND_ATTR_COMPACT_TAB) != 0, "WND_ATTR_COMPACT_TAB is active");
+    TEST_ASSERT((w->attr & WND_ATTR_SLIDING_TAB) != 0, "WND_ATTR_SLIDING_TAB is active");
+    TEST_ASSERT(w->tab_offset_x == 0, "Initial tab offset is 0");
+    TEST_ASSERT(w->tab_width >= 100 && w->tab_width < 500 - 6, "Tab width is compact and smaller than full window width");
+
+    /* Test tab rect calculation */
+    RECT tr;
+    ER er = wget_tab_rect(w, &tr);
+    TEST_ASSERT(er == E_OK, "wget_tab_rect succeeded");
+    TEST_ASSERT(tr.left == 103, "Tab left starts at bounds.left + 3");
+    TEST_ASSERT(tr.right == 103 + w->tab_width, "Tab right matches left + tab_width");
+    TEST_ASSERT(tr.top == 103 && tr.bottom == 122, "Tab height is 19px (top+3 to top+22)");
+
+    /* Test hit testing */
+    TEST_ASSERT(whit_test_tab(w, 120, 110) == TRUE, "Hit test succeeds inside compact tab");
+    TEST_ASSERT(whit_test_tab(w, 400, 110) == FALSE, "Hit test fails on top rail outside compact tab");
+    TEST_ASSERT(whit_test_tab(w, 120, 200) == FALSE, "Hit test fails inside client area");
+
+    /* Test close button hit testing inside tab */
+    TEST_ASSERT(whit_test_close_btn(w, tr.right - 10, 110) == TRUE, "Close button hit test succeeds inside tab close box");
+    TEST_ASSERT(whit_test_close_btn(w, tr.left + 10, 110) == FALSE, "Close button hit test fails on title area");
+
+    /* Test sliding tab offset */
+    er = wset_tab_offset(w, 80);
+    TEST_ASSERT(er == E_OK, "wset_tab_offset(80) succeeded");
+    TEST_ASSERT(w->tab_offset_x == 80, "Tab offset updated to 80px");
+    wget_tab_rect(w, &tr);
+    TEST_ASSERT(tr.left == 103 + 80, "Tab shifted horizontally by 80px");
+    TEST_ASSERT(whit_test_tab(w, 103 + 85, 110) == TRUE, "Hit test succeeds at new shifted position");
+    TEST_ASSERT(whit_test_tab(w, 105, 110) == FALSE, "Old position is no longer part of tab");
+
+    /* Test sliding boundary clamping */
+    wset_tab_offset(w, 9999);
+    H max_expected_off = 500 - 6 - w->tab_width;
+    TEST_ASSERT(w->tab_offset_x == max_expected_off, "Tab offset clamped to maximum right edge without overflow");
+
+    wset_tab_offset(w, -50);
+    TEST_ASSERT(w->tab_offset_x == 0, "Tab offset clamped to 0 on negative input");
+
+    /* Test window resizing reclamping */
+    wset_tab_offset(w, 100);
+    rsz_wnd(w, 200, 200);
+    TEST_ASSERT(w->tab_offset_x <= 200 - 6 - w->tab_width, "Tab offset automatically reclamped after window shrink");
+
+    /* Test Japanese title dynamic tab width */
+    WND *w_jp = opn_wnd("【仕様書】BTRON3 3.20", 200, 200, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    TEST_ASSERT(w_jp->tab_width > w->tab_width, "Japanese multi-byte title gets appropriately wider compact tab");
+
+    cls_wnd(w);
+    cls_wnd(w_jp);
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
@@ -495,6 +553,7 @@ int main(void) {
     test_btron3_picture_figure_segments();
     test_canonical_books_links_resolution();
     test_multi_window_context_isolation();
+    test_btron3_compact_sliding_tabs();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

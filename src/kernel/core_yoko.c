@@ -125,6 +125,11 @@ static WND *g_drag_wnd = NULL;
 static H g_drag_off_x = 0;
 static H g_drag_off_y = 0;
 
+static BOOL g_sliding_tab = FALSE;
+static WND *g_slide_wnd = NULL;
+static H g_slide_start_x = 0;
+static H g_slide_orig_off = 0;
+
 #define BTRON_SCREEN_W  1024
 #define BTRON_SCREEN_H  768
 
@@ -161,11 +166,26 @@ static void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down)
                     top_wnd(clicked);
                 }
 
-                /* Titlebar Drag / Close Check */
+                /* Titlebar & Compact Tab Drag / Close Check */
                 if (my >= clicked->bounds.top && my < clicked->bounds.top + 22) {
-                    if (mx >= clicked->bounds.right - 20 && mx < clicked->bounds.right - 6) {
+                    if (whit_test_close_btn(clicked, mx, my)) {
                         cls_wnd(clicked);
                         tip_cancel();
+                    } else if (whit_test_tab(clicked, mx, my)) {
+                        RECT tab_r;
+                        wget_tab_rect(clicked, &tab_r);
+                        /* Grip zone or right-click sliding */
+                        if (mx >= tab_r.left && mx < tab_r.left + 12 && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
+                            g_sliding_tab = TRUE;
+                            g_slide_wnd = clicked;
+                            g_slide_start_x = mx;
+                            g_slide_orig_off = clicked->tab_offset_x;
+                        } else {
+                            g_dragging = TRUE;
+                            g_drag_wnd = clicked;
+                            g_drag_off_x = mx - clicked->bounds.left;
+                            g_drag_off_y = my - clicked->bounds.top;
+                        }
                     } else {
                         g_dragging = TRUE;
                         g_drag_wnd = clicked;
@@ -191,6 +211,8 @@ static void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down)
         /* Mouse Button Release */
         g_dragging = FALSE;
         g_drag_wnd = NULL;
+        g_sliding_tab = FALSE;
+        g_slide_wnd = NULL;
         WND *top = get_top_wnd();
         if (top && top->focused && top->event_handler) {
             EVT ev;
@@ -210,7 +232,10 @@ static void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down)
 static void handle_baremetal_mouse_move(GDEV *screen, H mx, H my) {
     set_baremetal_mouse_pos(mx, my);
 
-    if (g_dragging && g_drag_wnd) {
+    if (g_sliding_tab && g_slide_wnd) {
+        H new_off = g_slide_orig_off + (mx - g_slide_start_x);
+        wset_tab_offset(g_slide_wnd, new_off);
+    } else if (g_dragging && g_drag_wnd) {
         mov_wnd(g_drag_wnd, mx - g_drag_off_x, my - g_drag_off_y);
     } else {
         WND *top = get_top_wnd();

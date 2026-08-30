@@ -89,6 +89,10 @@ int main(int argc, char **argv) {
     WND *drag_wnd = NULL;
     H drag_off_x = 0, drag_off_y = 0;
 
+    BOOL sliding_tab = FALSE;
+    WND *slide_wnd = NULL;
+    H slide_start_x = 0, slide_orig_off = 0;
+
     BOOL resizing = FALSE;
     WND *resize_wnd = NULL;
     H resize_orig_w = 0, resize_orig_h = 0;
@@ -127,13 +131,34 @@ int main(int argc, char **argv) {
                         resize_start_x = ev.pos.x;
                         resize_start_y = ev.pos.y;
                     }
-                    /* 2. Titlebar area drag check */
+                    /* 2. Titlebar & Compact Sliding Tab Area Check */
                     else if (ev.pos.y >= clicked->bounds.top && ev.pos.y < clicked->bounds.top + 22) {
-                        /* Close button click check */
-                        if (ev.pos.x >= clicked->bounds.right - 20 && ev.pos.x < clicked->bounds.right - 6) {
+                        /* Close button check */
+                        if (whit_test_close_btn(clicked, ev.pos.x, ev.pos.y)) {
                             cls_wnd(clicked);
                             tip_cancel();
+                        }
+                        /* Compact Tab Check */
+                        else if (whit_test_tab(clicked, ev.pos.x, ev.pos.y)) {
+                            RECT tab_r;
+                            wget_tab_rect(clicked, &tab_r);
+                            SDL_Keymod mod = SDL_GetModState();
+                            BOOL is_slide_gesture = (mod & KMOD_SHIFT) || (ev.button == 3) ||
+                                                    (ev.pos.x >= tab_r.left && ev.pos.x < tab_r.left + 12);
+
+                            if (is_slide_gesture && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
+                                sliding_tab = TRUE;
+                                slide_wnd = clicked;
+                                slide_start_x = ev.pos.x;
+                                slide_orig_off = clicked->tab_offset_x;
+                            } else {
+                                dragging = TRUE;
+                                drag_wnd = clicked;
+                                drag_off_x = ev.pos.x - clicked->bounds.left;
+                                drag_off_y = ev.pos.y - clicked->bounds.top;
+                            }
                         } else {
+                            /* Clicked on window top rail outside tab -> drag whole window */
                             dragging = TRUE;
                             drag_wnd = clicked;
                             drag_off_x = ev.pos.x - clicked->bounds.left;
@@ -161,6 +186,8 @@ int main(int argc, char **argv) {
             } else if (ev.type == EV_BUT_UP) {
                 dragging = FALSE;
                 drag_wnd = NULL;
+                sliding_tab = FALSE;
+                slide_wnd = NULL;
                 resizing = FALSE;
                 resize_wnd = NULL;
                 WND *top = get_top_wnd();
@@ -168,7 +195,10 @@ int main(int argc, char **argv) {
                     top->event_handler(top, &ev);
                 }
             } else if (ev.type == EV_MOUSE_MOVE) {
-                if (resizing && resize_wnd) {
+                if (sliding_tab && slide_wnd) {
+                    H new_off = slide_orig_off + (ev.pos.x - slide_start_x);
+                    wset_tab_offset(slide_wnd, new_off);
+                } else if (resizing && resize_wnd) {
                     H new_w = resize_orig_w + (ev.pos.x - resize_start_x);
                     H new_h = resize_orig_h + (ev.pos.y - resize_start_y);
                     rsz_wnd(resize_wnd, new_w, new_h);
