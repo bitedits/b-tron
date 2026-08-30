@@ -2,11 +2,16 @@
 
 ## 1. Executive Summary
 
-This document specifies the format, architecture, and implementation requirements for porting the classic **BeOS Chat (Blabber)** application (`./BeOS-Chat/`) to the **B-TRON 3.20 (B-System)** operating system.
+This document specifies the format, architecture, and implementation requirements
+for porting the classic **BeOS Chat (Blabber)** application (`./BeOS-Chat/`) to
+the **B-TRON 3.20 (B-System)** operating system.
 
-The implementation is structured into clean C99 modules (`src/apps/chat.c` and `src/apps/chat_xml.c`), integrating seamlessly with the B-TRON Window Manager, Display Primitives (`dp.h`), TRON HMI, and **TRON IPC (Pub/Sub Message Bus)**. It provides the **full set of windows and UI flows** of the original application, using an in-memory TRON IPC protocol engine to mock XMPP/Jabber without requiring external network daemons.
-
----
+The implementation is structured into clean C99 modules (`src/apps/chat.c` and
+`src/apps/chat_xml.c`), integrating seamlessly with the B-TRON Window Manager,
+Display Primitives (`dp.h`), TRON HMI, and **TRON IPC (Pub/Sub Message Bus)**.
+It provides the **full set of windows and UI flows** of the original application,
+using an in-memory TRON IPC protocol engine to mock XMPP/Jabber without requiring
+external network daemons.
 
 ## 2. Window Architecture & UI Specification
 
@@ -52,12 +57,12 @@ The application implements the complete window set of original BeOS Chat:
 | **Add / Edit Buddy Dialog** (`BuddyWindow`) | Child Dialog | 320x220 | Form controls to input Jabber ID (`user@domain`), Nickname handle, and Group category. |
 | **Preferences / Login Dialog** (`PreferencesWindow`) | Child Dialog | 360x260 | Custom Handle selection, Virtual Server host (`btron.org`), auto-connect settings, and MUC room bookmarks. |
 
----
-
 ## 3. Mock XMPP over TRON IPC (Pub/Sub Bus)
 
 ### 3.1 Component-Based Word-Nick Generator
-Every newly spawned Chat window automatically receives a memorable, cyberpunk-flavored component-based handle if not explicitly set:
+
+Every newly spawned Chat window automatically receives a memorable,
+cyberpunk-flavored component-based handle if not explicitly set:
 
 $$\text{Nick} = \text{Prefix/Adjective} + \text{"-"} + \text{Noun/Role}$$
 
@@ -118,8 +123,6 @@ All TRON IPC messages carry standardized XMPP XML stanzas parsed and generated b
 </iq>
 ```
 
----
-
 ## 5. File & Component Breakdown
 
 1. **`include/btron/chat.h`**:
@@ -135,8 +138,6 @@ All TRON IPC messages carry standardized XMPP XML stanzas parsed and generated b
    - TRON IPC Pub/Sub broker integration and mock message pump.
 4. **`src/apps/test_tad_browser.c` / `src/apps/test_chat.c`**:
    - Automated unit test suite verifying client registration, random nick generation, XML stanza round-trip parsing, MUC broadcast, and private routing.
-
----
 
 ## 6. NASA JPL Safety & Quality Rules Compliance
 
