@@ -273,12 +273,13 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         uart_puts("  mem                 - Memory pool allocation statistics\n");
         uart_puts("  clear               - Clear console screen\n");
     } else if (tkl_strcmp(p, "ver") == 0 || tkl_strcmp(p, "uname") == 0) {
-        uart_puts("\nBTRON 3.0 Workstation OS (Cleanroom Engine)\n");
-        uart_puts("Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7)\n");
-        uart_puts("Hardware: Raspberry Pi 2B (BCM2836 / Cortex-A7)\n");
-        uart_puts("Display: 1024x768 32-bpp Hardware Framebuffer Active\n");
+        uart_puts("\nBTRON 3.0 Workstation System (BTRON3 Specification 3.20)\n");
+        uart_puts("Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)\n");
+        uart_puts("Hardware Target: Raspberry Pi 2B/3B Bare-Metal (Cortex-A7 / VideoCore IV)\n");
+        uart_puts("Build Timestamp: " __DATE__ " " __TIME__ "\n");
+        uart_puts("Display Compositor: 1024x768 32-bpp DP 2D Vector Framebuffer Active\n");
         uart_puts("Pointing Device: Classic B-TRON Cursor & Window Dragging Active\n");
-        uart_puts("IME: Google Mozc / TIP Kana-Kanji Conversion Engine Active\n");
+        uart_puts("Japanese IME: Google Mozc / TIP Kana-Kanji Conversion Engine Active\n");
     } else if (tkl_strcmp(p, "devconf") == 0) {
         uart_puts("\nRegistered Device Drivers:\n");
         uart_puts("  [0] ScreenDrv : VideoCore IV GPU 1024x768 32-bpp (Active, OK)\n");
