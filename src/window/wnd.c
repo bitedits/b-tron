@@ -316,26 +316,27 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
         drw_rec(dev, &inner_tab);
 
         /* Minimalist BeOS/CWM double-bar vertical grip on left */
-        H text_start_x = tab_r.left + 10;
+        H text_start_x = tab_r.left + 13;
         if ((wnd->attr & WND_ATTR_SLIDING_TAB) && (wnd->tab_width < (wnd->bounds.right - wnd->bounds.left - 16))) {
             drw_lin(dev, tab_r.left + 6, tab_r.top + 5, tab_r.left + 6, tab_r.top + 17);
             drw_lin(dev, tab_r.left + 9, tab_r.top + 5, tab_r.left + 9, tab_r.top + 17);
-            text_start_x = tab_r.left + 16;
+            text_start_x = tab_r.left + 19;
         }
 
-        /* Bold & crisp title string - perfectly centered with equal 3px top/bottom margins in 22px tab (1px to inner border) */
+        /* Bold & crisp title string - with 3px increased left/right margin */
         drw_tc_string(dev, text_start_x, tab_r.top + 3, wnd->title, title_col, 0x00000000);
 
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
-            close_btn.left = tab_r.right - 19;
+            close_btn.left = tab_r.right - 18;
             close_btn.top = tab_r.top + 4;
-            close_btn.right = tab_r.right - 5;
+            close_btn.right = tab_r.right - 4;
             close_btn.bottom = tab_r.top + 18;
 
             fill_rec(dev, &close_btn, wnd->focused ? COLOR_LTGRAY : COLOR_GRAY);
             drw_rec(dev, &close_btn);
-            drw_tc_string(dev, close_btn.left + 3, tab_r.top + 3, "x", COLOR_BLACK, 0x00000000);
+            /* Move cross inside close button 2 pixels down (tab_r.top + 5) */
+            drw_tc_string(dev, close_btn.left + 3, tab_r.top + 5, "x", COLOR_BLACK, 0x00000000);
         }
     }
 
