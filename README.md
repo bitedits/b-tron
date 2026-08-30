@@ -36,9 +36,9 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 * [x] Own MOZC !!!
 * [x] UTF-8 / TRON Code
 * [x] Four Books Included in TAD format (BTRON3 3.20 Spec, T-Kernel, B-Free, B-System)
+* [x] XMPP Chat (Namdak Tonpa 2010, 30KB)
 * [ ] C99 Compiler (Fabrice Bellard?)
 * [ ] IDE (Legacy IDE)
-* [ ] XMPP Chat (Namdak Tonpa 2010, 300KB)
 * [ ] HTML 4.1 Browser (NetSurf based)
 * [ ] LibreSSL 3.1.5
 * [ ] Erlang (Joe Armstrong)
