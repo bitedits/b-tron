@@ -96,7 +96,7 @@ void render_system_panel(GDEV *dev) {
     RECT sys_btn = { 4, 3, 76, 22 };
     fill_rec(dev, &sys_btn, COLOR_GRAY);
     drw_rec(dev, &sys_btn);
-    drw_tc_string(dev, 8, 5, "［B-TRON］", COLOR_WHITE, 0x00000000);
+    drw_tc_string(dev, 8, 5, "［B-System］", COLOR_WHITE, 0x00000000);
 
     /* Top Menus in Japanese */
     drw_tc_string(dev, 85, 5, "ファイル(F)", COLOR_BLACK, 0x00000000);

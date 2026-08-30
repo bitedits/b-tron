@@ -235,7 +235,7 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
     if (!*p) return;
 
     if (tkl_strcmp(p, "help") == 0 || tkl_strcmp(p, "?") == 0) {
-        uart_puts("\nB-TRON Interactive Console Commands:\n");
+        uart_puts("\nB-System Interactive Console Commands:\n");
         uart_puts("  help, ?             - Show this command reference\n");
         uart_puts("  ver, uname          - Print system version and CPU architecture\n");
         uart_puts("  devconf             - List registered hardware screen/serial device drivers\n");
@@ -248,13 +248,13 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         uart_puts("  mem                 - Memory pool allocation statistics\n");
         uart_puts("  clear               - Clear console screen\n");
     } else if (tkl_strcmp(p, "ver") == 0 || tkl_strcmp(p, "uname") == 0) {
-        uart_puts("\nBTRON 3.0 Workstation System (BTRON3 Specification 3.20)\n");
+        uart_puts("\nB-System 3.0 Workstation System (BTRON3 Specification 3.20)\n");
         uart_puts("Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)\n");
         uart_puts("Hardware Target: Raspberry Pi 2B/3B Bare-Metal (Cortex-A7 / VideoCore IV)\n");
         uart_puts("Build Timestamp: " __DATE__ " " __TIME__ "\n");
         uart_puts("Display Compositor: 1024x768 32-bpp DP 2D Vector Framebuffer Active\n");
-        uart_puts("Pointing Device: Classic B-TRON Cursor & Window Dragging Active\n");
-        uart_puts("Japanese IME: Google Mozc / TIP Kana-Kanji Conversion Engine Active\n");
+        uart_puts("Pointing Device: Classic B-System Cursor & Window Dragging Active\n");
+        uart_puts("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Engine Active\n");
     } else if (tkl_strcmp(p, "devconf") == 0) {
         uart_puts("\nRegistered Device Drivers:\n");
         uart_puts("  [0] ScreenDrv : VideoCore IV GPU 1024x768 32-bpp (Active, OK)\n");
@@ -266,7 +266,7 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         uart_puts("\nSakamura T-Kernel 2.0 Task & Process Table:\n");
         uart_puts("  PID  TASK           STATE     STACK / ADDR    BOUNDS    TITLE\n");
         uart_puts("  -------------------------------------------------------------------------\n");
-        uart_puts("  01   tk_desktop     RUNNING   0x01020000      1024x768  [B-TRON Desktop]\n");
+        uart_puts("  01   tk_desktop     RUNNING   0x01020000      1024x768  [B-System Desktop]\n");
         uart_puts("  02   tk_wnd_mgr     READY     0x01040000      1024x768  [Window Compositor]\n");
         uart_puts("  03   tk_tip_ime     READY     0x010A0000      Candidate [Mozc Japanese IME]\n");
 
@@ -310,7 +310,7 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
             uart_puts(line);
         }
     } else if (tkl_strcmp(p, "vobj") == 0 || tkl_strcmp(p, "ls") == 0 || tkl_strcmp(p, "dir") == 0) {
-        uart_puts("\nB-TRON Real Object / Virtual Object Cabinet:\n");
+        uart_puts("\nB-System Real Object / Virtual Object Cabinet:\n");
         uart_puts("  [実身] #101 : BTRON3_Report.txt (件名：【BTRON3仕様の新実装】)\n");
         uart_puts("  [仮身] #102 : Kojima_Hideki_Link (ノルティアオーダー／TAD 小島秀樹様 宛先リンク)\n");
         uart_puts("  [実身] #103 : TKernel_Subsystem.sys (Sakamura T-Kernel 2.0 リアルタイムタスク構成)\n");
@@ -417,7 +417,7 @@ void btron_main(void) {
     /* Initialize BCM283x DWC2 USB 2.0 Host Controller */
     dwc2_init();
 
-    uart_puts("[QEMU-ARM] Initializing Live Multi-Window BTRON Desktop with Mouse Cursor...\n");
+    uart_puts("[QEMU-ARM] Initializing Live Multi-Window B-System Desktop with Mouse Cursor...\n");
     GDEV *screen = init_baremetal_desktop(fb, BTRON_SCREEN_W, BTRON_SCREEN_H);
     uart_puts("[QEMU-ARM] Live Multi-Window Desktop & Pointer initialized in Video VRAM.\n");
 
@@ -425,11 +425,11 @@ void btron_main(void) {
     uart_puts("\033[?1000h\033[?1006h");
 
     uart_puts("\n==========================================================\n");
-    uart_puts(" Sakamura B-TRON 3.0 Interactive Keyboard & Mouse Active\n");
+    uart_puts(" Sakamura B-System 3.0 Interactive Keyboard & Mouse Active\n");
     uart_puts(" Live Windows: Terminal Shell, T-Editor, Real Object Cabinet\n");
     uart_puts(" Display Resolution: 1024x768 32-bpp Framebuffer VRAM\n");
     uart_puts(" USB HID: DWC2 Keyboard & Mouse Polling Active\n");
-    uart_puts(" Mouse: Classic B-TRON Cursor tracking, Click, and Drag\n");
+    uart_puts(" Mouse: Classic B-System Cursor tracking, Click, and Drag\n");
     uart_puts(" Keyboard Controls:\n");
     uart_puts("   Tab            - Cycle focused window (Terminal <-> Editor <-> Cabinet)\n");
     uart_puts("   Shift+Arrows   - Move mouse cursor smoothly (Up/Down/Left/Right)\n");

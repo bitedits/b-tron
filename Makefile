@@ -205,7 +205,7 @@ all: posix qemu tkernel sakamura
 posix: tad_bin $(POSIX_TARGET)
 	@ln -sf $(POSIX_TARGET) $(DEFAULT_TARGET)
 	@echo "=========================================================="
-	@echo " B-TRON POSIX Kernel & Desktop successfully built!"
+	@echo " B-System POSIX Kernel & Desktop successfully built!"
 	@echo " Startup File: $(POSIX_STARTUP)"
 	@echo " Run './btron' or 'make run-posix' to start."
 	@echo "=========================================================="
@@ -224,7 +224,7 @@ run-posix: posix
 # ═══════════════════════════════════════════════════════════════════
 qemu: tad_bin $(QEMU_TARGET)
 	@echo "=========================================================="
-	@echo " B-TRON QEMU VirtIO Desktop built!"
+	@echo " B-System QEMU VirtIO Desktop built!"
 	@echo " Run 'make run-qemu' to launch."
 	@echo "=========================================================="
 
@@ -393,7 +393,7 @@ TEST_EDITOR_BIN  = test_editor
 
 test-editor: $(TEST_EDITOR_BIN)
 	@echo "=========================================================="
-	@echo " Running B-TRON T-Editor UI & Internal Functions Tests..."
+	@echo " Running B-System T-Editor UI & Internal Functions Tests..."
 	@echo "=========================================================="
 	@./$(TEST_EDITOR_BIN)
 
@@ -442,7 +442,7 @@ TEST_TAD_BIN  = test_tad_browser
 test-tad: $(TEST_TAD_BIN) tad_bin
 	@if [ ! -f tad_bin/shared_data/data_type.tad ]; then elixir scripts/html2tad.exs >/dev/null 2>&1; fi
 	@echo "=========================================================="
-	@echo " Running B-TRON Native TAD Browser & Cabinet Tests..."
+	@echo " Running B-System Native TAD Browser & Cabinet Tests..."
 	@echo "=========================================================="
 	@./$(TEST_TAD_BIN)
 
@@ -460,7 +460,7 @@ TEST_CHAT_BIN  = test_chat
 
 test-chat: $(TEST_CHAT_BIN)
 	@echo "=========================================================="
-	@echo " Running B-TRON BeOS Chat (Blabber) & TRON IPC Tests..."
+	@echo " Running B-System BeOS Chat (Blabber) & TRON IPC Tests..."
 	@echo "=========================================================="
 	@./$(TEST_CHAT_BIN)
 

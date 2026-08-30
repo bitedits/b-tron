@@ -485,7 +485,7 @@ int main(int argc, char **argv) {
     (void)argv;
 
     printf("==========================================================\n");
-    printf(" Google Mozc / B-TRON TIP Cleanroom Unit Test Suite\n");
+    printf(" B-System Mozc / TIP Cleanroom Unit Test Suite\n");
     printf(" Conforming to btron-tip.tex & IME.md Specifications\n");
     printf("==========================================================\n");
 

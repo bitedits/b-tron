@@ -827,7 +827,7 @@ int main(int argc, char **argv) {
     (void)argv;
 
     printf("==========================================================\n");
-    printf(" B-TRON T-Editor Internal Functions & UI Test Suite\n");
+    printf(" B-System T-Editor Internal Functions & UI Test Suite\n");
     printf("==========================================================\n");
 
     test_editor_initialization();

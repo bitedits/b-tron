@@ -22,7 +22,7 @@
 #define memset   tkl_memset
 #endif
 
-/* ── Complete Google Mozc Romanji-to-Hiragana Conversion Table ── */
+/* ── Complete B-System Mozc Romanji-to-Hiragana Conversion Table ── */
 typedef struct {
     const char *romaji;
     const char *hiragana;

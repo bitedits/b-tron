@@ -557,7 +557,7 @@ static void test_btron3_compact_sliding_tabs(void) {
 
 int main(void) {
     printf("==========================================================\n");
-    printf(" B-TRON Native TAD Document Browser & Cabinet Test Suite\n");
+    printf(" B-System Native TAD Document Browser & Cabinet Test Suite\n");
     printf(" Conforming to BTRON3 SPEC 3.20 & NASA JPL Safety Rules\n");
     printf("==========================================================\n");
 

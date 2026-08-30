@@ -104,7 +104,7 @@ static void gterm_init_banner(GTermState *st) {
     strncpy(st->prompt, "btron:/> ", sizeof(st->prompt) - 1);
 
     gterm_append_line(st, "==========================================================================", COLOR_CYAN);
-    gterm_append_line(st, " Sakamura B-TRON 3.0 Workstation Shell (gterm)", COLOR_WHITE);
+    gterm_append_line(st, " Sakamura B-System 3.0 Workstation Shell (gterm)", COLOR_WHITE);
     gterm_append_line(st, " Real-Time OS: Sakamura T-Kernel 2.0 / BCM283x ARM Engine", COLOR_LTGRAY);
     gterm_append_line(st, " Multi-Plane TRONCode & Mozc TIP Full-Width Architecture", COLOR_LTGRAY);
     gterm_append_line(st, "==========================================================================", COLOR_CYAN);
@@ -181,7 +181,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
     int n = (cmd_i > 0) ? (arg_i > 0 ? 2 : 1) : 0;
 
     if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0) {
-        gterm_append_line(st, "B-TRON Shell Commands:", COLOR_GREEN);
+        gterm_append_line(st, "B-System Shell Commands:", COLOR_GREEN);
         gterm_append_line(st, "  help, ?     - Show command help list", COLOR_LTGRAY);
         gterm_append_line(st, "  ver, uname  - System version info", COLOR_LTGRAY);
         gterm_append_line(st, "  pwd         - Print current working directory", COLOR_LTGRAY);
@@ -214,7 +214,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
                 gterm_append_line(st, "BTRON3 Sakamura T-Kernel 2.0 (Target 0: POSIX)", COLOR_CYAN);
             }
 #else
-            gterm_append_line(st, "BTRON3 btron-rpi 2.0 T-Kernel-BCM2836 armv7l GNU/B-TRON", COLOR_CYAN);
+            gterm_append_line(st, "BTRON3 btron-rpi 2.0 T-Kernel-BCM2836 armv7l GNU/B-System", COLOR_CYAN);
 #endif
         } else if (strcmp(cmd, "uname") == 0 && (strcmp(arg, "-r") == 0 || strcmp(arg, "-v") == 0)) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -226,7 +226,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
             gterm_append_line(st, "2.0.0-tkernel-arm", COLOR_CYAN);
 #endif
         } else {
-            gterm_append_line(st, "B-TRON 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN);
+            gterm_append_line(st, "B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN);
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
             struct utsname un;
             if (uname(&un) == 0) {
@@ -253,7 +253,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
             gterm_append_line(st, "Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY);
 #endif
             gterm_append_line(st, "Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY);
-            gterm_append_line(st, "Japanese IME: Google Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY);
+            gterm_append_line(st, "Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY);
         }
     } else if (strcmp(cmd, "pwd") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -344,7 +344,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
     } else if (strcmp(cmd, "ps") == 0) {
         gterm_append_line(st, "PID   TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN);
         gterm_append_line(st, "----------------------------------------------------------------", COLOR_DKGRAY);
-        gterm_append_line(st, "  1   tk_desktop     RUN    0x01020000   1024x768  [B-TRON Desktop]", COLOR_GREEN);
+        gterm_append_line(st, "  1   tk_desktop     RUN    0x01020000   1024x768  [B-System Desktop]", COLOR_GREEN);
         gterm_append_line(st, "  2   tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", COLOR_GREEN);
         gterm_append_line(st, "  3   tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", COLOR_GREEN);
 
@@ -436,7 +436,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         if (!dir) {
             gterm_append_line(st, "vobj: btron_store directory not found", COLOR_RED);
         } else {
-            gterm_append_line(st, "B-TRON Real/Virtual Object Store:", COLOR_CYAN);
+            gterm_append_line(st, "B-System Real/Virtual Object Store:", COLOR_CYAN);
             struct dirent *entry;
             while ((entry = readdir(dir)) != NULL) {
                 if (entry->d_name[0] != '.') {
@@ -448,7 +448,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
             closedir(dir);
         }
 #else
-        gterm_append_line(st, "B-TRON Real/Virtual Object Store:", COLOR_CYAN);
+        gterm_append_line(st, "B-System Real/Virtual Object Store:", COLOR_CYAN);
         gterm_append_line(st, "  [VOBJ] BTRON3_Report.txt (RealObject #101)", COLOR_GREEN);
         gterm_append_line(st, "  [VOBJ] Kojima_Hideki_Link.vlk (VirtualLink #102)", COLOR_GREEN);
         gterm_append_line(st, "  [VOBJ] TKernel_Subsystem.sys (RealObject #103)", COLOR_GREEN);
@@ -709,7 +709,7 @@ WND* open_gterm_window(void) {
     H y = 160 + (s_gterm_spawn_count % 6) * 24;
     s_gterm_spawn_count++;
 
-    WND *wnd = opn_wnd("BTRON Terminal (gterm)", x, y, 560, 360,
+    WND *wnd = opn_wnd("B-System Terminal (gterm)", x, y, 560, 360,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER | WND_ATTR_RESIZE);
     if (wnd) {
         GTermState *st = (GTermState*)calloc(1, sizeof(GTermState));

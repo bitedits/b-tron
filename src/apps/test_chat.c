@@ -167,7 +167,7 @@ static void test_chat_windows_lifecycle(void) {
 
 int main(void) {
     printf("==========================================================\n");
-    printf(" B-TRON BeOS Chat (Blabber) & TRON IPC Pub/Sub Test Suite\n");
+    printf(" B-System BeOS Chat (Blabber) & TRON IPC Pub/Sub Test Suite\n");
     printf(" Conforming to BTRON3 SPEC 3.20, TRON HMI, and CHAT.md\n");
     printf("==========================================================\n");
 

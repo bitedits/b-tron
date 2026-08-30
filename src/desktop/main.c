@@ -60,20 +60,20 @@ int main(int argc, char **argv) {
     H screen_w = 1280;
     H screen_h = 800;
 
-    printf("[B-TRON] Initializing B-TRON Retro OS Environment...\n");
+    printf("[B-System] Initializing B-System Retro OS Environment...\n");
 
 #ifndef BTRON_TARGET
 #define BTRON_TARGET 0
 #endif
     btron_kernel_init(BTRON_TARGET);
 
-    if (!init_sdl_backend(screen_w, screen_h, "B-TRON Retro OS Desktop Environment (SDL2)")) {
-        fprintf(stderr, "[B-TRON] Failed to initialize SDL2 backend.\n");
+    if (!init_sdl_backend(screen_w, screen_h, "B-System Retro OS Desktop Environment (SDL2)")) {
+        fprintf(stderr, "[B-System] Failed to initialize SDL2 backend.\n");
         return 1;
     }
 
     if (init_desktop(screen_w, screen_h) != E_OK) {
-        fprintf(stderr, "[B-TRON] Desktop initialization failed.\n");
+        fprintf(stderr, "[B-System] Desktop initialization failed.\n");
         shutdown_sdl_backend();
         return 1;
     }
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
     tip_init();
     init_evt_sys();
 
-    printf("[B-TRON] Launching Sakamura BTRON Desktop & Accessories...\n");
+    printf("[B-System] Launching Sakamura B-System Desktop & Accessories...\n");
 
     BOOL running = TRUE;
     EVT ev;
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
         SDL_Delay(16);
     }
 
-    printf("[B-TRON] Shutting down B-TRON Retro OS Environment.\n");
+    printf("[B-System] Shutting down B-System Retro OS Environment.\n");
     cls_dev(screen_dev);
     shutdown_sdl_backend();
     return 0;

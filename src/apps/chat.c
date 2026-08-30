@@ -97,7 +97,7 @@ static void chat_client_init_defaults(ChatClient *client) {
     strncpy(r3->nick, "#btron-hall", sizeof(r3->nick) - 1);
     strncpy(r3->group, "MUC Rooms", sizeof(r3->group) - 1);
     r3->status = CHAT_STATUS_ONLINE;
-    strncpy(r3->status_text, "B-TRON Public Townhall", sizeof(r3->status_text) - 1);
+    strncpy(r3->status_text, "B-System Public Townhall", sizeof(r3->status_text) - 1);
 }
 
 ChatClient* chat_ipc_register_client(const char *preferred_nick) {
@@ -114,7 +114,7 @@ ChatClient* chat_ipc_register_client(const char *preferred_nick) {
     snprintf(client->server, sizeof(client->server), CHAT_DEFAULT_SERVER);
     snprintf(client->jid, sizeof(client->jid), "%s@%s", client->nick, client->server);
     client->status = CHAT_STATUS_ONLINE;
-    snprintf(client->status_msg, sizeof(client->status_msg), "Online in B-TRON 3.20");
+    snprintf(client->status_msg, sizeof(client->status_msg), "Online in B-System 3.20");
     client->connected = TRUE;
 
     chat_client_init_defaults(client);
@@ -241,7 +241,7 @@ void chat_ipc_send_muc_message(ChatClient *sender, const char *room, const char 
         if (strstr(text, "spec")) {
             snprintf(reply, sizeof(reply), "Conforming strictly to BTRON3 SPEC 3.20 & TRON HMI guidelines!");
         } else {
-            snprintf(reply, sizeof(reply), "Greetings @%s! Welcome to the B-TRON Chat Network.", sender->nick);
+            snprintf(reply, sizeof(reply), "Greetings @%s! Welcome to the B-System Chat Network.", sender->nick);
         }
         ChatClient *c2 = g_chat_clients;
         while (c2) {
@@ -444,7 +444,7 @@ static void paint_chat_conversation_window(WND *wnd, GDEV *dev) {
     drw_rec(dev, &topic_r);
     char topic_buf[128];
     if (is_muc) {
-        snprintf(topic_buf, sizeof(topic_buf), "MUC: %s | Topic: Welcome to B-TRON 3.20 BeOS Chat!", ctx->target_room_or_nick);
+        snprintf(topic_buf, sizeof(topic_buf), "MUC: %s | Topic: Welcome to B-System 3.20 BeOS Chat!", ctx->target_room_or_nick);
     } else {
         snprintf(topic_buf, sizeof(topic_buf), "Private Chat with: %s@btron.org", ctx->target_room_or_nick);
     }
@@ -741,7 +741,7 @@ WND* open_chat_muc_window(ChatClient *client, const char *room_name) {
     client->muc_wnd = w;
 
     /* Add initial greeting */
-    append_message_to_wnd(w, "System", "Welcome to B-TRON 3.20 BeOS Chatroom (#btron-hall)!", CHAT_MSG_SYSTEM, COLOR_DKGRAY);
+    append_message_to_wnd(w, "System", "Welcome to B-System 3.20 BeOS Chatroom (#btron-hall)!", CHAT_MSG_SYSTEM, COLOR_DKGRAY);
     return w;
 }
 
