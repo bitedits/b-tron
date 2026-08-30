@@ -190,6 +190,16 @@ ER cls_wnd(WND *wnd) {
 ER top_wnd(WND *wnd) {
     if (!wnd || g_wnd_head == wnd) return E_OK;
 
+    /* Verify wnd is actually present in active window list */
+    BOOL found = FALSE;
+    for (WND *c = g_wnd_head; c; c = c->next) {
+        if (c == wnd) {
+            found = TRUE;
+            break;
+        }
+    }
+    if (!found) return E_PAR;
+
     /* Remove from current position */
     if (wnd->prev) wnd->prev->next = wnd->next;
     if (wnd->next) wnd->next->prev = wnd->prev;
@@ -320,13 +330,13 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
         /* Minimalist BeOS/CWM double-bar vertical grip on left */
         H text_start_x = tab_r.left + 7;
         if ((wnd->attr & WND_ATTR_SLIDING_TAB) && (wnd->tab_width < (wnd->bounds.right - wnd->bounds.left - 16))) {
-            drw_lin(dev, tab_r.left + 5, tab_r.top + 7, tab_r.left + 5, tab_r.top + 23);
-            drw_lin(dev, tab_r.left + 8, tab_r.top + 7, tab_r.left + 8, tab_r.top + 23);
+            drw_lin(dev, tab_r.left + 5, tab_r.top + 5, tab_r.left + 5, tab_r.top + 22);
+            drw_lin(dev, tab_r.left + 8, tab_r.top + 5, tab_r.left + 8, tab_r.top + 22);
             text_start_x = tab_r.left + 13;
         }
 
-        /* Bold & crisp title string - centered with equal 7px vertical/left margins in 30px tab (5px to inner border) */
-        drw_tc_string(dev, text_start_x, tab_r.top + 7, wnd->title, title_col, 0x00000000);
+        /* Bold & crisp title string - positioned 1px up at tab_r.top + 6 */
+        drw_tc_string(dev, text_start_x, tab_r.top + 6, wnd->title, title_col, 0x00000000);
 
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
@@ -337,8 +347,8 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
 
             fill_rec(dev, &close_btn, wnd->focused ? COLOR_LTGRAY : COLOR_GRAY);
             drw_rec(dev, &close_btn);
-            /* Centered cross inside close button */
-            drw_tc_string(dev, close_btn.left + 5, tab_r.top + 8, "x", COLOR_BLACK, 0x00000000);
+            /* Centered cross inside close button shifted 2px up (tab_r.top + 6) */
+            drw_tc_string(dev, close_btn.left + 5, tab_r.top + 6, "x", COLOR_BLACK, 0x00000000);
         }
     }
 

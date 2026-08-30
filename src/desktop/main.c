@@ -133,37 +133,44 @@ int main(int argc, char **argv) {
                         resize_start_y = ev.pos.y;
                     }
                     /* 2. Titlebar & Compact Sliding Tab Area Check */
-                    else if (ev.pos.y >= clicked->bounds.top && ev.pos.y < clicked->bounds.top + 22) {
-                        /* Close button check */
-                        if (whit_test_close_btn(clicked, ev.pos.x, ev.pos.y)) {
-                            cls_wnd(clicked);
-                            tip_cancel();
-                        }
-                        /* Compact Tab Check */
-                        else if (whit_test_tab(clicked, ev.pos.x, ev.pos.y)) {
-                            RECT tab_r;
-                            wget_tab_rect(clicked, &tab_r);
-                            SDL_Keymod mod = SDL_GetModState();
-                            BOOL is_slide_gesture = (mod & KMOD_SHIFT) || (ev.button == 3) ||
-                                                    (ev.pos.x >= tab_r.left && ev.pos.x < tab_r.left + 12);
+                    else if (clicked->attr & WND_ATTR_TITLE) {
+                        RECT tab_r;
+                        wget_tab_rect(clicked, &tab_r);
+                        if (ev.pos.y >= clicked->bounds.top && ev.pos.y < tab_r.bottom) {
+                            /* Close button check */
+                            if (whit_test_close_btn(clicked, ev.pos.x, ev.pos.y)) {
+                                cls_wnd(clicked);
+                                tip_cancel();
+                            }
+                            /* Compact Tab Check */
+                            else if (whit_test_tab(clicked, ev.pos.x, ev.pos.y)) {
+                                SDL_Keymod mod = SDL_GetModState();
+                                BOOL is_slide_gesture = (mod & KMOD_SHIFT) || (ev.button == 3) ||
+                                                        (ev.pos.x >= tab_r.left && ev.pos.x < tab_r.left + 12);
 
-                            if (is_slide_gesture && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
-                                sliding_tab = TRUE;
-                                slide_wnd = clicked;
-                                slide_start_x = ev.pos.x;
-                                slide_orig_off = clicked->tab_offset_x;
+                                if (is_slide_gesture && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
+                                    sliding_tab = TRUE;
+                                    slide_wnd = clicked;
+                                    slide_start_x = ev.pos.x;
+                                    slide_orig_off = clicked->tab_offset_x;
+                                } else {
+                                    dragging = TRUE;
+                                    drag_wnd = clicked;
+                                    drag_off_x = ev.pos.x - clicked->bounds.left;
+                                    drag_off_y = ev.pos.y - clicked->bounds.top;
+                                }
                             } else {
+                                /* Clicked on window top rail outside tab -> drag whole window */
                                 dragging = TRUE;
                                 drag_wnd = clicked;
                                 drag_off_x = ev.pos.x - clicked->bounds.left;
                                 drag_off_y = ev.pos.y - clicked->bounds.top;
                             }
                         } else {
-                            /* Clicked on window top rail outside tab -> drag whole window */
-                            dragging = TRUE;
-                            drag_wnd = clicked;
-                            drag_off_x = ev.pos.x - clicked->bounds.left;
-                            drag_off_y = ev.pos.y - clicked->bounds.top;
+                            /* Dispatch mouse click exclusively to clicked window client area */
+                            if (clicked->event_handler) {
+                                clicked->event_handler(clicked, &ev);
+                            }
                         }
                     } else {
                         /* Dispatch mouse click exclusively to clicked window client area */

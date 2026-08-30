@@ -627,8 +627,10 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
         const UB *bmp = get_glyph_bitmap(code, &gw, &gh);
         if (!bmp) continue;
 
+        int y_off = (gw <= 8) ? 2 : 0; /* Align roman fonts 2 pixels down */
+
         for (int row = 0; row < gh; row++) {
-            H py = cur_y + row;
+            H py = cur_y + row + y_off;
             if (py < dev->clip.top || py >= dev->clip.bottom) continue;
 
             if (gw <= 8) {

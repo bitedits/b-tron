@@ -219,6 +219,11 @@ static void audio_deck_paint(WND *wnd, GDEV *dev) {
     hmi_draw_panel(&g_deck.panel, dev);
 }
 
+static void destroy_audio_player(WND *wnd) {
+    (void)wnd;
+    g_audio_wnd = NULL;
+}
+
 /* Open Audio Deck Application Window */
 WND* open_audio_player_window(void) {
     if (g_audio_wnd) {
@@ -275,6 +280,7 @@ WND* open_audio_player_window(void) {
 
     g_audio_wnd->paint = audio_deck_paint;
     g_audio_wnd->event_handler = audio_deck_event_handler;
+    g_audio_wnd->destroy = destroy_audio_player;
 
     return g_audio_wnd;
 }
