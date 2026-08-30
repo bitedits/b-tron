@@ -92,7 +92,7 @@ BOOL whit_test_close_btn(const WND *wnd, H x, H y) {
     RECT tr;
     if (wget_tab_rect(wnd, &tr) != E_OK) return FALSE;
     H btn_right = tr.right - 4;
-    H btn_left = tr.right - 19;
+    H btn_left = tr.right - 18;
     H btn_top = tr.top + 4;
     H btn_bottom = tr.top + 18;
     return (x >= btn_left && x < btn_right && y >= btn_top && y < btn_bottom);
@@ -146,9 +146,9 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     wnd->focused = TRUE;
     wnd->tab_offset_x = 0;
 
-    /* Calculate dynamic compact tab width based on title content */
+    /* Calculate dynamic compact tab width based on title content with +3px margin */
     H text_w = calculate_title_display_width(wnd->title);
-    H tw = text_w + 48; /* text + left margin/grip + close box + padding */
+    H tw = text_w + 54; /* text + left margin/grip + close box + padding */
     if (tw < 100) tw = 100;
     if (tw > w) tw = w;
     wnd->tab_width = tw;
@@ -307,31 +307,35 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
         fill_rec(dev, &tab_r, tab_bg);
         drw_rec(dev, &tab_r);
 
-        /* Clean 1px top & left bevel highlight */
-        drw_lin(dev, tab_r.left + 1, tab_r.top + 1, tab_r.right - 2, tab_r.top + 1);
-        drw_lin(dev, tab_r.left + 1, tab_r.top + 1, tab_r.left + 1, tab_r.bottom - 1);
+        /* Replicate canonical Window Body double-line border with intermediary space */
+        RECT inner_tab;
+        inner_tab.left = tab_r.left + 2;
+        inner_tab.top = tab_r.top + 2;
+        inner_tab.right = tab_r.right - 2;
+        inner_tab.bottom = tab_r.bottom - 2;
+        drw_rec(dev, &inner_tab);
 
         /* Minimalist BeOS/CWM double-bar vertical grip on left */
-        H text_start_x = tab_r.left + 8;
+        H text_start_x = tab_r.left + 10;
         if ((wnd->attr & WND_ATTR_SLIDING_TAB) && (wnd->tab_width < (wnd->bounds.right - wnd->bounds.left - 16))) {
-            drw_lin(dev, tab_r.left + 5, tab_r.top + 5, tab_r.left + 5, tab_r.top + 17);
-            drw_lin(dev, tab_r.left + 8, tab_r.top + 5, tab_r.left + 8, tab_r.top + 17);
-            text_start_x = tab_r.left + 14;
+            drw_lin(dev, tab_r.left + 6, tab_r.top + 5, tab_r.left + 6, tab_r.top + 17);
+            drw_lin(dev, tab_r.left + 9, tab_r.top + 5, tab_r.left + 9, tab_r.top + 17);
+            text_start_x = tab_r.left + 16;
         }
 
-        /* Bold & crisp title string - vertically centered in 22px title box */
-        drw_tc_string(dev, text_start_x, tab_r.top + 5, wnd->title, title_col, 0x00000000);
+        /* Bold & crisp title string - perfectly centered with equal 3px top/bottom margins in 22px tab (1px to inner border) */
+        drw_tc_string(dev, text_start_x, tab_r.top + 3, wnd->title, title_col, 0x00000000);
 
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
             close_btn.left = tab_r.right - 19;
             close_btn.top = tab_r.top + 4;
-            close_btn.right = tab_r.right - 4;
+            close_btn.right = tab_r.right - 5;
             close_btn.bottom = tab_r.top + 18;
 
             fill_rec(dev, &close_btn, wnd->focused ? COLOR_LTGRAY : COLOR_GRAY);
             drw_rec(dev, &close_btn);
-            drw_tc_string(dev, close_btn.left + 4, close_btn.top + 1, "x", COLOR_BLACK, 0x00000000);
+            drw_tc_string(dev, close_btn.left + 3, tab_r.top + 3, "x", COLOR_BLACK, 0x00000000);
         }
     }
 
