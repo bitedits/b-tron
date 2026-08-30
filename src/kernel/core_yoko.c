@@ -9,21 +9,9 @@
 #include <btron/types.h>
 #include <btron/error.h>
 #include <btron/itron.h>
+#include <libstr.h>
 
-extern void task_initialize(void);
-extern void semaphore_initialize(void);
-extern void eventflag_initialize(void);
-extern void mailbox_initialize(void);
-extern void messagebuffer_initialize(void);
-extern void rendezvous_initialize(void);
-extern void mutex_initialize(void);
-extern void memorypool_initialize(void);
-extern void fix_memorypool_initialize(void);
-extern void cyclichandler_initialize(void);
-extern void alarmhandler_initialize(void);
-extern void subsystem_initialize(void);
-extern void resource_group_initialize(void);
-extern void timer_initialize(void);
+extern void tkernel_init_subsystems(int full_suite);
 
 void yokobayashi_tkernel_init(void) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1 && BTRON_TARGET == 2
@@ -34,20 +22,7 @@ void yokobayashi_tkernel_init(void) {
     printf("==========================================================\n\n");
 #endif
 
-    task_initialize();
-    semaphore_initialize();
-    eventflag_initialize();
-    mailbox_initialize();
-    messagebuffer_initialize();
-    rendezvous_initialize();
-    mutex_initialize();
-    memorypool_initialize();
-    fix_memorypool_initialize();
-    cyclichandler_initialize();
-    alarmhandler_initialize();
-    subsystem_initialize();
-    resource_group_initialize();
-    timer_initialize();
+    tkernel_init_subsystems(1);
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
     printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
@@ -115,23 +90,7 @@ extern void *_stack_top;
 extern int uart_has_char(void);
 extern int uart_getc(void);
 extern void uart_putc(char c);
-extern int tkl_strcmp(const char *s1, const char *s2);
 extern int snprintf(char *str, size_t size, const char *format, ...);
-
-static inline const char* yoko_strstr(const char *haystack, const char *needle) {
-    if (!haystack || !needle) return 0;
-    if (!*needle) return haystack;
-    for (; *haystack; haystack++) {
-        const char *h = haystack;
-        const char *n = needle;
-        while (*h && *n && *h == *n) {
-            h++;
-            n++;
-        }
-        if (!*n) return haystack;
-    }
-    return 0;
-}
 
 extern void set_baremetal_mouse_pos(H x, H y);
 extern void get_baremetal_mouse_pos(H *x, H *y);
@@ -320,23 +279,23 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         for (int i = 0; i < count; i++) {
             WND *cw = w_list[i];
             const char *tname = "btron_app";
-            if (yoko_strstr(cw->title, "gterm") || yoko_strstr(cw->title, "Terminal")) tname = "gterm";
-            else if (yoko_strstr(cw->title, "T-Editor") || yoko_strstr(cw->title, "Editor")) tname = "t_editor";
-            else if (yoko_strstr(cw->title, "TAD") || yoko_strstr(cw->title, "仕様書")) tname = "tad_browser";
-            else if (yoko_strstr(cw->title, "Cabinet") || yoko_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
-            else if (yoko_strstr(cw->title, "TC-K777ES") || yoko_strstr(cw->title, "SONY")) tname = "audio_player";
-            else if (yoko_strstr(cw->title, "Chat") || yoko_strstr(cw->title, "対話") || yoko_strstr(cw->title, "会話") || yoko_strstr(cw->title, "Blabber")) tname = "beos_chat";
+            if (tkl_strstr(cw->title, "gterm") || tkl_strstr(cw->title, "Terminal")) tname = "gterm";
+            else if (tkl_strstr(cw->title, "T-Editor") || tkl_strstr(cw->title, "Editor")) tname = "t_editor";
+            else if (tkl_strstr(cw->title, "TAD") || tkl_strstr(cw->title, "仕様書")) tname = "tad_browser";
+            else if (tkl_strstr(cw->title, "Cabinet") || tkl_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
+            else if (tkl_strstr(cw->title, "TC-K777ES") || tkl_strstr(cw->title, "SONY")) tname = "audio_player";
+            else if (tkl_strstr(cw->title, "Chat") || tkl_strstr(cw->title, "対話") || tkl_strstr(cw->title, "会話") || tkl_strstr(cw->title, "Blabber")) tname = "beos_chat";
 
             int inst_num = 1;
             for (int j = 0; j < i; j++) {
                 WND *prev_w = w_list[j];
                 const char *pname = "btron_app";
-                if (yoko_strstr(prev_w->title, "gterm") || yoko_strstr(prev_w->title, "Terminal")) pname = "gterm";
-                else if (yoko_strstr(prev_w->title, "T-Editor") || yoko_strstr(prev_w->title, "Editor")) pname = "t_editor";
-                else if (yoko_strstr(prev_w->title, "TAD") || yoko_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
-                else if (yoko_strstr(prev_w->title, "Cabinet") || yoko_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
-                else if (yoko_strstr(prev_w->title, "TC-K777ES") || yoko_strstr(prev_w->title, "SONY")) pname = "audio_player";
-                else if (yoko_strstr(prev_w->title, "Chat") || yoko_strstr(prev_w->title, "対話") || yoko_strstr(prev_w->title, "会話") || yoko_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
+                if (tkl_strstr(prev_w->title, "gterm") || tkl_strstr(prev_w->title, "Terminal")) pname = "gterm";
+                else if (tkl_strstr(prev_w->title, "T-Editor") || tkl_strstr(prev_w->title, "Editor")) pname = "t_editor";
+                else if (tkl_strstr(prev_w->title, "TAD") || tkl_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
+                else if (tkl_strstr(prev_w->title, "Cabinet") || tkl_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
+                else if (tkl_strstr(prev_w->title, "TC-K777ES") || tkl_strstr(prev_w->title, "SONY")) pname = "audio_player";
+                else if (tkl_strstr(prev_w->title, "Chat") || tkl_strstr(prev_w->title, "対話") || tkl_strstr(prev_w->title, "会話") || tkl_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
                 if (tkl_strcmp(pname, tname) == 0) inst_num++;
             }
 

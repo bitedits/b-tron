@@ -109,65 +109,10 @@ void uart_hex32(uint32_t v) {
 #define HEAP_BASE ((uintptr_t)0x01000000)  /* 16 MB */
 #define HEAP_LIMIT ((uintptr_t)0x02000000) /* 32 MB — 16MB pool */
 uintptr_t heap_ptr = 0; /* initialized in btron_main before first use */
-
-void* tkl_memcpy(void *dst, const void *src, size_t n) {
-    volatile uint8_t *d = (volatile uint8_t*)dst;
-    const volatile uint8_t *s = (const volatile uint8_t*)src;
-
-    if (((uintptr_t)d & 3) == 0 && ((uintptr_t)s & 3) == 0) {
-        volatile uint32_t *d32 = (volatile uint32_t*)d;
-        const volatile uint32_t *s32 = (const volatile uint32_t*)s;
-        while (n >= 4) {
-            *d32++ = *s32++;
-            n -= 4;
-        }
-        d = (volatile uint8_t*)d32;
-        s = (const volatile uint8_t*)s32;
-    }
-    while (n > 0) {
-        *d++ = *s++;
-        n--;
-    }
-    return dst;
-}
-
-void* tkl_memset(void *s, int c, size_t n) {
-    volatile uint8_t *p = (volatile uint8_t*)s;
-    uint32_t val32 = (uint8_t)c;
-    val32 |= (val32 << 8);
-    val32 |= (val32 << 16);
-
-    while (n > 0 && ((uintptr_t)p & 3)) {
-        *p++ = (uint8_t)c;
-        n--;
-    }
-    volatile uint32_t *p32 = (volatile uint32_t*)p;
-    while (n >= 4) {
-        *p32++ = val32;
-        n -= 4;
-    }
-    p = (volatile uint8_t*)p32;
-    while (n > 0) {
-        *p++ = (uint8_t)c;
-        n--;
-    }
-    return s;
-}
+#include <libstr.h>
 
 void* memcpy(void *dst, const void *src, size_t n) { return tkl_memcpy(dst, src, n); }
 void* memset(void *s, int c, size_t n) { return tkl_memset(s, c, n); }
-
-void* tkl_memmove(void *dest, const void *src, size_t n) {
-    unsigned char *d = (unsigned char *)dest;
-    const unsigned char *s = (const unsigned char *)src;
-    if (d < s) {
-        for (size_t i = 0; i < n; i++) d[i] = s[i];
-    } else if (d > s) {
-        for (size_t i = n; i > 0; i--) d[i - 1] = s[i - 1];
-    }
-    return dest;
-}
-
 void* memmove(void *dest, const void *src, size_t n) { return tkl_memmove(dest, src, n); }
 
 void __aeabi_memset(void *dest, size_t n, int c) { tkl_memset(dest, c, n); }
@@ -203,71 +148,6 @@ void free(void *ptr) { Ifree(ptr); }
 
 void* IAmalloc(size_t sz, unsigned int attr) { (void)attr; return Imalloc(sz); }
 void IAfree(void *ptr, unsigned int attr) { (void)attr; (void)ptr; }
-
-char* tkl_strncpy(char *dst, const char *src, size_t n) {
-    size_t i;
-    for (i = 0; i < n && src[i] != '\0'; i++) dst[i] = src[i];
-    for ( ; i < n; i++) dst[i] = '\0';
-    return dst;
-}
-
-char* tkl_strncat(char *dst, const char *src, size_t n) {
-    size_t dlen = 0;
-    while (dst[dlen] != '\0') dlen++;
-    size_t i = 0;
-    for (; i < n && src[i] != '\0'; i++) {
-        dst[dlen + i] = src[i];
-    }
-    dst[dlen + i] = '\0';
-    return dst;
-}
-
-char* tkl_strcat(char *dst, const char *src) {
-    size_t dlen = 0;
-    while (dst[dlen] != '\0') dlen++;
-    size_t i = 0;
-    while (src[i] != '\0') {
-        dst[dlen + i] = src[i];
-        i++;
-    }
-    dst[dlen + i] = '\0';
-    return dst;
-}
-
-char* tkl_strcpy(char *dst, const char *src) {
-    size_t i = 0;
-    while (src[i] != '\0') {
-        dst[i] = src[i];
-        i++;
-    }
-    dst[i] = '\0';
-    return dst;
-}
-
-size_t tkl_strlen(const char *s) {
-    size_t len = 0;
-    while (s && s[len]) len++;
-    return len;
-}
-
-int tkl_strcmp(const char *s1, const char *s2) {
-    while (*s1 && (*s1 == *s2)) {
-        s1++;
-        s2++;
-    }
-    return *(const unsigned char *)s1 - *(const unsigned char *)s2;
-}
-
-int tkl_memcmp(const void *s1, const void *s2, size_t n) {
-    const unsigned char *p1 = (const unsigned char *)s1;
-    const unsigned char *p2 = (const unsigned char *)s2;
-    while (n--) {
-        if (*p1 != *p2) return *p1 - *p2;
-        p1++;
-        p2++;
-    }
-    return 0;
-}
 
 #include <stdarg.h>
 

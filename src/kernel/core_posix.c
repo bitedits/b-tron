@@ -49,10 +49,6 @@ void btron_posix_kernel_init(void) {
     printf("==========================================================\n\n");
 }
 
-void tkernel_init(void) {
-    btron_posix_kernel_init();
-}
-
 ID cre_tsk(const T_CTSK *pk_ctsk) {
     if (!pk_ctsk || !pk_ctsk->task) return E_PAR;
     

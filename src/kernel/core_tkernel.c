@@ -14,22 +14,7 @@
 #include "isyscall.h"
 #include "timer.h"
 
-/* Forward declarations for Sakamura T-Kernel 2.0 Subsystem Initializers */
-extern ER task_initialize(void);
-extern ER semaphore_initialize(void);
-extern ER eventflag_initialize(void);
-extern ER mailbox_initialize(void);
-extern ER messagebuffer_initialize(void);
-extern ER rendezvous_initialize(void);
-extern ER mutex_initialize(void);
-extern ER memorypool_initialize(void);
-extern ER fix_memorypool_initialize(void);
-extern ER cyclichandler_initialize(void);
-extern ER alarmhandler_initialize(void);
-extern ER subsystem_initialize(void);
-extern ER resource_group_initialize(void);
-
-extern void yokobayashi_tkernel_init(void);
+extern void tkernel_init_subsystems(int full_suite);
 
 void sakamura_tkernel_init(void) {
     printf("\n==========================================================\n");
@@ -39,16 +24,7 @@ void sakamura_tkernel_init(void) {
     printf("==========================================================\n\n");
 
     /* Sakamura Core Subsystems (Lightweight: 10 subsystems) */
-    task_initialize();
-    semaphore_initialize();
-    eventflag_initialize();
-    mailbox_initialize();
-    messagebuffer_initialize();
-    rendezvous_initialize();
-    mutex_initialize();
-    memorypool_initialize();
-    fix_memorypool_initialize();
-    subsystem_initialize();
+    tkernel_init_subsystems(0);
 
     printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
 
@@ -61,10 +37,6 @@ void  Ifree(void *ptr) { free(ptr); }
 void* Icalloc(size_t nmemb, size_t sz) { return calloc(nmemb, sz); }
 void* IAmalloc(size_t sz, UINT attr) { (void)attr; return malloc(sz); }
 void  IAfree(void *ptr, UINT attr) { (void)attr; free(ptr); }
-
-void* tkl_memcpy(void *dst, const void *src, size_t n) { return memcpy(dst, src, n); }
-void* tkl_memset(void *s, int c, size_t n) { return memset(s, c, n); }
-char* tkl_strncpy(char *dst, const char *src, size_t n) { return strncpy(dst, src, n); }
 
 void BitSet(void *base, UW offset) {
     uint32_t *p = (uint32_t *)base;
@@ -144,7 +116,6 @@ INT __tk_get_cfn(UB *name, INT *val, INT max) {
 INT GetDevConf(CONST UB *name, INT *val) { (void)name; if (val) val[0] = 0; return 0; }
 INT GetSysConf(CONST UB *name, INT *val) { (void)name; if (val) val[0] = 0; return 0; }
 
-char* tkl_strncat(char *dst, const char *src, size_t n) { return strncat(dst, src, n); }
 void tm_command(const char *cmd) { (void)cmd; }
 void tm_exit(int code) { (void)code; }
 

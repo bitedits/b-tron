@@ -51,10 +51,6 @@ void tkernel_init(void) {
     virtio_mmio_init(0x10001000);
 }
 
-void btron_posix_kernel_init(void) {
-    tkernel_init();
-}
-
 ID cre_tsk(const T_CTSK *pk_ctsk) {
     if (!pk_ctsk || !pk_ctsk->task) return E_PAR;
 

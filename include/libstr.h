@@ -52,6 +52,7 @@ extern char* tkl_strcpy( char *dst, const char *src );
 extern char* tkl_strncpy( char *dst, const char *src, size_t n );
 extern char* tkl_strcat( char *dst, const char *src );
 extern char* tkl_strncat( char *dst, const char *src, size_t n );
+extern char* tkl_strstr( const char *haystack, const char *needle );
 
 extern unsigned long int tkl_strtoul( const char *nptr, char **endptr, int base );
 

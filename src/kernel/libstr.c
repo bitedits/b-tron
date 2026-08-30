@@ -83,3 +83,18 @@ char* tkl_strncat(char *dst, const char *src, size_t n) {
     *dst = '\0';
     return ret;
 }
+
+char* tkl_strstr(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return 0;
+    if (!*needle) return (char*)haystack;
+    for (; *haystack; haystack++) {
+        const char *h = haystack;
+        const char *n = needle;
+        while (*h && *n && *h == *n) {
+            h++;
+            n++;
+        }
+        if (!*n) return (char*)haystack;
+    }
+    return 0;
+}
