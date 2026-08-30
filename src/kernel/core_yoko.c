@@ -11,22 +11,28 @@
 #include <btron/itron.h>
 #include <libstr.h>
 
+#include <btron/apps.h>
+
 extern void tkernel_init_subsystems(int full_suite);
 
-void yokobayashi_tkernel_init(void) {
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1 && BTRON_TARGET == 2
-    printf("\n==========================================================\n");
-    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
-    printf(" Target Mode 2: BTRON_YOKOBAYASHI Active\n");
-    printf(" Initializing Sakamura T-Kernel Core Modules...\n");
-    printf("==========================================================\n\n");
-#endif
-
+void btron_core_init(void) {
     tkernel_init_subsystems(1);
+}
 
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-    printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
-#endif
+void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
+    if (!out_fn) return;
+    if (arg && tkl_strcmp(arg, "-a") == 0) {
+        out_fn("BTRON3 btron-rpi 2.0 T-Kernel-BCM2836 armv7l GNU/B-System", COLOR_CYAN, user_data);
+    } else if (arg && (tkl_strcmp(arg, "-r") == 0 || tkl_strcmp(arg, "-v") == 0)) {
+        out_fn("2.0.0-tkernel-arm", COLOR_CYAN, user_data);
+    } else {
+        out_fn("B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN, user_data);
+        out_fn("Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)", COLOR_GREEN, user_data);
+        out_fn("Hardware Target: Raspberry Pi 2B / 3B Bare-Metal Kernel", COLOR_LTGRAY, user_data);
+        out_fn("Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY, user_data);
+        out_fn("Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY, user_data);
+        out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
+    }
 }
 
 #if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
@@ -108,7 +114,7 @@ static H g_slide_orig_off = 0;
 #define BTRON_SCREEN_W  1024
 #define BTRON_SCREEN_H  768
 
-static void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down) {
+void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down) {
     set_baremetal_mouse_pos(mx, my);
 
     if (is_down) {
@@ -229,129 +235,11 @@ static void handle_baremetal_mouse_move(GDEV *screen, H mx, H my) {
     redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
 }
 
-static void console_exec(GDEV *screen, const char *cmd_line) {
-    const char *p = cmd_line;
-    while (*p == ' ' || *p == '\t') p++;
-    if (!*p) return;
-
-    if (tkl_strcmp(p, "help") == 0 || tkl_strcmp(p, "?") == 0) {
-        uart_puts("\nB-System Interactive Console Commands:\n");
-        uart_puts("  help, ?             - Show this command reference\n");
-        uart_puts("  ver, uname          - Print system version and CPU architecture\n");
-        uart_puts("  devconf             - List registered hardware screen/serial device drivers\n");
-        uart_puts("  ps                  - Display Sakamura T-Kernel 2.0 active tasks\n");
-        uart_puts("  vobj, ls, dir       - Status of Real Objects and Virtual Links\n");
-        uart_puts("  cat <file>          - Display document text contents\n");
-        uart_puts("  mouse click <X> <Y> - Simulate mouse click at pixel (X, Y)\n");
-        uart_puts("  mouse move <X> <Y>  - Move mouse cursor to pixel (X, Y)\n");
-        uart_puts("  mouse status        - Display current mouse cursor position\n");
-        uart_puts("  mem                 - Memory pool allocation statistics\n");
-        uart_puts("  clear               - Clear console screen\n");
-    } else if (tkl_strcmp(p, "ver") == 0 || tkl_strcmp(p, "uname") == 0) {
-        uart_puts("\nB-System 3.0 Workstation System (BTRON3 Specification 3.20)\n");
-        uart_puts("Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)\n");
-        uart_puts("Hardware Target: Raspberry Pi 2B/3B Bare-Metal (Cortex-A7 / VideoCore IV)\n");
-        uart_puts("Build Timestamp: " __DATE__ " " __TIME__ "\n");
-        uart_puts("Display Compositor: 1024x768 32-bpp DP 2D Vector Framebuffer Active\n");
-        uart_puts("Pointing Device: Classic B-System Cursor & Window Dragging Active\n");
-        uart_puts("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Engine Active\n");
-    } else if (tkl_strcmp(p, "devconf") == 0) {
-        uart_puts("\nRegistered Device Drivers:\n");
-        uart_puts("  [0] ScreenDrv : VideoCore IV GPU 1024x768 32-bpp (Active, OK)\n");
-        uart_puts("  [1] SerialDrv : PL011 UART0 115200 8N1 (Active, Console)\n");
-        uart_puts("  [2] KBPD      : Keyboard & Pointing Device (Mouse Cursor Active)\n");
-        uart_puts("  [3] TKernel   : 14 Sakamura T-Kernel 2.0 Subsystems (Active)\n");
-        uart_puts("  [4] VObjStore : HyperData HFDS Real Object Storage (Active)\n");
-    } else if (tkl_strcmp(p, "ps") == 0) {
-        uart_puts("\nSakamura T-Kernel 2.0 Task & Process Table:\n");
-        uart_puts("  PID  TASK           STATE     STACK / ADDR    BOUNDS    TITLE\n");
-        uart_puts("  -------------------------------------------------------------------------\n");
-        uart_puts("  01   tk_desktop     RUNNING   0x01020000      1024x768  [B-System Desktop]\n");
-        uart_puts("  02   tk_wnd_mgr     READY     0x01040000      1024x768  [Window Compositor]\n");
-        uart_puts("  03   tk_tip_ime     READY     0x010A0000      Candidate [Mozc Japanese IME]\n");
-
-        WND *w = get_wnd_list();
-        WND *w_list[32];
-        int count = 0;
-        for (WND *curr = w; curr && count < 32; curr = curr->next) {
-            w_list[count++] = curr;
-        }
-        for (int i = 0; i < count; i++) {
-            WND *cw = w_list[i];
-            const char *tname = "btron_app";
-            if (tkl_strstr(cw->title, "gterm") || tkl_strstr(cw->title, "Terminal")) tname = "gterm";
-            else if (tkl_strstr(cw->title, "T-Editor") || tkl_strstr(cw->title, "Editor")) tname = "t_editor";
-            else if (tkl_strstr(cw->title, "TAD") || tkl_strstr(cw->title, "仕様書")) tname = "tad_browser";
-            else if (tkl_strstr(cw->title, "Cabinet") || tkl_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
-            else if (tkl_strstr(cw->title, "TC-K777ES") || tkl_strstr(cw->title, "SONY")) tname = "audio_player";
-            else if (tkl_strstr(cw->title, "Chat") || tkl_strstr(cw->title, "対話") || tkl_strstr(cw->title, "会話") || tkl_strstr(cw->title, "Blabber")) tname = "beos_chat";
-
-            int inst_num = 1;
-            for (int j = 0; j < i; j++) {
-                WND *prev_w = w_list[j];
-                const char *pname = "btron_app";
-                if (tkl_strstr(prev_w->title, "gterm") || tkl_strstr(prev_w->title, "Terminal")) pname = "gterm";
-                else if (tkl_strstr(prev_w->title, "T-Editor") || tkl_strstr(prev_w->title, "Editor")) pname = "t_editor";
-                else if (tkl_strstr(prev_w->title, "TAD") || tkl_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
-                else if (tkl_strstr(prev_w->title, "Cabinet") || tkl_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
-                else if (tkl_strstr(prev_w->title, "TC-K777ES") || tkl_strstr(prev_w->title, "SONY")) pname = "audio_player";
-                else if (tkl_strstr(prev_w->title, "Chat") || tkl_strstr(prev_w->title, "対話") || tkl_strstr(prev_w->title, "会話") || tkl_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
-                if (tkl_strcmp(pname, tname) == 0) inst_num++;
-            }
-
-            char task_with_inst[32];
-            snprintf(task_with_inst, sizeof(task_with_inst), "%s#%d", tname, inst_num);
-            char line[256];
-            snprintf(line, sizeof(line), "  %02d   %-14s %-9s 0x%08lx      %dx%d   %s\n",
-                     cw->id, task_with_inst, cw->focused ? "RUNNING" : "SLEEP",
-                     (unsigned long)((uintptr_t)cw & 0xFFFFFFFF),
-                     (cw->bounds.right - cw->bounds.left), (cw->bounds.bottom - cw->bounds.top),
-                     cw->title);
-            uart_puts(line);
-        }
-    } else if (tkl_strcmp(p, "vobj") == 0 || tkl_strcmp(p, "ls") == 0 || tkl_strcmp(p, "dir") == 0) {
-        uart_puts("\nB-System Real Object / Virtual Object Cabinet:\n");
-        uart_puts("  [実身] #101 : BTRON3_Report.txt (件名：【BTRON3仕様の新実装】)\n");
-        uart_puts("  [仮身] #102 : Kojima_Hideki_Link (ノルティアオーダー／TAD 小島秀樹様 宛先リンク)\n");
-        uart_puts("  [実身] #103 : TKernel_Subsystem.sys (Sakamura T-Kernel 2.0 リアルタイムタスク構成)\n");
-        uart_puts("  [実身] #104 : TRONCode_JISX0208.fnt (16x16 JIS第1・第2水準 7,012文字グリフ表)\n");
-    } else if (tkl_strcmp(p, "cat") == 0 || tkl_strcmp(p, "cat BTRON3_Report.txt") == 0) {
-        uart_puts("\n--- BTRON3_Report.txt ---\n"
-                  "1 | 件名：【BTRON3仕様の新実装】におけるBTRON環境開発のご報告\n"
-                  "2 | 宛先：ノルティアオーダー／TADワーキンググループ 小島秀樹様\n"
-                  "3 | 突然のご連絡失礼いたします。私たちは「bitedits」開発チームです。\n"
-                  "4 | 仮想化環境およびRaspberry Piベアメタル上で動作するBTRON3を開発中です。\n"
-                  "5 | 貴団体の超機能分散環境（HFDS）とTAD仕様の知見に深く敬意を表します。\n"
-                  "6 | 日本語かな漢字変換（Mozc/TIP）およびTRON多言語文字体系を実装済みです。\n"
-                  "7 | 何卒よろしくお願い申し上げます。開発チーム（Namdak Tonpa Norbu）\n"
-                  "-------------------------\n");
-    } else if (tkl_strcmp(p, "mouse status") == 0) {
-        H mx, my;
-        get_baremetal_mouse_pos(&mx, &my);
-        uart_puts("\nMouse Cursor Position: X=");
-        uart_hex32((uint32_t)mx);
-        uart_puts(", Y=");
-        uart_hex32((uint32_t)my);
-        uart_puts("\n");
-    } else if (tkl_strcmp(p, "mouse click") == 0 || tkl_strcmp(p, "mouse click 460 280") == 0) {
-        H mx, my;
-        get_baremetal_mouse_pos(&mx, &my);
-        handle_baremetal_mouse_click(screen, mx, my, TRUE);
-        handle_baremetal_mouse_click(screen, mx, my, FALSE);
-        uart_puts("\nSimulated Mouse Click at cursor position.\n");
-    } else if (tkl_strcmp(p, "mem") == 0) {
-        uart_puts("\nMemory & Heap Statistics:\n");
-        uart_puts("  Heap Base  : 0x01000000 (16 MB)\n");
-        uart_puts("  Heap Limit : 0x1B000000 (432 MB limit)\n");
-        uart_puts("  VRAM FB    : 0x3C100000 (1024x768x32bpp, 3 MB)\n");
-        uart_puts("  Status     : Normal / Healthy\n");
-    } else if (tkl_strcmp(p, "clear") == 0) {
-        uart_puts("\033[2J\033[H");
-    } else {
-        uart_puts("\nUnknown command: '");
-        uart_puts(p);
-        uart_puts("'. Type 'help' for available commands.\n");
-    }
+static void uart_shell_out(const char *line, COLOR col, void *user_data) {
+    (void)col;
+    (void)user_data;
+    uart_puts(line);
+    uart_puts("\r\n");
 }
 
 void btron_main(void) {
@@ -382,7 +270,7 @@ void btron_main(void) {
     uart_puts("\n");
 
     uart_puts("[QEMU-ARM] Initializing Sakamura T-Kernel 2.0 Subsystems...\n");
-    yokobayashi_tkernel_init();
+    btron_core_init();
     uart_puts("[T-KERNEL] All 14 Sakamura T-Kernel 2.0 Subsystems Initialized Successfully.\n");
 
     uart_puts("[QEMU-ARM] Initializing BCM283x Hardware Screen Device Driver...\n");
@@ -617,7 +505,11 @@ void btron_main(void) {
                 uart_putc('\r');
                 uart_putc('\n');
                 cmd_buf[cmd_len] = '\0';
-                console_exec(screen, cmd_buf);
+                if (tkl_strcmp(cmd_buf, "clear") == 0 || tkl_strcmp(cmd_buf, "cls") == 0) {
+                    uart_puts("\033[2J\033[H");
+                } else {
+                    shell_execute_cmd(cmd_buf, uart_shell_out, NULL, NULL);
+                }
                 cmd_len = 0;
                 uart_puts("\nbtron:/> ");
             } else if (c == 0x08 || c == 0x7F) {

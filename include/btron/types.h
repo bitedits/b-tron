@@ -36,7 +36,10 @@ typedef int32_t           ID;  /* TRON Object ID */
 typedef int32_t           ER;  /* TRON Error Code */
 typedef uint32_t          BOOL;/* Boolean value */
 typedef uint16_t          TC;  /* TRON Character Code (16-bit) */
+#ifndef _COLOR_DEFINED_
+#define _COLOR_DEFINED_
 typedef uint32_t          COLOR;/* TRON Color value (RGBA) */
+#endif
 
 #ifndef TRUE
 #define TRUE  1

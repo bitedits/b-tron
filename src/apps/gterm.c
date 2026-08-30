@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <time.h>
-#include <sys/utsname.h>
 #else
 #include <stddef.h>
 #include <stdint.h>
@@ -30,6 +29,7 @@ extern void* tkl_memmove(void *dest, const void *src, size_t n);
 #define strncat tkl_strncat
 #define strcat  tkl_strcat
 #define strcmp  tkl_strcmp
+#define strncmp tkl_strncmp
 #define memset  tkl_memset
 #define memcpy  tkl_memcpy
 #define memmove tkl_memmove
@@ -103,11 +103,9 @@ static void gterm_init_banner(GTermState *st) {
     memset(st, 0, sizeof(GTermState));
     strncpy(st->prompt, "btron:/> ", sizeof(st->prompt) - 1);
 
-    gterm_append_line(st, "==========================================================================", COLOR_CYAN);
-    gterm_append_line(st, " Sakamura B-System 3.0 Workstation Shell (gterm)", COLOR_WHITE);
-    gterm_append_line(st, " Real-Time OS: Sakamura T-Kernel 2.0 / BCM283x ARM Engine", COLOR_LTGRAY);
-    gterm_append_line(st, " Multi-Plane TRONCode & Mozc TIP Full-Width Architecture", COLOR_LTGRAY);
-    gterm_append_line(st, "==========================================================================", COLOR_CYAN);
+    gterm_append_line(st, "+==================================================+", COLOR_CYAN);
+    gterm_append_line(st, "| B-System 3.0 Workstation Shell (gterm)           |", COLOR_WHITE);
+    gterm_append_line(st, "+==================================================+", COLOR_CYAN);
     gterm_append_line(st, "Type 'help' or '?' for available system commands.", COLOR_GREEN);
 }
 
@@ -138,25 +136,15 @@ void gterm_append_line(GTermState *st, const char *text, COLOR col) {
     }
 }
 
-static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
-    (void)wnd;
-    if (!st || !cmd_line) return;
-
-    /* Echo command line into terminal */
-    char echo_buf[300];
-    snprintf(echo_buf, sizeof(echo_buf), "%s%s", st->prompt, cmd_line);
-    gterm_append_line(st, echo_buf, COLOR_WHITE);
-
-    /* Record in history */
-    if (cmd_line[0] != '\0') {
-        if (st->cmd_hist_count < GTERM_CMD_HIST_MAX) {
-            strncpy(st->cmd_history[st->cmd_hist_count++], cmd_line, 255);
-        } else {
-            memmove(&st->cmd_history[0], &st->cmd_history[1], sizeof(st->cmd_history[0]) * (GTERM_CMD_HIST_MAX - 1));
-            strncpy(st->cmd_history[GTERM_CMD_HIST_MAX - 1], cmd_line, 255);
-        }
+static void gterm_shell_out(const char *line, COLOR col, void *user_data) {
+    GTermState *st = (GTermState*)user_data;
+    if (st) {
+        gterm_append_line(st, line, col);
     }
-    st->cmd_hist_idx = st->cmd_hist_count;
+}
+
+void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_data, WND *wnd) {
+    if (!out_fn || !cmd_line) return;
 
     const char *p = cmd_line;
     while (*p && isspace((unsigned char)*p)) p++;
@@ -181,90 +169,94 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
     int n = (cmd_i > 0) ? (arg_i > 0 ? 2 : 1) : 0;
 
     if (strcmp(cmd, "help") == 0 || strcmp(cmd, "?") == 0) {
-        gterm_append_line(st, "B-System Shell Commands:", COLOR_GREEN);
-        gterm_append_line(st, "  help, ?     - Show command help list", COLOR_LTGRAY);
-        gterm_append_line(st, "  ver, uname  - System version info", COLOR_LTGRAY);
-        gterm_append_line(st, "  pwd         - Print current working directory", COLOR_LTGRAY);
-        gterm_append_line(st, "  cd <dir>    - Change working directory", COLOR_LTGRAY);
-        gterm_append_line(st, "  ls, dir     - List directory contents", COLOR_LTGRAY);
-        gterm_append_line(st, "  cat <file>  - Display text file contents", COLOR_LTGRAY);
-        gterm_append_line(st, "  echo <text> - Print string", COLOR_LTGRAY);
-        gterm_append_line(st, "  ps          - Dynamic process and window task table", COLOR_LTGRAY);
-        gterm_append_line(st, "  vobj        - List virtual objects in store", COLOR_LTGRAY);
-        gterm_append_line(st, "  edit, editor- Launch new T-Editor instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  tad, browser- Launch new TAD Browser instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  chat        - Launch new BeOS Chat instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  audio       - Launch Audio Player instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  cabinet     - Launch Cabinet Explorer instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  term, gterm - Launch new Terminal instance", COLOR_LTGRAY);
-        gterm_append_line(st, "  date        - Current system time & date", COLOR_LTGRAY);
-        gterm_append_line(st, "  clear, cls  - Clear terminal screen", COLOR_LTGRAY);
-        gterm_append_line(st, "  history     - Show command history", COLOR_LTGRAY);
-        gterm_append_line(st, "  exit, quit  - Close terminal window", COLOR_LTGRAY);
+        out_fn("B-System Shell Commands:", COLOR_GREEN, user_data);
+        out_fn("  help, ?             - Show command help list", COLOR_LTGRAY, user_data);
+        out_fn("  ver, uname          - System version & kernel info", COLOR_LTGRAY, user_data);
+        out_fn("  devconf             - Registered hardware and device drivers", COLOR_LTGRAY, user_data);
+        out_fn("  ps                  - Dynamic process and window task table", COLOR_LTGRAY, user_data);
+        out_fn("  vobj, ls, dir       - Virtual objects and file listings", COLOR_LTGRAY, user_data);
+        out_fn("  cat <file>          - Display text file contents", COLOR_LTGRAY, user_data);
+        out_fn("  pwd                 - Print current working directory", COLOR_LTGRAY, user_data);
+        out_fn("  cd <dir>            - Change working directory", COLOR_LTGRAY, user_data);
+        out_fn("  echo <text>         - Print string", COLOR_LTGRAY, user_data);
+        out_fn("  mem                 - Memory pool allocation statistics", COLOR_LTGRAY, user_data);
+        out_fn("  mouse status        - Display current mouse cursor position", COLOR_LTGRAY, user_data);
+        out_fn("  mouse move <X> <Y>  - Move mouse cursor to coordinates", COLOR_LTGRAY, user_data);
+        out_fn("  mouse click <X> <Y> - Simulate mouse click at coordinates", COLOR_LTGRAY, user_data);
+        out_fn("  edit, editor        - Launch new T-Editor instance", COLOR_LTGRAY, user_data);
+        out_fn("  tad, browser        - Launch new TAD Browser instance", COLOR_LTGRAY, user_data);
+        out_fn("  chat                - Launch new BeOS Chat instance", COLOR_LTGRAY, user_data);
+        out_fn("  audio               - Launch Audio Player instance", COLOR_LTGRAY, user_data);
+        out_fn("  cabinet             - Launch Cabinet Explorer instance", COLOR_LTGRAY, user_data);
+        out_fn("  term, gterm         - Launch new Terminal instance", COLOR_LTGRAY, user_data);
+        out_fn("  date                - Current system time & date", COLOR_LTGRAY, user_data);
+        out_fn("  clear, cls          - Clear terminal screen", COLOR_LTGRAY, user_data);
+        out_fn("  history             - Show command history", COLOR_LTGRAY, user_data);
+        out_fn("  exit, quit          - Close terminal window", COLOR_LTGRAY, user_data);
     } else if (strcmp(cmd, "ver") == 0 || strcmp(cmd, "uname") == 0) {
-        if (strcmp(cmd, "uname") == 0 && strcmp(arg, "-a") == 0) {
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-            struct utsname un;
-            if (uname(&un) == 0) {
-                char abuf[280];
-                snprintf(abuf, sizeof(abuf), "%s %s %s %s %s (BTRON3 3.20 Cleanroom)",
-                         un.sysname, un.nodename, un.release, un.version, un.machine);
-                gterm_append_line(st, abuf, COLOR_CYAN);
+        btron_core_print_ver(out_fn, user_data, arg);
+    } else if (strcmp(cmd, "devconf") == 0) {
+        char dbuf[512];
+        sys_get_devconf(dbuf, sizeof(dbuf));
+        out_fn(dbuf, COLOR_CYAN, user_data);
+    } else if (strcmp(cmd, "mem") == 0) {
+        uint32_t base = 0, limit = 0, used = 0;
+        sys_get_mem_stats(&base, &limit, &used);
+        out_fn("T-Kernel 2.0 Memory Pool Statistics:", COLOR_CYAN, user_data);
+        char mbuf[128];
+        snprintf(mbuf, sizeof(mbuf), "  Heap Base  : 0x%08X", base);
+        out_fn(mbuf, COLOR_LTGRAY, user_data);
+        snprintf(mbuf, sizeof(mbuf), "  Heap Limit : 0x%08X", limit);
+        out_fn(mbuf, COLOR_LTGRAY, user_data);
+        snprintf(mbuf, sizeof(mbuf), "  Heap Used  : 0x%08X (%u bytes)", used, used);
+        out_fn(mbuf, COLOR_LTGRAY, user_data);
+    } else if (strcmp(cmd, "mouse") == 0) {
+        if (strcmp(arg, "status") == 0 || arg[0] == '\0') {
+            H mx = 0, my = 0;
+            sys_mouse_get_pos(&mx, &my);
+            char pos_buf[128];
+            snprintf(pos_buf, sizeof(pos_buf), "Mouse Cursor Position: X=%d, Y=%d", mx, my);
+            out_fn(pos_buf, COLOR_CYAN, user_data);
+        } else if (strncmp(arg, "move", 4) == 0) {
+            const char *sp = arg + 4;
+            while (*sp == ' ' || *sp == '\t') sp++;
+            int mx = 0, my = 0;
+            while (*sp >= '0' && *sp <= '9') { mx = mx * 10 + (*sp - '0'); sp++; }
+            while (*sp == ' ' || *sp == '\t') sp++;
+            while (*sp >= '0' && *sp <= '9') { my = my * 10 + (*sp - '0'); sp++; }
+            sys_mouse_set_pos((H)mx, (H)my);
+            char mbuf[128];
+            snprintf(mbuf, sizeof(mbuf), "Moved mouse cursor to (%d, %d)", mx, my);
+            out_fn(mbuf, COLOR_GREEN, user_data);
+        } else if (strncmp(arg, "click", 5) == 0) {
+            const char *sp = arg + 5;
+            while (*sp == ' ' || *sp == '\t') sp++;
+            int mx = 0, my = 0;
+            while (*sp >= '0' && *sp <= '9') { mx = mx * 10 + (*sp - '0'); sp++; }
+            while (*sp == ' ' || *sp == '\t') sp++;
+            while (*sp >= '0' && *sp <= '9') { my = my * 10 + (*sp - '0'); sp++; }
+            if (mx > 0 || my > 0) {
+                sys_mouse_click((H)mx, (H)my);
+                char cbuf[128];
+                snprintf(cbuf, sizeof(cbuf), "Simulated mouse click at (%d, %d)", mx, my);
+                out_fn(cbuf, COLOR_GREEN, user_data);
             } else {
-                gterm_append_line(st, "BTRON3 Sakamura T-Kernel 2.0 (Target 0: POSIX)", COLOR_CYAN);
+                H cur_x = 0, cur_y = 0;
+                sys_mouse_get_pos(&cur_x, &cur_y);
+                sys_mouse_click(cur_x, cur_y);
+                out_fn("Simulated mouse click at current cursor position", COLOR_GREEN, user_data);
             }
-#else
-            gterm_append_line(st, "BTRON3 btron-rpi 2.0 T-Kernel-BCM2836 armv7l GNU/B-System", COLOR_CYAN);
-#endif
-        } else if (strcmp(cmd, "uname") == 0 && (strcmp(arg, "-r") == 0 || strcmp(arg, "-v") == 0)) {
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-            struct utsname un;
-            if (uname(&un) == 0) {
-                gterm_append_line(st, (strcmp(arg, "-r") == 0) ? un.release : un.version, COLOR_CYAN);
-            }
-#else
-            gterm_append_line(st, "2.0.0-tkernel-arm", COLOR_CYAN);
-#endif
-        } else {
-            gterm_append_line(st, "B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN);
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-            struct utsname un;
-            if (uname(&un) == 0) {
-                char kbuf[280];
-                snprintf(kbuf, sizeof(kbuf), "Host OS / Kernel: %s %s (%s, %s)",
-                         un.sysname, un.release, un.machine, un.nodename);
-                gterm_append_line(st, kbuf, COLOR_WHITE);
-            }
-#if BTRON_TARGET == 0
-            gterm_append_line(st, "B-Kernel Subsystem: POSIX Microkernel Abstraction Mode (Target 0: BTRON_POSIX)", COLOR_GREEN);
-#elif BTRON_TARGET == 1
-            gterm_append_line(st, "B-Kernel Subsystem: QEMU VirtIO Hardware Abstraction (Target 1: BTRON_QEMU)", COLOR_GREEN);
-#elif BTRON_TARGET == 2
-            gterm_append_line(st, "B-Kernel Subsystem: Yokobayashi T-Kernel 2.0 Engine (Target 2: BTRON_YOKOBAYASHI)", COLOR_GREEN);
-#elif BTRON_TARGET == 3
-            gterm_append_line(st, "B-Kernel Subsystem: Sakamura T-Kernel 2.0 VirtIO Real-Time (Target 3: BTRON_SAKAMURA)", COLOR_GREEN);
-#endif
-            char build_buf[256];
-            snprintf(build_buf, sizeof(build_buf), "Build Timestamp: %s %s [Compiler: %s]", __DATE__, __TIME__, __VERSION__);
-            gterm_append_line(st, build_buf, COLOR_LTGRAY);
-#else
-            gterm_append_line(st, "Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)", COLOR_GREEN);
-            gterm_append_line(st, "Hardware Target: Raspberry Pi 2B / 3B Bare-Metal Kernel", COLOR_LTGRAY);
-            gterm_append_line(st, "Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY);
-#endif
-            gterm_append_line(st, "Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY);
-            gterm_append_line(st, "Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY);
         }
     } else if (strcmp(cmd, "pwd") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         char cwd[256];
         if (getcwd(cwd, sizeof(cwd))) {
-            gterm_append_line(st, cwd, COLOR_LTGRAY);
+            out_fn(cwd, COLOR_LTGRAY, user_data);
         } else {
-            gterm_append_line(st, "Error: cannot get working directory", COLOR_RED);
+            out_fn("Error: cannot get working directory", COLOR_RED, user_data);
         }
 #else
-        gterm_append_line(st, "/sys/btron_root", COLOR_LTGRAY);
+        out_fn("/sys/btron_root", COLOR_LTGRAY, user_data);
 #endif
     } else if (strcmp(cmd, "cd") == 0) {
         const char *dir = (n > 1 && arg[0]) ? arg : ".";
@@ -272,15 +264,15 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         if (chdir(dir) == 0) {
             char cwd[256];
             if (getcwd(cwd, sizeof(cwd))) {
-                gterm_append_line(st, cwd, COLOR_GREEN);
+                out_fn(cwd, COLOR_GREEN, user_data);
             }
         } else {
             char err[280];
             snprintf(err, sizeof(err), "cd: no such file or directory: %s", dir);
-            gterm_append_line(st, err, COLOR_RED);
+            out_fn(err, COLOR_RED, user_data);
         }
 #else
-        gterm_append_line(st, dir, COLOR_GREEN);
+        out_fn(dir, COLOR_GREEN, user_data);
 #endif
     } else if (strcmp(cmd, "ls") == 0 || strcmp(cmd, "dir") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -289,7 +281,7 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         if (!dir) {
             char err[280];
             snprintf(err, sizeof(err), "ls: cannot access '%s'", dir_path);
-            gterm_append_line(st, err, COLOR_RED);
+            out_fn(err, COLOR_RED, user_data);
         } else {
             struct dirent *entry;
             char line_buf[256] = "";
@@ -303,54 +295,54 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
                 strncat(line_buf, name_fmt, sizeof(line_buf) - strlen(line_buf) - 1);
                 count++;
                 if (count % 3 == 0) {
-                    gterm_append_line(st, line_buf, COLOR_LTGRAY);
+                    out_fn(line_buf, COLOR_LTGRAY, user_data);
                     line_buf[0] = '\0';
                 }
             }
             if (line_buf[0] != '\0') {
-                gterm_append_line(st, line_buf, COLOR_LTGRAY);
+                out_fn(line_buf, COLOR_LTGRAY, user_data);
             }
             closedir(dir);
         }
 #else
-        gterm_append_line(st, "BTRON3_Report.txt  README.txt          btron_store/       ", COLOR_LTGRAY);
-        gterm_append_line(st, "dev/screen0        dev/uart0           kernel.sys         ", COLOR_LTGRAY);
+        out_fn("BTRON3_Report.txt  README.txt          btron_store/       ", COLOR_LTGRAY, user_data);
+        out_fn("dev/screen0        dev/uart0           kernel.sys         ", COLOR_LTGRAY, user_data);
 #endif
     } else if (strcmp(cmd, "cat") == 0) {
         if (n <= 1 || !arg[0]) {
-            gterm_append_line(st, "cat: missing file argument", COLOR_RED);
+            out_fn("cat: missing file argument", COLOR_RED, user_data);
         } else {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
             FILE *f = fopen(arg, "r");
             if (!f) {
                 char err[280];
                 snprintf(err, sizeof(err), "cat: %s: No such file", arg);
-                gterm_append_line(st, err, COLOR_RED);
+                out_fn(err, COLOR_RED, user_data);
             } else {
                 char buf[256];
                 int max_read = 30;
                 while (fgets(buf, sizeof(buf), f) && max_read-- > 0) {
-                    gterm_append_line(st, buf, COLOR_LTGRAY);
+                    out_fn(buf, COLOR_LTGRAY, user_data);
                 }
                 fclose(f);
             }
 #else
-            gterm_append_line(st, "【BTRON3仕様の新実装】報告文書", COLOR_CYAN);
-            gterm_append_line(st, "宛先：ノルティアオーダー／TADワーキンググループ 小島秀樹様", COLOR_LTGRAY);
+            out_fn("【BTRON3仕様の新実装】報告文書", COLOR_CYAN, user_data);
+            out_fn("宛先：ノルティアオーダー／TADワーキンググループ 小島秀樹様", COLOR_LTGRAY, user_data);
 #endif
         }
     } else if (strcmp(cmd, "echo") == 0) {
-        gterm_append_line(st, arg, COLOR_LTGRAY);
+        out_fn(arg, COLOR_LTGRAY, user_data);
     } else if (strcmp(cmd, "ps") == 0) {
-        gterm_append_line(st, "PID   TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN);
-        gterm_append_line(st, "----------------------------------------------------------------", COLOR_DKGRAY);
-        gterm_append_line(st, "  1   tk_desktop     RUN    0x01020000   1024x768  [B-System Desktop]", COLOR_GREEN);
-        gterm_append_line(st, "  2   tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", COLOR_GREEN);
-        gterm_append_line(st, "  3   tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", COLOR_GREEN);
+        out_fn("PID   TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN, user_data);
+        out_fn("----------------------------------------------------------------", COLOR_DKGRAY, user_data);
+        out_fn("  1   tk_desktop     RUN    0x01020000   1024x768  [B-System Desktop]", COLOR_GREEN, user_data);
+        out_fn("  2   tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", COLOR_GREEN, user_data);
+        out_fn("  3   tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", COLOR_GREEN, user_data);
 
         WND *w = get_wnd_list();
         if (!w) {
-            gterm_append_line(st, "  (No active user application instances)", COLOR_LTGRAY);
+            out_fn("  (No active user application instances)", COLOR_LTGRAY, user_data);
         } else {
             WND *w_list[64];
             int count = 0;
@@ -401,57 +393,57 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
                          cw->title);
 
                 COLOR col = cw->focused ? COLOR_YELLOW : COLOR_LTGRAY;
-                gterm_append_line(st, line, col);
+                out_fn(line, col, user_data);
             }
         }
     } else if (strcmp(cmd, "editor") == 0 || strcmp(cmd, "edit") == 0) {
         open_t_editor_window();
-        gterm_append_line(st, "Started new T-Editor instance", COLOR_GREEN);
+        out_fn("Started new T-Editor instance", COLOR_GREEN, user_data);
     } else if (strcmp(cmd, "tad") == 0 || strcmp(cmd, "browser") == 0) {
         open_tad_browser_window("tad_bin/01_btron3_spec.tad", "【仕様書】BTRON3 3.20");
-        gterm_append_line(st, "Started new TAD Browser instance", COLOR_GREEN);
+        out_fn("Started new TAD Browser instance", COLOR_GREEN, user_data);
     } else if (strcmp(cmd, "chat") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         launch_beos_chat();
-        gterm_append_line(st, "Started new BeOS Chat instance", COLOR_GREEN);
+        out_fn("Started new BeOS Chat instance", COLOR_GREEN, user_data);
 #else
-        gterm_append_line(st, "BeOS Chat is supported in POSIX / Hosted mode", COLOR_YELLOW);
+        out_fn("BeOS Chat is supported in POSIX / Hosted mode", COLOR_YELLOW, user_data);
 #endif
     } else if (strcmp(cmd, "audio") == 0 || strcmp(cmd, "player") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         open_audio_player_window();
-        gterm_append_line(st, "Started Audio Deck instance", COLOR_GREEN);
+        out_fn("Started Audio Deck instance", COLOR_GREEN, user_data);
 #else
-        gterm_append_line(st, "Audio Player is supported in POSIX / Hosted mode", COLOR_YELLOW);
+        out_fn("Audio Player is supported in POSIX / Hosted mode", COLOR_YELLOW, user_data);
 #endif
     } else if (strcmp(cmd, "cabinet") == 0 || strcmp(cmd, "vobjmgr") == 0) {
         open_vobj_manager_window();
-        gterm_append_line(st, "Started Cabinet Explorer instance", COLOR_GREEN);
+        out_fn("Started Cabinet Explorer instance", COLOR_GREEN, user_data);
     } else if (strcmp(cmd, "gterm") == 0 || strcmp(cmd, "term") == 0) {
         open_gterm_window();
-        gterm_append_line(st, "Started new Terminal instance", COLOR_GREEN);
+        out_fn("Started new Terminal instance", COLOR_GREEN, user_data);
     } else if (strcmp(cmd, "vobj") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         DIR *dir = opendir("./btron_store");
         if (!dir) {
-            gterm_append_line(st, "vobj: btron_store directory not found", COLOR_RED);
+            out_fn("vobj: btron_store directory not found", COLOR_RED, user_data);
         } else {
-            gterm_append_line(st, "B-System Real/Virtual Object Store:", COLOR_CYAN);
+            out_fn("B-System Real/Virtual Object Store:", COLOR_CYAN, user_data);
             struct dirent *entry;
             while ((entry = readdir(dir)) != NULL) {
                 if (entry->d_name[0] != '.') {
                     char item[128];
                     snprintf(item, sizeof(item), "  [VOBJ] %s", entry->d_name);
-                    gterm_append_line(st, item, COLOR_GREEN);
+                    out_fn(item, COLOR_GREEN, user_data);
                 }
             }
             closedir(dir);
         }
 #else
-        gterm_append_line(st, "B-System Real/Virtual Object Store:", COLOR_CYAN);
-        gterm_append_line(st, "  [VOBJ] BTRON3_Report.txt (RealObject #101)", COLOR_GREEN);
-        gterm_append_line(st, "  [VOBJ] Kojima_Hideki_Link.vlk (VirtualLink #102)", COLOR_GREEN);
-        gterm_append_line(st, "  [VOBJ] TKernel_Subsystem.sys (RealObject #103)", COLOR_GREEN);
+        out_fn("B-System Real/Virtual Object Store:", COLOR_CYAN, user_data);
+        out_fn("  [VOBJ] BTRON3_Report.txt (RealObject #101)", COLOR_GREEN, user_data);
+        out_fn("  [VOBJ] Kojima_Hideki_Link.vlk (VirtualLink #102)", COLOR_GREEN, user_data);
+        out_fn("  [VOBJ] TKernel_Subsystem.sys (RealObject #103)", COLOR_GREEN, user_data);
 #endif
     } else if (strcmp(cmd, "date") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -459,19 +451,12 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         struct tm *tm_info = localtime(&t);
         char tbuf[128];
         strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S %Z", tm_info);
-        gterm_append_line(st, tbuf, COLOR_LTGRAY);
+        out_fn(tbuf, COLOR_LTGRAY, user_data);
 #else
-        gterm_append_line(st, "2026-08-28 12:00:00 JST", COLOR_LTGRAY);
+        out_fn("2026-08-28 12:00:00 JST", COLOR_LTGRAY, user_data);
 #endif
     } else if (strcmp(cmd, "clear") == 0 || strcmp(cmd, "cls") == 0) {
-        st->total_lines = 0;
-    } else if (strcmp(cmd, "history") == 0) {
-        gterm_append_line(st, "Command History:", COLOR_CYAN);
-        for (int i = 0; i < st->cmd_hist_count; i++) {
-            char hline[280];
-            snprintf(hline, sizeof(hline), " %2d  %s", i + 1, st->cmd_history[i]);
-            gterm_append_line(st, hline, COLOR_LTGRAY);
-        }
+        /* Screen cleared via shell caller */
     } else if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "quit") == 0) {
         if (wnd) {
             cls_wnd(wnd);
@@ -483,20 +468,53 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         if (!pipe) {
             char err[280];
             snprintf(err, sizeof(err), "gterm: command not found: %s", cmd);
-            gterm_append_line(st, err, COLOR_RED);
+            out_fn(err, COLOR_RED, user_data);
         } else {
             char linebuf[256];
             int max_lines = 40;
             while (fgets(linebuf, sizeof(linebuf), pipe) && max_lines-- > 0) {
-                gterm_append_line(st, linebuf, COLOR_LTGRAY);
+                out_fn(linebuf, COLOR_LTGRAY, user_data);
             }
             pclose(pipe);
         }
 #else
         char err[280];
         snprintf(err, sizeof(err), "gterm: command not found: %s", cmd);
-        gterm_append_line(st, err, COLOR_RED);
+        out_fn(err, COLOR_RED, user_data);
 #endif
+    }
+}
+
+static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
+    if (!st || !cmd_line) return;
+
+    /* Echo command line into terminal */
+    char echo_buf[300];
+    snprintf(echo_buf, sizeof(echo_buf), "%s%s", st->prompt, cmd_line);
+    gterm_append_line(st, echo_buf, COLOR_WHITE);
+
+    /* Record in history */
+    if (cmd_line[0] != '\0') {
+        if (st->cmd_hist_count < GTERM_CMD_HIST_MAX) {
+            strncpy(st->cmd_history[st->cmd_hist_count++], cmd_line, 255);
+        } else {
+            memmove(&st->cmd_history[0], &st->cmd_history[1], sizeof(st->cmd_history[0]) * (GTERM_CMD_HIST_MAX - 1));
+            strncpy(st->cmd_history[GTERM_CMD_HIST_MAX - 1], cmd_line, 255);
+        }
+    }
+    st->cmd_hist_idx = st->cmd_hist_count;
+
+    if (strcmp(cmd_line, "history") == 0) {
+        gterm_append_line(st, "Command History:", COLOR_CYAN);
+        for (int i = 0; i < st->cmd_hist_count; i++) {
+            char hline[280];
+            snprintf(hline, sizeof(hline), " %2d  %s", i + 1, st->cmd_history[i]);
+            gterm_append_line(st, hline, COLOR_LTGRAY);
+        }
+    } else if (strcmp(cmd_line, "clear") == 0 || strcmp(cmd_line, "cls") == 0) {
+        st->total_lines = 0;
+    } else {
+        shell_execute_cmd(cmd_line, gterm_shell_out, st, wnd);
     }
 }
 

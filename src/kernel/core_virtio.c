@@ -40,7 +40,9 @@ static TK_SEMB g_tk_sems[MAX_TK_SEMS];
 static ID      g_current_tskid = 1;
 static SYSTIME g_tk_system_ticks = 0;
 
-void tkernel_init(void) {
+#include <btron/apps.h>
+
+void btron_core_init(void) {
     (void)g_current_tskid;
     memset(g_tk_tasks, 0, sizeof(g_tk_tasks));
     memset(g_tk_sems, 0, sizeof(g_tk_sems));
@@ -49,6 +51,23 @@ void tkernel_init(void) {
     printf(" Target Mode 1: BTRON_QEMU Active\n");
     printf("==========================================================\n\n");
     virtio_mmio_init(0x10001000);
+}
+
+void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
+    if (!out_fn) return;
+    if (arg && strcmp(arg, "-a") == 0) {
+        out_fn("BTRON3 QEMU VirtIO Kernel 2.0 (Target 1: BTRON_QEMU)", COLOR_CYAN, user_data);
+    } else if (arg && (strcmp(arg, "-r") == 0 || strcmp(arg, "-v") == 0)) {
+        out_fn("2.0.0-virtio-qemu", COLOR_CYAN, user_data);
+    } else {
+        out_fn("B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN, user_data);
+        out_fn("B-Kernel Subsystem: QEMU VirtIO Hardware Abstraction (Target 1: BTRON_QEMU)", COLOR_GREEN, user_data);
+        char build_buf[256];
+        snprintf(build_buf, sizeof(build_buf), "Build Timestamp: %s %s [Compiler: %s]", __DATE__, __TIME__, __VERSION__);
+        out_fn(build_buf, COLOR_LTGRAY, user_data);
+        out_fn("Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY, user_data);
+        out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
+    }
 }
 
 ID cre_tsk(const T_CTSK *pk_ctsk) {

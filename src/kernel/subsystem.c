@@ -1060,3 +1060,39 @@ SYSCALL ER _tk_get_res( ID resid, ID ssid, void **p_resblk )
 
 	return ercd;
 }
+
+/* Forward declarations for Sakamura T-Kernel 2.0 Subsystem Initializers */
+extern ER task_initialize(void);
+extern ER semaphore_initialize(void);
+extern ER eventflag_initialize(void);
+extern ER mailbox_initialize(void);
+extern ER messagebuffer_initialize(void);
+extern ER rendezvous_initialize(void);
+extern ER mutex_initialize(void);
+extern ER memorypool_initialize(void);
+extern ER fix_memorypool_initialize(void);
+extern ER cyclichandler_initialize(void);
+extern ER alarmhandler_initialize(void);
+extern ER resource_group_initialize(void);
+extern ER timer_initialize(void);
+
+void tkernel_init_subsystems(int full_suite) {
+    task_initialize();
+    semaphore_initialize();
+    eventflag_initialize();
+    mailbox_initialize();
+    messagebuffer_initialize();
+    rendezvous_initialize();
+    mutex_initialize();
+    memorypool_initialize();
+    fix_memorypool_initialize();
+    if (full_suite) {
+        cyclichandler_initialize();
+        alarmhandler_initialize();
+        subsystem_initialize();
+        resource_group_initialize();
+        timer_initialize();
+    } else {
+        subsystem_initialize();
+    }
+}

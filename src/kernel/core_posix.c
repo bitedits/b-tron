@@ -38,7 +38,10 @@ static ITRON_TASK g_tasks[MAX_TASKS];
 static ITRON_SEM  g_sems[MAX_SEMS];
 static pthread_mutex_t g_kernel_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void btron_posix_kernel_init(void) {
+#include <btron/apps.h>
+#include <sys/utsname.h>
+
+void btron_core_init(void) {
     pthread_mutex_lock(&g_kernel_mutex);
     memset(g_tasks, 0, sizeof(g_tasks));
     memset(g_sems, 0, sizeof(g_sems));
@@ -47,6 +50,41 @@ void btron_posix_kernel_init(void) {
     printf(" POSIX Microkernel Abstraction Engine (Host PC Mode)\n");
     printf(" Target Mode 0: BTRON_POSIX Active\n");
     printf("==========================================================\n\n");
+}
+
+void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
+    if (!out_fn) return;
+    if (arg && strcmp(arg, "-a") == 0) {
+        struct utsname un;
+        if (uname(&un) == 0) {
+            char abuf[280];
+            snprintf(abuf, sizeof(abuf), "%s %s %s %s %s (BTRON3 3.20 Cleanroom)",
+                     un.sysname, un.nodename, un.release, un.version, un.machine);
+            out_fn(abuf, COLOR_CYAN, user_data);
+        } else {
+            out_fn("BTRON3 Sakamura T-Kernel 2.0 (Target 0: POSIX)", COLOR_CYAN, user_data);
+        }
+    } else if (arg && (strcmp(arg, "-r") == 0 || strcmp(arg, "-v") == 0)) {
+        struct utsname un;
+        if (uname(&un) == 0) {
+            out_fn((strcmp(arg, "-r") == 0) ? un.release : un.version, COLOR_CYAN, user_data);
+        }
+    } else {
+        out_fn("B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN, user_data);
+        struct utsname un;
+        if (uname(&un) == 0) {
+            char kbuf[280];
+            snprintf(kbuf, sizeof(kbuf), "Host OS / Kernel: %s %s (%s, %s)",
+                     un.sysname, un.release, un.machine, un.nodename);
+            out_fn(kbuf, COLOR_WHITE, user_data);
+        }
+        out_fn("B-Kernel Subsystem: POSIX Microkernel Abstraction Mode (Target 0: BTRON_POSIX)", COLOR_GREEN, user_data);
+        char build_buf[256];
+        snprintf(build_buf, sizeof(build_buf), "Build Timestamp: %s %s [Compiler: %s]", __DATE__, __TIME__, __VERSION__);
+        out_fn(build_buf, COLOR_LTGRAY, user_data);
+        out_fn("Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY, user_data);
+        out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
+    }
 }
 
 ID cre_tsk(const T_CTSK *pk_ctsk) {

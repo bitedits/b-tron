@@ -146,7 +146,6 @@ TKERNEL_SAKAMURA_SRCS = \
     src/kernel/libstr.c
 
 TKERNEL_SRCS = src/kernel/core_tkernel.c \
-               src/kernel/core_yoko.c \
                src/drivers/virtio/virtio.c \
                src/kernel/core_init.c     \
                src/kernel/core_boot.c     \

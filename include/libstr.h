@@ -48,6 +48,7 @@ extern void* tkl_memmove( void *dst, const void *src, size_t n );
 
 extern size_t tkl_strlen( const char *s );
 extern int tkl_strcmp( const char *s1, const char *s2 );
+extern int tkl_strncmp( const char *s1, const char *s2, size_t n );
 extern char* tkl_strcpy( char *dst, const char *src );
 extern char* tkl_strncpy( char *dst, const char *src, size_t n );
 extern char* tkl_strcat( char *dst, const char *src );
