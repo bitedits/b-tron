@@ -287,14 +287,52 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         uart_puts("  [3] TKernel   : 14 Sakamura T-Kernel 2.0 Subsystems (Active)\n");
         uart_puts("  [4] VObjStore : HyperData HFDS Real Object Storage (Active)\n");
     } else if (tkl_strcmp(p, "ps") == 0) {
-        uart_puts("\nSakamura T-Kernel 2.0 Task Table:\n");
-        uart_puts("  ID  TASK            PRI  STATE     STACK BASE\n");
-        uart_puts("  01  tk_desktop      0x0A RUNNING   0x01020000\n");
-        uart_puts("  02  tk_wnd_mgr      0x0C READY     0x01040000\n");
-        uart_puts("  03  tk_kbpd_mouse   0x0D READY     0x01050000\n");
-        uart_puts("  04  tk_gterm        0x0F WAITING   0x01060000\n");
-        uart_puts("  05  tk_teditor      0x0F SLEEP     0x01080000\n");
-        uart_puts("  06  tk_tip_ime      0x0E READY     0x010A0000\n");
+        uart_puts("\nSakamura T-Kernel 2.0 Task & Process Table:\n");
+        uart_puts("  PID  TASK           STATE     STACK / ADDR    BOUNDS    TITLE\n");
+        uart_puts("  -------------------------------------------------------------------------\n");
+        uart_puts("  01   tk_desktop     RUNNING   0x01020000      1024x768  [B-TRON Desktop]\n");
+        uart_puts("  02   tk_wnd_mgr     READY     0x01040000      1024x768  [Window Compositor]\n");
+        uart_puts("  03   tk_tip_ime     READY     0x010A0000      Candidate [Mozc Japanese IME]\n");
+
+        WND *w = get_wnd_list();
+        WND *w_list[32];
+        int count = 0;
+        for (WND *curr = w; curr && count < 32; curr = curr->next) {
+            w_list[count++] = curr;
+        }
+        for (int i = 0; i < count; i++) {
+            WND *cw = w_list[i];
+            const char *tname = "btron_app";
+            if (tkl_strstr(cw->title, "gterm") || tkl_strstr(cw->title, "Terminal")) tname = "gterm";
+            else if (tkl_strstr(cw->title, "T-Editor") || tkl_strstr(cw->title, "Editor")) tname = "t_editor";
+            else if (tkl_strstr(cw->title, "TAD") || tkl_strstr(cw->title, "仕様書")) tname = "tad_browser";
+            else if (tkl_strstr(cw->title, "Cabinet") || tkl_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
+            else if (tkl_strstr(cw->title, "TC-K777ES") || tkl_strstr(cw->title, "SONY")) tname = "audio_player";
+            else if (tkl_strstr(cw->title, "Chat") || tkl_strstr(cw->title, "対話") || tkl_strstr(cw->title, "会話") || tkl_strstr(cw->title, "Blabber")) tname = "beos_chat";
+
+            int inst_num = 1;
+            for (int j = 0; j < i; j++) {
+                WND *prev_w = w_list[j];
+                const char *pname = "btron_app";
+                if (tkl_strstr(prev_w->title, "gterm") || tkl_strstr(prev_w->title, "Terminal")) pname = "gterm";
+                else if (tkl_strstr(prev_w->title, "T-Editor") || tkl_strstr(prev_w->title, "Editor")) pname = "t_editor";
+                else if (tkl_strstr(prev_w->title, "TAD") || tkl_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
+                else if (tkl_strstr(prev_w->title, "Cabinet") || tkl_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
+                else if (tkl_strstr(prev_w->title, "TC-K777ES") || tkl_strstr(prev_w->title, "SONY")) pname = "audio_player";
+                else if (tkl_strstr(prev_w->title, "Chat") || tkl_strstr(prev_w->title, "対話") || tkl_strstr(prev_w->title, "会話") || tkl_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
+                if (tkl_strcmp(pname, tname) == 0) inst_num++;
+            }
+
+            char task_with_inst[32];
+            snprintf(task_with_inst, sizeof(task_with_inst), "%s#%d", tname, inst_num);
+            char line[256];
+            snprintf(line, sizeof(line), "  %02d   %-14s %-9s 0x%08lx      %dx%d   %s\n",
+                     cw->id, task_with_inst, cw->focused ? "RUNNING" : "SLEEP",
+                     (unsigned long)((uintptr_t)cw & 0xFFFFFFFF),
+                     (cw->bounds.right - cw->bounds.left), (cw->bounds.bottom - cw->bounds.top),
+                     cw->title);
+            uart_puts(line);
+        }
     } else if (tkl_strcmp(p, "vobj") == 0 || tkl_strcmp(p, "ls") == 0 || tkl_strcmp(p, "dir") == 0) {
         uart_puts("\nB-TRON Real Object / Virtual Object Cabinet:\n");
         uart_puts("  [実身] #101 : BTRON3_Report.txt (件名：【BTRON3仕様の新実装】)\n");

@@ -433,3 +433,7 @@ WND* find_wnd_at(H x, H y) {
 WND* get_top_wnd(void) {
     return g_wnd_head;
 }
+
+WND* get_wnd_list(void) {
+    return g_wnd_head;
+}

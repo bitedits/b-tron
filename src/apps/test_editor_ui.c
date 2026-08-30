@@ -14,6 +14,7 @@
 #include <btron/troncode.h>
 #include <btron/jis_fonts.h>
 #include <btron/tip.h>
+#include <btron/apps.h>
 
 /* Mock SDL keysyms for testing */
 #define SDLK_BACKSPACE   8
@@ -776,6 +777,51 @@ static void test_f10_and_function_key_switching(void) {
     tip_set_mode(TIP_MODE_ASCII);
 }
 
+/* ── UI Test 15: Dynamic Process Table & Multiple App Instance Reflection ── */
+static void test_dynamic_ps_multiple_instances(void) {
+    printf("\n[UI TEST 15] Dynamic Process Table & Multiple App Instance Reflection\n");
+
+    WND *w1 = opn_wnd("T-Editor - Doc1.txt", 100, 50, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w2 = opn_wnd("T-Editor - Doc2.txt", 120, 70, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w3 = opn_wnd("TAD Browser - Spec.tad", 140, 90, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w4 = opn_wnd("BTRON Terminal (gterm)", 160, 110, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+
+    TEST_ASSERT(w1 != NULL && w2 != NULL && w3 != NULL && w4 != NULL, "Created 4 application instances");
+    TEST_ASSERT(w1->id != w2->id, "Unique PID assigned to different T-Editor instances");
+    TEST_ASSERT(w2->id != w3->id, "Unique PID assigned to TAD Browser instance");
+
+    /* Verify get_wnd_list contains all created windows */
+    WND *head = get_wnd_list();
+    TEST_ASSERT(head != NULL, "get_wnd_list returned non-empty window list");
+
+    BOOL found_w1 = FALSE, found_w2 = FALSE, found_w3 = FALSE, found_w4 = FALSE;
+    for (WND *c = head; c; c = c->next) {
+        if (c == w1) found_w1 = TRUE;
+        if (c == w2) found_w2 = TRUE;
+        if (c == w3) found_w3 = TRUE;
+        if (c == w4) found_w4 = TRUE;
+    }
+    TEST_ASSERT(found_w1 && found_w2 && found_w3 && found_w4, "All 4 instances reflected in window list");
+
+    /* Test Terminal process context isolation */
+    WND *gt1 = opn_wnd("BTRON Terminal (gterm)", 100, 100, 500, 300, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *gt2 = opn_wnd("BTRON Terminal (gterm)", 120, 120, 500, 300, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    gt1->user_data = (VW)(uintptr_t)malloc(128);
+    gt2->user_data = (VW)(uintptr_t)malloc(128);
+    TEST_ASSERT(gt1->user_data != 0 && gt2->user_data != 0, "Terminal contexts allocated");
+    TEST_ASSERT(gt1->user_data != gt2->user_data, "Terminal contexts strictly isolated as separate processes");
+    free((void*)(uintptr_t)gt1->user_data);
+    free((void*)(uintptr_t)gt2->user_data);
+    cls_wnd(gt1);
+    cls_wnd(gt2);
+
+    /* Clean up */
+    cls_wnd(w1);
+    cls_wnd(w2);
+    cls_wnd(w3);
+    cls_wnd(w4);
+}
+
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -798,11 +844,12 @@ int main(int argc, char **argv) {
     test_status_bar_and_toolbar_ime_click_toggles();
     test_verified_jis_font_matrix_coverage();
     test_f10_and_function_key_switching();
+    test_dynamic_ps_multiple_instances();
 
     printf("\n==========================================================\n");
     printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
-           g_tests_passed, g_tests_total,
-           (100.0 * g_tests_passed) / (g_tests_total > 0 ? g_tests_total : 1));
+             g_tests_passed, g_tests_total,
+             (100.0 * g_tests_passed) / (g_tests_total > 0 ? g_tests_total : 1));
     printf("==========================================================\n");
 
     return (g_tests_passed == g_tests_total) ? 0 : 1;

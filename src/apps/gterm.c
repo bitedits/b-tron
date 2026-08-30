@@ -3,6 +3,7 @@
 #include <btron/dp.h>
 #include <btron/event.h>
 #include <btron/tip.h>
+#include <btron/apps.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -12,6 +13,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <time.h>
+#include <sys/utsname.h>
 #else
 #include <stddef.h>
 #include <stdint.h>
@@ -35,9 +37,9 @@ extern void* tkl_memmove(void *dest, const void *src, size_t n);
 #define isspace(c) ((c) == ' ' || (c) == '\t' || (c) == '\n' || (c) == '\r' || (c) == '\f' || (c) == '\v')
 #endif
 
-#define GTERM_MAX_COLS     64
-#define GTERM_MAX_ROWS     18
-#define GTERM_HIST_MAX     200
+#define GTERM_MAX_COLS     256
+#define GTERM_MAX_ROWS     32
+#define GTERM_HIST_MAX     300
 #define GTERM_CMD_HIST_MAX 32
 
 typedef struct {
@@ -55,35 +57,68 @@ typedef struct {
     int cmd_hist_idx;
 } GTermState;
 
-static GTermState g_gterm;
-
 void gterm_append_line(GTermState *st, const char *text, COLOR col);
+
+static int gterm_calc_text_pixel_width(const char *str) {
+    if (!str) return 0;
+    int w = 0;
+    int i = 0;
+    while (str[i] != '\0') {
+        unsigned char c = (unsigned char)str[i];
+        if (c < 0x80) {
+            w += 8;
+            i += 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            w += 8;
+            i += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            w += 16;
+            i += 3;
+        } else {
+            w += 8;
+            i += 1;
+        }
+    }
+    return w;
+}
 
 static void gterm_init_banner(GTermState *st) {
     memset(st, 0, sizeof(GTermState));
     strncpy(st->prompt, "btron:/> ", sizeof(st->prompt) - 1);
 
-    gterm_append_line(st, "==========================================================", COLOR_CYAN);
+    gterm_append_line(st, "==========================================================================", COLOR_CYAN);
     gterm_append_line(st, " Sakamura B-TRON 3.0 Workstation Shell (gterm)", COLOR_WHITE);
     gterm_append_line(st, " Real-Time OS: Sakamura T-Kernel 2.0 / BCM283x ARM Engine", COLOR_LTGRAY);
-    gterm_append_line(st, " Multi-Plane TRONCode & Mozc TIP Cleanroom Architecture", COLOR_LTGRAY);
-    gterm_append_line(st, "==========================================================", COLOR_CYAN);
+    gterm_append_line(st, " Multi-Plane TRONCode & Mozc TIP Full-Width Architecture", COLOR_LTGRAY);
+    gterm_append_line(st, "==========================================================================", COLOR_CYAN);
     gterm_append_line(st, "Type 'help' or '?' for available system commands.", COLOR_GREEN);
 }
 
 void gterm_append_line(GTermState *st, const char *text, COLOR col) {
     if (!st || !text) return;
 
-    if (st->total_lines >= GTERM_HIST_MAX) {
-        memmove(&st->lines[0], &st->lines[1], sizeof(st->lines[0]) * (GTERM_HIST_MAX - 1));
-        memmove(&st->line_cols[0], &st->line_cols[1], sizeof(st->line_cols[0]) * (GTERM_HIST_MAX - 1));
-        st->total_lines = GTERM_HIST_MAX - 1;
-    }
+    /* Handle multi-line strings by splitting on '\n' */
+    const char *p = text;
+    while (*p) {
+        char seg[GTERM_MAX_COLS + 1];
+        int seg_i = 0;
+        while (*p && *p != '\n' && seg_i < GTERM_MAX_COLS) {
+            seg[seg_i++] = *p++;
+        }
+        seg[seg_i] = '\0';
+        if (*p == '\n') p++;
 
-    int idx = st->total_lines++;
-    strncpy(st->lines[idx], text, GTERM_MAX_COLS);
-    st->lines[idx][GTERM_MAX_COLS] = '\0';
-    st->line_cols[idx] = col;
+        if (st->total_lines >= GTERM_HIST_MAX) {
+            memmove(&st->lines[0], &st->lines[1], sizeof(st->lines[0]) * (GTERM_HIST_MAX - 1));
+            memmove(&st->line_cols[0], &st->line_cols[1], sizeof(st->line_cols[0]) * (GTERM_HIST_MAX - 1));
+            st->total_lines = GTERM_HIST_MAX - 1;
+        }
+
+        int idx = st->total_lines++;
+        strncpy(st->lines[idx], seg, GTERM_MAX_COLS);
+        st->lines[idx][GTERM_MAX_COLS] = '\0';
+        st->line_cols[idx] = col;
+    }
 }
 
 static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
@@ -137,17 +172,72 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         gterm_append_line(st, "  ls, dir     - List directory contents", COLOR_LTGRAY);
         gterm_append_line(st, "  cat <file>  - Display text file contents", COLOR_LTGRAY);
         gterm_append_line(st, "  echo <text> - Print string", COLOR_LTGRAY);
-        gterm_append_line(st, "  ps          - System process task table", COLOR_LTGRAY);
+        gterm_append_line(st, "  ps          - Dynamic process and window task table", COLOR_LTGRAY);
         gterm_append_line(st, "  vobj        - List virtual objects in store", COLOR_LTGRAY);
+        gterm_append_line(st, "  edit, editor- Launch new T-Editor instance", COLOR_LTGRAY);
+        gterm_append_line(st, "  tad, browser- Launch new TAD Browser instance", COLOR_LTGRAY);
+        gterm_append_line(st, "  chat        - Launch new BeOS Chat instance", COLOR_LTGRAY);
+        gterm_append_line(st, "  audio       - Launch Audio Player instance", COLOR_LTGRAY);
+        gterm_append_line(st, "  cabinet     - Launch Cabinet Explorer instance", COLOR_LTGRAY);
+        gterm_append_line(st, "  term, gterm - Launch new Terminal instance", COLOR_LTGRAY);
         gterm_append_line(st, "  date        - Current system time & date", COLOR_LTGRAY);
         gterm_append_line(st, "  clear, cls  - Clear terminal screen", COLOR_LTGRAY);
         gterm_append_line(st, "  history     - Show command history", COLOR_LTGRAY);
         gterm_append_line(st, "  exit, quit  - Close terminal window", COLOR_LTGRAY);
     } else if (strcmp(cmd, "ver") == 0 || strcmp(cmd, "uname") == 0) {
-        gterm_append_line(st, "BTRON 3.0 (btron-cleanroom ARM / POSIX)", COLOR_CYAN);
-        gterm_append_line(st, "Kernel: Sakamura T-Kernel 2.0 Real-Time Engine", COLOR_CYAN);
-        gterm_append_line(st, "Graphics: DP 2D Vector Compositor Architecture", COLOR_CYAN);
-        gterm_append_line(st, "Specification: Sakamura BTRON3 Specification", COLOR_CYAN);
+        if (strcmp(cmd, "uname") == 0 && strcmp(arg, "-a") == 0) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+            struct utsname un;
+            if (uname(&un) == 0) {
+                char abuf[280];
+                snprintf(abuf, sizeof(abuf), "%s %s %s %s %s (BTRON3 3.20 Cleanroom)",
+                         un.sysname, un.nodename, un.release, un.version, un.machine);
+                gterm_append_line(st, abuf, COLOR_CYAN);
+            } else {
+                gterm_append_line(st, "BTRON3 Sakamura T-Kernel 2.0 (Target 0: POSIX)", COLOR_CYAN);
+            }
+#else
+            gterm_append_line(st, "BTRON3 btron-rpi 2.0 T-Kernel-BCM2836 armv7l GNU/B-TRON", COLOR_CYAN);
+#endif
+        } else if (strcmp(cmd, "uname") == 0 && (strcmp(arg, "-r") == 0 || strcmp(arg, "-v") == 0)) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+            struct utsname un;
+            if (uname(&un) == 0) {
+                gterm_append_line(st, (strcmp(arg, "-r") == 0) ? un.release : un.version, COLOR_CYAN);
+            }
+#else
+            gterm_append_line(st, "2.0.0-tkernel-arm", COLOR_CYAN);
+#endif
+        } else {
+            gterm_append_line(st, "B-TRON 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN);
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+            struct utsname un;
+            if (uname(&un) == 0) {
+                char kbuf[280];
+                snprintf(kbuf, sizeof(kbuf), "Host OS / Kernel: %s %s (%s, %s)",
+                         un.sysname, un.release, un.machine, un.nodename);
+                gterm_append_line(st, kbuf, COLOR_WHITE);
+            }
+#if BTRON_TARGET == 0
+            gterm_append_line(st, "B-Kernel Subsystem: POSIX Microkernel Abstraction Mode (Target 0: BTRON_POSIX)", COLOR_GREEN);
+#elif BTRON_TARGET == 1
+            gterm_append_line(st, "B-Kernel Subsystem: QEMU VirtIO Hardware Abstraction (Target 1: BTRON_QEMU)", COLOR_GREEN);
+#elif BTRON_TARGET == 2
+            gterm_append_line(st, "B-Kernel Subsystem: Yokobayashi T-Kernel 2.0 Engine (Target 2: BTRON_YOKOBAYASHI)", COLOR_GREEN);
+#elif BTRON_TARGET == 3
+            gterm_append_line(st, "B-Kernel Subsystem: Sakamura T-Kernel 2.0 VirtIO Real-Time (Target 3: BTRON_SAKAMURA)", COLOR_GREEN);
+#endif
+            char build_buf[256];
+            snprintf(build_buf, sizeof(build_buf), "Build Timestamp: %s %s [Compiler: %s]", __DATE__, __TIME__, __VERSION__);
+            gterm_append_line(st, build_buf, COLOR_LTGRAY);
+#else
+            gterm_append_line(st, "Kernel: Sakamura T-Kernel 2.0 Real-Time Executive (ARMv7-A / BCM2836)", COLOR_GREEN);
+            gterm_append_line(st, "Hardware Target: Raspberry Pi 2B / 3B Bare-Metal Kernel", COLOR_LTGRAY);
+            gterm_append_line(st, "Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY);
+#endif
+            gterm_append_line(st, "Display Compositor: DP 2D Framebuffer Engine (1024x768 32-bpp)", COLOR_LTGRAY);
+            gterm_append_line(st, "Japanese IME: Google Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY);
+        }
     } else if (strcmp(cmd, "pwd") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         char cwd[256];
@@ -235,12 +325,86 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
     } else if (strcmp(cmd, "echo") == 0) {
         gterm_append_line(st, arg, COLOR_LTGRAY);
     } else if (strcmp(cmd, "ps") == 0) {
-        gterm_append_line(st, "PID  TASK          PRI  STAT   TIME", COLOR_CYAN);
-        gterm_append_line(st, "  1  desktop        10  RUN    00:01", COLOR_LTGRAY);
-        gterm_append_line(st, "  2  wnd_mgr        12  SLEEP  00:00", COLOR_LTGRAY);
-        gterm_append_line(st, "  3  gterm          15  RUN    00:00", COLOR_LTGRAY);
-        gterm_append_line(st, "  4  t_editor       15  SLEEP  00:00", COLOR_LTGRAY);
-        gterm_append_line(st, "  5  vobj_mgr       15  SLEEP  00:00", COLOR_LTGRAY);
+        gterm_append_line(st, "PID   TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN);
+        gterm_append_line(st, "----------------------------------------------------------------", COLOR_DKGRAY);
+        gterm_append_line(st, "  1   tk_desktop     RUN    0x01020000   1024x768  [B-TRON Desktop]", COLOR_GREEN);
+        gterm_append_line(st, "  2   tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", COLOR_GREEN);
+        gterm_append_line(st, "  3   tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", COLOR_GREEN);
+
+        WND *w = get_wnd_list();
+        if (!w) {
+            gterm_append_line(st, "  (No active user application instances)", COLOR_LTGRAY);
+        } else {
+            WND *w_list[64];
+            int count = 0;
+            for (WND *curr = w; curr && count < 64; curr = curr->next) {
+                w_list[count++] = curr;
+            }
+
+            for (int i = 0; i < count; i++) {
+                WND *cw = w_list[i];
+                const char *tname = "btron_app";
+                if (strstr(cw->title, "gterm") || strstr(cw->title, "Terminal")) tname = "gterm";
+                else if (strstr(cw->title, "T-Editor") || strstr(cw->title, "Editor")) tname = "t_editor";
+                else if (strstr(cw->title, "TAD") || strstr(cw->title, "仕様書")) tname = "tad_browser";
+                else if (strstr(cw->title, "Cabinet") || strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
+                else if (strstr(cw->title, "TC-K777ES") || strstr(cw->title, "SONY")) tname = "audio_player";
+                else if (strstr(cw->title, "Chat") || strstr(cw->title, "対話") || strstr(cw->title, "会話") || strstr(cw->title, "Blabber")) tname = "beos_chat";
+
+                /* Calculate instance index for this task type */
+                int inst_num = 1;
+                for (int j = 0; j < i; j++) {
+                    WND *prev_w = w_list[j];
+                    const char *pname = "btron_app";
+                    if (strstr(prev_w->title, "gterm") || strstr(prev_w->title, "Terminal")) pname = "gterm";
+                    else if (strstr(prev_w->title, "T-Editor") || strstr(prev_w->title, "Editor")) pname = "t_editor";
+                    else if (strstr(prev_w->title, "TAD") || strstr(prev_w->title, "仕様書")) pname = "tad_browser";
+                    else if (strstr(prev_w->title, "Cabinet") || strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
+                    else if (strstr(prev_w->title, "TC-K777ES") || strstr(prev_w->title, "SONY")) pname = "audio_player";
+                    else if (strstr(prev_w->title, "Chat") || strstr(prev_w->title, "対話") || strstr(prev_w->title, "会話") || strstr(prev_w->title, "Blabber")) pname = "beos_chat";
+
+                    if (strcmp(pname, tname) == 0) inst_num++;
+                }
+
+                char task_with_inst[32];
+                snprintf(task_with_inst, sizeof(task_with_inst), "%s#%d", tname, inst_num);
+
+                H ww = cw->bounds.right - cw->bounds.left;
+                H wh = cw->bounds.bottom - cw->bounds.top;
+                char bounds_str[32];
+                snprintf(bounds_str, sizeof(bounds_str), "%dx%d", ww, wh);
+
+                char line[256];
+                snprintf(line, sizeof(line), "%3d   %-14s %-6s 0x%08lx %-9s %s",
+                         cw->id,
+                         task_with_inst,
+                         cw->focused ? "RUN" : "SLEEP",
+                         (unsigned long)((uintptr_t)cw & 0xFFFFFFFF),
+                         bounds_str,
+                         cw->title);
+
+                COLOR col = cw->focused ? COLOR_YELLOW : COLOR_LTGRAY;
+                gterm_append_line(st, line, col);
+            }
+        }
+    } else if (strcmp(cmd, "editor") == 0 || strcmp(cmd, "edit") == 0) {
+        open_t_editor_window();
+        gterm_append_line(st, "Started new T-Editor instance", COLOR_GREEN);
+    } else if (strcmp(cmd, "tad") == 0 || strcmp(cmd, "browser") == 0) {
+        open_tad_browser_window("tad_bin/01_btron3_spec.tad", "【仕様書】BTRON3 3.20");
+        gterm_append_line(st, "Started new TAD Browser instance", COLOR_GREEN);
+    } else if (strcmp(cmd, "chat") == 0) {
+        launch_beos_chat();
+        gterm_append_line(st, "Started new BeOS Chat instance", COLOR_GREEN);
+    } else if (strcmp(cmd, "audio") == 0 || strcmp(cmd, "player") == 0) {
+        open_audio_player_window();
+        gterm_append_line(st, "Started Audio Deck instance", COLOR_GREEN);
+    } else if (strcmp(cmd, "cabinet") == 0 || strcmp(cmd, "vobjmgr") == 0) {
+        open_vobj_manager_window();
+        gterm_append_line(st, "Started Cabinet Explorer instance", COLOR_GREEN);
+    } else if (strcmp(cmd, "gterm") == 0 || strcmp(cmd, "term") == 0) {
+        open_gterm_window();
+        gterm_append_line(st, "Started new Terminal instance", COLOR_GREEN);
     } else if (strcmp(cmd, "vobj") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         DIR *dir = opendir("./btron_store");
@@ -357,6 +521,8 @@ static char get_ascii_char_with_shift(UW key, uint16_t mod) {
 
 static void handle_gterm_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
+    GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
+    if (!st) return;
 
     if (evt->type == EV_KEY_DOWN) {
         char commit_buf[128] = "";
@@ -369,18 +535,18 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
         if (ctrl) {
             if (key_code == 'c' || key_code == 'C') {
                 char cancel_msg[280];
-                snprintf(cancel_msg, sizeof(cancel_msg), "%s%s^C", g_gterm.prompt, g_gterm.input_buf);
-                gterm_append_line(&g_gterm, cancel_msg, COLOR_RED);
-                g_gterm.input_buf[0] = '\0';
-                g_gterm.input_len = 0;
+                snprintf(cancel_msg, sizeof(cancel_msg), "%s%s^C", st->prompt, st->input_buf);
+                gterm_append_line(st, cancel_msg, COLOR_RED);
+                st->input_buf[0] = '\0';
+                st->input_len = 0;
                 tip_cancel();
                 return;
             } else if (key_code == 'l' || key_code == 'L') {
-                g_gterm.total_lines = 0;
+                st->total_lines = 0;
                 return;
             } else if (key_code == 'u' || key_code == 'U') {
-                g_gterm.input_buf[0] = '\0';
-                g_gterm.input_len = 0;
+                st->input_buf[0] = '\0';
+                st->input_len = 0;
                 tip_cancel();
                 return;
             }
@@ -390,9 +556,9 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
         if (tip_process_key(key_code, mod, commit_buf, sizeof(commit_buf))) {
             if (commit_buf[0] != '\0') {
                 int clen = (int)strlen(commit_buf);
-                if (g_gterm.input_len + clen < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
-                    strcat(g_gterm.input_buf, commit_buf);
-                    g_gterm.input_len += clen;
+                if (st->input_len + clen < GTERM_MAX_COLS - (int)strlen(st->prompt) - 2) {
+                    strcat(st->input_buf, commit_buf);
+                    st->input_len += clen;
                 }
             }
             return;
@@ -402,42 +568,42 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
 
         /* Non-printable navigation & action keys */
         if (sym == BTRON_KEY_RETURN || sym == BTRON_KEY_KP_ENTER || sym == '\r' || sym == '\n') {
-            gterm_execute_cmd(wnd, &g_gterm, g_gterm.input_buf);
-            g_gterm.input_buf[0] = '\0';
-            g_gterm.input_len = 0;
+            gterm_execute_cmd(wnd, st, st->input_buf);
+            st->input_buf[0] = '\0';
+            st->input_len = 0;
             return;
         } else if (sym == BTRON_KEY_BACKSPACE || sym == 0x08) {
-            if (g_gterm.input_len > 0) {
-                int prev_c = g_gterm.input_len - 1;
-                while (prev_c > 0 && ((unsigned char)g_gterm.input_buf[prev_c] & 0xC0) == 0x80) {
+            if (st->input_len > 0) {
+                int prev_c = st->input_len - 1;
+                while (prev_c > 0 && ((unsigned char)st->input_buf[prev_c] & 0xC0) == 0x80) {
                     prev_c--;
                 }
-                g_gterm.input_buf[prev_c] = '\0';
-                g_gterm.input_len = prev_c;
+                st->input_buf[prev_c] = '\0';
+                st->input_len = prev_c;
             }
             return;
         } else if (sym == BTRON_KEY_UP) {
-            if (g_gterm.cmd_hist_count > 0 && g_gterm.cmd_hist_idx > 0) {
-                g_gterm.cmd_hist_idx--;
-                strncpy(g_gterm.input_buf, g_gterm.cmd_history[g_gterm.cmd_hist_idx], sizeof(g_gterm.input_buf) - 1);
-                g_gterm.input_len = (int)strlen(g_gterm.input_buf);
+            if (st->cmd_hist_count > 0 && st->cmd_hist_idx > 0) {
+                st->cmd_hist_idx--;
+                strncpy(st->input_buf, st->cmd_history[st->cmd_hist_idx], sizeof(st->input_buf) - 1);
+                st->input_len = (int)strlen(st->input_buf);
             }
             return;
         } else if (sym == BTRON_KEY_DOWN) {
-            if (g_gterm.cmd_hist_idx < g_gterm.cmd_hist_count - 1) {
-                g_gterm.cmd_hist_idx++;
-                strncpy(g_gterm.input_buf, g_gterm.cmd_history[g_gterm.cmd_hist_idx], sizeof(g_gterm.input_buf) - 1);
-                g_gterm.input_len = (int)strlen(g_gterm.input_buf);
+            if (st->cmd_hist_idx < st->cmd_hist_count - 1) {
+                st->cmd_hist_idx++;
+                strncpy(st->input_buf, st->cmd_history[st->cmd_hist_idx], sizeof(st->input_buf) - 1);
+                st->input_len = (int)strlen(st->input_buf);
             } else {
-                g_gterm.cmd_hist_idx = g_gterm.cmd_hist_count;
-                g_gterm.input_buf[0] = '\0';
-                g_gterm.input_len = 0;
+                st->cmd_hist_idx = st->cmd_hist_count;
+                st->input_buf[0] = '\0';
+                st->input_len = 0;
             }
             return;
         } else if (sym == BTRON_KEY_TAB || sym == '\t') {
-            if (g_gterm.input_len + 4 < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
-                strcat(g_gterm.input_buf, "    ");
-                g_gterm.input_len += 4;
+            if (st->input_len + 4 < GTERM_MAX_COLS - (int)strlen(st->prompt) - 2) {
+                strcat(st->input_buf, "    ");
+                st->input_len += 4;
             }
             return;
         }
@@ -445,9 +611,9 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
         /* Direct English / Printable ASCII Text Input */
         if (!ctrl && sym >= 32 && sym <= 126) {
             char ch = get_ascii_char_with_shift((UW)sym, mod);
-            if (g_gterm.input_len < GTERM_MAX_COLS - (int)strlen(g_gterm.prompt) - 2) {
-                g_gterm.input_buf[g_gterm.input_len++] = ch;
-                g_gterm.input_buf[g_gterm.input_len] = '\0';
+            if (st->input_len < GTERM_MAX_COLS - (int)strlen(st->prompt) - 2) {
+                st->input_buf[st->input_len++] = ch;
+                st->input_buf[st->input_len] = '\0';
             }
             return;
         }
@@ -456,8 +622,10 @@ static void handle_gterm_event(WND *wnd, const EVT *evt) {
 
 static void paint_gterm(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
+    GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
+    if (!st) return;
 
-    /* Black Terminal Screen Background */
+    /* Black Terminal Screen Background across full window canvas */
     RECT r = { 0, 0, dev->width, dev->height };
     fill_rec(dev, &r, COLOR_BLACK);
 
@@ -467,26 +635,29 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
                             "[Mode: EN (A) | F10: Switch]");
     drw_tc_string(dev, dev->width - 240, 6, mode_tag, COLOR_CYAN, COLOR_BLACK);
 
-    int visible_rows = GTERM_MAX_ROWS - 1; /* Reserve bottom line for prompt */
+    int row_h = 16;
+    int max_disp_rows = (dev->height - 40) / row_h;
+    if (max_disp_rows < 5) max_disp_rows = 5;
+
     int start_line = 0;
-    if (g_gterm.total_lines > visible_rows) {
-        start_line = g_gterm.total_lines - visible_rows;
+    if (st->total_lines > max_disp_rows) {
+        start_line = st->total_lines - max_disp_rows;
     }
 
     int y = 24;
-    for (int i = start_line; i < g_gterm.total_lines; i++) {
-        COLOR col = g_gterm.line_cols[i];
+    for (int i = start_line; i < st->total_lines; i++) {
+        COLOR col = st->line_cols[i];
         if (col == 0) col = COLOR_WHITE;
-        drw_tc_string(dev, 8, y, g_gterm.lines[i], col, COLOR_BLACK);
-        y += 16;
+        drw_tc_string(dev, 8, y, st->lines[i], col, COLOR_BLACK);
+        y += row_h;
     }
 
     /* Draw Active Prompt Line with Cursor and TIP Inline Preview */
     char prompt_line[300];
-    snprintf(prompt_line, sizeof(prompt_line), "%s%s", g_gterm.prompt, g_gterm.input_buf);
+    snprintf(prompt_line, sizeof(prompt_line), "%s%s", st->prompt, st->input_buf);
     drw_tc_string(dev, 8, y, prompt_line, COLOR_WHITE, COLOR_BLACK);
 
-    int prompt_pixel_w = 8 + (int)strlen(prompt_line) * 8;
+    int prompt_pixel_w = 8 + gterm_calc_text_pixel_width(prompt_line);
     if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
         char comp_buf[128];
         tip_get_converted_text(comp_buf, sizeof(comp_buf));
@@ -498,13 +669,32 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
     }
 }
 
+static void destroy_gterm(WND *wnd) {
+    if (!wnd) return;
+    GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
+    if (st) {
+        free(st);
+        wnd->user_data = 0;
+    }
+}
+
 WND* open_gterm_window(void) {
-    WND *wnd = opn_wnd("BTRON Terminal (gterm)", 220, 160, 560, 360,
-                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
+    static int s_gterm_spawn_count = 0;
+    H x = 220 + (s_gterm_spawn_count % 6) * 24;
+    H y = 160 + (s_gterm_spawn_count % 6) * 24;
+    s_gterm_spawn_count++;
+
+    WND *wnd = opn_wnd("BTRON Terminal (gterm)", x, y, 560, 360,
+                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER | WND_ATTR_RESIZE);
     if (wnd) {
-        gterm_init_banner(&g_gterm);
+        GTermState *st = (GTermState*)calloc(1, sizeof(GTermState));
+        if (st) {
+            gterm_init_banner(st);
+            wnd->user_data = (VW)(uintptr_t)st;
+        }
         wnd->paint = paint_gterm;
         wnd->event_handler = handle_gterm_event;
+        wnd->destroy = destroy_gterm;
         tip_cancel();
         tip_set_mode(TIP_MODE_ASCII); /* Terminal strictly starts in EN mode */
         top_wnd(wnd);
