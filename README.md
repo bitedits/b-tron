@@ -19,6 +19,7 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 
 ## Components
 
+* [x] seL4 support for Synrc VE OS.1 
 * [x] ITRON
 * [x] VirtIO
 * [x] AArch32
