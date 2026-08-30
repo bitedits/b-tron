@@ -1,9 +1,9 @@
 Zero Dependencies Cleanroom Derivative work B-System:
-  [1] https://github.com/bitedits/btron        — ISC-License.{en,jp}.txt
+  [1] https://github.com/bitedits/btron — ISC-License.{en,jp}.txt
 
 Works B-System is based on:
-  [1] https://github.com/jr4qpv/rtk_kernel     — TEF000-218-150401.txt 00070059 (Ditribution Code)
+  [1] https://github.com/jr4qpv/rtk_kernel — TEF000-218-150401.txt 00070059 (Ditribution Code)
 
 Works B-System is based on (but no code was used):
   [2] https://github.com/tron-forum/mtkernel_3 — TEF000-219-200401.txt 0007005B (Ditribution Code)
-  [3] https://github.com/google/mozc           — BSD-License-mozc.txt
+  [3] https://github.com/google/mozc — BSD-License-mozc.txt
