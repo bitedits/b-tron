@@ -531,7 +531,7 @@ static void test_multilingual_switching(void) {
     TEST_ASSERT(strcmp(ed.lines[0], "Project: 私の名前") == 0, "Buffer contains bilingual 'Project: 私の名前'");
 
     /* 3. Switch back to English Mode */
-    tip_toggle_mode();
+    tip_set_mode(TIP_MODE_ASCII);
     TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Switched back to English ASCII mode");
 
     const char *p2 = " (v3.20)";
@@ -584,23 +584,29 @@ static void test_status_bar_and_toolbar_ime_click_toggles(void) {
     tip_set_mode(TIP_MODE_ASCII);
     TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Initial mode is ASCII");
 
-    /* 1. Click Toolbar IME button [x=380, y=10] */
+    /* 1. Click Toolbar IME button [x=380, y=10] -> Switches to Hiragana */
     H click_x = 380, click_y = 10;
     if (click_y >= 0 && click_y <= 24 && click_x >= 354 && click_x <= 480) {
         tip_toggle_mode();
     }
     TEST_ASSERT(tip_get_mode() == TIP_MODE_HIRAGANA, "Toolbar [IME: ...] click switches to Hiragana");
 
-    /* 2. Click Status Bar Footer Badge [x=680, y=465] */
+    /* 2. Click Status Bar Footer Badge -> Switches to Katakana */
     H client_h = 480;
     click_x = 680; click_y = 465;
     if (click_y >= client_h - 22) {
         tip_toggle_mode();
     }
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_KATAKANA, "Status bar footer badge click switches to Katakana");
+
+    /* 3. Click Status Bar Footer Badge again -> Switches to ASCII */
+    if (click_y >= client_h - 22) {
+        tip_toggle_mode();
+    }
     TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Status bar footer badge click switches to ASCII");
 
-    /* 3. Candidate window visibility check on Space */
-    tip_toggle_mode(); /* Back to Hiragana */
+    /* 4. Candidate window visibility check on Space */
+    tip_set_mode(TIP_MODE_HIRAGANA); /* In Hiragana */
     char commit[128] = "";
     tip_process_key('n', 0, commit, sizeof(commit));
     tip_process_key('i', 0, commit, sizeof(commit));
@@ -694,19 +700,43 @@ static void test_f10_and_function_key_switching(void) {
     TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
     TEST_ASSERT(tip_get_mode() == TIP_MODE_HIRAGANA, "F10 successfully switched from ASCII to Hiragana");
 
-    /* 2. Press F10 again -> Switches back to ASCII */
+    /* 2. Press F10 again -> Switches to Katakana */
     handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
     TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
-    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "F10 successfully switched back from Hiragana to ASCII");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_KATAKANA, "F10 successfully switched from Hiragana to Katakana");
 
-    /* 3. Direct F6 (Hiragana) and F7 (Katakana) functional switching */
+    /* 3. Press F10 again -> Switches to ASCII */
+    handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "F10 successfully switched back from Katakana to ASCII");
+
+    /* 4. Direct F6 (Hiragana) and F7 (Katakana) functional switching */
     handled = tip_process_key(BTRON_KEY_F6, 0, commit, sizeof(commit));
     TEST_ASSERT(handled == TRUE && tip_get_mode() == TIP_MODE_HIRAGANA, "F6 switches directly to Hiragana");
 
     handled = tip_process_key(BTRON_KEY_F7, 0, commit, sizeof(commit));
     TEST_ASSERT(handled == TRUE && tip_get_mode() == TIP_MODE_KATAKANA, "F7 switches directly to Katakana");
 
-    /* 4. Active Composition Transformations via F6, F7, F8, F9 */
+    /* 5. Direct Katakana Mode Typing & Enter Commit */
+    tip_set_mode(TIP_MODE_KATAKANA);
+    tip_cancel();
+    tip_process_key('t', 0, commit, sizeof(commit));
+    tip_process_key('o', 0, commit, sizeof(commit));
+    tip_process_key('u', 0, commit, sizeof(commit));
+    tip_process_key('k', 0, commit, sizeof(commit));
+    tip_process_key('y', 0, commit, sizeof(commit));
+    tip_process_key('o', 0, commit, sizeof(commit));
+    tip_process_key('u', 0, commit, sizeof(commit));
+    char kata_precomp[128] = "";
+    tip_get_converted_text(kata_precomp, sizeof(kata_precomp));
+    TEST_ASSERT(strcmp(kata_precomp, "トウキョウ") == 0, "Direct typing in Katakana mode displays Katakana 'トウキョウ'");
+
+    /* Press Enter -> Commits Katakana */
+    commit[0] = '\0';
+    tip_process_key('\n', 0, commit, sizeof(commit));
+    TEST_ASSERT(strcmp(commit, "トウキョウ") == 0, "Pressing Enter in Katakana mode commits Katakana 'トウキョウ'");
+
+    /* 6. Active Composition Transformations via F6, F7, F8, F9 */
     tip_set_mode(TIP_MODE_HIRAGANA);
     tip_cancel();
 

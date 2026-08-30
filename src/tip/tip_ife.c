@@ -57,6 +57,8 @@ void tip_set_mode(TIP_INPUT_MODE mode) {
 void tip_toggle_mode(void) {
     if (g_tip.mode == TIP_MODE_ASCII) {
         g_tip.mode = TIP_MODE_HIRAGANA;
+    } else if (g_tip.mode == TIP_MODE_HIRAGANA) {
+        g_tip.mode = TIP_MODE_KATAKANA;
     } else {
         g_tip.mode = TIP_MODE_ASCII;
     }
@@ -100,6 +102,10 @@ const char* tip_get_converted_text(char *out_buf, int max_len) {
     }
 
     if (g_tip.state == TIP_STATE_PRECOMP) {
+        if (g_tip.mode == TIP_MODE_KATAKANA) {
+            mozc_hiragana_to_katakana(g_tip.reading_buf, out_buf, max_len);
+            return out_buf;
+        }
         strncpy(out_buf, g_tip.reading_buf, max_len - 1);
         return out_buf;
     }
@@ -252,6 +258,11 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
         if (g_tip.state == TIP_STATE_PRECOMP) {
             /* Execute Mozc lattice search and show candidate window immediately */
             mozc_lattice_search(g_tip.reading_buf, g_tip.clauses, &g_tip.num_clauses, TIP_MAX_CLAUSES);
+            if (g_tip.mode == TIP_MODE_KATAKANA) {
+                for (int i = 0; i < g_tip.num_clauses; i++) {
+                    mozc_hiragana_to_katakana(g_tip.clauses[i].reading, g_tip.clauses[i].converted, TIP_MAX_STR_LEN);
+                }
+            }
             g_tip.active_clause = 0;
             g_tip.state = TIP_STATE_CONVERTING;
             g_tip.candidate_window_visible = TRUE;
