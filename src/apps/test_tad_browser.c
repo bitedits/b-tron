@@ -221,6 +221,8 @@ static void test_cabinet_explorer_selection(void) {
     /* Test double-click activation on Canonical Book */
     handled = cabinet_handle_click(50, 87, TRUE, &robj, path);
     TEST_ASSERT(handled == TRUE, "Double click triggers TAD Real Object launch");
+
+    cls_wnd(wnd);
 }
 
 /* ── Test 7: Navigation History & Robust Path Resolution ── */
@@ -481,6 +483,11 @@ static void test_multi_window_context_isolation(void) {
 static void test_btron3_compact_sliding_tabs(void) {
     printf("\n[TEST GROUP 13] BTRON3 Spec 3.20 BeOS-Style Compact Sliding Window Tabs\n");
 
+    /* Clean up any residual windows from previous tests */
+    while (get_top_wnd() != NULL) {
+        cls_wnd(get_top_wnd());
+    }
+
     WND *w = opn_wnd("T-Editor", 100, 100, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE);
     TEST_ASSERT(w != NULL, "Opened window with compact sliding tabs");
     TEST_ASSERT((w->attr & WND_ATTR_COMPACT_TAB) != 0, "WND_ATTR_COMPACT_TAB is active");
@@ -492,9 +499,9 @@ static void test_btron3_compact_sliding_tabs(void) {
     RECT tr;
     ER er = wget_tab_rect(w, &tr);
     TEST_ASSERT(er == E_OK, "wget_tab_rect succeeded");
-    TEST_ASSERT(tr.left == 103, "Tab left starts at bounds.left + 3");
-    TEST_ASSERT(tr.right == 103 + w->tab_width, "Tab right matches left + tab_width");
-    TEST_ASSERT(tr.top == 103 && tr.bottom == 122, "Tab height is 19px (top+3 to top+22)");
+    TEST_ASSERT(tr.left == 100, "Tab left starts flush at bounds.left");
+    TEST_ASSERT(tr.right == 100 + w->tab_width, "Tab right matches left + tab_width");
+    TEST_ASSERT(tr.top == 100 && tr.bottom == 122, "Tab height is 22px (bounds.top to bounds.top+22)");
 
     /* Test hit testing */
     TEST_ASSERT(whit_test_tab(w, 120, 110) == TRUE, "Hit test succeeds inside compact tab");
@@ -510,26 +517,39 @@ static void test_btron3_compact_sliding_tabs(void) {
     TEST_ASSERT(er == E_OK, "wset_tab_offset(80) succeeded");
     TEST_ASSERT(w->tab_offset_x == 80, "Tab offset updated to 80px");
     wget_tab_rect(w, &tr);
-    TEST_ASSERT(tr.left == 103 + 80, "Tab shifted horizontally by 80px");
-    TEST_ASSERT(whit_test_tab(w, 103 + 85, 110) == TRUE, "Hit test succeeds at new shifted position");
+    TEST_ASSERT(tr.left == 100 + 80, "Tab shifted horizontally by 80px");
+    TEST_ASSERT(whit_test_tab(w, 100 + 85, 110) == TRUE, "Hit test succeeds at new shifted position");
     TEST_ASSERT(whit_test_tab(w, 105, 110) == FALSE, "Old position is no longer part of tab");
 
     /* Test sliding boundary clamping */
     wset_tab_offset(w, 9999);
-    H max_expected_off = 500 - 6 - w->tab_width;
+    H max_expected_off = 500 - w->tab_width;
     TEST_ASSERT(w->tab_offset_x == max_expected_off, "Tab offset clamped to maximum right edge without overflow");
 
     wset_tab_offset(w, -50);
     TEST_ASSERT(w->tab_offset_x == 0, "Tab offset clamped to 0 on negative input");
 
-    /* Test window resizing reclamping */
-    wset_tab_offset(w, 100);
-    rsz_wnd(w, 200, 200);
-    TEST_ASSERT(w->tab_offset_x <= 200 - 6 - w->tab_width, "Tab offset automatically reclamped after window shrink");
+    /* Reset w to 500x350 and tab offset 0 */
+    rsz_wnd(w, 500, 350);
+    wset_tab_offset(w, 0);
+    wget_tab_rect(w, &tr);
+
+    /* Test transparent title back click pass-through */
+    TEST_ASSERT(find_wnd_at(tr.left + 20, 110) == w, "find_wnd_at returns window when clicking directly on compact tab");
+    TEST_ASSERT(find_wnd_at(400, 110) == NULL, "find_wnd_at passes through transparent title area outside compact tab");
+    TEST_ASSERT(find_wnd_at(120, 150) == w, "find_wnd_at returns window when clicking main window body");
 
     /* Test Japanese title dynamic tab width */
     WND *w_jp = opn_wnd("【仕様書】BTRON3 3.20", 200, 200, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
     TEST_ASSERT(w_jp->tab_width > w->tab_width, "Japanese multi-byte title gets appropriately wider compact tab");
+
+    /* Test multi-window staggered tab click pass-through */
+    /* w_jp is on top (bounds [200..800, 200..600]). Shift w_jp tab to offset 200 (tab starts at x=403). */
+    wset_tab_offset(w_jp, 200);
+    /* At (250, 210): inside w_jp's title row, but outside its tab.
+       Because title back is transparent, it passes through w_jp and hits window w underneath (bounds [100..600, 100..450])! */
+    TEST_ASSERT(find_wnd_at(250, 210) == w, "Clicking empty space next to top window tab passes through to lower window underneath");
+    TEST_ASSERT(find_wnd_at(420, 210) == w_jp, "Tab of top window is hit at offset 200");
 
     cls_wnd(w);
     cls_wnd(w_jp);
