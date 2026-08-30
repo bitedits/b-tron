@@ -57,6 +57,7 @@ static inline char* gterm_strstr(const char *haystack, const char *needle) {
 #define GTERM_MAX_ROWS     32
 #define GTERM_HIST_MAX     300
 #define GTERM_CMD_HIST_MAX 32
+#define COLOR_TERM_BG      0xCC000000 /* 20% dimmed background (0xCC instead of 0xFF) across all modes */
 
 typedef struct {
     char lines[GTERM_HIST_MAX][GTERM_MAX_COLS + 1];
@@ -649,15 +650,15 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
     GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
     if (!st) return;
 
-    /* Black Terminal Screen Background across full window canvas */
+    /* Black Terminal Screen Background across full window canvas (20% dimmed) */
     RECT r = { 0, 0, dev->width, dev->height };
-    fill_rec(dev, &r, COLOR_BLACK);
+    fill_rec(dev, &r, COLOR_TERM_BG);
 
     /* Visual Mode Indicator in Terminal Header */
     const char *mode_tag = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[Mode: JP (あ) | F10: Switch]" :
                            ((tip_get_mode() == TIP_MODE_KATAKANA) ? "[Mode: JP (ア) | F10: Switch]" :
                             "[Mode: EN (A) | F10: Switch]");
-    drw_tc_string(dev, dev->width - 240, 6, mode_tag, COLOR_CYAN, COLOR_BLACK);
+    drw_tc_string(dev, dev->width - 240, 6, mode_tag, COLOR_CYAN, COLOR_TERM_BG);
 
     int row_h = 16;
     int max_disp_rows = (dev->height - 40) / row_h;
@@ -672,24 +673,24 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
     for (int i = start_line; i < st->total_lines; i++) {
         COLOR col = st->line_cols[i];
         if (col == 0) col = COLOR_WHITE;
-        drw_tc_string(dev, 8, y, st->lines[i], col, COLOR_BLACK);
+        drw_tc_string(dev, 8, y, st->lines[i], col, COLOR_TERM_BG);
         y += row_h;
     }
 
     /* Draw Active Prompt Line with Cursor and TIP Inline Preview */
     char prompt_line[300];
     snprintf(prompt_line, sizeof(prompt_line), "%s%s", st->prompt, st->input_buf);
-    drw_tc_string(dev, 8, y, prompt_line, COLOR_WHITE, COLOR_BLACK);
+    drw_tc_string(dev, 8, y, prompt_line, COLOR_WHITE, COLOR_TERM_BG);
 
     int prompt_pixel_w = 8 + gterm_calc_text_pixel_width(prompt_line);
     if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
         char comp_buf[128];
         tip_get_converted_text(comp_buf, sizeof(comp_buf));
         BOOL is_dotted = (tip_get_state() == TIP_STATE_PRECOMP);
-        drw_tc_string_underlined(dev, prompt_pixel_w, y, comp_buf, COLOR_CYAN, COLOR_BLACK, is_dotted);
+        drw_tc_string_underlined(dev, prompt_pixel_w, y, comp_buf, COLOR_CYAN, COLOR_TERM_BG, is_dotted);
         tip_set_caret_pos(wnd->bounds.left + prompt_pixel_w, wnd->bounds.top + y);
     } else if (wnd->focused) {
-        drw_tc_string(dev, prompt_pixel_w, y, "_", COLOR_WHITE, COLOR_BLACK);
+        drw_tc_string(dev, prompt_pixel_w, y, "_", COLOR_WHITE, COLOR_TERM_BG);
     }
 }
 
