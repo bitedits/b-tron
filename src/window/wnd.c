@@ -55,6 +55,8 @@ static H calculate_title_display_width(const char *s) {
     return w;
 }
 
+#define WND_TITLE_HEIGHT 28
+
 ER wget_tab_rect(const WND *wnd, RECT *tab_rect) {
     if (!wnd || !tab_rect) return E_PAR;
     if (!(wnd->attr & WND_ATTR_TITLE)) {
@@ -76,7 +78,7 @@ ER wget_tab_rect(const WND *wnd, RECT *tab_rect) {
     tab_rect->left = wnd->bounds.left + off_x;
     tab_rect->top = wnd->bounds.top;
     tab_rect->right = tab_rect->left + tw;
-    tab_rect->bottom = wnd->bounds.top + 22;
+    tab_rect->bottom = wnd->bounds.top + WND_TITLE_HEIGHT;
     return E_OK;
 }
 
@@ -91,10 +93,10 @@ BOOL whit_test_close_btn(const WND *wnd, H x, H y) {
     if (!wnd || !(wnd->attr & WND_ATTR_TITLE) || !(wnd->attr & WND_ATTR_CLOSE)) return FALSE;
     RECT tr;
     if (wget_tab_rect(wnd, &tr) != E_OK) return FALSE;
-    H btn_right = tr.right - 4;
-    H btn_left = tr.right - 18;
-    H btn_top = tr.top + 4;
-    H btn_bottom = tr.top + 18;
+    H btn_right = tr.right - 6;
+    H btn_left = tr.right - 24;
+    H btn_top = tr.top + 6;
+    H btn_bottom = tr.top + 22;
     return (x >= btn_left && x < btn_right && y >= btn_top && y < btn_bottom);
 }
 
@@ -133,7 +135,7 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     wnd->bounds.right = x + w;
     wnd->bounds.bottom = y + h;
 
-    H title_h = (attr & WND_ATTR_TITLE) ? 22 : 0;
+    H title_h = (attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
     wnd->client.left = x + 4;
     wnd->client.top = y + title_h + 4;
     wnd->client.right = x + w - 4;
@@ -146,9 +148,9 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
     wnd->focused = TRUE;
     wnd->tab_offset_x = 0;
 
-    /* Calculate dynamic compact tab width based on title content with +3px margin */
+    /* Calculate dynamic compact tab width based on title content */
     H text_w = calculate_title_display_width(wnd->title);
-    H tw = text_w + 54; /* text + left margin/grip + close box + padding */
+    H tw = text_w + 48; /* text + left margin/grip + close box + padding */
     if (tw < 100) tw = 100;
     if (tw > w) tw = w;
     wnd->tab_width = tw;
@@ -214,7 +216,7 @@ ER mov_wnd(WND *wnd, H x, H y) {
     wnd->bounds.right = x + w;
     wnd->bounds.bottom = y + h;
 
-    H title_h = (wnd->attr & WND_ATTR_TITLE) ? 22 : 0;
+    H title_h = (wnd->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
     wnd->client.left = x + 4;
     wnd->client.top = y + title_h + 4;
     wnd->client.right = x + w - 4;
@@ -231,7 +233,7 @@ ER rsz_wnd(WND *wnd, H w, H h) {
     wnd->bounds.right = wnd->bounds.left + w;
     wnd->bounds.bottom = wnd->bounds.top + h;
 
-    H title_h = (wnd->attr & WND_ATTR_TITLE) ? 22 : 0;
+    H title_h = (wnd->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
     wnd->client.left = wnd->bounds.left + 4;
     wnd->client.top = wnd->bounds.top + title_h + 4;
     wnd->client.right = wnd->bounds.left + w - 4;
@@ -277,7 +279,7 @@ ER inval_wnd(WND *wnd) {
 static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
     if (!dev || !wnd) return;
 
-    H title_h = (wnd->attr & WND_ATTR_TITLE) ? 22 : 0;
+    H title_h = (wnd->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
 
     /* Main Window Body: fills from bounds.top + title_h to bounds.bottom */
     RECT body;
@@ -316,27 +318,27 @@ static void draw_retro_window_frame(GDEV *dev, WND *wnd) {
         drw_rec(dev, &inner_tab);
 
         /* Minimalist BeOS/CWM double-bar vertical grip on left */
-        H text_start_x = tab_r.left + 13;
+        H text_start_x = tab_r.left + 7;
         if ((wnd->attr & WND_ATTR_SLIDING_TAB) && (wnd->tab_width < (wnd->bounds.right - wnd->bounds.left - 16))) {
-            drw_lin(dev, tab_r.left + 6, tab_r.top + 5, tab_r.left + 6, tab_r.top + 17);
-            drw_lin(dev, tab_r.left + 9, tab_r.top + 5, tab_r.left + 9, tab_r.top + 17);
-            text_start_x = tab_r.left + 19;
+            drw_lin(dev, tab_r.left + 5, tab_r.top + 7, tab_r.left + 5, tab_r.top + 23);
+            drw_lin(dev, tab_r.left + 8, tab_r.top + 7, tab_r.left + 8, tab_r.top + 23);
+            text_start_x = tab_r.left + 13;
         }
 
-        /* Bold & crisp title string - with 3px increased left/right margin */
-        drw_tc_string(dev, text_start_x, tab_r.top + 3, wnd->title, title_col, 0x00000000);
+        /* Bold & crisp title string - centered with equal 7px vertical/left margins in 30px tab (5px to inner border) */
+        drw_tc_string(dev, text_start_x, tab_r.top + 7, wnd->title, title_col, 0x00000000);
 
         if (wnd->attr & WND_ATTR_CLOSE) {
             RECT close_btn;
-            close_btn.left = tab_r.right - 18;
-            close_btn.top = tab_r.top + 4;
-            close_btn.right = tab_r.right - 4;
-            close_btn.bottom = tab_r.top + 18;
+            close_btn.left = tab_r.right - 24;
+            close_btn.top = tab_r.top + 6;
+            close_btn.right = tab_r.right - 6;
+            close_btn.bottom = tab_r.top + 22;
 
             fill_rec(dev, &close_btn, wnd->focused ? COLOR_LTGRAY : COLOR_GRAY);
             drw_rec(dev, &close_btn);
-            /* Move cross inside close button 2 pixels down (tab_r.top + 5) */
-            drw_tc_string(dev, close_btn.left + 3, tab_r.top + 5, "x", COLOR_BLACK, 0x00000000);
+            /* Centered cross inside close button */
+            drw_tc_string(dev, close_btn.left + 5, tab_r.top + 8, "x", COLOR_BLACK, 0x00000000);
         }
     }
 
@@ -378,7 +380,7 @@ void redraw_all_windows(void) {
             wnd->paint(wnd, wnd->dev);
 
             /* Composite client pixels onto main screen */
-            H title_h = (wnd->attr & WND_ATTR_TITLE) ? 22 : 0;
+            H title_h = (wnd->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
             H dest_x = wnd->bounds.left + 4;
             H dest_y = wnd->bounds.top + title_h + 4;
 
@@ -402,7 +404,7 @@ WND* find_wnd_at(H x, H y) {
     WND *curr = g_wnd_head;
     while (curr) {
         if (curr->visible) {
-            H title_h = (curr->attr & WND_ATTR_TITLE) ? 22 : 0;
+            H title_h = (curr->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
             /* 1. Main window body (below title tab row) */
             if (x >= curr->bounds.left && x < curr->bounds.right &&
                 y >= curr->bounds.top + title_h && y < curr->bounds.bottom) {

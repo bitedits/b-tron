@@ -501,16 +501,16 @@ static void test_btron3_compact_sliding_tabs(void) {
     TEST_ASSERT(er == E_OK, "wget_tab_rect succeeded");
     TEST_ASSERT(tr.left == 100, "Tab left starts flush at bounds.left");
     TEST_ASSERT(tr.right == 100 + w->tab_width, "Tab right matches left + tab_width");
-    TEST_ASSERT(tr.top == 100 && tr.bottom == 122, "Tab height is 22px (bounds.top to bounds.top+22)");
+    TEST_ASSERT(tr.top == 100 && tr.bottom == 128, "Tab height is 28px (bounds.top to bounds.top+28)");
 
     /* Test hit testing */
-    TEST_ASSERT(whit_test_tab(w, 120, 110) == TRUE, "Hit test succeeds inside compact tab");
-    TEST_ASSERT(whit_test_tab(w, 400, 110) == FALSE, "Hit test fails on top rail outside compact tab");
+    TEST_ASSERT(whit_test_tab(w, 120, 115) == TRUE, "Hit test succeeds inside compact tab");
+    TEST_ASSERT(whit_test_tab(w, 400, 115) == FALSE, "Hit test fails on top rail outside compact tab");
     TEST_ASSERT(whit_test_tab(w, 120, 200) == FALSE, "Hit test fails inside client area");
 
     /* Test close button hit testing inside tab */
-    TEST_ASSERT(whit_test_close_btn(w, tr.right - 10, 110) == TRUE, "Close button hit test succeeds inside tab close box");
-    TEST_ASSERT(whit_test_close_btn(w, tr.left + 10, 110) == FALSE, "Close button hit test fails on title area");
+    TEST_ASSERT(whit_test_close_btn(w, tr.right - 10, 115) == TRUE, "Close button hit test succeeds inside tab close box");
+    TEST_ASSERT(whit_test_close_btn(w, tr.left + 10, 115) == FALSE, "Close button hit test fails on title area");
 
     /* Test sliding tab offset */
     er = wset_tab_offset(w, 80);
