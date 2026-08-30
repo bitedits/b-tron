@@ -19,7 +19,7 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf t-kernel dharma html2tad tad_bin clean test-mozc test-editor test-hmi test-tad
+.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf t-kernel dharma html2tad tad_bin clean test-mozc test-editor test-hmi test-tad test-chat
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -81,6 +81,8 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/apps/t_editor.c      \
               src/apps/gterm.c         \
               src/apps/audio_player.c  \
+              src/apps/chat.c          \
+              src/apps/chat_xml.c      \
               src/hmi/hmi_core.c       \
               src/hmi/hmi_switch.c     \
               src/hmi/hmi_selector.c   \
@@ -445,6 +447,24 @@ $(TEST_TAD_BIN): $(TEST_TAD_OBJS)
 	$(CC) $(TEST_TAD_OBJS) -o $@ $(LDFLAGS) -lz
 
 # ═══════════════════════════════════════════════════════════════════
+# BeOS Chat & TRON IPC Pub/Sub Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_CHAT_SRCS = src/apps/test_chat.c src/apps/chat.c src/apps/chat_xml.c \
+                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c \
+                 src/window/wnd.c src/graphics/dp_core.c
+TEST_CHAT_OBJS = $(TEST_CHAT_SRCS:.c=.test.o)
+TEST_CHAT_BIN  = test_chat
+
+test-chat: $(TEST_CHAT_BIN)
+	@echo "=========================================================="
+	@echo " Running B-TRON BeOS Chat (Blabber) & TRON IPC Tests..."
+	@echo "=========================================================="
+	@./$(TEST_CHAT_BIN)
+
+$(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
+	$(CC) $(TEST_CHAT_OBJS) -o $@ $(LDFLAGS) -lz
+
+# ═══════════════════════════════════════════════════════════════════
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
@@ -454,7 +474,7 @@ clean:
 	rm -f *.out
 	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

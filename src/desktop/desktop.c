@@ -76,6 +76,12 @@ void render_desktop_background(GDEV *dev) {
     drw_rec(dev, &audio_icon);
     drw_tc_string(dev, 25, 300, "音響", COLOR_RED, 0x00000000);
     drw_tc_string(dev, 12, 342, "音響機器", COLOR_WHITE, 0x00000000);
+
+    RECT chat_icon = { 20, 370, 70, 415 };
+    fill_rec(dev, &chat_icon, COLOR_LTGRAY);
+    drw_rec(dev, &chat_icon);
+    drw_tc_string(dev, 25, 380, "対話", COLOR_NAVY, 0x00000000);
+    drw_tc_string(dev, 12, 422, "会話通信", COLOR_WHITE, 0x00000000);
 }
 
 void render_system_panel(GDEV *dev) {
