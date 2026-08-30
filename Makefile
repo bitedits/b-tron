@@ -193,7 +193,7 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 
 .PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf \
-        run-posix run-qemu run-tkernel test-tkernel \
+        run-posix run-qemu run-tkernel run-kernel test-tkernel \
         debug-virtio debug-gdb clean
 
 all: posix qemu tkernel sakamura
@@ -342,6 +342,8 @@ run-tkernel: arm-elf
 	    echo "[ERROR] QEMU not found — install qemu-system-arm or qemu-system-aarch64"; \
 	    exit 1; \
 	fi
+
+run-kernel: run-tkernel
 
 test-tkernel: arm-elf
 	@echo "=========================================================="

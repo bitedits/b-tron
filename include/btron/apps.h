@@ -8,6 +8,6 @@ WND* open_gterm_window(void);
 WND* open_vobj_manager_window(void);
 WND* open_audio_player_window(void);
 WND* open_tad_browser_window(const char *filepath, const char *title);
-void launch_beos_chat(void);
+WND* launch_beos_chat(void);
 
 #endif /* _BTRON_APPS_H_ */

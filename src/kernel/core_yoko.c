@@ -116,6 +116,22 @@ extern int uart_has_char(void);
 extern int uart_getc(void);
 extern void uart_putc(char c);
 extern int tkl_strcmp(const char *s1, const char *s2);
+extern int snprintf(char *str, size_t size, const char *format, ...);
+
+static inline const char* yoko_strstr(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return 0;
+    if (!*needle) return haystack;
+    for (; *haystack; haystack++) {
+        const char *h = haystack;
+        const char *n = needle;
+        while (*h && *n && *h == *n) {
+            h++;
+            n++;
+        }
+        if (!*n) return haystack;
+    }
+    return 0;
+}
 
 extern void set_baremetal_mouse_pos(H x, H y);
 extern void get_baremetal_mouse_pos(H *x, H *y);
@@ -304,23 +320,23 @@ static void console_exec(GDEV *screen, const char *cmd_line) {
         for (int i = 0; i < count; i++) {
             WND *cw = w_list[i];
             const char *tname = "btron_app";
-            if (tkl_strstr(cw->title, "gterm") || tkl_strstr(cw->title, "Terminal")) tname = "gterm";
-            else if (tkl_strstr(cw->title, "T-Editor") || tkl_strstr(cw->title, "Editor")) tname = "t_editor";
-            else if (tkl_strstr(cw->title, "TAD") || tkl_strstr(cw->title, "仕様書")) tname = "tad_browser";
-            else if (tkl_strstr(cw->title, "Cabinet") || tkl_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
-            else if (tkl_strstr(cw->title, "TC-K777ES") || tkl_strstr(cw->title, "SONY")) tname = "audio_player";
-            else if (tkl_strstr(cw->title, "Chat") || tkl_strstr(cw->title, "対話") || tkl_strstr(cw->title, "会話") || tkl_strstr(cw->title, "Blabber")) tname = "beos_chat";
+            if (yoko_strstr(cw->title, "gterm") || yoko_strstr(cw->title, "Terminal")) tname = "gterm";
+            else if (yoko_strstr(cw->title, "T-Editor") || yoko_strstr(cw->title, "Editor")) tname = "t_editor";
+            else if (yoko_strstr(cw->title, "TAD") || yoko_strstr(cw->title, "仕様書")) tname = "tad_browser";
+            else if (yoko_strstr(cw->title, "Cabinet") || yoko_strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
+            else if (yoko_strstr(cw->title, "TC-K777ES") || yoko_strstr(cw->title, "SONY")) tname = "audio_player";
+            else if (yoko_strstr(cw->title, "Chat") || yoko_strstr(cw->title, "対話") || yoko_strstr(cw->title, "会話") || yoko_strstr(cw->title, "Blabber")) tname = "beos_chat";
 
             int inst_num = 1;
             for (int j = 0; j < i; j++) {
                 WND *prev_w = w_list[j];
                 const char *pname = "btron_app";
-                if (tkl_strstr(prev_w->title, "gterm") || tkl_strstr(prev_w->title, "Terminal")) pname = "gterm";
-                else if (tkl_strstr(prev_w->title, "T-Editor") || tkl_strstr(prev_w->title, "Editor")) pname = "t_editor";
-                else if (tkl_strstr(prev_w->title, "TAD") || tkl_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
-                else if (tkl_strstr(prev_w->title, "Cabinet") || tkl_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
-                else if (tkl_strstr(prev_w->title, "TC-K777ES") || tkl_strstr(prev_w->title, "SONY")) pname = "audio_player";
-                else if (tkl_strstr(prev_w->title, "Chat") || tkl_strstr(prev_w->title, "対話") || tkl_strstr(prev_w->title, "会話") || tkl_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
+                if (yoko_strstr(prev_w->title, "gterm") || yoko_strstr(prev_w->title, "Terminal")) pname = "gterm";
+                else if (yoko_strstr(prev_w->title, "T-Editor") || yoko_strstr(prev_w->title, "Editor")) pname = "t_editor";
+                else if (yoko_strstr(prev_w->title, "TAD") || yoko_strstr(prev_w->title, "仕様書")) pname = "tad_browser";
+                else if (yoko_strstr(prev_w->title, "Cabinet") || yoko_strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
+                else if (yoko_strstr(prev_w->title, "TC-K777ES") || yoko_strstr(prev_w->title, "SONY")) pname = "audio_player";
+                else if (yoko_strstr(prev_w->title, "Chat") || yoko_strstr(prev_w->title, "対話") || yoko_strstr(prev_w->title, "会話") || yoko_strstr(prev_w->title, "Blabber")) pname = "beos_chat";
                 if (tkl_strcmp(pname, tname) == 0) inst_num++;
             }
 

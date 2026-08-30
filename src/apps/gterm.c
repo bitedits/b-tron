@@ -35,6 +35,22 @@ extern void* tkl_memmove(void *dest, const void *src, size_t n);
 #define memmove tkl_memmove
 #define strlen  tkl_strlen
 #define isspace(c) ((c) == ' ' || (c) == '\t' || (c) == '\n' || (c) == '\r' || (c) == '\f' || (c) == '\v')
+
+static inline char* gterm_strstr(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return NULL;
+    if (!*needle) return (char*)haystack;
+    for (; *haystack; haystack++) {
+        const char *h = haystack;
+        const char *n = needle;
+        while (*h && *n && *h == *n) {
+            h++;
+            n++;
+        }
+        if (!*n) return (char*)haystack;
+    }
+    return NULL;
+}
+#define strstr  gterm_strstr
 #endif
 
 #define GTERM_MAX_COLS     256
@@ -394,11 +410,19 @@ static void gterm_execute_cmd(WND *wnd, GTermState *st, const char *cmd_line) {
         open_tad_browser_window("tad_bin/01_btron3_spec.tad", "【仕様書】BTRON3 3.20");
         gterm_append_line(st, "Started new TAD Browser instance", COLOR_GREEN);
     } else if (strcmp(cmd, "chat") == 0) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         launch_beos_chat();
         gterm_append_line(st, "Started new BeOS Chat instance", COLOR_GREEN);
+#else
+        gterm_append_line(st, "BeOS Chat is supported in POSIX / Hosted mode", COLOR_YELLOW);
+#endif
     } else if (strcmp(cmd, "audio") == 0 || strcmp(cmd, "player") == 0) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         open_audio_player_window();
         gterm_append_line(st, "Started Audio Deck instance", COLOR_GREEN);
+#else
+        gterm_append_line(st, "Audio Player is supported in POSIX / Hosted mode", COLOR_YELLOW);
+#endif
     } else if (strcmp(cmd, "cabinet") == 0 || strcmp(cmd, "vobjmgr") == 0) {
         open_vobj_manager_window();
         gterm_append_line(st, "Started Cabinet Explorer instance", COLOR_GREEN);
@@ -690,6 +714,7 @@ WND* open_gterm_window(void) {
         GTermState *st = (GTermState*)calloc(1, sizeof(GTermState));
         if (st) {
             gterm_init_banner(st);
+            gterm_execute_cmd(wnd, st, "ver");
             wnd->user_data = (VW)(uintptr_t)st;
         }
         wnd->paint = paint_gterm;
