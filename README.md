@@ -4,6 +4,8 @@ A cleanroom recreation of the **B-System** (Business TRON / TRON OS Architecture
 specification and retro desktop environment. Designed using standard C99, rendering through SDL2,
 and organized into a authentic Japanese BTRON tree structure.
 
+TRON Trace Distribution uCode: https://trace.tron.org/tk/00001C00000000000000000000070066
+
 ## Specifications B-system is based on
 
 * [BTRON3 SPEC 3.20](https://bitedits.github.io/btron/doc/)
