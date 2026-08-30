@@ -34,20 +34,20 @@ You need to ask PMC to give me non-commercial permission to Ukrainian translatio
 * [x] Own MOZC !!!
 * [x] UTF-8 / TRON Code
 * [x] Four Books Included in TAD format (BTRON3 3.20 Spec, T-Kernel, B-Free, B-System)
-* [_] C99 Compiler (Fabrice Bellard?)
-* [_] IDE (Legacy IDE)
-* [_] XMPP Chat (Namdak Tonpa 2010, 300KB)
-* [_] HTML 4.1 Browser (NetSurf based)
-* [_] LibreSSL 3.1.5
-* [_] Erlang (Joe Armstrong)
-* [_] MinCaml (Eijiro Sumii)
-* [_] GStreamer
-* [_] TURN
-* [_] WebRTC RTP MCU Video Conferencing
-* [_] Be Editor (https://be.5ht.co)
-* [_] Sokhatsky Commander (https://sc.5ht.co)
-* [_] Terminal Editor (https://tv.5ht.co)
-* [_] POSIX Shell (https://sh.5ht.co)
+* [ ] C99 Compiler (Fabrice Bellard?)
+* [ ] IDE (Legacy IDE)
+* [ ] XMPP Chat (Namdak Tonpa 2010, 300KB)
+* [ ] HTML 4.1 Browser (NetSurf based)
+* [ ] LibreSSL 3.1.5
+* [ ] Erlang (Joe Armstrong)
+* [ ] MinCaml (Eijiro Sumii)
+* [ ] GStreamer
+* [ ] TURN
+* [ ] WebRTC RTP MCU Video Conferencing
+* [ ] Be Editor (https://be.5ht.co)
+* [ ] Sokhatsky Commander (https://sc.5ht.co)
+* [ ] Terminal Editor (https://tv.5ht.co)
+* [ ] POSIX Shell (https://sh.5ht.co)
 
 ## Screenshots
 
