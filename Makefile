@@ -24,7 +24,7 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura arm-elf arm64-elf \
-        html2tad tad_bin test test-kernel test-tkernel \
+        html2tad tad_bin test test-kernel \
         test-mozc test-editor test-hmi test-tad test-chat \
         run-posix run-qemu run-kernel debug-virtio debug-gdb clean
 
@@ -324,7 +324,7 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 	@file $@
 
 # ═══════════════════════════════════════════════════════════════════
-# QEMU Pi 2B — run-tkernel / test-tkernel
+# QEMU Pi 2B — test-tkernel
 #
 # Runs B-TRON on Raspberry Pi 2B (BCM2836, Cortex-A7, ARMv7 32-bit).
 # Supports both qemu-system-arm and qemu-system-aarch64.
