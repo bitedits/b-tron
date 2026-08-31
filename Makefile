@@ -1,5 +1,5 @@
 #
-# B-System— Multi-Target Makefile
+# B-System Multi-Target Makefile
 # Cleanroom Sakamura T-Kernel 2.0 / POSIX / QEMU / BCM283x Bare-Metal
 #
 # Targets:
