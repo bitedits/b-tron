@@ -19,7 +19,10 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu kernel sakamura arm-elf arm64-elf html2tad tad_bin clean test-mozc test-editor test-hmi test-tad test-chat
+.PHONY: all posix qemu kernel tkernel sakamura arm-elf arm64-elf \
+        html2tad tad_bin clean test test-all test-kernel test-tkernel \
+        test-mozc test-editor test-hmi test-tad test-chat \
+        run-posix run-qemu run-kernel run-tkernel debug-virtio debug-gdb
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -191,10 +194,6 @@ DEFAULT_TARGET = btron
 TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
-
-.PHONY: all posix qemu kernel sakamura arm-elf arm64-elf \
-        run-posix run-qemu run-kernel test-kernel \
-        debug-virtio debug-gdb clean
 
 all: posix qemu kernel sakamura
 
@@ -422,8 +421,6 @@ $(TEST_HMI_BIN): $(TEST_HMI_OBJS)
 tad_bin:
 	@elixir scripts/html2tad.exs
 
-dharma: tad_bin
-
 html2tad:
 	@elixir scripts/html2tad.exs --test
 
@@ -463,6 +460,14 @@ test-chat: $(TEST_CHAT_BIN)
 
 $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 	$(CC) $(TEST_CHAT_OBJS) -o $@ $(LDFLAGS) -lz
+
+# ═══════════════════════════════════════════════════════════════════
+# Unified Test Suite Runner
+# ═══════════════════════════════════════════════════════════════════
+test: test-kernel test-tad test-editor test-chat test-mozc test-hmi
+	@echo "=========================================================="
+	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
+	@echo "=========================================================="
 
 # ═══════════════════════════════════════════════════════════════════
 # Clean
