@@ -58,7 +58,7 @@ MARKERS=(
     "LowKbPdDrv"
     "Initializing BCM283x DWC2 USB 2.0 Host Controller"
     "Live Multi-Window Desktop & Pointer initialized in Video VRAM"
-    "Sakamura B-TRON 3.0 Interactive Keyboard & Mouse Active"
+    "Sakamura B-System 3.0 Interactive Keyboard & Mouse Active"
 )
 
 for marker in "${MARKERS[@]}"; do

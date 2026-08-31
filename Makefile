@@ -5,11 +5,11 @@
 # Targets:
 #   posix         POSIX Microkernel Desktop (SDL2 host)
 #   qemu          QEMU VirtIO Desktop (SDL2 host)
-#   t-kernel      T-Kernel SDL2 host build (debug / development)
+#   kernel        T-Kernel SDL2 host build (debug / development)
 #   arm-elf       Freestanding ARM32 ELF  — BCM283x Pi 2B (Cortex-A7, ARMv7)
 #   arm64-elf     Freestanding AArch64 ELF — Pi 4B only (Cortex-A72)
-#   run-tkernel   Boot Pi 2B ELF in QEMU (raspi2b, with display)
-#   test-tkernel  Boot Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
+#   run-kernel    Boot Pi 2B ELF in QEMU (raspi2b, with display)
+#   test-kernel   Boot Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
 #   debug-gdb     QEMU + GDB stub on Pi 2B
 #
 # NOTE: qemu-system-aarch64 supports ALL Pi models (raspi0/1ap/2b/3b/4b).
@@ -19,7 +19,7 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf t-kernel dharma html2tad tad_bin clean test-mozc test-editor test-hmi test-tad test-chat
+.PHONY: all posix qemu kernel sakamura arm-elf arm64-elf html2tad tad_bin clean test-mozc test-editor test-hmi test-tad test-chat
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -192,11 +192,11 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 
-.PHONY: all posix qemu tkernel sakamura arm-elf arm64-elf \
-        run-posix run-qemu run-tkernel run-kernel test-tkernel \
+.PHONY: all posix qemu kernel sakamura arm-elf arm64-elf \
+        run-posix run-qemu run-kernel test-kernel \
         debug-virtio debug-gdb clean
 
-all: posix qemu tkernel sakamura
+all: posix qemu kernel sakamura
 
 # ═══════════════════════════════════════════════════════════════════
 # POSIX Desktop
@@ -242,7 +242,7 @@ test-qemu: qemu
 # ═══════════════════════════════════════════════════════════════════
 # T-Kernel SDL2 host build (development / debug on host)
 # ═══════════════════════════════════════════════════════════════════
-tkernel: tad_bin $(TKERNEL_TARGET)
+kernel: tad_bin $(TKERNEL_TARGET)
 	@echo "=========================================================="
 	@echo " Sakamura T-Kernel 2.0 Engine built: $(TKERNEL_TARGET)"
 	@echo "=========================================================="
@@ -323,7 +323,7 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 # Runs B-TRON on Raspberry Pi 2B (BCM2836, Cortex-A7, ARMv7 32-bit).
 # Supports both qemu-system-arm and qemu-system-aarch64.
 # ═══════════════════════════════════════════════════════════════════
-run-tkernel: arm-elf
+run-kernel: arm-elf
 	@echo "=========================================================="
 	@echo " Launching T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
@@ -343,9 +343,7 @@ run-tkernel: arm-elf
 	    exit 1; \
 	fi
 
-run-kernel: run-tkernel
-
-test-tkernel: arm-elf
+test-kernel: arm-elf
 	@echo "=========================================================="
 	@echo " Testing T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"

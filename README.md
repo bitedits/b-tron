@@ -111,8 +111,8 @@ btron/
 ## Raspberry Pi 2/3 T-Kernel 2.0 `Yokobayashi`
 
 ```
-$ make tkernel
-$ make run-tkernel
+$ make kernel
+$ make run-kernel
 ```
 
 <img src="https://bitedits.github.io/btron/b-system/img/yokobayashi.png" width="800" alt="Yokobayashi T-Kernel" />
