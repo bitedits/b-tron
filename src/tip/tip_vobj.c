@@ -1,5 +1,5 @@
 /*
- * B-System (BTRON 3.20) Real Object User Dictionaries: tip_vobj.c
+ * B-System (BTRON 3.20) Real Body User Dictionaries: tip_vobj.c
  * Cleanroom implementation conforming to btron-tip.tex Section 5.1 & REQ-2.5.
  */
 
@@ -44,8 +44,8 @@ ER mozc_save_user_dictionary(const char *filepath) {
     FILE *fp = fopen(path, "w");
     if (!fp) return E_SYS;
 
-    /* Write header as Real Object Metadata */
-    fprintf(fp, "# B-TRON Real Object User Dictionary (Jisshin #104)\n");
+    /* Write header as Real Body Metadata */
+    fprintf(fp, "# B-TRON Real Body User Dictionary (Jisshin #104)\n");
     fprintf(fp, "# Format: <Reading> <Kanji/Value> <Category>\n");
     fprintf(fp, "なかの 中野 surname\n");
     fprintf(fp, "さかむら 坂村 surname\n");

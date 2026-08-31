@@ -7,7 +7,7 @@ This document provides a comprehensive technical overview of **TAD (TRON Applica
 In the TRON architecture designed by Prof. Ken Sakamura, **TAD (TRON Application Databus)** is the foundational, multi-modal data exchange format. Unlike standard linear text files (ASCII/UTF-8) or rigid relational databases, TAD is a **hyper-data format** composed of a continuous stream of text and embedded **Fusen (付箋 - Sticky Tabs/Tags)**.
 
 In B-System, TAD serves two critical roles:
-1. **Hyper-Object Document Storage:** Organizes system documentation, books, and user documents into first-class **Real Objects (実身 - Jitsushin)** with embedded **Virtual Object (仮身 - Kashin)** links.
+1. **Hyper-Object Document Storage:** Organizes system documentation, books, and user documents into first-class **Real Bodys (実身 - Jitsushin)** with embedded **Virtual Body (仮身 - Kashin)** links.
 2. **Deterministic Bounded Layout:** A cleanroom linear layout engine replaces legacy complex DOM trees with a single-pass stream engine adhering strictly to **NASA Safety-Critical C Rules (JPL Rule 3: Zero post-boot dynamic heap allocations)**.
 
 ## 2. Directory Structure & Unified Packaging Pipeline
@@ -16,7 +16,7 @@ All documentation, specifications, and foundational books in B-System are packag
 
 ```
 btron/
-└── tad_bin/                      # ◄ Unified Canonical TAD Real Objects Ecosystem
+└── tad_bin/                      # ◄ Unified Canonical TAD Real Bodys Ecosystem
     ├── 01_btron3_spec.tad        # Book 1: BTRON3 3.20 共通仕様書 (Canonical Book)
     ├── 02_tkernel_book.tad       # Book 2: T-Kernel 2.0 リアルタイムOS完全解説
     ├── 03_tron_hmi_book.tad      # Book 3: TRON HMI 意匠設計指針と部品カタログ
@@ -77,7 +77,7 @@ Every `.tad` file in `./tad_bin/` begins with the 16-bit **TAD Main Record Heade
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │  TS_TCHAR   (0xFFA3) : Character Style (Point Size: 10..22pt, Weight, RGB Color) │
 ├──────────────────────────────────────────────────────────────────────────────────┤
-│  TS_VOBJ    (0xFFA8) : Embedded Virtual Object Link [仮身] (Target Real Object)  │
+│  TS_VOBJ    (0xFFA8) : Embedded Virtual Body Link [仮身] (Target Real Body)  │
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │  TS_FPRIM   (0xFFB0) : Figure Primitive (Vector lines, Boxes, GIF & PNG Pictures)│
 ├──────────────────────────────────────────────────────────────────────────────────┤
@@ -105,12 +105,12 @@ make test-tad
 ## 5. Runtime Usage in B-System
 
 ### 1. Cabinet Explorer (実身キャビネット - `src/apps/vobj_manager.c`)
-- **Central Real Object Library:**
+- **Central Real Body Library:**
   - **Canonical Books:** Tagged with `[TAD Spec]`, `[T-Kernel]`, `[HMI Guide]`, `[B-Free OS]`.
   - **System Specifications:** Tagged with `[tad_bin][Ядро]`, `[tad_bin][Специфікація]`, `[tad_bin][Графіка]`, `[tad_bin][Оболонка]`, and `[tad_bin][Надійність]`.
 - **Interactive Navigation:**
-  - **Single Click / Key Arrow:** Selects an object, highlighting it in BTRON Navy Blue (`COLOR_NAVY`) and displaying metadata (Real Object ID, category, size in bytes) in the status bar.
-  - **Double-Click / [開く (Open)] / [閲覧 (View)]:** Instantly opens the selected Real Object in the **TAD Document Browser**.
+  - **Single Click / Key Arrow:** Selects an object, highlighting it in BTRON Navy Blue (`COLOR_NAVY`) and displaying metadata (Real Body ID, category, size in bytes) in the status bar.
+  - **Double-Click / [開く (Open)] / [閲覧 (View)]:** Instantly opens the selected Real Body in the **TAD Document Browser**.
   - **Smooth Scrolling:** Scrollbar thumb and keyboard scrolling (<kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>j</kbd>, <kbd>k</kbd>) for navigating large document libraries.
 
 ### 2. Native TAD Document Browser (`src/apps/tad_browser.c`)
@@ -127,15 +127,15 @@ make test-tad
 │ [仮身] 第2節 リアルタイムメモリプール (memory.tad)                                       │ │
 │                                                                                          │ │
 ├──────────────────────────────────────────────────────────────────────────────────────────┤
-│ 🔗 [仮身] Перехід до: proc.tad (Real Object #122) [Клацніть для переходу]                 │ ◄ Status Bar (Preview)
+│ 🔗 [仮身] Перехід до: proc.tad (Real Body #122) [Клацніть для переходу]                 │ ◄ Status Bar (Preview)
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### How to Navigate in TAD Browser
 
-1. **Hyper-Link Navigation (Virtual Objects `[仮身]`):**
+1. **Hyper-Link Navigation (Virtual Bodys `[仮身]`):**
    - **Click on any Link Box:** Clicking any blue `[仮身] ...` box loads the destination document in-place.
-   - **Hover Preview:** Hovering over any link highlights it with a light-gray border and displays the exact target path and Real Object ID in the bottom status bar (`🔗 [仮身] Перехід до: ...`).
+   - **Hover Preview:** Hovering over any link highlights it with a light-gray border and displays the exact target path and Real Body ID in the bottom status bar (`🔗 [仮身] Перехід до: ...`).
    - **Automatic Path Resolution (`tad_browser_resolve_path`):**
      - Automatically translates legacy `.html` links to native `.tad` files.
      - Strips anchor `#fragments` and `?queries`.
@@ -146,7 +146,7 @@ make test-tad
    - **`[► Вперед (Forward)]`**: Navigates forward in the history stack.
    - **`[⌂ Дім (Home)]`**: Instantly returns to the foundational canonical portal (`tad_bin/01_btron3_spec.tad`).
    - **`[↻ Оновити (Reload)]`**: Re-reads the current document from disk and preserves the active scroll position.
-   - **Location / Breadcrumb Bar:** Displays the current active Real Object path (`📄 tad_bin/...`).
+   - **Location / Breadcrumb Bar:** Displays the current active Real Body path (`📄 tad_bin/...`).
 
 3. **Keyboard Shortcuts:**
 
@@ -186,7 +186,7 @@ UTF-8 Cyrillic (2 bytes) ──────► [ utf8_to_tc ] ──────
 - **Collision Resolution:** Cyrillic 2-byte sequences are mapped directly to `0x2700..0x27FF`, completely avoiding collision with Japanese Hiragana (`0x2400..0x245F`) and Katakana (`0x2500..0x255F`).
 - **Proportional 8x16 Typography (Zero Inter-Character Gap):** Cyrillic & Ukrainian glyphs are rendered in crisp 8x16 dot-matrix cells (`gw = 8, gh = 16`), matching English ASCII text width and kerning instead of wide 16x16 Zenkaku boxes.
 - **Dedicated Ukrainian Glyphs:** High-contrast dot-matrix bitmaps for `Є`, `І`, `Ї`, `Ґ`, `є`, `і`, `ї`, `ґ`, `№`, `«`, and `»` ensure sharp, natural legibility in the TAD Document Browser, T-Editor, and Cabinet Explorer.
-- **Clean Hyper-Data Links:** Virtual Object links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout.
+- **Clean Hyper-Data Links:** Virtual Body links are compiled as atomic binary `TS_VOBJ` segments without redundant raw text duplications, producing an uncluttered, modern layout.
 
 ## 7. BTRON3 3.20 Figure & Picture Segment Fusen (`TS_FPRIM`) with GIF & PNG Support
 
@@ -200,7 +200,7 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │  Caption Length (16-bit) | UTF-8 Caption Text (e.g. "図 1: アーキテクチャ階層構造")      │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│  Source Path Length (16-bit) | Asset URI / Real Object Path (e.g. "img/fig_01.png")    │
+│  Source Path Length (16-bit) | Asset URI / Real Body Path (e.g. "img/fig_01.png")    │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -217,7 +217,7 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
 | Feature | Legacy B-right/V Cho-Kanji (超漢字) | B-System Cleanroom OS | Status |
 |:---|:---:|:---:|:---:|
 | **Record Header (Type 1)** | `0x0001` (16-bit) | `0x0001` (16-bit) | **100% Binary Compatible** |
-| **Virtual Object Fusen** | `TS_VOBJ` (`0xFFA8`) | `TS_VOBJ` (`0xFFA8`) | **100% Binary Compatible** |
+| **Virtual Body Fusen** | `TS_VOBJ` (`0xFFA8`) | `TS_VOBJ` (`0xFFA8`) | **100% Binary Compatible** |
 | **Figure / Picture Fusen** | `TS_FPRIM` (`0xFFB0`) | `TS_FPRIM` (`0xFFB0` SubID 10) | **100% Binary Compatible** |
 | **Font & Character Fusen** | `TS_TFONT` / `TS_TCHAR` | `TS_TFONT` / `TS_TCHAR` | **100% Binary Compatible** |
 | **In-Place Navigation Stack** | Rudimentary window spawns | Multi-level history + Top Toolbar | **Superior Usability** |

@@ -304,7 +304,7 @@ static void test_editor_initialization(void) {
     TEST_ASSERT(ed.total_lines == 6, "Total initial lines is 6");
     TEST_ASSERT(ed.cursor_row == 0 && ed.cursor_col == 0, "Caret initializes at (0, 0)");
     TEST_ASSERT(strncmp(ed.lines[0], "件名：【BTRON3仕様", 21) == 0, "First line contains Japanese header");
-    TEST_ASSERT(ed.has_vobj == TRUE, "Embedded Virtual Object icon is active");
+    TEST_ASSERT(ed.has_vobj == TRUE, "Embedded Virtual Body icon is active");
 }
 
 static void test_caret_multibyte_navigation(void) {

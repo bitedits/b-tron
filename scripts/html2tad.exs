@@ -8,7 +8,7 @@
 defmodule BtronTAD.Compiler do
   @moduledoc """
   Compiles semantic HTML into BTRON3 SPEC 3.20 binary TAD segments and symbolic TAD records.
-  Implements strict noise filtering and lossless hyper-data Virtual Object link generation.
+  Implements strict noise filtering and lossless hyper-data Virtual Body link generation.
   """
 
   # ── BTRON3 SPEC 3.20 TAD Segment Tag Identifiers ────────────────────────────
@@ -16,7 +16,7 @@ defmodule BtronTAD.Compiler do
   @ts_truler  0xFFA1  # Text Ruler Fusen (Indents, Line pitch, Tab stops)
   @ts_tfont   0xFFA2  # Text Font Fusen (Font ID, TRON Plane)
   @ts_tchar   0xFFA3  # Character Attributes (Point size, Weight, Color)
-  @ts_vobj    0xFFA8  # Virtual Object Link Fusen (Real Object Pointer)
+  @ts_vobj    0xFFA8  # Virtual Body Link Fusen (Real Body Pointer)
   @ts_fprim   0xFFB0  # Figure Primitive (Vector lines, Rectangles)
 
   # Record Type 1 = TAD Main Record
@@ -162,7 +162,7 @@ defmodule BtronTAD.Compiler do
     make_segment(@ts_truler, payload)
   end
 
-  # Virtual Object Link Fusen (TS_VOBJ = 0xFFA8)
+  # Virtual Body Link Fusen (TS_VOBJ = 0xFFA8)
   def seg_vobj(target_id, label, path \\ "") do
     label_bytes = :unicode.characters_to_binary(label, :utf8, :utf8)
     path_bytes = :unicode.characters_to_binary(path, :utf8, :utf8)
@@ -324,7 +324,7 @@ defmodule BtronTAD.Compiler do
   def compile_to_symbolic_tad(elements, doc_title \\ "BTRON Document", base_dir \\ "") do
     header = """
     ================================================================================
-    TAD REAL OBJECT [実身] : #{doc_title}
+    TAD Real Body [実身] : #{doc_title}
     RECORD TYPE : 1 (TAD Main Record) | BTRON3 SPEC 3.20 Cleanroom Edition
     DATE        : #{Date.utc_today()} | GENERATOR : BtronTAD.Compiler (Elixir OTP 29)
     ================================================================================
@@ -437,7 +437,7 @@ defmodule BtronTAD.Compiler do
     assert(Enum.any?(elements, &match?({:p, _}, &1)), "Parsed P element")
     assert(Enum.any?(elements, &match?({:pre, _}, &1)), "Parsed PRE element")
     assert(Enum.any?(elements, &match?({:ul, ["Item 1", "Item 2"]}, &1)), "Parsed UL list")
-    assert(Enum.any?(elements, &match?({:link, "tad1.html", "Посилання на TAD специфікацію"}, &1)), "Parsed A link to Virtual Object")
+    assert(Enum.any?(elements, &match?({:link, "tad1.html", "Посилання на TAD специфікацію"}, &1)), "Parsed A link to Virtual Body")
 
     bin_tad = compile_to_binary_tad(elements, "Unit Test TAD")
     <<rec_type::16-big, payload_len::32-big, payload::binary>> = bin_tad

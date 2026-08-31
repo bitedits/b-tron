@@ -42,7 +42,7 @@ void sys_get_devconf(char *buf, size_t bufsz) {
         "  [1] SerialDrv : PL011 UART0 115200 8N1 (Active, Console)\n"
         "  [2] KBPD      : Keyboard & Pointing Device (Mouse Cursor Active)\n"
         "  [3] TKernel   : 14 Sakamura T-Kernel 2.0 Subsystems (Active)\n"
-        "  [4] VObjStore : HyperData HFDS Real Object Storage (Active)");
+        "  [4] VObjStore : HyperData HFDS Real Body Storage (Active)");
 #else
     tkl_strncpy(buf,
         "Registered Device Drivers:\n"
@@ -50,7 +50,7 @@ void sys_get_devconf(char *buf, size_t bufsz) {
         "  [1] SerialDrv : PL011 UART0 115200 8N1 (Active, Console)\n"
         "  [2] KBPD      : Keyboard & Pointing Device (Mouse Cursor Active)\n"
         "  [3] TKernel   : 14 Sakamura T-Kernel 2.0 Subsystems (Active)\n"
-        "  [4] VObjStore : HyperData HFDS Real Object Storage (Active)", bufsz - 1);
+        "  [4] VObjStore : HyperData HFDS Real Body Storage (Active)", bufsz - 1);
     buf[bufsz - 1] = '\0';
 #endif
 }

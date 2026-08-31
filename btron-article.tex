@@ -59,7 +59,7 @@
 \maketitle
 
 \begin{abstract}
-Real-Time Operating Systems (RTOS) represent the computational bedrock of autonomous cyber-physical systems, aerospace avionics, and critical edge infrastructure. However, modern deployment environments demand both rigorous mathematical safety guarantees and seamless integration with contemporary hypervisor ecosystems. This paper presents a comprehensive cleanroom implementation and virtualization architecture for the \textbf{BTRON3 SPEC 3.20} specification, situated within a modern Type-Theoretic formal verification framework and a unified VirtIO 1.4 hypervision pipeline. We analyze the tri-tier operating system taxonomy (Nano, MCU, and Datacenter Compute) and investigate the triadic landscape of modern lightweight RTOS: Apache NuttX, Little Kernel (LK), and TRON ($\mu$ITRON/BTRON). We present the design of a modular, multi-target execution matrix spanning four distinct backends: POSIX user-space emulation (\emph{Takada}), QEMU VirtIO virtualization (\emph{Izumina}), QEMU T-Kernel 2.0 compliance (\emph{Sakamura}), and direct baremetal ARM execution on Raspberry Pi 2/3 (\emph{Yokobayashi}). Furthermore, we formalize the BTRON Real Object / Virtual Object (\ja{実身}/\ja{仮身}) hyper-data model, the Display Primitives (DP) graphics engine, and demonstrate how Martin-Löf Type Theory (MLTT) and constructive proof assistants provide end-to-end verification isomorphism for safety-critical kernel services.
+Real-Time Operating Systems (RTOS) represent the computational bedrock of autonomous cyber-physical systems, aerospace avionics, and critical edge infrastructure. However, modern deployment environments demand both rigorous mathematical safety guarantees and seamless integration with contemporary hypervisor ecosystems. This paper presents a comprehensive cleanroom implementation and virtualization architecture for the \textbf{BTRON3 SPEC 3.20} specification, situated within a modern Type-Theoretic formal verification framework and a unified VirtIO 1.4 hypervision pipeline. We analyze the tri-tier operating system taxonomy (Nano, MCU, and Datacenter Compute) and investigate the triadic landscape of modern lightweight RTOS: Apache NuttX, Little Kernel (LK), and TRON ($\mu$ITRON/BTRON). We present the design of a modular, multi-target execution matrix spanning four distinct backends: POSIX user-space emulation (\emph{Takada}), QEMU VirtIO virtualization (\emph{Izumina}), QEMU T-Kernel 2.0 compliance (\emph{Sakamura}), and direct baremetal ARM execution on Raspberry Pi 2/3 (\emph{Yokobayashi}). Furthermore, we formalize the BTRON Real Body / Virtual Body (\ja{実身}/\ja{仮身}) hyper-data model, the Display Primitives (DP) graphics engine, and demonstrate how Martin-Löf Type Theory (MLTT) and constructive proof assistants provide end-to-end verification isomorphism for safety-critical kernel services.
 \end{abstract}
 
 \noindent\textbf{\small Keywords}---BTRON, Real-Time Operating Systems, VirtIO, Formal Verification, Martin-Löf Type Theory, Cleanroom Implementation, Microkernels, T-Kernel, seL4.
@@ -130,7 +130,7 @@ Multilingual     & UTF-8 POSIX           & UTF-8 / ASCII              & TRON Mul
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Apache NuttX:} Engineered for maximum standards conformance, providing a rich POSIX API. While facilitating easy porting of Unix software, POSIX abstractions introduce non-trivial overhead in interrupt handling and memory footprints.
     \item \textbf{Little Kernel (LK):} Designed by Travis Geiselbrecht for bootloaders, Android pre-boot environments, and low-latency microcontrollers. LK prioritizes rapid synchronization, minimal context-switch latency, and an uncluttered threading model.
-    \item \textbf{TRON ($\mu$ITRON / BTRON):} Designed from inception for real-time determinism (Sakamura's $\mu$ITRON) coupled with a radical hypertext document paradigm (BTRON). Unlike POSIX, BTRON eliminates the distinction between files and applications, structuring all state as interconnected Real Objects (\ja{実身}) and Virtual Objects (\ja{仮身}).
+    \item \textbf{TRON ($\mu$ITRON / BTRON):} Designed from inception for real-time determinism (Sakamura's $\mu$ITRON) coupled with a radical hypertext document paradigm (BTRON). Unlike POSIX, BTRON eliminates the distinction between files and applications, structuring all state as interconnected Real Bodys (\ja{実身}) and Virtual Bodys (\ja{仮身}).
 \end{enumerate}
 
 %-------------------------------------------------------------------------
@@ -153,7 +153,7 @@ btron/
 |   |-- dp.h             # Display Primitives engine
 |   |-- wnd.h            # Window Manager APIs
 |   |-- event.h          # System Event Queue
-|   |-- vobj.h           # Real/Virtual Object Engine
+|   |-- vobj.h           # Real/Virtual Body Engine
 |   `-- troncode.h       # TRON Character Code
 |-- src/                 # Subsystem Implementations
 `-- apps/                # Accessories (gterm, t_editor)
@@ -170,7 +170,7 @@ btron/
 |         Display Primitives & Window Manager       |
 +---------------------------------------------------+
 |         BTRON3 SPEC 3.20 System Services          |
-|    (Event Manager, Real/Virtual Object Manager)   |
+|    (Event Manager, Real/Virtual Body Manager)   |
 +---------------------------------------------------+
 |                   uITRON Kernel                   |
 +-----------+-------------+-----------+-------------+
@@ -200,15 +200,15 @@ Real-time task synchronization is governed by $\mu$ITRON system calls:
 \text{Semaphores:} \quad & \texttt{cre\_sem}, \texttt{wai\_sem}, \texttt{sig\_sem}
 \end{align}
 
-\subsection{The Real Object / Virtual Object Hyper-Data Model}
+\subsection{The Real Body / Virtual Body Hyper-Data Model}
 The central architectural innovation of BTRON is the abandonment of the hierarchical tree directory system (e.g., POSIX \texttt{/usr/bin/}) in favor of a networked hyper-data model:
 
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Real Object (\ja{実身} -- \emph{Jisshin}):} The actual persistent record containing document content, drawings, or executable structures stored within persistent storage cabinets.
-    \item \textbf{Virtual Object (\ja{仮身} -- \emph{Kashin}):} A visual, interactive pointer embedded within any Real Object that references another Real Object. Clicking or activating a Virtual Object opens the referenced Real Object in-place.
+    \item \textbf{Real Body (\ja{実身} -- \emph{Jisshin}):} The actual persistent record containing document content, drawings, or executable structures stored within persistent storage cabinets.
+    \item \textbf{Virtual Body (\ja{仮身} -- \emph{Kashin}):} A visual, interactive pointer embedded within any Real Body that references another Real Body. Clicking or activating a Virtual Body opens the referenced Real Body in-place.
 \end{itemize}
 
-Mathematically, the BTRON storage system forms a directed graph $G = (V, E)$, where vertices $V$ represent Real Objects (\emph{Jisshin}) and edges $E$ represent embedded Virtual Objects (\emph{Kashin}). This allows many-to-many non-hierarchical links, instantaneous transclusion, and multi-parent categorization without symlink anomalies.
+Mathematically, the BTRON storage system forms a directed graph $G = (V, E)$, where vertices $V$ represent Real Bodys (\emph{Jisshin}) and edges $E$ represent embedded Virtual Bodys (\emph{Kashin}). This allows many-to-many non-hierarchical links, instantaneous transclusion, and multi-parent categorization without symlink anomalies.
 
 %-------------------------------------------------------------------------
 \section{Multi-Target Execution Matrix}

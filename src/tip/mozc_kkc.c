@@ -476,8 +476,8 @@ static const RawDictEntry g_system_dictionary[] = {
     {"びーとろん", "B-TRON", "system", POS_NOUN, 500},
     {"てぃーかーねる", "T-Kernel", "kernel", POS_NOUN, 500},
     {"もずく", "Mozc", "engine", POS_NOUN, 600},
-    {"じっしん", "実身", "real object", POS_NOUN, 800},
-    {"かしん", "仮身", "virtual object", POS_NOUN, 800},
+    {"じっしん", "実身", "Real Body", POS_NOUN, 800},
+    {"かしん", "仮身", "Virtual Body", POS_NOUN, 800},
 
     /* Buddhist & Cultural terms */
     {"ほとけ", "仏", "buddha", POS_NOUN, 900},
@@ -519,7 +519,7 @@ static const RawDictEntry g_system_dictionary[] = {
     {NULL, NULL, NULL, POS_COUNT, 0}
 };
 
-/* Dynamic User Dictionary (Real Object backing) */
+/* Dynamic User Dictionary (Real Body backing) */
 #define MAX_USER_ENTRIES 128
 static MozcEntry g_user_dictionary[MAX_USER_ENTRIES];
 static int g_num_user_entries = 0;

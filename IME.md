@@ -82,7 +82,7 @@ The system shall:
 
 ### REQ-2.5 User Dictionary
 
-The system shall support a persistent user dictionary stored as a Real Object.
+The system shall support a persistent user dictionary stored as a Real Body.
 
 ## 3. Application Integration
 
@@ -133,7 +133,7 @@ The classic double-bordered Sakamura window style and overall interaction model 
 ## 6. Summary of Design Intent
 
 B-System IME keeps the original B-TRON character-set philosophy (multi-plane TRON Code,
-Real/Virtual Object model, separated front-end/conversion architecture) while adopting
+Real/Virtual Body model, separated front-end/conversion architecture) while adopting
 modern libraries and practices (UTF-8, Mozc, FreeType, SDL2).
 
 The design deliberately rejects legacy binary constraints and the complete visual invisibility

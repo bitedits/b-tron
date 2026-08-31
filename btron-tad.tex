@@ -59,10 +59,10 @@
 \maketitle
 
 \begin{abstract}
-The historical divergence between document interchange formats and interactive software applications has led to pervasive complexity in modern graphical user interface (GUI) stacks. In contrast, Ken Sakamura's \textbf{BTRON} architecture unifies documents, applications, and operating system data structures into a single polymorphic medium: the \textbf{TRON Application Databus (TAD)}. In this paper, we present \textbf{SYNRC NITRO/FORM}, a lightweight, declarative forms and enterprise application framework designed as a strict, non-invasive extension of the \textbf{BTRON3 SPEC 3.20} standard. NITRO/FORM models business forms as first-class TAD Real Objects (\ja{実身}), encapsulating dynamic UI controls, reactive data binding, and validation schemas within standard application-range \emph{fusen} (\ja{付箋}) segments. We formalize the tripartite form algebra (Header, Body, Footer), define a bidirectional transcompilation bridge between TAD forms and modern semantic HTML5, and prove the Graceful Degradation Invariant guaranteeing backward compatibility with legacy BTRON renderers. We demonstrate experimental performance across POSIX, QEMU VirtIO, and baremetal ARM Cortex-A architectures, showing that document-native reactive applications achieve high determinism and sub-millisecond layout latencies.
+The historical divergence between document interchange formats and interactive software applications has led to pervasive complexity in modern graphical user interface (GUI) stacks. In contrast, Ken Sakamura's \textbf{BTRON} architecture unifies documents, applications, and operating system data structures into a single polymorphic medium: the \textbf{TRON Application Databus (TAD)}. In this paper, we present \textbf{SYNRC NITRO/FORM}, a lightweight, declarative forms and enterprise application framework designed as a strict, non-invasive extension of the \textbf{BTRON3 SPEC 3.20} standard. NITRO/FORM models business forms as first-class TAD Real Bodys (\ja{実身}), encapsulating dynamic UI controls, reactive data binding, and validation schemas within standard application-range \emph{fusen} (\ja{付箋}) segments. We formalize the tripartite form algebra (Header, Body, Footer), define a bidirectional transcompilation bridge between TAD forms and modern semantic HTML5, and prove the Graceful Degradation Invariant guaranteeing backward compatibility with legacy BTRON renderers. We demonstrate experimental performance across POSIX, QEMU VirtIO, and baremetal ARM Cortex-A architectures, showing that document-native reactive applications achieve high determinism and sub-millisecond layout latencies.
 \end{abstract}
 
-\noindent\textbf{\small Keywords}---BTRON, TRON Application Databus (TAD), NITRO/FORM, Declarative UI, Real Objects, Fusen, Parts Manager, X-Forms, Cleanroom Architecture.
+\noindent\textbf{\small Keywords}---BTRON, TRON Application Databus (TAD), NITRO/FORM, Declarative UI, Real Bodys, Fusen, Parts Manager, X-Forms, Cleanroom Architecture.
 
 %-------------------------------------------------------------------------
 \section{Introduction and Theoretical Motivation}
@@ -70,9 +70,9 @@ The historical divergence between document interchange formats and interactive s
 
 In contemporary software engineering, a deep architectural dichotomy exists between static document markup (e.g., PDF, static HTML) and imperative application runtimes (e.g., JavaScript DOM manipulation frameworks, desktop widget toolkits). This division forces distributed systems to maintain complex object-relational mappings, fragile serialization layers, and heavyweight client-side runtime engines.
 
-When Ken Sakamura formulated the \textbf{TRON} architecture in 1984, he proposed a fundamentally distinct model for personal and workstation computing: the **TRON Application Databus (TAD)**. Rather than treating applications as opaque binary executables that read and write external files, BTRON treats every entity in the system as a structured, hyper-linked TAD document residing in a persistent Real Object / Virtual Object (\ja{実身}/\ja{仮身}) graph.
+When Ken Sakamura formulated the \textbf{TRON} architecture in 1984, he proposed a fundamentally distinct model for personal and workstation computing: the **TRON Application Databus (TAD)**. Rather than treating applications as opaque binary executables that read and write external files, BTRON treats every entity in the system as a structured, hyper-linked TAD document residing in a persistent Real Body / Virtual Body (\ja{実身}/\ja{仮身}) graph.
 
-Under BTRON3 SPEC 3.20, TAD establishes a universal container format capable of embedding multilingual text, 2D vector geometry, raster bitmapped images, sound, and executable virtual objects into a coherent, stream-oriented record sequence.
+Under BTRON3 SPEC 3.20, TAD establishes a universal container format capable of embedding multilingual text, 2D vector geometry, raster bitmapped images, sound, and executable Virtual Bodys into a coherent, stream-oriented record sequence.
 
 However, classic BTRON specifications did not formalize a high-level, declarative framework for transactional business forms, structured data entry, and reactive schema validation (analogous to modern X-Forms or declarative component models).
 
@@ -100,7 +100,7 @@ Standard system segments defined in SPEC 3.20 include:
     \item \texttt{TS\_TEXT}: Multi-lingual TRON Code text stream.
     \item \texttt{TS\_FIG}: Vector graphics canvas and coordinate space.
     \item \texttt{TS\_IMAGE}: Raster bitmap graphic payloads.
-    \item \texttt{TS\_VOBJ}: Embedded Virtual Object pointer link.
+    \item \texttt{TS\_VOBJ}: Embedded Virtual Body pointer link.
 \end{itemize}
 
 \subsection{The Fusen (\texorpdfstring{\ja{付箋}}{Fusen}) Tagging Mechanism}
@@ -139,7 +139,7 @@ where:
 \end{itemize}
 
 \begin{table}[htbp]
-\caption{Logical Structure of a NITRO/FORM Real Object}
+\caption{Logical Structure of a NITRO/FORM Real Body}
 \label{tab:form_regions}
 \centering
 \footnotesize
@@ -192,7 +192,7 @@ Form TAD Document Structure
 +---------------------------------------------------+
 |            SPEC 3.20 Public Services              |
 |  * Parts Manager (UI)       * Window Manager      |
-|  * Display Primitives (DP)  * TAD + Real Objects  |
+|  * Display Primitives (DP)  * TAD + Real Bodys  |
 +---------------------------------------------------+
 |                   uITRON Kernel                   |
 +---------------------------------------------------+
@@ -273,19 +273,19 @@ To facilitate cross-platform documentation and enterprise interoperability, NITR
 \toprule
 \textbf{HTML5 Element} & \textbf{NITRO/FORM / TAD Realisation} \\
 \midrule
-\texttt{<article>}, \texttt{<form>} & Top-level Form TAD Real Object \\
+\texttt{<article>}, \texttt{<form>} & Top-level Form TAD Real Body \\
 \texttt{<header>}                   & \texttt{HEADER} region (Titles + TS\_TEXT) \\
 \texttt{<section>}, \texttt{<fieldset>} & Nested \texttt{TS\_FIG} field group \\
 \texttt{<aside>}                    & Side panel (Panel Manager) \\
 \texttt{<nav>}                      & \texttt{FOOTER} action navigation bar \\
 \texttt{<table>}                    & Repeating Field Matrix / TAD table \\
-\texttt{<picture>}, \texttt{<img>}  & \texttt{TS\_IMAGE} or linked Real Object \\
+\texttt{<picture>}, \texttt{<img>}  & \texttt{TS\_IMAGE} or linked Real Body \\
 \texttt{<input>}, \texttt{<select>} & Field Tuple (\texttt{LABEL} + UI Part) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-This mapping allows the companion **TAD Browser** to perform on-the-fly bidirectional conversion, allowing BTRON forms to be published as accessible web forms and web forms to be ingested as local TAD Real Objects.
+This mapping allows the companion **TAD Browser** to perform on-the-fly bidirectional conversion, allowing BTRON forms to be published as accessible web forms and web forms to be ingested as local TAD Real Bodys.
 
 %-------------------------------------------------------------------------
 \section{Reactive Runtime Lifecycle and Data Binding}
@@ -297,7 +297,7 @@ The execution lifecycle of a NITRO/FORM document is modeled as a deterministic s
 \centering
 \begin{lstlisting}
   +-------------------------------------------------+
-  | 1. Open Form TAD (Resolve Real Object Graph)    |
+  | 1. Open Form TAD (Resolve Real Body Graph)    |
   +------------------------+------------------------+
                            |
                            v
@@ -334,10 +334,10 @@ The execution lifecycle of a NITRO/FORM document is modeled as a deterministic s
 \label{fig:lifecycle}
 \end{figure}
 
-Data instances are themselves preserved as standard TAD documents, maintaining the full benefits of the Real Object / Virtual Object hypertext paradigm.
+Data instances are themselves preserved as standard TAD documents, maintaining the full benefits of the Real Body / Virtual Body hypertext paradigm.
 
 %-------------------------------------------------------------------------
-\section{Implementation Report: The Native TAD Document Browser and Real Object Cabinet Explorer}
+\section{Implementation Report: The Native TAD Document Browser and Real Body Cabinet Explorer}
 \label{sec:implementation_report}
 
 To validate the theoretical foundations of the BTRON3 SPEC 3.20 hyper-document architecture and provide an interactive desktop environment for TAD inspection, we implemented a full-featured, cleanroom \textbf{TAD Browser} (\texttt{src/apps/tad\_browser.c}) and \textbf{Dynamic Cabinet Explorer} (\texttt{src/apps/vobj\_manager.c}) conforming to NASA JPL safety rules and MISRA-C guidelines.
@@ -345,7 +345,7 @@ To validate the theoretical foundations of the BTRON3 SPEC 3.20 hyper-document a
 \subsection{Stream-Oriented Binary and Symbolic TAD Decoder}
 The TAD browser pipeline processes both compiled BTRON3 binary byte streams and human-readable symbolic TAD specifications via a deterministic, single-pass linear stream parser:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Binary Segment Parsing:} Scans standard TAD segment records ($T_{\text{tag}}$, $L_{\text{len}}$) including \texttt{TS\_TEXT} (multi-lingual TRON Code character sequences), \texttt{TS\_FHR} (horizontal vector rules), \texttt{TS\_VOBJ} (Virtual Object link descriptors with real object ID target and label), and \texttt{TS\_FPRIM} (figure/picture segments).
+    \item \textbf{Binary Segment Parsing:} Scans standard TAD segment records ($T_{\text{tag}}$, $L_{\text{len}}$) including \texttt{TS\_TEXT} (multi-lingual TRON Code character sequences), \texttt{TS\_FHR} (horizontal vector rules), \texttt{TS\_VOBJ} (Virtual Body link descriptors with Real Body ID target and label), and \texttt{TS\_FPRIM} (figure/picture segments).
     \item \textbf{Monotonic Layout Box Computation:} Computes bounding box geometries ($\text{bounds} = \langle x_1, y_1, x_2, y_2 \rangle$) with strictly monotonic vertical progression, handling indentations, line pitches, bold font metrics, and viewport wrapping across arbitrary window widths.
     \item \textbf{Hyper-Object Navigation Stack:} Implements an in-place navigation history stack with reversible \texttt{Go Back}, \texttt{Go Forward}, \texttt{Home}, and \texttt{Reload} primitives, combined with recursive relative path resolution across sibling and child documentation directories.
 \end{enumerate}
@@ -357,12 +357,12 @@ In compliance with BTRON3 SPEC 3.20 Section 4 (Display Primitives and Figure Fus
     \item \textbf{Native PNG Decoder:} Implements IHDR, IDAT chunk parsing with DEFLATE/zlib decompression, Sub/Up/Average filter reconstruction, and direct blitting into the target Drawing Environment (\texttt{GDEV}).
 \end{itemize}
 
-\subsection{Dynamic Real Object Cabinet Explorer}
-The Real Object Cabinet Explorer provides an interactive, window-based filing system replacing static catalog listings with dynamic filesystem discovery:
+\subsection{Dynamic Real Body Cabinet Explorer}
+The Real Body Cabinet Explorer provides an interactive, window-based filing system replacing static catalog listings with dynamic filesystem discovery:
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Recursive Discovery:} Dynamically scans the \texttt{tad\_bin/} hierarchy across foundational books, $\mu$ITRON kernel specifications, graphics subsystems, shell architectures, B-Free OS, and T-Kernel 2.0.
     \item \textbf{Hierarchical Grouping and TOC Sorting:} Organizes entries primarily by top-level catalog domain (\texttt{[b-free]}, \texttt{[b-system]}, \texttt{[doc]}, \texttt{[t-kernel]}), secondarily by canonical Table of Contents (TOC) specification order ($O(N \log N)$ weighted ordering), and tertiary by natural alphanumeric sort.
-    \item \textbf{Multi-Byte Alignment Immunity:} Renders discrete data fields (catalog tag, TOC hierarchy path, real object ID, document title, file byte size) at fixed horizontal pixel offsets, completely eliminating column misalignment caused by variable-width UTF-8 Cyrillic and Japanese Kanji glyphs.
+    \item \textbf{Multi-Byte Alignment Immunity:} Renders discrete data fields (catalog tag, TOC hierarchy path, Real Body ID, document title, file byte size) at fixed horizontal pixel offsets, completely eliminating column misalignment caused by variable-width UTF-8 Cyrillic and Japanese Kanji glyphs.
 \end{enumerate}
 
 \subsection{Automated Verification and Conformance Suite}
@@ -383,7 +383,7 @@ We evaluated the performance of NITRO/FORM across our standard multi-target exec
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
 
-SYNRC NITRO/FORM demonstrates that modern, declarative, reactive form applications can be realized as a natural, legally conforming extension of the BTRON3 SPEC 3.20 standard. By encapsulating field schemas within application-range fusen tags, composing atomic controls via the Parts Manager, and maintaining data bindings as first-class Real Objects, the framework establishes a highly productive business application environment without requiring core kernel modifications.
+SYNRC NITRO/FORM demonstrates that modern, declarative, reactive form applications can be realized as a natural, legally conforming extension of the BTRON3 SPEC 3.20 standard. By encapsulating field schemas within application-range fusen tags, composing atomic controls via the Parts Manager, and maintaining data bindings as first-class Real Bodys, the framework establishes a highly productive business application environment without requiring core kernel modifications.
 
 Future work will expand the layout engine with constraint-based automatic geometry solvers and integrate verified cryptographic signatures into the TAD document header.
 

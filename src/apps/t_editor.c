@@ -802,7 +802,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
         y += 18;
     }
 
-    /* Embedded Virtual Object Icon inside Document */
+    /* Embedded Virtual Body Icon inside Document */
     if (ed->has_vobj) {
         RECT embed_vobj = { 36, dev->height - 45, 230, dev->height - 20 };
         fill_rec(dev, &embed_vobj, COLOR_LTGRAY);

@@ -38,7 +38,7 @@ ER init_vobj_sys(const char *storage_root) {
     }
     memset(g_robj_table, 0, sizeof(g_robj_table));
 
-    /* Initialize standard BTRON Real Objects */
+    /* Initialize standard BTRON Real Bodys */
     cre_robj("Cabinet / Main Directory", VOBJ_TYPE_FOLDER);
     ROBJ *r2 = cre_robj("System README.txt", VOBJ_TYPE_TEXT);
     cre_robj("BTRON Terminal Shell", VOBJ_TYPE_TERMINAL);
@@ -95,7 +95,7 @@ VOBJ_LINK* cre_vobj_link(ID target_robj_id, const char *label, H x, H y) {
 ER rd_vobj_data(ROBJ *robj, void *buf, UW len, UW *read_bytes) {
     if (!robj || !buf) return E_PAR;
     /* Static data simulation for clean memory execution */
-    static const char *default_doc = "B-System Real Object Storage Record v1.0\nJapanese Lineage Cleanroom Subsystem.\nTRON Hyper-Data Model Engine Active.";
+    static const char *default_doc = "B-System Real Body Storage Record v1.0\nJapanese Lineage Cleanroom Subsystem.\nTRON Hyper-Data Model Engine Active.";
     UW sz = strlen(default_doc);
     if (len < sz) sz = len;
     memcpy(buf, default_doc, sz);

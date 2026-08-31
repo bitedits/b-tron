@@ -31,7 +31,7 @@ typedef struct {
     UH indent;      /* Left margin indent in pixels */
     UH line_pitch;  /* Line height in pixels */
     BOOL is_hr;     /* Horizontal vector separator */
-    BOOL is_vobj;   /* Virtual Object Link */
+    BOOL is_vobj;   /* Virtual Body Link */
     BOOL is_image;  /* BTRON3 Figure / Picture Segment (TS_FPRIM SubID 10/2) */
     H img_w;        /* Image width in pixels */
     H img_h;        /* Image height in pixels */

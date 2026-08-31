@@ -1,6 +1,6 @@
 /*
  * B-TRON Specification Compatible Header: vobj.h
- * Real Object / Virtual Object Hyper-Data Engine Header.
+ * Real Object / Virtual Body Hyper-Data Engine Header.
  */
 
 #ifndef _BTRON_VOBJ_H_
@@ -30,7 +30,7 @@ typedef struct {
 } ROBJ;
 
 typedef struct {
-    ID        vobj_id;      /* Virtual Object Pointer ID */
+    ID        vobj_id;      /* Virtual Body Pointer ID */
     ID        target_robj;  /* Target Real Object ID linked */
     char      label[64];    /* Link display label */
     PNT       pos;          /* Embedded icon position in document/window */

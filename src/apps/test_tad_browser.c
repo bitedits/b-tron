@@ -82,11 +82,11 @@ static void test_binary_tad_stream_parser(void) {
     for (int i = 0; i < tb.span_count; i++) {
         if (tb.spans[i].style.is_vobj && tb.spans[i].style.target_robj == 101) {
             found_vobj = TRUE;
-            TEST_ASSERT(strcmp(tb.spans[i].style.vobj_label, "BTRON Spec") == 0, "Preserved Virtual Object label 'BTRON Spec'");
+            TEST_ASSERT(strcmp(tb.spans[i].style.vobj_label, "BTRON Spec") == 0, "Preserved Virtual Body label 'BTRON Spec'");
             break;
         }
     }
-    TEST_ASSERT(found_vobj, "Discovered TS_VOBJ span with Target Real Object #101");
+    TEST_ASSERT(found_vobj, "Discovered TS_VOBJ span with Target Real Body #101");
 }
 
 /* ── Test 2: Linear Stream Layout Calculation & Bounding Boxes ── */
@@ -120,9 +120,9 @@ static void test_linear_stream_layout(void) {
     TEST_ASSERT(strictly_increasing, "Layout spans have strictly monotonic vertical progression");
 }
 
-/* ── Test 3: Interactive Virtual Object Link Dispatch ── */
+/* ── Test 3: Interactive Virtual Body Link Dispatch ── */
 static void test_vobj_link_interaction(void) {
-    printf("\n[TEST GROUP 3] Interactive Virtual Object Link Dispatch & Hover Detection\n");
+    printf("\n[TEST GROUP 3] Interactive Virtual Body Link Dispatch & Hover Detection\n");
 
     const char *doc_text =
         "Top Header\n"
@@ -157,7 +157,7 @@ static void test_vobj_link_interaction(void) {
     /* Test Mouse Click */
     BOOL clicked = tad_browser_handle_mouse(&tb, test_mx, test_my, TRUE, &clicked_robj, clicked_path);
     TEST_ASSERT(clicked == TRUE, "Mouse click triggers VOBJ dispatch");
-    TEST_ASSERT(clicked_robj == 201, "Dispatched Real Object ID #201");
+    TEST_ASSERT(clicked_robj == 201, "Dispatched Real Body ID #201");
 }
 
 /* ── Test 4: Real Document Binary TAD Loading (Elixir Compiler Output) ── */
@@ -194,7 +194,7 @@ static void test_viewport_scrolling(void) {
     TEST_ASSERT(tb.scroll_y <= tb.doc_height, "Clamped at maximum scroll bounds");
 }
 
-/* ── Test 6: Cabinet Explorer Selection & Real Object Activation ── */
+/* ── Test 6: Cabinet Explorer Selection & Real Body Activation ── */
 extern BOOL cabinet_handle_click(int mouse_x, int mouse_y, BOOL is_double_click, ID *out_robj_id, char *out_path);
 extern WND* open_vobj_manager_window(void);
 
@@ -210,17 +210,17 @@ static void test_cabinet_explorer_selection(void) {
     char path[128] = "";
     BOOL handled = cabinet_handle_click(50, 65, FALSE, &robj, path);
     TEST_ASSERT(handled == FALSE, "Single click updates selection without modal block");
-    TEST_ASSERT(robj == 103, "Selected Real Object #103 (03_bfree_os_book.tad)");
+    TEST_ASSERT(robj == 103, "Selected Real Body #103 (03_bfree_os_book.tad)");
     TEST_ASSERT(strcmp(path, "tad_bin/03_bfree_os_book.tad") == 0, "Resolved path for #103");
 
     /* Test selection at row 1 (y = 60 + 1*22 + 5 = 87) -> [b-free] manifest.tad (#106) */
     handled = cabinet_handle_click(50, 87, FALSE, &robj, path);
-    TEST_ASSERT(robj == 106, "Selected Real Object #106 (manifest.tad)");
+    TEST_ASSERT(robj == 106, "Selected Real Body #106 (manifest.tad)");
     TEST_ASSERT(strcmp(path, "tad_bin/b-free/manifest.tad") == 0, "Resolved path for #106");
 
     /* Test double-click activation on Canonical Book */
     handled = cabinet_handle_click(50, 87, TRUE, &robj, path);
-    TEST_ASSERT(handled == TRUE, "Double click triggers TAD Real Object launch");
+    TEST_ASSERT(handled == TRUE, "Double click triggers TAD Real Body launch");
 
     cls_wnd(wnd);
 }
@@ -443,7 +443,7 @@ static void test_canonical_books_links_resolution(void) {
                 }
             }
         }
-        TEST_ASSERT(link_count > 0, "Canonical book contains interactive Virtual Object links");
+        TEST_ASSERT(link_count > 0, "Canonical book contains interactive Virtual Body links");
         TEST_ASSERT(resolved_count == link_count, "All links in Canonical book resolve to existing TAD binary files on disk");
     }
 }

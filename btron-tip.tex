@@ -62,10 +62,10 @@
 \maketitle
 
 \begin{abstract}
-Non-alphabetic writing systems present fundamental architectural challenges to real-time operating systems (RTOS), demanding multi-byte character encoding models, decoupled input pipeline mediation, and complex morphological analysis. In this paper, we present the formal specification and cleanroom implementation of the \textbf{Text Input Primitives (TIP -- \ja{テキスト入力プリミティブ})} and \textbf{Input Method Editor (IME)} subsystem for the \textbf{BTRON3 SPEC 3.20} and modern \textbf{B-System} OS environments. We examine Ken Sakamura's multi-plane \textbf{TRON Multilingual Character Code System}, demonstrating its resistance to the semantic degradation and orthographic loss inherent in Unicode Han Character Unification. We introduce \textbf{B-System/mozc}, a cleanroom C99 statistical Kana-Kanji Conversion (KKC) engine implementing Viterbi dynamic programming lattice search with bigram part-of-speech (POS) transition matrices under strict NASA JPL / MISRA-C:2012 bounded memory constraints. We present a rigorous architectural comparison against \textbf{Google/mozc}, analyze the comprehensive six-group automated verification test suite, formalize the $O(1)$ Escape safety invariant, and demonstrate how persistent Real Object (\ja{実身}) user dictionaries achieve state-of-the-art multilingual Asian text processing in under 1.8~MB of embedded footprint without feature compromise.
+Non-alphabetic writing systems present fundamental architectural challenges to real-time operating systems (RTOS), demanding multi-byte character encoding models, decoupled input pipeline mediation, and complex morphological analysis. In this paper, we present the formal specification and cleanroom implementation of the \textbf{Text Input Primitives (TIP -- \ja{テキスト入力プリミティブ})} and \textbf{Input Method Editor (IME)} subsystem for the \textbf{BTRON3 SPEC 3.20} and modern \textbf{B-System} OS environments. We examine Ken Sakamura's multi-plane \textbf{TRON Multilingual Character Code System}, demonstrating its resistance to the semantic degradation and orthographic loss inherent in Unicode Han Character Unification. We introduce \textbf{B-System/mozc}, a cleanroom C99 statistical Kana-Kanji Conversion (KKC) engine implementing Viterbi dynamic programming lattice search with bigram part-of-speech (POS) transition matrices under strict NASA JPL / MISRA-C:2012 bounded memory constraints. We present a rigorous architectural comparison against \textbf{Google/mozc}, analyze the comprehensive six-group automated verification test suite, formalize the $O(1)$ Escape safety invariant, and demonstrate how persistent Real Body (\ja{実身}) user dictionaries achieve state-of-the-art multilingual Asian text processing in under 1.8~MB of embedded footprint without feature compromise.
 \end{abstract}
 
-\noindent\textbf{\small Keywords}---BTRON, B-System, Text Input Primitives, Input Method Editor, TRON Code, Han Unification, Kana-Kanji Conversion, Mozc, Viterbi Search, TAD, Real Objects, Static Analysis.
+\noindent\textbf{\small Keywords}---BTRON, B-System, Text Input Primitives, Input Method Editor, TRON Code, Han Unification, Kana-Kanji Conversion, Mozc, Viterbi Search, TAD, Real Bodys, Static Analysis.
 
 %-------------------------------------------------------------------------
 \section{Introduction and Theoretical Motivation}
@@ -108,7 +108,7 @@ Consequently, text entry cannot occur through one-to-one physical key closures. 
    |                                                                                       |
    |   +-----------------------+     +-----------------------+     +-------------------+   |
    |   |  System Dictionary    |     |  Viterbi N-Gram Cost  |     |  User Dictionary  |   |
-   |   |   (Trie Structure)    |     |    Lattice Search     |     |   (Real Object)   |   |
+   |   |   (Trie Structure)    |     |    Lattice Search     |     |   (Real Body)   |   |
    |   +-----------------------+     +-----------------------+     +-------------------+   |
    +---------------------------------------------------------------------------------------+
 \end{lstlisting}
@@ -245,7 +245,7 @@ To assess our cleanroom engine against modern industrial standards, Table~\ref{t
 \textbf{Dictionary Structure} & Double-Array Trie (\texttt{rx} format, $> 30\,\text{MB}$) & Compact Trie Prefix Index + Unigram Frequency Costs ($< 1.8\,\text{MB}$) \\
 \textbf{Character Encoding} & Unicode UTF-8 exclusively & Multi-Plane TRON Code + Lossless UTF-8 Hybrid Bridge \\
 \textbf{UI / Windowing Layer} & Client-Server IPC daemon + Qt / Cocoa widgets & Native BTRON Window Manager (\texttt{wnd.h}) + IFE Overlay \\
-\textbf{User Dictionary} & SQLite / Binary file on local disk & BTRON Real Object (\ja{実身}) Persistent Cabinet Records \\
+\textbf{User Dictionary} & SQLite / Binary file on local disk & BTRON Real Body (\ja{実身}) Persistent Cabinet Records \\
 \textbf{State Machine Safety} & Complex event dispatch loop & Formally verified DFA with $O(1)$ Escape non-latching \\
 \textbf{Footprint \& Binary Size} & $> 45\,\text{MB}$ total package & $< 32\,\text{KB}$ frontend code, $< 1.8\,\text{MB}$ embedded dictionary \\
 \textbf{Real-Time Suitability} & Non-deterministic execution time (Jitter prone) & Deterministic Worst-Case Execution Time (WCET bounded) \\ \bottomrule
@@ -276,7 +276,7 @@ The test harness is organized into six structured verification groups:
     \text{IDLE} \xrightarrow{\text{key}} \text{PRECOMP} \xrightarrow{\text{Space}} \text{CONV} \xrightarrow{\text{Tab}} \text{SELECT}
     \end{equation}
     and proves Theorem 2 ($O(1)$ instantaneous non-latching return to $\text{IDLE}$ upon \texttt{KEY\_ESC}).
-    \item \textbf{Group 5: Real Object User Dictionary Learning:} Validates persistent storage, runtime registration of custom vocabulary, file export/import, and adaptive frequency score boosting.
+    \item \textbf{Group 5: Real Body User Dictionary Learning:} Validates persistent storage, runtime registration of custom vocabulary, file export/import, and adaptive frequency score boosting.
     \item \textbf{Group 6: Lossless Round-Trip Bridge (Theorem 1):} Tests bidirectional conversion fidelity $\phi^{-1}(\phi(S)) = S$ across ASCII, Hiragana, Katakana, JIS X 0208, JIS X 0212, and Plane 255 fallback mappings.
 \end{enumerate}
 
@@ -292,7 +292,7 @@ The test harness is organized into six structured verification groups:
 2. Viterbi Lattice Bunsetsu Segmentation & 7 & 100.0\% \\
 3. Candidate Ranking \& Semantic Tags & 7 & 100.0\% \\
 4. DFA State Transitions \& $O(1)$ Escape & 9 & 100.0\% \\
-5. User Dictionary Real Object Learning & 5 & 100.0\% \\
+5. User Dictionary Real Body Learning & 5 & 100.0\% \\
 6. Lossless TRON Code / UTF-8 Bridge & 5 & 100.0\% \\ \midrule
 \textbf{Total Core Mozc Test Coverage} & \textbf{42 / 42} & \textbf{100.0\%} \\ \bottomrule
 \end{tabular}
@@ -302,12 +302,12 @@ The test harness is organized into six structured verification groups:
 As summarized in Table~\ref{tab:test_results}, the test suite achieves a 100.0\% pass rate across all core assertions, verifying both theoretical safety invariants and practical linguistic conversion accuracy.
 
 %-------------------------------------------------------------------------
-\section{Real Object User Dictionary Architecture}
+\section{Real Body User Dictionary Architecture}
 \label{sec:real_objects}
 
-In conventional Unix environments, user dictionaries are maintained as unmanaged flat files in hidden dotfiles (\texttt{\textasciitilde/.config/mozc/user.dic}). In B-System, user dictionaries are modeled as first-class **Real Objects (\ja{実身} -- \emph{Jisshin})**:
+In conventional Unix environments, user dictionaries are maintained as unmanaged flat files in hidden dotfiles (\texttt{\textasciitilde/.config/mozc/user.dic}). In B-System, user dictionaries are modeled as first-class **Real Bodys (\ja{実身} -- \emph{Jisshin})**:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Hyper-Data Integration:} The user dictionary is stored as an immutable-header record in the system cabinet. Any application document can link to specialized dictionaries (e.g., medical, legal, avionics terminology) via Virtual Objects (\ja{仮身} -- \emph{Kashin}).
+    \item \textbf{Hyper-Data Integration:} The user dictionary is stored as an immutable-header record in the system cabinet. Any application document can link to specialized dictionaries (e.g., medical, legal, avionics terminology) via Virtual Bodys (\ja{仮身} -- \emph{Kashin}).
     \item \textbf{Concurrency Safety:} Dictionary mutations occur via $\mu$ITRON concurrency-safe record primitives, ensuring atomic updates during concurrent multi-window editing.
     \item \textbf{Adaptive Learning:} When a user selects a candidate $c_k$, the engine adjusts its unigram emission cost $\Delta \text{Cost}(c_k) = -\delta$, dynamically elevating frequently used terms in future conversions.
 \end{itemize}

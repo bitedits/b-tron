@@ -5,7 +5,7 @@
  * 2. Morphological bunsetsu clause segmentation & Viterbi lattice search
  * 3. Candidate ranking with semantic category annotations
  * 4. DFA state machine transitions & Theorem 2 (O(1) ESC safety invariant)
- * 5. Real Object User Dictionary persistence & learning
+ * 5. Real Body User Dictionary persistence & learning
  * 6. Theorem 1 Lossless Bidirectional Bridge (UTF-8 <-> TRON Code)
  */
 
@@ -200,12 +200,12 @@ static void test_dfa_and_theorem2(void) {
     TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "DFA returns to IDLE after 'ほとけさん' commit");
 }
 
-/* ── Test 5: Real Object User Dictionary ── */
+/* ── Test 5: Real Body User Dictionary ── */
 static void test_user_dictionary_real_object(void) {
-    printf("\n[TEST GROUP 5] User Dictionary as Real Object (Jisshin #104)\n");
+    printf("\n[TEST GROUP 5] User Dictionary as Real Body (Jisshin #104)\n");
 
     ER er = mozc_register_user_word("てぃーけー", "T-Kernel2.0", "system");
-    TEST_ASSERT(er == E_OK, "Register new word in Real Object User Dictionary");
+    TEST_ASSERT(er == E_OK, "Register new word in Real Body User Dictionary");
 
     TIP_CANDIDATE candidates[16];
     int count = mozc_get_candidates("てぃーけー", candidates, 16);

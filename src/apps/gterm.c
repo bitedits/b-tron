@@ -174,7 +174,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         out_fn("  ver, uname          - System version & kernel info", COLOR_LTGRAY, user_data);
         out_fn("  devconf             - Registered hardware and device drivers", COLOR_LTGRAY, user_data);
         out_fn("  ps                  - Dynamic process and window task table", COLOR_LTGRAY, user_data);
-        out_fn("  vobj, ls, dir       - Virtual objects and file listings", COLOR_LTGRAY, user_data);
+        out_fn("  vobj, ls, dir       - Virtual Bodys and file listings", COLOR_LTGRAY, user_data);
         out_fn("  cat <file>          - Display text file contents", COLOR_LTGRAY, user_data);
         out_fn("  pwd                 - Print current working directory", COLOR_LTGRAY, user_data);
         out_fn("  cd <dir>            - Change working directory", COLOR_LTGRAY, user_data);
@@ -428,7 +428,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         if (!dir) {
             out_fn("vobj: btron_store directory not found", COLOR_RED, user_data);
         } else {
-            out_fn("B-System Real/Virtual Object Store:", COLOR_CYAN, user_data);
+            out_fn("B-System Real/Virtual Body Store:", COLOR_CYAN, user_data);
             struct dirent *entry;
             while ((entry = readdir(dir)) != NULL) {
                 if (entry->d_name[0] != '.') {
@@ -440,7 +440,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
             closedir(dir);
         }
 #else
-        out_fn("B-System Real/Virtual Object Store:", COLOR_CYAN, user_data);
+        out_fn("B-System Real/Virtual Body Store:", COLOR_CYAN, user_data);
         out_fn("  [VOBJ] BTRON3_Report.txt (RealObject #101)", COLOR_GREEN, user_data);
         out_fn("  [VOBJ] Kojima_Hideki_Link.vlk (VirtualLink #102)", COLOR_GREEN, user_data);
         out_fn("  [VOBJ] TKernel_Subsystem.sys (RealObject #103)", COLOR_GREEN, user_data);

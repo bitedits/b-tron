@@ -160,7 +160,7 @@ static void parse_text_tad_lines(TAD_BROWSER *tb, const char *text, UW len) {
             span->style.indent = 15;
             strncpy(span->text, line, sizeof(span->text) - 1);
         } else if (strncmp(line, "[仮身]", 8) == 0) {
-            /* Virtual Object Hyper-Link */
+            /* Virtual Body Hyper-Link */
             span->style = cur_style;
             span->style.font_id = 1;
             span->style.font_size = 12;
@@ -557,12 +557,12 @@ static void render_figure_diagram(GDEV *dev, const TAD_SPAN *s, const RECT *cvs)
             }
             break;
 
-        case 3: /* ── Type 3: Real Object & Virtual Object Hyper-Tree ── */
+        case 3: /* ── Type 3: Real Body & Virtual Body Hyper-Tree ── */
             {
                 RECT r_root = { cvs->left + 10, mid_y - 18, cvs->left + 130, mid_y + 18 };
                 fill_rec(dev, &r_root, COLOR_NAVY);
                 drw_rec(dev, &r_root);
-                drw_tc_string(dev, r_root.left + 6, r_root.top + 3, "[実身 Real Object]", COLOR_WHITE, 0);
+                drw_tc_string(dev, r_root.left + 6, r_root.top + 3, "[実身 Real Body]", COLOR_WHITE, 0);
                 drw_tc_string(dev, r_root.left + 6, r_root.top + 18, "ID #101: Cabinet", COLOR_WHITE, 0);
 
                 int k_x = r_root.right + 40;
@@ -1280,7 +1280,7 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
             /* Vector horizontal separator */
             drw_lin(dev, s->bounds.left, vy + 6, dev->width - 30, vy + 6);
         } else if (s->style.is_vobj || s->is_link) {
-            /* Virtual Object Hyper-Link Container */
+            /* Virtual Body Hyper-Link Container */
             RECT link_bg = { s->bounds.left - 2, vy - 1, s->bounds.right + 4, vy + s->style.line_pitch - 2 };
             COLOR bg_col = (tb->hovered_link_idx == i) ? COLOR_LTGRAY : COLOR_WHITE;
 
@@ -1368,7 +1368,7 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     if (tb->hovered_link_idx >= 0 && tb->hovered_link_idx < tb->span_count) {
         TAD_SPAN *s = &tb->spans[tb->hovered_link_idx];
         char hover_msg[256];
-        snprintf(hover_msg, sizeof(hover_msg), "🔗 [仮身] Перехід до: %s (Real Object #%d) [Клацніть для переходу]",
+        snprintf(hover_msg, sizeof(hover_msg), "🔗 [仮身] Перехід до: %s (Real Body #%d) [Клацніть для переходу]",
                  s->style.vobj_path[0] ? s->style.vobj_path : s->style.vobj_label,
                  s->style.target_robj);
         drw_tc_string(dev, 8, dev->height - 17, hover_msg, COLOR_NAVY, 0x00000000);

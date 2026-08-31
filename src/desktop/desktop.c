@@ -52,7 +52,7 @@ void render_desktop_background(GDEV *dev) {
         }
     }
 
-    /* Desktop Icons / Cabinet Real Objects */
+    /* Desktop Icons / Cabinet Real Bodys */
     RECT cab_icon = { 20, 50, 70, 95 };
     fill_rec(dev, &cab_icon, COLOR_LTGRAY);
     drw_rec(dev, &cab_icon);

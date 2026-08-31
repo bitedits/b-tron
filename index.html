@@ -88,7 +88,7 @@
         <section>
             <h2>BTRON Guest Environment</h2>
             <div style="max-width:850px;margin:0 auto;text-align:center;">
-                <p>The <b>BTRON System Plane</b> provides a cleanroom implementation of the Japanese Business TRON (BTRON3) specification for OS.1 instances requiring real-time μITRON task execution, authentic Sakamura windowing, multilingual TRON Code, and the Real Object / Virtual Object hyper-data engine. Designed using standard C99, rendering through VirtIO / SDL2 graphics primitives.</p>
+                <p>The <b>BTRON System Plane</b> provides a cleanroom implementation of the Japanese Business TRON (BTRON3) specification for OS.1 instances requiring real-time μITRON task execution, authentic Sakamura windowing, multilingual TRON Code, and the Real Body / Virtual Body hyper-data engine. Designed using standard C99, rendering through VirtIO / SDL2 graphics primitives.</p>
             </div>
 
             <div class="grid-2">
@@ -126,11 +126,11 @@ wnd_show(&amp;wnd);</pre>
                 </div>
 
                 <div class="package-card">
-                    <h3><a href="https://bitedits.github.io/btron/include/btron/vobj.h">REAL / VIRTUAL OBJECT ENGINE</a></h3>
+                    <h3><a href="https://bitedits.github.io/btron/include/btron/vobj.h">REAL / Virtual Body ENGINE</a></h3>
                     <hr>
-                    <p>Sakamura hyper-data object model: documents contain live embedded pointers (Virtual Objects) linked to Real Objects stored in disk cabinets.</p>
+                    <p>Sakamura hyper-data object model: documents contain live embedded pointers (Virtual Bodys) linked to Real Bodys stored in disk cabinets.</p>
                     <pre class="code-snippet">
-/* Real Object / Virtual Object Link */
+/* Real Body / Virtual Body Link */
 VOBJ link;
 vobj_read_link(&amp;link, obj_id);
 vobj_open_cabinet(link.real_obj_id);</pre>
@@ -143,7 +143,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                         <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html">TRON Code</a> — Multilingual character system &amp; plane switching</li>
                         <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html">TAD Specification</a> — TRON Application Document format &amp; 2D segments</li>
                         <li><a href="https://bitedits.github.io/btron/include/btron/troncode.h">Pixel Fonts</a> — High-legibility Japanese &amp; Latin bitmap renderer</li>
-                        <li><a href="https://bitedits.github.io/btron/apps/t_editor.c">T-Editor</a> — TRON Text Editor with virtual object embedding</li>
+                        <li><a href="https://bitedits.github.io/btron/apps/t_editor.c">T-Editor</a> — TRON Text Editor with Virtual Body embedding</li>
                     </ul>
                 </div>
 
@@ -152,7 +152,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                     <hr>
                     <ul>
                         <li><a href="https://bitedits.github.io/btron/apps/gterm.c">gterm</a> — BTRON Terminal Console window</li>
-                        <li><a href="https://bitedits.github.io/btron/apps/vobj_manager.c">vobj_manager</a> — Real Object Cabinet &amp; Link Explorer</li>
+                        <li><a href="https://bitedits.github.io/btron/apps/vobj_manager.c">vobj_manager</a> — Real Body Cabinet &amp; Link Explorer</li>
                         <li><a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html">BTRON FS</a> — Diskette &amp; Real-Object file system format</li>
                         <li><a href="https://bitedits.github.io/btron/Makefile">BSD Makefile</a> — Standalone build system in C99</li>
                     </ul>
@@ -267,7 +267,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                 </div>
 
                 <div class="plane-header">0.3. B-System Interactive Desktop Gallery</div>
-                <p>Authentic multi-window desktop screenshots of the cleanroom B-System environment: Sakamura Cho-Kanji windowing, TAD document browser, Real Object cabinet explorer, Mozc Kana-Kanji conversion, and CUA text editor.</p>
+                <p>Authentic multi-window desktop screenshots of the cleanroom B-System environment: Sakamura Cho-Kanji windowing, TAD document browser, Real Body cabinet explorer, Mozc Kana-Kanji conversion, and CUA text editor.</p>
                 <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
                     <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
                         <a href="https://bitedits.github.io/btron/b-system/img/screen1.png" target="_blank">
@@ -287,7 +287,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
 
                     <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
                         <a href="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" alt="gterm Console &amp; Real Object Explorer" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
+                            <img src="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" alt="gterm Console &amp; Real Body Explorer" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
                         </a>
                         <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">gterm Console &amp; Object Explorer</h3>
                         <p style="font-size: 0.9rem; margin-bottom: 0;">Terminal emulator, command execution, and object graph inspection.</p>
@@ -305,7 +305,7 @@ vobj_open_cabinet(link.real_obj_id);</pre>
                         <a href="https://bitedits.github.io/btron/b-system/img/screen5.png" target="_blank">
                             <img src="https://bitedits.github.io/btron/b-system/img/screen5.png" alt="Cabinet Explorer &amp; VOBJ Links" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
                         </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Real Object Cabinet Explorer</h3>
+                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Real Body Cabinet Explorer</h3>
                         <p style="font-size: 0.9rem; margin-bottom: 0;">TOC sequence weighting, catalog tags, and pixel-aligned metadata columns.</p>
                     </div>
 

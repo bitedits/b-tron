@@ -1,5 +1,5 @@
 /*
- * B-System (BTRON 3.20) BTRON Accessory: Real Object Cabinet & Virtual Object Explorer Window (vobj_manager)
+ * B-System (BTRON 3.20) BTRON Accessory: Real Body Cabinet & Virtual Body Explorer Window (vobj_manager)
  * Cleanroom implementation of Sakamura BTRON / BTRON3 Architecture & NASA JPL Scope.
  */
 
@@ -339,7 +339,7 @@ static void cabinet_init_defaults(CABINET_EXPLORER *cab) {
         /* Group by first column & sort by TOC order */
         cabinet_sort_items(cab);
         snprintf(cab->status_msg, sizeof(cab->status_msg),
-                 "Cabinet Ready. Discovered %d Real Objects across tad_bin/.", cab->item_count);
+                 "Cabinet Ready. Discovered %d Real Bodys across tad_bin/.", cab->item_count);
         return;
     }
 
@@ -364,7 +364,7 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     /* Title Bar / Header */
     RECT header_r = { 0, 0, dev->width, 26 };
     fill_rec(dev, &header_r, COLOR_NAVY);
-    drw_tc_string(dev, 10, 6, "REAL OBJECT CABINET / HYPER-DATA STORE (実身・仮身キャビネット)", COLOR_WHITE, 0x00000000);
+    drw_tc_string(dev, 10, 6, "Real Body CABINET / HYPER-DATA STORE (実身・仮身キャビネット)", COLOR_WHITE, 0x00000000);
 
     /* Toolbar Header (y = 26..56) */
     RECT toolbar_r = { 0, 26, dev->width, 56 };
@@ -412,7 +412,7 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
         /* Col 2: TOC Hierarchy Path (e.g. os_spec/kernel/, shared_data/, books/) */
         drw_tc_string(dev, 115, item_y, it->category, txt_col, 0x00000000);
 
-        /* Col 3: Real Object ID */
+        /* Col 3: Real Body ID */
         char id_str[16];
         snprintf(id_str, sizeof(id_str), "#%-4d", it->robj_id);
         drw_tc_string(dev, 265, item_y, id_str, txt_col, 0x00000000);
@@ -449,7 +449,7 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     drw_lin(dev, 0, dev->height - 22, dev->width, dev->height - 22);
 
     char foot_text[128];
-    snprintf(foot_text, sizeof(foot_text), "Cabinet: %d Real Objects [tad_bin] | #%d: %s (%u B)",
+    snprintf(foot_text, sizeof(foot_text), "Cabinet: %d Real Bodys [tad_bin] | #%d: %s (%u B)",
              g_cabinet.item_count,
              g_cabinet.items[g_cabinet.selected_idx].robj_id,
              g_cabinet.items[g_cabinet.selected_idx].name,

@@ -92,18 +92,18 @@ btron/
 │       ├── dp.h                # Display Primitives (Graphics engine)
 │       ├── wnd.h               # Sakamura Window Manager APIs
 │       ├── event.h             # BTRON System Event Queue
-│       ├── vobj.h              # Real Object / Virtual Object Hyper-Data Model Engine
+│       ├── vobj.h              # Real Body / Virtual Body Hyper-Data Model Engine
 │       ├── troncode.h          # TRON Multilingual Character Code & Font Engine
 │       └── desktop.h           # Desktop Shell & Panel Manager APIs
 ├── src/                        # Core Subsystems Implementation
 │   ├── kernel/                 # μITRON Task & Synchronization Subsystem
 │   ├── graphics/               # Display Primitives (DP) Vector & Raster Graphics
 │   ├── window/                 # Sakamura BTRON Window Manager & Event Dispatcher
-│   ├── vobject/                # Real Object / Virtual Object Hyper-Data Engine
+│   ├── vobject/                # Real Body / Virtual Body Hyper-Data Engine
 │   ├── font/                   # TRON Character Code & Pixel Font Renderer
 │   └── desktop/                # Cho-Kanji / BTRON Desktop Compositor & Main Launcher
 └── apps/                       # Authentic BTRON Accessories
-    ├── vobj_manager.c          # Real Object Cabinet & Virtual Object Explorer Window
+    ├── vobj_manager.c          # Real Body Cabinet & Virtual Body Explorer Window
     ├── t_editor.c              # TRON Text Editor (T-Editor) Window
     └── gterm.c                 # BTRON Terminal Shell (gterm) Window
 ```
@@ -152,8 +152,8 @@ $ make run-posix
    - Native TRON type definitions: `W`, `H`, `B`, `UW`, `UH`, `UB`, `VW`, `ID`, `ER`, `RECT`, `PNT`, `PAT`, `COLOR`.
    - Real-time kernel primitives: `cre_tsk`, `sta_tsk`, `slp_tsk`, `wup_tsk`, `cre_sem`, `wai_sem`, `sig_sem`.
 
-2. **Real Object / Virtual Object Hyper-Data Model Engine (`vobj`)**:
-   - Implements Sakamura's legendary hyper-data object engine where documents contain live embedded pointers (Virtual Objects) to Real Objects stored in disk cabinets.
+2. **Real Body / Virtual Body Hyper-Data Model Engine (`vobj`)**:
+   - Implements Sakamura's legendary hyper-data object engine where documents contain live embedded pointers (Virtual Bodys) to Real Bodys stored in disk cabinets.
 
 3. **Sakamura Cho-Kanji Retro Desktop & Window Manager**:
    - Classic Sakamura teal desktop workspace with top status panel, clock, desktop cabinet launcher, and window z-ordering.
@@ -161,8 +161,8 @@ $ make run-posix
 
 4. **BTRON Accessories**:
    - **`gterm`**: BTRON Terminal Console window.
-   - **`t_editor`**: TRON Text Editor with virtual object icon embedding.
-   - **`vobj_manager`**: Real Object Cabinet & Virtual Object Link Explorer.
+   - **`t_editor`**: TRON Text Editor with Virtual Body icon embedding.
+   - **`vobj_manager`**: Real Body Cabinet & Virtual Body Link Explorer.
 
 ## Building & Running
 
