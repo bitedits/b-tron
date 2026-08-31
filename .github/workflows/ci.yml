@@ -67,7 +67,7 @@ jobs:
 
       - name: Run QEMU Bare-Metal Headless Boot Test
         run: |
-          make test-tkernel
+          make test-kernel
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
