@@ -1,10 +1,9 @@
-# B-TRON Chat (BeOS Chat / Blabber Port) Architecture & Specification
+# B-System Chat Architecture & Specification
 
 ## 1. Executive Summary
 
 This document specifies the format, architecture, and implementation requirements
-for porting the classic **BeOS Chat (Blabber)** application (`./BeOS-Chat/`) to
-the **B-TRON 3.20 (B-System)** operating system.
+for porting the classic **BeOS Chat (Blabber)** application to the **BTRON 3.20 (B-System)** operating system.
 
 The implementation is structured into clean C99 modules (`src/apps/chat.c` and
 `src/apps/chat_xml.c`), integrating seamlessly with the B-TRON Window Manager,

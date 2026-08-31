@@ -17,8 +17,8 @@ fi
 
 ELF_PATH="btron-arm-baremetal.elf"
 if [ ! -f "$ELF_PATH" ]; then
-    echo "[ERROR] ELF image '$ELF_PATH' does not exist."
-    exit 1
+    echo "[CI-TEST] Building $ELF_PATH..."
+    make "$ELF_PATH" >/dev/null 2>&1 || make arm-elf
 fi
 
 LOG_FILE=$(mktemp /tmp/qemu_btron_XXXXXX.log)

@@ -1,14 +1,18 @@
 #
-# B-TRON Retro OS — Multi-Target Makefile
+# B-System— Multi-Target Makefile
 # Cleanroom Sakamura T-Kernel 2.0 / POSIX / QEMU / BCM283x Bare-Metal
 #
 # Targets:
 #   posix         POSIX Microkernel Desktop (SDL2 host)
 #   qemu          QEMU VirtIO Desktop (SDL2 host)
-#   kernel        T-Kernel SDL2 host build (debug / development)
+#   sakamura      T-Kernel SDL2 host build VirtIO (debug / development)
+#   kernel        T-Kernel QEMU (debug / development)
 #   arm-elf       Freestanding ARM32 ELF  — BCM283x Pi 2B (Cortex-A7, ARMv7)
 #   arm64-elf     Freestanding AArch64 ELF — Pi 4B only (Cortex-A72)
+#   run-posix     Boot POSIX Kernel (lightweight proto POSIX-only kernel)
+#   run-qemu      Boot Pure VirtIO Kernel (lightweight VirtIO-only kernel)
 #   run-kernel    Boot Pi 2B ELF in QEMU (raspi2b, with display)
+#   run-sakamura  Boot QEMU VirtIO (with display, mouse, keyboard)
 #   test-kernel   Boot Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
 #   debug-gdb     QEMU + GDB stub on Pi 2B
 #
@@ -20,9 +24,9 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura arm-elf arm64-elf \
-        html2tad tad_bin clean test test-all test-kernel test-tkernel \
+        html2tad tad_bin test test-kernel test-tkernel \
         test-mozc test-editor test-hmi test-tad test-chat \
-        run-posix run-qemu run-kernel run-tkernel debug-virtio debug-gdb
+        run-posix run-qemu run-kernel debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -214,8 +218,11 @@ posix: tad_bin $(POSIX_TARGET)
 $(POSIX_TARGET): $(POSIX_OBJS)
 	$(CC) $(POSIX_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
-run-posix: posix
+run-posix: $(POSIX_TARGET)
 	./$(POSIX_TARGET)
+
+run-sakamura: $(SAKAMURA_TARGET)
+	./$(SAKAMURA_TARGET)
 
 # ═══════════════════════════════════════════════════════════════════
 # QEMU VirtIO Desktop
@@ -232,10 +239,10 @@ qemu: tad_bin $(QEMU_TARGET)
 $(QEMU_TARGET): $(QEMU_OBJS)
 	$(CC) $(QEMU_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
-run-qemu: qemu
+run-qemu: $(QEMU_TARGET)
 	@./$(QEMU_TARGET)
 
-test-qemu: qemu
+test-qemu: $(QEMU_TARGET)
 	@./$(QEMU_TARGET)
 
 # ═══════════════════════════════════════════════════════════════════
@@ -322,7 +329,7 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 # Runs B-TRON on Raspberry Pi 2B (BCM2836, Cortex-A7, ARMv7 32-bit).
 # Supports both qemu-system-arm and qemu-system-aarch64.
 # ═══════════════════════════════════════════════════════════════════
-run-kernel: arm-elf
+run-kernel: $(ARM32_TARGET)
 	@echo "=========================================================="
 	@echo " Launching T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
@@ -342,7 +349,7 @@ run-kernel: arm-elf
 	    exit 1; \
 	fi
 
-test-kernel: arm-elf
+test-kernel: $(ARM32_TARGET)
 	@echo "=========================================================="
 	@echo " Testing T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
 	@echo " Machine : raspi2b  |  CPU: Cortex-A7  |  RAM: 1G"
@@ -353,9 +360,16 @@ test-kernel: arm-elf
 # ═══════════════════════════════════════════════════════════════════
 # Debug
 # ═══════════════════════════════════════════════════════════════════
-debug-virtio: arm64-elf
+debug-virtio: $(ARM64_TARGET)
 	$(QEMU_AARCH64) -M raspi4b -m 2G -trace "virtio_*" \
 	    -kernel $(ARM64_TARGET) -serial stdio
+
+debug-gdb: $(ARM32_TARGET)
+	@if command -v $(QEMU_ARM) >/dev/null 2>&1; then \
+	    $(QEMU_ARM) -M raspi2b -m 1G -s -S -kernel $(ARM32_TARGET) -serial stdio; \
+	elif command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	    $(QEMU_AARCH64) -M raspi2b -m 1G -s -S -kernel $(ARM32_TARGET) -serial stdio; \
+	fi
 
 # ═══════════════════════════════════════════════════════════════════
 # Mozc Kana-Kanji Conversion & TIP Unit Test Suite
