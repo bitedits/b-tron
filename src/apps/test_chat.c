@@ -1,5 +1,5 @@
 /*
- * B-TRON Chat & TRON IPC Test Suite: src/apps/test_chat.c
+ * B-System (BTRON 3.20) Chat & TRON IPC Test Suite: src/apps/test_chat.c
  * Conforming to BTRON3 SPEC 3.20, TRON HMI, and CHAT.md
  */
 

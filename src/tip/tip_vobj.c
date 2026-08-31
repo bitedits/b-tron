@@ -1,5 +1,5 @@
 /*
- * B-TRON Real Object User Dictionaries: tip_vobj.c
+ * B-System (BTRON 3.20) Real Object User Dictionaries: tip_vobj.c
  * Cleanroom implementation conforming to btron-tip.tex Section 5.1 & REQ-2.5.
  */
 

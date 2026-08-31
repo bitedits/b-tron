@@ -1,5 +1,5 @@
 /*
- * B-TRON Window Manager: wnd.c
+ * B-System (BTRON 3.20) Window Manager: wnd.c
  * Sakamura style retro double-bordered windows and client region management.
  */
 

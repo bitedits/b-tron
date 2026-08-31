@@ -1,5 +1,5 @@
 /*
- * B-TRON Mozc Statistical Kana-Kanji Conversion (KKC) Engine: mozc_kkc.c
+ * B-System (BTRON 3.20) Mozc Statistical Kana-Kanji Conversion (KKC) Engine: mozc_kkc.c
  * Cleanroom implementation conforming to btron-tip.tex Section 3.2 & REQ-2.3.
  */
 

@@ -1,5 +1,5 @@
 /*
- * B-TRON Unit Test Suite: Native TAD Document Browser & Cabinet Explorer
+ * B-System (BTRON 3.20) Unit Test Suite: Native TAD Document Browser & Cabinet Explorer
  * Conforming to BTRON3 SPEC 3.20 & NASA JPL Bounded Scope.
  */
 

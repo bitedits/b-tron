@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_panel.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_panel.c
  * High-level Modeless Panel composition helpers.
  */
 

@@ -1,5 +1,5 @@
 /*
- * B-TRON Character Code System & Bitmap Font Engine: troncode.c
+ * B-System (BTRON 3.20) Character Code System & Bitmap Font Engine: troncode.c
  * Implements Multi-Plane TRON Code vs Unicode & Lossless Bidirectional Bridge.
  * Cleanroom implementation conforming to btron-tip.tex Section 2.
  */

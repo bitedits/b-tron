@@ -1,5 +1,5 @@
 /*
- * B-TRON Retro OS: Complete 16x16 JIS X 0208 Dot-Matrix Font Table (Sorted by CP)
+ * B-System (BTRON 3.20) Retro OS: Complete 16x16 JIS X 0208 Dot-Matrix Font Table (Sorted by CP)
  * Total verified glyphs: 7012 (Coverage: Level 1 + Level 2 + Kana + Symbols)
  * Pure freestanding C99. Binary searchable in O(log N).
  */

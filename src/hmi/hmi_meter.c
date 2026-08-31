@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_meter.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_meter.c
  * Display and meter components (Dual L/R VU meters, 3-color LED, Digital displays).
  */
 

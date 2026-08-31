@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_core.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_core.c
  * Core lifecycle, focus management, and event dispatcher.
  */
 

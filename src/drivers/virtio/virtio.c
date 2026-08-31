@@ -1,5 +1,5 @@
 /*
- * VirtIO 1.4 Driver Implementations for B-System / QEMU
+ * VirtIO 1.4 Driver Implementations for B-System (BTRON 3.20) / QEMU
  * Complete VirtIO-GPU 2D Display & VirtIO-Console Driver Engine
  */
 

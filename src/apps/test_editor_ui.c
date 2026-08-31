@@ -1,5 +1,5 @@
 /*
- * B-TRON T-Editor UI & Internal Functions Test Suite: test_editor_ui.c
+ * B-Systsem (BTRON 3.20) T-Editor UI & Internal Functions Test Suite: test_editor_ui.c
  * Validates CUA editing, Japanese UTF-8 character metrics, TIP IME integration,
  * clipboard, multibyte boundary preservation, and window resizing.
  */

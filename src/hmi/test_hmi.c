@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library Unit Test Suite: test_hmi.c
+ * B-System (BTRON 3.20) HMI Standard Library Unit Test Suite: test_hmi.c
  * Comprehensive test coverage for TRON HMI Standard components.
  */
 

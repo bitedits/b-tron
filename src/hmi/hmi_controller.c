@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_controller.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_controller.c
  * TRON Universal Controller (万能コントローラ) navigation engine and remote UI.
  */
 

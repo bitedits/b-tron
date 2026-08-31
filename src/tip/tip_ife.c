@@ -1,5 +1,5 @@
 /*
- * B-TRON Text Input Primitives (TIP) - Input Front-End (IFE): tip_ife.c
+ * B-System (BTRON 3.20) Text Input Primitives (TIP) - Input Front-End (IFE): tip_ife.c
  * Cleanroom implementation conforming to btron-tip.tex Section 3 & 4.
  */
 

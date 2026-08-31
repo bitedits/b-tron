@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Canonical Showcase: audio_player.c
+ * B-System (BTRON 3.20) HMI Canonical Showcase: audio_player.c
  * Classic SONY-Style Hi-Fi Stereo Audio Deck & Player (TC-K777ES / TRON HMI).
  *
  * Implements SUI/GUI components from TRON HMI Standard Handbook:

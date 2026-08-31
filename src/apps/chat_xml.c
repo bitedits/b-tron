@@ -1,5 +1,5 @@
 /*
- * B-TRON Chat XML Engine: src/apps/chat_xml.c
+ * B-System (BTRON 3.20) Chat XML Engine: src/apps/chat_xml.c
  * Cleanroom C99 implementation of BeOS Chat XMLEntity & Stanza processor.
  * Conforming to CHAT.md and NASA JPL deterministic execution rules.
  */

@@ -1,5 +1,5 @@
 /*
- * B-TRON Application: Native TAD Document Browser (tad_browser.c)
+ * B-System (BTRON 3.20) Native TAD Document Browser (tad_browser.c)
  * Cleanroom implementation conforming to BTRON3 SPEC 3.20 & NASA JPL Scope.
  */
 

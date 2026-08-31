@@ -1,5 +1,5 @@
 /*
- * B-TRON Real-Time Task Scheduling of KKC Engines: tip_task.c
+ * B-System (BTRON 3.20) Real-Time Task Scheduling of KKC Engines: tip_task.c
  * Cleanroom implementation conforming to btron-tip.tex Section 5.2.
  */
 

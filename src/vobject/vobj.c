@@ -1,5 +1,5 @@
 /*
- * B-TRON Real Object / Virtual Object Hyper-Data Model Engine: vobj.c
+ * B-System (BTRON 3.20) Real Body / Virtual Body Hyper-Data Model Engine: vobj.c
  */
 
 #include <btron/vobj.h>
@@ -44,7 +44,7 @@ ER init_vobj_sys(const char *storage_root) {
     cre_robj("BTRON Terminal Shell", VOBJ_TYPE_TERMINAL);
 
     if (r2) {
-        const char *sample_text = "Welcome to B-TRON Retro OS!\nTRON Architecture by Dr. Ken Sakamura.\nCleanroom C99 + SDL2 Retro Desktop System.";
+        const char *sample_text = "Welcome to B-System Retro OS!\nTRON Architecture by Dr. Ken Sakamura.\nCleanroom C99 + SDL2 Retro Desktop System.";
         wr_vobj_data(r2, sample_text, strlen(sample_text));
     }
 
@@ -95,7 +95,7 @@ VOBJ_LINK* cre_vobj_link(ID target_robj_id, const char *label, H x, H y) {
 ER rd_vobj_data(ROBJ *robj, void *buf, UW len, UW *read_bytes) {
     if (!robj || !buf) return E_PAR;
     /* Static data simulation for clean memory execution */
-    static const char *default_doc = "B-TRON Real Object Storage Record v1.0\nJapanese Lineage Cleanroom Subsystem.\nTRON Hyper-Data Model Engine Active.";
+    static const char *default_doc = "B-System Real Object Storage Record v1.0\nJapanese Lineage Cleanroom Subsystem.\nTRON Hyper-Data Model Engine Active.";
     UW sz = strlen(default_doc);
     if (len < sz) sz = len;
     memcpy(buf, default_doc, sz);

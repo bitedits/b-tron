@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_volume.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_volume.c
  * Continuous volume components (Linear Slider and Rotary Dials).
  */
 

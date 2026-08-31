@@ -1,5 +1,5 @@
 /*
- * B-TRON Display Primitives Implementation: dp_core.c
+ * B-System (BTRON 3.20) Display Primitives Implementation: dp_core.c
  */
 
 #include <btron/dp.h>

@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_switch.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_switch.c
  * Switches and button components (Momentary, Toggle, Standard Triad).
  */
 

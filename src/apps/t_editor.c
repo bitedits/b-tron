@@ -1,5 +1,5 @@
 /*
- * BTRON Accessory: TRON CUA Text Editor Window (t_editor)
+ * B-System (BTRON 3.20) BTRON Accessory: TRON CUA Text Editor Window (t_editor)
  * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
  */
 

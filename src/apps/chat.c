@@ -1,5 +1,5 @@
 /*
- * B-TRON Chat Application (Haiku Chat): src/apps/chat.c
+ * B-System (BTRON 3.20) Chat Application (Haiku Chat): src/apps/chat.c
  * Conforming to BTRON3 SPEC 3.20, TRON HMI, and CHAT.md
  */
 

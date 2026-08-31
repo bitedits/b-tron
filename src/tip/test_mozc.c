@@ -1,5 +1,5 @@
 /*
- * B-TRON Mozc Kana-Kanji Conversion & TIP Unit Test Suite: test_mozc.c
+ * B-System (BTRON 3.20) Mozc Kana-Kanji Conversion & TIP Unit Test Suite: test_mozc.c
  * Validates requirements from btron-tip.tex & IME.md:
  * 1. Romaji -> Hiragana / Katakana transliteration (Hepburn / Kunrei)
  * 2. Morphological bunsetsu clause segmentation & Viterbi lattice search

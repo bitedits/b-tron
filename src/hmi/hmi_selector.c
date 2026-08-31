@@ -1,5 +1,5 @@
 /*
- * B-TRON HMI Standard Library: hmi_selector.c
+ * B-System (BTRON 3.20) HMI Standard Library: hmi_selector.c
  * Selector components (Up/Down Steppers, Radio button matrix, Source selectors).
  */
 
