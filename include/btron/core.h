@@ -1,14 +1,21 @@
+/*
+ * B-TRON Specification Compatible Header: core.h
+ * Real-Time Kernel Core API Declarations.
+ */
+
 #ifndef _BTRON_CORE_H_
 #define _BTRON_CORE_H_
 
 #include <stdint.h>
 #include <stddef.h>
 
-#ifndef _BTRON_TYPES_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef _COLOR_DEFINED_
 #define _COLOR_DEFINED_
 typedef uint32_t COLOR;
-#endif
 #endif
 
 #ifndef COLOR_CYAN
@@ -24,8 +31,11 @@ typedef uint32_t COLOR;
 
 typedef void (*ShellOutputFn)(const char *line, COLOR col, void *user_data);
 
-/* Polymorphic Core Operations */
 void btron_core_init(void);
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BTRON_CORE_H_ */
