@@ -111,6 +111,11 @@ static WND *g_slide_wnd = NULL;
 static H g_slide_start_x = 0;
 static H g_slide_orig_off = 0;
 
+/* Track mouse button state across polls for release detection */
+static uint8_t g_prev_mouse_btns = 0;
+/* Track the last USB key scancode for key-up generation */
+static uint8_t g_prev_kbd_scancode = 0;
+
 #define BTRON_SCREEN_W  1024
 #define BTRON_SCREEN_H  768
 
@@ -335,21 +340,43 @@ void btron_main(void) {
         /* Poll USB HID Keyboard from DWC2 Host Controller */
         usb_kbd_report_t kbd_rep;
         if (dwc2_poll_keyboard(&kbd_rep) > 0) {
-            uint32_t k = dwc2_usb_to_btron_key(kbd_rep.keys[0], kbd_rep.modifiers);
-            if (k != 0) {
-                EVT ev;
-                ev.type = EV_KEY_DOWN;
-                ev.key = k;
-                ev.data = (VW)(uintptr_t)kbd_rep.modifiers;
-                ev.pos.x = 0;
-                ev.pos.y = 0;
-                ev.button = 0;
-                WND *top = get_top_wnd();
-                if (top && top->focused && top->event_handler) {
-                    top->event_handler(top, &ev);
+            uint8_t scancode = kbd_rep.keys[0];
+
+            if (scancode != 0) {
+                /* Key pressed */
+                uint32_t k = dwc2_usb_to_btron_key(scancode, kbd_rep.modifiers);
+                if (k != 0) {
+                    EVT ev;
+                    ev.type   = EV_KEY_DOWN;
+                    ev.key    = k;
+                    ev.data   = (VW)(uintptr_t)kbd_rep.modifiers;
+                    ev.pos.x  = 0;
+                    ev.pos.y  = 0;
+                    ev.button = 0;
+                    WND *top = get_top_wnd();
+                    if (top && top->focused && top->event_handler) {
+                        top->event_handler(top, &ev);
+                    }
+                    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
                 }
-                redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+            } else if (g_prev_kbd_scancode != 0) {
+                /* All keys released — send EV_KEY_UP for the last held key */
+                uint32_t k = dwc2_usb_to_btron_key(g_prev_kbd_scancode, 0);
+                if (k != 0) {
+                    EVT ev;
+                    ev.type   = EV_KEY_UP;
+                    ev.key    = k;
+                    ev.data   = 0;
+                    ev.pos.x  = 0;
+                    ev.pos.y  = 0;
+                    ev.button = 0;
+                    WND *top = get_top_wnd();
+                    if (top && top->focused && top->event_handler) {
+                        top->event_handler(top, &ev);
+                    }
+                }
             }
+            g_prev_kbd_scancode = scancode;
         }
 
         /* Poll USB HID Mouse from DWC2 Host Controller */
@@ -357,10 +384,25 @@ void btron_main(void) {
         if (dwc2_poll_mouse(&mouse_rep) > 0) {
             H mx, my;
             get_baremetal_mouse_pos(&mx, &my);
+
+            /* Accumulate relative motion with clamping */
             mx += (H)mouse_rep.dx;
             my += (H)mouse_rep.dy;
-            if (mouse_rep.buttons & 1) {
+            if (mx < 0) mx = 0;
+            if (mx >= BTRON_SCREEN_W) mx = BTRON_SCREEN_W - 1;
+            if (my < 0) my = 0;
+            if (my >= BTRON_SCREEN_H) my = BTRON_SCREEN_H - 1;
+
+            uint8_t btn_now  = mouse_rep.buttons & 1u;
+            uint8_t btn_prev = g_prev_mouse_btns & 1u;
+            g_prev_mouse_btns = mouse_rep.buttons;
+
+            if (btn_now && !btn_prev) {
+                /* Button pressed */
                 handle_baremetal_mouse_click(screen, mx, my, TRUE);
+            } else if (!btn_now && btn_prev) {
+                /* Button released */
+                handle_baremetal_mouse_click(screen, mx, my, FALSE);
             } else {
                 handle_baremetal_mouse_move(screen, mx, my);
             }

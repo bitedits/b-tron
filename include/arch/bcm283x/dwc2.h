@@ -9,13 +9,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if defined(__aarch64__) || defined(_RPI_BCM283x_)
-#define BCM2836_PERIPH_BASE  0x3F000000
+/*
+ * Peripheral base address:
+ *   QEMU raspi2b emulates a BCM2835 peripheral map → 0x20000000
+ *   Real Raspberry Pi 2B hardware (BCM2836)         → 0x3F000000
+ *
+ * Set -DQEMU_RASPI2B=1 in ARM_CFLAGS (Makefile) for QEMU builds.
+ * Leave unset (or set -DREAL_RPI2B=1) for physical hardware.
+ */
+#if defined(QEMU_RASPI2B)
+#define BCM283X_PERIPH_BASE  0x20000000u  /* QEMU raspi2b: BCM2835 map */
+#elif defined(__aarch64__)
+#define BCM283X_PERIPH_BASE  0x3F000000u  /* Pi 3/AArch64 */
+#elif defined(_RPI_BCM283x_)
+#define BCM283X_PERIPH_BASE  0x3F000000u  /* Real Pi 2B BCM2836 hardware */
 #else
-#define BCM2836_PERIPH_BASE  0x20000000
+#define BCM283X_PERIPH_BASE  0x20000000u  /* Default / unknown → BCM2835 */
 #endif
 
-#define DWC2_BASE_ADDR        (BCM2836_PERIPH_BASE + 0x00980000)
+/* Legacy alias */
+#define BCM2836_PERIPH_BASE  BCM283X_PERIPH_BASE
+
+#define DWC2_BASE_ADDR        (BCM283X_PERIPH_BASE + 0x00980000u)
 
 /* Core Global Registers */
 #define DWC2_GOTGCTL          0x000

@@ -55,16 +55,21 @@ ifeq ($(UNAME_S), Darwin)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/local/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") \
                     -lz -lpthread -framework ApplicationServices -framework Cocoa
-    QEMU_DISPLAY := -display cocoa,show-cursor=on
+    QEMU_DISPLAY        := -display cocoa,show-cursor=on
+    # For bare-metal run-kernel: drop show-cursor so QEMU grabs the mouse
+    # Click the QEMU window to grab; press Ctrl+Alt+G to release.
+    KERNEL_DISPLAY      := -display cocoa
 else ifeq ($(UNAME_S), Linux)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || pkg-config --cflags sdl2 2>/dev/null || echo "-I/usr/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") \
                     -lz -lm -lpthread
-    QEMU_DISPLAY := -display default,show-cursor=on
+    QEMU_DISPLAY        := -display default,show-cursor=on
+    KERNEL_DISPLAY      := -display sdl,grab-on-hover=on
 else
     SDL_CFLAGS   := -I/usr/include/SDL2
     SDL_LIBS     := -lSDL2 -lz -lgdi32 -lpthread
-    QEMU_DISPLAY := -display default,show-cursor=on
+    QEMU_DISPLAY        := -display default,show-cursor=on
+    KERNEL_DISPLAY      := -display default
 endif
 
 # ── Text Input Primitives (TIP) / Mozc IME sources ────────────────
@@ -336,16 +341,21 @@ run-kernel: $(ARM32_TARGET)
 	@echo " ELF     : $(ARM32_TARGET)"
 	@echo " Devices : USB Keyboard, USB Mouse & VideoCore GPU Display"
 	@echo "=========================================================="
-	@if command -v $(QEMU_ARM) >/dev/null 2>&1; then \
-	    $(QEMU_ARM) -M raspi2b -m 1G $(QEMU_DISPLAY) \
-	        -usb -device usb-kbd -device usb-mouse \
+	@echo " INPUT CAPTURE:"
+	@echo "   Click inside the QEMU window to grab keyboard & mouse."
+	@echo "   Press Ctrl+Alt+G (macOS: Ctrl+Option+G) to release grab."
+	@echo "   Serial/UART input also works in THIS terminal window."
+	@echo "=========================================================="
+	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	    $(QEMU_AARCH64) -M raspi2b -m 1G $(KERNEL_DISPLAY) \
+	        -device usb-kbd -device usb-mouse \
 	        -kernel $(ARM32_TARGET) -serial stdio; \
-	elif command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
-	    $(QEMU_AARCH64) -M raspi2b -m 1G $(QEMU_DISPLAY) \
-	        -usb -device usb-kbd -device usb-mouse \
+	elif command -v $(QEMU_ARM) >/dev/null 2>&1; then \
+	    $(QEMU_ARM) -M raspi2b -m 1G $(KERNEL_DISPLAY) \
+	        -device usb-kbd -device usb-mouse \
 	        -kernel $(ARM32_TARGET) -serial stdio; \
 	else \
-	    echo "[ERROR] QEMU not found — install qemu-system-arm or qemu-system-aarch64"; \
+	    echo "[ERROR] QEMU not found — install qemu-system-aarch64 or qemu-system-arm"; \
 	    exit 1; \
 	fi
 

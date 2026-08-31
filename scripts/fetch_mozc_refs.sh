@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# scripts/third_parties.sh
+# scripts/fetch_mozc_refs.sh
 # Fetch and setup third-party dependencies for B-TRON TIP / IME (Google Mozc)
 # Target Version: 3.34.6239 (Stable)
 #
