@@ -1,4 +1,4 @@
-B-System IME
+B-System TIP
 ============
 
 Requirement Specification: Character Encoding and Japanese Input Method for B-TRON

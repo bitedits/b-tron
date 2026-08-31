@@ -1,8 +1,6 @@
-# TRON Application Databus (TAD) in B-System
+# BTRON Application Databus (TAD) in B-System
 
 This document provides a comprehensive technical overview of **TAD (TRON Application Databus)** in B-System, explaining the unified `./tad_bin/` ecosystem, the Elixir multi-catalog batch compiler, native **GIF & PNG** diagram rasterization, binary segment format conforming to **BTRON3 SPEC 3.20**, compatibility with **B-right/V Cho-Kanji (超漢字)**, and runtime usage across the **Cabinet Explorer** and **Native TAD Document Browser**.
-
----
 
 ## 1. Overview: What is TAD?
 
@@ -11,8 +9,6 @@ In the TRON architecture designed by Prof. Ken Sakamura, **TAD (TRON Application
 In B-System, TAD serves two critical roles:
 1. **Hyper-Object Document Storage:** Organizes system documentation, books, and user documents into first-class **Real Objects (実身 - Jitsushin)** with embedded **Virtual Object (仮身 - Kashin)** links.
 2. **Deterministic Bounded Layout:** A cleanroom linear layout engine replaces legacy complex DOM trees with a single-pass stream engine adhering strictly to **NASA Safety-Critical C Rules (JPL Rule 3: Zero post-boot dynamic heap allocations)**.
-
----
 
 ## 2. Directory Structure & Unified Packaging Pipeline
 
@@ -168,8 +164,6 @@ make test-tad
 4. **NASA Safety-Critical C (JPL Rule 3) Layout:**
    - Single-pass layout engine strictly computes bounding boxes without dynamic heap allocations, ensuring sub-millisecond document loading and guaranteed bounded memory execution on all embedded targets.
 
----
-
 ## 6. UTF-8 Cyrillic & Ukrainian Font Engine
 
 BTRON3 SPEC 3.20 specifies that TRON Code Plane 1 (`0x2700..0x27FF`) is dedicated to **Cyrillic (ISO 8859-5) & Ukrainian Extensions**:
@@ -217,8 +211,6 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
   - Implemented strictly with bounded static memory conforming to **NASA JPL Safety Rule 3** (zero dynamic heap allocation).
 - **Exact HTML Specification Image Extraction:** The Elixir batch compiler (`scripts/html2tad.exs`) extracts exact diagram paths (`<IMG src="gif/*.gif">` and `<IMG src="img/*.png">`) directly from the original HTML specification documents, inspects their native dimensions (`w` and `h` in GIF87a/GIF89a and PNG IHDR headers), and copies all asset directories into `tad_bin/**/`.
 - **Fallback Vector Schematics:** For synthetic documents without on-disk image assets, the browser falls back gracefully to topic-matched vector schematics.
-
----
 
 ## 8. Compatibility Matrix
 
