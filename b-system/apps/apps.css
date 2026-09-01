@@ -1,0 +1,263 @@
+/* apps.css — shared styles for b-system/apps product pages
+   Uses tokens from ../../index.css (Barbie x Unicorn theme)
+   Background is overridden to a deeper, rosier gradient         */
+
+/* ── rosier background — single smooth curve ── */
+body {
+    background: linear-gradient(to bottom, #ffe0f0, #e8a0c8) !important;
+}
+
+/* ── b-system badge classes (mirrors b-system.html inline styles) ── */
+.app-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    display: inline-block;
+    vertical-align: middle;
+}
+.app-badge.teal  { background:#e0f2f1; color:#00695c; border-color:#b2dfdb; }
+.app-badge.pink  { background:#fdf2f8; color:#be185d; border-color:#fbcfe8; }
+.app-badge.gold  { background:#fefce8; color:#a16207; border-color:#fef08a; }
+
+/* ── breadcrumb nav ── */
+.app-nav {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(255, 215, 230, 0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,93,162,0.25);
+    padding: 0.85rem 2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.9rem; font-weight: 600;
+}
+.app-nav a { color: #6b4f7e; text-decoration: none; transition: color .2s; }
+.app-nav a:hover { color: DarkMagenta; }
+.app-nav .sep { color: rgba(255,93,162,0.4); margin: 0 0.15rem; }
+.app-nav .current { color: HotPink; }
+
+/* ── hero band ── */
+.app-hero {
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid rgba(255,93,162,0.2);
+    background: rgba(255,240,248,0.7);
+    backdrop-filter: blur(16px);
+}
+.app-hero-icon { font-size: 4rem; line-height: 1; margin-bottom: 0.8rem; }
+.app-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+    background: linear-gradient(135deg, HotPink, DarkMagenta);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.app-hero-badge {
+    display: inline-block;
+    font-size: 0.85rem; font-weight: 700;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.65);
+    border: 1.5px solid rgba(255,93,162,0.45);
+    color: DarkMagenta;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+    margin-bottom: 0.9rem;
+    box-shadow: 0 2px 10px rgba(255,93,162,0.15);
+}
+.app-hero .subtitle { font-size: 1.05rem; color: #6b4f7e; font-weight: 500; }
+
+/* ── page content wrapper ── */
+.app-content {
+    max-width: 900px; margin: 0 auto; padding: 3rem 2rem 5rem;
+}
+
+/* ── back link ── */
+.back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: HotPink; font-weight: 600; font-size: 0.88rem;
+    text-decoration: none; margin-bottom: 2.5rem;
+    transition: color .2s;
+}
+.back-link:hover { color: DarkMagenta; text-decoration: underline; }
+
+/* ── section headings ── */
+.app-content .section { margin-bottom: 2.8rem; }
+.app-content .section h2 {
+    font-size: 1.35rem; font-weight: 700;
+    text-align: left; margin-bottom: 0.8rem; margin-top: 0;
+    color: HotPink;
+    background: none; -webkit-text-fill-color: unset;
+    padding-left: 0.85rem;
+    border-left: 4px solid HotPink;
+}
+
+/* ── desc text ── */
+.app-content .section p {
+    color: #4a3560; line-height: 1.75;
+    max-width: 100%; margin: 0; padding-top: 0;
+}
+
+/* ── jp description block ── */
+.app-desc-jp {
+    font-size: 0.95rem;
+    color: #1e293b;
+    line-height: 1.8;
+    background: rgba(255,255,255,0.6);
+    border-left: 3px solid #008080;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 0.8rem;
+    backdrop-filter: blur(8px);
+}
+
+/* ── feature list ── */
+.app-features-list {
+    list-style: none; padding: 0; margin: 0.6rem 0 0;
+    display: flex; flex-direction: column; gap: 0.45rem;
+}
+.app-features-list li {
+    font-size: 0.93rem; color: #4a3560;
+    display: flex; align-items: flex-start; gap: 0.45rem;
+}
+.app-features-list li::before {
+    content: "◆"; color: HotPink;
+    font-size: 0.65rem; margin-top: 0.32rem; flex-shrink: 0;
+}
+
+/* ── workflow steps ── */
+.workflow-list {
+    list-style: none; padding: 0; margin: 0.6rem 0 0;
+    counter-reset: step;
+    display: flex; flex-direction: column; gap: 0.7rem;
+}
+.workflow-list li {
+    counter-increment: step;
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    font-size: 0.93rem; color: #4a3560;
+}
+.workflow-list li::before {
+    content: counter(step);
+    background: linear-gradient(135deg, HotPink, DarkMagenta);
+    color: #fff;
+    border-radius: 50%; width: 1.5rem; height: 1.5rem;
+    font-size: 0.75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 0.05rem;
+}
+
+/* ── tagline card ── */
+.tagline-card {
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,93,162,0.3);
+    border-radius: 16px;
+    padding: 1.4rem 1.8rem;
+    backdrop-filter: blur(16px);
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: #6b4f7e;
+    box-shadow: 0 8px 24px -8px rgba(255,93,162,0.18);
+}
+.tagline-card strong { color: HotPink; font-style: normal; }
+
+/* ── comparison table ── */
+.market-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.9rem; margin-top: 0.8rem;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(255,93,162,0.1);
+}
+.market-table thead tr { background: rgba(255,240,248,0.8); }
+.market-table th {
+    text-align: left; padding: 0.7rem 1rem;
+    font-weight: 700; font-size: 0.8rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: DarkMagenta;
+}
+.market-table td {
+    padding: 0.7rem 1rem;
+    border-top: 1px solid rgba(255,93,162,0.15);
+    color: #4a3560; vertical-align: top;
+    background: rgba(255,255,255,0.5);
+}
+.market-table tr:hover td { background: rgba(255,240,248,0.7); }
+
+/* ── cross-app footer ── */
+.app-footer {
+    border-top: 1px solid rgba(255,93,162,0.2);
+    background: rgba(255,240,248,0.6);
+    backdrop-filter: blur(16px);
+}
+
+/* top bar: back link + site name */
+.app-footer-top {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+    padding: 0.9rem 2rem;
+    border-bottom: 1px solid rgba(255,93,162,0.12);
+}
+.app-footer-top a {
+    color: HotPink; text-decoration: none; font-weight: 700;
+    font-size: 0.88rem; transition: color .2s;
+}
+.app-footer-top a:hover { color: DarkMagenta; }
+.app-footer-top .site-name {
+    font-size: 0.8rem; color: #a07090; letter-spacing: 0.04em;
+}
+
+/* four-column category grid */
+.app-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 900px; margin: 0 auto;
+    padding: 1.6rem 2rem 1.2rem;
+    gap: 1rem 2rem;
+}
+@media (max-width: 680px) {
+    .app-footer-grid { grid-template-columns: repeat(2, 1fr); padding: 1.2rem 1.5rem; }
+}
+@media (max-width: 380px) {
+    .app-footer-grid { grid-template-columns: 1fr; }
+}
+
+.app-footer-col h4 {
+    font-size: 0.7rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: DarkMagenta; margin: 0 0 0.55rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(255,93,162,0.2);
+}
+.app-footer-col ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 0.25rem;
+}
+.app-footer-col li { display: flex; align-items: center; gap: 0.35rem; }
+.app-footer-col a {
+    color: #6b4f7e; text-decoration: none;
+    font-size: 0.83rem; font-weight: 500;
+    transition: color .2s;
+}
+.app-footer-col a:hover { color: HotPink; }
+/* current page highlight */
+.app-footer-col a.active {
+    color: HotPink; font-weight: 700;
+}
+.app-footer-col a.active::before {
+    content: "●"; font-size: 0.45rem; color: HotPink;
+    vertical-align: middle; margin-right: 0.1rem;
+}
+
+/* bottom strip */
+.app-footer-bottom {
+    text-align: center; padding: 0.7rem 2rem;
+    font-size: 0.75rem; color: #a07090;
+    border-top: 1px solid rgba(255,93,162,0.1);
+}
+.app-footer-bottom a {
+    color: HotPink; text-decoration: none; font-weight: 600;
+}
+.app-footer-bottom a:hover { text-decoration: underline; }

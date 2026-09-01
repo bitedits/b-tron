@@ -1,0 +1,173 @@
+/* settings.css — shared styles for b-system/settings pages
+   Inherits ../../index.css (Barbie x Unicorn theme)
+   Single smooth curve background, slightly cooler rose-lavender for settings  */
+
+body {
+    background: linear-gradient(to bottom, #ede0f8, #c9b1ff) !important;
+}
+
+/* ── breadcrumb nav ── */
+.setting-nav {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(237,224,248,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(174,109,255,0.25);
+    padding: 0.85rem 2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.9rem; font-weight: 600;
+}
+.setting-nav a { color: #6b4f7e; text-decoration: none; transition: color .2s; }
+.setting-nav a:hover { color: DarkMagenta; }
+.setting-nav .sep { color: rgba(174,109,255,0.4); margin: 0 0.15rem; }
+.setting-nav .current { color: DarkMagenta; font-weight: 700; }
+
+/* ── hero band ── */
+.setting-hero {
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid rgba(174,109,255,0.2);
+    background: rgba(237,224,248,0.65);
+    backdrop-filter: blur(16px);
+}
+.setting-hero-icon { font-size: 4rem; line-height: 1; margin-bottom: 0.8rem; }
+.setting-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+    background: linear-gradient(135deg, #a855f7, DarkMagenta);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.setting-hero-badge {
+    display: inline-block;
+    font-size: 0.85rem; font-weight: 700;
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(174,109,255,0.45);
+    color: DarkMagenta;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+    margin-bottom: 0.9rem;
+    box-shadow: 0 2px 10px rgba(174,109,255,0.15);
+}
+.setting-hero .subtitle { font-size: 1.05rem; color: #7c5cbf; font-weight: 500; }
+
+/* ── page content ── */
+.setting-content {
+    max-width: 900px; margin: 0 auto; padding: 3rem 2rem 5rem;
+}
+.back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: #a855f7; font-weight: 600; font-size: 0.88rem;
+    text-decoration: none; margin-bottom: 2.5rem; transition: color .2s;
+}
+.back-link:hover { color: DarkMagenta; text-decoration: underline; }
+
+/* ── tagline card ── */
+.tagline-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(174,109,255,0.3);
+    border-radius: 16px; padding: 1.4rem 1.8rem;
+    backdrop-filter: blur(16px); margin-bottom: 2rem;
+    font-size: 1.05rem; font-style: italic; color: #6b4f7e;
+    box-shadow: 0 8px 24px -8px rgba(174,109,255,0.15);
+}
+.tagline-card strong { color: DarkMagenta; font-style: normal; }
+
+/* ── sections ── */
+.setting-content .section { margin-bottom: 2.8rem; }
+.setting-content .section h2 {
+    font-size: 1.35rem; font-weight: 700;
+    text-align: left; margin: 0 0 0.8rem;
+    color: DarkMagenta;
+    background: none; -webkit-text-fill-color: unset;
+    padding-left: 0.85rem;
+    border-left: 4px solid #a855f7;
+}
+.setting-content .section p {
+    color: #4a3560; line-height: 1.75; margin: 0; padding-top: 0;
+}
+
+/* ── jp description block ── */
+.setting-desc-jp {
+    font-size: 0.95rem; color: #1e293b; line-height: 1.8;
+    background: rgba(255,255,255,0.55);
+    border-left: 3px solid #a855f7;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 0.8rem; backdrop-filter: blur(8px);
+}
+
+/* ── feature list ── */
+.setting-features {
+    list-style: none; padding: 0; margin: 0.6rem 0 0;
+    display: flex; flex-direction: column; gap: 0.45rem;
+}
+.setting-features li {
+    font-size: 0.93rem; color: #4a3560;
+    display: flex; align-items: flex-start; gap: 0.45rem;
+}
+.setting-features li::before {
+    content: "◆"; color: #a855f7;
+    font-size: 0.65rem; margin-top: 0.32rem; flex-shrink: 0;
+}
+
+/* ── related apps chips ── */
+.related-apps {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem;
+}
+.related-apps a {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(174,109,255,0.35);
+    border-radius: 999px; padding: 0.25rem 0.75rem;
+    font-size: 0.82rem; font-weight: 600; color: DarkMagenta;
+    text-decoration: none; transition: all .2s;
+    backdrop-filter: blur(6px);
+}
+.related-apps a:hover { background: rgba(174,109,255,0.15); border-color: #a855f7; }
+
+/* ── footer ── */
+.setting-footer {
+    border-top: 1px solid rgba(174,109,255,0.2);
+    background: rgba(237,224,248,0.55);
+    backdrop-filter: blur(16px);
+}
+.setting-footer-top {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+    padding: 0.9rem 2rem;
+    border-bottom: 1px solid rgba(174,109,255,0.12);
+}
+.setting-footer-top a { color: #a855f7; text-decoration: none; font-weight: 700; font-size: 0.88rem; transition: color .2s; }
+.setting-footer-top a:hover { color: DarkMagenta; }
+.setting-footer-top .site-name { font-size: 0.8rem; color: #a07090; letter-spacing: 0.04em; }
+
+.setting-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 860px; margin: 0 auto;
+    padding: 1.4rem 2rem 1rem;
+    gap: 0.8rem 1.2rem;
+}
+@media (max-width: 680px) { .setting-footer-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 360px) { .setting-footer-grid { grid-template-columns: 1fr; } }
+
+.setting-footer-grid a {
+    display: flex; align-items: center; gap: 0.35rem;
+    color: #6b4f7e; text-decoration: none;
+    font-size: 0.82rem; font-weight: 500; transition: color .2s;
+}
+.setting-footer-grid a:hover { color: #a855f7; }
+.setting-footer-grid a.active { color: DarkMagenta; font-weight: 700; }
+.setting-footer-grid a.active::before {
+    content: "●"; font-size: 0.4rem; color: #a855f7;
+    vertical-align: middle;
+}
+
+.setting-footer-bottom {
+    text-align: center; padding: 0.7rem 2rem;
+    font-size: 0.75rem; color: #a07090;
+    border-top: 1px solid rgba(174,109,255,0.1);
+}
