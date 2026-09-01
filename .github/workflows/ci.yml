@@ -69,6 +69,10 @@ jobs:
         run: |
           make test-kernel
 
+      - name: Run BTRON 3.20 Conformance Audit Test
+        run: |
+          make verify
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
