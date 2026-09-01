@@ -428,11 +428,13 @@
 
         <!-- Certification Verdict -->
         <section id="verdict" class="verdict-box">
-            <h2 style="color: var(--tron-blue); margin-bottom: 1rem;">Formal Certification Verdict</h2>
+            <h2 style="color: var(--tron-blue); margin-bottom: 1rem;">Audit Protocol of Aprobation</h2>
             <div style="font-family: 'JetBrains Mono', monospace; background: #212529; color: #f8f9fa; padding: 1.5rem; border-radius: 10px; line-height: 1.7; font-size: 0.95rem; overflow-x: auto;">
 <pre>
+./verify/btron_verify
+
 ==========================================================================
-       BTRON 3.20 + HMI FULL SPECIFICATION CONFORMANCE AUDIT MATRIX
+       BTRON 3.20 + HMI FULL SPECIFICATION CONFORMANCE AUDIT MATRIX       
 ==========================================================================
 Subsystem / Suite          | Total |  PASS |  FAILED |   Rate
 ---------------------------+-------+-------+---------+---------
@@ -440,7 +442,7 @@ Types                      |    28 |    28 |       0 | 100.0%
 ErrorCodes                 |    34 |    34 |       0 | 100.0%
 Process                    |    11 |    11 |       0 | 100.0%
 uITRON                     |    13 |    13 |       0 | 100.0%
-Memory                     |    21 |    21 |       0 | 100.0%
+Memory                     |    21 |    20 |       1 |  95.2%
 Clock                      |    16 |    16 |       0 | 100.0%
 Device                     |    16 |    16 |       0 | 100.0%
 FileSystem                 |    24 |    24 |       0 | 100.0%
@@ -454,11 +456,432 @@ FontManager                |    24 |    11 |      13 |  45.8%
 TCPIP                      |    25 |    13 |      12 |  52.0%
 ObjectManager              |    24 |     9 |      15 |  37.5%
 ==========================================================================
-OVERALL CONFORMANCE        |   410 |   370 |      40 |  90.2%
+OVERALL CONFORMANCE        |   410 |   369 |      41 |  90.0%
 --------------------------------------------------------------------------
-  Passed Clauses  [PASS] : 370 / 410  ( 90.2%)
-  Failed Clauses  [FAIL] :  40 / 410  (  9.8%)
+  Passed Clauses  [PASS] : 369 / 410  ( 90.0%)
+  Failed Clauses  [FAIL] :  41 / 410  ( 10.0%)
 ==========================================================================
+
+==========================================================================
+           BTRON 3.20 SPECIFICATION ENTITY & CLAUSE VERIFIER             
+==========================================================================
+Subsystem            | Entity / Clause                  | Result | Diagnostic
+---------------------+----------------------------------+--------+-----------
+Types                | sizeof(B)                        | PASS   | 
+Types                | sizeof(H)                        | PASS   | 
+Types                | sizeof(W)                        | PASS   | 
+Types                | sizeof(D)                        | PASS   | 
+Types                | sizeof(UB)                       | PASS   | 
+Types                | sizeof(UH)                       | PASS   | 
+Types                | sizeof(UW)                       | PASS   | 
+Types                | sizeof(UD)                       | PASS   | 
+Types                | sizeof(VP)==sizeof(void*)        | PASS   | 
+Types                | sizeof(VW)==sizeof(void*)        | PASS   | 
+Types                | sizeof(ID)                       | PASS   | 
+Types                | sizeof(ER)                       | PASS   | 
+Types                | sizeof(BOOL)                     | PASS   | 
+Types                | sizeof(TC)                       | PASS   | 
+Types                | sizeof(COLOR)                    | PASS   | 
+Types                | sizeof(PNT)                      | PASS   | 
+Types                | sizeof(RECT)                     | PASS   | 
+Types                | sizeof(PAT)                      | PASS   | 
+Types                | B is signed                      | PASS   | 
+Types                | H is signed                      | PASS   | 
+Types                | W is signed                      | PASS   | 
+Types                | D is signed                      | PASS   | 
+Types                | UB is unsigned                   | PASS   | 
+Types                | UH is unsigned                   | PASS   | 
+Types                | UW is unsigned                   | PASS   | 
+Types                | UD is unsigned                   | PASS   | 
+Types                | TRUE==1                          | PASS   | 
+Types                | FALSE==0                         | PASS   | 
+ErrorCodes           | E_OK                             | PASS   | 
+ErrorCodes           | E_SYS                            | PASS   | 
+ErrorCodes           | E_NOMEM                          | PASS   | 
+ErrorCodes           | E_NOSPT                          | PASS   | 
+ErrorCodes           | E_RSVR                           | PASS   | 
+ErrorCodes           | E_PAR                            | PASS   | 
+ErrorCodes           | E_LIMIT                          | PASS   | 
+ErrorCodes           | E_ID                             | PASS   | 
+ErrorCodes           | E_OBJ                            | PASS   | 
+ErrorCodes           | E_NOEXS                          | PASS   | 
+ErrorCodes           | E_BUSY                           | PASS   | 
+ErrorCodes           | E_TMOUT                          | PASS   | 
+ErrorCodes           | ER_ADR                           | PASS   | 
+ErrorCodes           | ER_NOSPC                         | PASS   | 
+ErrorCodes           | ER_ACCES                         | PASS   | 
+ErrorCodes           | ER_IO                            | PASS   | 
+ErrorCodes           | ER_DID                           | PASS   | 
+ErrorCodes           | ER_ROVR                          | PASS   | 
+ErrorCodes           | ER_DLT                           | PASS   | 
+ErrorCodes           | ER_CTX                           | PASS   | 
+ErrorCodes           | ER_FD                            | PASS   | 
+ErrorCodes           | ER_NOFS                          | PASS   | 
+ErrorCodes           | ER_NODSK                         | PASS   | 
+ErrorCodes           | ER_RONLY                         | PASS   | 
+ErrorCodes           | ER_FNAME                         | PASS   | 
+ErrorCodes           | ER_EXS                           | PASS   | 
+ErrorCodes           | ER_PWD                           | PASS   | 
+ErrorCodes           | ER_PERM                          | PASS   | 
+ErrorCodes           | ER_OVRW                          | PASS   | 
+ErrorCodes           | ER_OVVR                          | PASS   | 
+ErrorCodes           | ER_TIMEOUT                       | PASS   | 
+ErrorCodes           | ER_OK==E_OK                      | PASS   | 
+ErrorCodes           | ER_PAR==E_PAR                    | PASS   | 
+ErrorCodes           | ER_TMOUT==E_TMOUT                | PASS   | 
+Process              | sizeof(P_USER)>0                 | PASS   | 
+Process              | sizeof(LINK)>0                   | PASS   | 
+Process              | cre_prc(valid)>0                 | PASS   | 
+Process              | cre_prc launch msg               | PASS   | 
+Process              | chg_pri(valid)                   | PASS   | 
+Process              | ter_prc(valid)                   | PASS   | 
+Process              | ter_prc(already_dead)            | PASS   | 
+Process              | cre_prc(bad_pri)                 | PASS   | 
+Process              | ter_prc(bad_pid)                 | PASS   | 
+Process              | get_tid()                        | PASS   | 
+Process              | get_pid()                        | PASS   | 
+uITRON               | sizeof(T_CTSK)                   | PASS   | 
+uITRON               | sizeof(T_CSEM)                   | PASS   | 
+uITRON               | sizeof(ATR)                      | PASS   | 
+uITRON               | sizeof(PRI)                      | PASS   | 
+uITRON               | sizeof(SYSTIME)                  | PASS   | 
+uITRON               | TMO_POL                          | PASS   | 
+uITRON               | TMO_FEVR                         | PASS   | 
+uITRON               | cre_tsk(valid)>0                 | PASS   | 
+uITRON               | cre_sem(valid)>0                 | PASS   | 
+uITRON               | sig_sem(valid)                   | PASS   | 
+uITRON               | del_sem(valid)                   | PASS   | 
+uITRON               | get_tim(valid)                   | PASS   | 
+uITRON               | get_tim returns value            | PASS   | 
+Memory               | M_LOCAL                          | PASS   | 
+Memory               | M_COMMON                         | PASS   | 
+Memory               | M_SYSTEM                         | PASS   | 
+Memory               | M_RESIDENT                       | PASS   | 
+Memory               | DELEXIT                          | PASS   | 
+Memory               | M_READ                           | PASS   | 
+Memory               | M_WRITE                          | PASS   | 
+Memory               | M_EXEC                           | PASS   | 
+Memory               | sizeof(M_STATE)>0                | PASS   | 
+Memory               | get_mbk(valid)                   | PASS   | 
+Memory               | get_mbk adr!=NULL                | PASS   | 
+Memory               | memory write/read byte 0         | PASS   | 
+Memory               | memory write/read byte 8191      | PASS   | 
+Memory               | ref_mbk(valid)                   | PASS   | 
+Memory               | ref_mbk total blocks             | PASS   | 
+Memory               | chg_mbk(valid)                   | PASS   | 
+Memory               | rel_mbk(valid)                   | FAIL   | expected 0, got -33
+Memory               | rel_mbk(double)                  | PASS   | 
+Memory               | get_mbk(NULL adr)                | PASS   | 
+Memory               | get_mbk(nblk=0)                  | PASS   | 
+Memory               | rel_mbk(NULL)                    | PASS   | 
+Clock                | sizeof(STIME)>0                  | PASS   | 
+Clock                | sizeof(TIMEZONE)>0               | PASS   | 
+Clock                | sizeof(DATE_TIM)>0               | PASS   | 
+Clock                | get_tod(valid)                   | PASS   | 
+Clock                | dt.year >= 2020                  | PASS   | 
+Clock                | dt.month >= 1                    | PASS   | 
+Clock                | dt.month <= 12                   | PASS   | 
+Clock                | dt.day >= 1                      | PASS   | 
+Clock                | dt.day <= 31                     | PASS   | 
+Clock                | dt.hour >= 0                     | PASS   | 
+Clock                | dt.hour <= 23                    | PASS   | 
+Clock                | set_tod(valid)                   | PASS   | 
+Clock                | set_tod(bad_year)                | PASS   | 
+Clock                | get_tim_btron(valid)             | PASS   | 
+Clock                | st > 0                           | PASS   | 
+Clock                | get_tim_btron(NULL)              | PASS   | 
+Device               | sizeof(DEV_STAT)>0               | PASS   | 
+Device               | sizeof(DEV_REQ)>0                | PASS   | 
+Device               | opn_dev_mgr(valid)>0             | PASS   | 
+Device               | wri_dev(valid)                   | PASS   | 
+Device               | wri_dev wrote bytes              | PASS   | 
+Device               | ref_dev(valid)                   | PASS   | 
+Device               | stat.mode                        | PASS   | 
+Device               | rea_dev(valid)                   | PASS   | 
+Device               | rea_dev count                    | PASS   | 
+Device               | rea_dev round-trip               | PASS   | 
+Device               | ctl_dev(FLUSH)                   | PASS   | 
+Device               | wai_dev(valid)                   | PASS   | 
+Device               | cls_dev_mgr(valid)               | PASS   | 
+Device               | cls_dev_mgr(double)              | PASS   | 
+Device               | opn_dev_mgr(NULL)                | PASS   | 
+Device               | cls_dev_mgr(bad_did)             | PASS   | 
+FileSystem           | sizeof(DIR_ENTRY)>0              | PASS   | 
+FileSystem           | sizeof(VOL_INFO)>0               | PASS   | 
+FileSystem           | cre_fil(valid)>0                 | PASS   | 
+FileSystem           | chg_fil(valid)                   | PASS   | 
+FileSystem           | opn_rec(valid)>0                 | PASS   | 
+FileSystem           | wr_rec(valid)                    | PASS   | 
+FileSystem           | wr_rec wrote bytes               | PASS   | 
+FileSystem           | pos_rec(valid)                   | PASS   | 
+FileSystem           | rd_rec(valid)                    | PASS   | 
+FileSystem           | rd_rec read bytes                | PASS   | 
+FileSystem           | rd_rec round-trip                | PASS   | 
+FileSystem           | trn_rec(valid)                   | PASS   | 
+FileSystem           | cls_rec(valid)                   | PASS   | 
+FileSystem           | ins_rec(valid)                   | PASS   | 
+FileSystem           | del_rec(valid)                   | PASS   | 
+FileSystem           | cls_fil(valid)                   | PASS   | 
+FileSystem           | mov_fil(valid)                   | PASS   | 
+FileSystem           | del_fil(valid)                   | PASS   | 
+FileSystem           | opn_dir(valid)>0                 | PASS   | 
+FileSystem           | rd_dir(valid)                    | PASS   | 
+FileSystem           | entry.name                       | PASS   | 
+FileSystem           | cre_lnk(valid)                   | PASS   | 
+FileSystem           | ref_vol(valid)                   | PASS   | 
+FileSystem           | vinfo.block_size==4096           | PASS   | 
+SysMgmt              | def_exc(valid)                   | PASS   | 
+SysMgmt              | def_exc(bad_code)                | PASS   | 
+SysMgmt              | ret_exc()                        | PASS   | 
+SysMgmt              | get_cnf(SYS_NAME)                | PASS   | 
+SysMgmt              | sys_name length > 0              | PASS   | 
+SysMgmt              | get_cnf(MAX_PROCS)               | PASS   | 
+SysMgmt              | procs > 0                        | PASS   | 
+SysMgmt              | set_cnf(MAX_PROCS)               | PASS   | 
+SysMgmt              | get_cnf verified                 | PASS   | 
+Message              | MS_ABORT                         | PASS   | 
+Message              | MS_EXIT                          | PASS   | 
+Message              | MS_TERM                          | PASS   | 
+Message              | MS_TMOUT                         | PASS   | 
+Message              | MS_SYSEVT                        | PASS   | 
+Message              | MS_TYPE1                         | PASS   | 
+Message              | MS_TYPE7                         | PASS   | 
+Message              | MSGMASK(1)                       | PASS   | 
+Message              | MSGMASK(5)                       | PASS   | 
+Message              | MSGMASK(31)                      | PASS   | 
+Message              | sizeof(MSGBODY)>0                | PASS   | 
+Message              | sizeof(MESSAGE)>0                | PASS   | 
+Message              | snd_msg(valid)                   | PASS   | 
+Message              | chk_msg(found)                   | PASS   | 
+Message              | chk_msg.type                     | PASS   | 
+Message              | chk_msg payload                  | PASS   | 
+Message              | chk_msg(empty)                   | PASS   | 
+Message              | snd_msg(NULL)                    | PASS   | 
+Message              | snd_msg(bad_pid)                 | PASS   | 
+Message              | rcv_msg(NULL)                    | PASS   | 
+Message              | EV_NONE                          | PASS   | 
+Message              | EV_BUT_DOWN                      | PASS   | 
+Message              | EV_KEY_DOWN                      | PASS   | 
+Message              | BTRON_KEY_RETURN                 | PASS   | 
+VirtualObject        | VOBJ_TYPE_TEXT                   | PASS   | 
+VirtualObject        | VOBJ_TYPE_DRAW                   | PASS   | 
+VirtualObject        | VOBJ_TYPE_EXEC                   | PASS   | 
+VirtualObject        | VOBJ_TYPE_FOLDER                 | PASS   | 
+VirtualObject        | VOBJ_TYPE_TERMINAL               | PASS   | 
+VirtualObject        | sizeof(ROBJ)>0                   | PASS   | 
+VirtualObject        | sizeof(VOBJ_LINK)>0              | PASS   | 
+VirtualObject        | init_vobj_sys(valid)             | PASS   | 
+VirtualObject        | cre_robj(valid)                  | PASS   | 
+VirtualObject        | robj->robj_id>0                  | PASS   | 
+VirtualObject        | robj->type                       | PASS   | 
+VirtualObject        | wr_vobj_data(valid)              | PASS   | 
+VirtualObject        | robj->size                       | PASS   | 
+VirtualObject        | rd_vobj_data(valid)              | PASS   | 
+VirtualObject        | rd_vobj_data len>0               | PASS   | 
+VirtualObject        | wr_vobj_data(NULL)               | PASS   | 
+VirtualObject        | rd_vobj_data(NULL)               | PASS   | 
+VirtualObject        | cls_robj(valid)                  | PASS   | 
+VirtualObject        | opn_robj(bad_id)                 | PASS   | 
+VirtualObject        | cre_vobj_link(valid)             | PASS   | 
+VirtualObject        | link->pos.x                      | PASS   | 
+VirtualObject        | link->pos.y                      | PASS   | 
+DisplayPrim          | ROP_COPY                         | PASS   | 
+DisplayPrim          | ROP_OR                           | PASS   | 
+DisplayPrim          | ROP_XOR                          | PASS   | 
+DisplayPrim          | ROP_AND                          | PASS   | 
+DisplayPrim          | ROP_INVERT                       | PASS   | 
+DisplayPrim          | COLOR_BLACK                      | PASS   | 
+DisplayPrim          | COLOR_WHITE                      | PASS   | 
+DisplayPrim          | COLOR_TEAL                       | PASS   | 
+DisplayPrim          | COLOR_NAVY                       | PASS   | 
+DisplayPrim          | sizeof(GDEV)>0                   | PASS   | 
+DisplayPrim          | opn_dev(0,0)                     | PASS   | 
+DisplayPrim          | opn_dev(320,240)                 | PASS   | 
+DisplayPrim          | dev->width                       | PASS   | 
+DisplayPrim          | dev->height                      | PASS   | 
+DisplayPrim          | dev->pixels                      | PASS   | 
+DisplayPrim          | fill_rec(valid)                  | PASS   | 
+DisplayPrim          | fill_rec pixel                   | PASS   | 
+DisplayPrim          | drw_lin(valid)                   | PASS   | 
+DisplayPrim          | drw_rec(valid)                   | PASS   | 
+DisplayPrim          | drw_pnt(valid)                   | PASS   | 
+DisplayPrim          | set_col(valid)                   | PASS   | 
+DisplayPrim          | set_pat(valid)                   | PASS   | 
+DisplayPrim          | set_clip.left                    | PASS   | 
+DisplayPrim          | set_clip.right                   | PASS   | 
+DisplayPrim          | cls_dev(valid)                   | PASS   | 
+DisplayPrim          | cls_dev(NULL)                    | PASS   | 
+DisplayPrim          | opn_dev_vram(64,64)              | PASS   | 
+DisplayPrim          | vram_dev->pixels==buf            | PASS   | 
+WindowMgr            | WND_ATTR_TITLE                   | PASS   | 
+WindowMgr            | WND_ATTR_CLOSE                   | PASS   | 
+WindowMgr            | WND_ATTR_MAX                     | PASS   | 
+WindowMgr            | WND_ATTR_RESIZE                  | PASS   | 
+WindowMgr            | WND_ATTR_BORDER                  | PASS   | 
+WindowMgr            | WND_ATTR_COMPACT_TAB             | PASS   | 
+WindowMgr            | WND_ATTR_SLIDING_TAB             | PASS   | 
+WindowMgr            | sizeof(WND)>0                    | PASS   | 
+WindowMgr            | init_wnd_mgr(NULL)               | PASS   | 
+WindowMgr            | screen_dev                       | PASS   | 
+WindowMgr            | init_wnd_mgr(valid)              | PASS   | 
+WindowMgr            | opn_wnd(w1)                      | PASS   | 
+WindowMgr            | opn_wnd(w2)                      | PASS   | 
+WindowMgr            | w1->bounds.left                  | PASS   | 
+WindowMgr            | w1->bounds.top                   | PASS   | 
+WindowMgr            | w1->bounds.right                 | PASS   | 
+WindowMgr            | w1->bounds.bottom                | PASS   | 
+WindowMgr            | get_top_wnd==w2                  | PASS   | 
+WindowMgr            | top_wnd(w1)                      | PASS   | 
+WindowMgr            | top_wnd w1 is top                | PASS   | 
+WindowMgr            | mov_wnd(w1, 80, 90)              | PASS   | 
+WindowMgr            | w1 moved left                    | PASS   | 
+WindowMgr            | w1 moved top                     | PASS   | 
+WindowMgr            | rsz_wnd(w1, 300, 200)            | PASS   | 
+WindowMgr            | w1 width resized                 | PASS   | 
+WindowMgr            | w1 height resized                | PASS   | 
+WindowMgr            | find_wnd_at inside w1            | PASS   | 
+WindowMgr            | wget_tab_rect                    | PASS   | 
+WindowMgr            | inval_wnd(w1)                    | PASS   | 
+WindowMgr            | redraw_all_windows()             | PASS   | 
+WindowMgr            | cls_wnd(w1)                      | PASS   | 
+WindowMgr            | cls_wnd(w2)                      | PASS   | 
+WindowMgr            | cls_wnd(NULL)                    | PASS   | 
+HMI                  | HMI_TYPE_NONE                    | PASS   | 
+HMI                  | HMI_TYPE_PUSH_SWITCH             | PASS   | 
+HMI                  | HMI_TYPE_TOGGLE_SWITCH           | PASS   | 
+HMI                  | HMI_TYPE_STANDARD_TRIAD          | PASS   | 
+HMI                  | HMI_TYPE_UPDOWN_SELECTOR         | PASS   | 
+HMI                  | HMI_TYPE_RADIO_SELECTOR          | PASS   | 
+HMI                  | HMI_TYPE_ROTARY_SELECTOR         | PASS   | 
+HMI                  | HMI_TYPE_SLIDER_VOLUME           | PASS   | 
+HMI                  | HMI_TYPE_DIAL_VOLUME             | PASS   | 
+HMI                  | HMI_TYPE_BAR_METER               | PASS   | 
+HMI                  | HMI_TYPE_STATUS_LED              | PASS   | 
+HMI                  | HMI_TYPE_DIGITAL_DISPLAY         | PASS   | 
+HMI                  | HMI_TYPE_UNIVERSAL_PAD           | PASS   | 
+HMI                  | HMI_TRIGGER_TOUCH_EDGE           | PASS   | 
+HMI                  | HMI_TRIGGER_RELEASE_EDGE         | PASS   | 
+HMI                  | HMI_LED_OFF                      | PASS   | 
+HMI                  | HMI_LED_GREEN                    | PASS   | 
+HMI                  | HMI_LED_YELLOW                   | PASS   | 
+HMI                  | HMI_LED_RED                      | PASS   | 
+HMI                  | HMI_KEY_NONE                     | PASS   | 
+HMI                  | HMI_KEY_PREV_ITEM                | PASS   | 
+HMI                  | HMI_KEY_NEXT_ITEM                | PASS   | 
+HMI                  | HMI_KEY_DEC_VALUE                | PASS   | 
+HMI                  | HMI_KEY_INC_VALUE                | PASS   | 
+HMI                  | HMI_KEY_EXECUTE                  | PASS   | 
+HMI                  | HMI_KEY_CANCEL                   | PASS   | 
+HMI                  | HMI_KEY_COMMAND                  | PASS   | 
+HMI                  | HMI_STATE_ACTIVE                 | PASS   | 
+HMI                  | HMI_STATE_FOCUSED                | PASS   | 
+HMI                  | HMI_STATE_PRESSED                | PASS   | 
+HMI                  | HMI_STATE_DISABLED               | PASS   | 
+HMI                  | HMI_STATE_CHECKED                | PASS   | 
+HMI                  | HMI_STATE_ENABLEWARE             | PASS   | 
+HMI                  | sizeof(HMI_CTRL)>0               | PASS   | 
+HMI                  | sizeof(HMI_PANEL)>0              | PASS   | 
+HMI                  | hmi_init_panel(valid)            | PASS   | 
+HMI                  | panel.num_controls               | PASS   | 
+HMI                  | hmi_init_panel(NULL)             | PASS   | 
+HMI                  | hmi_add_push_switch              | PASS   | 
+HMI                  | panel.num_controls after btn     | PASS   | 
+HMI                  | hmi_add_toggle_switch            | PASS   | 
+HMI                  | hmi_add_standard_triad           | PASS   | 
+HMI                  | hmi_add_updown_selector          | PASS   | 
+HMI                  | hmi_add_radio_selector           | PASS   | 
+HMI                  | hmi_add_slider_volume            | PASS   | 
+HMI                  | hmi_add_dial_volume              | PASS   | 
+HMI                  | hmi_add_bar_meter                | PASS   | 
+HMI                  | hmi_add_status_led               | PASS   | 
+HMI                  | hmi_add_rotary_selector          | PASS   | 
+HMI                  | hmi_add_universal_pad            | PASS   | 
+HMI                  | hmi_set_focus(0)                 | PASS   | 
+HMI                  | panel.focused_index              | PASS   | 
+HMI                  | hmi_focus_next                   | PASS   | 
+HMI                  | panel.focused_index after next   | PASS   | 
+HMI                  | hmi_focus_prev                   | PASS   | 
+HMI                  | panel.focused_index after prev   | PASS   | 
+HMI                  | hmi_handle_universal_key(NEXT)   | PASS   | 
+HMI                  | hmi_draw_panel(valid)            | PASS   | 
+FontManager          | sizeof(FDEF)>0                   | PASS   | 
+FontManager          | sizeof(FSSPEC)>0                 | PASS   | 
+FontManager          | sizeof(FCDATA)>0                 | PASS   | 
+FontManager          | sizeof(FDATA)>0                  | PASS   | 
+FontManager          | sizeof(FLIST)>0                  | PASS   | 
+FontManager          | sizeof(FNTINFO)>0                | PASS   | 
+FontManager          | FT_MEM                           | PASS   | 
+FontManager          | FT_FILE                          | PASS   | 
+FontManager          | FTC_DEFAULT                      | PASS   | 
+FontManager          | FTC_MINCHO                       | PASS   | 
+FontManager          | FTC_GOTHIC                       | PASS   | 
+FontManager          | fopn_fon()                       | FAIL   | expected >= 0, got -17
+FontManager          | fdef_fnt()                       | FAIL   | expected >= 0, got -17
+FontManager          | fget_def()                       | FAIL   | expected 0, got -17
+FontManager          | fget_not()                       | FAIL   | expected >= 0, got -17
+FontManager          | flst_fon()                       | FAIL   | expected >= 0, got -17
+FontManager          | fset_fon()                       | FAIL   | expected 0, got -17
+FontManager          | fget_fon()                       | FAIL   | expected 0, got -17
+FontManager          | fset_ang()                       | FAIL   | expected 0, got -17
+FontManager          | fget_ang()                       | FAIL   | expected 90, got -17
+FontManager          | fget_fam()                       | FAIL   | expected >= 0, got -17
+FontManager          | fget_img()                       | FAIL   | expected >= 0, got -17
+FontManager          | fdel_fnt()                       | FAIL   | expected 0, got -17
+FontManager          | fcls_fon()                       | FAIL   | expected 0, got -17
+TCPIP                | sizeof(struct sockaddr)>0        | PASS   | 
+TCPIP                | sizeof(struct sockaddr_in)>0     | PASS   | 
+TCPIP                | sizeof(struct in_addr)>0         | PASS   | 
+TCPIP                | sizeof(struct hostent)>0         | PASS   | 
+TCPIP                | sizeof(struct servent)>0         | PASS   | 
+TCPIP                | sizeof(fd_set)>0                 | PASS   | 
+TCPIP                | sizeof(struct timeval)>0         | PASS   | 
+TCPIP                | PF_INET                          | PASS   | 
+TCPIP                | AF_INET                          | PASS   | 
+TCPIP                | SOCK_STREAM                      | PASS   | 
+TCPIP                | SOCK_DGRAM                       | PASS   | 
+TCPIP                | SOL_SOCKET                       | PASS   | 
+TCPIP                | TCP_NODELAY                      | PASS   | 
+TCPIP                | so_start()                       | FAIL   | expected 0, got -17
+TCPIP                | so_socket()                      | FAIL   | expected >= 0, got -17
+TCPIP                | so_bind()                        | FAIL   | expected 0, got -17
+TCPIP                | so_listen()                      | FAIL   | expected 0, got -17
+TCPIP                | so_connect()                     | FAIL   | expected 0, got -17
+TCPIP                | so_send()                        | FAIL   | expected >= 0, got -17
+TCPIP                | so_recv()                        | FAIL   | expected >= 0, got -17
+TCPIP                | so_select()                      | FAIL   | expected >= 0, got -17
+TCPIP                | so_gethostbyname()               | FAIL   | expected 0, got -17
+TCPIP                | so_gethostname()                 | FAIL   | expected 0, got -17
+TCPIP                | so_close()                       | FAIL   | expected 0, got -17
+TCPIP                | so_finish()                      | FAIL   | expected 0, got -17
+ObjectManager        | sizeof(VLINK)>0                  | PASS   | 
+ObjectManager        | sizeof(SEL_RGN)>0                | PASS   | 
+ObjectManager        | sizeof(SEL_LIST)>0               | PASS   | 
+ObjectManager        | V_NODISP                         | PASS   | 
+ObjectManager        | V_DISP                           | PASS   | 
+ObjectManager        | V_CHKDUP                         | PASS   | 
+ObjectManager        | V_NONAME                         | PASS   | 
+ObjectManager        | EX_VID                           | PASS   | 
+ObjectManager        | EX_WID                           | PASS   | 
+ObjectManager        | oreg_vob()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | b_odup_vob()                     | FAIL   | expected >= 0, got -17
+ObjectManager        | odsp_vob()                       | FAIL   | expected 0, got -17
+ObjectManager        | ofnd_vob()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | omov_vob()                       | FAIL   | expected 0, got -17
+ObjectManager        | orsz_vob()                       | FAIL   | expected 0, got -17
+ObjectManager        | onew_obj()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | ocre_obj()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | osta_prc()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | oend_prc()                       | FAIL   | expected 0, got -17
+ObjectManager        | oput_dat()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | oupd_fil()                       | FAIL   | expected 0, got -17
+ObjectManager        | odel_vob()                       | FAIL   | expected >= 0, got -17
+ObjectManager        | adsp_sel()                       | FAIL   | expected 0, got -17
+ObjectManager        | achg_bgc()                       | FAIL   | expected >= 0, got -17
+==========================================================================
+TOTAL CLAUSES: 410 | PASSED: 369 | FAILED: 41
+CERTIFICATION STATUS : L0 = PASS | L1 = CONDITIONAL | L2 = FAILED (41 failed clauses)
+==========================================================================
+
 </pre>
             </div>
         </section>
