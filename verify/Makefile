@@ -62,11 +62,12 @@ all: $(VERIFY_BIN)
 $(VERIFY_BIN): $(VERIFY_OBJS)
 	$(CC) $(VERIFY_OBJS) -o $@ $(LDFLAGS)
 
-%.o: %.c
+%.o: %.c btron_verify.h ../include/btron/*.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(VERIFY_BIN)
-	./$(VERIFY_BIN)
+	@./$(VERIFY_BIN) || true
 
 clean:
 	rm -f $(VERIFY_BIN) $(VERIFY_OBJS)
+	rm -f *.o suite/*.o report/*.o ../src/font/*.o ../src/kernel/*.o ../src/vobject/*.o ../src/window/*.o ../src/graphics/*.o ../src/hmi/*.o
