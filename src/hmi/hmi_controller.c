@@ -184,3 +184,27 @@ BOOL hmi_remote_hit_test(H rx, H ry, H x, H y, HMI_UNIVERSAL_KEY *out_key) {
 
     return FALSE;
 }
+
+HMI_CTRL* hmi_add_universal_pad(HMI_PANEL *p, ID id, H x, H y, H w, H h, HMI_CALLBACK cb) {
+    if (!p || p->num_controls >= HMI_PANEL_MAX_CTRLS) return NULL;
+
+    HMI_CTRL *c = &p->controls[p->num_controls++];
+    memset(c, 0, sizeof(HMI_CTRL));
+    c->id = id;
+    c->type = HMI_TYPE_UNIVERSAL_PAD;
+    c->bounds.left = x;
+    c->bounds.top = y;
+    c->bounds.right = x + w;
+    c->bounds.bottom = y + h;
+    c->flags = HMI_STATE_ACTIVE;
+    c->on_change = cb;
+    strncpy(c->label, "Universal Pad", sizeof(c->label) - 1);
+    return c;
+}
+
+void hmi_draw_universal_pad(GDEV *dev, const HMI_CTRL *ctrl) {
+    if (!dev || !ctrl) return;
+    H w = ctrl->bounds.right - ctrl->bounds.left;
+    H h = ctrl->bounds.bottom - ctrl->bounds.top;
+    hmi_draw_universal_remote(dev, ctrl->bounds.left, ctrl->bounds.top, w, h, HMI_KEY_NONE);
+}

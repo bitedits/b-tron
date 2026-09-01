@@ -123,3 +123,28 @@ void hmi_draw_radio_selector(GDEV *dev, const HMI_CTRL *ctrl) {
         }
     }
 }
+
+HMI_CTRL* hmi_add_rotary_selector(HMI_PANEL *p, ID id, const char *label, H x, H y, H w, H h, int num_positions, int init_pos, HMI_CALLBACK cb) {
+    if (!p || p->num_controls >= HMI_PANEL_MAX_CTRLS) return NULL;
+
+    HMI_CTRL *c = &p->controls[p->num_controls++];
+    memset(c, 0, sizeof(HMI_CTRL));
+    c->id = id;
+    c->type = HMI_TYPE_ROTARY_SELECTOR;
+    c->bounds.left = x;
+    c->bounds.top = y;
+    c->bounds.right = x + w;
+    c->bounds.bottom = y + h;
+    c->flags = HMI_STATE_ACTIVE;
+    c->num_options = (num_positions > 0 && num_positions <= 16) ? num_positions : 4;
+    c->val = (init_pos >= 0 && init_pos < c->num_options) ? init_pos : 0;
+    c->on_change = cb;
+    if (label) strncpy(c->label, label, sizeof(c->label) - 1);
+    return c;
+}
+
+void hmi_draw_rotary_selector(GDEV *dev, const HMI_CTRL *ctrl) {
+    if (!dev || !ctrl) return;
+    fill_rec(dev, &ctrl->bounds, COLOR_LTGRAY);
+    drw_rec(dev, &ctrl->bounds);
+}

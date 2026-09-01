@@ -192,3 +192,42 @@ ER get_evt(EVT *p_evt, W timeout_ms) {
     p_evt->type = EV_NONE;
     return E_TMOUT;
 }
+
+ER clr_evt(UW mask) {
+    if (mask == 0) return E_OK;
+    int new_count = 0;
+    EVT temp[EVENT_QUEUE_SIZE];
+
+    for (int i = 0; i < g_q_count; i++) {
+        int idx = (g_q_head + i) % EVENT_QUEUE_SIZE;
+        if (!(mask & EV_MASK(g_queue[idx].type))) {
+            temp[new_count++] = g_queue[idx];
+        }
+    }
+
+    for (int i = 0; i < new_count; i++) {
+        g_queue[i] = temp[i];
+    }
+    g_q_head = 0;
+    g_q_tail = new_count % EVENT_QUEUE_SIZE;
+    g_q_count = new_count;
+    return E_OK;
+}
+
+ER pke_evt(EVT *p_evt, UW mask) {
+    if (!p_evt) return E_PAR;
+    for (int i = 0; i < g_q_count; i++) {
+        int idx = (g_q_head + i) % EVENT_QUEUE_SIZE;
+        if ((mask == 0) || (mask & EV_MASK(g_queue[idx].type))) {
+            *p_evt = g_queue[idx];
+            return E_OK;
+        }
+    }
+    return E_NOEXS;
+}
+
+ER def_evt(W wndid, UW mask) {
+    (void)wndid;
+    (void)mask;
+    return E_OK;
+}

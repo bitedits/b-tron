@@ -1,4 +1,4 @@
-/*
+﻿/*
  * B-TRON HMI Standard Library: hmi.h
  * Component specification and API definitions based on TRON HMI Standard.
  *
@@ -145,6 +145,8 @@ HMI_CTRL* hmi_add_dial_volume(HMI_PANEL *p, ID id, const char *label, H x, H y, 
 HMI_CTRL* hmi_add_bar_meter(HMI_PANEL *p, ID id, const char *label, H x, H y, H w, H h, int min_v, int max_v);
 HMI_CTRL* hmi_add_status_led(HMI_PANEL *p, ID id, const char *label, H x, H y, HMI_LED_COLOR init_color);
 HMI_CTRL* hmi_add_digital_display(HMI_PANEL *p, ID id, const char *label, H x, H y, H w, H h, const char *init_text);
+HMI_CTRL* hmi_add_rotary_selector(HMI_PANEL *p, ID id, const char *label, H x, H y, H w, H h, int num_positions, int init_pos, HMI_CALLBACK cb);
+HMI_CTRL* hmi_add_universal_pad(HMI_PANEL *p, ID id, H x, H y, H w, H h, HMI_CALLBACK cb);
 
 /* ── Control Rendering Helpers ─────────────────────────────────── */
 void hmi_draw_push_switch(GDEV *dev, const HMI_CTRL *ctrl);
@@ -157,6 +159,8 @@ void hmi_draw_dial_volume(GDEV *dev, const HMI_CTRL *ctrl);
 void hmi_draw_bar_meter(GDEV *dev, const HMI_CTRL *ctrl);
 void hmi_draw_status_led(GDEV *dev, const HMI_CTRL *ctrl);
 void hmi_draw_digital_display(GDEV *dev, const HMI_CTRL *ctrl);
+void hmi_draw_rotary_selector(GDEV *dev, const HMI_CTRL *ctrl);
+void hmi_draw_universal_pad(GDEV *dev, const HMI_CTRL *ctrl);
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,7 @@ CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura arm-elf arm64-elf \
         html2tad tad_bin test test-kernel \
-        test-mozc test-editor test-hmi test-tad test-chat \
+        test-mozc test-editor test-hmi test-tad test-chat verify \
         run-posix run-qemu run-kernel debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
@@ -485,6 +485,9 @@ test-chat: $(TEST_CHAT_BIN)
 $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 	$(CC) $(TEST_CHAT_OBJS) -o $@ $(LDFLAGS) -lz
 
+
+verify:
+	@$(MAKE) -C verify run
 # ═══════════════════════════════════════════════════════════════════
 # Unified Test Suite Runner
 # ═══════════════════════════════════════════════════════════════════
@@ -497,6 +500,7 @@ test: test-kernel test-tad test-editor test-chat test-mozc test-hmi
 # Clean
 # ═══════════════════════════════════════════════════════════════════
 clean:
+	@$(MAKE) -C verify clean >/dev/null 2>&1 || true
 	rm -f *.toc
 	rm -f *.aux
 	rm -f *.log
