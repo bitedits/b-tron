@@ -15,7 +15,7 @@ TRON Trace Distribution uCode: https://trace.tron.org/tk/00001C00000000000000000
 * [T-Kernel 2.0](https://bitedits.github.io/btron/t-kernel/)
 
 NOTE: I can't include TRON HMI TAD book to build as it is copyright protected.
-You need to ask PMC to give me non-commercial permission to Ukrainian translation.
+You need to ask PMC to give me non-commercial permission to Ukrainian translation (that's only language I ask, but anyway you'll have pictures).
 
 ## Components
 
