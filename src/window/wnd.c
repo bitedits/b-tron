@@ -1,4 +1,4 @@
-/*
+﻿/*
  * B-System (BTRON 3.20) Window Manager: wnd.c
  * Sakamura style retro double-bordered windows and client region management.
  */
@@ -26,7 +26,7 @@ static WND *g_wnd_head = NULL;
 static ID g_next_wnd_id = 1;
 static GDEV *g_screen_dev = NULL;
 
-ER init_wnd_mgr(GDEV *screen_dev) {
+ER init_wnd_mgr(GDEV *screen_dev) { if (!screen_dev) return E_PAR;
     g_screen_dev = screen_dev;
     g_wnd_head = NULL;
     return E_OK;
