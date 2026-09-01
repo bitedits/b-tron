@@ -24,6 +24,9 @@ VERIFY_SRCS = btron_verify.c \
               suite/v_dp.c \
               suite/v_wnd.c \
               suite/v_hmi.c \
+              suite/v_font_mgr.c \
+              suite/v_tcpip.c \
+              suite/v_omgr.c \
               ../src/kernel/core_posix.c \
               ../src/kernel/ipc_msg.c \
               ../src/kernel/proc_mgr.c \
@@ -32,10 +35,12 @@ VERIFY_SRCS = btron_verify.c \
               ../src/kernel/dev_mgr.c \
               ../src/kernel/fs_record.c \
               ../src/kernel/sys_mgmt.c \
+              ../src/kernel/tcpip.c \
               ../src/window/event.c \
               ../src/graphics/dp_core.c \
               ../src/window/wnd.c \
               ../src/vobject/vobj.c \
+              ../src/vobject/omgr.c \
               ../src/hmi/hmi_core.c \
               ../src/hmi/hmi_switch.c \
               ../src/hmi/hmi_selector.c \
@@ -44,7 +49,8 @@ VERIFY_SRCS = btron_verify.c \
               ../src/hmi/hmi_controller.c \
               ../src/hmi/hmi_panel.c \
               ../src/font/troncode.c \
-              ../src/font/jis_fonts.c
+              ../src/font/jis_fonts.c \
+              ../src/font/font_mgr.c
 
 VERIFY_OBJS = $(VERIFY_SRCS:.c=.o)
 VERIFY_BIN = btron_verify

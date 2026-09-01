@@ -1,4 +1,4 @@
-﻿/*
+/*
  * BTRON 3.20 Conformance Verifier — Main Runner
  * btron_verify.c
  *
@@ -79,6 +79,9 @@ int main(int argc, char *argv[])
     vfy_register_suite("DisplayPrim",  vfy_suite_dp);
     vfy_register_suite("WindowMgr",    vfy_suite_wnd);
     vfy_register_suite("HMI",          vfy_suite_hmi);
+    vfy_register_suite("FontManager",  vfy_suite_font_mgr);
+    vfy_register_suite("TCPIP",        vfy_suite_tcpip);
+    vfy_register_suite("ObjectManager",vfy_suite_omgr);
 
     /* Run all suites */
     for (int i = 0; i < vfy_suite_count; i++) {

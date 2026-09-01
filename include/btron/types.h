@@ -34,6 +34,8 @@ typedef int8_t            VB;  /* Variable byte */
 /* TRON Object & System types */
 typedef int32_t           ID;  /* TRON Object ID */
 typedef int32_t           ER;  /* TRON Error Code */
+typedef ER                ERR; /* Alias for ER used in specification */
+typedef W                 WERR;/* Word or Error return type */
 typedef uint32_t          BOOL;/* Boolean value */
 typedef uint16_t          TC;  /* TRON Character Code (16-bit) */
 #ifndef _COLOR_DEFINED_

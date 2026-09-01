@@ -693,12 +693,124 @@ All drawing functions: clip to `dev->clip` silently; return `E_OK` on success, n
 | `rd_vobj_data` | `ER rd_vobj_data(ROBJ*, void *buf, UW len, UW *read_bytes)` | robj open; buf != NULL | data in buf | E_PAR | [IMPL] |
 | `wr_vobj_data` | `ER wr_vobj_data(ROBJ*, const void *buf, UW len)` | robj open; buf != NULL | data stored | E_PAR | [IMPL] |
 
-## 16. Conformance Summary
+## 16. Real & Virtual Object Manager API (OMGR)
 
-### By Subsystem
+**Normative source:** `doc/os_spec/shell/omgr.html` (`#ala`)  
+**Implementation:** `src/vobject/omgr.c` (stubs), `include/btron/omgr.h`
 
-| Subsystem | Total | IMPL | PARTIAL | MISSING | Conformance |
-|-----------|-------|------|---------|---------|-------------|
+### 16.1 Object Manager System Calls (§3.8.5)
+
+| Function | Synopsis | Status | Notes |
+|----------|----------|--------|-------|
+| `oreg_vob` | `VID oreg_vob(VLINK *vlnk, VP vseg, W wid, UW disp)` | [MISSING] | Stub returns E_NOSPT |
+| `b_odup_vob` | `VID b_odup_vob(W org)` | [MISSING] | Stub returns E_NOSPT |
+| `odel_vob` | `W odel_vob(W vid, W clr)` | [MISSING] | Stub returns E_NOSPT |
+| `ocls_wnd` | `ERR ocls_wnd(W wid)` | [MISSING] | Stub returns E_NOSPT |
+| `odsp_vob` | `ERR odsp_vob(W vid, UW disp)` | [MISSING] | Stub returns E_NOSPT |
+| `odsp_vor` | `ERR odsp_vor(W vid, RECT *r, UW disp)` | [MISSING] | Stub returns E_NOSPT |
+| `odra_vob` | `ERR odra_vob(W vid, GID gid, UW disp)` | [MISSING] | Stub returns E_NOSPT |
+| `odra_vor` | `ERR odra_vor(W vid, RECT *r, GID gid, UW disp)` | [MISSING] | Stub returns E_NOSPT |
+| `ofnd_vob` | `VID ofnd_vob(W wid, PNT pos)` | [MISSING] | Stub returns E_NOSPT |
+| `omov_vob` | `ERR omov_vob(W vid, PNT pos)` | [MISSING] | Stub returns E_NOSPT |
+| `orsz_vob` | `ERR orsz_vob(W vid, RECT *rect)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_chs` | `ERR ochg_chs(W vid, W chs)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_col` | `ERR ochg_col(W vid, COLOR col)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_nam` | `ERR ochg_nam(W vid, const TC *name)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_rel` | `ERR ochg_rel(W vid, const TC *rel)` | [MISSING] | Stub returns E_NOSPT |
+| `onew_obj` | `VID onew_obj(const TC *name, W type)` | [MISSING] | Stub returns E_NOSPT |
+| `ocre_obj` | `VID ocre_obj(const TC *name, W type, W wid)` | [MISSING] | Stub returns E_NOSPT |
+| `odsp_inf` | `ERR odsp_inf(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `odsk_inf` | `ERR odsk_inf(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oget_vob` | `ERR oget_vob(W vid, VLINK *vlnk)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_sts` | `ERR ochg_sts(W vid, UW sts)` | [MISSING] | Stub returns E_NOSPT |
+| `osta_prc` | `WERR osta_prc(W vid, W opt)` | [MISSING] | Stub returns E_NOSPT |
+| `oend_prc` | `ERR oend_prc(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oend_req` | `ERR oend_req(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oreq_prc` | `WERR oreq_prc(W vid, VP req, W len)` | [MISSING] | Stub returns E_NOSPT |
+| `orsp_prc` | `ERR orsp_prc(W vid, VP rsp, W len)` | [MISSING] | Stub returns E_NOSPT |
+| `oput_dat` | `WERR oput_dat(W vid, VP data, W len)` | [MISSING] | Stub returns E_NOSPT |
+| `oupd_fil` | `ERR oupd_fil(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oset_tmf` | `ERR oset_tmf(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oget_men` | `WERR oget_men(W vid, VP menu)` | [MISSING] | Stub returns E_NOSPT |
+| `oget_vmn` | `WERR oget_vmn(W vid, VP menu)` | [MISSING] | Stub returns E_NOSPT |
+| `oexe_vmn` | `ERR oexe_vmn(W vid, W item)` | [MISSING] | Stub returns E_NOSPT |
+| `ochg_env` | `ERR ochg_env(W vid, VP env)` | [MISSING] | Stub returns E_NOSPT |
+| `oget_env` | `ERR oget_env(W vid, VP env)` | [MISSING] | Stub returns E_NOSPT |
+| `oreg_apg` | `ERR oreg_apg(const TC *name, W apgid)` | [MISSING] | Stub returns E_NOSPT |
+| `odel_apg` | `ERR odel_apg(W apgid)` | [MISSING] | Stub returns E_NOSPT |
+| `oset_sea` | `ERR oset_sea(W sea_id)` | [MISSING] | Stub returns E_NOSPT |
+| `oget_sea` | `WERR oget_sea(void)` | [MISSING] | Stub returns E_NOSPT |
+| `ofnd_apg` | `WERR ofnd_apg(const TC *name)` | [MISSING] | Stub returns E_NOSPT |
+| `oexe_apg` | `ERR oexe_apg(W apgid, W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `odet_fls` | `ERR odet_fls(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `ofdt_fls` | `ERR ofdt_fls(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oatt_fls` | `ERR oatt_fls(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `ofat_fls` | `ERR ofat_fls(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `odet_vob` | `ERR odet_vob(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oatt_vob` | `ERR oatt_vob(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `oprc_dev` | `ERR oprc_dev(W dev_id)` | [MISSING] | Stub returns E_NOSPT |
+| `ofmt_vob` | `ERR ofmt_vob(W vid)` | [MISSING] | Stub returns E_NOSPT |
+| `ocnv_vob` | `ERR ocnv_vob(W vid, W format)` | [MISSING] | Stub returns E_NOSPT |
+| `oopn_obj` | `VID oopn_obj(W vid)` | [MISSING] | Stub returns E_NOSPT |
+
+### 16.2 Application Helpers (§3.8.6)
+
+| Function | Synopsis | Status | Notes |
+|----------|----------|--------|-------|
+| `adsp_sel` | `ERR adsp_sel(GID gid, SEL_RGN *selp, W mode)` | [MISSING] | Stub returns E_NOSPT |
+| `adsp_slt` | `ERR adsp_slt(GID gid, SEL_LIST *selp, W mode, W dh, W dv)` | [MISSING] | Stub returns E_NOSPT |
+| `apnl_men` | `W apnl_men(W pnid, W pid, EVT *epv)` | [MISSING] | Stub returns E_NOSPT |
+| `achg_bgc` | `W achg_bgc(W *mask, COLOR *color, COLOR bgc)` | [MISSING] | Stub returns E_NOSPT |
+
+## 17. Font Manager API (FMGR)
+
+**Normative source:** `doc/os_spec/shell/font_mgr.html`  
+**Implementation:** `src/font/font_mgr.c` (stubs), `include/btron/font_mgr.h`
+
+| Function | Synopsis | Status | Notes |
+|----------|----------|--------|-------|
+| `fdef_fnt` | `WERR fdef_fnt(FLOC loc, W spec)` | [MISSING] | Stub returns E_NOSPT |
+| `fdel_fnt` | `ERR fdel_fnt(W fid)` | [MISSING] | Stub returns E_NOSPT |
+| `fdel_loc` | `ERR fdel_loc(FLOC loc, W spec)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_def` | `ERR fget_def(W fid, FDEF *fdef)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_not` | `WERR fget_not(W fid, TC *note, W size)` | [MISSING] | Stub returns E_NOSPT |
+| `flst_fon` | `WERR flst_fon(W target, FLIST *list, W size)` | [MISSING] | Stub returns E_NOSPT |
+| `fopn_fon` | `WERR fopn_fon(void)` | [MISSING] | Stub returns E_NOSPT |
+| `fcls_fon` | `ERR fcls_fon(W fdesc)` | [MISSING] | Stub returns E_NOSPT |
+| `fset_fon` | `ERR fset_fon(W fdesc, FSSPEC *spec)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_fon` | `ERR fget_fon(W fdesc, FSSPEC *spec)` | [MISSING] | Stub returns E_NOSPT |
+| `fset_ang` | `ERR fset_ang(W fdesc, W ang)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_ang` | `WERR fget_ang(W fdesc)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_fam` | `WERR fget_fam(W fdesc, W script, FNTINFO *inf)` | [MISSING] | Stub returns E_NOSPT |
+| `fget_img` | `WERR fget_img(W fdesc, FDATA *cimg, W size, W script, TC ch, UW mode)` | [MISSING] | Stub returns E_NOSPT |
+
+## 18. TCP/IP Sockets API
+
+**Normative source:** `doc/os_spec/shell/tcpip.html`  
+**Implementation:** `src/kernel/tcpip.c` (stubs), `include/btron/tcpip.h`
+
+| Function | Synopsis | Status | Notes |
+|----------|----------|--------|-------|
+| `so_start` | `ERR so_start(W arg)` | [MISSING] | Stub returns E_NOSPT |
+| `so_finish` | `ERR so_finish(W arg)` | [MISSING] | Stub returns E_NOSPT |
+| `so_socket` | `WERR so_socket(W domain, W type, W protocol)` | [MISSING] | Stub returns E_NOSPT |
+| `so_bind` | `ERR so_bind(W s, struct sockaddr *nam, W namlen)` | [MISSING] | Stub returns E_NOSPT |
+| `so_listen` | `ERR so_listen(W s, W backlog)` | [MISSING] | Stub returns E_NOSPT |
+| `so_accept` | `WERR so_accept(W s, struct sockaddr *nam, W *namlen)` | [MISSING] | Stub returns E_NOSPT |
+| `so_connect` | `ERR so_connect(W s, struct sockaddr *nam, W namlen)` | [MISSING] | Stub returns E_NOSPT |
+| `so_send` | `WERR so_send(W s, B *buf, W len, W flags)` | [MISSING] | Stub returns E_NOSPT |
+| `so_recv` | `WERR so_recv(W s, B *buf, W len, W flags)` | [MISSING] | Stub returns E_NOSPT |
+| `so_close` | `ERR so_close(W s)` | [MISSING] | Stub returns E_NOSPT |
+| `so_select` | `WERR so_select(W nfds, fd_set *rfds, fd_set *wfds, fd_set *efds, struct timeval *tmout)` | [MISSING] | Stub returns E_NOSPT |
+| `so_gethostbyname` | `ERR so_gethostbyname(B *nam, struct hostent *hp, B *buf)` | [MISSING] | Stub returns E_NOSPT |
+| `so_gethostname` | `ERR so_gethostname(B *name, W nlen)` | [MISSING] | Stub returns E_NOSPT |
+
+## 19. Conformance Summary & Dynamic Matrix
+
+### 19.1 Subsystem Implementation Breakdown
+
+| Subsystem | Total Items | IMPL | PARTIAL | MISSING | Implemented Rate |
+|-----------|-------------|------|---------|---------|------------------|
 | Fundamental Types | 17 | 17 | 0 | 0 | 100.0% |
 | Error Codes — error.h | 12 | 12 | 0 | 0 | 100.0% |
 | Error Codes — extended | 19 | 19 | 0 | 0 | 100.0% |
@@ -716,27 +828,65 @@ All drawing functions: clip to `dev->clip` silently; return `E_OK` on success, n
 | Window Manager | 18 | 18 | 0 | 0 | 100.0% |
 | HMI Components | 40 | 40 | 0 | 0 | 100.0% |
 | Virtual Object Subsystem | 9 | 9 | 0 | 0 | 100.0% |
-| **TOTAL** | **248** | **248** | **0** | **0** | **100.0%** |
+| Real & Virtual Object Mgr (OMGR) | 54 | 0 | 0 | 54 | 0.0% |
+| Font Manager (FMGR) | 14 | 0 | 0 | 14 | 0.0% |
+| TCP/IP Sockets | 13 | 0 | 0 | 13 | 0.0% |
+| **TOTAL SPECIFICATION ITEMS** | **329** | **248** | **0** | **81** | **75.4%** |
 
-**Implementation rate:** 100.0% fully implemented and verified against normative specification.
+### 19.2 Automated Verification Matrix (`./verify/btron_verify`)
 
-## 17. Certification Verdict
+```
+==========================================================================
+       BTRON 3.20 FULL SPECIFICATION CONFORMANCE AUDIT MATRIX            
+==========================================================================
+Subsystem / Suite          | Total |  PASS |  FAILED |   Rate
+---------------------------+-------+-------+---------+---------
+Types                      |    28 |    28 |       0 | 100.0%
+ErrorCodes                 |    34 |    34 |       0 | 100.0%
+Process                    |    11 |    11 |       0 | 100.0%
+uITRON                     |    13 |    13 |       0 | 100.0%
+Memory                     |    21 |    21 |       0 | 100.0%
+Clock                      |    16 |    16 |       0 | 100.0%
+Device                     |    16 |    16 |       0 | 100.0%
+FileSystem                 |    24 |    24 |       0 | 100.0%
+SysMgmt                    |     9 |     9 |       0 | 100.0%
+Message                    |    24 |    24 |       0 | 100.0%
+VirtualObject              |    22 |    22 |       0 | 100.0%
+DisplayPrim                |    28 |    28 |       0 | 100.0%
+WindowMgr                  |    33 |    33 |       0 | 100.0%
+HMI                        |    58 |    58 |       0 | 100.0%
+FontManager                |    24 |    11 |      13 |  45.8%
+TCPIP                      |    25 |    13 |      12 |  52.0%
+ObjectManager              |    24 |     9 |      15 |  37.5%
+==========================================================================
+OVERALL CONFORMANCE        |   410 |   370 |      40 |  90.2%
+--------------------------------------------------------------------------
+  Passed Clauses  [PASS] : 370 / 410  ( 90.2%)
+  Failed Clauses  [FAIL] :  40 / 410  (  9.8%)
+==========================================================================
+```
+
+## 20. Certification Verdict
 
 ```
 BTRON 3.20 — CERTIFICATION RESULT
 -----------------------------------------------------------------------
 L0 — Types and Constants           PASS (100%)
-L1 — All Mandatory APIs Linkable   PASS (100%)
-L2 — Full Spec Behavioral          PASS (100% — 337/337 tests verified)
+L1 — All Mandatory APIs Linkable   PASS (100% — all stubs linked)
+L2 — Full Spec Behavioral          FAILED (40 failed clauses out of 410)
 -----------------------------------------------------------------------
-STATUS: FULLY CONFORMANT & CERTIFIED BTRON 3.20 SYSTEM
+STATUS: CONDITIONAL / PARTIAL IMPLEMENTATION
+UNIMPLEMENTED SUBSYSTEMS REQUIRING IMPLEMENTATION:
+  - Font Manager (FMGR): 13 APIs returning E_NOSPT
+  - TCP/IP Sockets: 12 APIs returning E_NOSPT
+  - Object Manager (OMGR): 15 tested APIs returning E_NOSPT (54 total)
 ```
 
-
-## 18. References
+## 21. References
 
 1. BTRON3 Specification (Ukrainian translation), `doc/os_spec/` — normative
 2. T-Kernel 2.0 Specification — informative (base RTOS layer)
 3. uITRON 4.0 Specification — informative (task communication heritage)
 4. `include/btron/*.h` — implementation ground truth (audited 2026-09-01)
 5. `src/` — implementation source (audited 2026-09-01)
+

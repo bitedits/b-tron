@@ -1,4 +1,4 @@
-﻿/*
+/*
  * BTRON 3.20 Conformance Verifier — Framework Header
  * btron_verify.h
  *
@@ -20,9 +20,9 @@ extern "C" {
 
 /* ── Configuration ─────────────────────────────────────────────── */
 
-#define VFY_MAX_RESULTS  512
-#define VFY_MAX_SUITES    32
-#define VFY_DIAG_LEN     128
+#define VFY_MAX_RESULTS  1024
+#define VFY_MAX_SUITES     32
+#define VFY_DIAG_LEN      128
 
 /* ── Result Record ─────────────────────────────────────────────── */
 
@@ -161,6 +161,9 @@ void vfy_suite_vobj(void);
 void vfy_suite_dp(void);
 void vfy_suite_wnd(void);
 void vfy_suite_hmi(void);
+void vfy_suite_font_mgr(void);
+void vfy_suite_tcpip(void);
+void vfy_suite_omgr(void);
 
 #ifdef __cplusplus
 }
