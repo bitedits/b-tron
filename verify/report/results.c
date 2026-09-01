@@ -81,7 +81,7 @@ void vfy_print_table(FILE *out)
 
     /* ── Table 2: Detailed Entity & Clause Verifier ────────────── */
     fprintf(out, "==========================================================================\n");
-    fprintf(out, "           BTRON 3.20 SPECIFICATION ENTITY & CLAUSE VERIFIER             \n");
+    fprintf(out, "       BTRON 3.20 + HMI SPECIFICATION ENTITY & CLAUSE VERIFIER            \n");
     fprintf(out, "==========================================================================\n");
     fprintf(out, "%-20s | %-32s | %-6s | %s\n",
             "Subsystem", "Entity / Clause", "Result", "Diagnostic");
