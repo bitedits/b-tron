@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hypothetica · VirtIO OBERON — Synrc VE OS.1</title>
+  <meta name="description" content="Hypothetica VirtIO OBERON: a Switzerland Pascal (Oberon-07) based unikernel for the Synrc VE OS.1 virtual execution environment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── tokens ─────────────────────────────────────────────── */
+    :root {
+      --c-bg:        #080c14;
+      --c-surface:   #0e1420;
+      --c-border:    rgba(255,255,255,0.08);
+      --c-glass:     rgba(255,255,255,0.04);
+      --c-accent:    hsl(214, 90%, 60%);
+      --c-accent2:   hsl(170, 70%, 50%);
+      --c-red:       hsl(0,   80%, 58%);
+      --c-text:      #dce6f5;
+      --c-muted:     #556070;
+      --r: 14px;
+      --shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── starfield ──────────────────────────────────────────── */
+    #stars {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    }
+    .star {
+      position: absolute; border-radius: 50%;
+      background: #fff; opacity: 0;
+      animation: twinkle var(--d, 4s) var(--delay, 0s) infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(1); }
+      50%       { opacity: var(--bright, .7); transform: scale(1.3); }
+    }
+
+    /* ── layout wrapper ─────────────────────────────────────── */
+    .wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── NAV ────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,12,20,.75); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--c-border);
+      display: flex; align-items: center; gap: 2rem;
+      padding: .85rem 2rem;
+    }
+    nav .logo {
+      font-weight: 900; font-size: 1.1rem; letter-spacing: -.02em;
+      background: linear-gradient(90deg, var(--c-accent), var(--c-accent2));
+      -webkit-background-clip: text; color: transparent;
+      white-space: nowrap;
+    }
+    nav ul { list-style: none; display: flex; gap: 1.5rem; margin-left: auto; }
+    nav a { color: var(--c-muted); text-decoration: none; font-size: .88rem; font-weight: 600;
+             transition: color .2s; letter-spacing: .03em; }
+    nav a:hover { color: var(--c-accent); }
+
+    /* ── HERO ───────────────────────────────────────────────── */
+    .hero {
+      min-height: 86vh; display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 6rem 0 4rem;
+    }
+    .hero-eyebrow {
+      font-size: .78rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--c-accent2);
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: 1.2rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: inline-block;
+      width: 28px; height: 2px; background: var(--c-accent2);
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900; line-height: 1.08; letter-spacing: -.03em;
+      max-width: 720px;
+      background: linear-gradient(135deg, #fff 30%, hsl(214,80%,70%) 100%);
+      -webkit-background-clip: text; color: transparent;
+    }
+    .hero-sub {
+      margin-top: 1.4rem; max-width: 560px;
+      font-size: 1.05rem; color: var(--c-muted); font-weight: 400;
+    }
+    .hero-ctas { display: flex; gap: 1rem; margin-top: 2.2rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .72rem 1.5rem; border-radius: 8px;
+      font-weight: 700; font-size: .9rem; text-decoration: none;
+      transition: transform .18s, box-shadow .18s, filter .18s;
+      cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--c-accent), hsl(214,90%,45%));
+      color: #fff; box-shadow: 0 4px 18px rgba(45,130,240,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(45,130,240,.5); }
+    .btn-ghost {
+      background: transparent; color: var(--c-text);
+      border: 1px solid var(--c-border);
+    }
+    .btn-ghost:hover { background: var(--c-glass); transform: translateY(-2px); }
+
+    /* ── SECTION COMMON ─────────────────────────────────────── */
+    section { padding: 5rem 0; }
+    .section-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--c-accent);
+      margin-bottom: .7rem;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800; letter-spacing: -.02em; line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .lead { font-size: 1.05rem; color: var(--c-muted); max-width: 620px; margin-bottom: 2.5rem; }
+
+    /* ── GRID CARDS ─────────────────────────────────────────── */
+    .grid { display: grid; gap: 1.2rem; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r); padding: 1.6rem;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 70% 0%, rgba(45,130,240,.08), transparent 70%);
+      pointer-events: none;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: rgba(45,130,240,.3); }
+    .card-icon { font-size: 1.8rem; margin-bottom: .8rem; }
+    .card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .card p { font-size: .9rem; color: var(--c-muted); line-height: 1.6; }
+
+    /* ── FEATURE HERO CARDS ─────────────────────────────────── */
+    .feat-card { padding: 2.2rem; }
+    .tag {
+      display: inline-block; padding: .25rem .65rem;
+      border-radius: 20px; font-size: .72rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .tag-blue { background: rgba(45,130,240,.15); color: var(--c-accent); }
+    .tag-green { background: rgba(40,200,160,.15); color: var(--c-accent2); }
+    .tag-red { background: rgba(220,60,60,.15); color: var(--c-red); }
+
+    /* ── CODE BLOCK ─────────────────────────────────────────── */
+    .code-block {
+      background: #050810; border: 1px solid var(--c-border);
+      border-radius: var(--r); overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .code-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .7rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--c-border);
+      font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--c-muted);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    pre {
+      margin: 0; padding: 1.4rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: .84rem;
+      line-height: 1.75; overflow-x: auto; white-space: pre;
+    }
+    .kw  { color: hsl(270,80%,72%); font-weight: 600; }
+    .cm  { color: #4b6070; font-style: italic; }
+    .str { color: hsl(142,60%,62%); }
+    .num { color: hsl(35,90%,65%); }
+    .fn  { color: hsl(214,80%,72%); }
+    .ty  { color: hsl(170,60%,58%); }
+
+    /* ── ARCH DIAGRAM ───────────────────────────────────────── */
+    .arch {
+      display: grid; grid-template-rows: auto auto auto auto auto;
+      gap: 0; max-width: 560px;
+    }
+    .layer {
+      padding: .95rem 1.4rem; border-radius: 10px;
+      margin-bottom: 6px; font-weight: 600; font-size: .92rem;
+      display: flex; align-items: center; gap: .75rem;
+      position: relative;
+    }
+    .layer::after {
+      content: '↕'; position: absolute; bottom: -20px; left: 50%;
+      transform: translateX(-50%);
+      color: var(--c-muted); font-size: .9rem; line-height: 1;
+    }
+    .layer:last-child::after { display: none; }
+    .l-app   { background: rgba(45,130,240,.15); border: 1px solid rgba(45,130,240,.3); }
+    .l-lang  { background: rgba(40,200,160,.15); border: 1px solid rgba(40,200,160,.3); }
+    .l-uk    { background: rgba(140,90,240,.15); border: 1px solid rgba(140,90,240,.3); }
+    .l-virtio{ background: rgba(220,150,40,.15); border: 1px solid rgba(220,150,40,.3); }
+    .l-veos  { background: rgba(220,60,60,.15);  border: 1px solid rgba(220,60,60,.3);  }
+
+    /* ── TABLE ──────────────────────────────────────────────── */
+    .tbl-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--c-border); }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    thead tr { background: rgba(255,255,255,0.04); }
+    th { padding: .85rem 1.1rem; text-align: left; font-weight: 700;
+         color: var(--c-muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+    td { padding: .85rem 1.1rem; border-top: 1px solid var(--c-border); }
+    tr:hover td { background: var(--c-glass); }
+    .badge {
+      display: inline-block; padding: .18rem .55rem; border-radius: 20px;
+      font-size: .72rem; font-weight: 700;
+    }
+    .badge-yes { background: rgba(40,200,160,.15); color: var(--c-accent2); }
+    .badge-wip { background: rgba(220,150,40,.15); color: hsl(35,90%,65%); }
+
+    /* ── TIMELINE ───────────────────────────────────────────── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: flex; gap: 1.4rem; padding-bottom: 2rem; position: relative; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-line {
+      display: flex; flex-direction: column; align-items: center;
+      flex-shrink: 0;
+    }
+    .tl-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--c-accent); box-shadow: 0 0 10px rgba(45,130,240,.6);
+      margin-top: .35rem; flex-shrink: 0;
+    }
+    .tl-bar {
+      flex: 1; width: 2px; background: linear-gradient(to bottom, var(--c-accent), transparent);
+      margin-top: 4px;
+    }
+    .tl-item:last-child .tl-bar { display: none; }
+    .tl-content h4 { font-size: .98rem; font-weight: 700; margin-bottom: .2rem; }
+    .tl-content p  { font-size: .87rem; color: var(--c-muted); }
+    .tl-date { font-size: .75rem; font-weight: 600; color: var(--c-accent2); margin-bottom: .15rem; }
+
+    /* ── SWISS FLAG ACCENT ──────────────────────────────────── */
+    .swiss-flag {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; background: #d52b1e; border-radius: 3px;
+      position: relative; flex-shrink: 0;
+    }
+    .swiss-flag::before, .swiss-flag::after {
+      content: ''; position: absolute; background: #fff;
+      border-radius: 1px;
+    }
+    .swiss-flag::before { width: 14px; height: 4px; }
+    .swiss-flag::after  { width: 4px; height: 14px; }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--c-border);
+      padding: 2.5rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+      font-size: .85rem; color: var(--c-muted);
+    }
+    footer a { color: var(--c-muted); text-decoration: none; }
+    footer a:hover { color: var(--c-accent); }
+
+    /* ── ANIMATIONS ─────────────────────────────────────────── */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 640px) {
+      nav ul { display: none; }
+      .hero h1 { font-size: 2rem; }
+      .hero-ctas { flex-direction: column; }
+      .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield background -->
+<div id="stars"></div>
+
+<!-- ── NAV ─────────────────────────────────────────── -->
+<nav>
+  <div class="logo">VirtIO OBERON</div>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#lang">Language</a></li>
+    <li><a href="#virtio">VirtIO</a></li>
+    <li><a href="#synrc">Synrc VE OS.1</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ────────────────────────────────────────── -->
+<div class="wrap">
+  <div class="hero fade-up">
+    <div class="hero-eyebrow">Hypothetica Research · 2026</div>
+    <h1>VirtIO OBERON<br>Unikernel Platform</h1>
+    <p class="hero-sub">
+      A Switzerland-origin <strong>Oberon-07 / Pascal</strong> unikernel running natively
+      inside <strong>Synrc VE OS.1</strong>. Zero-copy VirtIO I/O, single-address-space
+      security model, sub-200 ms cold-boot.
+    </p>
+    <div class="hero-ctas">
+      <a href="#arch" class="btn btn-primary">Explore Architecture ↓</a>
+      <a href="#lang" class="btn btn-ghost">Language Guide</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── OVERVIEW ─────────────────────────────────────── -->
+<section id="overview">
+  <div class="wrap fade-up">
+    <div class="section-label">Overview</div>
+    <h2>What is VirtIO OBERON?</h2>
+    <p class="lead">
+      VirtIO OBERON is a <em>hypothetical</em> research unikernel specification that marries
+      the clean, provably-safe Pascal tradition—born in Switzerland with Niklaus Wirth's
+      Oberon system—with a modern hypervisor-neutral VirtIO device model to power
+      the Synrc VE OS.1 virtual execution environment.
+    </p>
+    <div class="grid grid-3">
+      <div class="card fade-up">
+        <div class="card-icon">🇨🇭</div>
+        <h3>Swiss Heritage</h3>
+        <p>Oberon-07 traces its roots to ETH Zürich. Pascal clarity, formal semantics,
+           garbage-collected heap, and module system — all preserved.</p>
+      </div>
+      <div class="card fade-up">
+        <div class="card-icon">⚡</div>
+        <h3>Unikernel Model</h3>
+        <p>Single address space. No syscall overhead. The application <em>is</em> the kernel.
+           Compile once, seal the image, ship to any VirtIO hypervisor.</p>
+      </div>
+      <div class="card fade-up">
+        <div class="card-icon">🔌</div>
+        <h3>VirtIO Native</h3>
+        <p>Implements virtio-blk, virtio-net, virtio-console and virtio-entropy as first-class
+           Oberon modules — no POSIX translation layer required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARCHITECTURE ──────────────────────────────────── -->
+<section id="arch" style="background: linear-gradient(180deg, transparent, rgba(14,20,32,.8), transparent);">
+  <div class="wrap fade-up">
+    <div class="section-label">Architecture</div>
+    <h2>Stack Layers</h2>
+    <p class="lead">The full software stack from user application to hardware abstraction.</p>
+    <div style="display:flex; gap:3rem; flex-wrap:wrap; align-items:flex-start;">
+      <div class="arch">
+        <div class="layer l-app">
+          <span class="swiss-flag"></span>
+          <div>
+            <div style="font-size:.72rem;color:var(--c-muted);letter-spacing:.05em;text-transform:uppercase">Application</div>
+            Oberon-07 Program Module
+          </div>
+        </div>
+        <div class="layer l-lang">
+          <span style="font-size:1.4rem">🗂️</span>
+          <div>
+            <div style="font-size:.72rem;color:var(--c-muted);letter-spacing:.05em;text-transform:uppercase">Language Runtime</div>
+            Switzerlang Pascal Compiler (LLVM IR)
+          </div>
+        </div>
+        <div class="layer l-uk">
+          <span style="font-size:1.4rem">🧬</span>
+          <div>
+            <div style="font-size:.72rem;color:var(--c-muted);letter-spacing:.05em;text-transform:uppercase">Unikernel Core</div>
+            OBERON LibOS — GC · Scheduler · MM
+          </div>
+        </div>
+        <div class="layer l-virtio">
+          <span style="font-size:1.4rem">🔌</span>
+          <div>
+            <div style="font-size:.72rem;color:var(--c-muted);letter-spacing:.05em;text-transform:uppercase">Device Abstraction</div>
+            VirtIO 1.2 Drivers (Split-ring / Packed)
+          </div>
+        </div>
+        <div class="layer l-veos">
+          <span style="font-size:1.4rem">🖥️</span>
+          <div>
+            <div style="font-size:.72rem;color:var(--c-muted);letter-spacing:.05em;text-transform:uppercase">Hypervisor Host</div>
+            Synrc VE OS.1
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1; min-width:260px;">
+        <div class="card feat-card" style="margin-bottom:1rem;">
+          <div class="tag tag-blue">Memory</div>
+          <h3>Single Address Space</h3>
+          <p>No ring transitions. The unikernel shares a single 64-bit virtual address space.
+             The Oberon GC manages the heap; VirtIO DMA buffers are pinned outside GC reach.</p>
+        </div>
+        <div class="card feat-card">
+          <div class="tag tag-green">Security</div>
+          <h3>Capability-Based I/O</h3>
+          <p>Each VirtIO device is represented as a typed Oberon <code>RECORD</code> capability.
+             Unforgeable references prevent out-of-bounds device access at the language level.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LANGUAGE ──────────────────────────────────────── -->
+<section id="lang">
+  <div class="wrap fade-up">
+    <div class="section-label">Language</div>
+    <h2>Oberon-07 — The Switzerland Connection</h2>
+    <p class="lead">
+      Oberon was designed by <strong>Niklaus Wirth</strong> at ETH Zürich (Switzerland) as the
+      culmination of a Pascal → Modula → Oberon lineage. VirtIO OBERON adopts Oberon-07 with
+      a low-level extension layer called <em>Switzerlang</em>.
+    </p>
+
+    <div class="code-block fade-up" style="margin-bottom:2rem;">
+      <div class="code-header">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        &nbsp; VirtIONet.Mod — Oberon-07 + Switzerlang
+      </div>
+      <pre>
+<span class="cm">(** VirtIO Network Device — Oberon-07 module
+    Switzerlang Extension: SYSTEM, UNSAFE POINTER, DMA *)</span>
+<span class="kw">MODULE</span> <span class="ty">VirtIONet</span>;
+<span class="kw">IMPORT</span> SYSTEM, <span class="ty">VirtQ</span>, <span class="ty">Out</span>, <span class="ty">Heap</span>;
+
+<span class="kw">CONST</span>
+  VENDOR_ID*  = <span class="num">1AF4H</span>;
+  NET_DEVICE* = <span class="num">1000H</span>;
+  MAC_LEN     = <span class="num">6</span>;
+  RX_DESCS    = <span class="num">256</span>;
+
+<span class="kw">TYPE</span>
+  <span class="ty">MAC*</span>    = <span class="kw">ARRAY</span> MAC_LEN <span class="kw">OF</span> <span class="ty">BYTE</span>;
+  <span class="ty">Config*</span> = <span class="kw">RECORD</span>
+    mac*    : <span class="ty">MAC</span>;
+    status* : <span class="ty">SET</span>;          <span class="cm">(* link flags *)</span>
+    mtu*    : <span class="ty">CARDINAL</span>;
+    speed*  : <span class="ty">CARDINAL</span>;
+  <span class="kw">END</span>;
+  <span class="ty">Device*</span> = <span class="kw">RECORD</span>
+    cfg*  : <span class="ty">Config</span>;
+    rxq   : <span class="ty">VirtQ.Queue</span>;
+    txq   : <span class="ty">VirtQ.Queue</span>;
+    ready : <span class="ty">BOOLEAN</span>;
+  <span class="kw">END</span>;
+
+<span class="cm">(** Initialise the VirtIO network device at PCI BAR0 base. *)</span>
+<span class="kw">PROCEDURE</span> <span class="fn">Init*</span>(VAR dev : <span class="ty">Device</span>; bar0 : <span class="ty">ADDRESS</span>);
+<span class="kw">BEGIN</span>
+  VirtQ.Init(dev.rxq, bar0, <span class="num">0</span>, RX_DESCS);
+  VirtQ.Init(dev.txq, bar0, <span class="num">1</span>, RX_DESCS);
+  SYSTEM.COPY(bar0 + <span class="num">20H</span>, SYSTEM.ADR(dev.cfg.mac), MAC_LEN);
+  dev.cfg.mtu  := SYSTEM.VAL(<span class="ty">CARDINAL</span>, SYSTEM.LDWORD(bar0 + <span class="num">28H</span>));
+  dev.ready    := <span class="kw">TRUE</span>;
+  Out.String(<span class="str">"VirtIO-Net: initialised"</span>); Out.Ln;
+<span class="kw">END</span> Init;
+
+<span class="cm">(** Send a raw Ethernet frame. *)</span>
+<span class="kw">PROCEDURE</span> <span class="fn">Send*</span>(VAR dev : <span class="ty">Device</span>; buf : <span class="ty">ADDRESS</span>; len : <span class="ty">CARDINAL</span>);
+<span class="kw">BEGIN</span>
+  <span class="kw">ASSERT</span>(dev.ready);
+  VirtQ.Enqueue(dev.txq, buf, len, <span class="kw">FALSE</span>);
+  VirtQ.Notify(dev.txq);
+<span class="kw">END</span> Send;
+
+<span class="kw">END</span> VirtIONet.</pre>
+    </div>
+
+    <div class="grid grid-2 fade-up">
+      <div class="card">
+        <div class="tag tag-green">Oberon-07</div>
+        <h3>Language Guarantees</h3>
+        <ul style="color:var(--c-muted);font-size:.9rem;padding-left:1.2rem;line-height:2;">
+          <li>Strong static typing — no implicit coercions</li>
+          <li>Module system with explicit export markers (<code>*</code>)</li>
+          <li>Automatic garbage collection</li>
+          <li>No pointer arithmetic outside <code>SYSTEM</code> pseudo-module</li>
+          <li>Type-safe variant records (<code>POINTER TO</code>)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag tag-blue">Switzerlang</div>
+        <h3>Low-Level Extensions</h3>
+        <ul style="color:var(--c-muted);font-size:.9rem;padding-left:1.2rem;line-height:2;">
+          <li><code>ADDRESS</code> / <code>CARDINAL</code> machine-word types</li>
+          <li>Inline assembly via <code>SYSTEM.CODE</code></li>
+          <li>Pinned DMA buffer annotations</li>
+          <li>Volatile memory-mapped I/O reads</li>
+          <li>LLVM IR emission target (<code>--emit=ll</code>)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── VIRTIO ─────────────────────────────────────────── -->
+<section id="virtio" style="background: linear-gradient(180deg, transparent, rgba(14,20,32,.8), transparent);">
+  <div class="wrap fade-up">
+    <div class="section-label">VirtIO Devices</div>
+    <h2>Supported VirtIO Interfaces</h2>
+    <p class="lead">All devices target the VirtIO 1.2 specification over PCI transport.</p>
+
+    <div class="tbl-wrap fade-up">
+      <table>
+        <thead>
+          <tr>
+            <th>Device ID</th>
+            <th>Module</th>
+            <th>Function</th>
+            <th>Queue Mode</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>0x1000</code></td>
+            <td><code>VirtIONet</code></td>
+            <td>Ethernet networking</td>
+            <td>Split-ring</td>
+            <td><span class="badge badge-yes">Stable</span></td>
+          </tr>
+          <tr>
+            <td><code>0x1001</code></td>
+            <td><code>VirtIOBlk</code></td>
+            <td>Block storage</td>
+            <td>Packed</td>
+            <td><span class="badge badge-yes">Stable</span></td>
+          </tr>
+          <tr>
+            <td><code>0x1003</code></td>
+            <td><code>VirtIOConsole</code></td>
+            <td>Serial console</td>
+            <td>Split-ring</td>
+            <td><span class="badge badge-yes">Stable</span></td>
+          </tr>
+          <tr>
+            <td><code>0x1005</code></td>
+            <td><code>VirtIORNG</code></td>
+            <td>Entropy / TRNG</td>
+            <td>Split-ring</td>
+            <td><span class="badge badge-yes">Stable</span></td>
+          </tr>
+          <tr>
+            <td><code>0x1050</code></td>
+            <td><code>VirtIOGPU</code></td>
+            <td>2D/3D GPU</td>
+            <td>Packed</td>
+            <td><span class="badge badge-wip">In Progress</span></td>
+          </tr>
+          <tr>
+            <td><code>0x105A</code></td>
+            <td><code>VirtIOFS</code></td>
+            <td>Shared filesystem</td>
+            <td>Packed</td>
+            <td><span class="badge badge-wip">In Progress</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block fade-up" style="margin-top:2rem;">
+      <div class="code-header">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        &nbsp; Building &amp; Launching the Unikernel
+      </div>
+      <pre>
+<span class="cm"># Build with Switzerlang compiler</span>
+swz build --target aarch64-virtio-oberon \
+          --no-runtime                   \
+          --opt 3                        \
+          -o oberon.bin src/Main.Mod
+
+<span class="cm"># Run inside Synrc VE OS.1</span>
+veos launch                              \
+  --image   oberon.bin                   \
+  --memory  64M                          \
+  --cpus    2                            \
+  --device  virtio-net,bridge=br0        \
+  --device  virtio-blk,path=disk.img     \
+  --serial  stdio</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ── SYNRC ──────────────────────────────────────────── -->
+<section id="synrc">
+  <div class="wrap fade-up">
+    <div class="section-label">Synrc VE OS.1</div>
+    <h2>The Host Execution Environment</h2>
+    <p class="lead">
+      Synrc VE OS.1 is the virtual-execution layer that hosts VirtIO OBERON unikernels.
+      It provides hardware abstraction, device emulation, and a management API.
+    </p>
+    <div class="grid grid-2">
+      <div class="card feat-card fade-up">
+        <div class="tag tag-blue">Boot</div>
+        <h3>Fast Cold-Boot</h3>
+        <p>The Synrc VMM loads the flat unikernel binary, maps VirtIO config space, and
+           signals VCPU reset — the Oberon runtime begins in under <strong>200 ms</strong>.</p>
+      </div>
+      <div class="card feat-card fade-up">
+        <div class="tag tag-green">Isolation</div>
+        <h3>VM-level Security</h3>
+        <p>Each unikernel runs in a dedicated VM guest. SEV-SNP memory encryption
+           is supported on AMD platforms. No shared kernel memory with host.</p>
+      </div>
+      <div class="card feat-card fade-up">
+        <div class="tag tag-red">Networking</div>
+        <h3>Zero-copy Networking</h3>
+        <p>VirtIO-net uses vhost in-kernel acceleration. Guest TX descriptors
+           are DMA-mapped directly into the host tap device — zero extra copies.</p>
+      </div>
+      <div class="card feat-card fade-up">
+        <div class="tag tag-blue">Management</div>
+        <h3>REST Control Plane</h3>
+        <p>Synrc VE OS.1 exposes a JSON REST API for VM lifecycle, device hotplug,
+           metrics, and snapshot/restore — compatible with the Synrc N2O toolchain.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROADMAP ────────────────────────────────────────── -->
+<section id="roadmap" style="background: linear-gradient(180deg, transparent, rgba(14,20,32,.6), transparent);">
+  <div class="wrap fade-up">
+    <div class="section-label">Roadmap</div>
+    <h2>Development Timeline</h2>
+    <p class="lead">Milestones for the Hypothetica VirtIO OBERON research project.</p>
+
+    <div class="timeline">
+      <div class="tl-item fade-up">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+        <div class="tl-content">
+          <div class="tl-date">Q1 2026 — Completed</div>
+          <h4>Switzerlang Compiler Bootstrap</h4>
+          <p>Self-hosting Oberon-07 compiler targeting LLVM IR. Switzerlang extensions for
+             ADDRESS and SYSTEM pseudo-module finalized.</p>
+        </div>
+      </div>
+      <div class="tl-item fade-up">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+        <div class="tl-content">
+          <div class="tl-date">Q2 2026 — Completed</div>
+          <h4>VirtIO Core Drivers</h4>
+          <p>VirtIONet, VirtIOBlk, VirtIOConsole, VirtIORNG reach stable status.
+             Full packed virtqueue support added.</p>
+        </div>
+      </div>
+      <div class="tl-item fade-up">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+        <div class="tl-content">
+          <div class="tl-date">Q3 2026 — In Progress</div>
+          <h4>Synrc VE OS.1 Integration</h4>
+          <p>REST management API, SEV-SNP guest attestation, vhost-net acceleration
+             and snapshot/restore support.</p>
+        </div>
+      </div>
+      <div class="tl-item fade-up">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+        <div class="tl-content">
+          <div class="tl-date">Q4 2026 — Planned</div>
+          <h4>VirtIOGPU &amp; VirtIOFS</h4>
+          <p>Graphical frame-buffer support and shared host filesystem for development
+             workflows. Oberon Display Server module prototype.</p>
+        </div>
+      </div>
+      <div class="tl-item fade-up">
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+        <div class="tl-content">
+          <div class="tl-date">Q1 2027 — Planned</div>
+          <h4>ETH Zürich Open-Source Release</h4>
+          <p>Full Switzerlang compiler, OBERON LibOS, and Synrc VE OS.1 integration
+             released under BSD-2-Clause licence.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────── -->
+<footer>
+  <div class="wrap" style="width:100%; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <strong style="color:var(--c-text);">VirtIO OBERON</strong> — Hypothetica Research Project, 2026<br>
+      Oberon-07 language by <a href="https://inf.ethz.ch" target="_blank">ETH Zürich</a> ·
+      Pascal heritage from <span title="Switzerland 🇨🇭">Niklaus Wirth</span>
+    </div>
+    <div style="text-align:right;">
+      <a href="#overview">Overview</a> ·
+      <a href="#arch">Architecture</a> ·
+      <a href="#lang">Language</a> ·
+      <a href="#synrc">Synrc VE OS.1</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ── Starfield ── */
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 180; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + .5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --d:${(Math.random()*5+2).toFixed(1)}s;
+      --delay:${(Math.random()*6).toFixed(1)}s;
+      --bright:${(Math.random()*.6+.2).toFixed(2)};
+    `;
+    stars.appendChild(s);
+  }
+
+  /* ── Scroll fade-in ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
