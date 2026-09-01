@@ -1,4 +1,4 @@
-﻿#
+#
 # BTRON 3.20 Conformance Verifier Makefile
 #
 
