@@ -67,8 +67,13 @@ int main(int argc, char *argv[])
     /* Register all suites */
     vfy_register_suite("Types",        vfy_suite_types);
     vfy_register_suite("ErrorCodes",   vfy_suite_errors);
+    vfy_register_suite("Process",      vfy_suite_proc);
     vfy_register_suite("uITRON",       vfy_suite_itron);
     vfy_register_suite("Memory",       vfy_suite_memory);
+    vfy_register_suite("Clock",        vfy_suite_clk);
+    vfy_register_suite("Device",       vfy_suite_device);
+    vfy_register_suite("FileSystem",   vfy_suite_fs);
+    vfy_register_suite("SysMgmt",       vfy_suite_sys);
     vfy_register_suite("Message",      vfy_suite_message);
     vfy_register_suite("VirtualObject",vfy_suite_vobj);
     vfy_register_suite("DisplayPrim",  vfy_suite_dp);

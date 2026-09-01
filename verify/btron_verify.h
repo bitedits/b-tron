@@ -149,8 +149,13 @@ void vfy_print_csv(FILE *out);
 
 void vfy_suite_types(void);
 void vfy_suite_errors(void);
+void vfy_suite_proc(void);
 void vfy_suite_itron(void);
 void vfy_suite_memory(void);
+void vfy_suite_clk(void);
+void vfy_suite_device(void);
+void vfy_suite_fs(void);
+void vfy_suite_sys(void);
 void vfy_suite_message(void);
 void vfy_suite_vobj(void);
 void vfy_suite_dp(void);

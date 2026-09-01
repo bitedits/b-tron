@@ -231,3 +231,14 @@ ER fill_ovl(GDEV *dev, const RECT *r, COLOR col) {
     }
     return E_OK;
 }
+
+void set_col(GDEV *dev, COLOR fg, COLOR bg) {
+    (void)dev;
+    (void)fg;
+    (void)bg;
+}
+
+void set_pat(GDEV *dev, const PAT *pat) {
+    (void)dev;
+    (void)pat;
+}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * B-TRON Specification Compatible Header: event.h
  * System Event Queue & Types.
  */
@@ -35,6 +35,13 @@ typedef struct {
     UW      button;
     VW      data;
 } EVT;
+
+/* Standard Event Masks */
+#define EV_MASK(type)     (1U << (type))
+#define EV_MASK_BUT       (EV_MASK(EV_BUT_DOWN) | EV_MASK(EV_BUT_UP) | EV_MASK(EV_MOUSE_MOVE))
+#define EV_MASK_KEY       (EV_MASK(EV_KEY_DOWN) | EV_MASK(EV_KEY_UP))
+#define EV_MASK_WND       (EV_MASK(EV_WND_CLOSE) | EV_MASK(EV_WND_MOVE) | EV_MASK(EV_WND_FOCUS))
+#define EV_MASK_ALL       0xFFFFFFFFU
 
 /* Standard Keyboard Modifier Bitmasks */
 #define BTRON_KMOD_NONE   0x0000
@@ -79,9 +86,13 @@ typedef struct {
 #define BTRON_KEY_PAGE_DOWN 0x4000004E
 #define BTRON_KEY_KP_ENTER  0x40000058
 
+/* ── Event Queue APIs ──────────────────────────────────────────── */
 ER init_evt_sys(void);
 ER get_evt(EVT *p_evt, W timeout_ms);
 ER snd_evt(const EVT *p_evt);
+ER clr_evt(UW mask);
+ER pke_evt(EVT *p_evt, UW mask);
+ER def_evt(W wndid, UW mask);
 
 #ifdef __cplusplus
 }

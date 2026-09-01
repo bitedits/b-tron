@@ -3,21 +3,36 @@
 #
 
 CC ?= gcc
-CFLAGS ?= -O2 -Wall -Wextra -std=c99 -I../include -I../include/drivers -I../src/kernel -D_GNU_SOURCE
-LDFLAGS ?= -lpthread -lm
+SDL_CFLAGS ?= $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/include/SDL2")
+SDL_LIBS ?= $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2")
+CFLAGS ?= -O2 -Wall -Wextra -std=c99 -I../include -I../include/drivers -I../src/kernel -D_GNU_SOURCE $(SDL_CFLAGS)
+LDFLAGS ?= -lpthread -lm $(SDL_LIBS)
 
 VERIFY_SRCS = btron_verify.c \
               report/results.c \
               suite/v_types.c \
               suite/v_errors.c \
+              suite/v_proc.c \
               suite/v_itron.c \
               suite/v_memory.c \
+              suite/v_clk.c \
+              suite/v_device.c \
+              suite/v_fs.c \
+              suite/v_sys.c \
               suite/v_message.c \
               suite/v_vobj.c \
               suite/v_dp.c \
               suite/v_wnd.c \
               suite/v_hmi.c \
               ../src/kernel/core_posix.c \
+              ../src/kernel/ipc_msg.c \
+              ../src/kernel/proc_mgr.c \
+              ../src/kernel/mem_mgr.c \
+              ../src/kernel/clk_mgr.c \
+              ../src/kernel/dev_mgr.c \
+              ../src/kernel/fs_record.c \
+              ../src/kernel/sys_mgmt.c \
+              ../src/window/event.c \
               ../src/graphics/dp_core.c \
               ../src/window/wnd.c \
               ../src/vobject/vobj.c \

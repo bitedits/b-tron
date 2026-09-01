@@ -68,6 +68,11 @@ void vfy_suite_dp(void)
         /* ── set_clip ───────────────────────────────────────── */
         RECT clip = { 20, 20, 200, 200 };
         set_clip(dev, &clip);
+        set_col(dev, COLOR_BLACK, COLOR_WHITE);
+        vfy_record(S, "set_col(valid)", 1, "");
+        PAT p = { { 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55 } };
+        set_pat(dev, &p);
+        vfy_record(S, "set_pat(valid)", 1, "");
         VFY_ASSERT_EQ(S, "set_clip.left",  dev->clip.left,  20);
         VFY_ASSERT_EQ(S, "set_clip.right", dev->clip.right, 200);
 

@@ -107,8 +107,12 @@ void vfy_suite_hmi(void)
     HMI_CTRL *led = hmi_add_status_led(&panel, 9, "Status", 200, 20, HMI_LED_GREEN);
     VFY_ASSERT_NOTNULL(S, "hmi_add_status_led", led);
 
-    HMI_CTRL *disp = hmi_add_digital_display(&panel, 10, "Freq", 20, 180, 100, 25, "101.5");
-    VFY_ASSERT_NOTNULL(S, "hmi_add_digital_display", disp);
+    
+    HMI_CTRL *rot = hmi_add_rotary_selector(&panel, 11, "Channel", 150, 180, 50, 50, 6, 1, test_hmi_cb);
+    VFY_ASSERT_NOTNULL(S, "hmi_add_rotary_selector", rot);
+
+    HMI_CTRL *pad = hmi_add_universal_pad(&panel, 12, 220, 180, 60, 60, test_hmi_cb);
+    VFY_ASSERT_NOTNULL(S, "hmi_add_universal_pad", pad);
 
     /* ── Focus Management ───────────────────────────────────── */
     er = hmi_set_focus(&panel, 0);

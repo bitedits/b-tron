@@ -1,7 +1,7 @@
 ﻿/*
  * v_errors.c — Error Code Value Verification Suite
  *
- * L0 conformance: all error codes must have the exact specified values.
+ * L0 conformance: all 31 error codes must have the exact specified values.
  */
 
 #include "../btron_verify.h"
@@ -11,7 +11,7 @@
 
 void vfy_suite_errors(void)
 {
-    /* §2.1 Defined in error.h — mandatory values from BTRON 3.20 spec */
+    /* ── Base Error Codes ───────────────────────────────────── */
     VFY_ASSERT_EQ(S, "E_OK",    E_OK,     0);
     VFY_ASSERT_EQ(S, "E_SYS",   E_SYS,   -5);
     VFY_ASSERT_EQ(S, "E_NOMEM", E_NOMEM, -10);
@@ -25,22 +25,29 @@ void vfy_suite_errors(void)
     VFY_ASSERT_EQ(S, "E_BUSY",  E_BUSY,  -65);
     VFY_ASSERT_EQ(S, "E_TMOUT", E_TMOUT, -69);
 
-    /* All error codes (except E_OK) must be negative */
-    VFY_ASSERT_TRUE(S, "E_SYS<0",   E_SYS   < 0);
-    VFY_ASSERT_TRUE(S, "E_NOMEM<0", E_NOMEM < 0);
-    VFY_ASSERT_TRUE(S, "E_NOSPT<0", E_NOSPT < 0);
-    VFY_ASSERT_TRUE(S, "E_PAR<0",   E_PAR   < 0);
-    VFY_ASSERT_TRUE(S, "E_LIMIT<0", E_LIMIT < 0);
-    VFY_ASSERT_TRUE(S, "E_ID<0",    E_ID    < 0);
-    VFY_ASSERT_TRUE(S, "E_OBJ<0",   E_OBJ   < 0);
-    VFY_ASSERT_TRUE(S, "E_NOEXS<0", E_NOEXS < 0);
-    VFY_ASSERT_TRUE(S, "E_BUSY<0",  E_BUSY  < 0);
-    VFY_ASSERT_TRUE(S, "E_TMOUT<0", E_TMOUT < 0);
+    /* ── Extended BTRON 3.20 Error Codes ─────────────────────── */
+    VFY_ASSERT_EQ(S, "ER_ADR",     ER_ADR,     -1);
+    VFY_ASSERT_EQ(S, "ER_NOSPC",   ER_NOSPC,   -11);
+    VFY_ASSERT_EQ(S, "ER_ACCES",   ER_ACCES,   -12);
+    VFY_ASSERT_EQ(S, "ER_IO",      ER_IO,      -13);
+    VFY_ASSERT_EQ(S, "ER_DID",     ER_DID,     -14);
+    VFY_ASSERT_EQ(S, "ER_ROVR",    ER_ROVR,    -15);
+    VFY_ASSERT_EQ(S, "ER_DLT",     ER_DLT,     -16);
+    VFY_ASSERT_EQ(S, "ER_CTX",     ER_CTX,     -18);
+    VFY_ASSERT_EQ(S, "ER_FD",      ER_FD,      -19);
+    VFY_ASSERT_EQ(S, "ER_NOFS",    ER_NOFS,    -20);
+    VFY_ASSERT_EQ(S, "ER_NODSK",   ER_NODSK,   -21);
+    VFY_ASSERT_EQ(S, "ER_RONLY",   ER_RONLY,   -22);
+    VFY_ASSERT_EQ(S, "ER_FNAME",   ER_FNAME,   -23);
+    VFY_ASSERT_EQ(S, "ER_EXS",     ER_EXS,     -24);
+    VFY_ASSERT_EQ(S, "ER_PWD",     ER_PWD,     -26);
+    VFY_ASSERT_EQ(S, "ER_PERM",    ER_PERM,    -27);
+    VFY_ASSERT_EQ(S, "ER_OVRW",    ER_OVRW,    -28);
+    VFY_ASSERT_EQ(S, "ER_OVVR",    ER_OVVR,    -29);
+    VFY_ASSERT_EQ(S, "ER_TIMEOUT", ER_TIMEOUT, -69);
 
-    /* Uniqueness: no two error codes share the same value */
-    VFY_ASSERT_NEQ(S, "E_SYS!=E_NOMEM",  E_SYS,   E_NOMEM);
-    VFY_ASSERT_NEQ(S, "E_PAR!=E_LIMIT",  E_PAR,   E_LIMIT);
-    VFY_ASSERT_NEQ(S, "E_PAR!=E_ID",     E_PAR,   E_ID);
-    VFY_ASSERT_NEQ(S, "E_OBJ!=E_NOEXS",  E_OBJ,   E_NOEXS);
-    VFY_ASSERT_NEQ(S, "E_BUSY!=E_TMOUT",  E_BUSY,  E_TMOUT);
+    /* ── Alias Equality ─────────────────────────────────────── */
+    VFY_ASSERT_EQ(S, "ER_OK==E_OK",       ER_OK,    E_OK);
+    VFY_ASSERT_EQ(S, "ER_PAR==E_PAR",     ER_PAR,   E_PAR);
+    VFY_ASSERT_EQ(S, "ER_TMOUT==E_TMOUT", ER_TMOUT, E_TMOUT);
 }
