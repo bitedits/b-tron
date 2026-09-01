@@ -51,7 +51,7 @@ void vfy_print_table(FILE *out)
     /* ── Table 1: Subsystem Conformance Matrix ──────────────────── */
     fprintf(out, "\n");
     fprintf(out, "==========================================================================\n");
-    fprintf(out, "       BTRON 3.20 FULL SPECIFICATION CONFORMANCE AUDIT MATRIX            \n");
+    fprintf(out, "       BTRON 3.20 + HMI FULL SPECIFICATION CONFORMANCE AUDIT MATRIX       \n");
     fprintf(out, "==========================================================================\n");
     fprintf(out, "%-26s | %5s | %5s | %7s | %6s\n",
             "Subsystem / Suite", "Total", "PASS", "FAILED", "Rate");
