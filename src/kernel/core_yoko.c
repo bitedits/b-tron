@@ -284,6 +284,10 @@ void btron_main(void) {
 
     uart_init();
 
+    btron_core_banner();
+    btron_core_mem_log();
+    btron_core_hfds_log();
+
     uart_puts("\n==========================================================\n");
     uart_puts(" Sakamura T-Kernel 2.0 Real-Time OS Engine (BCM283x ARM)\n");
     uart_puts(" Target Mode 2: BTRON_YOKOBAYASHI Active\n");

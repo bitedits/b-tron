@@ -19,11 +19,7 @@
 extern void tkernel_init_subsystems(int full_suite);
 
 void btron_core_banner(void) {
-#if BTRON_TARGET == 2
-    printf("B-System/BTRON3 3.20 (yokobayashi-tkernel) Takahiro Yokobayashi — T-Kernel 2.0\n");
-#else
     printf("B-System/BTRON3 3.20 (sakamura-tkernel-virtio) Ken Sakamura — T-Kernel 2.0\n");
-#endif
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     struct utsname un;
     if (uname(&un) == 0)
@@ -42,19 +38,13 @@ void btron_core_hfds_log(void) {
 }
 
 void btron_core_init(void) {
-#if BTRON_TARGET == 2
-    printf("[CORE] Sakamura T-Kernel 2.0 Engine  BTRON_YOKOBAYASHI\n");
-#else
     printf("[CORE] Sakamura T-Kernel 2.0 Engine  BTRON_SAKAMURA\n");
-#endif
 
-    tkernel_init_subsystems(BTRON_TARGET == 2 ? 1 : 0);
+    tkernel_init_subsystems(0);
 
     printf("[T-KERNEL] All Sakamura T-Kernel 2.0 subsystems initialized.\n");
 
-#if BTRON_TARGET == 3
     virtio_mmio_init(0x10001000);
-#endif
 }
 
 
@@ -84,11 +74,7 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
                      un.sysname, un.release, un.machine, un.nodename);
             out_fn(kbuf, COLOR_WHITE, user_data);
         }
-#if BTRON_TARGET == 2
-        out_fn("B-Kernel Subsystem: Yokobayashi T-Kernel 2.0 Engine (Target 2: BTRON_YOKOBAYASHI)", COLOR_GREEN, user_data);
-#else
         out_fn("B-Kernel Subsystem: Sakamura T-Kernel 2.0 VirtIO Real-Time (Target 3: BTRON_SAKAMURA)", COLOR_GREEN, user_data);
-#endif
         char build_buf[256];
         snprintf(build_buf, sizeof(build_buf), "Build Timestamp: %s %s [Compiler: %s]", __DATE__, __TIME__, __VERSION__);
         out_fn(build_buf, COLOR_LTGRAY, user_data);

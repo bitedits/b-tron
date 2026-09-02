@@ -50,6 +50,7 @@ cat "$LOG_FILE"
 
 # Verify all critical hardware & kernel subsystems initialized
 MARKERS=(
+    "B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0"
     "Sakamura T-Kernel 2.0 Real-Time OS Engine"
     "Initializing Video Display Framebuffer"
     "Initializing Sakamura T-Kernel 2.0 Subsystems"
