@@ -635,7 +635,7 @@ void kernel_main(void) {
     run_btron_shell(s_targets[s_selected].cores);
 }
 
-void _start(void) {
+__attribute__((weak)) void _start(void) {
 #if defined(__x86_64__)
     __asm__ volatile(
         "movq %0, %%rsp\n"

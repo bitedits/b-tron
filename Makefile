@@ -117,7 +117,6 @@ QEMU_STARTUP = src/kernel/core_virtio.c
 QEMU_SRCS    = $(QEMU_STARTUP)          \
                src/drivers/virtio/virtio.c \
                src/kernel/core_init.c   \
-               src/kernel/core_boot.c   \
                $(COMMON_SRCS)
 
 # ── X86_64 / EMT64 UEFI build (Target 4) ────────────────────────
@@ -194,7 +193,6 @@ TKERNEL_SAKAMURA_SRCS = \
 TKERNEL_SRCS = src/kernel/core_tkernel.c \
                src/drivers/virtio/virtio.c \
                src/kernel/core_init.c     \
-               src/kernel/core_boot.c     \
                $(TKERNEL_SAKAMURA_SRCS)   \
                $(COMMON_SRCS)
 

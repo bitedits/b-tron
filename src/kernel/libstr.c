@@ -118,16 +118,18 @@ __attribute__((weak)) void Ifree(void *ptr) {
     (void)ptr;
 }
 
-/* Standard aliases */
+#if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0
+/* Standard aliases only for freestanding mode */
 void* memset(void *s, int c, size_t n) __attribute__((weak, alias("tkl_memset")));
 void* memcpy(void *dst, const void *src, size_t n) __attribute__((weak, alias("tkl_memcpy")));
 void* memmove(void *dst, const void *src, size_t n) __attribute__((weak, alias("tkl_memmove")));
-int   memcmp(const void *s1, const void *s2, size_t n) __attribute__((alias("tkl_memcmp")));
-size_t strlen(const char *s) __attribute__((alias("tkl_strlen")));
-char*  strcpy(char *dst, const char *src) __attribute__((alias("tkl_strcpy")));
-char*  strncpy(char *dst, const char *src, size_t n) __attribute__((alias("tkl_strncpy")));
-int    strcmp(const char *s1, const char *s2) __attribute__((alias("tkl_strcmp")));
-int    strncmp(const char *s1, const char *s2, size_t n) __attribute__((alias("tkl_strncmp")));
+int   memcmp(const void *s1, const void *s2, size_t n) __attribute__((weak, alias("tkl_memcmp")));
+size_t strlen(const char *s) __attribute__((weak, alias("tkl_strlen")));
+char*  strcpy(char *dst, const char *src) __attribute__((weak, alias("tkl_strcpy")));
+char*  strncpy(char *dst, const char *src, size_t n) __attribute__((weak, alias("tkl_strncpy")));
+int    strcmp(const char *s1, const char *s2) __attribute__((weak, alias("tkl_strcmp")));
+int    strncmp(const char *s1, const char *s2, size_t n) __attribute__((weak, alias("tkl_strncmp")));
+#endif
 
 char* tkl_strcat(char *dst, const char *src) {
     char *ret = dst;
@@ -144,11 +146,12 @@ char* tkl_strncat(char *dst, const char *src, size_t n) {
     return ret;
 }
 
-char* strcat(char *dst, const char *src) __attribute__((alias("tkl_strcat")));
-char* strncat(char *dst, const char *src, size_t n) __attribute__((alias("tkl_strncat")));
-
-char*  strchr(const char *s, int c) __attribute__((alias("tkl_strchr")));
-char*  strstr(const char *haystack, const char *needle) __attribute__((alias("tkl_strstr")));
+#if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0
+char* strcat(char *dst, const char *src) __attribute__((weak, alias("tkl_strcat")));
+char* strncat(char *dst, const char *src, size_t n) __attribute__((weak, alias("tkl_strncat")));
+char* strchr(const char *s, int c) __attribute__((weak, alias("tkl_strchr")));
+char* strstr(const char *haystack, const char *needle) __attribute__((weak, alias("tkl_strstr")));
+#endif
 
 /* Minimal standalone vsnprintf / snprintf */
 __attribute__((weak)) int tkl_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
@@ -232,4 +235,6 @@ __attribute__((weak)) int tkl_snprintf(char *str, size_t size, const char *forma
     return ret;
 }
 
+#if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0
 int snprintf(char *str, size_t size, const char *format, ...) __attribute__((weak, alias("tkl_snprintf")));
+#endif
