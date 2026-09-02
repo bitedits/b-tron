@@ -54,6 +54,7 @@ typedef struct {
 extern vesa_info_t g_vesa;
 
 int  vesa_init(uint16_t width, uint16_t height, uint16_t bpp);
+void vesa_probe_log(void);
 void vesa_restore_text(void);
 void vesa_put_pixel(int x, int y, uint32_t color);
 void vesa_fill_rect(int x, int y, int w, int h, uint32_t color);

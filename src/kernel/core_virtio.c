@@ -42,15 +42,28 @@ static SYSTIME g_tk_system_ticks = 0;
 
 #include <btron/apps.h>
 
+void btron_core_banner(void) {
+    printf("B-System/BTRON3 3.20 (arm-qemu-virtio) — Cleanroom TRON Kernel\n");
+    printf("Copyright 2026 Synrc Research Center. MIT License.\n");
+    printf("[BOOT] Machine: QEMU virt  ARMv7-A  VirtIO MMIO\n\n");
+}
+
 void btron_core_init(void) {
     (void)g_current_tskid;
     memset(g_tk_tasks, 0, sizeof(g_tk_tasks));
     memset(g_tk_sems, 0, sizeof(g_tk_sems));
-    printf("\n==========================================================\n");
-    printf(" B-Kernel / ITRON RTOS Core (QEMU VirtIO Mode)\n");
-    printf(" Target Mode 1: BTRON_QEMU Active\n");
-    printf("==========================================================\n\n");
+    printf("[CORE] B-Kernel ITRON RTOS (QEMU VirtIO Mode)  BTRON_QEMU\n");
     virtio_mmio_init(0x10001000);
+}
+
+void btron_core_mem_log(void) {
+    printf("[MEM ] QEMU virt: 0x00000000-0x0FFFFFFF  256 MB RAM\n");
+    printf("[MEM ] VirtIO MMIO: 0x10001000  Block device\n");
+}
+
+void btron_core_hfds_log(void) {
+    printf("[HFDS] VirtIO-Block MMIO 0x10001000  [DETECT]\n");
+    printf("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
 }
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {

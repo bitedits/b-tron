@@ -15,10 +15,14 @@ __attribute__((weak)) volatile uint32_t g_num_cpus = 1;
 
 void btron_kernel_init(int target_mode) {
     (void)target_mode;
+    btron_core_banner();
     btron_core_init();
+    btron_core_mem_log();
+    btron_core_hfds_log();
 }
 
 void btron_unified_init(void) {
+    btron_core_banner();
     btron_core_init();
 }
 

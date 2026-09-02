@@ -29,6 +29,7 @@ void uart_puts(const char *s);
 #define ROP_AND    3
 #define ROP_INVERT 4
 
+#ifndef COLOR_BLACK
 /* TRON Standard Palette Colors (0xAARRGGBB format) */
 #define COLOR_BLACK     0xFF000000
 #define COLOR_WHITE     0xFFFFFFFF
@@ -43,6 +44,7 @@ void uart_puts(const char *s);
 #define COLOR_GREEN     0xFF00C040
 #define COLOR_CYAN      0xFF00FFFF
 #define COLOR_GOLD      0xFFFFCC00
+#endif
 
 typedef struct {
     H width;

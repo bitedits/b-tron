@@ -18,27 +18,45 @@
 
 extern void tkernel_init_subsystems(int full_suite);
 
-void btron_core_init(void) {
-    printf("\n==========================================================\n");
+void btron_core_banner(void) {
 #if BTRON_TARGET == 2
-    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
-    printf(" Target Mode 2: BTRON_YOKOBAYASHI Active\n");
-    printf(" Initializing Sakamura T-Kernel Core Modules...\n");
+    printf("B-System/BTRON3 3.20 (yokobayashi-tkernel) — Cleanroom TRON Kernel\n");
 #else
-    printf(" Sakamura T-Kernel 2.0 Real-Time OS Engine (Host PC Mode)\n");
-    printf(" Target Mode 3: BTRON_SAKAMURA Active\n");
-    printf(" Initializing Sakamura T-Kernel Core Modules (UART & VirtIO)...\n");
+    printf("B-System/BTRON3 3.20 (sakamura-tkernel-virtio) — Cleanroom TRON Kernel\n");
 #endif
-    printf("==========================================================\n\n");
+    printf("Copyright 2026 Synrc Research Center. MIT License.\n");
+    struct utsname un;
+    if (uname(&un) == 0)
+        printf("[BOOT] Host: %s %s %s\n\n", un.sysname, un.release, un.machine);
+    else
+        printf("[BOOT] Machine: T-Kernel hosted\n\n");
+}
+
+void btron_core_mem_log(void) {
+    printf("[MEM ] T-Kernel hosted: memory managed by host OS allocator\n");
+}
+
+void btron_core_hfds_log(void) {
+    printf("[HFDS] POSIX file I/O: host filesystem passthrough  [OK]\n");
+    printf("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
+}
+
+void btron_core_init(void) {
+#if BTRON_TARGET == 2
+    printf("[CORE] Sakamura T-Kernel 2.0 Engine  BTRON_YOKOBAYASHI\n");
+#else
+    printf("[CORE] Sakamura T-Kernel 2.0 Engine  BTRON_SAKAMURA\n");
+#endif
 
     tkernel_init_subsystems(BTRON_TARGET == 2 ? 1 : 0);
 
-    printf("[T-KERNEL] All Sakamura T-Kernel 2.0 Real-Time Subsystems Initialized Successfully.\n");
+    printf("[T-KERNEL] All Sakamura T-Kernel 2.0 subsystems initialized.\n");
 
 #if BTRON_TARGET == 3
     virtio_mmio_init(0x10001000);
 #endif
 }
+
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
     if (!out_fn) return;

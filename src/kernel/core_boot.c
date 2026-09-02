@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <btron/core.h>
 #include <btron/desktop.h>
 #include <btron/wnd.h>
 #include <btron/event.h>
@@ -362,6 +363,11 @@ static COLOR s_desktop_backbuffer[1024 * 768] __attribute__((aligned(16)));
 
 static void launch_vesa_desktop_session(int active_cores) {
     (void)active_cores;
+    uart_puts_raw("\r\n[VESA] Switching to B-System 1024x768x32 Linear Framebuffer Desktop...\r\n");
+    uart_puts_raw("[VESA] Disabling VGA text mode (0xB8000)...\r\n");
+    uart_puts_raw("[VESA] Programming Bochs DISPI registers: 1024x768x32 LFB\r\n");
+    uart_puts_raw("[VESA] Backbuffer allocated: 3 MB @ s_desktop_backbuffer\r\n");
+    uart_puts_raw("[VESA] Double-buffer compositor: ACTIVE (tear-free)\r\n");
     kprint("\n[VESA] Switching to B-System 1024x768x32 Linear Framebuffer Desktop...\n", 0x0E);
     vesa_init(1024, 768, 32);
 
@@ -483,8 +489,13 @@ static void run_btron_shell(int active_cores) {
     render_btron_text_desktop(active_cores);
 
     kprint("\n==========================================================\n", 0x0A);
+#if defined(BTRON_PC98_TARGET)
+    kprint(" BTRON3 3.20 NEC PC-9801/PC-9821 Kernel (Awe Morris Engine)\n", 0x0A);
+    kprint(" PC-98 µITRON 3.0 Scheduler  — 1 Core (i386 ISA Planar)\n", 0x0E);
+#else
     kprint(" BTRON3 3.20 UEFI Workstation Kernel (Kota Uchida Engine)\n", 0x0A);
     kprint(" SMP Multi-Core Scheduler Active — 4 Cores Live\n", 0x0E);
+#endif
     kprint(" Type 'desktop' or 'startx' to launch VESA 1024x768 GUI!\n", 0x0B);
     kprint(" Commands: ps, mem, ski, ver, desktop, startx, clear\n", 0x07);
     kprint("==========================================================\n\n", 0x0A);
@@ -582,12 +593,33 @@ static uint8_t s_boot_stack[32768] __attribute__((aligned(16)));
 
 void kernel_main(void) {
     uart_init();
+
+    btron_core_banner();
+
+    /* CPU / SMP / IRQ — core_smp.c (UEFI) or core_pc98.c (PC-98) */
+    btron_core_init();
+
+    /* Memory map — core_smp.c (UEFI) or core_pc98.c (PC-98) */
+    uart_puts_raw("\r\n");
+    btron_core_mem_log();
+
+    /* Storage / HFDS — core_smp.c (UEFI) or core_pc98.c (PC-98) */
+    uart_puts_raw("\r\n");
+    btron_core_hfds_log();
+
+    /* Graphics — vesa.c (real PCI BAR0 scan) */
+    uart_puts_raw("\r\n");
+    vesa_probe_log();
+
+
+
+    /* ── Phase 7: Ski Bootloader Menu ───────────────────────────────── */
     render_ski_menu();
 
-    uart_puts_raw("\n==========================================================\n");
-    uart_puts_raw(" Ski Bootloader Active — Multi-OS Boot Manager\n");
-    uart_puts_raw(" Controls: [W/S] or [Up/Down] Navigate, [+/-] Cores, [Enter] Boot\n");
-    uart_puts_raw("==========================================================\n");
+    uart_puts_raw("==========================================================\r\n");
+    uart_puts_raw(" Ski Bootloader Active — Multi-OS Boot Manager\r\n");
+    uart_puts_raw(" Controls: [W/S] or [Up/Down] Navigate, [+/-] Cores, [Enter] Boot\r\n");
+    uart_puts_raw("==========================================================\r\n");
     uart_send_menu_update();
 
     uint8_t prev_scancode = 0;

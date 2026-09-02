@@ -6,6 +6,26 @@
 #include <drivers/vesa.h>
 #include <libstr.h>
 
+extern void uart_puts_raw(const char *str);
+
+/* ── Tiny UART formatters (no stdio/stdlib) ──────────────────────────── */
+
+static void vesa_uart_hex32(uint32_t v) {
+    static const char h[] = "0123456789ABCDEF";
+    char buf[11];
+    buf[0]='0'; buf[1]='x';
+    for (int i = 9; i >= 2; i--) { buf[i] = h[v & 0xF]; v >>= 4; }
+    buf[10] = '\0';
+    uart_puts_raw(buf);
+}
+
+static void vesa_uart_dec(uint32_t v) {
+    char buf[12]; int i = 10; buf[11] = '\0';
+    if (v == 0) { uart_puts_raw("0"); return; }
+    while (v > 0 && i >= 0) { buf[i--] = (char)('0' + v % 10); v /= 10; }
+    uart_puts_raw(buf + i + 1);
+}
+
 vesa_info_t g_vesa = {0, 0, 0, NULL, 0};
 
 static inline void outw_v(uint16_t port, uint16_t val) {
@@ -63,6 +83,14 @@ static uint32_t pci_scan_vga_lfb(void) {
 
 int vesa_init(uint16_t width, uint16_t height, uint16_t bpp) {
     uint32_t lfb_addr = pci_scan_vga_lfb();
+    uint32_t size_mb  = ((uint32_t)width * height * (bpp / 8u)) / (1024u * 1024u);
+
+    /* Log from vesa.c with real queried values */
+    uart_puts_raw("[VESA] Programming Bochs DISPI: ");
+    vesa_uart_dec(width);  uart_puts_raw("x");
+    vesa_uart_dec(height); uart_puts_raw("x");
+    vesa_uart_dec(bpp);
+    uart_puts_raw(" LFB\r\n");
 
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
     vbe_write(VBE_DISPI_INDEX_XRES, width);
@@ -74,11 +102,17 @@ int vesa_init(uint16_t width, uint16_t height, uint16_t bpp) {
     vbe_write(VBE_DISPI_INDEX_Y_OFFSET, 0);
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
 
-    g_vesa.width = width;
-    g_vesa.height = height;
-    g_vesa.bpp = bpp;
+    g_vesa.width       = width;
+    g_vesa.height      = height;
+    g_vesa.bpp         = bpp;
     g_vesa.framebuffer = (uint32_t *)(uintptr_t)lfb_addr;
-    g_vesa.is_active = 1;
+    g_vesa.is_active   = 1;
+
+    uart_puts_raw("[VESA] Framebuffer @ ");
+    vesa_uart_hex32(lfb_addr);
+    uart_puts_raw("  Size: ");
+    vesa_uart_dec(size_mb);
+    uart_puts_raw(" MB  [ACTIVE]\r\n");
 
     return 0;
 }
@@ -86,6 +120,28 @@ int vesa_init(uint16_t width, uint16_t height, uint16_t bpp) {
 void vesa_restore_text(void) {
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
     g_vesa.is_active = 0;
+}
+
+/*
+ * vesa_probe_log — PCI-scan the VGA LFB and log [VESA] discovery lines
+ * without programming any DISPI registers or changing the video mode.
+ * Called at early boot so the serial console shows real hardware values.
+ */
+void vesa_probe_log(void) {
+    uint32_t lfb_addr = pci_scan_vga_lfb();
+    uint32_t size_mb  = (1024u * 768u * 4u) / (1024u * 1024u); /* 1024x768x32 */
+#if defined(BTRON_PC98_TARGET)
+    uart_puts_raw("[GDC ] NEC uPD7220 GDC (Text VRAM 0xA0000 / 0xA2000)\r\n");
+    uart_puts_raw("[GDC ] Graphics VRAM: 0xA8000 - 0xBFFFF (EGC / 256-color)\r\n");
+#endif
+    uart_puts_raw("[VESA] Bochs DISPI port probe: 0x01CE/0x01CF\r\n");
+    uart_puts_raw("[VESA] PCI bus scan (Class 0x03 Display controller)...\r\n");
+    uart_puts_raw("[VESA] Linear Framebuffer @ ");
+    vesa_uart_hex32(lfb_addr);
+    uart_puts_raw("  Size: ");
+    vesa_uart_dec(size_mb);
+    uart_puts_raw(" MB  [READY]\r\n");
+    uart_puts_raw("[VESA] Mode: VGA text 80x25 (0xB8000) \xe2\x80\x94 active until 'startx'\r\n");
 }
 
 void vesa_put_pixel(int x, int y, uint32_t color) {

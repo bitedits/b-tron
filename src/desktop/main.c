@@ -60,8 +60,6 @@ int main(int argc, char **argv) {
     H screen_w = 1280;
     H screen_h = 800;
 
-    printf("[B-System] Initializing B-System Retro OS Environment...\n");
-
 #ifndef BTRON_TARGET
 #define BTRON_TARGET 0
 #endif

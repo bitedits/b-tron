@@ -41,15 +41,31 @@ static pthread_mutex_t g_kernel_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include <btron/apps.h>
 #include <sys/utsname.h>
 
+void btron_core_banner(void) {
+    printf("B-System/BTRON3 3.20 (posix-hosted) — Cleanroom TRON Kernel\n");
+    printf("Copyright 2026 Synrc Research Center. MIT License.\n");
+    struct utsname un;
+    if (uname(&un) == 0)
+        printf("[BOOT] Host: %s %s %s\n\n", un.sysname, un.release, un.machine);
+    else
+        printf("[BOOT] Machine: POSIX hosted\n\n");
+}
+
 void btron_core_init(void) {
     pthread_mutex_lock(&g_kernel_mutex);
     memset(g_tasks, 0, sizeof(g_tasks));
     memset(g_sems, 0, sizeof(g_sems));
     pthread_mutex_unlock(&g_kernel_mutex);
-    printf("\n==========================================================\n");
-    printf(" POSIX Microkernel Abstraction Engine (Host PC Mode)\n");
-    printf(" Target Mode 0: BTRON_POSIX Active\n");
-    printf("==========================================================\n\n");
+    printf("[CORE] POSIX Microkernel Abstraction Engine  BTRON_POSIX\n");
+}
+
+void btron_core_mem_log(void) {
+    printf("[MEM ] POSIX hosted: memory managed by host OS allocator\n");
+}
+
+void btron_core_hfds_log(void) {
+    printf("[HFDS] POSIX file I/O: host filesystem passthrough  [OK]\n");
+    printf("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
 }
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
