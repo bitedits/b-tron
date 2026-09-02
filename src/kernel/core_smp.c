@@ -421,7 +421,7 @@ void dly_tsk(W dlytim) {
 }
 
 void btron_core_banner(void) {
-    uart_puts_raw("B-System/BTRON3 3.20 (x86_64-uefi-smp) Tomohiro Uchida — T-Kernel 2.0\r\n");
+    uart_puts_raw("B-System/BTRON3 3.20 (x86_64-uefi-smp) Kota Uchida — T-Kernel 2.0\r\n");
     uart_puts_raw("Copyright 2026 Synrc Research Center. MIT License.\r\n");
     uart_puts_raw("[BOOT] Machine: QEMU q35  x86_64 EMT64  SMP  ACPI 6.5\r\n");
     uart_puts_raw("\r\n");
