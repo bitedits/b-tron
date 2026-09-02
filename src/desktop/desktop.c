@@ -119,7 +119,7 @@ void render_system_panel(GDEV *dev) {
 }
 
 
-#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0) && (defined(__arm__) || defined(__aarch64__))
+#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
 #include <btron/tip.h>
 #include <btron/apps.h>
 #ifndef ARGB
@@ -215,8 +215,10 @@ void redraw_baremetal_desktop(GDEV *screen, H w, H h) {
     /* Data Cache Barrier */
 #if defined(__aarch64__)
     __asm__ volatile("dsb sy" : : : "memory");
-#else
+#elif defined(__arm__)
     __asm__ volatile("dsb" : : : "memory");
+#else
+    __asm__ volatile("mfence" : : : "memory");
 #endif
 }
 
@@ -245,3 +247,7 @@ void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
 
 
 #endif /* __arm__ */
+
+BTRON_DESKTOP* get_btron_desktop(void) {
+    return &g_desktop;
+}

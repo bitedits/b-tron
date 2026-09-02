@@ -6,6 +6,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <btron/desktop.h>
+#include <btron/wnd.h>
+#include <btron/event.h>
+#include <btron/tip.h>
+#include <btron/smp.h>
 #include <drivers/vesa.h>
 #include <libstr.h>
 
@@ -333,27 +338,73 @@ static void render_btron_text_desktop(int active_cores) {
     vga_update_cursor();
 }
 
+extern void render_desktop_background(GDEV *dev);
+extern void render_system_panel(GDEV *dev);
+extern void redraw_all_windows(void);
+extern void draw_baremetal_mouse_cursor(GDEV *screen, H mx, H my, H w, H h);
+extern BTRON_DESKTOP* get_btron_desktop(void);
+extern WND* open_vobj_manager_window(void);
+extern WND* open_t_editor_window(void);
+extern WND* open_gterm_window(void);
+
 static void launch_vesa_desktop_session(int active_cores) {
-    kprint("\n[VESA] Initializing 1024x768x32 Linear Framebuffer...\n", 0x0E);
+    kprint("\n[VESA] Switching to B-System 1024x768x32 Linear Framebuffer Desktop...\n", 0x0E);
     vesa_init(1024, 768, 32);
-    vesa_render_desktop(active_cores);
+
+    /* Initialize authentic BTRON desktop over VESA linear framebuffer */
+    init_desktop_vram(1024, 768, (COLOR *)g_vesa.framebuffer);
+    BTRON_DESKTOP *dt = get_btron_desktop();
+    if (!dt || !dt->screen) return;
+
+    tip_init();
+    init_evt_sys();
+
+    /* Open authentic B-System windows */
+    open_vobj_manager_window();
+    open_t_editor_window();
+    open_gterm_window();
+
+    /* Initial paint of authentic B-System desktop */
+    render_desktop_background(dt->screen);
+    render_system_panel(dt->screen);
+    redraw_all_windows();
+    draw_baremetal_mouse_cursor(dt->screen, 512, 384, 1024, 768);
 
     uart_puts_raw("\n==========================================================\n");
-    uart_puts_raw(" [GUI] VESA VBE 1024x768 32-bpp Desktop Active!\n");
-    uart_puts_raw("       • Window 1: HFDS Cabinet Explorer (HyperData Store)\n");
-    uart_puts_raw("       • Window 2: GTerm Interactive Shell (4 Cores Scheduled)\n");
-    uart_puts_raw("       • Window 3: T-Editor Release Notes\n");
-    uart_puts_raw(" Controls: Press [Esc] or [Q] in window/terminal to return to shell.\n");
+    uart_puts_raw(" [B-SYSTEM] Authentic BTRON3 Desktop Active (1024x768x32)!\n");
+    uart_puts_raw("   * Wallpaper: Sakamura B-TRON Teal with Retro Grid\n");
+    uart_puts_raw("   * Icons    : Real Body Cabinet, T-Editor, GTerm, Audio, Chat\n");
+    uart_puts_raw("   * Panel    : [BTRON] System Menu & Japanese JIS Fonts\n");
+    uart_puts_raw("   * Windows  : HFDS Cabinet Explorer, T-Editor, GTerm Shell\n");
+    uart_puts_raw(" Controls: Type in active window or press [Esc]/[Q] to return to shell.\n");
     uart_puts_raw("==========================================================\n\n");
 
     uint8_t prev_sc = 0;
+    int shift = 0;
+    H mouse_x = 512, mouse_y = 384;
+    EVT ev;
+
     for (;;) {
+        int need_redraw = 0;
+
         if (ps2_has_key()) {
             uint8_t sc = ps2_get_scancode();
             if (sc != prev_sc) {
                 prev_sc = sc;
                 if (sc == 0x01 || sc == 0x10) { /* Esc or Q */
                     break;
+                } else if (sc == 0x2A || sc == 0x36) shift = 1;
+                else if (sc == 0xAA || sc == 0xB6) shift = 0;
+                else {
+                    char c = ps2_scancode_to_ascii(sc, shift);
+                    if (c) {
+                        ev.type = EV_KEY_DOWN;
+                        ev.key = (UW)c;
+                        ev.pos.x = mouse_x;
+                        ev.pos.y = mouse_y;
+                        snd_evt(&ev);
+                        need_redraw = 1;
+                    }
                 }
             }
         } else {
@@ -362,19 +413,43 @@ static void launch_vesa_desktop_session(int active_cores) {
 
         if (uart_has_char()) {
             char uc = uart_getc();
-            if (uc == 0x1B || uc == 'q' || uc == 'Q' || uc == 0x03) { /* ESC, 'q', or Ctrl+C */
+            if (uc == 0x1B || uc == 'q' || uc == 'Q' || uc == 0x03) {
                 break;
+            }
+            if (uc == '\r') uc = '\n';
+            if (uc) {
+                ev.type = EV_KEY_DOWN;
+                ev.key = (UW)uc;
+                ev.pos.x = mouse_x;
+                ev.pos.y = mouse_y;
+                snd_evt(&ev);
+                need_redraw = 1;
             }
         }
 
-        for (volatile int d = 0; d < 5000; d++) {
+        while (get_evt(&ev, 0) == E_OK) {
+            WND *top = get_top_wnd();
+            if (top && top->event_handler) {
+                top->event_handler(top, &ev);
+            }
+            need_redraw = 1;
+        }
+
+        if (need_redraw) {
+            render_desktop_background(dt->screen);
+            render_system_panel(dt->screen);
+            redraw_all_windows();
+            draw_baremetal_mouse_cursor(dt->screen, mouse_x, mouse_y, 1024, 768);
+        }
+
+        for (volatile int d = 0; d < 2000; d++) {
             __asm__ volatile("pause");
         }
     }
 
     vesa_restore_text();
     render_btron_text_desktop(active_cores);
-    kprint("\n[GUI] Returned from VESA Graphical Desktop to Console Shell.\n\n", 0x0A);
+    kprint("\n[B-SYSTEM] Returned from VESA Desktop to Console Shell.\n\n", 0x0A);
 }
 
 static void run_btron_shell(int active_cores) {
@@ -423,7 +498,7 @@ static void run_btron_shell(int active_cores) {
 
                 if (strcmp_k(cmd_buf, "help") == 0) {
                     kprint("B-System BTRON3 Available Commands:\n", 0x0B);
-                    kprint("  desktop / startx - Launch full VESA 1024x768 32-bpp GUI\n", 0x0E);
+                    kprint("  desktop / startx - Launch authentic B-System 1024x768 GUI\n", 0x0E);
                     kprint("  ps               - List running tasks with CORE # column\n", 0x07);
                     kprint("  mem              - Show T-Kernel 2.0 heap memory statistics\n", 0x07);
                     kprint("  ski              - Show Ski Bootloader targets\n", 0x07);
