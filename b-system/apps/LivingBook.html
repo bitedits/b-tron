@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Living Book – 双方向書籍 | B-System</title>
-  <meta name="description" content="From static manual to interactive laboratory – every page becomes a live, multimedia-rich sandbox. Interactive hypermedia TAD experience for B-System BTRON.">
+  <meta name="description" content="From static manual to interactive laboratory — every page becomes a live, multimedia-rich sandbox powered by the TAD API.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -22,40 +22,42 @@
     <div class="app-hero-icon">📚</div>
     <h1>Living Book</h1>
     <div class="app-hero-badge">双方向書籍</div>
-    <div class="subtitle">Interactive Hypermedia TAD Experience</div>
+    <div class="subtitle">Interactive Hypermedia TAD Experience (TAD API)</div>
   </div>
 
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
 
     <div class="tagline-card">
-      <strong>"From static manual to interactive laboratory</strong> – every page becomes a live, multimedia-rich sandbox."
+      <strong>"From static manual to interactive laboratory</strong> – every page becomes a live, multimedia-rich sandbox powered by the TAD API."
     </div>
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Turns any TAD document — including the four BTRON system books — into a fully interactive experience. Expand illustrations into scrubbable media, run embedded code examples live inside the page, and attach voice/video annotations that travel with the text as the reader navigates.</p>
-      <div class="app-desc-jp"><b>リビングブック：</b> 4つのシステム解説書をはじめとするあらゆるTAD文書を、動的で双方向な体験へと進化。静止図版を動画メディアへ展開し、掲載コードをその場で実行。文書に連動して移動する音声・ビデオ注釈を添付可能。</div>
+      <p>Transforms static TAD documents — including the four standard BTRON system books — into a fully interactive hypermedia experience via the TAD browser engine (<code>src/apps/tad_browser.c</code>) and TAD API (<code>tad_browser.h</code>). Expands static diagrams into live media, executes embedded code examples live inside document segments, and attaches synchronized multimedia annotations that stay pinned to text blocks as the reader navigates.</p>
+      <div class="app-desc-jp"><b>リビングブック：</b> TADブラウザー表示エンジン（<code>src/apps/tad_browser.c</code>）およびTAD API（<code>tad_browser.h</code>）の拡張機能により、4大システム解説書をはじめとするあらゆるTAD文書を動的で双方向な体験へと進化。静止図版を動画メディアセグメントへ展開し、掲載コードを紙面上で直接実行。文書の文脈に連動して移動する音声・ビデオ注釈を添付可能。</div>
     </div>
 
     <div class="section">
-      <h2>Key Features</h2>
+      <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>BTRON 4大システム書の完全インタラクティブ化</li>
-        <li>紙面コードのインライン・ライブ実行環境（その場で出力確認）</li>
-        <li>ドキュメントに密着して移動するマルチメディア注釈（音声・動画）</li>
-        <li>Static illustrations expand into scrubbable video / 3-D Virtual Bodies on click</li>
-        <li>Export any enriched page as a permanent Real Body to Workbench or Clarity</li>
-        <li>Annotations and code results persist inside the TAD Real Body — no separate notebook needed</li>
+        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（ハイパーメディア文書ビューア・ページネーション）</li>
+        <li>テスト検証基盤：<code>src/apps/test_tad_browser.c</code>（TADセグメント解釈・描画テストスイート）</li>
+        <li>BTRON 4大システム書の完全インタラクティブ化（TAD API動的解釈）</li>
+        <li>紙面コードのインライン・ライブ実行環境（その場で出力セグメントを生成）</li>
+        <li>TADドキュメントに密着して移動するマルチメディア注釈（音声・動画）</li>
+        <li>静止図版のクリックによるスクラブ可能な動的仮想オブジェクト展開</li>
+        <li>充実した注釈付きドキュメントを永続的なTAD実身としてキャビネットに保存</li>
+        <li>注釈・実行結果をTADバイナリ形式で完全保持（外部個別ノート不要）</li>
       </ul>
     </div>
 
     <div class="section">
       <h2>Why the Market Needs It</h2>
       <ul class="app-features-list">
-        <li>BTRON system books are still distributed as static PDFs; developers cannot run example code or see live demos while reading.</li>
-        <li>Learning material is isolated from the interactive TAD workflow — annotating a PDF does not create a Real Body.</li>
-        <li>Conventional e-book readers have no concept of Virtual Body embedding or TAD hypermedia structure.</li>
+        <li>BTRON system books were historically distributed as static documents; developers could not run example code or see live demos while reading.</li>
+        <li>Learning material is isolated from interactive workflows when annotating a static document does not produce a linked Real Body.</li>
+        <li>Brings the full power of the TAD hypermedia model: Virtual Body links, executable segments, and interactive figures beyond static reflowable text.</li>
       </ul>
     </div>
 
@@ -80,11 +82,11 @@
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Open a System Book or any TAD document in Living Book.</li>
-        <li>Click a diagram → it expands to a scrubbable video Virtual Body inline.</li>
+        <li>Open a System Book or any TAD document in Living Book via the TAD API.</li>
+        <li>Click a diagram → it expands to a scrubbable media Virtual Body inline.</li>
         <li>Click a code block → run it in place; output appears as a linked Real Body below the snippet.</li>
         <li>Record a voice note at a heading → it attaches to the paragraph and moves with it on navigation.</li>
-        <li>Export the enriched page as a Real Body into Workbench for long-term reference, or embed it in a Clarity reading session.</li>
+        <li>Export the enriched page as a TAD Real Body into the Cabinet or open it in a Clarity reading session.</li>
       </ol>
     </div>
   </div>
@@ -108,8 +110,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html" class="active">Living Book</a></li>
@@ -141,7 +144,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
   </footer>
 
 </body>

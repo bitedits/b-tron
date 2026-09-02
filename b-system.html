@@ -520,10 +520,10 @@
                     <input type="text" id="appSearchInput" class="search-input" placeholder="アプリケーションや機能（例: TAD, メディア, 仮想オブジェクト）を検索..." onkeyup="filterApps()">
                 </div>
                 <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (14)</button>
-                    <button class="filter-btn" onclick="setAppFilter('media', this)">メディア・制作</button>
-                    <button class="filter-btn" onclick="setAppFilter('knowledge', this)">知識・文書・TAD</button>
-                    <button class="filter-btn" onclick="setAppFilter('system', this)">システム・ツール</button>
+                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (15)</button>
+                    <button class="filter-btn" onclick="setAppFilter('system', this)">システム (System)</button>
+                    <button class="filter-btn" onclick="setAppFilter('tad', this)">TAD (知識・文書)</button>
+                    <button class="filter-btn" onclick="setAppFilter('media', this)">メディア (Media)</button>
                 </div>
             </div>
 
@@ -554,31 +554,55 @@
                 </div>
 
                 <!-- 2. Workbench -->
-                <div class="app-card" data-category="system" data-keywords="workbench ワークベンチ spatial desktop object manager Real Bodys miniature Virtual Bodys attributes live-query">
+                <div class="app-card" data-category="system" data-keywords="workbench ワークベンチ spatial desktop ctwm haiku deskbar root menu pure c99 workspace launcher">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🗄️</div>
                             <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/Workbench.html" style="color:inherit;text-decoration:none;">Workbench</a> <span class="app-badge pink">空間デスクトップ</span></h3>
-                                <div class="app-subtitle-en">Spatial Desktop &amp; Object Manager</div>
+                                <h3 class="app-title"><a href="b-system/apps/Workbench.html" style="color:inherit;text-decoration:none;">Workbench</a> <span class="app-badge pink">空間デスクトップ＆メニュー</span></h3>
+                                <div class="app-subtitle-en">Spatial Desktop &amp; System Menu (CTWM / Haiku Heritage)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Spatial desktop and object manager. Icons are Real Bodys. Any window can be miniaturised and dropped into a document as a living Virtual Body. Fluid, always-snappy navigation with strong attribute and live-query support.
+                            Spatial desktop canvas and central root menu inspired by CTWM and Haiku Deskbar. Implemented in <code>src/desktop/main.c</code> and <code>src/desktop/desktop.c</code> with planned root <code>menu</code> and <code>tracker.c</code> task tracking.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ワークベンチ：</b> アイコンそのものが「実身（Real Body）」。開いているあらゆるウィンドウを瞬時にミニチュア化し、ドキュメント内へ生きた仮想オブジェクトとしてドロップ可能。属性検索とライブクエリをフルサポートした、滑らかで軽快極まる空間デスクトップマネージャ。
+                            <b>ワークベンチ：</b> CTWMやHaiku Deskbarの軽快さを継承した純粋C99製デスクトップ＆システムメニュー。実体コード（<code>src/desktop/main.c</code>, <code>desktop.c</code>）および将来の <code>menu</code> / <code>tracker.c</code> 計画に基づき、仮想ワークスペース、タスク管理、階層型ルートランチャーを提供。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>実身アイコンとウィンドウのミニチュア仮想オブジェクト化</li>
-                        <li>属性ベースのリアルタイム・ライブクエリ（Live Query）</li>
-                        <li>ファイル階層を超越した空間的オブジェクト管理</li>
+                        <li>実体実装：<code>main.c</code>（イベントループ）＆ <code>desktop.c</code>（コンポジタ）</li>
+                        <li>将来計画：CTWM風ルート <code>menu</code> ＆ タスク追跡 <code>tracker.c</code></li>
+                        <li>純粋C99システム設計（仮想ワークスペース・タスク切り替え）</li>
+                    </ul>
+                </div>
+
+                <!-- 2b. Cabinet Explorer -->
+                <div class="app-card" data-category="tad" data-keywords="cabinet explorer キャビネット エクスプローラー real virtual body vobj tad api hypermedia fusen links">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">🗃️</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Cabinet.html" style="color:inherit;text-decoration:none;">Cabinet Explorer</a> <span class="app-badge teal">実身・仮身キャビネット</span></h3>
+                                <div class="app-subtitle-en">Real Body Cabinet &amp; Virtual Body Explorer (TAD API)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Official hypermedia object navigator connected to the TAD API. Browse Real Body cabinets, inspect Virtual Body fusen links, and manage hypermedia networks.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>キャビネット・エクスプローラー：</b> BTRON TAD APIに直結した公式ハイパーメディア・オブジェクトマネージャ。実身（Real Body）と仮身（Virtual Body）のリンク網を可視化し、グリッド・リスト両表示でキャビネット構造を管理。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>TAD API直結による実身・仮身リレーションの双方向ブラウジング</li>
+                        <li>グリッド表示・詳細リスト表示の瞬時切り替え（CAB_VIEW_MODE）</li>
+                        <li>T-EditorおよびTAD Browserへのシームレスなドキュメント展開</li>
                     </ul>
                 </div>
 
                 <!-- 3. Clarity -->
-                <div class="app-card" data-category="knowledge" data-keywords="clarity クラリティ minimal knowledge reading typography instant search permanent Real Bodys notes capture">
+                <div class="app-card" data-category="tad" data-keywords="clarity クラリティ minimal knowledge reading typography instant search permanent Real Bodys notes capture">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">📖</div>
@@ -602,7 +626,7 @@
                 </div>
 
                 <!-- 4. Living Book -->
-                <div class="app-card" data-category="knowledge" data-keywords="living book リビングブック tad document interactive code execution voice video annotation four system books">
+                <div class="app-card" data-category="tad" data-keywords="living book リビングブック tad document interactive code execution voice video annotation four system books">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">📚</div>
@@ -626,7 +650,7 @@
                 </div>
 
                 <!-- 5. T-Editor -->
-                <div class="app-card" data-category="knowledge" data-keywords="t-editor tエディタ native hypermedia editor text graphics Virtual Bodys media tad tron code multilingual collaborative">
+                <div class="app-card" data-category="tad" data-keywords="t-editor tエディタ native hypermedia editor text graphics Virtual Bodys media tad tron code multilingual collaborative">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">✍️</div>
@@ -650,55 +674,55 @@
                 </div>
 
                 <!-- 6. Terminal -->
-                <div class="app-card" data-category="system" data-keywords="terminal ターミナル tron code unicode live Virtual Bodys shell command cli gterm">
+                <div class="app-card" data-category="system" data-keywords="terminal ターミナル tron code unicode shell command cli gterm pure c99 pty virtio-console">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">💻</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Terminal.html" style="color:inherit;text-decoration:none;">Terminal</a> <span class="app-badge teal">TRON端末</span></h3>
-                                <div class="app-subtitle-en">Clean, Fast TRON Code &amp; Unicode Terminal</div>
+                                <div class="app-subtitle-en">Low-Latency TRON Code &amp; Unicode Terminal (gterm)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Clean, fast terminal with full TRON Code / Unicode support. Sessions and output can be embedded as live Virtual Bodys.
+                            Pure C99 terminal emulator over VirtIO-Console, UART, and POSIX PTYs. Full TRON Code and Unicode support with zero TAD dependencies.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ターミナル：</b> TRONコード体系および最新Unicodeに完全準拠した、軽快で高機能な端末エミュレータ。実行中のシェルセッションや出力ログをそのまま「生きた仮想オブジェクト」としてTAD文書やワークベンチへ貼り付け可能。
+                            <b>ターミナル：</b> TRONコード体系および最新Unicodeに完全準拠した、純粋C99製（gterm.c）の低遅延・高機能端末エミュレータ。VirtIO-Console、シリアル、POSIX PTY直結でTAD API非依存。
                         </div>
                     </div>
                     <ul class="app-features-list">
                         <li>TRON多言語文字コード＆Unicode完全ネイティブ表示</li>
-                        <li>端末出力やセッションの仮想オブジェクト化</li>
-                        <li>低遅延VirtIO-Console &amp; POSIXサブシステム連携</li>
+                        <li>純粋C99システム設計（TAD API非依存・低レイテンシ）</li>
+                        <li>低遅延VirtIO-Console &amp; POSIX PTYサブシステム連携</li>
                     </ul>
                 </div>
 
                 <!-- 7. Commander -->
-                <div class="app-card" data-category="system" data-keywords="commander コマンダー dual-pane object file manager drag-drop real Virtual Bodys tad link">
+                <div class="app-card" data-category="system" data-keywords="commander コマンダー dual-pane orthodox file manager ofm btron fs pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🗂️</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Commander.html" style="color:inherit;text-decoration:none;">Commander</a> <span class="app-badge gold">2画面ファイラー</span></h3>
-                                <div class="app-subtitle-en">Dual-Pane Object &amp; File Manager</div>
+                                <div class="app-subtitle-en">Dual-Pane Orthodox File Manager (OFM)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Dual-pane object and file manager. Keyboard-driven power with full drag-and-drop of Real and Virtual Bodys and deep TAD link integration.
+                            Pure C99 keyboard-driven dual-pane orthodox file manager for BTRON FS, POSIX file trees, and block devices with zero TAD dependencies.
                         </div>
                         <div class="app-desc-jp">
-                            <b>コマンダー：</b> キーボード主導の高速操作が可能な左右2画面オブジェクト・ファイルマネージャ。実身と仮身の直感的なドラッグ＆ドロップ、深いTADハイパーリンク統合、高速な一括属性変更に対応。
+                            <b>コマンダー：</b> キーボード主導の高速操作が可能な純粋C99製左右2画面（OFM）ファイルマネージャ。BTRON FS、POSIXファイルツリー、VirtIOデバイス間の高速ファイル操作に対応。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>熟練研究者のための高速キーボード主導2画面レイアウト</li>
-                        <li>実身と仮身の一括整理・相互リンク自動生成</li>
-                        <li>TADキャビネット構造の階層ツリー＆一覧表示</li>
+                        <li>熟練エンジニアのための高速キーボード主導2画面レイアウト</li>
+                        <li>純粋C99システム設計（TAD API非依存・高速ファイルI/O）</li>
+                        <li>ファンクションキー操作（F3〜F8）と内蔵バイナリ/HEXビューア</li>
                     </ul>
                 </div>
 
                 <!-- 8. Browser -->
-                <div class="app-card" data-category="knowledge" data-keywords="browser ブラウザ lightweight html 4.1 html-to-tad conversion Real Body web">
+                <div class="app-card" data-category="tad" data-keywords="browser ブラウザ lightweight html 4.1 html-to-tad conversion Real Body web">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🌐</div>
@@ -722,7 +746,7 @@
                 </div>
 
                 <!-- 9. Mail & Chat -->
-                <div class="app-card" data-category="knowledge" data-keywords="mail chat メール チャット xmpp messaging conversations Virtual Bodys blabber communication">
+                <div class="app-card" data-category="tad" data-keywords="mail chat メール チャット xmpp messaging conversations Virtual Bodys blabber communication">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">💬</div>
@@ -794,74 +818,74 @@
                 </div>
 
                 <!-- 12. Calculator -->
-                <div class="app-card" data-category="system" data-keywords="calculator 電卓 precise history results Virtual Bodys math scientific">
+                <div class="app-card" data-category="system" data-keywords="calculator 電卓 precise history paper roll math scientific programmer hex bin pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🔢</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Calculator.html" style="color:inherit;text-decoration:none;">Calculator</a> <span class="app-badge gold">高精度電卓</span></h3>
-                                <div class="app-subtitle-en">Precise Scientific Calculator with History</div>
+                                <div class="app-subtitle-en">Scientific &amp; Programmer Desktop Calculator</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Precise calculator with history. Results can be dragged out as Virtual Bodys.
+                            Pure C99 scientific and programmer calculator with arbitrary precision, bitwise operations, paper roll history, and system clipboard copy/paste.
                         </div>
                         <div class="app-desc-jp">
-                            <b>電卓：</b> 計算履歴ログ、科学計算、単位変換を備えた高精度電卓。計算結果の数値や算出式そのものを仮想オブジェクトとしてドラッグし、TAD文書や表計算シートへ即座に貼り付け可能。
+                            <b>電卓：</b> 任意桁整数、倍精度浮動小数点、科学関数、プログラマー向け基数変換（HEX/DEC/OCT/BIN）とビット演算を備えた純粋C99製計算機。ロールペーパー履歴とOSクリップボード連携に対応。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>任意精度演算と包括的な計算履歴ジャーナル</li>
-                        <li>計算結果・数式のドラッグ＆ドロップ仮想オブジェクト化</li>
-                        <li>研究用途に最適な単位換算・科学関数ライブラリ</li>
+                        <li>任意精度演算と包括的な計算履歴ペーパーロール</li>
+                        <li>純粋C99システム設計（TAD API非依存・超低遅延起動）</li>
+                        <li>プログラマー向け基数変換（HEX/BIN）とビット演算</li>
                     </ul>
                 </div>
 
                 <!-- 13. Clock -->
-                <div class="app-card" data-category="system" data-keywords="clock 時計 elegant timers alarms world clocks small always-available Virtual Body time">
+                <div class="app-card" data-category="system" data-keywords="clock 時計 rtc hpet itron timers alarms world clocks pure c99 time">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">⏰</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Clock.html" style="color:inherit;text-decoration:none;">Clock</a> <span class="app-badge pink">時刻・タイマー</span></h3>
-                                <div class="app-subtitle-en">Elegant Clocks, Timers &amp; World Time</div>
+                                <div class="app-subtitle-en">System Clock, Timers &amp; World Time (RTC / μITRON)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Elegant clock, timers, alarms and world clocks. Can live as a small always-available Virtual Body.
+                            Pure C99 system clock and timekeeping utility interfacing directly with hardware RTC, HPET, and μITRON timers with zero TAD dependencies.
                         </div>
                         <div class="app-desc-jp">
-                            <b>時計：</b> 美麗なアナログ・デジタル表示、高精度タイマー、アラーム、世界時計。デスクトップの隅や任意の文書内に常駐する、軽量で常時利用可能な仮想オブジェクトとして稼働。
+                            <b>時計：</b> ハードウェアRTC、HPET、およびμITRONカーネルタイマーAPIに直結した純粋C99製システム時計。高品位アナログ・デジタル表示、世界時計、ミリ秒タイマーを搭載。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>世界各国のタイムゾーン表示とミリ秒タイマー</li>
-                        <li>TAD文書内へライブ稼働する時計オブジェクトを埋め込み</li>
-                        <li>システムアラームとμITRONリアルタイムスケジューラ連動</li>
+                        <li>ハードウェアRTCおよびμITRON高精度タイマー直結</li>
+                        <li>純粋C99システム設計（TAD API非依存・低負荷常駐）</li>
+                        <li>世界各国のタイムゾーン表示とミリ秒タイマー・アラーム</li>
                     </ul>
                 </div>
 
                 <!-- 14. Preferences -->
-                <div class="app-card" data-category="system" data-keywords="preferences 環境設定 quick access panel system settings control panel">
+                <div class="app-card" data-category="system" data-keywords="preferences 環境設定 quick access panel system settings control panel pure c99 kernel">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">⚙️</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Preferences.html" style="color:inherit;text-decoration:none;">Preferences</a> <span class="app-badge teal">環境設定</span></h3>
-                                <div class="app-subtitle-en">Quick Access System Settings Panel</div>
+                                <div class="app-subtitle-en">Central System Settings &amp; Hardware Control Panel</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Quick access panel for the most common system settings.
+                            Pure C99 system control panel for kernel sysctl, display resolutions, Mozc TIP input method, network, and audio settings applied live without rebooting.
                         </div>
                         <div class="app-desc-jp">
-                            <b>環境設定パネル：</b> 最も頻繁に変更する基本システム設定へ即座にアクセスできるクイックパネル。設定フォルダ内の各専門モジュールへのハブとして機能。
+                            <b>環境設定パネル：</b> カーネル設定、画面解像度、Mozc TIP日本語入力、VirtIOネットワーク、音量を一元管理する純粋C99製設定パネル。OS再起動不要で即時反映。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>ワンクリックで主要システムパラメータへアクセス</li>
-                        <li>設定フォルダ（Settings Folder）の10分野を統合管理</li>
-                        <li>設定変更の即時反映（OS再起動不要）</li>
+                        <li>ワンクリックで主要カーネルパラメータへアクセス</li>
+                        <li>純粋C99システム設計（TAD API非依存・即時反映）</li>
+                        <li>設定フォルダの各専門モジュールへのハブ機能</li>
                     </ul>
                 </div>
 

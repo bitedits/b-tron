@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T-Editor – TADエディタ | B-System</title>
-  <meta name="description" content="The native TAD authoring environment — mix text, graphics, Virtual Bodies and media in one document">
+  <meta name="description" content="The native TAD authoring environment — deeply connected to the TAD API for text, vector graphics, Virtual Bodies, and media segments in one document.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,38 @@
     <div class="app-hero-icon">✍️</div>
     <h1>T-Editor</h1>
     <div class="app-hero-badge">TADエディタ</div>
-    <div class="subtitle">Native Hypermedia Document Editor</div>
+    <div class="subtitle">Native Hypermedia TAD Document Editor (TAD API)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"The native TAD authoring environment — mix text, graphics, Virtual Bodies and media in one document"</strong></div>
+    <div class="tagline-card"><strong>"The native TAD authoring environment — deeply connected to the TAD API for text, vector graphics, Virtual Bodies, and hypermedia in one document."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Native hypermedia editor. Mix text, graphics, Virtual Bodies and media in a single TAD document. Excellent multilingual input via Mozc TIP and smooth collaborative editing support.</p>
-      <div class="app-desc-jp"><b>Tエディタ：</b> ネイティブ・ハイパーメディア文書編集環境。テキスト、ベクター図形、仮想オブジェクト、各種メディアを単一のTAD文書内で自在に融合。強力な多言語入力（TRONコード・多言語プレーン）とスムーズな共同編集をサポート。</div>
+      <p>Premier hypermedia document editor implemented in <code>src/apps/t_editor.c</code> and deeply connected to the BTRON TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>). Directly structures, reads, and writes BTRON3 SPEC 3.20 binary TAD segments (text page, ruler, character font, vector figures, and Virtual Body fusen links). Features full multilingual input via Mozc TIP and smooth collaborative document workflows.</p>
+      <div class="app-desc-jp"><b>Tエディタ：</b> BTRON TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>）に直結した公式ネイティブ・ハイパーメディア文書編集環境実装（<code>src/apps/t_editor.c</code>）。テキスト、ベクター図形セグメント、仮想オブジェクト（仮身）、各種メディアを単一のバイナリTAD文書内で自在に融合。強力な多言語入力（TRONコード・多言語プレーン）とスムーズな実身・仮身リンク網形成をサポート。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>TAD標準準拠の真のハイパーメディア編集</li><li>Mozc TIP連携による高度な漢字・多言語文字入力</li><li>実身と仮身の自由な埋め込み・展開・リンク網形成</li><li>Inline embedding of Paint graphics, MediaPulse clips, and Calculator results as Virtual Bodies</li><li>Collaborative real-time editing with conflict-free merge via CRDT</li><li>Export to TAD Cabinet, PDF, or plain-text without losing the hypermedia structure</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/t_editor.c</code>（TAD文書エディタ <code>open_t_editor_window</code>、セグメント操作）</li>
+        <li>テスト検証基盤：<code>src/apps/test_editor_ui.c</code>（UIレンダリング・セグメント編集検証）</li>
+        <li>TAD API直結による規格準拠バイナリセグメント編集（Text, Ruler, Font, VOBJ Fusen）</li>
+        <li>Mozc TIP連携による高度な漢字変換・多言語TRONコード文字入力</li>
+        <li>実身（Real Body）と仮身（Virtual Body）の自由な埋め込み・展開・リンク網形成</li>
+        <li>Paintで作成したネイティブTADベクター図形セグメントのインライン埋め込み</li>
+        <li>CRDTベースの差分マージによるリアルタイム共同編集サポート</li>
+        <li>TADキャビネット構造、PDF、プレーンテキストへの双方向エクスポート</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Open a new TAD document in T-Editor.</li><li>Type multilingual text using Mozc TIP for kanji and TRON Code for extended characters.</li><li>Drag a graphic from Paint — it embeds as a native TAD vector segment (resolution-independent).</li><li>Drop a MediaPulse clip — it becomes an inline scrubbable Virtual Body within the text flow.</li><li>Share the document; collaborators see live cursors and edits merge automatically.</li></ol>
+      <ol class="workflow-list">
+        <li>Open a new or existing TAD document; the TAD API parses binary segments into the document model.</li>
+        <li>Type multilingual text using Mozc TIP for kanji and TRON Code for multilingual planes.</li>
+        <li>Drag a vector illustration from Paint — it embeds as a native TAD figure primitive segment (resolution-independent).</li>
+        <li>Insert a Virtual Body linking to an external document, research note, or media stream.</li>
+        <li>Save changes via the TAD API to write valid, spec-compliant BTRON3 TAD binary records.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +73,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html" class="active">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +107,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
   </footer>
 </body>
 </html>

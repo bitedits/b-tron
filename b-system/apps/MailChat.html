@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mail &amp; Chat – 統合通信 | B-System</title>
-  <meta name="description" content="Every message and thread is a first-class Virtual Body — drop conversations straight into your TAD documents">
+  <meta name="description" content="Every message and thread is linkable via the TAD API — archive conversations and drop message citations straight into your TAD documents">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,38 @@
     <div class="app-hero-icon">💬</div>
     <h1>Mail &amp; Chat</h1>
     <div class="app-hero-badge">統合通信</div>
-    <div class="subtitle">Unified XMPP Mail &amp; Real-Time Chat</div>
+    <div class="subtitle">Unified XMPP Mail &amp; Real-Time Chat (TAD API)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Every message and thread is a first-class Virtual Body — drop conversations straight into your TAD documents"</strong></div>
+    <div class="tagline-card"><strong>"Every message and thread connects via the TAD API — archive conversations and drop citations straight into your TAD documents."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Unified XMPP-based mail and real-time chat. Conversations and messages are first-class Virtual Bodies that can be dropped into research memos, TAD reports, or the Workbench canvas.</p>
-      <div class="app-desc-jp"><b>メール＆チャット：</b> XMPPプロトコルを基盤とするメールとリアルタイム対話の統合環境。個々のメッセージや会話スレッド全体が第一級の仮想オブジェクトとして扱われ、そのまま研究メモやTAD報告書にドロップ可能。</div>
+      <p>Unified XMPP-based mail and real-time messaging environment implemented in <code>src/apps/chat.c</code> and <code>src/apps/chat_xml.c</code> (<code>launch_beos_chat</code>), connected to the TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>). Important conversations, research exchanges, and attachments can be archived directly as permanent TAD Real Bodies and referenced as Virtual Body citations across research reports and T-Editor documents.</p>
+      <div class="app-desc-jp"><b>メール＆チャット：</b> XMPPプロトコルおよびXMLスタンザ処理基盤（<code>src/apps/chat.c</code>, <code>src/apps/chat_xml.c</code>）を基盤とするメールとリアルタイム対話の統合通信環境。TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>）と連携し、重要なやり取りや添付ファイルを永続的なTAD実身（Real Body）として自動アーカイブ。研究メモやTAD報告書へ仮身（Virtual Body）として引用・埋め込み可能。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>標準XMPP / Erlang Pub-Sub基盤による堅牢な暗号化通信（OMEMO）</li><li>対話メッセージの実身・仮身化とTAD文書貼付</li><li>連絡先ごとのリアルタイムプレゼンス＆ステータス表示</li><li>Attachment Real Bodies auto-linked to the originating thread</li><li>Conversation threads searchable from Clarity's global instant-search</li><li>Quote any message as a Virtual Body directly inside a T-Editor document</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/chat.c</code>（チャットクライアントUI・ウィンドウ管理 <code>launch_beos_chat</code>）</li>
+        <li>プロトコル処理：<code>src/apps/chat_xml.c</code>（XMLパーサー・ストリーミング処理・スタンザ生成）</li>
+        <li>テスト検証基盤：<code>src/apps/test_chat.c</code>（XMPPメッセージング・対話セッション検証）</li>
+        <li>標準XMPP / Erlang Pub-Sub基盤による堅牢な暗号化通信（OMEMO）</li>
+        <li>TAD APIを介した対話メッセージの実身化・仮身リンク生成</li>
+        <li>連絡先ごとのリアルタイムプレゼンス＆ステータス表示</li>
+        <li>添付ファイルのTAD Real Body自動関連付けとメタデータ保存</li>
+        <li>Clarityのミリ秒グローバル検索から会話スレッドを横断検索可能</li>
+        <li>T-Editor文書内へメッセージを引用仮身（Virtual Body Fusen）として直接埋め込み</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Send or receive a message in Mail &amp; Chat.</li><li>Select any message or thread → drag it onto the Workbench canvas — it becomes a Virtual Body.</li><li>Drop the Virtual Body into a T-Editor memo or Living Book annotation to cite the conversation inline.</li><li>Search for any message content instantly from Clarity's global search bar.</li></ol>
+      <ol class="workflow-list">
+        <li>Send or receive messages in Mail &amp; Chat over secure XMPP / VirtIO-Net.</li>
+        <li>Select an important discussion thread → archive it as a permanent TAD Real Body via the TAD API.</li>
+        <li>Drop the thread's Virtual Body into a T-Editor report or Living Book annotation to cite the exchange inline.</li>
+        <li>Search for any message content instantly from Clarity's global search bar.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +73,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +107,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
   </footer>
 </body>
 </html>

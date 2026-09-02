@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commander – 2画面ファイラー | B-System</title>
-  <meta name="description" content="Keyboard-driven dual-pane power — bulk-manage Real and Virtual Bodies with deep TAD link integration">
+  <meta name="description" content="Keyboard-driven dual-pane orthodox file manager (OFM) — pure C99 filesystem navigator with fast copy, move, diff, and viewer tools.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,37 @@
     <div class="app-hero-icon">🗂️</div>
     <h1>Commander</h1>
     <div class="app-hero-badge">2画面ファイラー</div>
-    <div class="subtitle">Dual-Pane Object &amp; File Manager</div>
+    <div class="subtitle">Dual-Pane Orthodox File Manager (OFM)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Keyboard-driven dual-pane power — bulk-manage Real and Virtual Bodies with deep TAD link integration"</strong></div>
+    <div class="tagline-card"><strong>"High-speed keyboard-driven dual-pane file management — pure C99 filesystem operations, directory synchronization, and inspection."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Dual-pane object and file manager. Keyboard-driven power with full drag-and-drop of Real and Virtual Bodies and deep TAD link integration.</p>
-      <div class="app-desc-jp"><b>コマンダー：</b> キーボード主導の高速操作が可能な左右2画面オブジェクト・ファイルマネージャ。実身と仮身の直感的なドラッグ＆ドロップ、深いTADハイパーリンク統合、高速な一括属性変更に対応。</div>
+      <p>Keyboard-driven dual-pane orthodox file manager (OFM) engineered in pure C99, backed by the BTRON filesystem and record manager (<code>src/kernel/fs_record.c</code>, <code>src/kernel/proc_mgr.c</code>). Designed for rapid navigation, batch file operations, archive browsing, and directory synchronization across BTRON FS partitions, mounted POSIX filesystems, and VirtIO block volumes. Features built-in raw hex/binary and text viewers, directory comparisons, and rapid hotkeys (F3 View, F4 Edit, F5 Copy, F6 Move, F7 Mkdir, F8 Delete).</p>
+      <div class="app-desc-jp"><b>コマンダー：</b> BTRONファイルシステム基盤（<code>src/kernel/fs_record.c</code>）およびプロセス管理（<code>src/kernel/proc_mgr.c</code>）に直結した、キーボード主導の超高速操作を実現する純粋C99製左右2画面（OFM: Orthodox File Manager）ファイルマネージャ。BTRON FSパーティション、マウント済みPOSIXファイルツリー、VirtIOブロックデバイス間での一括ファイル転送、ディレクトリ同期、属性変更を瞬時に実行。内蔵バイナリ/HEXビューア、テキストプレビュー、ファンクションキー（F3〜F8）ショートカットを備え、軽量・堅牢に動作。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>熟練研究者のための高速キーボード主導2画面レイアウト</li><li>実身と仮身の一括整理・相互リンク自動生成</li><li>TADキャビネット構造の階層ツリー＆一覧表示</li><li>Inline attribute editor: change metadata on hundreds of Real Bodies in one keystroke</li><li>Diff view between two TAD Cabinet trees for sync and archival</li><li>Integration with Terminal for shell operations from within the file view</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>ファイルシステム基盤：<code>src/kernel/fs_record.c</code>（BTRON FSレコードI/O・同期）</li>
+        <li>熟練エンジニアのための高速キーボード主導2画面レイアウト（左右ペイン独立）</li>
+        <li>純粋C99システム設計（高速ファイルI/O・低メモリ消費）</li>
+        <li>ファンクションキー標準操作（F3: 閲覧, F4: 編集, F5: 複製, F6: 移動, F7: 作成, F8: 削除）</li>
+        <li>内蔵RAWバイナリ/HEXダンパおよびプレーンテキストビューア</li>
+        <li>ディレクトリ差分比較（Diff）とタイムスタンプ/パーミッション同期</li>
+        <li>Terminal (gterm) 連携による現在ディレクトリへの即時シェル起動</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Open Commander; left pane shows source TAD Cabinet, right pane shows destination.</li><li>Select multiple Real Bodies with keyboard shortcuts; press F6 to move or F5 to copy.</li><li>Commander auto-creates Virtual Body links in the destination so originals remain accessible.</li><li>Use the inline attribute panel to tag, rename, or re-classify all selected objects at once.</li></ol>
+      <ol class="workflow-list">
+        <li>Launch Commander; left pane displays source directory or storage partition, right pane shows destination.</li>
+        <li>Navigate effortlessly using cursor keys; select multiple files with Insert or Space.</li>
+        <li>Press F3 to inspect raw file contents in the built-in hex/binary viewer.</li>
+        <li>Press F5 or F6 to execute high-speed atomic copy or move operations between partitions.</li>
+        <li>Press Ctrl+O or Enter to jump directly into a Terminal shell at the active pane's directory.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +72,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +106,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Pure C99 System Plane</div>
   </footer>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Browser – HTML→TAD変換 | B-System</title>
-  <meta name="description" content="One-click bridge: turn any web page into a live, editable Real Body that lives inside your TAD universe. Lightweight HTML 4.1 browser for B-System BTRON.">
+  <meta name="description" content="One-click bridge: turn any web page into a live, editable Real Body that lives inside your TAD universe. Lightweight HTML 4.1 browser with TAD API export.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -22,31 +22,32 @@
     <div class="app-hero-icon">🌐</div>
     <h1>Browser</h1>
     <div class="app-hero-badge">HTML→TAD変換</div>
-    <div class="subtitle">Lightweight HTML 4.1 Browser with TAD Export</div>
+    <div class="subtitle">Lightweight HTML 4.1 Browser with HTML-to-TAD Conversion (TAD API)</div>
   </div>
 
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
 
     <div class="tagline-card">
-      <strong>"One-click bridge:</strong> turn any web page into a live, editable Real Body that lives inside your TAD universe."
+      <strong>"One-click bridge:</strong> turn any web page into a live, editable Real Body that lives inside your TAD universe via the TAD API."
     </div>
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Lightweight HTML 4.1 browser with one-click HTML-to-TAD conversion. Any page can become a native, editable Real Body — permanently stored in the knowledge base, linkable as a Virtual Body inside any TAD document.</p>
-      <div class="app-desc-jp"><b>ブラウザ：</b> 軽量・軽快なHTML 4.1 Webブラウザ。ワンクリックで閲覧中のWebページをネイティブかつ編集可能な実身（TAD Real Body）へと変換・ローカル保存。Webの知識を永久に散逸しない知識資産へ。</div>
+      <p>Lightweight HTML 4.1 browser and TAD document converter. Renders hypermedia pages using the TAD browser engine (<code>src/apps/tad_browser.c</code>) and native conversion pipeline (<code>scripts/html2tad.exs</code>). Directly leverages the TAD API (<code>tad_browser.h</code>) and compiler engine to transform remote web articles, technical standards, and documentation into native BTRON3 binary TAD Real Bodies — permanently preserved in the knowledge base and linkable as Virtual Bodies inside any TAD document.</p>
+      <div class="app-desc-jp"><b>ブラウザ：</b> 軽量・軽快なHTML 4.1 Webブラウザ。TADブラウザー表示基盤（<code>src/apps/tad_browser.c</code>）およびTAD変換パイプライン（<code>scripts/html2tad.exs</code>）に直結し、閲覧中のWebページをワンクリックでネイティブかつ編集可能なBTRON3バイナリ実身（TAD Real Body）へと変換・ローカル保存。Webの知識を永久不変のTAD知識資産として取り込みます。</div>
     </div>
 
     <div class="section">
-      <h2>Key Features</h2>
+      <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>1クリックでWebページをTAD実身文書へ完全変換</li>
+        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（TADドキュメントブラウザー・パーサー）</li>
+        <li>TAD API直結による1クリックでのWebページ→TAD実身バイナリ完全変換</li>
         <li>無駄なスクリプトを排した超高速レンダリング（HTML 4.1 + CSS2）</li>
-        <li>T-Editorでの即座な再編集・注釈追記</li>
-        <li>Converted Real Bodies immediately linkable as Virtual Bodies in any TAD document</li>
-        <li>Persistent local archive — web knowledge never siloed or lost</li>
-        <li>Back-link from the saved Real Body to the original URL preserved as metadata</li>
+        <li>T-Editorでの即座な再編集・注釈追記・実身リンク形成</li>
+        <li>変換後のTAD実身は任意のドキュメント内に仮身（Virtual Body）として即座に埋め込み可能</li>
+        <li>永続的なローカルアーカイブ — Web知識のサイロ化やリンク切れを完全防止</li>
+        <li>元のURLおよび取得タイムスタンプをTADメタデータとして自動保持</li>
       </ul>
     </div>
 
@@ -54,8 +55,8 @@
       <h2>Why the Market Needs It</h2>
       <ul class="app-features-list">
         <li>Web content stays siloed in classic browsers: you can read it, but cannot edit or embed it back into the BTRON knowledge base.</li>
-        <li>Researchers lose the "permanent knowledge" link between a web page and a TAD document every time a tab is closed.</li>
-        <li>Heavyweight modern browsers (V8, full JS engine) are inappropriate for a minimal unikernel environment.</li>
+        <li>Researchers lose the permanent knowledge link between a web page and a document every time a remote tab or URL changes.</li>
+        <li>Heavyweight modern browsers are inappropriate for a minimal, deterministic workstation environment; a lean HTML-to-TAD pipeline provides permanent knowledge stability.</li>
       </ul>
     </div>
 
@@ -66,7 +67,7 @@
         <tbody>
           <tr>
             <td>Classic B-TRON WebView (plain HTML renderer, read-only)</td>
-            <td>One-click export to editable TAD Real Body; full round-trip editing</td>
+            <td>One-click export to editable TAD Real Body via TAD API; full round-trip editing in T-Editor</td>
             <td rowspan="2">Researchers, technical writers, developers capturing web-based knowledge</td>
           </tr>
           <tr>
@@ -80,9 +81,9 @@
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Open any web page in Browser.</li>
-        <li>Press <b>Export → TAD</b>; the page becomes a Real Body (editable TAD document).</li>
-        <li>Annotate, add inline code notes, or embed the Real Body into other TAD documents via Virtual Bodies.</li>
+        <li>Open any web page or documentation in Browser.</li>
+        <li>Press <b>Export → TAD</b>; the TAD API compiler transforms the page into a native Real Body.</li>
+        <li>Annotate, add inline notes, or embed the Real Body into other documents via Virtual Bodies in T-Editor.</li>
         <li>Search the saved Real Body instantly from Clarity's global search bar.</li>
       </ol>
     </div>
@@ -107,8 +108,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -140,7 +142,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
   </footer>
 
 </body>

@@ -32,12 +32,10 @@
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Cleanroom multi-architecture boot manager combining Haiku's aesthetic grace and NetBSD's boot infrastructure
-        reliability. Supports Raspberry Pi 1–5 (ARM MMIO), x86_64 UEFI SMP (ACPI MADT), and NEC PC-9801/PC-9821 VM (Awe
-        Morris kernel) with live command-line editing and multi-core affinity allocation.</p>
+      <p>Cleanroom multi-architecture boot manager implemented in <code>src/kernel/core_boot.c</code>, <code>src/kernel/core_smp.c</code>, and validated by <code>src/apps/test_ski.c</code>. Combines Haiku's aesthetic grace and NetBSD's boot infrastructure
+        reliability. Supports Raspberry Pi 1–5 (ARM MMIO via <code>src/drivers/bcm283x/boot/boot_arm_stub.c</code>), x86_64 UEFI SMP (ACPI MADT), and NEC PC-9801/PC-9821 VM (<code>src/drivers/pc98/boot/boot_pc98.c</code>) with live command-line editing and multi-core affinity allocation.</p>
       <div class="app-desc-jp"><b>スキー・ブートローダー（Bootloader）：</b>
-        B-Systemの公式ブートマネージャ。Haiku流の洗練されたUI造形美とNetBSD水準の堅牢なブートマネージャ品質を融合。Raspberry Pi 1〜5（ARM
-        MMIO）、x86_64 UEFI SMP（ACPI MADT AP起動）、そしてNEC PC-98（i386/i486/Pentium リアルモード）の3大ハードウェアアーキテクチャを統合サポートします。</div>
+        B-Systemの公式ブートマネージャ実装（<code>src/kernel/core_boot.c</code>, <code>src/apps/test_ski.c</code>）。Haiku流の洗練されたUI造形美とNetBSD水準の堅牢なブートマネージャ品質を融合。Raspberry Pi 1〜5（ARM MMIO）、x86_64 UEFI SMP（ACPI MADT AP起動）、そしてNEC PC-98（i386/i486/Pentium リアルモード）の3大ハードウェアアーキテクチャを統合サポートします。</div>
     </div>
 
     <!-- ── Screenshot ────────────────────────────────────────────── -->
@@ -274,8 +272,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+          <li><a href="Cabinet.html">Cabinet Explorer</a></li>
           <li><a href="TEditor.html">T-Editor</a></li>
           <li><a href="Clarity.html">Clarity</a></li>
           <li><a href="LivingBook.html">Living Book</a></li>
@@ -307,8 +306,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia &nbsp;·&nbsp; Ski
-      Bootloader</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Pure C99 System Plane &nbsp;·&nbsp; Ski Bootloader</div>
   </footer>
 </body>
 

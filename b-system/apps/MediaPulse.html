@@ -27,12 +27,12 @@
     <div class="tagline-card"><strong>"Drop any media, get a live scrubbable Virtual Body — BeOS Media Kit spirit, BTRON-native"</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Unified real-time media environment. Drop any audio, video, GIF or PNG and it becomes a live, scrubbable Virtual Body. Supports timeline annotations, live queries, frame-accurate work and direct embedding into any TAD document. Extremely responsive, BeOS Media Kit spirit.</p>
-      <div class="app-desc-jp"><b>メディアパルス：</b> あらゆる音声、動画、GIF、PNGをドラッグ＆ドロップするだけで即座にスクラブ可能な「生きた仮想オブジェクト」へと変換。タイムライン注釈、ライブクエリ検索、フレーム精度の編集、およびTAD文書へのシームレスな直接埋め込みに対応。BeOS Media Kitの精神を受け継ぐ超低遅延応答性を実現。</div>
+      <p>Unified real-time media environment implemented in <code>src/apps/audio_player.c</code> (<code>open_audio_player_window</code>). Drop any audio, video, GIF or PNG and it becomes a live, scrubbable Virtual Body. Supports timeline annotations, live queries, frame-accurate work and direct embedding into any TAD document. Extremely responsive, BeOS Media Kit spirit.</p>
+      <div class="app-desc-jp"><b>メディアパルス：</b> C99リアルタイムメディア実装（<code>src/apps/audio_player.c</code>）。あらゆる音声、動画、GIF、PNGをドラッグ＆ドロップするだけで即座にスクラブ可能な「生きた仮想オブジェクト」へと変換。タイムライン注釈、ライブクエリ検索、フレーム精度の編集、およびTAD文書へのシームレスな直接埋め込みに対応。BeOS Media Kitの精神を受け継ぐ超低遅延応答性を実現。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>任意メディアのドラッグ＆ドロップ即時仮想オブジェクト化</li><li>フレーム精度（Frame-Accurate）のシークとタイムライン注釈</li><li>TADハイパーメディア文書へのシームレス直接埋め込み</li><li>Live-query filtering across all media objects by metadata, duration, or tag</li><li>Zero-copy VirtIO audio/video pipeline — no intermediate buffer copies</li><li>Music app round-trip: import patterns as audio Virtual Bodies</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list"><li>実体コード実装：<code>src/apps/audio_player.c</code>（オーディオ/メディアプレイヤー <code>open_audio_player_window</code>）</li><li>任意メディアのドラッグ＆ドロップ即時仮想オブジェクト化</li><li>フレーム精度（Frame-Accurate）のシークとタイムライン注釈</li><li>TADハイパーメディア文書へのシームレス直接埋め込み</li><li>Live-query filtering across all media objects by metadata, duration, or tag</li><li>Zero-copy VirtIO audio/video pipeline — no intermediate buffer copies</li><li>Music app round-trip: import patterns as audio Virtual Bodies</li></ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
@@ -58,8 +58,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +92,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Real-Time Media Plane</div>
   </footer>
 </body>
 </html>

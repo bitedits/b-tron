@@ -27,12 +27,12 @@
     <div class="tagline-card"><strong>"Sketch once, embed everywhere — native TAD vector output that is resolution-independent in any document"</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Fast bitmap/vector sketching tool. Output is native TAD graphics segments or PNG/GIF, ready for immediate embedding and annotation in T-Editor or MediaPulse.</p>
-      <div class="app-desc-jp"><b>ペイント：</b> 軽快なビットマップおよびベクター図形スケッチツール。出力はネイティブなTADグラフィックスセグメント、または汎用PNG/GIFに対応。描いた瞬間にT-EditorやMediaPulseへ埋め込み可能。</div>
+      <p>Fast bitmap and vector sketching tool powered directly by the BTRON Display Primitives graphics engine in <code>src/graphics/dp_core.c</code> and <code>src/graphics/dp_sdl.c</code>. Output is native TAD graphics segments or PNG/GIF, ready for immediate embedding and annotation in T-Editor or MediaPulse.</p>
+      <div class="app-desc-jp"><b>ペイント：</b> BTRON Display Primitives描画コア（<code>src/graphics/dp_core.c</code>, <code>src/graphics/dp_sdl.c</code>）に直結した軽快なビットマップおよびベクター図形スケッチツール。出力はネイティブなTADグラフィックスセグメント、または汎用PNG/GIFに対応。描いた瞬間にT-EditorやMediaPulseへ埋め込み可能。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>TRON Display Primitives（DP）直結のベクター/ラスター作図</li><li>ネイティブTAD図形セグメント出力で解像度無依存</li><li>直感的なパレット操作とクイック注釈機能</li><li>Layer-based composition with per-layer Virtual Body export</li><li>One-click embed into T-Editor at the current cursor position</li><li>Annotation overlay mode: draw on top of any open TAD document as a transparent layer</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list"><li>実体コード実装：<code>src/graphics/dp_core.c</code> ＆ <code>src/graphics/dp_sdl.c</code>（ベクター/ラスタ描画コア）</li><li>TRON Display Primitives（DP）直結のベクター/ラスター作図</li><li>ネイティブTAD図形セグメント出力で解像度無依存</li><li>直感的なパレット操作とクイック注釈機能</li><li>Layer-based composition with per-layer Virtual Body export</li><li>One-click embed into T-Editor at the current cursor position</li><li>Annotation overlay mode: draw on top of any open TAD document as a transparent layer</li></ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
@@ -58,8 +58,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +92,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Real-Time Media Plane</div>
   </footer>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clock – 時刻・タイマー | B-System</title>
-  <meta name="description" content="A live clock Virtual Body that sits in any TAD document or Workbench corner — always available, never intrusive">
+  <meta name="description" content="System clock, alarms, and multi-timezone timekeeper — pure C99 desktop accessory interfacing directly with hardware RTC and μITRON timers.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,37 @@
     <div class="app-hero-icon">⏰</div>
     <h1>Clock</h1>
     <div class="app-hero-badge">時刻・タイマー</div>
-    <div class="subtitle">Elegant Clocks, Timers &amp; World Time</div>
+    <div class="subtitle">System Clock, Timers &amp; World Time (RTC / μITRON)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"A live clock Virtual Body that sits in any TAD document or Workbench corner — always available, never intrusive"</strong></div>
+    <div class="tagline-card"><strong>"High-precision system timekeeping — pure C99 desktop accessory interfacing directly with hardware RTC, HPET, and μITRON timers."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Elegant clock, timers, alarms and world clocks. Can live as a small always-available Virtual Body in any TAD document or on the Workbench canvas.</p>
-      <div class="app-desc-jp"><b>時計：</b> 美麗なアナログ・デジタル表示、高精度タイマー、アラーム、世界時計。デスクトップの隅や任意の文書内に常駐する、軽量で常時利用可能な仮想オブジェクトとして稼働。</div>
+      <p>Lightweight, high-precision system clock and timekeeping utility built in pure C99, backed by the kernel timekeeping subsystems (<code>src/kernel/clk_mgr.c</code>, <code>src/kernel/timer.c</code>, <code>src/kernel/time_calls.c</code>) and hardware RTC drivers (<code>src/drivers/bcm283x/clk/rtc.c</code>). Directly interfaces with the hardware Real-Time Clock (RTC), High Precision Event Timer (HPET), and μITRON kernel timer services (<code>btron/clk.h</code>, <code>btron/timer.h</code>). Features customizable analog and digital clock faces rendered with Display Primitives (<code>dp.h</code>), multiple simultaneous world timezones, millisecond-accurate stopwatch, countdown timers, and system event alarms.</p>
+      <div class="app-desc-jp"><b>時計：</b> カーネル計時サブシステム（<code>src/kernel/clk_mgr.c</code>, <code>timer.c</code>）およびハードウェアRTC（<code>src/drivers/bcm283x/clk/rtc.c</code>）に直結した純粋C99製システム時計ユーティリティ。TRON Display Primitivesによる高品位なアナログ・デジタル盤面描画、ミリ秒精度のストップウォッチ、カウントダウンタイマー、世界各国の複数タイムゾーン表示、およびシステムアラームを搭載し、低リソースで常駐稼働。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>世界各国のタイムゾーン表示とミリ秒精度タイマー</li><li>TAD文書内へライブ稼働する時計オブジェクトを埋め込み</li><li>システムアラームとμITRONリアルタイムスケジューラ連動</li><li>Multiple simultaneous world-clock faces as separate Virtual Bodies</li><li>Countdown timer Virtual Body embeddable in Living Book or meeting notes</li><li>Alarm triggers can fire Real Body creation events in other apps</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/kernel/clk_mgr.c</code> ＆ <code>src/kernel/timer.c</code>（高精度タイマー・クロック管理）</li>
+        <li>ハードウェアRTC直結：<code>src/drivers/bcm283x/clk/rtc.c</code>（時刻保持・割込み通知）</li>
+        <li>ハードウェアRTCおよびμITRON高精度タイマー直結のジッターフリー計時</li>
+        <li>純粋C99システム設計（常駐時もCPU負荷最小）</li>
+        <li>Display Primitivesによる鮮明なアナログ針表示およびデジタルLED表示</li>
+        <li>世界主要都市の複数タイムゾーン同時表示</li>
+        <li>ミリ秒精度ストップウォッチおよびカウントダウンタイマー</li>
+        <li>システムアラーム通知（サウンドおよび画面フラッシュ連動）</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Open Clock; set a world clock for Tokyo, Zurich, and New York.</li><li>Drag any clock face onto the Workbench canvas — it persists as a live Virtual Body.</li><li>Embed a countdown Virtual Body into a T-Editor meeting agenda — it ticks live inside the document.</li><li>Set an alarm; when it fires it creates a timestamped Real Body entry in Clarity's journal.</li></ol>
+      <ol class="workflow-list">
+        <li>Clock launches as a compact, floating accessory or docks into the Workbench deskbar.</li>
+        <li>Set world clocks for your team's locations (Tokyo, Zurich, San Francisco).</li>
+        <li>Start a countdown timer or precision stopwatch for build benchmarks or tasks.</li>
+        <li>Configure scheduled alarms that trigger system notifications directly via the μITRON scheduler.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +72,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +106,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Pure C99 System Plane</div>
   </footer>
 </body>
 </html>

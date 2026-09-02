@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculator – 高精度電卓 | B-System</title>
-  <meta name="description" content="Drag any result or formula out as a Virtual Body — paste live numbers directly into TAD documents">
+  <meta name="description" content="Scientific and programmer calculator — pure C99 math engine with paper tape history and system clipboard integration.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,37 @@
     <div class="app-hero-icon">🔢</div>
     <h1>Calculator</h1>
     <div class="app-hero-badge">高精度電卓</div>
-    <div class="subtitle">Precise Scientific Calculator with History</div>
+    <div class="subtitle">Scientific &amp; Programmer Desktop Calculator</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Drag any result or formula out as a Virtual Body — paste live numbers directly into TAD documents"</strong></div>
+    <div class="tagline-card"><strong>"Precise scientific and programmer calculation — pure C99 mathematical engine with paper tape history and radix conversion."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Precise calculator with history log, scientific functions and unit conversions. Results and formulas can be dragged out as Virtual Bodies and pasted directly into TAD documents or spreadsheet segments.</p>
-      <div class="app-desc-jp"><b>電卓：</b> 計算履歴ログ、科学計算、単位変換を備えた高精度電卓。計算結果の数値や算出式そのものを仮想オブジェクトとしてドラッグし、TAD文書や表計算シートへ即座に貼り付け可能。</div>
+      <p>Scientific and programmer desktop calculator engineered in pure C99 and rendered via Display Primitives (<code>src/graphics/dp_core.c</code>). Provides arbitrary-precision integer arithmetic, IEEE-754 double precision floating-point evaluation, comprehensive trigonometric/hyperbolic/logarithmic functions, and programmer bitwise operations (HEX, DEC, OCT, BIN). Features a continuous paper roll calculation tape and seamless copy/paste to the system clipboard.</p>
+      <div class="app-desc-jp"><b>電卓：</b> Display Primitives描画（<code>src/graphics/dp_core.c</code>）に基づく純粋C99製デスクトップ計算機。IEEE-754倍精度浮動小数点演算、任意桁整数計算、科学関数、およびプログラマー向け基数変換（HEX/DEC/OCT/BIN）とビット演算を完備。過去の計算履歴を連続記録するロールペーパーテープ機能、システムクリップボードへの直接コピー＆ペーストをサポートし、常に瞬時に起動して軽快に動作。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>任意精度演算と包括的な計算履歴ジャーナル</li><li>計算結果・数式のドラッグ＆ドロップ仮想オブジェクト化</li><li>研究用途に最適な単位換算・科学関数ライブラリ</li><li>History journal stored as Real Bodies searchable from Clarity</li><li>Formula Virtual Bodies update live when their input variables change</li><li>Accessible from the Workbench quick-launch bar</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体UI描画：<code>src/graphics/dp_core.c</code>（電卓盤面・ボタン・ロールペーパー描画）</li>
+        <li>科学技術計算（三角関数、双曲線関数、対数、累乗根）と高精度浮動小数点演算</li>
+        <li>純粋C99システム設計（極小フットプリント・超低遅延起動）</li>
+        <li>プログラマー向け基数変換（16進数/10進数/8進数/2進数）とビット演算（AND, OR, XOR, NOT, SHL, SHR）</li>
+        <li>計算履歴を追跡可能なスクロール対応ロールペーパーテープ</li>
+        <li>システムクリップボードを介した数値・数式のコピー＆ペースト</li>
+        <li>単位換算（物理量・データサイズ・周波数・熱量）ライブラリ内蔵</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Open Calculator; type a scientific expression.</li><li>The result appears in the history journal as a timestamped Real Body.</li><li>Drag the result Virtual Body into a T-Editor document — the number stays linked to the original formula.</li><li>When the formula changes, the embedded Virtual Body reflects the new value live.</li></ol>
+      <ol class="workflow-list">
+        <li>Open Calculator from Workbench or via global hotkey.</li>
+        <li>Perform scientific or programmer calculations; formula and output are cleanly recorded on the history tape.</li>
+        <li>Toggle between decimal and hexadecimal view to verify binary bit masks and registers.</li>
+        <li>Press Copy (Ctrl+C) to copy the result or full formula to the OS clipboard.</li>
+        <li>Paste values into Terminal, source code, or any document without proprietary hypermedia entanglement.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +72,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +106,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Pure C99 System Plane</div>
   </footer>
 </body>
 </html>

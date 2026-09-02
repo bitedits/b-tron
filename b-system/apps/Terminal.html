@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terminal – TRON端末 | B-System</title>
-  <meta name="description" content="Full TRON Code and Unicode terminal — shell sessions become live Virtual Bodies in any TAD document">
+  <meta name="description" content="Clean, low-latency TRON Code and Unicode terminal emulator — pure C99 system console over VirtIO and POSIX PTYs.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,23 +20,37 @@
     <div class="app-hero-icon">💻</div>
     <h1>Terminal</h1>
     <div class="app-hero-badge">TRON端末</div>
-    <div class="subtitle">Clean, Fast TRON Code &amp; Unicode Terminal</div>
+    <div class="subtitle">Low-Latency TRON Code &amp; Unicode System Terminal (gterm)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Full TRON Code and Unicode terminal — shell sessions become live Virtual Bodies in any TAD document"</strong></div>
+    <div class="tagline-card"><strong>"Clean, low-latency TRON Code and Unicode terminal emulator — pure C99 system console over VirtIO and POSIX PTYs."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Clean, fast terminal with full TRON Code / Unicode support. Running shell sessions and output logs can be embedded as live Virtual Bodies into TAD documents or the Workbench canvas.</p>
-      <div class="app-desc-jp"><b>ターミナル：</b> TRONコード体系および最新Unicodeに完全準拠した、軽快で高機能な端末エミュレータ。実行中のシェルセッションや出力ログをそのまま「生きた仮想オブジェクト」としてTAD文書やワークベンチへ貼り付け可能。</div>
+      <p>Ultra-fast, low-latency terminal emulator implemented in pure C99 (<code>src/apps/gterm.c</code>). Provides native TRON Code character planes and modern UTF-8 support, ANSI/VT100 escape sequence processing, ring-buffered scrollback, and direct integration with VirtIO-Console, hardware UART, and POSIX pseudo-terminals (PTY). Ensures a robust, lightweight command-line interface under all operating conditions.</p>
+      <div class="app-desc-jp"><b>ターミナル：</b> TRONコード体系（多言語プレーン）および最新Unicode (UTF-8) に完全準拠した、純粋C99実装（<code>src/apps/gterm.c</code>）の低遅延・高機能システム端末エミュレータ。ANSI/VT100エスケープシーケンス、リングバッファスクロールバック、VirtIO-Console、シリアルUART、POSIX擬似端末（PTY）に直結し、システム障害時でも確実に動作する軽量で堅牢なCLI環境を提供。</div>
     </div>
     <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list"><li>TRONコード多言語文字コード＆Unicode完全ネイティブ表示</li><li>端末出力やシェルセッションの仮身オブジェクト化</li><li>低遅延VirtIO-Console &amp; POSIXサブシステム連携</li><li>Split panes, tabbed sessions, and detachable session Virtual Bodies</li><li>Shell output can be dragged as a Real Body directly into T-Editor for documentation</li><li>Integrates with Commander for one-click directory navigation</li></ul>
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/gterm.c</code>（端末ウィンドウ <code>open_gterm_window</code>、VT100解釈、PTY/UART通信）</li>
+        <li>TRONコード多言語文字コード体系＆Unicode (UTF-8) 完全ネイティブ表示</li>
+        <li>純粋C99システム設計（極小フットプリント・高速スクロール）</li>
+        <li>低遅延VirtIO-Console、ハードウェアUART、およびPOSIX PTYサブシステム連携</li>
+        <li>ANSI/VT100エスケープシーケンス完全解釈（256色カラー・カーソル制御）</li>
+        <li>分割ペイン（Split Panes）、タブセッション、およびリングバッファ履歴</li>
+        <li>システムクリップボードとのシームレスなテキスト選択・コピー＆ペースト</li>
+      </ul>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
-      <ol class="workflow-list"><li>Open a shell session in Terminal.</li><li>Run a command; select the output block and drag it — it becomes a Real Body attached to the session.</li><li>Drop the output Real Body into a T-Editor document as an inline Virtual Body for reproducible documentation.</li><li>Miniaturise the Terminal window from Workbench — it persists as a live Virtual Body in the corner of your canvas.</li></ol>
+      <ol class="workflow-list">
+        <li>Launch Terminal from Workbench or the Deskbar — window and font renderers initialize in microseconds.</li>
+        <li>Run shell commands, interactive utilities, or launch background daemon processes.</li>
+        <li>Switch between multiple tabs or split panes for side-by-side compile and log monitoring.</li>
+        <li>Select text or command logs and copy them to the system clipboard for use across any application.</li>
+        <li>Use Commander integration for one-click shell jumping to the current directory.</li>
+      </ol>
     </div>
   </div>
   <footer class="app-footer">
@@ -58,8 +72,9 @@
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Knowledge</h4>
+        <h4>TAD</h4>
         <ul>
+            <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
@@ -91,7 +106,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Pure C99 System Plane</div>
   </footer>
 </body>
 </html>
