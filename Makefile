@@ -65,7 +65,7 @@ ifeq ($(UNAME_S), Darwin)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || echo "-I/usr/local/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || echo "-lSDL2") \
                     -lz -lpthread -framework ApplicationServices -framework Cocoa
-    QEMU_DISPLAY        := -display cocoa,show-cursor=on
+    QEMU_DISPLAY        := -display cocoa,show-cursor=on,zoom-to-fit=on
     # For bare-metal run-kernel: drop show-cursor so QEMU grabs the mouse
     # Click the QEMU window to grab; press Ctrl+Alt+G to release.
     KERNEL_DISPLAY      := -display cocoa
