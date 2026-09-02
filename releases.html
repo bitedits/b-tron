@@ -166,6 +166,14 @@
         .session-table tr:hover td {
             background: rgba(255, 240, 248, 0.6);
         }
+        .session-table th:nth-child(1),
+        .session-table td:nth-child(1),
+        .session-table th:nth-child(2),
+        .session-table td:nth-child(2),
+        .session-table th:nth-child(3),
+        .session-table td:nth-child(3) {
+            white-space: nowrap;
+        }
 
         /* Feature Box & List Styling */
         .feature-box {
@@ -448,180 +456,158 @@ $ make verify</pre>
                 <table class="session-table">
                     <thead>
                         <tr>
-                            <th style="width: 8%;">セッション<br><small style="font-weight:500;">Session</small></th>
-                            <th style="width: 17%;">作業日時・時間帯<br><small style="font-weight:500;">Date &amp; Time Window</small></th>
-                            <th style="width: 9%;">実働時間<br><small style="font-weight:500;">Duration</small></th>
-                            <th style="width: 8%;">コミット数<br><small style="font-weight:500;">Commits</small></th>
-                            <th style="width: 14%;">コミット範囲<br><small style="font-weight:500;">Commit Span</small></th>
-                            <th style="width: 44%;">実装機能・主要成果<br><small style="font-weight:500;">Key Milestones &amp; Subsystems Built</small></th>
+                            <th style="width: 12%;">セッション<br><small style="font-weight:500;">Session</small></th>
+                            <th style="width: 23%;">作業日時・時間帯<br><small style="font-weight:500;">Date &amp; Time Window</small></th>
+                            <th style="width: 15%;">所要時間・コミット数<br><small style="font-weight:500;">Duration &amp; Commits</small></th>
+                            <th style="width: 13%;">コミット範囲<br><small style="font-weight:500;">Commit Span</small></th>
+                            <th style="width: 37%;">実装機能・主要成果<br><small style="font-weight:500;">Key Milestones &amp; Subsystems Built</small></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Session 1</strong></td>
                             <td>2026-08-22 23:28 – 02:18</td>
-                            <td>~3.3 h</td>
-                            <td>22</td>
+                            <td>~3.3 h <small style="color: #704b75;">(22 commits)</small></td>
                             <td><code>236bc32..5a5535c</code></td>
                             <td>Repository birth: Initial BTRON3 tree layout, <code>btron.h</code>, <code>types.h</code>, <code>itron.h</code>, <code>dp.h</code>, process management, memory allocator, DP primitives, window manager structs.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 2</strong></td>
                             <td>2026-08-23 07:45 – 11:21</td>
-                            <td>~4.1 h</td>
-                            <td>48</td>
+                            <td>~4.1 h <small style="color: #704b75;">(48 commits)</small></td>
                             <td><code>b98bfae..7257ff9</code></td>
                             <td>Object Manager (<code>omgr</code>), Sakamura window manager, popup menus, system panels, parts, tray, TIP keyboard handlers, floppy disk format, Ukrainian spec translations.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 3</strong></td>
                             <td>2026-08-24 14:11 – 17:57</td>
-                            <td>~4.3 h</td>
-                            <td>14</td>
+                            <td>~4.3 h <small style="color: #704b75;">(14 commits)</small></td>
                             <td><code>daff724..5f86885</code></td>
                             <td>Comprehensive technical terminology glossary (<code>glossary.txt</code>), BTRON3 specification refinements, and architectural reference normalization.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 4</strong></td>
                             <td>2026-08-25 00:25 – 00:37</td>
-                            <td>~0.7 h</td>
-                            <td>4</td>
+                            <td>~0.7 h <small style="color: #704b75;">(4 commits)</small></td>
                             <td><code>7b6633f..217fdf6</code></td>
                             <td>Inception of VirtIO 1.4 hypervisor specification documentation (<code>virtio.html</code>) and paravirtualized I/O architecture mappings.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 5</strong></td>
                             <td>2026-08-25 20:33 – 20:49</td>
-                            <td>~0.8 h</td>
-                            <td>5</td>
+                            <td>~0.8 h <small style="color: #704b75;">(5 commits)</small></td>
                             <td><code>7f8eb52..d64f933</code></td>
                             <td>SDL2 and VirtIO passthrough pipeline, creation of distinct POSIX and QEMU build targets, initial T-Kernel specification pages.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 6</strong></td>
                             <td>2026-08-26 00:43 – 06:42</td>
-                            <td>~6.5 h</td>
-                            <td>13</td>
+                            <td>~6.5 h <small style="color: #704b75;">(13 commits)</small></td>
                             <td><code>4e746cd..b405e3a</code></td>
                             <td>Overnight systems sprint: Cleanroom IME architecture, two architectural proposals evaluated, full Sakamura T-Kernel 2.0 source tree import (48k lines), Raspberry Pi 4 setup.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 7</strong></td>
                             <td>2026-08-26 09:53 – 15:09</td>
-                            <td>~5.8 h</td>
-                            <td>18</td>
+                            <td>~5.8 h <small style="color: #704b75;">(18 commits)</small></td>
                             <td><code>5b0516a..9125496</code></td>
                             <td>Cross-platform toolchain hardening (macOS Clang, Linux, Windows WSL), Raspberry Pi 2B build fixes, multi-core banner color coding, desktop modularization (<code>apps/desktop</code>).</td>
                         </tr>
                         <tr>
                             <td><strong>Session 8</strong></td>
                             <td>2026-08-27 18:58 – 20:13</td>
-                            <td>~1.7 h</td>
-                            <td>7</td>
+                            <td>~1.7 h <small style="color: #704b75;">(7 commits)</small></td>
                             <td><code>5c36a57..74ace11</code></td>
                             <td>Build system cleanup, header dependency graph optimization, and linker script adjustments for freestanding bare-metal ELFs.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 9</strong></td>
                             <td>2026-08-28 04:42 – 07:24</td>
-                            <td>~3.2 h</td>
-                            <td>13</td>
+                            <td>~3.2 h <small style="color: #704b75;">(13 commits)</small></td>
                             <td><code>323edac..754c05e</code></td>
                             <td>Google Mozc Kana-Kanji conversion engine cleanroom port (<code>mozc_kkc.c</code>), F10 Romaji conversion key, GitHub Actions CI matrix setup for macOS and Linux.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 10</strong></td>
                             <td>2026-08-29 02:07 – 04:41</td>
-                            <td>~3.1 h</td>
-                            <td>6</td>
+                            <td>~3.1 h <small style="color: #704b75;">(6 commits)</small></td>
                             <td><code>145aec7..93fd13e</code></td>
                             <td>Text Input Primitives (TIP) task dispatcher, Input Front-End (IFE) integration, and documentation updates for Japanese input workflows.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 11</strong></td>
                             <td>2026-08-29 17:19 – 02:44</td>
-                            <td>~9.9 h</td>
-                            <td>26</td>
+                            <td>~9.9 h <small style="color: #704b75;">(26 commits)</small></td>
                             <td><code>f9b253e..f2e6667</code></td>
                             <td>Marathon session: Real Body / Virtual Body (実身／仮身) engine, TAD binary parser, Cabinet browser, 4 embedded books (TAD), Elixir HTML-to-TAD compiler (<code>html2tad.exs</code>).</td>
                         </tr>
                         <tr>
                             <td><strong>Session 12</strong></td>
                             <td>2026-08-30 14:16 – 14:25</td>
-                            <td>~0.7 h</td>
-                            <td>2</td>
+                            <td>~0.7 h <small style="color: #704b75;">(2 commits)</small></td>
                             <td><code>056a059..189a035</code></td>
                             <td>Formal licensing audit, Mozc, RTK, and Meditation 2.2 sublicenses declaration, open-source compliance documentation.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 13</strong></td>
                             <td>2026-08-30 19:01 – 20:04</td>
-                            <td>~1.5 h</td>
-                            <td>3</td>
+                            <td>~1.5 h <small style="color: #704b75;">(3 commits)</small></td>
                             <td><code>afc6cf0..8b105b5</code></td>
                             <td>Specification PDF link synchronization, README enhancements, and documentation layout polish.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 14</strong></td>
                             <td>2026-08-31 00:00 – 03:24</td>
-                            <td>~3.9 h</td>
-                            <td>28</td>
+                            <td>~3.9 h <small style="color: #704b75;">(28 commits)</small></td>
                             <td><code>9b88456..79b23b9</code></td>
                             <td>BeOS yellow sliding titlebar tabs, retro window decor, BTRON XMPP Chat implementation (<code>CHAT.md</code>), Kana input fixes, audio sound stubbing.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 15</strong></td>
                             <td>2026-08-31 11:49 – 11:57</td>
-                            <td>~0.6 h</td>
-                            <td>2</td>
+                            <td>~0.6 h <small style="color: #704b75;">(2 commits)</small></td>
                             <td><code>a5f949e..125e38e</code></td>
                             <td>Restoration of master polymorphic core orchestration header (<code>include/btron/core.h</code>).</td>
                         </tr>
                         <tr>
                             <td><strong>Session 16</strong></td>
                             <td>2026-08-31 15:31 – 21:36</td>
-                            <td>~6.6 h</td>
-                            <td>10</td>
+                            <td>~6.6 h <small style="color: #704b75;">(10 commits)</small></td>
                             <td><code>311b277..f8442de</code></td>
                             <td>Polymorphic kernel dispatching (<code>core_posix.c</code>, <code>core_virtio.c</code>, <code>core_tkernel.c</code>, <code>core_yoko.c</code>), massive terminology normalization to Virtual/Real Body (実身／仮身).</td>
                         </tr>
                         <tr>
                             <td><strong>Session 17</strong></td>
                             <td>2026-09-01 01:14 – 01:26</td>
-                            <td>~0.7 h</td>
-                            <td>3</td>
+                            <td>~0.7 h <small style="color: #704b75;">(3 commits)</small></td>
                             <td><code>33af57c..e7bf6e0</code></td>
                             <td>Raspberry Pi 2B bare-metal USB keyboard and mouse HID driver bringup and initialization sequencing.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 18</strong></td>
                             <td>2026-09-01 14:15 – 20:39</td>
-                            <td>~6.9 h</td>
-                            <td>30</td>
+                            <td>~6.9 h <small style="color: #704b75;">(30 commits)</small></td>
                             <td><code>74be5db..39b1877</code></td>
                             <td>BTRON 3.20 Certification &amp; Verification Suite (<code>CERTIFICATION.md</code>, <code>conformance.html</code>), automated test runner passing 60/60 tests, CI integration, tribute to <code>@bookazoid_</code>.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 19</strong></td>
                             <td>2026-09-02 02:18 – 02:49</td>
-                            <td>~1.0 h</td>
-                            <td>2</td>
+                            <td>~1.0 h <small style="color: #704b75;">(2 commits)</small></td>
                             <td><code>1797716..108c45a</code></td>
                             <td>Comprehensive expansion of the 14 B-System consumer desktop applications and 8 settings panels in <code>b-system/apps/</code> and <code>b-system/settings/</code>.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 20</strong></td>
                             <td>2026-09-02 12:24 – 15:44</td>
-                            <td>~3.8 h</td>
-                            <td>13</td>
+                            <td>~3.8 h <small style="color: #704b75;">(13 commits)</small></td>
                             <td><code>d08c567..b1540c9</code></td>
                             <td>Direct Multiboot loading (<code>core_boot.c</code>), x86_64 UEFI SMP kernel with ACPI MADT / LAPIC / GOP (<code>btron-uchida.elf</code>), NEC PC-9801/9821 VM kernel (<code>btron-morris.elf</code>), <code>startx</code> desktop command.</td>
                         </tr>
                         <tr>
                             <td><strong>Session 21</strong></td>
                             <td>2026-09-02 21:25 – 23:29</td>
-                            <td>~2.6 h</td>
-                            <td>11</td>
+                            <td>~2.6 h <small style="color: #704b75;">(11 commits)</small></td>
                             <td><code>01957ec..ed92f3b</code></td>
                             <td>Final Alpha 1 stabilization: Hardware logging rework, 64-bit AArch64 Pi 4B target (<code>core_arm64.c</code>), unified 7-target kernel matrix, and historical pioneer tributes.</td>
                         </tr>
