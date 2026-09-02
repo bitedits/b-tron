@@ -32,13 +32,21 @@ QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 QEMU_X86_64  ?= qemu-system-x86_64
 
-# Detect LLVM Clang toolchain with LLD support
 LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
+LLD_BIN    := $(shell for p in /opt/homebrew/bin/ld.lld /usr/local/bin/ld.lld /usr/bin/ld.lld ld.lld /opt/homebrew/opt/llvm/bin/ld.lld /usr/lib/llvm-*/bin/ld.lld; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
 
 # ARM32: Cortex-A7 for Pi 2B (BCM2836)
 ARM32_CC ?= $(LLVM_CLANG) --target=arm-none-eabi -mcpu=cortex-a7 -marm -fuse-ld=lld -ffreestanding -nostdlib
 # AArch64: Cortex-A72 for Pi 4B (BCM2711) — kept for Pi4-only development
 ARM64_CC ?= $(LLVM_CLANG) --target=aarch64-none-elf -mcpu=cortex-a72 -fuse-ld=lld -ffreestanding -nostdlib
+# IA-32 / X86 Freestanding: UEFI / PC-98
+ifeq ($(shell uname -s), Darwin)
+    X86_CC ?= $(LLVM_CLANG) --target=i686-none-elf -ffreestanding -nostdlib
+    X86_LD ?= $(LLD_BIN) -m elf_i386
+else
+    X86_CC ?= $(if $(shell command -v i686-elf-gcc 2>/dev/null),i686-elf-gcc -ffreestanding -nostdlib,$(if $(shell command -v clang 2>/dev/null),clang --target=i686-none-elf -ffreestanding -nostdlib,$(CC) -m32 -ffreestanding -nostdlib))
+    X86_LD ?= $(if $(shell command -v i686-elf-ld 2>/dev/null),i686-elf-ld,$(if $(LLD_BIN),$(LLD_BIN) -m elf_i386,ld -m elf_i386))
+endif
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
@@ -120,37 +128,21 @@ QEMU_SRCS    = $(QEMU_STARTUP)          \
                $(COMMON_SRCS)
 
 # ── X86_64 / EMT64 UEFI build (Target 4) ────────────────────────
-UEFI_STARTUP = src/kernel/core_smp.c
+UEFI_STARTUP = src/kernel/core_boot.c src/kernel/core_smp.c
 UEFI_SRCS    = $(UEFI_STARTUP)          \
                src/kernel/core_init.c   \
-               src/kernel/core_boot.c   \
                src/kernel/libstr.c      \
                src/drivers/vesa/vesa.c  \
-               $(COMMON_SRCS)
+               $(COMMON_NO_SDL_SRCS)
 
 # ── NEC PC-98 build (Target 5) ──────────────────────────────────
-PC98_STARTUP = src/kernel/core_pc98.c
-PC98_FREESTANDING_SRCS = $(PC98_STARTUP) \
-                         src/drivers/pc98/boot/boot_pc98.c \
-                         src/kernel/core_boot.c \
-                         src/kernel/core_init.c \
-                         src/kernel/libstr.c \
-                         src/drivers/vesa/vesa.c \
-                         src/graphics/dp_core.c \
-                         src/font/troncode.c \
-                         src/font/jis_fonts.c \
-                         src/window/wnd.c \
-                         src/window/event.c \
-                         src/vobject/vobj.c \
-                         src/desktop/desktop.c \
-                         src/apps/gterm.c \
-                         src/apps/t_editor.c \
-                         src/apps/vobj_manager.c \
-                         src/apps/tad_browser.c \
-                         src/tip/mozc_kkc.c \
-                         src/tip/tip_ife.c \
-                         src/tip/tip_task.c \
-                         src/tip/tip_vobj.c
+PC98_STARTUP = src/kernel/core_pc98.c src/drivers/pc98/boot/boot_pc98.c
+PC98_SRCS    = $(PC98_STARTUP)          \
+               src/kernel/core_boot.c   \
+               src/kernel/core_init.c   \
+               src/kernel/libstr.c      \
+               src/drivers/vesa/vesa.c  \
+               $(COMMON_NO_SDL_SRCS)
 
 # ── BCM283x (Pi 2B) bare-metal arch sources ───────────────────────
 ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
@@ -330,32 +322,12 @@ src/drivers/bcm283x/screen/%.sakamura.o: src/drivers/bcm283x/screen/%.c
 $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 	$(CC) $(SAKAMURA_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
+# ── X86_64 / EMT64 UEFI SMP QEMU Kernel (Honoring Kota Uchida) ───
+UEFI_LD     = src/kernel/uefi_qemu.ld
+UEFI_CFLAGS = -O2 -Wall -Wextra -std=c99 -mno-sse -mno-mmx -mno-sse2 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel
 
-# ═══════════════════════════════════════════════════════════════════
-# X86_64 / EMT64 UEFI SMP QEMU Kernel (Honoring Kota Uchida)
-# ═══════════════════════════════════════════════════════════════════
-UEFI_LD := src/kernel/uefi_qemu.ld
-
-UEFI_FREESTANDING_SRCS = src/kernel/core_boot.c \
-                         src/kernel/core_smp.c \
-                         src/kernel/core_init.c \
-                         src/kernel/libstr.c \
-                         src/drivers/vesa/vesa.c \
-                         src/graphics/dp_core.c \
-                         src/font/troncode.c \
-                         src/font/jis_fonts.c \
-                         src/window/wnd.c \
-                         src/window/event.c \
-                         src/vobject/vobj.c \
-                         src/desktop/desktop.c \
-                         src/apps/gterm.c \
-                         src/apps/t_editor.c \
-                         src/apps/vobj_manager.c \
-                         src/apps/tad_browser.c \
-                         src/tip/mozc_kkc.c \
-                         src/tip/tip_ife.c \
-                         src/tip/tip_task.c \
-                         src/tip/tip_vobj.c
+%.uefi.o: %.c
+	$(X86_CC) $(UEFI_CFLAGS) -c $< -o $@
 
 uefi: tad_bin $(UEFI_TARGET)
 	@ln -sf $(UEFI_TARGET) btron-uefi.elf
@@ -365,8 +337,13 @@ uefi: tad_bin $(UEFI_TARGET)
 	@echo " Run 'make run-uefi' or 'make run-eufi' to launch on QEMU."
 	@echo "=========================================================="
 
-$(UEFI_TARGET): $(UEFI_LD) $(UEFI_FREESTANDING_SRCS)
-	$(CC) -m32 -ffreestanding -nostdlib -O2 -Wall -Wextra -std=c99 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel -T $(UEFI_LD) $(UEFI_FREESTANDING_SRCS) -o $@
+$(UEFI_TARGET): $(UEFI_OBJS) $(UEFI_LD)
+	@echo "=========================================================="
+	@echo " Building B-System X86_64 / EMT64 UEFI SMP Kernel: $@"
+	@echo "=========================================================="
+	$(X86_LD) -T $(UEFI_LD) $(UEFI_OBJS) -o $@
+	@echo "[UEFI-ELF] Built: $@"
+	@file $@
 
 run-uefi: $(UEFI_TARGET)
 	@echo "=========================================================="
@@ -378,9 +355,8 @@ run-uefi: $(UEFI_TARGET)
 	@echo " Desktop  : desktop.c · wnd.c · gterm.c · Mozc IME"
 	@echo "=========================================================="
 	$(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -smp cores=4,threads=1,sockets=1 -m 1G \
-	    $(KERNEL_DISPLAY) \
-	    -device virtio-vga \
-	    -device virtio-keyboard-pci -device virtio-mouse-pci \
+	    $(QEMU_DISPLAY) \
+	    -vga std \
 	    -kernel $(UEFI_TARGET) -serial stdio
 
 run-eufi: run-uefi
@@ -392,6 +368,11 @@ test-uefi: $(UEFI_TARGET)
 # ═══════════════════════════════════════════════════════════════════
 # NEC PC-98 Kernel Desktop (Honoring Awe Morris — zedBSD Pioneer)
 # ═══════════════════════════════════════════════════════════════════
+PC98_CFLAGS = -O2 -Wall -Wextra -std=c99 -mno-sse -mno-mmx -mno-sse2 -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel
+
+%.pc98.o: %.c
+	$(X86_CC) $(PC98_CFLAGS) -c $< -o $@
+
 pc98: tad_bin $(PC98_TARGET)
 	@ln -sf $(PC98_TARGET) btron-pc98.elf
 	@echo "=========================================================="
@@ -400,11 +381,13 @@ pc98: tad_bin $(PC98_TARGET)
 	@echo " Run 'make run-pc98' to launch."
 	@echo "=========================================================="
 
-%.pc98.o: %.c
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -c $< -o $@
-
-$(PC98_TARGET): $(PC98_FREESTANDING_SRCS)
-	$(CC) -m32 -ffreestanding -nostdlib -O2 -Wall -Wextra -std=c99 -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel -T src/kernel/uefi_qemu.ld $(PC98_FREESTANDING_SRCS) -o $@
+$(PC98_TARGET): $(PC98_OBJS) $(UEFI_LD)
+	@echo "=========================================================="
+	@echo " Building B-System NEC PC-98 Kernel: $@"
+	@echo "=========================================================="
+	$(X86_LD) -T $(UEFI_LD) $(PC98_OBJS) -o $@
+	@echo "[PC98-ELF] Built: $@"
+	@file $@
 
 run-pc98: $(PC98_TARGET)
 	@echo "=========================================================="
@@ -418,7 +401,7 @@ run-pc98: $(PC98_TARGET)
 	elif [ -f tools/np2kai_bin ]; then \
 	    ./tools/np2kai_bin; \
 	else \
-	    qemu-system-x86_64 -M q35,accel=tcg -cpu qemu64 -m 1G -display default -device virtio-vga -device virtio-keyboard-pci -device virtio-mouse-pci -kernel $(PC98_TARGET) -serial stdio; \
+	    $(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -m 1G $(QEMU_DISPLAY) -vga std -kernel $(PC98_TARGET) -serial stdio; \
 	fi
 
 test-pc98: $(PC98_TARGET)

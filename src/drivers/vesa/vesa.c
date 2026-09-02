@@ -53,7 +53,7 @@ static uint32_t pci_scan_vga_lfb(void) {
                     uint32_t bar_addr = (1U << 31) | (bus << 16) | (slot << 11) | (func << 8) | 0x10;
                     outl_v(0x0CF8, bar_addr);
                     uint32_t bar0 = inl_v(0x0CFC) & 0xFFFFFFF0;
-                    if (bar0 >= 0x80000000) return bar0;
+                    if (bar0 != 0 && bar0 != 0xFFFFFFF0) return bar0;
                 }
             }
         }
@@ -68,6 +68,10 @@ int vesa_init(uint16_t width, uint16_t height, uint16_t bpp) {
     vbe_write(VBE_DISPI_INDEX_XRES, width);
     vbe_write(VBE_DISPI_INDEX_YRES, height);
     vbe_write(VBE_DISPI_INDEX_BPP, bpp);
+    vbe_write(VBE_DISPI_INDEX_VIRT_WIDTH, width);
+    vbe_write(VBE_DISPI_INDEX_VIRT_HEIGHT, height);
+    vbe_write(VBE_DISPI_INDEX_X_OFFSET, 0);
+    vbe_write(VBE_DISPI_INDEX_Y_OFFSET, 0);
     vbe_write(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
 
     g_vesa.width = width;

@@ -13,6 +13,7 @@
 #include <btron/smp.h>
 #include <drivers/vesa.h>
 #include <libstr.h>
+#define memcpy tkl_memcpy
 
 #define MULTIBOOT_HEADER_MAGIC 0x1BADB002
 #define MULTIBOOT_HEADER_FLAGS 0x00000003
@@ -127,6 +128,16 @@ static char ps2_scancode_to_ascii(uint8_t sc, int shift) {
         case 0x0B: return shift ? ')' : '0';
         case 0x0C: return shift ? '_' : '-';
         case 0x0D: return shift ? '+' : '=';
+        case 0x1A: return shift ? '{' : '[';
+        case 0x1B: return shift ? '}' : ']';
+        case 0x27: return shift ? ':' : ';';
+        case 0x28: return shift ? '"' : '\'';
+        case 0x29: return shift ? '~' : '`';
+        case 0x2B: return shift ? '|' : '\\';
+        case 0x33: return shift ? '<' : ',';
+        case 0x34: return shift ? '>' : '.';
+        case 0x35: return shift ? '?' : '/';
+        case 0x0F: return '\t';
         case 0x39: return ' ';
         case 0x1C: return '\n';
         case 0x0E: return '\b';
@@ -347,12 +358,15 @@ extern WND* open_vobj_manager_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_gterm_window(void);
 
+static COLOR s_desktop_backbuffer[1024 * 768] __attribute__((aligned(16)));
+
 static void launch_vesa_desktop_session(int active_cores) {
+    (void)active_cores;
     kprint("\n[VESA] Switching to B-System 1024x768x32 Linear Framebuffer Desktop...\n", 0x0E);
     vesa_init(1024, 768, 32);
 
-    /* Initialize authentic BTRON desktop over VESA linear framebuffer */
-    init_desktop_vram(1024, 768, (COLOR *)g_vesa.framebuffer);
+    /* Initialize authentic BTRON desktop with off-screen backbuffer for tear-free rendering */
+    init_desktop_vram(1024, 768, s_desktop_backbuffer);
     BTRON_DESKTOP *dt = get_btron_desktop();
     if (!dt || !dt->screen) return;
 
@@ -364,22 +378,31 @@ static void launch_vesa_desktop_session(int active_cores) {
     open_t_editor_window();
     open_gterm_window();
 
-    /* Initial paint of authentic B-System desktop */
+    /* Initial paint of authentic B-System desktop to backbuffer */
     render_desktop_background(dt->screen);
     render_system_panel(dt->screen);
     redraw_all_windows();
     draw_baremetal_mouse_cursor(dt->screen, 512, 384, 1024, 768);
 
+    /* Blit composite frame to VESA VRAM */
+    if (g_vesa.framebuffer) {
+        memcpy((void *)g_vesa.framebuffer, s_desktop_backbuffer, 1024 * 768 * sizeof(COLOR));
+    }
+
     uart_puts_raw("\n==========================================================\n");
     uart_puts_raw(" [B-SYSTEM] Authentic BTRON3 Desktop Active (1024x768x32)!\n");
     uart_puts_raw("   * Wallpaper: Sakamura B-TRON Teal with Retro Grid\n");
+    uart_puts_raw("   * Double Buffering: Active (Tear-Free Compositor)\n");
     uart_puts_raw("   * Icons    : Real Body Cabinet, T-Editor, GTerm, Audio, Chat\n");
     uart_puts_raw("   * Panel    : [BTRON] System Menu & Japanese JIS Fonts\n");
     uart_puts_raw("   * Windows  : HFDS Cabinet Explorer, T-Editor, GTerm Shell\n");
     uart_puts_raw(" Controls: Type in active window or press [Esc]/[Q] to return to shell.\n");
     uart_puts_raw("==========================================================\n\n");
 
-    uint8_t prev_sc = 0;
+    /* Drain any pending keypresses */
+    while (ps2_has_key()) (void)ps2_get_scancode();
+    while (uart_has_char()) (void)uart_getc();
+
     int shift = 0;
     H mouse_x = 512, mouse_y = 384;
     EVT ev;
@@ -389,26 +412,23 @@ static void launch_vesa_desktop_session(int active_cores) {
 
         if (ps2_has_key()) {
             uint8_t sc = ps2_get_scancode();
-            if (sc != prev_sc) {
-                prev_sc = sc;
-                if (sc == 0x01 || sc == 0x10) { /* Esc or Q */
-                    break;
-                } else if (sc == 0x2A || sc == 0x36) shift = 1;
-                else if (sc == 0xAA || sc == 0xB6) shift = 0;
-                else {
-                    char c = ps2_scancode_to_ascii(sc, shift);
-                    if (c) {
-                        ev.type = EV_KEY_DOWN;
-                        ev.key = (UW)c;
-                        ev.pos.x = mouse_x;
-                        ev.pos.y = mouse_y;
-                        snd_evt(&ev);
-                        need_redraw = 1;
-                    }
+            if (sc == 0x01 || sc == 0x10) { /* Esc or Q */
+                break;
+            } else if (sc == 0x2A || sc == 0x36) {
+                shift = 1;
+            } else if (sc == 0xAA || sc == 0xB6) {
+                shift = 0;
+            } else if (!(sc & 0x80)) {
+                char c = ps2_scancode_to_ascii(sc, shift);
+                if (c) {
+                    ev.type = EV_KEY_DOWN;
+                    ev.key = (UW)c;
+                    ev.pos.x = mouse_x;
+                    ev.pos.y = mouse_y;
+                    snd_evt(&ev);
+                    need_redraw = 1;
                 }
             }
-        } else {
-            prev_sc = 0;
         }
 
         if (uart_has_char()) {
@@ -440,9 +460,12 @@ static void launch_vesa_desktop_session(int active_cores) {
             render_system_panel(dt->screen);
             redraw_all_windows();
             draw_baremetal_mouse_cursor(dt->screen, mouse_x, mouse_y, 1024, 768);
+            if (g_vesa.framebuffer) {
+                memcpy((void *)g_vesa.framebuffer, s_desktop_backbuffer, 1024 * 768 * sizeof(COLOR));
+            }
         }
 
-        for (volatile int d = 0; d < 2000; d++) {
+        for (volatile int d = 0; d < 10000; d++) {
             __asm__ volatile("pause");
         }
     }
@@ -453,6 +476,10 @@ static void launch_vesa_desktop_session(int active_cores) {
 }
 
 static void run_btron_shell(int active_cores) {
+    /* Drain any leftover key from bootloader */
+    while (ps2_has_key()) (void)ps2_get_scancode();
+    while (uart_has_char()) (void)uart_getc();
+
     render_btron_text_desktop(active_cores);
 
     kprint("\n==========================================================\n", 0x0A);
@@ -466,24 +493,20 @@ static void run_btron_shell(int active_cores) {
 
     char cmd_buf[64];
     int  cmd_len = 0;
-    uint8_t prev_sc = 0;
-    int shift = 0;
+    int  shift = 0;
 
     for (;;) {
         char ch = 0;
 
         if (ps2_has_key()) {
             uint8_t sc = ps2_get_scancode();
-            if (sc != prev_sc) {
-                prev_sc = sc;
-                if (sc == 0x2A || sc == 0x36) shift = 1;
-                else if (sc == 0xAA || sc == 0xB6) shift = 0;
-                else {
-                    ch = ps2_scancode_to_ascii(sc, shift);
-                }
+            if (sc == 0x2A || sc == 0x36) {
+                shift = 1;
+            } else if (sc == 0xAA || sc == 0xB6) {
+                shift = 0;
+            } else if (!(sc & 0x80)) {
+                ch = ps2_scancode_to_ascii(sc, shift);
             }
-        } else {
-            prev_sc = 0;
         }
 
         if (!ch && uart_has_char()) {
@@ -540,7 +563,7 @@ static void run_btron_shell(int active_cores) {
             } else if (ch == '\b') {
                 if (cmd_len > 0) {
                     cmd_len--;
-                    kprint("\b", 0x07);
+                    kprint("\b \b", 0x07);
                 }
             } else if (cmd_len < 60 && ch >= 32 && ch <= 126) {
                 cmd_buf[cmd_len++] = ch;
@@ -549,7 +572,7 @@ static void run_btron_shell(int active_cores) {
             }
         }
 
-        for (volatile int d = 0; d < 5000; d++) {
+        for (volatile int d = 0; d < 2000; d++) {
             __asm__ volatile("pause");
         }
     }
@@ -635,18 +658,38 @@ void kernel_main(void) {
     run_btron_shell(s_targets[s_selected].cores);
 }
 
-__attribute__((weak)) void _start(void) {
+__attribute__((naked, weak)) void _start(void) {
 #if defined(__x86_64__)
     __asm__ volatile(
         "movq %0, %%rsp\n"
+        "xorq %%rbp, %%rbp\n"
+        "movq %%cr0, %%rax\n"
+        "andq $~0x04, %%rax\n"
+        "orq $0x02, %%rax\n"
+        "movq %%rax, %%cr0\n"
+        "movq %%cr4, %%rax\n"
+        "orq $0x600, %%rax\n"
+        "movq %%rax, %%cr4\n"
         "call kernel_main\n"
+        "1: hlt\n"
+        "jmp 1b\n"
         :
         : "r"(s_boot_stack + sizeof(s_boot_stack))
     );
 #elif defined(__i386__)
     __asm__ volatile(
         "movl %0, %%esp\n"
+        "xorl %%ebp, %%ebp\n"
+        "movl %%cr0, %%eax\n"
+        "andl $~0x04, %%eax\n"
+        "orl $0x02, %%eax\n"
+        "movl %%eax, %%cr0\n"
+        "movl %%cr4, %%eax\n"
+        "orl $0x600, %%eax\n"
+        "movl %%eax, %%cr4\n"
         "call kernel_main\n"
+        "1: hlt\n"
+        "jmp 1b\n"
         :
         : "r"(s_boot_stack + sizeof(s_boot_stack))
     );

@@ -11,6 +11,8 @@
 #include <stdio.h>
 #endif
 
+__attribute__((weak)) volatile uint32_t g_num_cpus = 1;
+
 void btron_kernel_init(int target_mode) {
     (void)target_mode;
     btron_core_init();
