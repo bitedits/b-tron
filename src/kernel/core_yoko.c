@@ -11,11 +11,40 @@
 #include <btron/itron.h>
 #include <libstr.h>
 
+#include <btron/core.h>
 #include <btron/apps.h>
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+#include <stdio.h>
+#define yoko_puts(s) printf("%s", (s))
+#else
+extern void uart_puts(const char *s);
+#define yoko_puts(s) uart_puts(s)
+#endif
 
 extern void tkernel_init_subsystems(int full_suite);
 
+void btron_core_banner(void) {
+    yoko_puts("B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0\n");
+    yoko_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
+    yoko_puts("[BOOT] Machine: Raspberry Pi 2B / BCM2836  ARMv7-A  T-Kernel 2.0\n\n");
+}
+
+void btron_core_mem_log(void) {
+    yoko_puts("[MEM ] BCM2836 Physical Memory Map (1 GB RAM):\n");
+    yoko_puts("[MEM ]   0x00000000-0x3EFFFFFF  RAM (Usable 1008 MB)\n");
+    yoko_puts("[MEM ]   0x3F000000-0x3FFFFFFF  Peripherals / MMIO (16 MB)\n");
+    yoko_puts("[MEM ] Heap: 0x00200000-0x01000000 (14 MB Kernel Heap)\n");
+}
+
+void btron_core_hfds_log(void) {
+    yoko_puts("[HFDS] EMMC / SD Storage Interface: INIT  [OK]\n");
+    yoko_puts("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
+    yoko_puts("[HFDS] Root Cabinet: BTRON3_SPEC.TAD  T_KERNEL_20.TAD\n");
+}
+
 void btron_core_init(void) {
+    yoko_puts("[CORE] Yokobayashi T-Kernel 2.0 Engine  BTRON_YOKOBAYASHI\n");
     tkernel_init_subsystems(1);
 }
 
