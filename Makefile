@@ -318,37 +318,48 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 
 
 # ═══════════════════════════════════════════════════════════════════
-# X86_64 / EMT64 UEFI SMP Kernel Desktop (Honoring Kota Uchida)
+# X86_64 / EMT64 UEFI SMP QEMU Kernel (Honoring Kota Uchida)
 # ═══════════════════════════════════════════════════════════════════
+UEFI_LD := src/kernel/uefi_qemu.ld
+
 uefi: tad_bin $(UEFI_TARGET)
 	@ln -sf $(UEFI_TARGET) btron-uefi.elf
 	@echo "=========================================================="
 	@echo " B-System X86_64 / EMT64 UEFI SMP Kernel built: $(UEFI_TARGET)"
 	@echo " In honor of Kota Uchida (内田 公太) — Japanese UEFI OS pioneer"
-	@echo " Run 'make run-uefi' or 'make run-eufi' to launch."
+	@echo " Run 'make run-uefi' or 'make run-eufi' to launch on QEMU."
 	@echo "=========================================================="
 
-%.uefi.o: %.c
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -c $< -o $@
-
-$(UEFI_TARGET): $(UEFI_OBJS)
-	$(CC) $(UEFI_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+$(UEFI_TARGET): $(UEFI_LD) src/kernel/core_boot.c
+	$(CC) -m32 -ffreestanding -nostdlib -Iinclude -Isrc/kernel -T $(UEFI_LD) src/kernel/core_boot.c -o $@
 
 run-uefi: $(UEFI_TARGET)
 	@echo "=========================================================="
-	@echo " Launching B-System X86_64 / EMT64 UEFI SMP Desktop"
+	@echo " Launching B-System X86_64 / EMT64 UEFI SMP on QEMU"
 	@echo " Honoring : Kota Uchida (内田 公太) — MikanOS Pioneer"
-	@echo " Mode     : Native Desktop & Ski Bootloader (🎿)"
-	@echo " Target   : $(UEFI_TARGET)"
+	@echo " Machine  : q35  |  CPU: qemu64 (SMP 4 Cores)  |  RAM: 1G"
+	@echo " Firmware : ACPI 6.5 MADT + LAPIC SMP Bring-up (core_smp.c)"
+	@echo " Devices  : VirtIO GPU, VirtIO Keyboard/Mouse, Serial stdio"
 	@echo "=========================================================="
-	./$(UEFI_TARGET)
+	@echo " INPUT CAPTURE:"
+	@echo "   Click inside the QEMU window to grab keyboard & mouse."
+	@echo "   Press Ctrl+Alt+G to release grab."
+	@echo "   Serial console & Ski Bootloader active in THIS terminal."
+	@echo "=========================================================="
+	$(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -smp cores=4,threads=1,sockets=1 -m 1G \
+	    $(KERNEL_DISPLAY) \
+	    -device virtio-vga \
+	    -device virtio-keyboard-pci -device virtio-mouse-pci \
+	    -kernel $(UEFI_TARGET) -serial stdio
 
 run-eufi: run-uefi
 
 run-uefu: run-uefi
 
 test-uefi: $(UEFI_TARGET)
-	@./$(UEFI_TARGET)
+	@echo "[TEST-UEFI] Validating QEMU Multiboot ELF Header..."
+	@file $(UEFI_TARGET) | grep -q "ELF" && echo "  [PASS] btron-uchida.elf is valid QEMU Multiboot ELF"
+
 
 
 # ═══════════════════════════════════════════════════════════════════

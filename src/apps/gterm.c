@@ -352,11 +352,20 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
     } else if (strcmp(cmd, "echo") == 0) {
         out_fn(arg, COLOR_LTGRAY, user_data);
     } else if (strcmp(cmd, "ps") == 0) {
-        out_fn("PID   TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN, user_data);
-        out_fn("----------------------------------------------------------------", COLOR_DKGRAY, user_data);
-        out_fn("  1   tk_desktop     RUN    0x01020000   1024x768  [B-System Desktop]", COLOR_GREEN, user_data);
-        out_fn("  2   tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", COLOR_GREEN, user_data);
-        out_fn("  3   tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", COLOR_GREEN, user_data);
+        int num_cores = 1;
+#if defined(BTRON_SMP)
+        extern volatile uint32_t g_num_cpus;
+        if (g_num_cpus > 0) num_cores = (int)g_num_cpus;
+#endif
+        out_fn("PID   CORE  TASK           STAT   ADDR         BOUNDS    TITLE", COLOR_CYAN, user_data);
+        out_fn("-------------------------------------------------------------------------", COLOR_DKGRAY, user_data);
+        char sline[256];
+        snprintf(sline, sizeof(sline), "  1   #%-3d  tk_desktop     RUN    0x01020000   1024x768  [B-System Desktop]", 0);
+        out_fn(sline, COLOR_GREEN, user_data);
+        snprintf(sline, sizeof(sline), "  2   #%-3d  tk_wnd_mgr     READY  0x01040000   1024x768  [Window Compositor]", (1 % num_cores));
+        out_fn(sline, COLOR_GREEN, user_data);
+        snprintf(sline, sizeof(sline), "  3   #%-3d  tk_tip_ime     READY  0x010A0000   Candidate [Mozc Japanese IME]", (2 % num_cores));
+        out_fn(sline, COLOR_GREEN, user_data);
 
         WND *w = get_wnd_list();
         if (!w) {
@@ -401,9 +410,11 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
                 char bounds_str[32];
                 snprintf(bounds_str, sizeof(bounds_str), "%dx%d", ww, wh);
 
+                int task_core = (cw->id + i) % num_cores;
                 char line[256];
-                snprintf(line, sizeof(line), "%3d   %-14s %-6s 0x%08lx %-9s %s",
+                snprintf(line, sizeof(line), "%3d   #%-3d  %-14s %-6s 0x%08lx %-9s %s",
                          cw->id,
+                         task_core,
                          task_with_inst,
                          cw->focused ? "RUN" : "SLEEP",
                          (unsigned long)((uintptr_t)cw & 0xFFFFFFFF),
