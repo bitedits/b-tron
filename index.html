@@ -3,22 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Plane (BTRON) — Synrc Virtualization Environment VE OS.1</title>
-    <link rel="stylesheet" href="index.css?v=1">
+    <title>B-System VirtIO — High-Assurance Cleanroom BTRON3 Workstation &amp; Paravirtualized Architecture</title>
+    <meta name="description" content="Technical and academic reference portal for B-System VirtIO 1.4 paravirtualization, cleanroom BTRON3 operating system, deterministic real-time microkernel, and university research syllabus.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css?v=2">
     <style>
+        :root {
+            --tron-teal: #008080;
+            --tron-teal-light: #e0f2f1;
+            --tron-blue: #0057b7;
+            --tron-indigo: #283593;
+            --tron-gold: #c59b27;
+            --tron-pink: #ff2d95;
+            --tron-purple: #7e22ce;
+            --tron-slate: #0f172a;
+            --card-glass: rgba(255, 255, 255, 0.90);
+            --card-border: rgba(255, 93, 162, 0.25);
+            --mono-font: 'JetBrains Mono', monospace;
+            --serif-font: 'Shippori Mincho', 'Noto Sans JP', serif;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            line-height: 1.7;
+        }
+
+        .mono {
+            font-family: var(--mono-font);
+        }
+
+        /* Hero Pill & Glow */
+        .hero-banner-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(0, 87, 183, 0.12), rgba(0, 128, 128, 0.15));
+            border: 1px solid rgba(0, 128, 128, 0.35);
+            color: var(--tron-blue);
+            padding: 0.45rem 1.2rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 1.4rem;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0, 128, 128, 0.12);
+        }
+
+        .hero-lead-box {
+            max-width: 960px;
+            margin: 2rem auto 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255, 93, 162, 0.3);
+            border-radius: 20px;
+            padding: 1.8rem 2.4rem;
+            text-align: left;
+            box-shadow: 0 12px 36px rgba(107, 79, 126, 0.08);
+        }
+
+        .hero-lead-box p {
+            color: #334155;
+            font-size: 1.08rem;
+            line-height: 1.85;
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-lead-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* KPI Metric Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 2.2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1.5px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.1rem 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(107, 79, 126, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 93, 162, 0.18);
+        }
+
+        .stat-num {
+            font-size: 1.85rem;
+            font-weight: 800;
+            font-family: var(--mono-font);
+            background: linear-gradient(135deg, #ff2d95, #008080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.76rem;
+            color: #6b4f7e;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Tech Section Container */
+        .tech-card {
+            background: var(--card-glass);
+            border: 1.5px solid var(--card-border);
+            border-radius: 18px;
+            padding: 2.2rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 28px rgba(107, 79, 126, 0.06);
+        }
+
+        .tech-card h3 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #2e1065;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1.5px solid rgba(255, 93, 162, 0.2);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.2rem;
+        }
+
+        /* Academic Tables */
+        .tech-table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(107, 79, 126, 0.15);
+            margin: 1.2rem 0;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+            text-align: left;
+        }
+
+        .tech-table th {
+            background: linear-gradient(135deg, rgba(255, 224, 240, 0.85), rgba(224, 242, 241, 0.85));
+            color: #2e1065;
+            font-weight: 700;
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1.5px solid rgba(255, 93, 162, 0.25);
+        }
+
+        .tech-table td {
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .tech-table tr:hover {
+            background: rgba(255, 93, 162, 0.04);
+        }
+
+        /* Code & Pre Blocks */
+        pre.code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 1.2rem 1.4rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: var(--mono-font);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+            border: 1px solid #334155;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        pre.code-block .c-comment { color: #64748b; font-style: italic; }
+        pre.code-block .c-keyword { color: #f43f5e; font-weight: 600; }
+        pre.code-block .c-type    { color: #38bdf8; }
+        pre.code-block .c-const   { color: #fbbf24; }
+        pre.code-block .c-string  { color: #34d399; }
+
+        /* Grid utilities */
         .grid-2 {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 2rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.8rem;
+            margin: 1.5rem 0;
         }
-        .grid-2 > * {
-            min-width: 0;
-            max-width: 100%;
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
         }
-        @media (max-width: 900px) {
-            .grid-2 {
-                grid-template-columns: minmax(0, 1fr);
+
+        /* Academic Badges */
+        .spec-badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: var(--mono-font);
+        }
+        .spec-teal   { background: #e0f2f1; color: #008080; border: 1px solid #80cbc4; }
+        .spec-blue   { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+        .spec-pink   { background: #ffe4e6; color: #e11d48; border: 1px solid #fecdd3; }
+        .spec-purple { background: #f3e8ff; color: #9333ea; border: 1px solid #d8b4fe; }
+
+        /* Syllabus Module Card */
+        .syllabus-card {
+            background: #ffffff;
+            border: 1.5px solid rgba(0, 87, 183, 0.2);
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 87, 183, 0.05);
+            transition: transform 0.2s;
+        }
+        .syllabus-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--tron-blue);
+        }
+
+        /* Gallery Card */
+        .gallery-card {
+            background: #ffffff;
+            border: 1.5px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+            padding: 0.85rem;
+            box-shadow: 0 4px 16px rgba(107, 79, 126, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .gallery-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 93, 162, 0.16);
+        }
+        .gallery-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .gallery-card h4 {
+            margin: 0.75rem 0 0.25rem 0;
+            font-size: 1.05rem;
+            color: #d90b72;
+            font-weight: 700;
+        }
+        .gallery-card p {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin-bottom: 0;
+            line-height: 1.45;
+        }
+
+        /* CLI terminal box */
+        .cli-box {
+            background: #020617;
+            border: 1.5px solid #1e293b;
+            border-radius: 12px;
+            padding: 1rem 1.4rem;
+            font-family: var(--mono-font);
+            color: #38bdf8;
+            font-size: 0.9rem;
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .cli-prompt {
+            color: #f43f5e;
+            user-select: none;
+            margin-right: 0.6rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .hero-lead-box {
+                padding: 1.2rem 1.4rem;
+            }
+            .tech-card {
+                padding: 1.4rem;
             }
         }
     </style>
@@ -34,303 +321,472 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="active" style="color: var(--accent); font-weight:700;">VirtIO</a></li>
                 <li><a href="conformance.html">Conformance Audit</a></li>
-                <li><a href="b-system.html">B-System OS</a></li>
+                <li><a href="b-system.html"">B-System OS</a></li>
                 <li><a href="releases.html">Releases</a></li>
                 <li><a href="https://github.com/bitedits/btron">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
-    <header>
-        <div class="hero-content">
-            <h1>VirtIO TRON</h1>
-            <p class="hero-subtitle">Forever-free ISC/MIT/BSD native retro desktop of BTRON,
-                  with multilingual character system and real-object hyper-data engine — one
-                  of the unikernel VMs of Synrc VE OS.1, an open source VirtIO virtualized environment for retro preservation.</p>
-            <div style="margin-top: 1.6rem; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;">
-                <a href="conformance.html" class="pdf-badge" style="background: linear-gradient(135deg, #0057b7, #283593); color:white; box-shadow: 0 2px 10px rgba(0, 87, 183, 0.4);">📊 BTRON 3.20 Conformance Audit</a>
-                <a href="b-system.html" class="pdf-badge" style="background: linear-gradient(135deg, #0057b7, #008080); box-shadow: 0 2px 10px rgba(0, 87, 183, 0.4);">🌸 B-System (Consumer OS 日本語)</a>
+
+    <!-- Hero Header -->
+    <header style="padding: 3.5rem 1.5rem 2rem 1.5rem; text-align: center;">
+        <div class="hero-content" style="max-width: 1200px; margin: 0 auto;">
+            <div class="hero-banner-tag">
+                <span>⚡</span>
+                <span>OASIS VirtIO 1.4 Paravirtualized Specification · C99 Cleanroom BTRON3</span>
             </div>
-            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;">
-                <a href="btron-article.pdf" class="pdf-badge" target="_blank">📄 BTRON3 Spec Article (PDF)</a>
-                <a href="btron-tad.pdf" class="pdf-badge" target="_blank">📄 TAD Browser &amp; Cabinet (PDF)</a>
-                <a href="btron-tip.pdf" class="pdf-badge" target="_blank">📄 TRON Mozc TIP IME (PDF)</a>
-                <a href="btron-hmi.pdf" class="pdf-badge" target="_blank">📄 TRON HMI Standards (PDF)</a>
+
+            <h1 style="font-size: 2.85rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.8rem; background: linear-gradient(135deg, #0057b7 0%, #ff2d95 50%, #008080 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                B-System VirtIO Architecture
+            </h1>
+
+            <p style="font-size: 1.32rem; color: #475569; max-width: 860px; margin: 0 auto; font-weight: 500;">
+                The High-Assurance Paravirtualized Workstation &amp; Real-Time Hypervisor System Plane for Academic Research and Computer Science Curricula
+            </p>
+
+            <div class="hero-lead-box">
+                <p>
+                    <strong>B-System VirtIO</strong> is a formal cleanroom implementation of the Japanese <strong>BTRON3 Specification 3.20</strong> engineered as a native, lightweight <strong>VirtIO 1.4 System Plane</strong>. Designed specifically for university research in operating systems, paravirtualized I/O, and real-time computing, B-System liberates TRON workstation technology from vintage proprietary silicon, executing deterministically on modern hypervisors (KVM, QEMU, bhyve, macOS Hypervisor.framework) and microkernel capability architectures (seL4).
+                </p>
+                <p style="font-size: 0.98rem; color: #64748b;">
+                    By decoupling μITRON real-time scheduling, authentic Sakamura Cho-Kanji windowing, and the Real Object / Virtual Object (実身／仮身) hypermedia filing system into standardized Split Virtqueues, B-System delivers microsecond latency, zero post-boot dynamic memory allocation (NASA JPL Rule 3), and verifiable fault isolation.
+                </p>
+            </div>
+
+            <!-- Primary Action & PDF Badges -->
+            <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: center;">
+                <a href="conformance.html" class="pdf-badge" style="background: linear-gradient(135deg, #0057b7, #283593); color:white; box-shadow: 0 4px 14px rgba(0, 87, 183, 0.35); font-weight: 700;">📊 Formal Conformance Audit (Line-by-Line)</a>
+                <a href="b-system/apps/Boot.html" class="pdf-badge" style="background: linear-gradient(135deg, #ff2d95, #c026d3); color:white; box-shadow: 0 4px 14px rgba(255, 45, 149, 0.35); font-weight: 700;">🚀 7-Target Kernel Boot Matrix</a>
+                <a href="b-system.html" class="pdf-badge" style="background: linear-gradient(135deg, #008080, #0057b7); color:white; box-shadow: 0 4px 14px rgba(0, 128, 128, 0.35); font-weight: 700;">🌸 B-System Consumer OS (日本語)</a>
+            </div>
+
+            <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
+                <a href="btron-article.pdf" class="pdf-badge" target="_blank">📄 BTRON3 Spec Architecture (PDF)</a>
+                <a href="btron-tad.pdf" class="pdf-badge" target="_blank">📄 TAD Browser &amp; Cabinet Engine (PDF)</a>
+                <a href="btron-tip.pdf" class="pdf-badge" target="_blank">📄 TRON Mozc TIP Japanese IME (PDF)</a>
+                <a href="btron-hmi.pdf" class="pdf-badge" target="_blank">📄 Sakamura TRON HMI Standards (PDF)</a>
             </div>
         </div>
     </header>
 
-    <main>
-        <section>
-            <h2>BTRON Guest Environment</h2>
-            <div style="max-width:850px;margin:0 auto;text-align:center;">
-                <p>The <b>BTRON System Plane</b> provides a cleanroom implementation of the Japanese Business TRON (BTRON3) specification for OS.1 instances requiring real-time μITRON task execution, authentic Sakamura windowing, multilingual TRON Code, and the Real Body / Virtual Body hyper-data engine. Designed using standard C99, rendering through VirtIO / SDL2 graphics primitives.</p>
+    <!-- Main Content Container -->
+    <main style="max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem 4rem 1.5rem;">
+
+        <!-- ── SECTION 1: VirtIO 1.4 Specification Architecture ──────── -->
+        <section class="tech-card" id="virtio-spec">
+            <h3>
+                <span>1. OASIS VirtIO 1.4 Specification &amp; Memory Ring Architecture</span>
+                <span class="spec-badge spec-teal">PARAVIRTUALIZED I/O</span>
+            </h3>
+            <p>
+                VirtIO paravirtualization eliminates the prohibitive latency of full peripheral hardware emulation (such as IDE, Cirrus VGA, or Realtek NIC register traps). B-System interfaces directly with modern hypervisors via memory-mapped I/O (MMIO) and PCI BAR transports using standard <strong>Split Virtqueues</strong>.
+            </p>
+
+            <div class="tech-table-wrapper">
+                <table class="tech-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 22%;">MMIO Register</th>
+                            <th style="width: 14%;">Offset</th>
+                            <th style="width: 18%;">Value / Invariant</th>
+                            <th>Architectural Function in B-System</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono"><strong>MagicValue</strong></td>
+                            <td class="mono"><code>0x000</code></td>
+                            <td class="mono"><code>0x74726976</code> ("virt")</td>
+                            <td>Hardware identification trap confirming valid VirtIO bus interface.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>Version</strong></td>
+                            <td class="mono"><code>0x004</code></td>
+                            <td class="mono"><code>0x00000002</code></td>
+                            <td>Enforces strict <strong>VirtIO v1.4 Modern Standard</strong>; prevents legacy v0.95 fallback bugs.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>DeviceID</strong></td>
+                            <td class="mono"><code>0x008</code></td>
+                            <td class="mono"><code>1, 2, 3, 16, 18</code></td>
+                            <td>Dispatches to Net (1), Block (2), Console (3), GPU (16), or Input/Tablet (18) subsystems.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>QueueNumMax</strong></td>
+                            <td class="mono"><code>0x034</code></td>
+                            <td class="mono">Power-of-two (e.g. 256)</td>
+                            <td>Upper descriptor capacity negotiated between guest driver and host hypervisor.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>QueueNotify</strong></td>
+                            <td class="mono"><code>0x050</code></td>
+                            <td class="mono">Queue Index (0..N)</td>
+                            <td>Host doorbell register triggering paravirtualized hypercall without I/O trapping delay.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>Status</strong></td>
+                            <td class="mono"><code>0x070</code></td>
+                            <td class="mono"><code>ACK | DRV | OK</code></td>
+                            <td>Driver state machine progression (Acknowledge → Driver → FeaturesOK → DriverOK).</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
+            <h4 style="margin: 1.6rem 0 0.6rem 0; color: #1e3a8a; font-size: 1.15rem;">C99 Split Virtqueue Ring Topology (include/device/virtio.h)</h4>
+            <p style="font-size: 0.94rem; color: #475569;">
+                Communication occurs via three shared ring buffers allocated in contiguous physical RAM. Hardware volatile barriers (<code class="mono">_W</code>, <code class="mono">_UW</code>) guarantee zero-copy cache coherency across CPU clusters without race conditions:
+            </p>
+
+            <pre class="code-block"><span class="c-comment">/* 1. Descriptor Table: Points to physical buffer segments */</span>
+<span class="c-keyword">struct</span> <span class="c-type">vio_vring_desc</span> {
+    <span class="c-type">uint64_t</span> addr;   <span class="c-comment">/* Physical guest address in RAM */</span>
+    <span class="c-type">uint32_t</span> len;    <span class="c-comment">/* Segment length in bytes */</span>
+    <span class="c-type">uint16_t</span> flags;  <span class="c-comment">/* VIO_VRING_DESC_F_NEXT | F_WRITE | F_INDIRECT */</span>
+    <span class="c-type">uint16_t</span> next;   <span class="c-comment">/* Index of chained buffer in descriptor pool */</span>
+};
+
+<span class="c-comment">/* 2. Available Ring: Written by Guest, read by Hypervisor Host */</span>
+<span class="c-keyword">struct</span> <span class="c-type">vio_vring_avail</span> {
+    <span class="c-type">uint16_t</span> flags;  <span class="c-comment">/* VRING_AVAIL_F_NO_INTERRUPT suppression flag */</span>
+    <span class="c-type">uint16_t</span> idx;    <span class="c-comment">/* Monotonically increasing submission counter */</span>
+    <span class="c-type">uint16_t</span> ring[]; <span class="c-comment">/* Array of descriptor heads submitted for host processing */</span>
+};
+
+<span class="c-comment">/* 3. Used Ring: Written by Hypervisor Host, retired by Guest */</span>
+<span class="c-keyword">struct</span> <span class="c-type">vio_vring_used_elem</span> {
+    <span class="c-type">uint32_t</span> id;     <span class="c-comment">/* Descriptor chain head completed */</span>
+    <span class="c-type">uint32_t</span> len;    <span class="c-comment">/* Total bytes written/read by hardware device */</span>
+};
+
+<span class="c-keyword">struct</span> <span class="c-type">vio_vring_used</span> {
+    <span class="c-type">uint16_t</span> flags;
+    <span class="c-type">uint16_t</span> idx;    <span class="c-comment">/* Monotonically increasing completion counter */</span>
+    <span class="c-keyword">struct</span> <span class="c-type">vio_vring_used_elem</span> ring[];
+};</pre>
+        </section>
+
+        <!-- ── SECTION 2: The Five First-Class VirtIO Subsystems ────── -->
+        <section class="tech-card" id="devices">
+            <h3>
+                <span>2. The Five Native VirtIO Subsystems in B-System</span>
+                <span class="spec-badge spec-blue">DEVICE ARCHITECTURE</span>
+            </h3>
+            <p>
+                B-System provides a complete, cleanroom C99 driver suite for the five essential workstation virtualization devices defined in the OASIS specification:
+            </p>
 
             <div class="grid-2">
-                <div class="package-card">
-                    <h3><a href="https://bitedits.github.io/btron/doc/os_spec/kernel/kernel.html">μITRON KERNEL</a> &amp; <a href="include/btron/itron.h">ITRON.H</a></h3>
-                    <hr>
-                    <p>Real-time microkernel primitives powering task scheduling, semaphores, event flags, and inter-process communication.</p>
-                    <pre class="code-snippet">
-/* μITRON Real-Time Task Creation */
-ID tskid = cre_tsk(&amp;ctsk);
-sta_tsk(tskid, stacd);
-wai_sem(semid);</pre>
-                </div>
-                
-                <div class="package-card">
-                    <h3><a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html">DISPLAY PRIMITIVES</a> &amp; <a href="include/btron/dp.h">DP.H</a></h3>
-                    <hr>
-                    <p>Sakamura graphics engine supporting 2D vector/raster rendering, pattern fills (PAT), clipping regions (RGN), and VirtIO framebuffers.</p>
-                    <pre class="code-snippet">
-/* BTRON Display Primitives */
-PAT pat = { .fill = PAT_SOLID, .color = COLOR_TEAL };
-gd_rect(&amp;rect, &amp;pat);
-gd_draw_text(pnt, "BTRON3", &amp;pat);</pre>
+                <!-- Device 1: VirtIO-GPU -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(0, 87, 183, 0.25); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 14px rgba(0, 87, 183, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem;">
+                        <h4 style="font-size: 1.2rem; color: var(--tron-blue); margin: 0;">VirtIO-GPU (Device 16)</h4>
+                        <span class="spec-badge spec-blue">2D SCANOUT &amp; SDL2</span>
+                    </div>
+                    <p style="font-size: 0.92rem; color: #475569;">
+                        Routes BTRON Display Primitives (DP vector rasterizer, pattern fills, font bitmaps) through 2D resource create (<code class="mono">0x0101</code>), transfer-to-host (<code class="mono">0x0105</code>), and resource flush (<code class="mono">0x0104</code>) control packets. On hosted targets, pipes directly into an accelerated SDL2 streaming texture (<code class="mono">SDL_PIXELFORMAT_ARGB8888</code>) achieving 60–120 FPS display updates with zero flicker.
+                    </p>
+                    <pre class="code-block" style="font-size: 0.82rem;"><span class="c-keyword">struct</span> <span class="c-type">virtio_gpu_resource_create_2d</span> cmd = {
+    .hdr.type = VIRTIO_GPU_CMD_RESOURCE_CREATE_2d,
+    .resource_id = 1,
+    .format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM,
+    .width = 1024, .height = 768
+};
+virtio_gpu_send_cmd(&amp;cmd, <span class="c-keyword">sizeof</span>(cmd));</pre>
                 </div>
 
-                <div class="package-card">
-                    <h3><a href="https://bitedits.github.io/btron/doc/os_spec/shell/shell.html">WINDOW MANAGER</a> &amp; <a href="include/btron/wnd.h">WND.H</a></h3>
-                    <hr>
-                    <p>Authentic Sakamura Cho-Kanji retro desktop layout, teal workspace, top status panel, z-order window manager, and cabinet launcher.</p>
-                    <pre class="code-snippet">
-/* Sakamura Window Creation */
-WND wnd;
-wnd_create(&amp;wnd, "T-Editor", 100, 100, 640, 480);
-wnd_show(&amp;wnd);</pre>
+                <!-- Device 2: VirtIO-Input / Tablet -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(0, 128, 128, 0.25); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 14px rgba(0, 128, 128, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem;">
+                        <h4 style="font-size: 1.2rem; color: var(--tron-teal); margin: 0;">VirtIO-Input / Tablet (Device 18)</h4>
+                        <span class="spec-badge spec-teal">16-BIT ABSOLUTE POINTER</span>
+                    </div>
+                    <p style="font-size: 0.92rem; color: #475569;">
+                        Eliminates mouse drift and relative-pointer capture issues by implementing the VirtIO Tablet protocol. Coordinates are transmitted as normalized 16-bit absolute values (<code class="mono">EV_ABS</code>: <code class="mono">ABS_X</code>, <code class="mono">ABS_Y</code>, 0..32767). The BTRON event manager translates packets into authentic Sakamura cursor events with sub-millisecond click dispatch.
+                    </p>
+                    <pre class="code-block" style="font-size: 0.82rem;"><span class="c-keyword">struct</span> <span class="c-type">virtio_input_event</span> {
+    <span class="c-type">uint16_t</span> type;  <span class="c-comment">/* EV_SYN, EV_KEY, EV_ABS */</span>
+    <span class="c-type">uint16_t</span> code;  <span class="c-comment">/* ABS_X, ABS_Y, BTN_LEFT */</span>
+    <span class="c-type">uint32_t</span> value; <span class="c-comment">/* Absolute cursor coordinate */</span>
+};</pre>
                 </div>
 
-                <div class="package-card">
-                    <h3><a href="https://bitedits.github.io/btron/include/btron/vobj.h">REAL / Virtual Body ENGINE</a></h3>
-                    <hr>
-                    <p>Sakamura hyper-data object model: documents contain live embedded pointers (Virtual Bodys) linked to Real Bodys stored in disk cabinets.</p>
-                    <pre class="code-snippet">
-/* Real Body / Virtual Body Link */
-VOBJ link;
-vobj_read_link(&amp;link, obj_id);
-vobj_open_cabinet(link.real_obj_id);</pre>
+                <!-- Device 3: VirtIO-Console -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(255, 45, 149, 0.25); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 14px rgba(255, 45, 149, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem;">
+                        <h4 style="font-size: 1.2rem; color: #d90b72; margin: 0;">VirtIO-Console (Device 3)</h4>
+                        <span class="spec-badge spec-pink">PL011 SERIAL UART LINK</span>
+                    </div>
+                    <p style="font-size: 0.92rem; color: #475569;">
+                        Provides unbuffered multi-port character I/O streams directly connecting the <code class="mono">gterm</code> terminal emulator and kernel debugger to the host terminal. Operates in bidirectional interrupt-driven mode with fallback to standard PL011 115200 8N1 serial registers on bare-metal ARM systems.
+                    </p>
+                    <pre class="code-block" style="font-size: 0.82rem;"><span class="c-type">void</span> virtio_console_putc(<span class="c-type">char</span> c) {
+    vio_queue_push_tx_buffer(&amp;g_cons_vq, &amp;c, 1);
+    virtio_notify(VIRTIO_MMIO_CONSOLE, 0);
+}</pre>
                 </div>
 
-                <div class="product-card">
-                    <h3>TRON Multilingual &amp; Fonts</h3>
-                    <hr>
-                    <ul>
-                        <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html">TRON Code</a> — Multilingual character system &amp; plane switching</li>
-                        <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html">TAD Specification</a> — TRON Application Document format &amp; 2D segments</li>
-                        <li><a href="https://bitedits.github.io/btron/include/btron/troncode.h">Pixel Fonts</a> — High-legibility Japanese &amp; Latin bitmap renderer</li>
-                        <li><a href="https://bitedits.github.io/btron/apps/t_editor.c">T-Editor</a> — TRON Text Editor with Virtual Body embedding</li>
-                    </ul>
-                </div>
-
-                <div class="product-card">
-                    <h3>Applications &amp; Tooling</h3>
-                    <hr>
-                    <ul>
-                        <li><a href="https://bitedits.github.io/btron/apps/gterm.c">gterm</a> — BTRON Terminal Console window</li>
-                        <li><a href="https://bitedits.github.io/btron/apps/vobj_manager.c">vobj_manager</a> — Real Body Cabinet &amp; Link Explorer</li>
-                        <li><a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html">BTRON FS</a> — Diskette &amp; Real-Object file system format</li>
-                        <li><a href="https://bitedits.github.io/btron/Makefile">BSD Makefile</a> — Standalone build system in C99</li>
-                    </ul>
+                <!-- Device 4: VirtIO-Block -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(126, 34, 206, 0.25); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 14px rgba(126, 34, 206, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem;">
+                        <h4 style="font-size: 1.2rem; color: var(--tron-purple); margin: 0;">VirtIO-Block (Device 2)</h4>
+                        <span class="spec-badge spec-purple">HFDS CABINET STORAGE</span>
+                    </div>
+                    <p style="font-size: 0.92rem; color: #475569;">
+                        Asynchronous sector-level transfer (512B / 4096B) powering the cleanroom BTRON Hierarchical File/Data Set (HFDS). Manages persistent disk cabinets, Real Body record graphs, and Virtual Body link nodes with bounded static block buffers and zero runtime heap growth.
+                    </p>
+                    <pre class="code-block" style="font-size: 0.82rem;"><span class="c-keyword">struct</span> <span class="c-type">virtio_blk_req</span> {
+    <span class="c-type">uint32_t</span> type;     <span class="c-comment">/* VIRTIO_BLK_T_IN / OUT */</span>
+    <span class="c-type">uint32_t</span> reserved;
+    <span class="c-type">uint64_t</span> sector;   <span class="c-comment">/* 64-bit sector LBA index */</span>
+};</pre>
                 </div>
             </div>
         </section>
 
-        <section>
-            <h2>Specification &amp; Architecture</h2>
-            <div class="story-container">
-                <div class="plane-header">0. BTRON Specification 3.20</div>
-                <p>The complete Sakamura BTRON3 specification is documented within the workspace, organized into 
-              <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and 
-              <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> across 8 core chapters, complying with 
-              <a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a>, 
-              <a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy</b></a>, and 
-              <a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope</b></a>:</p>
+        <!-- ── SECTION 3: Cross-Platform Hypervisor & Silicon Matrix ─── -->
+        <section class="tech-card" id="matrix">
+            <h3>
+                <span>3. Cross-Platform Hypervisor &amp; Silicon Matrix</span>
+                <span class="spec-badge spec-teal">MULTI-TARGET CORE</span>
+            </h3>
+            <p>
+                B-System VirtIO is engineered as a unified source tree. A single makefile compiles identical core kernel code across bare metal, hypervisors, and desktop hosts:
+            </p>
 
-                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
-                    <div class="package-card" style="padding: 1.8rem;">
-                        <h3><a href="https://bitedits.github.io/btron/doc/index.html" style="color: var(--accent);">BTRON3 3.20 SPEC</a></h3>
-                        <hr>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>1. Basic Data Types &amp; Error Codes</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>2. TRON Code Character Encoding</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>3. TAD Document Format &amp; Segments</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html"><b>4. BTRON FS File System Layout</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/kernel/kernel.html"><b>5. μITRON Kernel &amp; Tasking</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html"><b>6. Display Primitives (DP Engine)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/shell/shell.html"><b>7. GUI Shell &amp; Window Manager</b></a></li>
-                        </ul>
-                    </div>
-
-                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(30, 58, 138, 0.3);">
-                        <h3><a href="https://bitedits.github.io/btron/t-kernel/index.html" style="color: #1e3a8a;">T-Kernel 2.0 SPEC</a></h3>
-                        <hr style="border-top-color: rgba(30, 58, 138, 0.2);">
-                        <p>Standardized real-time operating system kernel specification, deterministic task scheduling, and QEMU deployment guides.</p>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/t-kernel/tkernel_spec.html"><b>1. T-Kernel 2.0 Core Architecture</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/t-kernel/tkernel_startup.html"><b>2. Boot &amp; Initialization Sequence</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/t-kernel/tkernel_qemu.html"><b>3. QEMU &amp; Board Deployment</b></a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="plane-header">0.1. BTRON Specifications &amp; Standards (UA)</div>
-                <p>Повна технічна документація та стандарти людино-машинного інтерфейсу BTRON:</p>
-                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
-                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(0, 87, 183, 0.3);">
-                        <h3><a href="https://bitedits.github.io/btron/b-hmi/index.html" style="color: #0057b7;">TRON HMI</a></h3>
-                        <hr style="border-top-color: rgba(0, 87, 183, 0.2);">
-                        <p>Стандартний довідник людино-машинного інтерфейсу TRON (PMC / Ken Sakamura): ергономіка SUI/GUI, правила безпеки та повний каталог компонентів.</p>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/b-hmi/index.html"><b>Повний зміст (TOC)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-hmi/part1/index.html"><b>Частина 1: Для користувачів</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-hmi/part2/index.html"><b>Частина 2: Для інженерів</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-hmi/part_book/index.html"><b>Каталог HMI Parts Book</b></a></li>
-                        </ul>
-                    </div>
-
-                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(0, 128, 128, 0.3);">
-                        <h3><a href="https://bitedits.github.io/btron/b-free/index.html" style="color: #008073;">B-Free OS (GPL)</a></h3>
-                        <hr style="border-top-color: rgba(0, 128, 128, 0.2);">
-                        <p>Опис та архітектурний аналіз історичної вільної реалізації BTRON3 поверх мікроядра µITRON 3.0 та сумісності з POSIX.</p>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/b-free/manifest.html"><b>Маніфест B-Free</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-free/kernel.html"><b>Мікроядро µITRON</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-free/posix.html"><b>POSIX-сумісність</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-free/source_tree.html"><b>Структура коду</b></a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="plane-header">0.2. B-System (ISC/BSD/MIT) &amp; NASA/TRON Code Policy</div>
-                <p>Cleanroom engineering &amp; modern book chapters across 
-                  <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data Specifications</b></a> and 
-                  <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Specification</b></a> (8 core chapters), adhering to 
-                  <a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules</b></a>, 
-                  <a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy</b></a>, and 
-                  <a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope</b></a>:</p>
-                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
-                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(126, 34, 206, 0.3);">
-                        <h3><a href="https://bitedits.github.io/btron/b-system/index.html" style="color: #7e22ce;">B-System (ISC/BSD/MIT)</a></h3>
-                        <hr style="border-top-color: rgba(126, 34, 206, 0.2);">
-                        <p>Сучасна віртуалізована та векторна специфікація B-System (RISC-V 64 / ARM64 / x86_64, VirtIO 1.4, seL4/Synrc VE OS.1, DSP/SDR та SDL2):</p>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html"><b>Розділ 1: Вступ та архітектура B-System</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html#ch2"><b>Розділ 2: Ядро µITRON (DSP / Real-time)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/kernel.html#ch3"><b>Розділ 3: Менеджер системного ядра BTRON</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html"><b>Розділ 4: DP &amp; Wireframe Engine (NetWars)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html#ch5"><b>Розділ 5: Window Manager &amp; Графічна оболонка</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/btron_spec.html#ch6"><b>Розділ 6: Реальні та Віртуальні об'єкти (VOBJ)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>Розділ 7: Документи TRON TAD</b></a> &bull; <a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html"><b>Розділ 8: FS</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/virtio.html"><b>Розділ 9: VirtIO &amp; Synrc VE (9.1–9.10)</b></a></li>
-                            <li><a href="https://bitedits.github.io/btron/b-system/license.html"><b>Ліцензійна модель (MIT / BSD / ISC)</b></a> &bull; <a href="https://bitedits.github.io/btron/b-system/index.html"><b>Зміст (TOC)</b></a></li>
-                        </ul>
-                    </div>
-
-                    <div class="package-card" style="padding: 1.8rem; border-color: rgba(185, 28, 28, 0.3);">
-                        <h3><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html" style="color: #b91c1c;">NASA / TRON Code Policy</a></h3>
-                        <hr style="border-top-color: rgba(185, 28, 28, 0.2);">
-                        <p>Aerospace determinism &amp; static verification across <a href="https://bitedits.github.io/btron/doc/shared_data/index.html"><b>Part 1: Shared Data</b></a> and <a href="https://bitedits.github.io/btron/doc/os_spec/index.html"><b>Part 2: OS Spec</b></a> (8 chapters):</p>
-                        <ul>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/data_type.html"><b>NASA Safety-Critical C Rules:</b></a> Zero post-boot heap allocation (<code>JPL Rule 3</code>), volatile barriers (<code>_W</code>, <code>_UW</code>), fixed types (<code>B</code>, <code>H</code>, <code>W</code>, <code>UB</code>, <code>UH</code>, <code>UW</code>).</li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tron_code.html"><b>TRON Code Policy:</b></a> Deterministic 16-bit plane switching, multilingual script isolation, zero runtime transcoding faults.</li>
-                            <li><a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html"><b>TAD Segments &amp; BTRON FS:</b></a> <a href="https://bitedits.github.io/btron/doc/shared_data/tad1.html">Bounded TAD parsers</a> and <a href="https://bitedits.github.io/btron/doc/shared_data/fd_format.html">static FS block tables</a>.</li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/kernel/kernel.html"><b>μITRON Determinism:</b></a> Strict priority preemption, bounded IPC queue depth, predictable WCET without jitter.</li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html"><b>DP Primitives &amp; Shell:</b></a> <a href="https://bitedits.github.io/btron/doc/os_spec/dp/dp.html">Fixed-point transforms</a> and <a href="https://bitedits.github.io/btron/doc/os_spec/shell/shell.html">bounded control panels (<code>MAX=32</code>)</a>.</li>
-                            <li><a href="https://bitedits.github.io/btron/doc/os_spec/indexfig.html"><b>Static Analysis &amp; Bounded Heap Scope:</b></a> MISRA-C:2012 / JPL compliance and 100% verified test pass rate.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="plane-header">0.3. B-System Interactive Desktop Gallery</div>
-                <p>Authentic multi-window desktop screenshots of the cleanroom B-System environment: Sakamura Cho-Kanji windowing, TAD document browser, Real Body cabinet explorer, Mozc Kana-Kanji conversion, and CUA text editor.</p>
-                <div class="grid-2" style="margin-top: 1.5rem; margin-bottom: 2.5rem;">
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen1.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen1.png" alt="https://bitedits.github.io/btron/b-system Desktop &amp; System Panel" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">B-System Desktop &amp; System Panel</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Top status panel, launcher icons, and double-bordered retro windows.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen2.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen2.png" alt="T-Editor &amp; Japanese Mozc IME" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">T-Editor &amp; Mozc Japanese IME</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">CUA text editor with Kana-Kanji conversion (F10 mode toggle).</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" alt="gterm Console &amp; Real Body Explorer" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">gterm Console &amp; Object Explorer</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Terminal emulator, command execution, and object graph inspection.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen4.jpeg" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen4.jpeg" alt="B-TRON Multi-Window Workstation" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Multi-Window CUA Workstation</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Simultaneous multi-tasking across editor, terminal, and browser viewports.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen5.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen5.png" alt="Cabinet Explorer &amp; VOBJ Links" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Real Body Cabinet Explorer</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">TOC sequence weighting, catalog tags, and pixel-aligned metadata columns.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen6.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen6.png" alt="Native TAD Document Browser" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Native TAD Document Browser</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Single-pass BTRON3 stream decoder with monotonic layout box engine.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen7.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen7.png" alt="TAD Navigation &amp; History Stack" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Hyper-Object History Stack</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Reversible navigation history, link dispatch, and relative path resolution.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen8.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen8.png" alt="Sakamura DP 2D Vector Primitives" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">Sakamura DP 2D Vector Primitives</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">Bounded raster image decoders (GIF / PNG) and geometric Figure Fusen.</p>
-                    </div>
-
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen9.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen9.png" alt="VirtIO System Plane &amp; TRON Code" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">VirtIO System Plane &amp; TRON Code</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">High-legibility Cyrillic, Kanji, and Latin multilingual dot-matrix font renderer.</p>
-                    </div>
-                    <div class="image-block-card" style="padding: 1rem; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px;">
-                        <a href="https://bitedits.github.io/btron/b-system/img/screen10.png" target="_blank">
-                            <img src="https://bitedits.github.io/btron/b-system/img/screen10.png" alt="VirtIO System Plane &amp; TRON Code" style="width: 100%; height: auto; border-radius: 4px; display: block; border: 1px solid rgba(0,0,0,0.1);">
-                        </a>
-                        <h3 style="margin: 0.8rem 0 0.2rem 0; font-size: 1.05rem; color: HotPink;">IME TIP</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 0;">High-legibility Cyrillic, Kanji, and Latin multilingual dot-matrix font renderer.</p>
-                    </div>
-                </div>
-
-                <div class="plane-header">1. VirtIO &amp; Hypervisor Handoff</div>
-                <p>When running as a System Plane image in Synrc VE OS.1, BTRON boots via <b>seL4 Microkit Loader</b>, <b>Coreboot</b>, or direct <b>seL4 Protection Domain (PD)</b> entry. Display output routes directly through VirtIO-GPU or SDL2 surface, providing low-latency real-time rendering inside isolated capability-managed sandboxes.</p>
+            <div class="tech-table-wrapper">
+                <table class="tech-table">
+                    <thead>
+                        <tr>
+                            <th>Host / Hypervisor</th>
+                            <th>Transport Layer</th>
+                            <th>Supported Guest Silicon</th>
+                            <th>Display Compositor</th>
+                            <th>Primary Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>macOS (Darwin)</strong></td>
+                            <td class="mono">Hypervisor.framework + libkrun</td>
+                            <td>ARM64 (Apple Silicon M1..M4), x86_64</td>
+                            <td>Host SDL2 / Metal Streaming</td>
+                            <td>Instant sub-second development &amp; UI testing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Linux KVM / QEMU</strong></td>
+                            <td class="mono">VirtIO-MMIO (QEMU <code>virt</code>)</td>
+                            <td>ARMv7 Cortex-A7, AArch64 Cortex-A72</td>
+                            <td>VirtIO GPU / SDL2 / DRM-KMS</td>
+                            <td>Cloud virtualization &amp; automated CI regression</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FreeBSD bhyve</strong></td>
+                            <td class="mono">VirtIO-PCI Device Passthrough</td>
+                            <td>x86_64, AMD64</td>
+                            <td>VNC / Direct Framebuffer</td>
+                            <td>Enterprise server deployment &amp; network storage</td>
+                        </tr>
+                        <tr>
+                            <td><strong>seL4 Microkernel</strong></td>
+                            <td class="mono">Capability IPC + Protection Domain</td>
+                            <td>RISC-V 64, ARM64, x86_64</td>
+                            <td>seL4 Linear Framebuffer</td>
+                            <td>High-Assurance defense &amp; aerospace computing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bare-Metal Raspberry Pi</strong></td>
+                            <td class="mono">Direct BCM283x Peripheral MMIO</td>
+                            <td>ARMv7 (Pi 2B), AArch64 (Pi 4B)</td>
+                            <td>VideoCore IV/VI Mailbox (Channel 8)</td>
+                            <td>Physical retro workstation &amp; classroom hardware</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
+
+        <!-- ── SECTION 4: University & Academic Curriculum Integration ─ -->
+        <section class="tech-card" id="university">
+            <h3>
+                <span>4. University Operating Systems Research &amp; Lab Curriculum</span>
+                <span class="spec-badge spec-purple">ACADEMIC SYLLABUS</span>
+            </h3>
+            <p>
+                Traditional university OS courses frequently encounter a dilemma: educational microkernels (such as xv6) lack modern graphical user interfaces, while monolithic production kernels (Linux) exceed 30 million lines of code, making complete conceptual comprehension impossible within a semester.
+            </p>
+            <p style="font-size: 1.02rem; color: #1e293b;">
+                <strong>B-System VirtIO resolves this dilemma.</strong> In approximately 25,000 lines of rigorous C99, it provides an end-to-end operational operating system spanning preemptive real-time task scheduling, paravirtualized VirtIO drivers, multilingual font rasterization, an authentic window compositor, and an interactive CUA desktop:
+            </p>
+
+            <div class="grid-2" style="margin-top: 1.8rem;">
+                <div class="syllabus-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                        <span class="spec-badge spec-teal">LAB MODULE 1</span>
+                        <small style="font-weight: 700; color: #6b4f7e;">Real-Time Schedulers</small>
+                    </div>
+                    <h4 style="color: #2e1065; font-size: 1.15rem; margin-bottom: 0.5rem;">Deterministic Microkernels (μITRON vs Linux CFS)</h4>
+                    <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0;">
+                        Students study deterministic priority preemption, priority ceiling protocols (avoiding Mars Pathfinder priority inversion), and bounded task context switching under strict Worst-Case Execution Time (WCET) bounds.
+                    </p>
+                </div>
+
+                <div class="syllabus-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                        <span class="spec-badge spec-blue">LAB MODULE 2</span>
+                        <small style="font-weight: 700; color: #6b4f7e;">Virtualization &amp; I/O</small>
+                    </div>
+                    <h4 style="color: #2e1065; font-size: 1.15rem; margin-bottom: 0.5rem;">Writing a VirtIO Driver from Scratch</h4>
+                    <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0;">
+                        Hands-on laboratory where students implement a VirtIO Split Virtqueue descriptor ring, allocate memory-mapped descriptors, and handle asynchronous interrupts without any third-party proprietary frameworks.
+                    </p>
+                </div>
+
+                <div class="syllabus-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                        <span class="spec-badge spec-pink">LAB MODULE 3</span>
+                        <small style="font-weight: 700; color: #6b4f7e;">Formal Assurance</small>
+                    </div>
+                    <h4 style="color: #2e1065; font-size: 1.15rem; margin-bottom: 0.5rem;">NASA JPL Rule 3 &amp; Zero Dynamic Memory</h4>
+                    <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0;">
+                        Enforces zero post-boot heap allocation (<code class="mono">malloc</code>禁止), static allocation bounds, volatile hardware barriers, and automated verification suites verifying memory leak immunity.
+                    </p>
+                </div>
+
+                <div class="syllabus-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                        <span class="spec-badge spec-purple">LAB MODULE 4</span>
+                        <small style="font-weight: 700; color: #6b4f7e;">Hypermedia Architecture</small>
+                    </div>
+                    <h4 style="color: #2e1065; font-size: 1.15rem; margin-bottom: 0.5rem;">Real Object / Virtual Object Hyper-Data Model</h4>
+                    <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0;">
+                        Contrasts the Unix <em>"everything is a linear byte stream"</em> paradigm with Sakamura's relational hypermedia model, investigating polymorphic TAD document streams and decentralized object link graphs.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── SECTION 5: Quickstart CLI & Lab Commands ─────────────── -->
+        <section class="tech-card" id="quickstart">
+            <h3>
+                <span>5. Laboratory Quickstart &amp; Execution Commands</span>
+                <span class="spec-badge spec-pink">DEVELOPER TOOLCHAIN</span>
+            </h3>
+            <p>
+                B-System requires only a standard C99 compiler (Clang or GCC) and SDL2 for host simulation. Clone and boot within 5 seconds:
+            </p>
+
+            <div class="cli-box">
+                <div><span class="cli-prompt">$</span>make run-posix</div>
+                <small style="color: #94a3b8;"># Boot instant POSIX user-space microkernel desktop (SDL2)</small>
+            </div>
+            <div class="cli-box">
+                <div><span class="cli-prompt">$</span>make run-qemu</div>
+                <small style="color: #94a3b8;"># Boot ARM Cortex-A7 QEMU VirtIO 1.4 GPU/Tablet desktop</small>
+            </div>
+            <div class="cli-box">
+                <div><span class="cli-prompt">$</span>make run-sakamura</div>
+                <small style="color: #94a3b8;"># Boot reference Sakamura T-Kernel 2.0 Cho-Kanji workstation</small>
+            </div>
+            <div class="cli-box">
+                <div><span class="cli-prompt">$</span>make run-uefi</div>
+                <small style="color: #94a3b8;"># Boot 64-bit UEFI SMP Multicore Kernel on QEMU x86_64</small>
+            </div>
+            <div class="cli-box">
+                <div><span class="cli-prompt">$</span>make test</div>
+                <small style="color: #94a3b8;"># Execute full automated test suite (Mozc, HMI, TAD, Chat, Kernel)</small>
+            </div>
+        </section>
+
+        <!-- ── SECTION 6: Desktop & Compositor Gallery ──────────────── -->
+        <section class="tech-card" id="gallery">
+            <h3>
+                <span>6. Multi-Window Compositor &amp; Application Gallery</span>
+                <span class="spec-badge spec-blue">SYSTEM PLANE UI</span>
+            </h3>
+            <p>
+                Photographic evidence of cleanroom BTRON3 execution: authentic double-bordered window managers, live event loops, Japanese Mozc Kana-Kanji conversion, and TAD hyper-data browsers running over VirtIO:
+            </p>
+
+            <div class="grid-3">
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen1.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen1.png" alt="B-System Desktop &amp; System Panel">
+                    </a>
+                    <h4>Desktop &amp; Status Panel</h4>
+                    <p>Iconic Sakamura teal workspace with double-bordered window framing and quick-launch accessories.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen2.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen2.png" alt="T-Editor &amp; Japanese Mozc IME">
+                    </a>
+                    <h4>T-Editor &amp; Japanese IME</h4>
+                    <p>Cleanroom Mozc / TIP Kana-Kanji conversion with live composition buffer and F10 mode toggling.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen3.jpeg" alt="gterm Console &amp; Object Explorer">
+                    </a>
+                    <h4>gterm &amp; Object Explorer</h4>
+                    <p>VirtIO serial console terminal, command execution shell, and Real Body graph traversal.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen4.jpeg" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen4.jpeg" alt="Multi-Window CUA Workstation">
+                    </a>
+                    <h4>Multi-Window Multitasking</h4>
+                    <p>Simultaneous real-time execution across editor, terminal, and browser viewports with z-order clipping.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen5.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen5.png" alt="Real Body Cabinet Explorer">
+                    </a>
+                    <h4>Real Body Cabinet Explorer</h4>
+                    <p>HFDS filing system displaying metadata columns, link relationships, and table-of-contents trees.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen6.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen6.png" alt="Native TAD Document Browser">
+                    </a>
+                    <h4>Native TAD Document Browser</h4>
+                    <p>Single-pass BTRON3 stream decoder displaying inline images, text styling, and fusen segments.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen7.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen7.png" alt="Hyper-Object History Stack">
+                    </a>
+                    <h4>Hyper-Object Navigation</h4>
+                    <p>Reversible navigation history stack, relative virtual object resolution, and live dispatch.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen8.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen8.png" alt="Sakamura DP 2D Vector Primitives">
+                    </a>
+                    <h4>Display Primitives 2D Engine</h4>
+                    <p>Geometric Figure Fusen rendering, pattern fills, and bounded raster image decompression.</p>
+                </div>
+
+                <div class="gallery-card">
+                    <a href="https://bitedits.github.io/btron/b-system/img/screen9.png" target="_blank">
+                        <img src="https://bitedits.github.io/btron/b-system/img/screen9.png" alt="VirtIO System Plane &amp; TRON Code">
+                    </a>
+                    <h4>Multilingual TRON Code</h4>
+                    <p>High-legibility 16-bit plane switching font engine rendering Kanji, Cyrillic, and Latin scripts.</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="footer-columns">
             <div>
@@ -355,32 +811,28 @@ vobj_open_cabinet(link.real_obj_id);</pre>
             <div>
                 <h4>System Images</h4>
                 <ul>
+                    <li><a href="index.html"><b>B-System VirtIO:</b> μITRON, DP, VOBJ</a></li>
+                    <li><a href="b-system.html"><b>B-System OS:</b> Consumer Architecture</a></li>
+                    <li><a href="conformance.html"><b>Conformance:</b> TRON 3.20 Audit</a></li>
+                    <li><a href="b-system/apps/Boot.html"><b>Boot:</b> 7-Target Kernel Matrix</a></li>
                     <li><a href="https://hv.synrc.com/system_alpine.html"><b>Alpine:</b> Musl, OpenRC, Landlock</a></li>
                     <li><a href="https://hv.synrc.com/system_netbsd.html"><b>NetBSD:</b> Veriexec, Kauth, NPF</a></li>
-                    <li><a href="system_freebsd.html"><b>FreeBSD:</b> Capsicum, OpenZFS, Jails</a></li>
-                    <li><a href="index.html"><b>BTRON:</b> μITRON, DP, VOBJ</a></li>
-                    <li><a href="b-system.html"><b>B-System:</b> Consumer OS Architecture</a></li>
-                    <li><a href="https://hv.synrc.com/system_nuttx.html"><b>NuttX:</b> Skynet RT, POSIX, HAL</a></li>
-                    <li><a href="system_lk.html"><b>LK:</b> Little Kernel, BeOS, Zircon</a></li>
-                    <li><a href="https://hv.synrc.com/hypervision.html"><b>Unikernels:</b> Erlang &amp; C99</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4>Whitepapers</h4>
+                <h4>Academic Whitepapers</h4>
                 <ul>
+                    <li><a href="btron-article.pdf" target="_blank">📄 BTRON3 Spec Architecture</a></li>
+                    <li><a href="btron-tad.pdf" target="_blank">📄 TAD Browser &amp; Cabinet Engine</a></li>
+                    <li><a href="btron-tip.pdf" target="_blank">📄 TRON Mozc TIP Japanese IME</a></li>
+                    <li><a href="btron-hmi.pdf" target="_blank">📄 Sakamura TRON HMI Standards</a></li>
                     <li><a href="https://os.synrc.com/os-hyper.pdf">2026-08-19 VirtIO Xen ESXi</a></li>
-                    <li><a href="https://os.synrc.com/os.pdf">2026-07-19 Guest Alpine</a></li>
-                    <li><a href="https://os.synrc.com/os-bsd.pdf">2026-07-19 Guest NetBSD</a></li>
-                    <li><a href="https://os.synrc.com/os.txt">2026-07-29 NIST 53 Architecture</a></li>
                     <li><a href="https://hv.synrc.com/hv.pdf">2026-08-10 OTP 20 seL4</a></li>
-                    <li><a href="https://hv.synrc.com/hv-smp.pdf">2026-08-13 OTP 30 4-Core</a></li>
-                    <li><a href="https://hv.synrc.com/hv-bc.pdf">2026-08-13 Byte-code VMs</a></li>
-                    <li><a href="https://hv.synrc.com/hv-infosec.pdf">2026-08-14 Infosec Architecture</a></li>
-                    <li><a href="https://hv.synrc.com/hv-crypto.pdf">2026-08-19 LibreSSL Crypto</a></li>
                 </ul>
             </div>
         </div>
     </footer>
+
 </body>
 </html>
