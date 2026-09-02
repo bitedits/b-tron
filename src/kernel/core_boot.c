@@ -256,12 +256,12 @@ static void render_ski_menu(void) {
     vga_clear(0x1F);
 
     vga_print_at(0, 0, "================================================================================", 0x1E);
-    vga_print_at(2, 1, "Ski Bootloader [Multi-OS Boot Manager] (B-System BTRON3 / SMP)", 0x1F);
-    vga_print_at(2, 2, "Dedicated to Kota Uchida & Awe Morris", 0x1B);
-    vga_print_at(0, 3, "--------------------------------------------------------------------------------", 0x17);
+    vga_print_at(2, 1, "  B-System (BTRON3 3.20 HMI) Ski Bootloader", 0x1F);
+    vga_print_at(2, 2, "  Plarforms: [AAarch32] [AArch64] [EM64T] [PC-98]", 0x1B);
+    vga_print_at(2, 3, "----------------------------------------------------------------------------", 0x17);
 
-    vga_print_at(2, 5, "[ACPI 6.5 MADT] Discovered 4 LAPICs (0x00, 0x01, 0x02, 0x03) | IO-APIC: 0xFEC00000", 0x1A);
-    vga_print_at(2, 6, "[AP TRAMPOLINE] 16-bit AP Staged at 0x9000 | INIT-SIPI-SIPI Online (4 Cores)", 0x1A);
+     vga_print_at(2, 5, " Copyright (c) 2026 Synrc Research Center", 0x1A);
+     vga_print_at(2, 6, " Kyiv Ukraine", 0x1A);
 
     vga_print_at(2, 8, "Select Operating System Target to Boot:", 0x1E);
     vga_print_at(2, 9, "----------------------------------------------------------------------------", 0x17);

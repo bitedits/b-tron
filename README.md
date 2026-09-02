@@ -102,7 +102,7 @@ $ ./btron-sakamura.elf
 
 <img src="https://bitedits.github.io/btron/b-system/img/sakamura.png" width="800" alt="Sakamura T-Kernel" />
 
-## QEMU VirtIO `Izumina`
+## QEMU VirtIO `Tokita`
 
 ```
 $ make qemu

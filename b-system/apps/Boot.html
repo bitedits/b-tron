@@ -56,6 +56,9 @@
     <div class="section">
       <h2>Key Features</h2>
       <ul class="app-features-list">
+        <li>Direct Multiboot Single-Stage Loading (<code>core_boot.c</code>) — Eliminates fragile legacy 2-stage MBR/VBR chainloaders; incorporates Multiboot 1 header (<code>0x1BADB002</code>) loaded at 1 MB directly into protected/long mode by QEMU and modern hypervisors</li>
+        <li>Live Hardware Query Pipeline (Zero Mocks) — Subsystems self-report true physical attributes via <code>btron/core.h</code> hooks: CPU MSRs (<code>IA32_APIC_BASE 0x1B</code>), CPUID feature leaves, IO-APIC MMIO redirection depth, HPET femtosecond period counters, and PC-98 I/O ports (<code>0xF2</code> A20, <code>0x21/0xA1</code> PIC IMR)</li>
+        <li>Polymorphic Kernel Core Delegation — <code>core_boot.c</code> acts as a pure sequence orchestrator (<code>btron_core_banner()</code>, <code>btron_core_init()</code>, <code>btron_core_mem_log()</code>, <code>btron_core_hfds_log()</code>, <code>vesa_probe_log()</code>), delegating hardware queries cleanly to machine-specific drivers</li>
         <li>Ski Interactive Boot Menu — Dual mode: Graphical BTRON glyph canvas and ANSI terminal with keyboard
           navigation (<code>[↑/↓]</code>, <code>[W/S]</code>), inline command line editing (<code>[E]</code>), and
           multi-core CPU affinity control (<code>[+]</code>/<code>[-]</code>)</li>
@@ -74,6 +77,13 @@
         <li>Emergency T-Monitor Fallback — Direct failover to low-level T-Monitor shell (<code>[S]</code>) upon kernel
           fault or invalid device tree configuration</li>
       </ul>
+    </div>
+
+    <div class="section">
+      <h2>Boot Architecture: Direct Multiboot &amp; Hardware Discovery</h2>
+      <p>Unlike conventional PC operating systems that rely on complex two-stage stage1/stage2 boot blocks (e.g. GRUB MBR/VBR), B-System uses a <strong>direct Multiboot-compliant single-stage binary architecture</strong>. The compiled ELF image (<code>btron-uchida.elf</code> or <code>btron-morris.elf</code>) is directly loaded by hypervisors and firmware into RAM at <code>1 MB</code>.</p>
+      <div class="app-desc-jp"><b>2ステージ・ローダーの撤廃とダイレクトMultiboot機構：</b>
+        従来の2段階ローダー（MBR/VBRステージ1→ステージ2）を介さず、<code>core_boot.c</code> 内のMultibootヘッダ（<code>0x1BADB002</code>）によりファームウェア/QEMUから1MBメモリ空間へ直接展開。固定モック文字列を排除し、MSRレジスタ（<code>0x1B</code>）、CPUID、IO-APIC、HPET、およびPC-98固有ポート（<code>0xF2</code>）からハードウェア実値を直接読み出して起動シーケンスを進行します。</div>
     </div>
 
     <div class="section">

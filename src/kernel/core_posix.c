@@ -42,7 +42,7 @@ static pthread_mutex_t g_kernel_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include <sys/utsname.h>
 
 void btron_core_banner(void) {
-    printf("B-System/BTRON3 3.20 (posix-hosted) — Cleanroom TRON Kernel\n");
+    printf("B-System/BTRON3 3.20 (posix-hosted) Hiroaki Takada — Cleanroom TRON Kernel\n");
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     struct utsname un;
     if (uname(&un) == 0)

@@ -43,7 +43,7 @@ static SYSTIME g_tk_system_ticks = 0;
 #include <btron/apps.h>
 
 void btron_core_banner(void) {
-    printf("B-System/BTRON3 3.20 (arm-qemu-virtio) — Cleanroom TRON Kernel\n");
+    printf("B-System/BTRON3 3.20 (arm-qemu-virtio) Hiroshi Tokita — Cleanroom TRON Kernel\n");
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     printf("[BOOT] Machine: QEMU virt  ARMv7-A  VirtIO MMIO\n\n");
 }

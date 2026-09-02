@@ -263,11 +263,11 @@ extern void uart_puts_raw(const char *str);
 
 void btron_core_banner(void) {
 #if PC98_HOSTED
-    printf("B-System/BTRON3 3.20 (i386-pc98) — T-Kernel 2.0 / Ski Bootloader\n");
+    printf("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 / Ski Bootloader\n");
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     printf("[BOOT] Machine: NEC PC-9801/PC-9821  ISA/EISA Planar  µITRON 3.0\n\n");
 #else
-    uart_puts_raw("B-System/BTRON3 3.20 (i386-pc98) — T-Kernel 2.0 / Ski Bootloader\r\n");
+    uart_puts_raw("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 / Ski Bootloader\r\n");
     uart_puts_raw("Copyright 2026 Synrc Research Center. MIT License.\r\n");
     uart_puts_raw("[BOOT] Machine: NEC PC-9801/PC-9821  ISA/EISA Planar  µITRON 3.0\r\n");
     uart_puts_raw("\r\n");
@@ -374,5 +374,5 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
     out_fn("B-System BTRON3 3.20 (NEC PC-98 Edition — Awe Morris Kernel)", COLOR_GREEN, user_data);
     out_fn("  Platform: NEC PC-9801 / PC-9821 (i386/i486/Pentium/Pentium-II)", COLOR_LTGRAY, user_data);
     out_fn("  Subsystem: Planar Text VRAM (0xA0000), GDC uPD7220, RICOH RP5C15 RTC", COLOR_LTGRAY, user_data);
-    out_fn("  Bootloader: Ski Bootloader (🎿 Ski Bootloader) · A20 Gate: Port 0xF2", COLOR_CYAN, user_data);
+    out_fn("  Bootloader: Ski Bootloader (Ski Bootloader) · A20 Gate: Port 0xF2", COLOR_CYAN, user_data);
 }
