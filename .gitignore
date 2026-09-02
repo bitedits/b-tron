@@ -6,7 +6,6 @@
 *.sakamura.o
 *.arm32.o
 *.arm64.o
-btron
 btron-posix
 btron-qemu.elf
 btron-tkernel.elf
