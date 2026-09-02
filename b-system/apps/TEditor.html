@@ -19,38 +19,55 @@
   <div class="app-hero">
     <div class="app-hero-icon">✍️</div>
     <h1>T-Editor</h1>
-    <div class="app-hero-badge">TADエディタ</div>
-    <div class="subtitle">Native Hypermedia TAD Document Editor (TAD API)</div>
+    <div class="app-hero-badge">汎用ワードプロセッサ</div>
+    <div class="subtitle">General Word Processor with Native TAD Hypermedia Abilities</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"The native TAD authoring environment — deeply connected to the TAD API for text, vector graphics, Virtual Bodies, and hypermedia in one document."</strong></div>
+    <div class="tagline-card"><strong>"The universal Word replacement for daily documents — intuitive formatting, styles, and margins with the unmatched power of native TAD Real Bodies and Fusen links."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Premier hypermedia document editor implemented in <code>src/apps/t_editor.c</code> and deeply connected to the BTRON TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>). Directly structures, reads, and writes BTRON3 SPEC 3.20 binary TAD segments (text page, ruler, character font, vector figures, and Virtual Body fusen links). Features full multilingual input via Mozc TIP and smooth collaborative document workflows.</p>
-      <div class="app-desc-jp"><b>Tエディタ：</b> BTRON TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>）に直結した公式ネイティブ・ハイパーメディア文書編集環境実装（<code>src/apps/t_editor.c</code>）。テキスト、ベクター図形セグメント、仮想オブジェクト（仮身）、各種メディアを単一のバイナリTAD文書内で自在に融合。強力な多言語入力（TRONコード・多言語プレーン）とスムーズな実身・仮身リンク網形成をサポート。</div>
+      <p>Universal rich-text word processor designed as a clean, responsive replacement for Microsoft Word and LibreOffice Writer, enriched with the full power of the BTRON TAD hypermedia architecture. Implemented in <code>src/apps/t_editor.c</code> and validated by <code>src/apps/test_editor_ui.c</code>, T-Editor gives everyday authors, business professionals, and students familiar word processing tools: paragraph styles (Heading 1–4, Body, Blockquote), visual rulers, margins, headers and footers, bulleted/numbered lists, footnotes, and page numbering. Unlike traditional word processors that treat documents as static monolithic text files, T-Editor operates directly on BTRON3 binary TAD segments: any image, audio clip, or sub-document can be embedded as a live Real Body (実身) directly inside the text flow, and non-linear ideas link seamlessly through Virtual Body fusen links (仮身付箋).</p>
+      <div class="app-desc-jp"><b>Tエディタ：</b> Microsoft WordやLibreOffice Writerを置き換える、直感的で軽快な日常業務・執筆用ワードプロセッサ。BTRON TADハイパーメディア能力を標準装備。実体コードは <code>src/apps/t_editor.c</code>（文書エディタUI・セグメント操作）および <code>src/apps/test_editor_ui.c</code>（描画検証テスト）で構成。見出しスタイル（Heading 1〜4）、ルーラー、余白設定、ヘッダー/フッター、箇条書き、脚注、ページ番号など、一般的なワープロの標準機能を網羅。さらにTAD独自の強力なハイパーメディア性能により、テキスト行内に画像・音声・表計算（Matrix）を「実身（Real Body）」として埋め込み、関連文書や参考資料を「仮身付箋（Virtual Body Fusen）」として自在にリンク。DOCXやPDFへの入出力にも対応した新世代の汎用文書作成環境です。</div>
     </div>
     <div class="section">
       <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
         <li>実体コード実装：<code>src/apps/t_editor.c</code>（TAD文書エディタ <code>open_t_editor_window</code>、セグメント操作）</li>
         <li>テスト検証基盤：<code>src/apps/test_editor_ui.c</code>（UIレンダリング・セグメント編集検証）</li>
-        <li>TAD API直結による規格準拠バイナリセグメント編集（Text, Ruler, Font, VOBJ Fusen）</li>
-        <li>Mozc TIP連携による高度な漢字変換・多言語TRONコード文字入力</li>
-        <li>実身（Real Body）と仮身（Virtual Body）の自由な埋め込み・展開・リンク網形成</li>
-        <li>Paintで作成したネイティブTADベクター図形セグメントのインライン埋め込み</li>
-        <li>CRDTベースの差分マージによるリアルタイム共同編集サポート</li>
-        <li>TADキャビネット構造、PDF、プレーンテキストへの双方向エクスポート</li>
+        <li>Microsoft Word完全置換：段落スタイル（見出し・本文・引用）、インデント、行間、マージンルーラー</li>
+        <li>ヘッダー、フッター、ページ番号、脚注（Footnotes）、目次（TOC）の自動生成</li>
+        <li>Mozc TIP連携による快適な漢字変換・多言語TRONコード文字入力（和文・欧文・記号）</li>
+        <li>実身インライン埋め込み：画像、Paint図版、音声、Matrix表計算を文書フロー内に直接埋め込み</li>
+        <li>仮身付箋（Virtual Body Fusen）：文書内に別文書や参考資料へのリンクを付箋として配置</li>
+        <li>DOCX、RTF、PDF、プレーンテキスト、およびBTRON3規格準拠バイナリTADへの双方向保存・エクスポート</li>
       </ul>
+    </div>
+    <div class="section">
+      <h2>Replaces / Normalises</h2>
+      <table class="market-table">
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Microsoft Word / LibreOffice Writer</td>
+            <td>Familiar document styles, margins, and headers with zero bloat plus native live TAD Real Body embedding</td>
+            <td rowspan="2">Business professionals, office workers, authors, academics, students, administrative staff</td>
+          </tr>
+          <tr>
+            <td>Static Document Formats (.docx / .rtf)</td>
+            <td>Non-linear hypermedia links (Virtual Bodies) allow nested documents and live-updating data feeds</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Open a new or existing TAD document; the TAD API parses binary segments into the document model.</li>
-        <li>Type multilingual text using Mozc TIP for kanji and TRON Code for multilingual planes.</li>
-        <li>Drag a vector illustration from Paint — it embeds as a native TAD figure primitive segment (resolution-independent).</li>
-        <li>Insert a Virtual Body linking to an external document, research note, or media stream.</li>
-        <li>Save changes via the TAD API to write valid, spec-compliant BTRON3 TAD binary records.</li>
+        <li>Create a new document in T-Editor; set margins, orientation, and heading styles using the ruler and ribbon.</li>
+        <li>Type reports or correspondence using Mozc TIP for fast Japanese kanji and TRON Code multilingual text.</li>
+        <li>Drag a financial table from Matrix or a vector sketch from Paint directly into the document flow as a live Real Body.</li>
+        <li>Insert Virtual Body fusen links to attach reference manuals or cabinet records without bloating file size.</li>
+        <li>Save natively as a BTRON3 TAD binary record, or export as clean PDF or DOCX for outside distribution.</li>
       </ol>
     </div>
   </div>
@@ -77,6 +94,7 @@
         <ul>
             <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html" class="active">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
             <li><a href="Browser.html">Browser</a></li>

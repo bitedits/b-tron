@@ -21,59 +21,59 @@
   <div class="app-hero">
     <div class="app-hero-icon">📖</div>
     <h1>Clarity</h1>
-    <div class="app-hero-badge">知識環境</div>
-    <div class="subtitle">Minimal Knowledge &amp; Reading Environment (TAD API)</div>
+    <div class="app-hero-badge">DTP組版出版環境</div>
+    <div class="subtitle">QuarkXPress 4.0 Class Publishing &amp; Layout Engine (TAD Source Linking)</div>
   </div>
 
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
 
     <div class="tagline-card">
-      <strong>"Instant-search knowledge hub</strong> – read, annotate, and retrieve any TAD Real Body in milliseconds via the TAD API."
+      <strong>"QuarkXPress 4.0 class professional publishing</strong> — multi-column layout frames, master pages, and live TAD source linking for modern publishers."
     </div>
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Minimal knowledge and reading environment powered by the TAD browser core (<code>src/apps/tad_browser.c</code>) and Mozc TIP instant-indexing subsystems (<code>src/tip/mozc_kkc.c</code>, <code>src/tip/tip_vobj.c</code>), deeply connected to the TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>, <code>omgr.h</code>). Features beautiful multilingual typography, millisecond instant search across all indexed Real Bodies, and zero-friction capture of reading notes, research pages, and media as permanent TAD Real Bodies linked directly to their source documents.</p>
-      <div class="app-desc-jp"><b>クラリティ：</b> TADブラウザー基盤（<code>src/apps/tad_browser.c</code>）およびMozc TIPインデックス連携（<code>src/tip/mozc_kkc.c</code>, <code>src/tip/tip_vobj.c</code>）に直結した、思考を妨げないミニマルな知識・読書環境。洗練された日本語・多言語タイポグラフィ、全TAD実身データベースを対象としたミリ秒単位の瞬時インデックス検索、ノートやWebページ、注釈メディアを永続的なTAD実身として摩擦ゼロで記録・蓄積。</div>
+      <p>Professional desktop publishing (DTP) and high-precision page layout engine engineered to compete directly with QuarkXPress 4.0. Implemented in pure C99 over the TAD browser and layout core (<code>src/apps/tad_browser.c</code>) and Display Primitives (<code>src/graphics/dp_core.c</code>), Clarity provides publishers, book designers, and editorial teams with geometric multi-column text frames, arbitrary polygon runaround, master pages, and baseline grids. What sets Clarity apart is its native TAD source linking: rather than copying static text, publication frames link directly to living TAD Real Bodies (実身) and Virtual Bodies (仮身). When authors edit chapters in T-Editor or diagrams in Paint, the publication layout in Clarity updates live in real time.</p>
+      <div class="app-desc-jp"><b>クラリティ：</b> QuarkXPress 4.0の精密組版機能を凌駕する、出版社・エディトリアルデザイナー向けプロフェッショナルDTP組版レイアウト環境。実体コードはTADブラウザー＆レイアウト基盤（<code>src/apps/tad_browser.c</code>）およびDisplay Primitives（<code>src/graphics/dp_core.c</code>）で構成。複数段組テキストボックス、任意ポリゴン回り込み、マスターページ、ベースライングリッド、トラッキング/カーニング精密制御を完備。最大の特長は「TADソース・リンク能力」であり、静的テキストの流し込みではなくTAD実身（Real Body）や仮身（Virtual Body）をフレームに直結。著者や編集者がT-Editorで原稿を更新したりPaintで図版を修正すると、Clarity上の出版組版紙面へリアルタイムに自動反映されます。</div>
     </div>
 
     <div class="section">
       <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（TADドキュメントブラウザー <code>open_tad_browser_window</code>）</li>
-        <li>瞬時インデックス検索：<code>src/tip/mozc_kkc.c</code> ＆ <code>src/tip/tip_vobj.c</code>（実身全文検索）</li>
-        <li>和欧混植を極めた美しい組版とリーディングビュー（TRON Code + Unicode）</li>
-        <li>TAD APIを介した全実身データベースの横断インデックス瞬時検索（ミリ秒単位）</li>
-        <li>ゼロ・フリクションなノート＆メディアキャプチャ（TAD Real Body直接生成）</li>
-        <li>Voice-to-text annotation captured as linked Real Bodies</li>
-        <li>Reading progress, bookmarks, and highlights persist inside the TAD object itself</li>
-        <li>Global search indexes TAD Cabinet documents, Browser-converted pages, and Living Book annotations simultaneously</li>
+        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（DTPレイアウトエンジン、フレーム連結、段組処理）</li>
+        <li>描画サブシステム：<code>src/graphics/dp_core.c</code>（ベクター枠、ポリゴン回り込み、トンボ/裁ち落とし描画）</li>
+        <li>QuarkXPress 4.0準拠の本格DTP組版（複数段組テキストフレーム、連結ストーリーフロー）</li>
+        <li>任意形状ポリゴン画像枠および図形回り込み（Runaround / Text Wrap）</li>
+        <li>マスターページ（見開き左右ページ、親ページ継承、ヘッダー/ノンブル連動）</li>
+        <li>TADソース動的リンク：T-Editor原稿実身やPaintベクター図形をフレームに直結し、更新を即時紙面に反映</li>
+        <li>ミリポイント単位の高精度タイポグラフィ（文字詰め、行送り、カーニング、ベースライングリッド）</li>
+        <li>CMYK分版プレビュー、特色（Spot Color）、トンボ・ブリード裁ち落とし対応のPostScript/PDF出力</li>
       </ul>
     </div>
 
     <div class="section">
       <h2>Why the Market Needs It</h2>
       <ul class="app-features-list">
-        <li>Knowledge workers need a zero-friction read-annotate-search loop across multilingual texts, code, media, and notes.</li>
-        <li>Existing BTRON note apps separate the note store from the document store, forcing disruptive context switches.</li>
-        <li>Provides a unified, millisecond search across TAD Real Bodies, notes, media, and web-converted documents via standard TAD APIs.</li>
+        <li>Traditional DTP software (QuarkXPress, InDesign) treats text and images as detached static imports; every editorial revision requires tedious manual re-importing and layout reflow.</li>
+        <li>Clarity's live TAD source linking connects editorial writing directly with prepress layout: authors write in T-Editor, illustrators draw in Paint, and the publication layout updates continuously.</li>
+        <li>Eliminates massive proprietary subscription bloat with a lightning-fast, crash-proof C99 publishing engine tailored for professional books, magazines, journals, and newspapers.</li>
       </ul>
     </div>
 
     <div class="section">
       <h2>Replaces / Normalises</h2>
       <table class="market-table">
-        <thead><tr><th>Classic BTRON Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
         <tbody>
           <tr>
-            <td>B-TRON Notebook / MemoPad</td>
-            <td>Millisecond global search across every TAD Real Body, not just an isolated note store</td>
-            <td rowspan="2">Knowledge workers, academics, multilingual research teams, documentation authors</td>
+            <td>QuarkXPress 4.0 / InDesign</td>
+            <td>Full professional multi-column DTP layout plus dynamic live linking to native TAD Real Body sources</td>
+            <td rowspan="2">Publishers, editorial houses, book designers, magazine art directors, technical documentation teams</td>
           </tr>
           <tr>
-            <td>Traditional PDF-reader with static notes</td>
-            <td>Notes, media and annotations stored as TAD Real Bodies co-located with the source object via TAD API</td>
+            <td>Static DTP Workflow (manual copy/paste revisions)</td>
+            <td>Zero re-import friction: editorial edits in T-Editor and graphic updates in Paint propagate instantly into page layouts</td>
           </tr>
         </tbody>
       </table>
@@ -82,11 +82,12 @@
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Open a TAD document, research paper, or Browser-converted Real Body in Clarity's reading view.</li>
-        <li>Highlight a passage → instantly creates a linked note Real Body attached to that segment via TAD API.</li>
-        <li>Voice-record a thought → saved as an audio Real Body linked to the highlighted range.</li>
-        <li>Use the global search bar to jump to any note, annotation, or related object across the entire knowledge base.</li>
-        <li>Drag any captured note into T-Editor or link it as a Virtual Body in a research report.</li>
+        <li>Define master pages, column grids, margins, and folio numbering in Clarity.</li>
+        <li>Create linked text frames across pages to establish the main story flow.</li>
+        <li>Link external TAD Real Bodies (chapters written in T-Editor) directly into text frames via the TAD API.</li>
+        <li>Drop vector illustrations or charts from Paint/Matrix — text automatically wraps around polygon borders.</li>
+        <li>When the editorial team revises text in T-Editor, Clarity automatically updates the publication layout in real time.</li>
+        <li>Export camera-ready CMYK PostScript or PDF with bleed marks for high-end press production.</li>
       </ol>
     </div>
   </div>
@@ -114,6 +115,7 @@
         <ul>
             <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html" class="active">Clarity</a></li>
             <li><a href="LivingBook.html">Living Book</a></li>
             <li><a href="Browser.html">Browser</a></li>

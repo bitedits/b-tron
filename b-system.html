@@ -520,7 +520,7 @@
                     <input type="text" id="appSearchInput" class="search-input" placeholder="アプリケーションや機能（例: TAD, メディア, 仮想オブジェクト）を検索..." onkeyup="filterApps()">
                 </div>
                 <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (15)</button>
+                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (16)</button>
                     <button class="filter-btn" onclick="setAppFilter('system', this)">システム (System)</button>
                     <button class="filter-btn" onclick="setAppFilter('tad', this)">TAD (知識・文書)</button>
                     <button class="filter-btn" onclick="setAppFilter('media', this)">メディア (Media)</button>
@@ -560,19 +560,19 @@
                             <div class="app-icon-wrapper">🗄️</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Workbench.html" style="color:inherit;text-decoration:none;">Workbench</a> <span class="app-badge pink">空間デスクトップ＆メニュー</span></h3>
-                                <div class="app-subtitle-en">Spatial Desktop &amp; System Menu (CTWM / Haiku Heritage)</div>
+                                <div class="app-subtitle-en">Spatial Desktop &amp; System Menu (BeOS-like / CTWM)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Spatial desktop canvas and central root menu inspired by CTWM and Haiku Deskbar. Implemented in <code>src/desktop/main.c</code> and <code>src/desktop/desktop.c</code> with planned root <code>menu</code> and <code>tracker.c</code> task tracking.
+                            Spatial desktop canvas and central root menu inspired by CTWM and Haiku Deskbar. Implemented in pure C99 (<code>src/desktop/main.c</code>, <code>src/desktop/desktop.c</code>, and <code>src/desktop/tracker.c</code>) for instant workspace and task switching.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ワークベンチ：</b> CTWMやHaiku Deskbarの軽快さを継承した純粋C99製デスクトップ＆システムメニュー。実体コード（<code>src/desktop/main.c</code>, <code>desktop.c</code>）および将来の <code>menu</code> / <code>tracker.c</code> 計画に基づき、仮想ワークスペース、タスク管理、階層型ルートランチャーを提供。
+                            <b>ワークベンチ：</b> CTWMやHaiku Deskbarの軽快さを継承した純粋C99製デスクトップ＆システムメニュー。実体コード（<code>src/desktop/main.c</code>, <code>desktop.c</code>, <code>tracker.c</code>）により、空間キャンバス、仮想ワークスペース、タスク管理、STARTボタン階層型ルートランチャーを提供。
                         </div>
                     </div>
                     <ul class="app-features-list">
                         <li>実体実装：<code>main.c</code>（イベントループ）＆ <code>desktop.c</code>（コンポジタ）</li>
-                        <li>将来計画：CTWM風ルート <code>menu</code> ＆ タスク追跡 <code>tracker.c</code></li>
+                        <li>Haiku流 STARTボタン＆タスク追跡：<code>src/desktop/tracker.c</code></li>
                         <li>純粋C99システム設計（仮想ワークスペース・タスク切り替え）</li>
                     </ul>
                 </div>
@@ -602,74 +602,98 @@
                 </div>
 
                 <!-- 3. Clarity -->
-                <div class="app-card" data-category="tad" data-keywords="clarity クラリティ minimal knowledge reading typography instant search permanent Real Bodys notes capture">
+                <div class="app-card" data-category="tad" data-keywords="clarity クラリティ quark xpress dtp publishing layout frames master pages baseline grid live tad source linking">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">📖</div>
                             <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/Clarity.html" style="color:inherit;text-decoration:none;">Clarity</a> <span class="app-badge gold">知識環境</span></h3>
-                                <div class="app-subtitle-en">Minimal Knowledge &amp; Reading Environment</div>
+                                <h3 class="app-title"><a href="b-system/apps/Clarity.html" style="color:inherit;text-decoration:none;">Clarity</a> <span class="app-badge gold">DTP組版出版環境</span></h3>
+                                <div class="app-subtitle-en">QuarkXPress 4.0 Class Publishing &amp; Layout (TAD Linking)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Minimal knowledge and reading environment. Beautiful typography, instant search across all objects, and zero-friction capture of notes, pages and media as permanent Real Bodys.
+                            Professional DTP layout engine competing with QuarkXPress 4.0. Features multi-column text frames, master pages, baseline grids, and live linking of native TAD Real Body sources.
                         </div>
                         <div class="app-desc-jp">
-                            <b>クラリティ：</b> 思考を妨げないミニマルな知識・読書環境。洗練された日本語・多言語タイポグラフィ、全オブジェクトを対象としたミリ秒単位の瞬時検索、ノートやWebページ、メディアを永続的な実身として摩擦ゼロで記録・蓄積。
+                            <b>クラリティ：</b> QuarkXPress 4.0匹敵の本格DTP組版レイアウト環境。段組テキスト枠、任意ポリゴン回り込み、マスターページ、ベースライングリッドを完備し、TAD実身原稿を直接リンクして出版紙面へリアルタイム連動更新。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>和欧混植を極めた美しい組版とリーディングビュー</li>
-                        <li>全実身データベースを横断するインデックス瞬時検索</li>
-                        <li>ゼロ・フリクションなノート＆メディアキャプチャ</li>
+                        <li>QuarkXPress 4.0準拠の本格DTP段組・テキスト枠連結</li>
+                        <li>任意ポリゴン画像枠と図形回り込み（Runaround）</li>
+                        <li>TADソース動的リンク（T-Editor原稿やPaint図版のリアルタイム更新連動）</li>
                     </ul>
                 </div>
 
                 <!-- 4. Living Book -->
-                <div class="app-card" data-category="tad" data-keywords="living book リビングブック tad document interactive code execution voice video annotation four system books">
+                <div class="app-card" data-category="tad" data-keywords="living book リビングブック pdf reader scientific research papers annotations tad real body formulas citations">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">📚</div>
                             <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/LivingBook.html" style="color:inherit;text-decoration:none;">Living Book</a> <span class="app-badge teal">双方向書籍</span></h3>
-                                <div class="app-subtitle-en">Interactive Hypermedia TAD Experience</div>
+                                <h3 class="app-title"><a href="b-system/apps/LivingBook.html" style="color:inherit;text-decoration:none;">Living Book</a> <span class="app-badge teal">科学PDFリーダー</span></h3>
+                                <div class="app-subtitle-en">Scientific PDF Reader &amp; TAD Annotation Lab (For Scientists)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Turns any TAD document (including the four system books) into an interactive experience. Expand illustrations into media, run code examples live, and attach voice/video annotations that travel with the document.
+                            Distraction-free scientific PDF reader for researchers. Rapid academic paper rendering with live TAD Real Body margin notes, formula linking, and reproducible citation networks.
                         </div>
                         <div class="app-desc-jp">
-                            <b>リビングブック：</b> 4つのシステム解説書をはじめとするあらゆるTAD文書を、動的で双方向な体験へと進化。静止図版を動画メディアへ展開し、掲載コードをその場で実行。文書に連動して移動する音声・ビデオ注釈を添付可能。
+                            <b>リビングブック：</b> 科学者・研究者のための超高速科学PDFリーダー＆TAD注釈ラボ。arXivやIEEE等の多段組論文をベクター品質で瞬時レンダリング。マージンメモ、数式スニペット、音声を永続的なTAD実身として記録し、実験データと双方向リンク。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>BTRON 4大システム書の完全インタラクティブ化</li>
-                        <li>紙面コードのインライン・ライブ実行環境</li>
-                        <li>ドキュメントに密着して移動するマルチメディア注釈</li>
+                        <li>TeX/LaTeX数式・多段組論文の高速PDFレンダリング</li>
+                        <li>マージン注釈・数式スニペットのTAD実身恒久保存</li>
+                        <li>論文図表とMatrix実験データ・解析コードの双方向リンク</li>
                     </ul>
                 </div>
 
                 <!-- 5. T-Editor -->
-                <div class="app-card" data-category="tad" data-keywords="t-editor tエディタ native hypermedia editor text graphics Virtual Bodys media tad tron code multilingual collaborative">
+                <div class="app-card" data-category="tad" data-keywords="t-editor tエディタ word replacement general word processor rich text styles margins headers tad real body fusen links">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">✍️</div>
                             <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/TEditor.html" style="color:inherit;text-decoration:none;">T-Editor</a> <span class="app-badge pink">TADエディタ</span></h3>
-                                <div class="app-subtitle-en">Native Hypermedia Document Editor</div>
+                                <h3 class="app-title"><a href="b-system/apps/TEditor.html" style="color:inherit;text-decoration:none;">T-Editor</a> <span class="app-badge pink">汎用ワードプロセッサ</span></h3>
+                                <div class="app-subtitle-en">General Word Processor with Native TAD Abilities</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Native hypermedia editor. Mix text, graphics, Virtual Bodys and media in a single TAD document. Excellent multilingual input and collaborative editing support.
+                            General Word replacement for daily documents, reports, and manuscripts. Familiar formatting, styles, and margins with the unmatched power of native TAD Real Bodies and Fusen links.
                         </div>
                         <div class="app-desc-jp">
-                            <b>Tエディタ：</b> ネイティブ・ハイパーメディア文書編集環境。テキスト、ベクター図形、仮想オブジェクト、各種メディアを単一のTAD文書内で自在に融合。強力な多言語入力（TRONコード・多言語プレーン）とスムーズな共同編集をサポート。
+                            <b>Tエディタ：</b> Microsoft WordやLibreOffice Writerを置き換える、軽快な日常用汎用ワードプロセッサ。見出しスタイル、ルーラー、余白、脚注など標準機能を完備し、さらに文書内に画像・音声・表計算（Matrix）を実身として直接埋め込み可能。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>TAD標準準拠の真のハイパーメディア編集</li>
-                        <li>Mozc TIP連携による高度な漢字・多言語文字入力</li>
-                        <li>実身と仮身の自由な埋め込み・展開・リンク網形成</li>
+                        <li>Microsoft Word完全置換（見出しスタイル・ルーラー・余白・脚注）</li>
+                        <li>実身インライン埋め込み（画像・音声・Matrix表計算の直接挿入）</li>
+                        <li>仮身付箋（Virtual Body Fusen）による関連資料の非線形リンク</li>
+                    </ul>
+                </div>
+
+                <!-- 5b. Matrix -->
+                <div class="app-card" data-category="tad" data-keywords="matrix マトリクス excel replacement spreadsheet calculation grid apl array engine nyse nasdaq quantitative finance formulas sum vlookup charts tad real body cells">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">📊</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Matrix.html" style="color:inherit;text-decoration:none;">Matrix</a> <span class="app-badge teal">表計算・APL数理解析</span></h3>
+                                <div class="app-subtitle-en">High-Performance Spreadsheet &amp; APL Analytics (NYSE/Nasdaq)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Universal Excel replacement with native APL array analytics. High-speed 2D formula grid, vector charting, and live cell-embedded Real Bodies for high-frequency NYSE/Nasdaq quantitative modeling.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>マトリクス：</b> Microsoft Excelを置き換える新世代の高速表計算＆APL数理解析環境。アイバーソン記法（APL配列処理エンジン）をネイティブ統合し、NYSEやNasdaqのミリ秒ティックデータやリスク行列を超並列計算。各セルにTAD実身を埋め込み可能。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>APL配列エンジン統合（内積 <code>+.×</code>、逆行列 <code>⌹</code> によるNYSE/Nasdaqクオンツ解析）</li>
+                        <li>Microsoft Excel完全置換（高速2Dセルグリッド・充実した関数網羅）</li>
+                        <li>セル内TAD実身埋め込み＆T-Editor/Clarityへの連動更新埋め込み</li>
                     </ul>
                 </div>
 

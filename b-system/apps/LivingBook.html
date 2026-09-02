@@ -21,59 +21,59 @@
   <div class="app-hero">
     <div class="app-hero-icon">📚</div>
     <h1>Living Book</h1>
-    <div class="app-hero-badge">双方向書籍</div>
-    <div class="subtitle">Interactive Hypermedia TAD Experience (TAD API)</div>
+    <div class="app-hero-badge">科学PDFリーダー</div>
+    <div class="subtitle">High-Performance Scientific PDF Reader &amp; TAD Annotation Lab (For Scientists)</div>
   </div>
 
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
 
     <div class="tagline-card">
-      <strong>"From static manual to interactive laboratory</strong> – every page becomes a live, multimedia-rich sandbox powered by the TAD API."
+      <strong>"Distraction-free scientific paper reading</strong> — instant PDF rendering with live TAD Real Body margin notes, formula linking, and reproducible citations."
     </div>
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Transforms static TAD documents — including the four standard BTRON system books — into a fully interactive hypermedia experience via the TAD browser engine (<code>src/apps/tad_browser.c</code>) and TAD API (<code>tad_browser.h</code>). Expands static diagrams into live media, executes embedded code examples live inside document segments, and attaches synchronized multimedia annotations that stay pinned to text blocks as the reader navigates.</p>
-      <div class="app-desc-jp"><b>リビングブック：</b> TADブラウザー表示エンジン（<code>src/apps/tad_browser.c</code>）およびTAD API（<code>tad_browser.h</code>）の拡張機能により、4大システム解説書をはじめとするあらゆるTAD文書を動的で双方向な体験へと進化。静止図版を動画メディアセグメントへ展開し、掲載コードを紙面上で直接実行。文書の文脈に連動して移動する音声・ビデオ注釈を添付可能。</div>
+      <p>High-performance scientific PDF reader and interactive annotation laboratory engineered specifically for scientists, researchers, and academic laboratories. Powered by the document viewing core in <code>src/apps/tad_browser.c</code> and validated by <code>src/apps/test_tad_browser.c</code>, Living Book renders dense multi-column academic preprints (arXiv, PubMed, IEEE, Nature, Springer) with crisp vector typography and high-speed page flipping. Instead of locking margin notes into proprietary PDF annotation layers, Living Book converts highlights, hypotheses, formula clippings, and voice notes into permanent, first-class TAD Real Bodies (実身) and citation Virtual Bodies (仮身付箋) via the TAD API. Figures and citations link directly to laboratory datasets in Matrix or experimental code, enabling true reproducible research.</p>
+      <div class="app-desc-jp"><b>リビングブック：</b> 科学者・学術研究者・研究開発チームのために特化設計された、超高速科学PDFリーダー＆TAD注釈ラボ。実体コードはドキュメント表示基盤（<code>src/apps/tad_browser.c</code>）およびテスト検証スイート（<code>src/apps/test_tad_browser.c</code>）で構成。arXiv、PubMed、IEEE、Nature等の2段組論文プレプリントをベクター品質で瞬時にレンダリング。従来のPDF閲覧ソフトのように注釈を孤立させず、マージンノート、数式スニペット、仮説メモ、音声記録をすべてBTRONネイティブなTAD実身（Real Body）および引用仮身（Virtual Body）として恒久保存。論文中のグラフや表をMatrixの実測データやコード実身に直接リンクさせ、真の再現可能研究（Reproducible Research）を実現します。</div>
     </div>
 
     <div class="section">
       <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（ハイパーメディア文書ビューア・ページネーション）</li>
-        <li>テスト検証基盤：<code>src/apps/test_tad_browser.c</code>（TADセグメント解釈・描画テストスイート）</li>
-        <li>BTRON 4大システム書の完全インタラクティブ化（TAD API動的解釈）</li>
-        <li>紙面コードのインライン・ライブ実行環境（その場で出力セグメントを生成）</li>
-        <li>TADドキュメントに密着して移動するマルチメディア注釈（音声・動画）</li>
-        <li>静止図版のクリックによるスクラブ可能な動的仮想オブジェクト展開</li>
-        <li>充実した注釈付きドキュメントを永続的なTAD実身としてキャビネットに保存</li>
-        <li>注釈・実行結果をTADバイナリ形式で完全保持（外部個別ノート不要）</li>
+        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（PDF/TADドキュメントビューア、ページキャッシュ）</li>
+        <li>テスト検証基盤：<code>src/apps/test_tad_browser.c</code>（描画整合性・注釈リンクテストスイート）</li>
+        <li>科学論文専用の高速PDFリーダー（TeX/LaTeXフォント、数式、多段組論文を高速展開）</li>
+        <li>TAD API直結のマージン注釈：ハイライトやメモを独立したTAD実身（Real Body）として自動生成</li>
+        <li>数式・図版スニッピング：PDF内の数式やグラフを切り取り、T-EditorやMatrixへ即座に仮身として埋め込み</li>
+        <li>再現可能研究リンク：論文中の数値や図をMatrix実験データセットやPython/C99解析コードに双方向リンク</li>
+        <li>音声ラボノート：研究室での実験中、音声メモをPDFの段落や図版に直接ピン留め保存</li>
+        <li>BibTeX / DOI自動解決とTAD仮身（Virtual Body Fusen）による文献引用ネットワークの自動形成</li>
       </ul>
     </div>
 
     <div class="section">
       <h2>Why the Market Needs It</h2>
       <ul class="app-features-list">
-        <li>BTRON system books were historically distributed as static documents; developers could not run example code or see live demos while reading.</li>
-        <li>Learning material is isolated from interactive workflows when annotating a static document does not produce a linked Real Body.</li>
-        <li>Brings the full power of the TAD hypermedia model: Virtual Body links, executable segments, and interactive figures beyond static reflowable text.</li>
+        <li>Scientists read hundreds of PDF papers, but their notes and thoughts remain trapped in fragile PDF annotation layers or fragmented reference managers (Mendeley, Zotero).</li>
+        <li>Figures and claims in static scientific PDFs cannot be interactively cross-checked against original datasets or code repositories.</li>
+        <li>Living Book unites PDF reading with the BTRON TAD hypermedia plane: an annotated scientific paper becomes an active node in the researcher's knowledge cabinet.</li>
       </ul>
     </div>
 
     <div class="section">
       <h2>Replaces / Normalises</h2>
       <table class="market-table">
-        <thead><tr><th>Classic BTRON Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
         <tbody>
           <tr>
-            <td>Classic B-TRON "System Books" (static PDFs of the four system manuals)</td>
-            <td>Code runs live in-page; illustrations become scrubbable video; annotations travel with the text</td>
-            <td rowspan="2">Educators, trainees, developers learning the BTRON stack, documentation authors</td>
+            <td>Adobe Acrobat Reader / Mendeley</td>
+            <td>Instantaneous scientific PDF reading with margin annotations, equations, and voice notes saved as permanent TAD Real Bodies</td>
+            <td rowspan="2">Scientists, laboratory researchers, university professors, graduate students, R&amp;D engineers</td>
           </tr>
           <tr>
-            <td>Conventional e-book readers</td>
-            <td>Full TAD hypermedia model: Virtual Body embedding, executable code, not just reflowable text</td>
+            <td>Static Paper Printouts / Disconnected Notes</td>
+            <td>Deep hypermedia links connect paper figures directly to Matrix datasets and executable lab code via TAD API</td>
           </tr>
         </tbody>
       </table>
@@ -82,11 +82,11 @@
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Open a System Book or any TAD document in Living Book via the TAD API.</li>
-        <li>Click a diagram → it expands to a scrubbable media Virtual Body inline.</li>
-        <li>Click a code block → run it in place; output appears as a linked Real Body below the snippet.</li>
-        <li>Record a voice note at a heading → it attaches to the paragraph and moves with it on navigation.</li>
-        <li>Export the enriched page as a TAD Real Body into the Cabinet or open it in a Clarity reading session.</li>
+        <li>Open an arXiv or IEEE PDF preprint in Living Book; dual-column pages render instantly with crisp vector equations.</li>
+        <li>Select a paragraph and type a hypothesis → Living Book creates an annotation Real Body pinned to that text block.</li>
+        <li>Snip an equation or plot from the PDF → drag it directly into a T-Editor manuscript or Matrix analysis sheet.</li>
+        <li>Link the paper's dataset to a Matrix spreadsheet so recalculations verify the authors' published findings.</li>
+        <li>Organize reading libraries in the TAD Cabinet Explorer with automatic citation tracking.</li>
       </ol>
     </div>
   </div>
@@ -114,6 +114,7 @@
         <ul>
             <li><a href="Cabinet.html">Cabinet Explorer</a></li>
             <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
             <li><a href="LivingBook.html" class="active">Living Book</a></li>
             <li><a href="Browser.html">Browser</a></li>
