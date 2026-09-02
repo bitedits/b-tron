@@ -1,24 +1,25 @@
-#
 # B-System Multi-Target Makefile
-# Cleanroom Sakamura T-Kernel 2.0 / POSIX / QEMU / BCM283x Bare-Metal
+# Cleanroom / Sakamura T-Kernel 2.0 / POSIX / QEMU / BCM283x Bare-Metal / UEFI / PC-98
 #
-# Targets:
-#   posix         POSIX Microkernel Desktop (SDL2 host)
-#   qemu          QEMU VirtIO Desktop (SDL2 host)
-#   sakamura      T-Kernel SDL2 host build VirtIO (debug / development)
-#   kernel        T-Kernel QEMU (debug / development)
-#   arm-elf       Freestanding ARM32 ELF  — BCM283x Pi 2B (Cortex-A7, ARMv7)
-#   arm64-elf     Freestanding AArch64 ELF — Pi 4B only (Cortex-A72)
-#   run-posix     Boot POSIX Kernel (lightweight proto POSIX-only kernel)
-#   run-qemu      Boot Pure VirtIO Kernel (lightweight VirtIO-only kernel)
-#   run-kernel    Boot Pi 2B ELF in QEMU (raspi2b, with display)
-#   run-sakamura  Boot QEMU VirtIO (with display, mouse, keyboard)
-#   test-kernel   Boot Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
+# Targets & Kernels:
+#   posix         B-System/BTRON3 3.20 (posix-hosted) Hiroaki Takada — Cleanroom TRON Kernel [Target 0]
+#   qemu          B-System/BTRON3 3.20 (arm-qemu-virtio) Hiroshi Tokita — Cleanroom TRON Kernel [Target 1]
+#   arm-elf       B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0 [Target 2]
+#   sakamura      B-System/BTRON3 3.20 (sakamura-tkernel-virtio) Ken Sakamura — T-Kernel 2.0 [Target 3]
+#   uefi          B-System/BTRON3 3.20 (x86_64-uefi-smp) Tomohiro Uchida — T-Kernel 2.0 [Target 4]
+#   pc98          B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 [Target 5]
+#   arm64-elf     B-System/BTRON3 3.20 (aarch64-bcm2711-yoko) Takahiro Yokobayashi — T-Kernel 2.0 [Target 6]
+#
+# Run Commands:
+#   run-posix     Boot POSIX Microkernel Desktop (btron-posix)
+#   run-qemu      Boot QEMU VirtIO Desktop (btron-qemu.elf)
+#   run-kernel    Boot Pi 2B ELF in QEMU (btron-arm-baremetal.elf, raspi2b with display)
+#   run-yoko      Boot Pi 4B AArch64 ELF in QEMU (btron-aarch64-baremetal.elf, raspi3b)
+#   run-sakamura  Boot Sakamura T-Kernel 2.0 Desktop (btron-sakamura.elf, display, kbd, mouse)
+#   run-uefi      Boot x86_64 UEFI SMP in QEMU (btron-uchida.elf, aliases: run-eufi, run-uefu)
+#   run-pc98      Boot NEC PC-9801/PC-9821 VM in QEMU (btron-morris.elf)
+#   test-kernel   Test Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
 #   debug-gdb     QEMU + GDB stub on Pi 2B
-#
-# NOTE: qemu-system-aarch64 supports ALL Pi models (raspi0/1ap/2b/3b/4b).
-#       No separate qemu-system-arm binary needed.
-#
 
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
@@ -26,7 +27,7 @@ CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf \
         html2tad tad_bin test test-kernel \
         test-mozc test-editor test-hmi test-tad test-chat verify \
-        run-posix run-qemu run-kernel run-sakamura run-uefi run-eufi run-uefu run-pc98 debug-virtio debug-gdb clean
+        run-posix run-qemu run-kernel run-yoko run-sakamura run-uefi run-eufi run-uefu run-pc98 debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -54,7 +55,7 @@ ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 \
                -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
                $(BCM_INC)
 ARM64_CFLAGS = -O2 -Wall -Wextra -std=c99 \
-               -D_RPI_BCM283x_ -DTYPE_RPI=3 -DBTRON_TARGET=2 \
+               -D_RPI_BCM283x_ -DTYPE_RPI=3 -DBTRON_TARGET=6 \
                -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-unused-parameter \
                $(BCM_INC)
 
@@ -205,14 +206,15 @@ COMMON_NO_SDL_SRCS = \
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
 BAREMETAL_LD       = src/drivers/bcm283x/cpu/link.ld
-ARM_BAREMETAL_SRCS = src/kernel/core_init.c src/kernel/core_yoko.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM32_BAREMETAL_SRCS = src/kernel/core_init.c src/kernel/core_yoko.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM64_BAREMETAL_SRCS = src/kernel/core_init.c src/kernel/core_arm64.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
 
 # ── Object lists ─────────────────────────────────────────────────
 POSIX_OBJS   = $(POSIX_SRCS:.c=.posix.o)
 QEMU_OBJS    = $(QEMU_SRCS:.c=.qemu.o)
 TKERNEL_OBJS = $(TKERNEL_SRCS:.c=.tkernel.o)
-ARM32_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm32.o)
-ARM64_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm64.o)
+ARM32_OBJS   = $(ARM32_BAREMETAL_SRCS:.c=.arm32.o)
+ARM64_OBJS   = $(ARM64_BAREMETAL_SRCS:.c=.arm64.o)
 SAKAMURA_OBJS  = $(TKERNEL_SRCS:.c=.sakamura.o)
 UEFI_OBJS      = $(UEFI_SRCS:.c=.uefi.o)
 PC98_OBJS      = $(PC98_SRCS:.c=.pc98.o)
@@ -469,6 +471,28 @@ run-kernel: $(ARM32_TARGET)
 	        -kernel $(ARM32_TARGET) -serial stdio; \
 	else \
 	    echo "[ERROR] QEMU not found — install qemu-system-aarch64 or qemu-system-arm"; \
+	    exit 1; \
+	fi
+
+run-yoko: $(ARM64_TARGET)
+	@echo "=========================================================="
+	@echo " Launching T-Kernel AArch64 on QEMU Raspberry Pi (BCM2711)"
+	@echo " Honoring : Takahiro Yokobayashi (横林 貴広) — T-Kernel Pioneer"
+	@echo " Machine  : raspi3b  |  CPU: Cortex-A72 / AArch64  |  RAM: 1G"
+	@echo " ELF      : $(ARM64_TARGET)"
+	@echo " Devices  : USB Keyboard, USB Mouse & VideoCore GPU Display"
+	@echo "=========================================================="
+	@echo " INPUT CAPTURE:"
+	@echo "   Click inside the QEMU window to grab keyboard & mouse."
+	@echo "   Press Ctrl+Alt+G (macOS: Ctrl+Option+G) to release grab."
+	@echo "   Serial/UART input also works in THIS terminal window."
+	@echo "=========================================================="
+	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	    $(QEMU_AARCH64) -M raspi3b -m 1G $(KERNEL_DISPLAY) \
+	        -device usb-kbd -device usb-mouse \
+	        -kernel $(ARM64_TARGET) -serial stdio; \
+	else \
+	    echo "[ERROR] $(QEMU_AARCH64) not found — install qemu-system-aarch64"; \
 	    exit 1; \
 	fi
 
