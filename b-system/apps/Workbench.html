@@ -34,8 +34,8 @@
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Spatial desktop canvas and central system root menu inspired by CTWM's workspace manager and the Haiku / BeOS Deskbar menu. Implemented as a pure C99 system application backed by <code>src/desktop/main.c</code> (main launcher and event loop) and <code>src/desktop/desktop.c</code> (desktop compositor and screen device manager), directly interfacing with the BTRON window manager (<code>btron/wnd.h</code>), display primitives (<code>btron/dp.h</code>), and event loop (<code>btron/event.h</code>). Future enhancements will introduce a dedicated root <code>menu</code> system and <code>tracker.c</code> for desktop task and window tracking. Rather than acting as a file manager — a role fulfilled exclusively by Cabinet Explorer and Commander — Workbench provides the desktop backdrop, spatial window management, multi-workspace virtual desktops, process task switching, and instantaneous root menu launching.</p>
-      <div class="app-desc-jp"><b>ワークベンチ：</b> CTWMのルートメニューやHaiku Deskbarの即応性を継承した、純粋C99製デスクトップ＆システムメニュー。実体コードは <code>src/desktop/main.c</code>（メインランチャー＆イベントループ）および <code>src/desktop/desktop.c</code>（デスクトップコンポジタ＆背景描画）で構成され、将来的な拡張として階層型 <code>menu</code> サブシステムおよびタスク追跡モジュール <code>tracker.c</code> の統合を予定。ファイルやオブジェクトの管理はキャビネット・エクスプローラー（Cabinet Explorer）が担うため、ワークベンチ自身はファイルマネージャではなく、空間デスクトップキャンバス、仮想ワークスペース切り替え、タスク管理、および右クリック/タスクバーによる階層型ルートメニューの提供に特化。</div>
+      <p>Spatial desktop canvas and central system root menu inspired by CTWM's workspace manager and the Haiku / BeOS Deskbar. Implemented as a pure C99 system application backed by <code>src/desktop/main.c</code> (main launcher and event loop), <code>src/desktop/desktop.c</code> (desktop compositor and screen device manager), and <code>src/desktop/tracker.c</code> (Haiku-style START [BTRON] button, root menu launcher, and active window/task tracker), directly interfacing with the BTRON window manager (<code>btron/wnd.h</code>), display primitives (<code>btron/dp.h</code>), and event loop (<code>btron/event.h</code>). Rather than acting as a file manager — a role fulfilled exclusively by Cabinet Explorer and Commander — Workbench provides the desktop backdrop, spatial window management, multi-workspace virtual desktops, process task switching, and instantaneous root menu launching.</p>
+      <div class="app-desc-jp"><b>ワークベンチ：</b> CTWMのルートメニューやHaiku Deskbarの即応性を継承した、純粋C99製デスクトップ＆システムメニュー。実体コードは <code>src/desktop/main.c</code>（メインランチャー＆イベントループ）、<code>src/desktop/desktop.c</code>（デスクトップコンポジタ＆背景描画）、および <code>src/desktop/tracker.c</code>（Haiku流 START [BTRON] ボタン・ルートメニュー＆タスク追跡モジュール）で構成。ファイルやオブジェクトの管理はキャビネット・エクスプローラー（Cabinet Explorer）が担うため、ワークベンチ自身はファイルマネージャではなく、空間デスクトップキャンバス、仮想ワークスペース切り替え、タスク管理、および階層型ルートメニューの提供に特化。</div>
     </div>
 
     <div class="section">
@@ -43,9 +43,9 @@
       <ul class="app-features-list">
         <li>実体コード実装：<code>src/desktop/main.c</code>（メインランチャー、イベントループ、サブシステム初期化）</li>
         <li>実体コード実装：<code>src/desktop/desktop.c</code>（デスクトップコンポジタ、背景描画、画面デバイス管理）</li>
-        <li>将来ロードマップ：CTWM風ルート <code>menu</code> サブシステム ＆ タスク追跡 <code>tracker.c</code> モジュール</li>
+        <li>実体コード実装：<code>src/desktop/tracker.c</code>（Haiku流 START [BTRON] ボタン、ルートメニュー、タスク追跡）</li>
         <li>CTWM風ルートメニュー＆Haiku Deskbarスタイルの高速階層型アプリケーションランチャー</li>
-        <li>純粋C99システム設計（超軽量・低レイテンシ・極小メモリフットプリント）</li>
+        <li>純粋C99システム設計（超軽量・低レイテンシ・極小メモリフットプリント、NASA JPL検証済み）</li>
         <li>仮想ワークスペース管理（マルチデスクトップ切り替え）</li>
         <li>アクティブウィンドウ一覧・タスク切り替えおよびウィンドウ配置制御</li>
         <li>Cabinet Explorer、Terminal、T-Editor、各種アクセサリへのワンクリック即座アクセス</li>

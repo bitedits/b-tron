@@ -6,6 +6,7 @@
 #include <btron/btron.h>
 #include <btron/tip.h>
 #include <btron/apps.h>
+#include <btron/tracker.h>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,6 +100,7 @@ int main(int argc, char **argv) {
 
     GDEV *screen_dev = opn_dev(screen_w, screen_h);
     init_wnd_mgr(screen_dev);
+    tracker_init();
 
     /* Open initial BTRON desktop accessories */
     open_vobj_manager_window();
@@ -112,12 +114,16 @@ int main(int argc, char **argv) {
                 running = FALSE;
             } else if (ev.type == EV_BUT_DOWN) {
                 raise_sdl_window();
-                WND *clicked = find_wnd_at(ev.pos.x, ev.pos.y);
-                if (clicked) {
-                    if (get_top_wnd() != clicked) {
-                        tip_cancel(); /* Reset pending IME composition on focus switch */
-                        top_wnd(clicked);
-                    }
+                /* 0. Check Haiku-style Start [BTRON] Button / Tracker Root Menu */
+                if (tracker_handle_mouse_down(ev.pos.x, ev.pos.y)) {
+                    /* Consumed by Tracker Start Button / Menu */
+                } else {
+                    WND *clicked = find_wnd_at(ev.pos.x, ev.pos.y);
+                    if (clicked) {
+                        if (get_top_wnd() != clicked) {
+                            tip_cancel(); /* Reset pending IME composition on focus switch */
+                            top_wnd(clicked);
+                        }
 
                     /* 1. BTRON3 Bottom-Right Corner Resize Grip Check (16x16 corner) */
                     if ((clicked->attr & WND_ATTR_RESIZE) &&
@@ -192,6 +198,7 @@ int main(int argc, char **argv) {
                     /* Desktop Chat Icon click -> Launch BeOS Chat */
                     launch_beos_chat();
                 }
+                } /* end else of tracker_handle_mouse_down */
             } else if (ev.type == EV_BUT_UP) {
                 dragging = FALSE;
                 drag_wnd = NULL;
@@ -204,6 +211,7 @@ int main(int argc, char **argv) {
                     top->event_handler(top, &ev);
                 }
             } else if (ev.type == EV_MOUSE_MOVE) {
+                tracker_handle_mouse_move(ev.pos.x, ev.pos.y);
                 if (sliding_tab && slide_wnd) {
                     H new_off = slide_orig_off + (ev.pos.x - slide_start_x);
                     wset_tab_offset(slide_wnd, new_off);
@@ -215,10 +223,14 @@ int main(int argc, char **argv) {
                     mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
                 }
             } else if (ev.type == EV_KEY_DOWN) {
-                /* Exclusively route keystrokes to the top focused active window */
-                WND *top = get_top_wnd();
-                if (top && top->focused && top->event_handler) {
-                    top->event_handler(top, &ev);
+                if (tracker_handle_key(ev.key)) {
+                    /* Handled by Tracker Start menu navigation */
+                } else {
+                    /* Exclusively route keystrokes to the top focused active window */
+                    WND *top = get_top_wnd();
+                    if (top && top->focused && top->event_handler) {
+                        top->event_handler(top, &ev);
+                    }
                 }
             }
         }
@@ -234,6 +246,11 @@ int main(int argc, char **argv) {
         }
 
         render_system_panel(screen_dev);
+
+        /* Render Haiku-style Start menu overlay when open */
+        if (tracker_is_menu_open()) {
+            tracker_render_menu(screen_dev);
+        }
 
         /* Flush composite buffer to SDL window */
         flush_gdev_to_sdl(screen_dev);

@@ -7,6 +7,7 @@
 #include <btron/troncode.h>
 #include <btron/vobj.h>
 #include <btron/wnd.h>
+#include <btron/tracker.h>
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <time.h>
@@ -22,6 +23,7 @@ ER init_desktop(H width, H height) {
 
     init_wnd_mgr(g_desktop.screen);
     init_vobj_sys("./btron_store");
+    tracker_init();
 
     return E_OK;
 }
@@ -34,6 +36,7 @@ ER init_desktop_vram(H width, H height, COLOR *vram_ptr) {
 
     init_wnd_mgr(g_desktop.screen);
     init_vobj_sys("./btron_store");
+    tracker_init();
 
     return E_OK;
 }
@@ -92,14 +95,11 @@ void render_system_panel(GDEV *dev) {
     fill_rec(dev, &panel, COLOR_LTGRAY);
     drw_lin(dev, 0, 25, dev->width, 25);
 
-    /* TRON Logo & System Menu */
-    RECT sys_btn = { 4, 3, 76, 22 };
-    fill_rec(dev, &sys_btn, COLOR_GRAY);
-    drw_rec(dev, &sys_btn);
-    drw_tc_string(dev, 8, 5, "［BTRON］", COLOR_WHITE, 0x00000000);
+    /* Haiku-Style START [BTRON] Button (Deskbar Tracker) */
+    tracker_render_button(dev);
 
     /* Top Menus in Japanese */
-    drw_tc_string(dev, 85, 5, "ファイル(F)", COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, 92, 5, "ファイル(F)", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 175, 5, "編集(E)", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 245, 5, "表示(V)", COLOR_BLACK, 0x00000000);
     drw_tc_string(dev, 315, 5, "実身・仮身(O)", COLOR_BLACK, 0x00000000);
