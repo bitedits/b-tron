@@ -114,30 +114,51 @@ body {
     backdrop-filter: blur(8px);
 }
 
+/* ── inline code ── */
+code {
+    font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', monospace;
+    font-size: 0.88em;
+    background: rgba(255, 255, 255, 0.75);
+    color: DarkMagenta;
+    padding: 0.12em 0.38em;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 93, 162, 0.3);
+    white-space: nowrap;
+}
+
 /* ── feature list ── */
 .app-features-list {
     list-style: none; padding: 0; margin: 0.6rem 0 0;
-    display: flex; flex-direction: column; gap: 0.45rem;
 }
 .app-features-list li {
     font-size: 0.93rem; color: #4a3560;
-    display: flex; align-items: flex-start; gap: 0.45rem;
+    position: relative;
+    padding-left: 1.25rem;
+    margin-bottom: 0.55rem;
+    line-height: 1.65;
+    text-align: left;
 }
 .app-features-list li::before {
     content: "◆"; color: HotPink;
-    font-size: 0.65rem; margin-top: 0.32rem; flex-shrink: 0;
+    font-size: 0.65rem;
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
 }
 
 /* ── workflow steps ── */
 .workflow-list {
     list-style: none; padding: 0; margin: 0.6rem 0 0;
     counter-reset: step;
-    display: flex; flex-direction: column; gap: 0.7rem;
 }
 .workflow-list li {
     counter-increment: step;
-    display: flex; align-items: flex-start; gap: 0.8rem;
+    position: relative;
+    padding-left: 2.2rem;
+    margin-bottom: 0.85rem;
     font-size: 0.93rem; color: #4a3560;
+    line-height: 1.65;
+    text-align: left;
 }
 .workflow-list li::before {
     content: counter(step);
@@ -145,8 +166,10 @@ body {
     color: #fff;
     border-radius: 50%; width: 1.5rem; height: 1.5rem;
     font-size: 0.75rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 0.05rem;
+    display: inline-flex; align-items: center; justify-content: center;
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
 }
 
 /* ── tagline card ── */
@@ -261,3 +284,32 @@ body {
     color: HotPink; text-decoration: none; font-weight: 600;
 }
 .app-footer-bottom a:hover { text-decoration: underline; }
+
+/* ── app screenshot figure (centered) ── */
+.app-screenshot {
+    width: 100%;
+    margin: 1.5rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.app-screenshot img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255, 93, 162, 0.35);
+    box-shadow: 0 10px 30px -5px rgba(255, 93, 162, 0.25);
+}
+.app-screenshot-caption {
+    font-size: 0.88rem;
+    color: #6b4f7e;
+    margin: 0.75rem auto 0;
+    font-style: italic;
+    text-align: center;
+    max-width: 680px;
+    line-height: 1.5;
+}

@@ -244,8 +244,8 @@ static void render_ski_menu(void) {
     vga_clear(0x1F);
 
     vga_print_at(0, 0, "================================================================================", 0x1E);
-    vga_print_at(2, 1, "🎿 Ski Bootloader — Multi-OS Boot Manager (B-System BTRON3 / SMP)", 0x1F);
-    vga_print_at(2, 2, "Dedicated to Kota Uchida (内田 公太) & Awe Morris", 0x1B);
+    vga_print_at(2, 1, "Ski Bootloader [Multi-OS Boot Manager] (B-System BTRON3 / SMP)", 0x1F);
+    vga_print_at(2, 2, "Dedicated to Kota Uchida & Awe Morris", 0x1B);
     vga_print_at(0, 3, "--------------------------------------------------------------------------------", 0x17);
 
     vga_print_at(2, 5, "[ACPI 6.5 MADT] Discovered 4 LAPICs (0x00, 0x01, 0x02, 0x03) | IO-APIC: 0xFEC00000", 0x1A);
@@ -562,7 +562,7 @@ void kernel_main(void) {
     render_ski_menu();
 
     uart_puts_raw("\n==========================================================\n");
-    uart_puts_raw(" 🎿 Ski Bootloader Active — Multi-OS Boot Manager\n");
+    uart_puts_raw(" Ski Bootloader Active — Multi-OS Boot Manager\n");
     uart_puts_raw(" Controls: [W/S] or [Up/Down] Navigate, [+/-] Cores, [Enter] Boot\n");
     uart_puts_raw("==========================================================\n");
     uart_send_menu_update();

@@ -127,7 +127,6 @@ UEFI_SRCS    = $(UEFI_STARTUP)          \
                src/kernel/core_boot.c   \
                src/kernel/libstr.c      \
                src/drivers/vesa/vesa.c  \
-               src/apps/ski.c           \
                $(COMMON_SRCS)
 
 # ── NEC PC-98 build (Target 5) ──────────────────────────────────
@@ -149,7 +148,6 @@ PC98_FREESTANDING_SRCS = $(PC98_STARTUP) \
                          src/apps/t_editor.c \
                          src/apps/vobj_manager.c \
                          src/apps/tad_browser.c \
-                         src/apps/ski.c \
                          src/tip/mozc_kkc.c \
                          src/tip/tip_ife.c \
                          src/tip/tip_task.c \
@@ -356,7 +354,6 @@ UEFI_FREESTANDING_SRCS = src/kernel/core_boot.c \
                          src/apps/t_editor.c \
                          src/apps/vobj_manager.c \
                          src/apps/tad_browser.c \
-                         src/apps/ski.c \
                          src/tip/mozc_kkc.c \
                          src/tip/tip_ife.c \
                          src/tip/tip_task.c \
@@ -637,7 +634,7 @@ test: test-kernel test-tad test-editor test-chat test-mozc test-hmi test-ski
 # ═══════════════════════════════════════════════════════════════════
 # Ski Bootloader & Multi-Arch Boot Driver Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_SKI_SRCS = src/apps/test_ski.c src/apps/ski.c src/kernel/core_smp.c \
+TEST_SKI_SRCS = src/apps/test_ski.c  src/kernel/core_smp.c \
                 src/drivers/pc98/boot/boot_pc98.c src/drivers/bcm283x/boot/boot_arm_stub.c
 TEST_SKI_OBJS = $(TEST_SKI_SRCS:.c=.test.o)
 TEST_SKI_BIN  = test_ski

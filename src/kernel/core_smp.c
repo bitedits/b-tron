@@ -332,5 +332,5 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
     out_fn("B-System BTRON3 3.20 (x86_64 UEFI SMP Edition — Kota Uchida Kernel)", COLOR_GREEN, user_data);
     out_fn("  Platform: x86_64 UEFI (EMT64 Multi-Core SMP · 4 Cores Live)", COLOR_LTGRAY, user_data);
     out_fn("  Subsystem: ACPI 6.5 MADT, Local APIC (0xFEE00000), IO-APIC (0xFEC00000)", COLOR_LTGRAY, user_data);
-    out_fn("  Bootloader: Ski Bootloader (🎿 ski.c) · AP Trampoline: 0x9000", COLOR_CYAN, user_data);
+    out_fn("  Bootloader: Ski Bootloader (🎿 Ski Bootloader) · AP Trampoline: 0x9000", COLOR_CYAN, user_data);
 }

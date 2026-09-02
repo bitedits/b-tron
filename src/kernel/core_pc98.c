@@ -279,5 +279,5 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
     out_fn("B-System BTRON3 3.20 (NEC PC-98 Edition — Awe Morris Kernel)", COLOR_GREEN, user_data);
     out_fn("  Platform: NEC PC-9801 / PC-9821 (i386/i486/Pentium/Pentium-II)", COLOR_LTGRAY, user_data);
     out_fn("  Subsystem: Planar Text VRAM (0xA0000), GDC uPD7220, RICOH RP5C15 RTC", COLOR_LTGRAY, user_data);
-    out_fn("  Bootloader: Ski Bootloader (🎿 ski.c) · A20 Gate: Port 0xF2", COLOR_CYAN, user_data);
+    out_fn("  Bootloader: Ski Bootloader (🎿 Ski Bootloader) · A20 Gate: Port 0xF2", COLOR_CYAN, user_data);
 }

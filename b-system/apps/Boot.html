@@ -6,13 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ski Bootloader – ブートマネージャ | B-System</title>
   <meta name="description"
-    content="Ski Bootloader: Haiku-quality graphical & terminal boot manager for B-System BTRON. Supports ARM MMIO (Raspberry Pi 1–5), x86_64 UEFI SMP, and authentic PC-98 i386 real-mode boot experience.">
+    content="Haiku-quality graphical & terminal boot manager for B-System BTRON — ARM MMIO, x86_64 UEFI SMP, and PC-98">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 
 <body>
-
   <nav class="app-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
@@ -20,167 +19,79 @@
     <span class="sep">/</span>
     <span class="current">Ski Bootloader</span>
   </nav>
-
   <div class="app-hero">
     <div class="app-hero-icon">🎿</div>
     <h1>Ski Bootloader</h1>
     <div class="app-hero-badge">ブートマネージャ</div>
     <div class="subtitle">Haiku-Quality BTRON Boot Manager · ARM · x86_64 UEFI SMP · PC-98</div>
   </div>
-
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+    <div class="tagline-card"><strong>"The first time you turn on a machine should feel like a ceremony, not a gamble —
+        Ski Bootloader makes every boot a deliberate, beautiful act."</strong></div>
 
-    <div class="tagline-card">
-      <strong>"The first time you turn on a machine</strong> should feel like a ceremony, not a gamble — Ski Bootloader
-      makes every boot a deliberate, beautiful act."
-    </div>
-
-    <!-- ── Overview ─────────────────────────────────────────────── -->
     <div class="section">
       <h2>Overview</h2>
-      <p><b>Ski Bootloader</b> (<code>ski.c</code>) is the official boot manager application for B-System. It combines
-        the aesthetic quality and interactive grace of Haiku's BootManager with the rigorous engineering standards of
-        NetBSD's boot infrastructure, all while authentically preserving the legacy BTRON booting experience. Ski
-        Bootloader provides both a rich graphical presentation and an authentic ANSI console selector with live kernel
-        command-line editing and multi-core affinity allocation.</p>
+      <p>Cleanroom multi-architecture boot manager combining Haiku's aesthetic grace and NetBSD's boot infrastructure
+        reliability. Supports Raspberry Pi 1–5 (ARM MMIO), x86_64 UEFI SMP (ACPI MADT), and NEC PC-9801/PC-9821 VM (Awe
+        Morris kernel) with live command-line editing and multi-core affinity allocation.</p>
       <div class="app-desc-jp"><b>スキー・ブートローダー（Ski Bootloader）：</b>
-        B-Systemの公式ブートマネージャ・アプリケーション（<code>ski.c</code>）。Haiku流の洗練されたUI造形美とNetBSD水準の堅牢なブートマネージャ品質を融合し、BTRON伝統の起動体験（実身ブートログ、T-Monitorカウントダウン）を完全再現。Raspberry
-        Pi 1〜5（ARM MMIO）、x86_64 UEFI SMP（ACPI MADT AP起動）、そしてNEC PC-98（i386/i486/Pentium
-        リアルモード）という3大ハードウェアアーキテクチャを統合サポートします。</div>
+        B-Systemの公式ブートマネージャ。Haiku流の洗練されたUI造形美とNetBSD水準の堅牢なブートマネージャ品質を融合。Raspberry Pi 1〜5（ARM
+        MMIO）、x86_64 UEFI SMP（ACPI MADT AP起動）、そしてNEC PC-98（i386/i486/Pentium リアルモード）の3大ハードウェアアーキテクチャを統合サポートします。</div>
     </div>
 
-    <!-- ── Key Features ──────────────────────────────────────────── -->
+    <!-- ── Screenshot ────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Screenshot</h2>
+      <div style="text-align: center; margin: 1.2rem 0;">
+        <img src="../img/boot.png" alt="Ski Bootloader Interactive Interface"
+          style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,93,162,0.3); box-shadow: 0 8px 24px rgba(255,93,162,0.15);">
+        <p style="font-size: 0.88rem; color: #6b4f7e; margin-top: 0.6rem; font-style: italic; text-align: center;">
+          Ski Bootloader (🎿) multi-architecture boot manager running on QEMU x86_64 UEFI SMP with live target selector,
+          CPU core scaling, and interactive command line editor.
+        </p>
+      </div>
+    </div>
+
     <div class="section">
       <h2>Key Features</h2>
       <ul class="app-features-list">
-        <li><b>Ski Interactive Boot Menu (<code>ski.c</code>)</b> — Dual mode: Graphical BTRON glyph canvas and ANSI
-          terminal with keyboard navigation (<code>[↑/↓]</code>, <code>[W/S]</code>), inline command line editing
-          (<code>[E]</code>), and multi-core CPU affinity control (<code>[+]</code>/<code>[-]</code>).</li>
-        <li><b>ARM MMIO Boot Drivers (Raspberry Pi 1, 2, 3, 4, 5)</b> — Native VideoCore Mailbox initialization (Channel
-          8 properties), PL011 UART console mirror, DWC2 USB / SMSC9118 Ethernet stubs, and BCM2712 / RP1 south-bridge
-          ABI mappings for Pi 5.</li>
-        <li><b>x86_64 UEFI SMP (<code>core_smp.c</code>)</b> — Cleanroom UEFI implementation without TianoCore EDK II
-          dependencies: GOP framebuffer discovery, ACPI 6.5 XSDT/MADT parser, LAPIC MMIO (<code>0xFEE00000</code>),
-          16-bit AP trampoline at <code>0x9000</code>, and INIT-SIPI-SIPI multi-core rendezvous.</li>
-        <li><b>Authentic PC-98 i386 Real-Mode Boot (<code>boot_pc98.c</code>)</b> — Full NEC PC-9801/PC-9821 support:
-          planar VRAM text splash at <code>0xA0000/0xA2000</code>, INT 1Ah RTC clock reads, INT 2Fh BTRON protocol
-          handshake, A20 gate activation via port <code>0xF2</code>, and 32-bit Protected Mode transition.</li>
-        <li><b>Multi-OS & Unikernel Card Registry</b> — Instant boot targets for B-System BTRON3, T-Kernel 2.0, seL4
+        <li>Ski Interactive Boot Menu — Dual mode: Graphical BTRON glyph canvas and ANSI terminal with keyboard
+          navigation (<code>[↑/↓]</code>, <code>[W/S]</code>), inline command line editing (<code>[E]</code>), and
+          multi-core CPU affinity control (<code>[+]</code>/<code>[-]</code>)</li>
+        <li>ARM MMIO Boot Drivers (Raspberry Pi 1, 2, 3, 4, 5) — Native VideoCore Mailbox initialization (Channel 8
+          properties), PL011 UART console mirror, DWC2 USB / SMSC9118 Ethernet stubs, and BCM2712 / RP1 south-bridge ABI
+          mappings for Pi 5</li>
+        <li>x86_64 UEFI SMP (<code>core_smp.c</code>) — Cleanroom UEFI implementation: GOP framebuffer discovery, ACPI
+          6.5 XSDT/MADT parser, LAPIC MMIO (<code>0xFEE00000</code>), 16-bit AP trampoline at <code>0x9000</code>, and
+          INIT-SIPI-SIPI multi-core rendezvous</li>
+        <li>Authentic PC-98 i386 Real-Mode Boot (<code>boot_pc98.c</code>) — Full NEC PC-9801/PC-9821 support: planar
+          VRAM text splash at <code>0xA0000/0xA2000</code>, INT 1Ah RTC clock reads, INT 2Fh BTRON protocol handshake,
+          A20 gate activation via port <code>0xF2</code>, and 32-bit Protected Mode transition</li>
+        <li>Multi-OS & Unikernel Card Registry — Instant boot targets for B-System BTRON3, T-Kernel 2.0, seL4
           Microkernel, NetBSD 11.0 (smolBSD MICROVM), PC-98 Linux 7.1, NEC V30 os8088, NuttX 12.0, FreeRTOS, and
-          Erlang/OCaml unikernels.</li>
-        <li><b>TAD Real Body Boot Persistence</b> — Automatically archives boot selections, kernel arguments, and
-          hardware timestamps into permanent TAD Real Body logs for inspection via Clarity.</li>
-        <li><b>Emergency T-Monitor Fallback</b> — Direct failover to low-level T-Monitor shell (<code>[S]</code>) upon
-          kernel fault or invalid device tree configuration.</li>
+          Erlang/OCaml unikernels</li>
+        <li>Emergency T-Monitor Fallback — Direct failover to low-level T-Monitor shell (<code>[S]</code>) upon kernel
+          fault or invalid device tree configuration</li>
       </ul>
     </div>
 
-    <!-- ── Why the Market Needs It ───────────────────────────────── -->
-    <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Classic B-TRON systems lacked a dynamic multi-architecture boot manager — booting alternate kernels required
-          manual configuration file modifications prior to power-on.</li>
-        <li>Modern UEFI bootloaders (GRUB2, systemd-boot) are heavy, POSIX-dependent, and lack cleanroom integration
-          with T-Kernel and BTRON real-body file structures.</li>
-        <li>Haiku's BootManager is restricted to x86 BeOS systems and does not address ARM MMIO mailboxes or Japanese
-          retrocomputing architectures like the PC-98.</li>
-        <li>Developers deploying microkernels (seL4) and hypervisors need seamless transfer of boot parameters into
-          shared memory buffers across heterogeneous CPU topologies.</li>
-      </ul>
-    </div>
-
-    <!-- ── Architecture Support ──────────────────────────────────── -->
-    <div class="section">
-      <h2>Architecture & Hardware Support</h2>
-      <table class="market-table">
-        <thead>
-          <tr>
-            <th>Architecture / Target</th>
-            <th>Boot Protocol & Drivers</th>
-            <th>Hardware / MMIO Interfaces</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>ARM — Raspberry Pi 1, 2, 3, 4</b><br><small>BCM283x · AArch32 / AArch64</small></td>
-            <td>VideoCore Mailbox → Framebuffer allocate → PL011 UART → T-Kernel / BTRON init</td>
-            <td><code>MBOX_BASE 0x3F00B880</code>, PL011 UART0, DWC2 USB, VideoCore IV/VI GPU</td>
-            <td><span class="app-badge teal">MMIO Drivers & Stubs</span></td>
-          </tr>
-          <tr>
-            <td><b>ARM — Raspberry Pi 5</b><br><small>BCM2712 · Cortex-A76 · RP1</small></td>
-            <td>BCM2712 Mailbox → VideoCore VII → RP1 southbridge PCIe UART → Kernel handoff</td>
-            <td><code>MBOX_BASE 0x107c013880</code>, RP1 BAR <code>0x1F00000000</code>, PCIe Gen3</td>
-            <td><span class="app-badge gold">BCM2712 ABI Stubs</span></td>
-          </tr>
-          <tr>
-            <td><b>x86_64 UEFI SMP</b><br><small>Intel 64 / AMD64 · Multi-Core</small></td>
-            <td>UEFI GOP → ACPI XSDT/MADT → LAPIC INIT-SIPI-SIPI → AP Trampoline (0x9000) → SMP Rendezvous</td>
-            <td>LAPIC MMIO <code>0xFEE00000</code>, ACPI 6.5 MADT, 64-bit Long Mode GDT/PML4</td>
-            <td><span class="app-badge teal">Complete (core_smp.c)</span></td>
-          </tr>
-          <tr>
-            <td><b>NEC PC-98 Series</b><br><small>i386 / i486 / Pentium / Pentium II</small></td>
-            <td>IPL (0x1FE0:0000) → INT 1Ah RTC → Port 0xF2 A20 Gate → Planar Text VRAM → PM32</td>
-            <td>Text VRAM <code>0xA0000/0xA2000</code>, NEC Port <code>0xF2</code>, GDC <code>0x60/0x62</code>, INT 2Fh
-            </td>
-            <td><span class="app-badge pink">Authentic PC-98 Stub</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ── Replaces / Normalises ─────────────────────────────────── -->
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
-      <table class="market-table">
-        <thead>
-          <tr>
-            <th>Legacy / Alternative System</th>
-            <th>Ski Bootloader Advantage</th>
-            <th>Target Audience</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Classic B-TRON Config Loader (static config file)</td>
-            <td>Dynamic graphical & ANSI menu, interactive cmdline editing, core affinity allocation</td>
-            <td rowspan="3">Embedded systems architects, BTRON kernel developers, retrocomputing enthusiasts (PC-98),
-              bare-metal ARM engineers</td>
-          </tr>
-          <tr>
-            <td>Haiku BootManager (x86-only, BeOS-specific)</td>
-            <td>Tri-platform architecture (ARM Pi 1–5, x86_64 UEFI SMP, PC-98) with BTRON TAD logging</td>
-          </tr>
-          <tr>
-            <td>GRUB2 / systemd-boot (Heavyweight POSIX stack)</td>
-            <td>Cleanroom standalone design, zero external SDK or EDK II dependency, microsecond boot latency</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ── Typical Workflow ──────────────────────────────────────── -->
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li><b>Firmware Handoff</b> — Within 50 ms of system power-on, Ski Bootloader activates the native display (GOP
-          on UEFI, VideoCore mailbox on Pi, planar VRAM on PC-98).</li>
-        <li><b>Interactive Selection</b> — The Ski menu presents available operating systems, unikernels, and hardware
-          targets. Use <code>[↑/↓]</code> or <code>[W/S]</code> to highlight an entry.</li>
-        <li><b>Fine-Tuning</b> — Press <code>[E]</code> to customize boot arguments (e.g., console baud rate, root
-          filesystem, memory limits). Press <code>[+]</code> or <code>[-]</code> to scale allocated CPU cores.</li>
-        <li><b>Execution & Rendezvous</b> — Press <code>[Enter]</code> to boot. On SMP systems, Ski coordinates all AP
-          cores via LAPIC SIPI sequences before leaping into the kernel entry point.</li>
-        <li><b>TAD Knowledge Archival</b> — Boot parameters, hardware discovery logs, and timestamps are recorded into a
-          persistent TAD Real Body for post-boot diagnostics.</li>
+        <li>Within 50 ms of system power-on, Ski Bootloader activates the native display (GOP on UEFI, VideoCore mailbox
+          on Pi, planar VRAM on PC-98).</li>
+        <li>The Ski menu presents available operating systems, unikernels, and hardware targets — use <code>[↑/↓]</code>
+          or <code>[W/S]</code> to highlight an entry.</li>
+        <li>Press <code>[E]</code> to customize boot arguments (e.g., console baud rate, root filesystem, memory limits)
+          or press <code>[+]</code>/<code>[-]</code> to scale allocated CPU cores.</li>
+        <li>Press <code>[Enter]</code> to boot — on SMP systems, Ski coordinates all AP cores via LAPIC SIPI sequences
+          before leaping into the kernel entry point.</li>
+        <li>Boot handoff completes and control transfers seamlessly to the selected operating system kernel and BTRON
+          workstation shell.</li>
       </ol>
     </div>
   </div>
-
   <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
@@ -236,7 +147,6 @@
     <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia &nbsp;·&nbsp; Ski
       Bootloader</div>
   </footer>
-
 </body>
 
 </html>
