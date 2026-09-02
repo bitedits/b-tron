@@ -637,11 +637,17 @@ all_results =
     end
   end)
 
-# Also compile root index.html if present
+# Also compile root index.html and releases.html if present
 root_index = "index.html"
 if File.exists?(root_index) do
   res = BtronTAD.Compiler.process_file(root_index, out_dir, "")
   IO.puts("  [COMPILED] index.html                       -> index.tad                        (#{res.elements_count} items, #{res.bin_bytes} bytes)")
+end
+
+root_releases = "releases.html"
+if File.exists?(root_releases) do
+  res = BtronTAD.Compiler.process_file(root_releases, out_dir, "")
+  IO.puts("  [COMPILED] releases.html                    -> releases.tad                     (#{res.elements_count} items, #{res.bin_bytes} bytes)")
 end
 
 total_bytes = Enum.sum(Enum.map(all_results, & &1.bin_bytes))
