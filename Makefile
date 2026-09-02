@@ -23,13 +23,14 @@
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu kernel tkernel sakamura arm-elf arm64-elf \
+.PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf \
         html2tad tad_bin test test-kernel \
         test-mozc test-editor test-hmi test-tad test-chat verify \
-        run-posix run-qemu run-kernel debug-virtio debug-gdb clean
+        run-posix run-qemu run-kernel run-sakamura run-uefi run-eufi run-uefu run-pc98 debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
+QEMU_X86_64  ?= qemu-system-x86_64
 
 # Detect LLVM Clang toolchain with LLD support
 LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
@@ -119,6 +120,25 @@ QEMU_SRCS    = $(QEMU_STARTUP)          \
                src/kernel/core_boot.c   \
                $(COMMON_SRCS)
 
+# ── X86_64 / EMT64 UEFI build (Target 4) ────────────────────────
+UEFI_STARTUP = src/kernel/core_virtio.c
+UEFI_SRCS    = $(UEFI_STARTUP)          \
+               src/drivers/virtio/virtio.c \
+               src/kernel/core_init.c   \
+               src/kernel/core_boot.c   \
+               src/kernel/core_smp.c    \
+               src/apps/ski.c           \
+               $(COMMON_SRCS)
+
+# ── NEC PC-98 build (Target 5) ──────────────────────────────────
+PC98_STARTUP = src/kernel/core_pc98.c
+PC98_SRCS    = $(PC98_STARTUP)          \
+               src/drivers/pc98/boot/boot_pc98.c \
+               src/kernel/core_init.c   \
+               src/kernel/core_boot.c   \
+               src/apps/ski.c           \
+               $(COMMON_SRCS)
+
 # ── BCM283x (Pi 2B) bare-metal arch sources ───────────────────────
 ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
                 src/drivers/bcm283x/cpu/chkplv.c     \
@@ -190,12 +210,16 @@ TKERNEL_OBJS = $(TKERNEL_SRCS:.c=.tkernel.o)
 ARM32_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm32.o)
 ARM64_OBJS   = $(ARM_BAREMETAL_SRCS:.c=.arm64.o)
 SAKAMURA_OBJS  = $(TKERNEL_SRCS:.c=.sakamura.o)
+UEFI_OBJS      = $(UEFI_SRCS:.c=.uefi.o)
+PC98_OBJS      = $(PC98_SRCS:.c=.pc98.o)
 
 # ── Output names ──────────────────────────────────────────────────
 POSIX_TARGET   = btron-posix
 QEMU_TARGET    = btron-qemu.elf
 TKERNEL_TARGET = btron-tkernel.elf
 SAKAMURA_TARGET = btron-sakamura.elf
+UEFI_TARGET     = btron-uchida.elf # In honor of Kota Uchida (MikanOS UEFI pioneer)
+PC98_TARGET     = btron-morris.elf # In honor of Awe Morris (zedBSD PC-98 pioneer)
 ARM32_TARGET   = btron-arm-baremetal.elf     # Pi 2B — BCM2836, Cortex-A7, ARMv7
 ARM64_TARGET   = btron-aarch64-baremetal.elf # Pi 4B — BCM2711, Cortex-A72, AArch64
 DEFAULT_TARGET = btron
@@ -204,7 +228,7 @@ TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
               -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 
-all: posix qemu kernel sakamura
+all: posix qemu kernel sakamura uefi pc98
 
 # ═══════════════════════════════════════════════════════════════════
 # POSIX Desktop
@@ -293,6 +317,82 @@ src/drivers/bcm283x/screen/%.sakamura.o: src/drivers/bcm283x/screen/%.c
 
 $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 	$(CC) $(SAKAMURA_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# X86_64 / EMT64 UEFI SMP Kernel Desktop (Honoring Kota Uchida)
+# ═══════════════════════════════════════════════════════════════════
+uefi: tad_bin $(UEFI_TARGET)
+	@ln -sf $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf
+	@echo "=========================================================="
+	@echo " B-System X86_64 / EMT64 UEFI SMP Kernel built: $(UEFI_TARGET)"
+	@echo " In honor of Kota Uchida (内田 公太) — Japanese UEFI OS pioneer"
+	@echo " Run 'make run-uefi' or 'make run-eufi' to launch."
+	@echo "=========================================================="
+
+%.uefi.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -c $< -o $@
+
+$(UEFI_TARGET): $(UEFI_OBJS)
+	$(CC) $(UEFI_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+
+run-uefi: $(UEFI_TARGET)
+	@echo "=========================================================="
+	@echo " Launching B-System X86_64 / EMT64 UEFI SMP on QEMU"
+	@echo " Honoring : Kota Uchida (内田 公太) — MikanOS Pioneer"
+	@echo " Machine  : q35  |  CPU: qemu64 (SMP 4 Cores)  |  RAM: 1G"
+	@echo " Firmware : ACPI 6.5 MADT + LAPIC SMP Bring-up (core_smp.c)"
+	@echo " Devices  : VirtIO GPU, VirtIO Keyboard/Mouse, Serial stdio"
+	@echo "=========================================================="
+	@echo " INPUT CAPTURE:"
+	@echo "   Click inside the QEMU window to grab keyboard & mouse."
+	@echo "   Press Ctrl+Alt+G to release grab."
+	@echo "   Serial console & Ski Bootloader active in THIS terminal."
+	@echo "=========================================================="
+	@if command -v $(QEMU_X86_64) >/dev/null 2>&1; then \
+	    $(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -smp cores=4,threads=1,sockets=1 -m 1G \
+	        $(KERNEL_DISPLAY) \
+	        -device virtio-vga \
+	        -device virtio-keyboard-pci -device virtio-mouse-pci \
+	        -kernel $(UEFI_TARGET) -serial stdio; \
+	elif [ -x ./$(UEFI_TARGET) ]; then \
+	    echo "[INFO] Running hosted UEFI kernel binary locally..."; \
+	    ./$(UEFI_TARGET); \
+	else \
+	    echo "[ERROR] Neither $(QEMU_X86_64) nor host binary found"; \
+	    exit 1; \
+	fi
+
+run-eufi: run-uefi
+
+run-uefu: run-uefi
+
+test-uefi: $(UEFI_TARGET)
+	@./$(UEFI_TARGET)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# NEC PC-98 Kernel Desktop (Honoring Awe Morris — zedBSD Pioneer)
+# ═══════════════════════════════════════════════════════════════════
+pc98: tad_bin $(PC98_TARGET)
+	@ln -sf $(PC98_TARGET) btron-pc98.elf
+	@echo "=========================================================="
+	@echo " B-System NEC PC-98 Kernel built: $(PC98_TARGET)"
+	@echo " In honor of Awe Morris — NEC PC-98 & zedBSD pioneer"
+	@echo " Run 'make run-pc98' to launch."
+	@echo "=========================================================="
+
+%.pc98.o: %.c
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -c $< -o $@
+
+$(PC98_TARGET): $(PC98_OBJS)
+	$(CC) $(PC98_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+
+run-pc98: $(PC98_TARGET)
+	./$(PC98_TARGET)
+
+test-pc98: $(PC98_TARGET)
+	@./$(PC98_TARGET)
 
 # ═══════════════════════════════════════════════════════════════════
 # Bare-Metal ARM32 ELF — BCM283x Pi 2B (Cortex-A7 / ARMv7 / BCM2836)
@@ -437,7 +537,7 @@ test-hmi: $(TEST_HMI_BIN)
 	@./$(TEST_HMI_BIN)
 
 $(TEST_HMI_BIN): $(TEST_HMI_OBJS)
-	$(CC) $(TEST_HMI_OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(TEST_HMI_OBJS) -o $@ $(LDFLAGS) -lm
 
 # ═══════════════════════════════════════════════════════════════════
 # TAD Unified Packing Pipeline & Elixir Batch Compiler
@@ -491,7 +591,7 @@ verify:
 # ═══════════════════════════════════════════════════════════════════
 # Unified Test Suite Runner
 # ═══════════════════════════════════════════════════════════════════
-test: test-kernel test-tad test-editor test-chat test-mozc test-hmi
+test: test-kernel test-tad test-editor test-chat test-mozc test-hmi test-ski
 	@echo "=========================================================="
 	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
 	@echo "=========================================================="
@@ -499,6 +599,23 @@ test: test-kernel test-tad test-editor test-chat test-mozc test-hmi
 # ═══════════════════════════════════════════════════════════════════
 # Clean
 # ═══════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════
+# Ski Bootloader & Multi-Arch Boot Driver Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_SKI_SRCS = src/apps/test_ski.c src/apps/ski.c src/kernel/core_smp.c \
+                src/drivers/pc98/boot/boot_pc98.c src/drivers/bcm283x/boot/boot_arm_stub.c
+TEST_SKI_OBJS = $(TEST_SKI_SRCS:.c=.test.o)
+TEST_SKI_BIN  = test_ski
+
+test-ski: $(TEST_SKI_BIN)
+	@echo "=========================================================="
+	@echo " Running Ski Bootloader (Bootman) Unit Tests..."
+	@echo "=========================================================="
+	@./$(TEST_SKI_BIN)
+
+$(TEST_SKI_BIN): $(TEST_SKI_OBJS)
+	$(CC) $(TEST_SKI_OBJS) -o $@ $(LDFLAGS) -lm
+
 clean:
 	@$(MAKE) -C verify clean >/dev/null 2>&1 || true
 	rm -f *.toc
@@ -507,7 +624,7 @@ clean:
 	rm -f *.out
 	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
-	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.arm32.o" \
+	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

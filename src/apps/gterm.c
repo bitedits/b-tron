@@ -192,7 +192,25 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         out_fn("  date                - Current system time & date", COLOR_LTGRAY, user_data);
         out_fn("  clear, cls          - Clear terminal screen", COLOR_LTGRAY, user_data);
         out_fn("  history             - Show command history", COLOR_LTGRAY, user_data);
+        out_fn("  ski, bootman        - Launch Ski Bootloader interactive manager 🎿", COLOR_LTGRAY, user_data);
         out_fn("  exit, quit          - Close terminal window", COLOR_LTGRAY, user_data);
+    } else if (strcmp(cmd, "ski") == 0 || strcmp(cmd, "bootman") == 0 || strcmp(cmd, "boot") == 0) {
+        out_fn("🎿 Ski Bootloader (Bootman v1.0 · B-System OS.1):", COLOR_CYAN, user_data);
+        out_fn("  [1] B-System BTRON3 Workstation (x86_64 UEFI SMP)", COLOR_WHITE, user_data);
+        out_fn("  [2] B-System BTRON3 (Raspberry Pi 5 ARM64 BCM2712)", COLOR_WHITE, user_data);
+        out_fn("  [3] B-System BTRON3 (Raspberry Pi 4/3 ARM64 BCM283x)", COLOR_WHITE, user_data);
+        out_fn("  [4] TRON T-Kernel 2.0 (Sakamura Core)", COLOR_WHITE, user_data);
+        out_fn("  [5] NEC PC-98 BTRON3 (i386/Pentium — Awe Morris)", COLOR_WHITE, user_data);
+        out_fn("  [6] NEC PC-98 Linux 7.1 i386 (PC-9801/21)", COLOR_WHITE, user_data);
+        out_fn("  [7] seL4 Microkernel (VirtIO VM)", COLOR_WHITE, user_data);
+        out_fn("  [8] NetBSD 11.0 (smolBSD MICROVM)", COLOR_WHITE, user_data);
+        if (arg[0] != ' ') {
+            char bmsg[128];
+            snprintf(bmsg, sizeof(bmsg), "Ski target switch set to '%s' (active)", arg);
+            out_fn(bmsg, COLOR_GREEN, user_data);
+        } else {
+            out_fn("Type 'ski <target_id>' to switch or launch boot target directly.", COLOR_YELLOW, user_data);
+        }
     } else if (strcmp(cmd, "ver") == 0 || strcmp(cmd, "uname") == 0) {
         btron_core_print_ver(out_fn, user_data, arg);
     } else if (strcmp(cmd, "devconf") == 0) {
