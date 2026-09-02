@@ -288,8 +288,8 @@
                 <div class="stat-label">対応カーネル<br><small style="font-size:0.72rem; font-weight:500;">Hardware Targets</small></div>
             </div>
             <div class="stat-card">
-                <div class="stat-num">60 / 60</div>
-                <div class="stat-label">適合性合格率 100%<br><small style="font-size:0.72rem; font-weight:500;">Audit Tests Passed</small></div>
+                <div class="stat-num">90%</div>
+                <div class="stat-label">適合性合格率<br><small style="font-size:0.72rem; font-weight:500;">Audit Tests Passed</small></div>
             </div>
         </div>
 
@@ -319,7 +319,7 @@
                     <li><strong>Mozc TIPネイティブ日本語入力環境：</strong> Google Mozcのかな漢字変換エンジン（<code>mozc_kkc.c</code>）およびTIP（Text Input Primitives / IFE）を内蔵し、F10キーによる英数・ひらがな・カタカナ変換をサポート。</li>
                     <li><strong>14種のコンシューマアプリ＆8種の設定パネル：</strong> ワークベンチ、端末（<code>gterm</code>）、コマンダー、電卓、時計、環境設定、ブートマネージャ（🎿）、T-Editor、Clarity、Living Book、ブラウザ、メール＆チャット（XMPP）、MediaPulse、ペイント、音楽の全14アプリを完備。</li>
                     <li><strong>4大公式TAD電子書籍を標準同梱：</strong> BTRON3仕様書、T-Kernel 2.0、B-Free OS（1994年）、B-System（2026年）の全4冊を同梱。Elixirバッチコンパイラ（<code>html2tad.exs</code>）により106仕様文書からバイナリTAD（<code>.tad</code>）を自動生成。</li>
-                    <li><strong>適合性テスト100%合格：</strong> 60個すべてのテスト可能システムコールおよび基本プリミティブが自動検証スイートで完全通過。モックを排した実ハードウェア挙動を証明。</li>
+                    <li><strong>適合性テスト90%合格：</strong> 370項目（全410検証項目中90.2%）の仕様要件およびシステムコールが自動検証スイートで完全通過。未実装サブシステムはE_NOSPTを誠実に返し、仕様境界を明示。</li>
                 </ul>
             </div>
 
@@ -421,7 +421,7 @@ $ make verify</pre>
                     <span class="phase-meta">Session 18 · 実動約6.9時間 · +6,756 / -536 lines</span>
                 </div>
                 <p style="color: #4a3560; line-height: 1.7;">
-                    BTRON 3.20仕様への厳密な準拠を証明する公式認証スイート（<code>CERTIFICATION.md</code>、<code>conformance.html</code>）を策定。自動テスト実行バイナリ（<code>verify/btron_verify.c</code>）により全60個のテスト可能プリミティブの100%合格を証明。
+                    BTRON 3.20仕様への厳密な準拠を証明する公式認証スイート（<code>CERTIFICATION.md</code>、<code>conformance.html</code>）を策定。自動テスト実行バイナリ（<code>verify/btron_verify.c</code>）により全410項目中370項目（90.2%）の機能合格を証明。
                     同時に、Raspberry Pi 2B実機ベアメタルのUSBキーボードおよびマウスHIDスタック（<code>test_tkernel.sh</code>）を組み上げ、物理ハードウェアでの確実な対話操作を保証しました。
                 </p>
             </div>
