@@ -14,7 +14,9 @@ extern "C" {
 #endif
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
+#endif
 #define uart_puts(s) printf("%s", (s))
 #else
 void uart_puts(const char *s);

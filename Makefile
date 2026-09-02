@@ -125,6 +125,8 @@ UEFI_STARTUP = src/kernel/core_smp.c
 UEFI_SRCS    = $(UEFI_STARTUP)          \
                src/kernel/core_init.c   \
                src/kernel/core_boot.c   \
+               src/kernel/libstr.c      \
+               src/drivers/vesa/vesa.c  \
                src/apps/ski.c           \
                $(COMMON_SRCS)
 
@@ -134,6 +136,8 @@ PC98_SRCS    = $(PC98_STARTUP)          \
                src/drivers/pc98/boot/boot_pc98.c \
                src/kernel/core_init.c   \
                src/kernel/core_boot.c   \
+               src/kernel/libstr.c      \
+               src/drivers/vesa/vesa.c  \
                src/apps/ski.c           \
                $(COMMON_SRCS)
 
@@ -322,6 +326,28 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 UEFI_LD := src/kernel/uefi_qemu.ld
 
+UEFI_FREESTANDING_SRCS = src/kernel/core_boot.c \
+                         src/kernel/core_smp.c \
+                         src/kernel/core_init.c \
+                         src/kernel/libstr.c \
+                         src/drivers/vesa/vesa.c \
+                         src/graphics/dp_core.c \
+                         src/font/troncode.c \
+                         src/font/jis_fonts.c \
+                         src/window/wnd.c \
+                         src/window/event.c \
+                         src/vobject/vobj.c \
+                         src/desktop/desktop.c \
+                         src/apps/gterm.c \
+                         src/apps/t_editor.c \
+                         src/apps/vobj_manager.c \
+                         src/apps/tad_browser.c \
+                         src/apps/ski.c \
+                         src/tip/mozc_kkc.c \
+                         src/tip/tip_ife.c \
+                         src/tip/tip_task.c \
+                         src/tip/tip_vobj.c
+
 uefi: tad_bin $(UEFI_TARGET)
 	@ln -sf $(UEFI_TARGET) btron-uefi.elf
 	@echo "=========================================================="
@@ -330,8 +356,8 @@ uefi: tad_bin $(UEFI_TARGET)
 	@echo " Run 'make run-uefi' or 'make run-eufi' to launch on QEMU."
 	@echo "=========================================================="
 
-$(UEFI_TARGET): $(UEFI_LD) src/kernel/core_boot.c
-	$(CC) -m32 -ffreestanding -nostdlib -Iinclude -Isrc/kernel -T $(UEFI_LD) src/kernel/core_boot.c -o $@
+$(UEFI_TARGET): $(UEFI_LD) $(UEFI_FREESTANDING_SRCS)
+	$(CC) -m32 -ffreestanding -nostdlib -O2 -Wall -Wextra -std=c99 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel -T $(UEFI_LD) $(UEFI_FREESTANDING_SRCS) -o $@
 
 run-uefi: $(UEFI_TARGET)
 	@echo "=========================================================="
@@ -339,12 +365,8 @@ run-uefi: $(UEFI_TARGET)
 	@echo " Honoring : Kota Uchida (内田 公太) — MikanOS Pioneer"
 	@echo " Machine  : q35  |  CPU: qemu64 (SMP 4 Cores)  |  RAM: 1G"
 	@echo " Firmware : ACPI 6.5 MADT + LAPIC SMP Bring-up (core_smp.c)"
-	@echo " Devices  : VirtIO GPU, VirtIO Keyboard/Mouse, Serial stdio"
-	@echo "=========================================================="
-	@echo " INPUT CAPTURE:"
-	@echo "   Click inside the QEMU window to grab keyboard & mouse."
-	@echo "   Press Ctrl+Alt+G to release grab."
-	@echo "   Serial console & Ski Bootloader active in THIS terminal."
+	@echo " Graphics : VESA VBE 1024x768 32-bpp Linear Framebuffer"
+	@echo " Desktop  : desktop.c · wnd.c · gterm.c · Mozc IME"
 	@echo "=========================================================="
 	$(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -smp cores=4,threads=1,sockets=1 -m 1G \
 	    $(KERNEL_DISPLAY) \
@@ -357,11 +379,7 @@ run-eufi: run-uefi
 run-uefu: run-uefi
 
 test-uefi: $(UEFI_TARGET)
-	@echo "[TEST-UEFI] Validating QEMU Multiboot ELF Header..."
-	@file $(UEFI_TARGET) | grep -q "ELF" && echo "  [PASS] btron-uchida.elf is valid QEMU Multiboot ELF"
-
-
-
+	@./$(UEFI_TARGET)
 # ═══════════════════════════════════════════════════════════════════
 # NEC PC-98 Kernel Desktop (Honoring Awe Morris — zedBSD Pioneer)
 # ═══════════════════════════════════════════════════════════════════

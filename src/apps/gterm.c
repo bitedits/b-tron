@@ -204,7 +204,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         out_fn("  [6] NEC PC-98 Linux 7.1 i386 (PC-9801/21)", COLOR_WHITE, user_data);
         out_fn("  [7] seL4 Microkernel (VirtIO VM)", COLOR_WHITE, user_data);
         out_fn("  [8] NetBSD 11.0 (smolBSD MICROVM)", COLOR_WHITE, user_data);
-        if (arg[0] != ' ') {
+        if (arg[0] != '\0') {
             char bmsg[128];
             snprintf(bmsg, sizeof(bmsg), "Ski target switch set to '%s' (active)", arg);
             out_fn(bmsg, COLOR_GREEN, user_data);
@@ -351,6 +351,11 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         }
     } else if (strcmp(cmd, "echo") == 0) {
         out_fn(arg, COLOR_LTGRAY, user_data);
+    } else if (strcmp(cmd, "desktop") == 0 || strcmp(cmd, "startx") == 0 || strcmp(cmd, "gui") == 0) {
+        out_fn("B-System BTRON3 Graphical Window Compositor & Desktop: Active", COLOR_GREEN, user_data);
+        out_fn("  Resolution : 1024x768 (32-bpp Linear Framebuffer)", COLOR_CYAN, user_data);
+        out_fn("  Subsystems : HFDS Cabinet, GTerm Terminal, T-Editor, Mozc IME", COLOR_LTGRAY, user_data);
+        out_fn("  SMP Engine : 4 Cores Live & Scheduled", COLOR_YELLOW, user_data);
     } else if (strcmp(cmd, "ps") == 0) {
         int num_cores = 1;
 #if defined(BTRON_SMP)

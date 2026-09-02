@@ -14,12 +14,15 @@
  * Copyright 2026 Synrc Research Center. MIT License.
  */
 
+#include <stdint.h>
+#include <stddef.h>
+#include <basic.h>
+#include <libstr.h>
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-
-#if defined(__unix__) || defined(__APPLE__) || (defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1)
 #include <unistd.h>
 #include <termios.h>
 #define SKI_HAS_TERMIOS 1
@@ -107,18 +110,24 @@ static int ski_strlen(const char *str) {
     return len;
 }
 
+extern void uart_puts_raw(const char *str) __attribute__((weak));
+
 static void ski_print(const char *str) {
     if (!str) return;
 #if SKI_HAS_TERMIOS
     write(STDOUT_FILENO, str, ski_strlen(str));
 #else
-    printf("%s", str);
+    if (uart_puts_raw) uart_puts_raw(str);
 #endif
 }
 
 static void ski_print_int(int num) {
     char buf[16];
+#if SKI_HAS_TERMIOS
     snprintf(buf, sizeof(buf), "%d", num);
+#else
+    tkl_snprintf(buf, sizeof(buf), "%d", num);
+#endif
     ski_print(buf);
 }
 

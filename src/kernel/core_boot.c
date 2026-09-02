@@ -1,11 +1,13 @@
 /*
  * core_boot.c — Multiboot 1 & QEMU Direct Kernel Boot Loader Entry
- * Full interactive PS/2 Keyboard (Port 0x60) & Serial UART (COM1 0x3F8) engine.
- * Boots Ski Bootloader and hands off to the interactive BTRON3 UEFI SMP Shell & Desktop.
+ * Full interactive PS/2 Keyboard & UART Serial engine.
+ * Includes VGA 80x25 text mode engine (0xB8000) and VESA VBE 1024x768 32-bpp driver for 'startx'/'desktop'.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <drivers/vesa.h>
+#include <libstr.h>
 
 #define MULTIBOOT_HEADER_MAGIC 0x1BADB002
 #define MULTIBOOT_HEADER_FLAGS 0x00000003
@@ -50,7 +52,7 @@ static void uart_putc(char c) {
     outb(COM1_PORT, (uint8_t)c);
 }
 
-static void uart_puts(const char *str) {
+void uart_puts_raw(const char *str) {
     while (*str) {
         if (*str == '\n') uart_putc('\r');
         uart_putc(*str++);
@@ -67,7 +69,7 @@ static char uart_getc(void) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * PS/2 Keyboard Controller (I/O Port 0x60 / 0x64)
+ * PS/2 Keyboard Controller
  * ═══════════════════════════════════════════════════════════════════ */
 
 static int ps2_has_key(void) {
@@ -80,7 +82,7 @@ static uint8_t ps2_get_scancode(void) {
 }
 
 static char ps2_scancode_to_ascii(uint8_t sc, int shift) {
-    if (sc & 0x80) return 0; /* Key release */
+    if (sc & 0x80) return 0;
     switch (sc) {
         case 0x1E: return shift ? 'A' : 'a';
         case 0x30: return shift ? 'B' : 'b';
@@ -123,8 +125,7 @@ static char ps2_scancode_to_ascii(uint8_t sc, int shift) {
         case 0x39: return ' ';
         case 0x1C: return '\n';
         case 0x0E: return '\b';
-        case 0x35: return shift ? '?' : '/';
-        case 0x34: return shift ? '>' : '.';
+        case 0x01: return 0x1B; /* ESC */
         default: return 0;
     }
 }
@@ -185,13 +186,6 @@ static void vga_putc(char c) {
             vga_cursor_x--;
             VGA_VRAM[vga_cursor_y * VGA_COLS + vga_cursor_x] = (uint16_t)(' ') | ((uint16_t)vga_attr << 8);
         }
-    } else if (c == '\t') {
-        vga_cursor_x = (vga_cursor_x + 8) & ~7;
-        if (vga_cursor_x >= VGA_COLS) {
-            vga_cursor_x = 0;
-            vga_cursor_y++;
-            vga_scroll();
-        }
     } else {
         VGA_VRAM[vga_cursor_y * VGA_COLS + vga_cursor_x] = (uint16_t)(uint8_t)c | ((uint16_t)vga_attr << 8);
         vga_cursor_x++;
@@ -223,7 +217,7 @@ static void vga_print_at(int x, int y, const char *str, uint8_t attr) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Ski Bootloader Target List
+ * Ski Bootloader
  * ═══════════════════════════════════════════════════════════════════ */
 
 typedef struct {
@@ -242,7 +236,7 @@ static int s_selected = 0;
 static int s_boot_triggered = 0;
 
 static void render_ski_menu(void) {
-    vga_clear(0x1F); /* Deep blue TRON background */
+    vga_clear(0x1F);
 
     vga_print_at(0, 0, "================================================================================", 0x1E);
     vga_print_at(2, 1, "🎿 Ski Bootloader — Multi-OS Boot Manager (B-System BTRON3 / SMP)", 0x1F);
@@ -308,7 +302,7 @@ static void uart_send_menu_update(void) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Interactive BTRON3 Terminal Shell & Desktop Compositor
+ * BTRON3 Terminal Shell & Graphical Desktop ('startx' / 'desktop')
  * ═══════════════════════════════════════════════════════════════════ */
 
 static int strcmp_k(const char *a, const char *b) {
@@ -316,10 +310,9 @@ static int strcmp_k(const char *a, const char *b) {
     return *(const unsigned char*)a - *(const unsigned char*)b;
 }
 
-static void render_btron_desktop(int active_cores) {
-    vga_clear(0x07); /* Standard workspace background */
+static void render_btron_text_desktop(int active_cores) {
+    vga_clear(0x07);
 
-    /* Top Menu Bar */
     for (int x = 0; x < VGA_COLS; x++) {
         VGA_VRAM[x] = (uint16_t)(' ') | ((uint16_t)0x70 << 8);
     }
@@ -330,7 +323,6 @@ static void render_btron_desktop(int active_cores) {
     core_str[6] = ' '; core_str[7] = 'C'; core_str[8] = 'o'; core_str[9] = 'r'; core_str[10] = 'e'; core_str[11] = 's'; core_str[12] = '\0';
     vga_print_at(64, 0, core_str, 0x70);
 
-    /* Bottom Taskbar */
     for (int x = 0; x < VGA_COLS; x++) {
         VGA_VRAM[(VGA_ROWS - 1) * VGA_COLS + x] = (uint16_t)(' ') | ((uint16_t)0x70 << 8);
     }
@@ -341,13 +333,58 @@ static void render_btron_desktop(int active_cores) {
     vga_update_cursor();
 }
 
+static void launch_vesa_desktop_session(int active_cores) {
+    kprint("\n[VESA] Initializing 1024x768x32 Linear Framebuffer...\n", 0x0E);
+    vesa_init(1024, 768, 32);
+    vesa_render_desktop(active_cores);
+
+    uart_puts_raw("\n==========================================================\n");
+    uart_puts_raw(" [GUI] VESA VBE 1024x768 32-bpp Desktop Active!\n");
+    uart_puts_raw("       • Window 1: HFDS Cabinet Explorer (HyperData Store)\n");
+    uart_puts_raw("       • Window 2: GTerm Interactive Shell (4 Cores Scheduled)\n");
+    uart_puts_raw("       • Window 3: T-Editor Release Notes\n");
+    uart_puts_raw(" Controls: Press [Esc] or [Q] in window/terminal to return to shell.\n");
+    uart_puts_raw("==========================================================\n\n");
+
+    uint8_t prev_sc = 0;
+    for (;;) {
+        if (ps2_has_key()) {
+            uint8_t sc = ps2_get_scancode();
+            if (sc != prev_sc) {
+                prev_sc = sc;
+                if (sc == 0x01 || sc == 0x10) { /* Esc or Q */
+                    break;
+                }
+            }
+        } else {
+            prev_sc = 0;
+        }
+
+        if (uart_has_char()) {
+            char uc = uart_getc();
+            if (uc == 0x1B || uc == 'q' || uc == 'Q' || uc == 0x03) { /* ESC, 'q', or Ctrl+C */
+                break;
+            }
+        }
+
+        for (volatile int d = 0; d < 5000; d++) {
+            __asm__ volatile("pause");
+        }
+    }
+
+    vesa_restore_text();
+    render_btron_text_desktop(active_cores);
+    kprint("\n[GUI] Returned from VESA Graphical Desktop to Console Shell.\n\n", 0x0A);
+}
+
 static void run_btron_shell(int active_cores) {
-    render_btron_desktop(active_cores);
+    render_btron_text_desktop(active_cores);
 
     kprint("\n==========================================================\n", 0x0A);
     kprint(" BTRON3 3.20 UEFI Workstation Kernel (Kota Uchida Engine)\n", 0x0A);
     kprint(" SMP Multi-Core Scheduler Active — 4 Cores Live\n", 0x0E);
-    kprint(" Type 'help', 'ps', 'mem', 'ski', or 'clear' to execute.\n", 0x0B);
+    kprint(" Type 'desktop' or 'startx' to launch VESA 1024x768 GUI!\n", 0x0B);
+    kprint(" Commands: ps, mem, ski, ver, desktop, startx, clear\n", 0x07);
     kprint("==========================================================\n\n", 0x0A);
 
     kprint("btron3# ", 0x0F);
@@ -360,7 +397,6 @@ static void run_btron_shell(int active_cores) {
     for (;;) {
         char ch = 0;
 
-        /* Check PS/2 Keyboard */
         if (ps2_has_key()) {
             uint8_t sc = ps2_get_scancode();
             if (sc != prev_sc) {
@@ -375,7 +411,6 @@ static void run_btron_shell(int active_cores) {
             prev_sc = 0;
         }
 
-        /* Check UART COM1 */
         if (!ch && uart_has_char()) {
             ch = uart_getc();
             if (ch == '\r') ch = '\n';
@@ -388,11 +423,14 @@ static void run_btron_shell(int active_cores) {
 
                 if (strcmp_k(cmd_buf, "help") == 0) {
                     kprint("B-System BTRON3 Available Commands:\n", 0x0B);
-                    kprint("  ps      - List running tasks with CORE # column\n", 0x07);
-                    kprint("  mem     - Show T-Kernel 2.0 heap memory statistics\n", 0x07);
-                    kprint("  ski     - Show Ski Bootloader targets\n", 0x07);
-                    kprint("  ver     - Display kernel version & SMP APIC info\n", 0x07);
-                    kprint("  clear   - Clear terminal screen\n", 0x07);
+                    kprint("  desktop / startx - Launch full VESA 1024x768 32-bpp GUI\n", 0x0E);
+                    kprint("  ps               - List running tasks with CORE # column\n", 0x07);
+                    kprint("  mem              - Show T-Kernel 2.0 heap memory statistics\n", 0x07);
+                    kprint("  ski              - Show Ski Bootloader targets\n", 0x07);
+                    kprint("  ver              - Display kernel version & SMP APIC info\n", 0x07);
+                    kprint("  clear            - Clear terminal screen\n", 0x07);
+                } else if (strcmp_k(cmd_buf, "desktop") == 0 || strcmp_k(cmd_buf, "startx") == 0 || strcmp_k(cmd_buf, "gui") == 0) {
+                    launch_vesa_desktop_session(active_cores);
                 } else if (strcmp_k(cmd_buf, "ps") == 0) {
                     kprint("PID   CORE  TASK           STAT   ADDR         BOUNDS    TITLE\n", 0x0B);
                     kprint("-------------------------------------------------------------------------\n", 0x08);
@@ -412,9 +450,10 @@ static void run_btron_shell(int active_cores) {
                     kprint("  [3] NEC PC-9801 / PC-9821 VM (Awe Morris Kernel)\n", 0x07);
                 } else if (strcmp_k(cmd_buf, "ver") == 0) {
                     kprint("B-System BTRON3 3.20 (x86_64 UEFI SMP — Kota Uchida Engine)\n", 0x0A);
+                    kprint("  Graphics: VESA VBE 2.0/3.0 Linear Framebuffer (1024x768x32)\n", 0x0E);
                     kprint("  Subsystem: ACPI 6.5 MADT, LAPIC 0xFEE00000, IO-APIC 0xFEC00000\n", 0x07);
                 } else if (strcmp_k(cmd_buf, "clear") == 0) {
-                    render_btron_desktop(active_cores);
+                    render_btron_text_desktop(active_cores);
                 } else if (cmd_len > 0) {
                     kprint("Unknown command: ", 0x0C);
                     kprint(cmd_buf, 0x0C);
@@ -441,14 +480,16 @@ static void run_btron_shell(int active_cores) {
     }
 }
 
-void _start(void) {
+static uint8_t s_boot_stack[32768] __attribute__((aligned(16)));
+
+void kernel_main(void) {
     uart_init();
     render_ski_menu();
 
-    uart_puts("\n==========================================================\n");
-    uart_puts(" 🎿 Ski Bootloader Active — Multi-OS Boot Manager\n");
-    uart_puts(" Controls: [W/S] or [Up/Down] Navigate, [+/-] Cores, [Enter] Boot\n");
-    uart_puts("==========================================================\n");
+    uart_puts_raw("\n==========================================================\n");
+    uart_puts_raw(" 🎿 Ski Bootloader Active — Multi-OS Boot Manager\n");
+    uart_puts_raw(" Controls: [W/S] or [Up/Down] Navigate, [+/-] Cores, [Enter] Boot\n");
+    uart_puts_raw("==========================================================\n");
     uart_send_menu_update();
 
     uint8_t prev_scancode = 0;
@@ -456,7 +497,6 @@ void _start(void) {
     while (!s_boot_triggered) {
         int state_changed = 0;
 
-        /* 1. Check PS/2 Keyboard Input */
         if (ps2_has_key()) {
             uint8_t sc = ps2_get_scancode();
             if (sc != prev_scancode) {
@@ -481,7 +521,6 @@ void _start(void) {
             prev_scancode = 0;
         }
 
-        /* 2. Check UART COM1 Input */
         if (uart_has_char()) {
             char uc = uart_getc();
             if (uc == 'w' || uc == 'W' || uc == 'k') {
@@ -518,8 +557,16 @@ void _start(void) {
         }
     }
 
-    /* Boot Handoff directly into BTRON3 Kernel Desktop & Shell */
     run_btron_shell(s_targets[s_selected].cores);
+}
+
+void _start(void) {
+    __asm__ volatile(
+        "movl %0, %%esp\n"
+        "call kernel_main\n"
+        :
+        : "r"(s_boot_stack + sizeof(s_boot_stack))
+    );
 }
 
 void multiboot_main(void) {

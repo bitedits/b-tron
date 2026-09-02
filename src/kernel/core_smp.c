@@ -1,46 +1,29 @@
 /*
  * core_smp.c — B-System x86_64 UEFI SMP Kernel Core Engine
- *
- * Dedicated in honor of Kota Uchida (内田 公太, author of MikanOS and
- * pioneering Japanese x86_64 UEFI OS development).
- *
- * Implements:
- *   • ACPI 6.5 MADT (Multiple APIC Description Table) parsing
- *   • Local APIC (MMIO 0xFEE00000) & IO-APIC (0xFEC00000) initialization
- *   • 16-bit AP trampoline at 0x9000 with INIT-SIPI-SIPI multi-core rendezvous
- *   • µITRON 3.0 / T-Kernel SMP multi-task & semaphore scheduling
- *   • Version and hardware discovery telemetry
- *
- * Copyright 2026 Synrc Research Center. MIT License.
+ * Dedicated in honor of Kota Uchida (内田 公太, author of MikanOS).
  */
 
-#define _DEFAULT_SOURCE 1
 #include <stdint.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <btron/types.h>
 #include <btron/itron.h>
 #include <btron/core.h>
-#include <btron/types.h>
 #include <btron/smp.h>
+#include <libstr.h>
 
-#if defined(__unix__) || defined(__APPLE__) || (defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1)
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <stdio.h>
 #define SMP_HOSTED 1
 #else
 #define SMP_HOSTED 0
 #endif
 
-/* ═══════════════════════════════════════════════════════════════════
- * Global SMP Topology & State
- * ═══════════════════════════════════════════════════════════════════ */
-
 volatile uint32_t  g_cpu_ready[BTRON_SMP_MAX_CPUS];
 btron_cpu_entry_t  g_cpu_topology[BTRON_SMP_MAX_CPUS];
-volatile uint32_t  g_num_cpus   = 4; /* Default 4 SMP cores for x86_64 UEFI */
+volatile uint32_t  g_num_cpus   = 4;
 volatile uint32_t  g_cpus_online = 4;
 
 static uint8_t g_ap_stacks[BTRON_SMP_MAX_CPUS][BTRON_SMP_AP_STACK_SIZE]
@@ -60,47 +43,12 @@ static inline void btron_smp_mfence(void) {
 #endif
 }
 
-static inline uint32_t lapic_read(uint32_t off) {
-    if (!s_lapic) return 0;
-    return s_lapic[off >> 2];
-}
-
-static inline void lapic_write(uint32_t off, uint32_t val) {
-    if (!s_lapic) return;
-    s_lapic[off >> 2] = val;
-    (void)s_lapic[LAPIC_TPR >> 2];
-}
-
-static inline uint8_t lapic_local_id(void) {
-    return 0;
-}
-
-static inline void lapic_clear_errors(void) {
-    lapic_write(LAPIC_ERROR_STATUS, 0);
-}
-
-static void lapic_wait_icr_idle(void) {
-    uint32_t limit = 1000000U;
-    while ((lapic_read(LAPIC_ICR_LO) & LAPIC_PENDING) && limit--)
-        btron_smp_pause();
-}
-
-static int btron_smp_map_lapic(uint64_t phys_base) {
-    s_lapic = (volatile uint32_t *)(uintptr_t)phys_base;
-    return 0;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * ACPI 6.5 MADT Parser
- * ═══════════════════════════════════════════════════════════════════ */
-
 int btron_smp_parse_madt(const void *rsdp_ptr) {
     (void)rsdp_ptr;
-    /* Enumerate 4 standard Local APICs for modern x86_64 SMP */
     g_num_cpus = 4;
     for (uint32_t i = 0; i < g_num_cpus; i++) {
         g_cpu_topology[i].apic_id = (uint8_t)i;
-        g_cpu_topology[i].apic_version = 0x14; /* Integrated Local APIC */
+        g_cpu_topology[i].apic_version = 0x14;
         g_cpu_topology[i].online = 1;
         g_cpu_topology[i].is_bsp = (i == 0) ? 1 : 0;
         g_cpu_topology[i].stack_top = g_ap_stacks[i] + BTRON_SMP_AP_STACK_SIZE;
@@ -144,10 +92,6 @@ void btron_smp_ap_entry(uint32_t cpu_idx) {
     btron_smp_mfence();
 }
 
-/* ═══════════════════════════════════════════════════════════════════
- * µITRON 3.0 / T-Kernel SMP Multi-Task & Semaphore Management
- * ═══════════════════════════════════════════════════════════════════ */
-
 #define MAX_SMP_TASKS 64
 #define MAX_SMP_SEMS  64
 
@@ -180,7 +124,6 @@ static SMP_SEM  s_smp_sems[MAX_SMP_SEMS];
 
 #if SMP_HOSTED
 static pthread_mutex_t s_smp_kernel_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 static void* smp_task_trampoline(void *arg) {
     SMP_TASK *t = (SMP_TASK*)arg;
@@ -189,6 +132,7 @@ static void* smp_task_trampoline(void *arg) {
     }
     return NULL;
 }
+#endif
 
 ID cre_tsk(const T_CTSK *pk_ctsk) {
     if (!pk_ctsk) return E_PAR;
@@ -376,34 +320,10 @@ void dly_tsk(W dlytim) {
 #endif
 }
 
-/* ═══════════════════════════════════════════════════════════════════
- * Kernel Initializer & Version Telemetry
- * ═══════════════════════════════════════════════════════════════════ */
-
 void btron_core_init(void) {
-    printf("\n==========================================================\n");
-    printf(" B-Kernel / ITRON RTOS Core (x86_64 UEFI SMP Mode)\n");
-    printf(" Honoring Kota Uchida (内田 公太) — MikanOS Pioneer\n");
-    printf(" Target Mode 4: BTRON_UEFI Active\n");
-    printf("==========================================================\n\n");
-
     btron_smp_parse_madt(NULL);
-    printf("[ACPI 6.5] MADT local APIC discovered: BSP Core 0 (LAPIC ID: 0x00)\n");
-    printf("[ACPI 6.5] MADT local APIC discovered: AP Core 1  (LAPIC ID: 0x01)\n");
-    printf("[ACPI 6.5] MADT local APIC discovered: AP Core 2  (LAPIC ID: 0x02)\n");
-    printf("[ACPI 6.5] MADT local APIC discovered: AP Core 3  (LAPIC ID: 0x03)\n");
-    printf("[IO-APIC]  Primary IO-APIC mapped at 0xFEC00000 (GSIV 0-23)\n");
-    printf("[LAPIC]    Base MMIO at 0xFEE00000, SVR enabled (Vector 0xFF)\n");
-    printf("[SMP INIT] 16-bit real-mode AP trampoline armed at 0x00009000\n");
-
     btron_smp_prepare_aps();
-    printf("[SMP SIPI] Sending INIT-SIPI-SIPI sequence to 3 Application Processors...\n");
-    int aps = btron_smp_boot_aps();
-    for (int i = 1; i <= aps; i++) {
-        printf("[SMP RENDEZVOUS] AP Core %d: Online (Stack 0x%08X, Ready signaled)\n",
-               i, (uint32_t)(uintptr_t)g_cpu_topology[i].stack_top);
-    }
-    printf("[SMP STATUS] %d CPU Cores online & scheduled across µITRON tasks.\n\n", 1 + aps);
+    btron_smp_boot_aps();
 }
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
