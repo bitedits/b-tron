@@ -68,7 +68,7 @@ ifeq ($(UNAME_S), Darwin)
     QEMU_DISPLAY        := -display cocoa,show-cursor=on,zoom-to-fit=on
     # For bare-metal run-kernel: drop show-cursor so QEMU grabs the mouse
     # Click the QEMU window to grab; press Ctrl+Alt+G to release.
-    KERNEL_DISPLAY      := -display cocoa
+    KERNEL_DISPLAY      := -display cocoa,zoom-to-fit=on
 else ifeq ($(UNAME_S), Linux)
     SDL_CFLAGS   := $(shell sdl2-config --cflags 2>/dev/null || pkg-config --cflags sdl2 2>/dev/null || echo "-I/usr/include/SDL2")
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") \
