@@ -263,11 +263,11 @@ extern void uart_puts_raw(const char *str);
 
 void btron_core_banner(void) {
 #if PC98_HOSTED
-    printf("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 / Ski Bootloader\n");
+    printf("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0\n");
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     printf("[BOOT] Machine: NEC PC-9801/PC-9821  ISA/EISA Planar  µITRON 3.0\n\n");
 #else
-    uart_puts_raw("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 / Ski Bootloader\r\n");
+    uart_puts_raw("B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0\r\n");
     uart_puts_raw("Copyright 2026 Synrc Research Center. MIT License.\r\n");
     uart_puts_raw("[BOOT] Machine: NEC PC-9801/PC-9821  ISA/EISA Planar  µITRON 3.0\r\n");
     uart_puts_raw("\r\n");

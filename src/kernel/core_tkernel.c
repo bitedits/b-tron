@@ -20,9 +20,9 @@ extern void tkernel_init_subsystems(int full_suite);
 
 void btron_core_banner(void) {
 #if BTRON_TARGET == 2
-    printf("B-System/BTRON3 3.20 (yokobayashi-tkernel) — Cleanroom TRON Kernel\n");
+    printf("B-System/BTRON3 3.20 (yokobayashi-tkernel) Takahiro Yokobayashi — T-Kernel 2.0\n");
 #else
-    printf("B-System/BTRON3 3.20 (sakamura-tkernel-virtio) — Cleanroom TRON Kernel\n");
+    printf("B-System/BTRON3 3.20 (sakamura-tkernel-virtio) Ken Sakamura — T-Kernel 2.0\n");
 #endif
     printf("Copyright 2026 Synrc Research Center. MIT License.\n");
     struct utsname un;
