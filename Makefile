@@ -363,8 +363,6 @@ run-uefi: $(UEFI_TARGET)
 
 run-eufi: run-uefi
 
-run-uefu: run-uefi
-
 test-uefi: $(UEFI_TARGET)
 	@./$(UEFI_TARGET)
 # ═══════════════════════════════════════════════════════════════════
@@ -444,8 +442,6 @@ $(ARM64_TARGET): $(ARM64_OBJS) $(BAREMETAL_LD)
 	@file $@
 
 # ═══════════════════════════════════════════════════════════════════
-# QEMU Pi 2B — test-tkernel
-#
 # Runs B-TRON on Raspberry Pi 2B (BCM2836, Cortex-A7, ARMv7 32-bit).
 # Supports both qemu-system-arm and qemu-system-aarch64.
 # ═══════════════════════════════════════════════════════════════════
@@ -621,7 +617,6 @@ test-chat: $(TEST_CHAT_BIN)
 
 $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 	$(CC) $(TEST_CHAT_OBJS) -o $@ $(LDFLAGS) -lz
-
 
 verify:
 	@$(MAKE) -C verify run

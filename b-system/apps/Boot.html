@@ -118,11 +118,11 @@
               <td><strong>Hiroshi Tokita</strong><br><small style="color: #6b4f7e;">VirtIO Driver Pioneer</small></td>
             </tr>
             <tr>
-              <td><br><span class="app-badge pink">arm-elf</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">(armv7-bcm2836-yoko)</small></td>
-              <td>ARMv7 Bare-Metal<br><small style="color: #6b4f7e;">Raspberry Pi 2B (BCM2836)</small></td>
+              <td><br><span class="app-badge pink">arm-elf</span><br><span class="app-badge" style="margin-top: 4px; font-size: 0.72rem;">kernel</span></td>
+              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">(armv7-bcm2836-yoko / tkernel-host)</small></td>
+              <td>ARMv7 Bare-Metal &amp; Host SDL2<br><small style="color: #6b4f7e;">Raspberry Pi 2B (BCM2836) / Host Testbed</small></td>
               <td>T-Kernel 2.0</td>
-              <td><strong>Takahiro Yokobayashi</strong><br><small style="color: #6b4f7e;">Baremetal Pi Port</small></td>
+              <td><strong>Takahiro Yokobayashi</strong><br><small style="color: #6b4f7e;">Baremetal Pi Port &amp; Host Engine</small></td>
             </tr>
             <tr>
               <td><br><span class="app-badge gold">sakamura</span></td>
@@ -173,9 +173,9 @@
           <em>Purpose:</em> Standardized hypervisor-agnostic cloud virtualization and portable testing.
           <em>Features:</em> Built around the paravirtualized VirtIO 1.4 specification on ARM Cortex-A7 (QEMU <code>virt</code>). Implements MMIO-based VirtIO GPU display drivers, VirtIO Tablet absolute pointer input, VirtIO Serial Console, and VirtIO Net network adapters, liberating the TRON desktop from proprietary SoC peripheral hardware locks.</li>
 
-        <li><strong>Target 2: Raspberry Pi 2B Bare-Metal ELF (<code>btron-arm-baremetal.elf</code> / <code>make run-kernel</code>)</strong> —
-          <em>Purpose:</em> Direct bare-metal real-time execution on 32-bit ARM silicon without any intermediate OS.
-          <em>Features:</em> Boots natively on Broadcom BCM2836 (Cortex-A7 quad-core). Directly configures the VideoCore IV GPU Mailbox property channel (Channel 8) for 32-bit truecolor linear framebuffer rendering, programs the ARM Generic Interrupt Controller (GIC), manages hardware MMU page tables, and interfaces with the PL011 and Mini-UART peripherals for deterministic real-time responsiveness.</li>
+        <li><strong>Target 2: Raspberry Pi 2B Bare-Metal &amp; Host Engine (<code>btron-arm-baremetal.elf</code> / <code>make run-kernel</code> &amp; <code>btron-tkernel.elf</code> / <code>make kernel</code>)</strong> —
+          <em>Purpose:</em> Direct bare-metal real-time execution on 32-bit ARM silicon without an intermediate OS, paired with an instant SDL2 host simulation testbed.
+          <em>Features:</em> The bare-metal ELF boots natively on Broadcom BCM2836 (Cortex-A7 quad-core), configuring the VideoCore IV GPU Mailbox property channel (Channel 8) for 32-bit truecolor linear framebuffer rendering, programming the ARM Generic Interrupt Controller (GIC), managing hardware MMU page tables, and interfacing with PL011 UART. The companion host executable (<code>btron-tkernel.elf</code>) maps the complete T-Kernel 2.0 task scheduler, semaphore, and mailbox primitives onto the host display compositor with pixel-accurate ARGB8888 rendering for rapid prototyping.</li>
 
         <li><strong>Target 3: Sakamura T-Kernel 2.0 Desktop (<code>btron-sakamura.elf</code> / <code>make run-sakamura</code>)</strong> —
           <em>Purpose:</em> The canonical reference workstation pairing Sakamura's formal T-Kernel 2.0 real-time kernel with the authentic BTRON3 Human-Machine Interface (HMI).
@@ -214,9 +214,9 @@
       </div>
 
       <div class="tagline-card">
-        <strong>Takahiro Yokobayashi (横林 貴広) — Targets 2 &amp; 6: <code>arm-elf</code> &amp; <code>arm64-elf</code></strong><br>
+        <strong>Takahiro Yokobayashi (横林 貴広) — Targets 2 &amp; 6: <code>arm-elf</code> / <code>kernel</code> &amp; <code>arm64-elf</code></strong><br>
         <em>Master Embedded Systems Engineer · Architect of the Bare-Metal Raspberry Pi T-Kernel 2.0 &amp; T2EX Port</em><br><br>
-        Bringing an industrial-grade real-time operating system to bare-metal consumer hardware requires deep mastery of low-level assembly, clock trees, cache coherency, and peripheral MMIO registers. Takahiro Yokobayashi achieved the monumental engineering feat of porting Sakamura's official <strong>T-Kernel 2.0</strong> and <strong>T2EX</strong> (T-Kernel 2.0 Extended Extension) directly to the Raspberry Pi family (BCM2835, BCM2836 Pi 2B, BCM2837 Pi 3, and BCM2711 Pi 4B). His open contributions—authoring the startup assembly (<code>icrt0.S</code>), system timers, interrupt dispatcher, VideoCore mailbox drivers, and PL011 UART console subsystems—transformed the Raspberry Pi into an authentic, accessible bare-metal TRON workstation for experimenters and students around the globe. Targets 2 and 6 (<code>arm-elf</code> and <code>arm64-elf</code> / <code>Yokobayashi</code>) stand as an enduring tribute to his hardware craftsmanship.
+        Bringing an industrial-grade real-time operating system to bare-metal consumer hardware requires deep mastery of low-level assembly, clock trees, cache coherency, and peripheral MMIO registers. Takahiro Yokobayashi achieved the monumental engineering feat of porting Sakamura's official <strong>T-Kernel 2.0</strong> and <strong>T2EX</strong> (T-Kernel 2.0 Extended Extension) directly to the Raspberry Pi family (BCM2835, BCM2836 Pi 2B, BCM2837 Pi 3, and BCM2711 Pi 4B). His open contributions—authoring the startup assembly (<code>icrt0.S</code>), system timers, interrupt dispatcher, VideoCore mailbox drivers, and PL011 UART console subsystems—transformed the Raspberry Pi into an authentic, accessible bare-metal TRON workstation for experimenters and students around the globe. Targets 2 and 6 (<code>arm-elf</code> / <code>btron-tkernel.elf</code> and <code>arm64-elf</code> / <code>Yokobayashi</code>) stand as an enduring tribute to his hardware craftsmanship.
       </div>
 
       <div class="tagline-card">
