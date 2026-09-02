@@ -65,7 +65,7 @@ else ifeq ($(UNAME_S), Linux)
     SDL_LIBS     := $(shell sdl2-config --libs 2>/dev/null || pkg-config --libs sdl2 2>/dev/null || echo "-lSDL2") \
                     -lz -lm -lpthread
     QEMU_DISPLAY        := -display default,show-cursor=on
-    KERNEL_DISPLAY      := -display sdl,grab-on-hover=on
+    KERNEL_DISPLAY      := -display default
 else
     SDL_CFLAGS   := -I/usr/include/SDL2
     SDL_LIBS     := -lSDL2 -lz -lgdi32 -lpthread
@@ -121,12 +121,10 @@ QEMU_SRCS    = $(QEMU_STARTUP)          \
                $(COMMON_SRCS)
 
 # ── X86_64 / EMT64 UEFI build (Target 4) ────────────────────────
-UEFI_STARTUP = src/kernel/core_virtio.c
+UEFI_STARTUP = src/kernel/core_smp.c
 UEFI_SRCS    = $(UEFI_STARTUP)          \
-               src/drivers/virtio/virtio.c \
                src/kernel/core_init.c   \
                src/kernel/core_boot.c   \
-               src/kernel/core_smp.c    \
                src/apps/ski.c           \
                $(COMMON_SRCS)
 
@@ -323,7 +321,7 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 # X86_64 / EMT64 UEFI SMP Kernel Desktop (Honoring Kota Uchida)
 # ═══════════════════════════════════════════════════════════════════
 uefi: tad_bin $(UEFI_TARGET)
-	@ln -sf $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf
+	@ln -sf $(UEFI_TARGET) btron-uefi.elf
 	@echo "=========================================================="
 	@echo " B-System X86_64 / EMT64 UEFI SMP Kernel built: $(UEFI_TARGET)"
 	@echo " In honor of Kota Uchida (内田 公太) — Japanese UEFI OS pioneer"
@@ -338,30 +336,12 @@ $(UEFI_TARGET): $(UEFI_OBJS)
 
 run-uefi: $(UEFI_TARGET)
 	@echo "=========================================================="
-	@echo " Launching B-System X86_64 / EMT64 UEFI SMP on QEMU"
+	@echo " Launching B-System X86_64 / EMT64 UEFI SMP Desktop"
 	@echo " Honoring : Kota Uchida (内田 公太) — MikanOS Pioneer"
-	@echo " Machine  : q35  |  CPU: qemu64 (SMP 4 Cores)  |  RAM: 1G"
-	@echo " Firmware : ACPI 6.5 MADT + LAPIC SMP Bring-up (core_smp.c)"
-	@echo " Devices  : VirtIO GPU, VirtIO Keyboard/Mouse, Serial stdio"
+	@echo " Mode     : Native Desktop & Ski Bootloader (🎿)"
+	@echo " Target   : $(UEFI_TARGET)"
 	@echo "=========================================================="
-	@echo " INPUT CAPTURE:"
-	@echo "   Click inside the QEMU window to grab keyboard & mouse."
-	@echo "   Press Ctrl+Alt+G to release grab."
-	@echo "   Serial console & Ski Bootloader active in THIS terminal."
-	@echo "=========================================================="
-	@if command -v $(QEMU_X86_64) >/dev/null 2>&1; then \
-	    $(QEMU_X86_64) -M q35,accel=tcg -cpu qemu64 -smp cores=4,threads=1,sockets=1 -m 1G \
-	        $(KERNEL_DISPLAY) \
-	        -device virtio-vga \
-	        -device virtio-keyboard-pci -device virtio-mouse-pci \
-	        -kernel $(UEFI_TARGET) -serial stdio; \
-	elif [ -x ./$(UEFI_TARGET) ]; then \
-	    echo "[INFO] Running hosted UEFI kernel binary locally..."; \
-	    ./$(UEFI_TARGET); \
-	else \
-	    echo "[ERROR] Neither $(QEMU_X86_64) nor host binary found"; \
-	    exit 1; \
-	fi
+	./$(UEFI_TARGET)
 
 run-eufi: run-uefi
 
