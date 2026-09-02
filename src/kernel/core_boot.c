@@ -636,12 +636,23 @@ void kernel_main(void) {
 }
 
 void _start(void) {
+#if defined(__x86_64__)
+    __asm__ volatile(
+        "movq %0, %%rsp\n"
+        "call kernel_main\n"
+        :
+        : "r"(s_boot_stack + sizeof(s_boot_stack))
+    );
+#elif defined(__i386__)
     __asm__ volatile(
         "movl %0, %%esp\n"
         "call kernel_main\n"
         :
         : "r"(s_boot_stack + sizeof(s_boot_stack))
     );
+#else
+    kernel_main();
+#endif
 }
 
 void multiboot_main(void) {

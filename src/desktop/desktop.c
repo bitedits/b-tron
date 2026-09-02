@@ -119,7 +119,6 @@ void render_system_panel(GDEV *dev) {
 }
 
 
-#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
 #include <btron/tip.h>
 #include <btron/apps.h>
 #ifndef ARGB
@@ -246,7 +245,7 @@ void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h) {
 }
 
 
-#endif /* __arm__ */
+/* End baremetal desktop block */
 
 BTRON_DESKTOP* get_btron_desktop(void) {
     return &g_desktop;

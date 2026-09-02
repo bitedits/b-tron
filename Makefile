@@ -132,14 +132,28 @@ UEFI_SRCS    = $(UEFI_STARTUP)          \
 
 # ── NEC PC-98 build (Target 5) ──────────────────────────────────
 PC98_STARTUP = src/kernel/core_pc98.c
-PC98_SRCS    = $(PC98_STARTUP)          \
-               src/drivers/pc98/boot/boot_pc98.c \
-               src/kernel/core_init.c   \
-               src/kernel/core_boot.c   \
-               src/kernel/libstr.c      \
-               src/drivers/vesa/vesa.c  \
-               src/apps/ski.c           \
-               $(COMMON_SRCS)
+PC98_FREESTANDING_SRCS = $(PC98_STARTUP) \
+                         src/drivers/pc98/boot/boot_pc98.c \
+                         src/kernel/core_boot.c \
+                         src/kernel/core_init.c \
+                         src/kernel/libstr.c \
+                         src/drivers/vesa/vesa.c \
+                         src/graphics/dp_core.c \
+                         src/font/troncode.c \
+                         src/font/jis_fonts.c \
+                         src/window/wnd.c \
+                         src/window/event.c \
+                         src/vobject/vobj.c \
+                         src/desktop/desktop.c \
+                         src/apps/gterm.c \
+                         src/apps/t_editor.c \
+                         src/apps/vobj_manager.c \
+                         src/apps/tad_browser.c \
+                         src/apps/ski.c \
+                         src/tip/mozc_kkc.c \
+                         src/tip/tip_ife.c \
+                         src/tip/tip_task.c \
+                         src/tip/tip_vobj.c
 
 # ── BCM283x (Pi 2B) bare-metal arch sources ───────────────────────
 ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
@@ -394,11 +408,23 @@ pc98: tad_bin $(PC98_TARGET)
 %.pc98.o: %.c
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -c $< -o $@
 
-$(PC98_TARGET): $(PC98_OBJS)
-	$(CC) $(PC98_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
+$(PC98_TARGET): $(PC98_FREESTANDING_SRCS)
+	$(CC) -m32 -ffreestanding -nostdlib -O2 -Wall -Wextra -std=c99 -DBTRON_TARGET=5 -DBTRON_PC98_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel -T src/kernel/uefi_qemu.ld $(PC98_FREESTANDING_SRCS) -o $@
 
 run-pc98: $(PC98_TARGET)
-	./$(PC98_TARGET)
+	@echo "=========================================================="
+	@echo " Launching B-System NEC PC-9801 / PC-9821 on QEMU"
+	@echo " Honoring : Awe Morris (zedBSD & NEC PC-98 Architecture)"
+	@echo " Machine  : NEC PC-9821 VM  |  CPU: 486/Pentium (PC-98 Planar VRAM)"
+	@echo " Firmware : Ski Bootloader -> BTRON3 PC-98 Console & Desktop"
+	@echo "=========================================================="
+	@if command -v qemu-system-pc98 >/dev/null 2>&1; then \
+	    qemu-system-pc98 -M pc98 -m 64M -kernel $(PC98_TARGET) -serial stdio; \
+	elif [ -f tools/np2kai_bin ]; then \
+	    ./tools/np2kai_bin; \
+	else \
+	    qemu-system-x86_64 -M q35,accel=tcg -cpu qemu64 -m 1G -display default -device virtio-vga -device virtio-keyboard-pci -device virtio-mouse-pci -kernel $(PC98_TARGET) -serial stdio; \
+	fi
 
 test-pc98: $(PC98_TARGET)
 	@./$(PC98_TARGET)

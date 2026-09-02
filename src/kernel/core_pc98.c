@@ -18,11 +18,13 @@
 #include <btron/itron.h>
 #include <btron/core.h>
 #include <btron/types.h>
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#endif
 
-#if defined(__unix__) || defined(__APPLE__) || (defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1)
+#if (defined(__unix__) || defined(__APPLE__)) && (defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1)
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -257,10 +259,18 @@ void dly_tsk(W dlytim) {
 #endif
 }
 
+extern void uart_puts_raw(const char *str);
+
 void btron_core_init(void) {
+#if PC98_HOSTED
     printf("[PC-98 CORE] Initializing B-System NEC PC-98 Kernel Engine...\n");
     printf("[PC-98 CORE] Dedicated to Awe Morris (zedBSD PC-98 Pioneer)\n");
     printf("[PC-98 CORE] Hardware: Text VRAM 0xA0000/0xA2000, Port 0xF2 A20, RP5C15 RTC, PIT 8253\n");
+#else
+    uart_puts_raw("[PC-98 CORE] Initializing B-System NEC PC-98 Kernel Engine...\n");
+    uart_puts_raw("[PC-98 CORE] Dedicated to Awe Morris (zedBSD PC-98 Pioneer)\n");
+    uart_puts_raw("[PC-98 CORE] Hardware: Text VRAM 0xA0000/0xA2000, Port 0xF2 A20, RP5C15 RTC, PIT 8253\n");
+#endif
 }
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
