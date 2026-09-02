@@ -22,6 +22,11 @@
 void btron_pc98_splash(void);
 void btron_pc98_pm32_entry(void);
 
+/* Mock UART stub for hosted unit test */
+void uart_puts_raw(const char *str) {
+    (void)str;
+}
+
 typedef struct {
     uint32_t *pixels;
     uint32_t  width;
