@@ -178,7 +178,7 @@ WND* open_media_settings_window(void) {
     memset(&g_state_media, 0, sizeof(AppletState_media));
     for (int i = 0; i < 4; i++) g_state_media.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Media (メディア)",
+    WND *wnd = opn_wnd("Media (メディア)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

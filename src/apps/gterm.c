@@ -443,12 +443,12 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
 #else
         out_fn("BeOS Chat is supported in POSIX / Hosted mode", COLOR_YELLOW, user_data);
 #endif
-    } else if (strcmp(cmd, "audio") == 0 || strcmp(cmd, "player") == 0) {
+    } else if (strcmp(cmd, "audio") == 0 || strcmp(cmd, "player") == 0 || strcmp(cmd, "cassette") == 0) {
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         open_audio_player_window();
-        out_fn("Started Audio Deck instance", COLOR_GREEN, user_data);
+        out_fn("Started SONY Cassette Deck instance", COLOR_GREEN, user_data);
 #else
-        out_fn("Audio Player is supported in POSIX / Hosted mode", COLOR_YELLOW, user_data);
+        out_fn("SONY Cassette Deck is supported in POSIX / Hosted mode", COLOR_YELLOW, user_data);
 #endif
     } else if (strcmp(cmd, "cabinet") == 0 || strcmp(cmd, "vobjmgr") == 0) {
         open_vobj_manager_window();

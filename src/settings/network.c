@@ -191,7 +191,7 @@ WND* open_network_settings_window(void) {
     memset(&g_state_network, 0, sizeof(AppletState_network));
     for (int i = 0; i < 5; i++) g_state_network.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Network (通信網)",
+    WND *wnd = opn_wnd("Network (通信網)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

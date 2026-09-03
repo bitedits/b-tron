@@ -97,7 +97,7 @@ static void paint_sound_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &hdr, COLOR_LTGRAY);
     drw_lin(dev, 0, 28, dev->width, 28);
     char hdr_str[128];
-    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Sound", "音響・音声", "Audio devices & MediaPulse routing");
+    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Sound", "音響・音声", "Audio devices & Cassette routing");
     drw_tc_string(dev, 8, 6, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Audio Master Output */
@@ -110,11 +110,11 @@ static void paint_sound_settings(WND *wnd, GDEV *dev) {
     paint_ui_radio(dev, 18, 96, "VirtIO-Sound / Intel High Definition Audio (HDA)", g_state_sound.checks[2], FALSE);
     paint_ui_radio(dev, 18, 118, "BCM2835 PWM Audio Driver Output", g_state_sound.checks[3], FALSE);
 
-    /* Section 2: MediaPulse DSP Engine */
+    /* Section 2: Cassette DSP Engine */
     RECT s2 = { 10, 168, dev->width - 10, 240 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 160, " [2. MediaPulse DSP Engine] ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, 16, 160, " [2. Cassette DSP Engine] ", COLOR_NAVY, COLOR_WHITE);
     paint_ui_checkbox(dev, 18, 182, "Audio Sample Rate: 48,000 Hz / 16-bit Stereo PCM", g_state_sound.checks[4], FALSE);
     paint_ui_checkbox(dev, 18, 204, "Low-Latency Buffer: 128 samples (2.6 ms Real-Time DSP)", g_state_sound.checks[5], FALSE);
 
@@ -198,7 +198,7 @@ WND* open_sound_settings_window(void) {
     memset(&g_state_sound, 0, sizeof(AppletState_sound));
     for (int i = 0; i < 6; i++) g_state_sound.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Sound (音響・音声)",
+    WND *wnd = opn_wnd("Sound (音響・音声)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

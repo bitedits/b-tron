@@ -171,7 +171,7 @@ WND* open_security_settings_window(void) {
     memset(&g_state_security, 0, sizeof(AppletState_security));
     for (int i = 0; i < 3; i++) g_state_security.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Security (保全・権限)",
+    WND *wnd = opn_wnd("Security (保全・権限)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

@@ -178,7 +178,7 @@ WND* open_system_settings_window(void) {
     memset(&g_state_system, 0, sizeof(AppletState_system));
     for (int i = 0; i < 4; i++) g_state_system.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - System (基本情報)",
+    WND *wnd = opn_wnd("System (基本情報)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

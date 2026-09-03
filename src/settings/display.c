@@ -198,7 +198,7 @@ WND* open_display_settings_window(void) {
     memset(&g_state_display, 0, sizeof(AppletState_display));
     for (int i = 0; i < 6; i++) g_state_display.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Display (画面表示)",
+    WND *wnd = opn_wnd("Display (画面表示)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

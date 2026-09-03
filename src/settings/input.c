@@ -198,7 +198,7 @@ WND* open_input_settings_window(void) {
     memset(&g_state_input, 0, sizeof(AppletState_input));
     for (int i = 0; i < 6; i++) g_state_input.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Input (入力環境)",
+    WND *wnd = opn_wnd("Input (入力環境)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

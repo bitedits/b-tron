@@ -40,16 +40,16 @@
 #define SONY_COL_BTN_BG       0xFF282F3B  /* Tactile Button Face */
 
 static const SETTINGS_APP_INFO g_app_registry[] = {
-    { "appearance", "Appearance", "外観",        "[ART]", "Themes, colours, window style, fonts & animations", open_appearance_settings_window },
-    { "desktop",    "Desktop",    "デスクトップ", "[DSK]", "Workbench behaviour, icon layout & background",     open_desktop_settings_window },
-    { "display",    "Display",    "画面表示",     "[DSP]", "Resolution, DPI scaling, refresh rate & VESA",       open_display_settings_window },
-    { "input",      "Input",      "入力環境",     "[INP]", "Keyboard layouts, key repeat & mouse acceleration",  open_input_settings_window },
-    { "language",   "Language",   "言語・文字",   "[LAN]", "TRON Code, TIP Mozc, Tibetan Wylie & shortcuts",     open_language_settings_window },
-    { "media",      "Media",      "メディア",     "[MED]", "Default handlers, TAD/PDF/Audio associations",       open_media_settings_window },
-    { "network",    "Network",    "通信網",       "[NET]", "Interfaces, DHCP, DNS, VirtIO-Net & XMPP",           open_network_settings_window },
+    { "appearance", "Appearance", "外観",         "[ART]", "Themes, colours, window style, fonts & animations",    open_appearance_settings_window },
+    { "desktop",    "Desktop",    "デスクトップ", "[DSK]", "Workbench behaviour, icon layout & background",        open_desktop_settings_window },
+    { "display",    "Display",    "画面表示",     "[DSP]", "Resolution, DPI scaling, refresh rate & VESA",         open_display_settings_window },
+    { "input",      "Input",      "入力環境",     "[INP]", "Keyboard layouts, key repeat & mouse acceleration",    open_input_settings_window },
+    { "language",   "Language",   "言語・文字",   "[LAN]", "TRON Code, TIP Mozc, Tibetan Wylie & shortcuts",       open_language_settings_window },
+    { "media",      "Media",      "メディア",     "[MED]", "Default handlers, TAD/PDF/Audio associations",         open_media_settings_window },
+    { "network",    "Network",    "通信網",       "[NET]", "Interfaces, DHCP, DNS, VirtIO-Net & XMPP",             open_network_settings_window },
     { "security",   "Security",   "保全・権限",   "[SEC]", "Permissions, real-object ACLs & capability isolation", open_security_settings_window },
-    { "sound",      "Sound",      "音響・音声",   "[SND]", "Audio devices, MediaPulse routing & master volume",   open_sound_settings_window },
-    { "system",     "System",     "基本情報",     "[SYS]", "System Plane info, kernel tasks, memory & SMP",      open_system_settings_window }
+    { "sound",      "Sound",      "音響・音声",   "[SND]", "Audio devices, Cassette routing & master volume",      open_sound_settings_window },
+    { "system",     "System",     "基本情報",     "[SYS]", "System Plane info, kernel tasks, memory & SMP",        open_system_settings_window }
 };
 
 #define APP_REGISTRY_COUNT (sizeof(g_app_registry) / sizeof(g_app_registry[0]))
@@ -474,12 +474,6 @@ WND* open_control_panel_window(void) {
                        (1280 - 680) / 2, (800 - 480) / 2, 680, 480,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
-    g_ctrl_panel.wnd = wnd;
-    wnd->user_data = (VW)(uintptr_t)&g_ctrl_panel;
-    wnd->paint = paint_control_panel;
-    wnd->event_handler = handle_control_panel_event;
-    return wnd;
-}
     g_ctrl_panel.wnd = wnd;
     wnd->user_data = (VW)(uintptr_t)&g_ctrl_panel;
     wnd->paint = paint_control_panel;
