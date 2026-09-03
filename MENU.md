@@ -232,4 +232,57 @@ In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Ch
 | **仮身(O)** | Alt+O | `新規仮身リンクの作成 (Create Fusen Link)` (`Ctrl+L`)<br>`所属キャビネットの変更 (Move to Cabinet...)`<br>`総索引の表示 (Global Index Catalog)` (`Ctrl+I`) | Virtual Object link creation and hypermedia organizing |
 | **ヘルプ(H)** | Alt+H | `キャビネット について (About Cabinet...)`<br>`実身・仮身モデル解説 (Hypermedia Architecture...)` | Nano About Box ("Brought to B-System by 5HT") and Sakamura hypermedia architecture guide |
 
+---
+
+## 10. Unified Application Menu Engine & Multi-Style System Settings
+
+### 10.1 Architecture & Complete Deduplication
+Prior to BTRON 3.20 Update 9, T-Editor, TAD Browser, and Cabinet Manager maintained independent in-window menu structures, event hit testers, and drawing algorithms. This led to code duplication and visual inconsistencies.
+
+The **Unified Application Menu Engine** (`include/btron/app_menu.h`, `src/window/app_menu.c`) standardizes all application-level menus:
+- **Shared Data Structures**:
+  - `APP_MENU_BAR`: Encapsulates headers, items, bounding geometries, hover state, active header index, and right-aligned status text.
+  - `APP_MENU_HEADER`: Represents top-level categories with computed margins and item arrays.
+  - `APP_MENU_ITEM`: Unified entry supporting normal commands, checkable states, separators, and cascading submenus (`▶`).
+- **Standardized Event Handling**:
+  - `app_menu_handle_mouse_move`: Fluid BeOS-style hot header gliding, closed hover detection, item highlighting, and cascading submenu tracking.
+  - `app_menu_handle_mouse_down`: Top-level header toggle, dropdown item selection, cascading item loading, and outside dismissal.
+  - `app_menu_handle_key`: Universal `Escape` dismissal.
+- **Zero Duplication**:
+  - `TEditor`, `TAD_BROWSER`, and `CABINET_EXPLORER` now directly use `APP_MENU_BAR` and common painting/event routines.
+  - Legacy tracking fields (`active_menu`, `hover_menu`, `hover_item`) are synchronized seamlessly for full backward compatibility.
+
+### 10.2 Dual Menu Styles Configurable in Appearance Settings
+As requested by users who appreciate both authentic retro ergonomics and contemporary visual polish, B-System supports two selectable menu visual styles:
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [●] Classic Chokanji 3D (立体ベベル外枠 - 推奨)        │
+│ [ ] Modern Flat Card (現代的カード・影付き)            │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **Classic Chokanji 3D (`APP_MENU_STYLE_CLASSIC_3D`) — Default**:
+   - The gold standard established in T-Editor.
+   - 4-sided crisp 3D bevel box (`draw_3d_bevel_box`) with `COLOR_LTGRAY` background fill.
+   - `COLOR_WHITE` top/left highlight lines and `COLOR_DKGRAY` bottom/right shadow lines.
+   - Clean 3D vertical etched separators between menu bar headers.
+2. **Modern Flat Card (`APP_MENU_STYLE_MODERN_CARD`)**:
+   - Flat card surface with 1px border.
+   - 3px offset soft drop shadow (`COLOR_DKGRAY`) mimicking modern desktop window cards.
+   - Minimalist vertical separator lines.
+
+Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all running applications.
+
+### 10.3 Standardized Nano About Box Dialog
+All applications instantiate their About Box using the unified `app_menu_create_about_dialog()` API:
+- **Compact Dimensions**: Exactly 280×135 pixels.
+- **Visual Presentation**:
+  - Classic 3D beveled container (`COLOR_LTGRAY`) with inner card (`COLOR_WHITE`).
+  - Bilingual title duplication (e.g., `T-Editor 3.20 (文書編集)`).
+  - Explicit attribution: **`"Brought to B-System by 5HT"`**.
+  - Centered 3D `[ OK ]` button.
+- **Universal Dismissal**: Closes immediately on `OK` click, window close button `[X]`, or pressing `Escape`, `Enter`, or `Space`.
+
+
 

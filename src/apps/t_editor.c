@@ -85,11 +85,6 @@ static void teditor_init_default(TEditor *ed) {
     ed->scroll_col = 0;
     ed->has_vobj = TRUE;
     strncpy(ed->vobj_name, "Diagram.draw", sizeof(ed->vobj_name) - 1);
-    ed->active_menu = -1;
-    ed->hover_menu = -1;
-    ed->hover_item = -1;
-    ed->active_submenu = -1;
-    ed->hover_subitem = -1;
     ed->show_line_nums = TRUE;
 }
 
@@ -494,69 +489,49 @@ enum {
     TCMD_HELP_ABOUT
 };
 
-typedef struct {
-    const char *label;
-    const char *accel;
-    int cmd;
-    BOOL enabled;
-    BOOL has_submenu;
-} TMenuItem;
+static void teditor_sync_menu_state(TEditor *ed) {
+    if (!ed) return;
+    ed->active_menu = ed->menu_bar.active_menu;
+    ed->hover_menu = ed->menu_bar.hover_menu;
+    ed->hover_item = ed->menu_bar.hover_item;
+    ed->active_submenu = ed->menu_bar.active_submenu;
+    ed->hover_subitem = ed->menu_bar.hover_subitem;
+}
 
-typedef struct {
-    const char *title;
-    RECT rect; /* in window coordinates: top=0, bottom=21 */
-    int item_count;
-    TMenuItem items[8];
-} TMenuHeader;
+static void teditor_init_menu_bar(TEditor *ed) {
+    if (!ed) return;
+    app_menu_init(&ed->menu_bar, APP_MENU_STYLE_CLASSIC_3D);
 
-#define TMENU_DROPDOWN_WIDTH 250
-#define TMENU_SUBMENU_WIDTH  260
+    int h0 = app_menu_add_header(&ed->menu_bar, "ファイル(F)", 104);
+    app_menu_add_item(&ed->menu_bar, h0, "新規作成 (New)", "Ctrl+N", TCMD_FILE_NEW, TRUE);
+    app_menu_add_submenu_item(&ed->menu_bar, h0, "開く (Open) ▶", TCMD_FILE_OPEN_ASSET, 1);
+    app_menu_add_separator(&ed->menu_bar, h0);
+    app_menu_add_item(&ed->menu_bar, h0, "上書き保存 (Save)", "Ctrl+S", TCMD_FILE_SAVE, TRUE);
+    app_menu_add_item(&ed->menu_bar, h0, "閉じる (Close)", "Ctrl+W", TCMD_FILE_CLOSE, TRUE);
 
-static const TMenuHeader g_menus[TMENU_COUNT] = {
-    {
-        "ファイル(F)", { 4, 0, 108, 21 }, 5,
-        {
-            { "新規作成 (New)",         "Ctrl+N", TCMD_FILE_NEW,          TRUE,  FALSE },
-            { "開く (Open)",             "Ctrl+O", TCMD_FILE_OPEN_SUBMENU,  TRUE,  TRUE  },
-            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
-            { "上書き保存 (Save)",       "Ctrl+S", TCMD_FILE_SAVE,         TRUE,  FALSE },
-            { "閉じる (Close)",         "Ctrl+W", TCMD_FILE_CLOSE,        TRUE,  FALSE }
-        }
-    },
-    {
-        "編集(E)", { 112, 0, 184, 21 }, 6,
-        {
-            { "元に戻す (Undo)",         "Ctrl+Z", TCMD_EDIT_UNDO,         FALSE, FALSE },
-            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
-            { "切り取り (Cut)",         "Ctrl+X", TCMD_EDIT_CUT,          TRUE,  FALSE },
-            { "コピー (Copy)",           "Ctrl+C", TCMD_EDIT_COPY,         TRUE,  FALSE },
-            { "貼り付け (Paste)",         "Ctrl+V", TCMD_EDIT_PASTE,        TRUE,  FALSE },
-            { "すべて選択 (Select All)", "Ctrl+A", TCMD_EDIT_SELECT_ALL,    TRUE,  FALSE }
-        }
-    },
-    {
-        "表示(V)", { 188, 0, 260, 21 }, 4,
-        {
-            { "拡大 (Zoom In)",         "+",      TCMD_VIEW_ZOOM_IN,      TRUE,  FALSE },
-            { "縮小 (Zoom Out)",        "-",      TCMD_VIEW_ZOOM_OUT,     TRUE,  FALSE },
-            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
-            { "行番号表示 (Line Nums)",  "",       TCMD_VIEW_TOGGLE_LINES, TRUE,  FALSE }
-        }
-    },
-    {
-        "仮身(O)", { 264, 0, 336, 21 }, 2,
-        {
-            { "仮身を挿入 (Insert Fusen)", "",     TCMD_VOBJ_INSERT,       TRUE,  FALSE },
-            { "実身キャビネット (Cabinet)", "",    TCMD_VOBJ_CABINET,      TRUE,  FALSE }
-        }
-    },
-    {
-        "ヘルプ(H)", { 340, 0, 428, 21 }, 1,
-        {
-            { "T-Editor について (About)", "",     TCMD_HELP_ABOUT,        TRUE,  FALSE }
-        }
-    }
-};
+    int h1 = app_menu_add_header(&ed->menu_bar, "編集(E)", 72);
+    app_menu_add_item(&ed->menu_bar, h1, "元に戻す (Undo)", "Ctrl+Z", TCMD_EDIT_UNDO, FALSE);
+    app_menu_add_separator(&ed->menu_bar, h1);
+    app_menu_add_item(&ed->menu_bar, h1, "切り取り (Cut)", "Ctrl+X", TCMD_EDIT_CUT, TRUE);
+    app_menu_add_item(&ed->menu_bar, h1, "コピー (Copy)", "Ctrl+C", TCMD_EDIT_COPY, TRUE);
+    app_menu_add_item(&ed->menu_bar, h1, "貼り付け (Paste)", "Ctrl+V", TCMD_EDIT_PASTE, TRUE);
+    app_menu_add_item(&ed->menu_bar, h1, "すべて選択 (Select All)", "Ctrl+A", TCMD_EDIT_SELECT_ALL, TRUE);
+
+    int h2 = app_menu_add_header(&ed->menu_bar, "表示(V)", 72);
+    app_menu_add_item(&ed->menu_bar, h2, "拡大 (Zoom In)", "+", TCMD_VIEW_ZOOM_IN, TRUE);
+    app_menu_add_item(&ed->menu_bar, h2, "縮小 (Zoom Out)", "-", TCMD_VIEW_ZOOM_OUT, TRUE);
+    app_menu_add_separator(&ed->menu_bar, h2);
+    app_menu_add_item(&ed->menu_bar, h2, "行番号表示 (Line Nums)", "", TCMD_VIEW_TOGGLE_LINES, TRUE);
+
+    int h3 = app_menu_add_header(&ed->menu_bar, "仮身(O)", 72);
+    app_menu_add_item(&ed->menu_bar, h3, "仮身を挿入 (Insert Fusen)", "", TCMD_VOBJ_INSERT, TRUE);
+    app_menu_add_item(&ed->menu_bar, h3, "実身キャビネット (Cabinet)", "", TCMD_VOBJ_CABINET, TRUE);
+
+    int h4 = app_menu_add_header(&ed->menu_bar, "ヘルプ(H)", 88);
+    app_menu_add_item(&ed->menu_bar, h4, "T-Editor について (About)", "", TCMD_HELP_ABOUT, TRUE);
+
+    teditor_sync_menu_state(ed);
+}
 
 int teditor_get_asset_files(char files[][64], int max_files) {
     if (!files || max_files <= 0) return 0;
@@ -600,20 +575,15 @@ int teditor_get_asset_files(char files[][64], int max_files) {
 
 void teditor_open_menu(TEditor *ed, int menu_idx) {
     if (!ed || menu_idx < 0 || menu_idx >= TMENU_COUNT) return;
-    ed->active_menu = menu_idx;
-    ed->hover_menu = menu_idx;
-    ed->hover_item = -1;
-    ed->active_submenu = -1;
-    ed->hover_subitem = -1;
+    if (ed->menu_bar.header_count == 0) teditor_init_menu_bar(ed);
+    app_menu_open(&ed->menu_bar, menu_idx);
+    teditor_sync_menu_state(ed);
 }
 
 void teditor_close_menu(TEditor *ed) {
     if (!ed) return;
-    ed->active_menu = -1;
-    ed->hover_menu = -1;
-    ed->hover_item = -1;
-    ed->active_submenu = -1;
-    ed->hover_subitem = -1;
+    app_menu_close(&ed->menu_bar);
+    teditor_sync_menu_state(ed);
 }
 
 static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx) {
@@ -694,230 +664,11 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
     }
 }
 
-static void paint_teditor_about_window(WND *wnd, GDEV *dev) {
-    if (!wnd || !dev) return;
-    RECT r = { 0, 0, dev->width, dev->height };
-    fill_rec(dev, &r, COLOR_LTGRAY);
-    drw_rec(dev, &r);
-
-    /* Inner card with clean retro bevel */
-    RECT card = { 6, 6, dev->width - 6, dev->height - 34 };
-    fill_rec(dev, &card, COLOR_WHITE);
-    drw_rec(dev, &card);
-
-    /* App Title & Subtitle */
-    drw_tc_string(dev, 16, 12, "T-Editor 3.20 (文書編集)", COLOR_NAVY, 0x00000000);
-    drw_tc_string(dev, 16, 30, "Cleanroom BTRON Word Processor", COLOR_DKGRAY, 0x00000000);
-
-    /* Dedicated attribution requested by user */
-    drw_tc_string(dev, 16, 50, "Brought to B-System by 5HT", COLOR_BLACK, 0x00000000);
-
-    /* 3D OK Button */
-    H btn_w = 64, btn_h = 20;
-    H btn_x = (dev->width - btn_w) / 2;
-    H btn_y = dev->height - 26;
-    RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
-    fill_rec(dev, &ok_btn, COLOR_LTGRAY);
-    drw_rec(dev, &ok_btn);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
-    drw_tc_string(dev, btn_x + 22, btn_y + 2, "OK", COLOR_BLACK, 0x00000000);
-}
-
-static void handle_teditor_about_event(WND *wnd, const EVT *evt) {
-    if (!wnd || !evt) return;
-
-    if (evt->type == EV_BUT_DOWN) {
-        H rel_x = evt->pos.x - (wnd->bounds.left + 4);
-        H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        H btn_w = 64, btn_h = 20;
-        H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
-        H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
-        H btn_x = (dev_w - btn_w) / 2;
-        H btn_y = dev_h - 26;
-        if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
-            cls_wnd(wnd);
-        }
-        return;
-    }
-
-    if (evt->type == EV_KEY_DOWN) {
-        if (evt->key == BTRON_KEY_ESCAPE || evt->key == '\r' || evt->key == '\n' || evt->key == ' ') {
-            cls_wnd(wnd);
-        }
-        return;
-    }
-}
-
 WND* open_teditor_about_window(void) {
-    WND *wnd = opn_wnd("About T-Editor (バージョン情報)", 240, 160, 280, 135,
-                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
-    if (!wnd) return NULL;
-    wnd->paint = paint_teditor_about_window;
-    wnd->event_handler = handle_teditor_about_event;
-    return wnd;
-}
-
-static BOOL teditor_handle_menu_mouse_move(TEditor *ed, H x, H y) {
-    if (!ed) return FALSE;
-
-    /* When a menu is open: track headers, items, and submenus */
-    if (ed->active_menu >= 0) {
-        /* 1. Check if moving over another top-level menu header (BeOS fluid tracking) */
-        if (y >= 0 && y <= 21) {
-            for (int m = 0; m < TMENU_COUNT; m++) {
-                if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
-                    if (ed->active_menu != m) {
-                        ed->active_menu = m;
-                        ed->hover_menu = m;
-                        ed->hover_item = -1;
-                        ed->active_submenu = -1;
-                        ed->hover_subitem = -1;
-                        return TRUE;
-                    }
-                }
-            }
-        }
-
-        const TMenuHeader *hdr = &g_menus[ed->active_menu];
-        H menu_x = hdr->rect.left;
-        H menu_y = 21;
-        H menu_w = TMENU_DROPDOWN_WIDTH;
-        H menu_h = hdr->item_count * 22 + 6;
-
-        /* 2. Check if moving inside cascading submenu (if open) */
-        if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
-            char files[32][64];
-            int file_cnt = teditor_get_asset_files(files, 32);
-            H sub_x = menu_x + menu_w - 2;
-            H sub_y = menu_y + 3 + (1 * 22);
-            H sub_w = TMENU_SUBMENU_WIDTH;
-            H sub_h = file_cnt * 22 + 6;
-
-            if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
-                int sub_idx = (y - (sub_y + 3)) / 22;
-                if (sub_idx >= 0 && sub_idx < file_cnt) {
-                    ed->hover_subitem = sub_idx;
-                    return TRUE;
-                }
-            }
-        }
-
-        /* 3. Check if moving inside active dropdown menu */
-        if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
-            int idx = (y - (menu_y + 3)) / 22;
-            if (idx >= 0 && idx < hdr->item_count) {
-                if (hdr->items[idx].cmd != TCMD_NONE) {
-                    ed->hover_item = idx;
-                    if (hdr->items[idx].has_submenu) {
-                        ed->active_submenu = idx;
-                    } else {
-                        ed->active_submenu = -1;
-                        ed->hover_subitem = -1;
-                    }
-                    return TRUE;
-                }
-            }
-        }
-        return FALSE;
-    }
-
-    /* When menu is closed: track top-level header hover for subtle feedback */
-    if (y >= 0 && y <= 21) {
-        int prev_hov = ed->hover_menu;
-        ed->hover_menu = -1;
-        for (int m = 0; m < TMENU_COUNT; m++) {
-            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
-                ed->hover_menu = m;
-                break;
-            }
-        }
-        return (ed->hover_menu != prev_hov);
-    } else {
-        if (ed->hover_menu != -1) {
-            ed->hover_menu = -1;
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-static BOOL teditor_handle_menu_mouse_down(TEditor *ed, WND *wnd, H x, H y) {
-    if (!ed) return FALSE;
-
-    /* If a menu is open, handle clicks inside dropdown or submenu */
-    if (ed->active_menu >= 0) {
-        const TMenuHeader *hdr = &g_menus[ed->active_menu];
-        H menu_x = hdr->rect.left;
-        H menu_y = 21;
-        H menu_w = TMENU_DROPDOWN_WIDTH;
-        H menu_h = hdr->item_count * 22 + 6;
-
-        /* Click inside cascading submenu */
-        if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
-            char files[32][64];
-            int file_cnt = teditor_get_asset_files(files, 32);
-            H sub_x = menu_x + menu_w - 2;
-            H sub_y = menu_y + 3 + (1 * 22);
-            H sub_w = TMENU_SUBMENU_WIDTH;
-            H sub_h = file_cnt * 22 + 6;
-
-            if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
-                int sub_idx = (y - (sub_y + 3)) / 22;
-                if (sub_idx >= 0 && sub_idx < file_cnt) {
-                    teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_OPEN_ASSET, sub_idx);
-                    teditor_close_menu(ed);
-                    return TRUE;
-                }
-            }
-        }
-
-        /* Click inside active dropdown menu */
-        if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
-            int idx = (y - (menu_y + 3)) / 22;
-            if (idx >= 0 && idx < hdr->item_count) {
-                if (hdr->items[idx].has_submenu) {
-                    ed->active_submenu = idx;
-                    return TRUE;
-                } else if (hdr->items[idx].enabled) {
-                    teditor_execute_menu_cmd(ed, wnd, hdr->items[idx].cmd, -1);
-                    teditor_close_menu(ed);
-                    return TRUE;
-                }
-            }
-        }
-
-        /* Click on another menu header */
-        if (y >= 0 && y <= 21) {
-            for (int m = 0; m < TMENU_COUNT; m++) {
-                if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
-                    if (ed->active_menu == m) {
-                        teditor_close_menu(ed);
-                    } else {
-                        teditor_open_menu(ed, m);
-                    }
-                    return TRUE;
-                }
-            }
-        }
-
-        /* Clicked outside menu -> dismiss menu */
-        teditor_close_menu(ed);
-        return TRUE;
-    }
-
-    /* Menu is not currently open; check if clicking on menu bar header */
-    if (y >= 0 && y <= 21) {
-        for (int m = 0; m < TMENU_COUNT; m++) {
-            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
-                teditor_open_menu(ed, m);
-                return TRUE;
-            }
-        }
-    }
-
-    return FALSE;
+    return app_menu_create_about_dialog("T-Editor", "文書編集",
+                                        "Cleanroom BTRON Word Processor",
+                                        "Brought to B-System by 5HT",
+                                        240, 160);
 }
 
 static void handle_t_editor_event(WND *wnd, const EVT *evt) {
@@ -927,7 +678,11 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     if (evt->type == EV_MOUSE_MOVE) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        teditor_handle_menu_mouse_move(ed, rel_x, rel_y);
+        if (app_menu_handle_mouse_move(&ed->menu_bar, rel_x, rel_y)) {
+            teditor_sync_menu_state(ed);
+            return;
+        }
+        teditor_sync_menu_state(ed);
         return;
     }
 
@@ -935,24 +690,24 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
 
-        /* 1. If an active menu or cascading submenu is open, handle click */
-        if (ed->active_menu >= 0) {
-            if (teditor_handle_menu_mouse_down(ed, wnd, rel_x, rel_y)) return;
+        int cmd = 0, sub_idx = -1;
+        if (app_menu_handle_mouse_down(&ed->menu_bar, rel_x, rel_y, &cmd, &sub_idx)) {
+            teditor_sync_menu_state(ed);
+            if (cmd != 0) {
+                teditor_execute_menu_cmd(ed, wnd, cmd, sub_idx);
+            }
+            return;
         }
+        teditor_sync_menu_state(ed);
 
-        /* 2. Menu Bar Header Click (y = 0..21) */
-        if (rel_y >= 0 && rel_y <= 21) {
-            if (teditor_handle_menu_mouse_down(ed, wnd, rel_x, rel_y)) return;
-        }
-
-        /* 3. Status Bar Footer click -> Toggle JP / EN mode */
+        /* Status Bar Footer click -> Toggle JP / EN mode */
         H client_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 26);
         if (rel_y >= client_h - 22) {
             tip_toggle_mode();
             return;
         }
 
-        /* 4. Editor client canvas click -> Move cursor (y >= 24) */
+        /* Editor client canvas click -> Move cursor (y >= 24) */
         if (rel_y >= 24) {
             int click_r = (rel_y - 24) / 18 + ed->scroll_row;
             if (click_r >= 0 && click_r < ed->total_lines) {
@@ -1123,129 +878,6 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     }
 }
 
-static void draw_3d_bevel_box(GDEV *dev, const RECT *r) {
-    fill_rec(dev, r, COLOR_LTGRAY);
-    drw_rec(dev, r);
-    /* 3D highlight: white top and left */
-    drw_lin(dev, r->left + 1, r->top + 1, r->right - 2, r->top + 1);
-    drw_lin(dev, r->left + 1, r->top + 1, r->left + 1, r->bottom - 2);
-    /* 3D shadow: dark gray bottom and right */
-    drw_lin(dev, r->left + 1, r->bottom - 2, r->right - 2, r->bottom - 2);
-    drw_lin(dev, r->right - 2, r->top + 1, r->right - 2, r->bottom - 2);
-}
-
-static void draw_menu_separator_v(GDEV *dev, H x, H y1, H y2) {
-    RECT shadow = { x, y1, x + 1, y2 };
-    RECT highlight = { x + 1, y1, x + 2, y2 };
-    fill_rec(dev, &shadow, COLOR_DKGRAY);
-    fill_rec(dev, &highlight, COLOR_WHITE);
-}
-
-static void paint_menu_bar(TEditor *ed, GDEV *dev) {
-    RECT bar_rect = { 0, 0, dev->width, 21 };
-    fill_rec(dev, &bar_rect, COLOR_LTGRAY);
-    drw_lin(dev, 0, 21, dev->width, 21);
-
-    for (int m = 0; m < TMENU_COUNT; m++) {
-        const TMenuHeader *hdr = &g_menus[m];
-        RECT hr = hdr->rect;
-        if (ed->active_menu == m) {
-            fill_rec(dev, &hr, COLOR_NAVY);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
-        } else if (ed->hover_menu == m) {
-            fill_rec(dev, &hr, COLOR_WHITE);
-            drw_rec(dev, &hr);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_NAVY, 0x00000000);
-        } else {
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
-        }
-
-        /* Explicit horizontal separator / distance shadow between menu items */
-        if (m < TMENU_COUNT - 1) {
-            H sep_x = (hdr->rect.right + g_menus[m + 1].rect.left) / 2;
-            draw_menu_separator_v(dev, sep_x, 3, 19);
-        }
-    }
-
-    /* Document Status Title (Right-Aligned with 14px window margin) */
-    char title_buf[128];
-    snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
-    int title_w = tc_calc_string_width(title_buf, (int)strlen(title_buf));
-    int title_x = dev->width - title_w - 14;
-    if (title_x > g_menus[TMENU_COUNT - 1].rect.right + 20) {
-        draw_menu_separator_v(dev, title_x - 8, 3, 19);
-        drw_tc_string(dev, title_x, 3, title_buf, COLOR_NAVY, COLOR_LTGRAY);
-    }
-}
-
-static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
-    if (!ed || ed->active_menu < 0 || ed->active_menu >= TMENU_COUNT) return;
-
-    const TMenuHeader *hdr = &g_menus[ed->active_menu];
-    H menu_x = hdr->rect.left;
-    H menu_y = 21;
-    H menu_w = TMENU_DROPDOWN_WIDTH;
-    H menu_h = hdr->item_count * 22 + 6;
-
-    RECT menu_box = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
-    draw_3d_bevel_box(dev, &menu_box);
-
-    for (int i = 0; i < hdr->item_count; i++) {
-        const TMenuItem *it = &hdr->items[i];
-        RECT ir = { menu_x + 3, menu_y + 3 + i * 22, menu_x + menu_w - 3, menu_y + 3 + (i + 1) * 22 };
-
-        if (it->cmd == TCMD_NONE) {
-            /* Separator */
-            drw_lin(dev, ir.left + 4, ir.top + 10, ir.right - 4, ir.top + 10);
-            continue;
-        }
-
-        BOOL is_hov = (ed->hover_item == i && it->enabled);
-        if (is_hov) {
-            fill_rec(dev, &ir, COLOR_NAVY);
-        }
-
-        COLOR txt_col = is_hov ? COLOR_WHITE : (it->enabled ? COLOR_BLACK : COLOR_GRAY);
-        COLOR acc_col = is_hov ? COLOR_LTGRAY : (it->enabled ? COLOR_DKGRAY : COLOR_GRAY);
-
-        drw_tc_string(dev, ir.left + 8, ir.top + 3, it->label, txt_col, 0x00000000);
-
-        if (it->accel && it->accel[0] != '\0') {
-            drw_tc_string(dev, ir.right - 58, ir.top + 3, it->accel, acc_col, 0x00000000);
-        }
-
-        if (it->has_submenu) {
-            drw_tc_string(dev, ir.right - 18, ir.top + 3, "▶", txt_col, 0x00000000);
-        }
-    }
-
-    /* Draw cascading submenu if active */
-    if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
-        char files[32][64];
-        int file_cnt = teditor_get_asset_files(files, 32);
-        H sub_x = menu_x + menu_w - 2;
-        H sub_y = menu_y + 3 + (1 * 22);
-        H sub_w = TMENU_SUBMENU_WIDTH;
-        H sub_h = file_cnt * 22 + 6;
-
-        RECT sub_box = { sub_x, sub_y, sub_x + sub_w, sub_y + sub_h };
-        draw_3d_bevel_box(dev, &sub_box);
-
-        for (int f = 0; f < file_cnt; f++) {
-            RECT sir = { sub_x + 3, sub_y + 3 + f * 22, sub_x + sub_w - 3, sub_y + 3 + (f + 1) * 22 };
-            BOOL is_sub_hov = (ed->hover_subitem == f);
-            if (is_sub_hov) {
-                fill_rec(dev, &sir, COLOR_NAVY);
-            }
-            COLOR sub_txt_col = is_sub_hov ? COLOR_WHITE : COLOR_BLACK;
-
-            char fname_buf[80];
-            snprintf(fname_buf, sizeof(fname_buf), "%s", files[f]);
-            drw_tc_string(dev, sir.left + 8, sir.top + 3, fname_buf, sub_txt_col, 0x00000000);
-        }
-    }
-}
-
 static void paint_t_editor(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
     TEditor *ed = (wnd->user_data) ? (TEditor*)(uintptr_t)wnd->user_data : &g_teditor;
@@ -1256,7 +888,11 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     drw_rec(dev, &r);
 
     /* ── 1. BTRON 3.20 Standard Menu Bar with Integrated IME & Status ─── */
-    paint_menu_bar(ed, dev);
+    if (ed->menu_bar.header_count == 0) teditor_init_menu_bar(ed);
+    char title_buf[128];
+    snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
+    app_menu_set_right_text(&ed->menu_bar, title_buf);
+    app_menu_paint_bar(&ed->menu_bar, dev);
 
     /* ── 2. Render Gutter & Text Lines (Canvas starts directly at y=24) ── */
     int view_rows = (dev->height - 60) / 18;
@@ -1278,50 +914,39 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
         /* Line content */
         const char *line = ed->lines[r_idx];
-        if (!ed->sel_active) {
-            drw_tc_string(dev, text_x_start, y, line, COLOR_BLACK, COLOR_WHITE);
-        } else {
-            const char *p = line;
-            int byte_idx = 0;
-            int x = text_x_start;
-            while (*p && x < dev->width - 16) {
-                int consumed = 0;
-                TC code = utf8_to_tc(p, &consumed);
-                int step = (consumed > 0 ? consumed : 1);
-                H gw = (code < 128) ? 8 : 16;
-                if ((code >> 8) == 0x6F) {
-                    UW cp = 0x0F00 + (code & 0xFF);
-                    if ((cp >= 0x0F71 && cp <= 0x0F84) || (cp >= 0x0F90 && cp <= 0x0FBC)) gw = 0;
-                    else if (cp == 0x0F0B || cp == 0x0F0D || cp == 0x0F0E) gw = 6;
-                    else gw = 14;
-                }
+        const char *p = line;
+        int byte_idx = 0;
+        int x = text_x_start;
+        while (*p && x < dev->width - 16) {
+            int consumed = 0;
+            TC code = utf8_to_tc(p, &consumed);
+            int step = (consumed > 0 ? consumed : 1);
 
-                char ch_str[8];
-                int n = (step < 7) ? step : 7;
-                for (int k = 0; k < n; k++) ch_str[k] = p[k];
-                ch_str[n] = '\0';
-
-                BOOL is_selected = FALSE;
-                int r1 = ed->sel_start_r, c1 = ed->sel_start_c;
-                int r2 = ed->sel_end_r, c2 = ed->sel_end_c;
-                if (r1 > r2 || (r1 == r2 && c1 > c2)) {
-                    int tr = r1; r1 = r2; r2 = tr;
-                    int tc = c1; c1 = c2; c2 = tc;
-                }
-                if (r_idx > r1 && r_idx < r2) is_selected = TRUE;
-                else if (r_idx == r1 && r_idx == r2 && byte_idx >= c1 && byte_idx < c2) is_selected = TRUE;
-                else if (r_idx == r1 && r_idx < r2 && byte_idx >= c1) is_selected = TRUE;
-                else if (r_idx == r2 && r_idx > r1 && byte_idx < c2) is_selected = TRUE;
-
-                COLOR fg = is_selected ? COLOR_WHITE : COLOR_BLACK;
-                COLOR bg = is_selected ? COLOR_NAVY : COLOR_WHITE;
-
-                drw_tc_string(dev, x, y, ch_str, fg, bg);
-
-                p += step;
-                byte_idx += step;
-                x += gw;
+            /* Selection check */
+            BOOL in_sel = FALSE;
+            if (r_idx > ed->sel_start_r && r_idx < ed->sel_end_r) in_sel = TRUE;
+            else if (r_idx == ed->sel_start_r && r_idx == ed->sel_end_r) {
+                if (byte_idx >= ed->sel_start_c && byte_idx < ed->sel_end_c) in_sel = TRUE;
+            } else if (r_idx == ed->sel_start_r) {
+                if (byte_idx >= ed->sel_start_c) in_sel = TRUE;
+            } else if (r_idx == ed->sel_end_r) {
+                if (byte_idx < ed->sel_end_c) in_sel = TRUE;
             }
+
+            COLOR fg = in_sel ? COLOR_WHITE : COLOR_BLACK;
+            COLOR bg = in_sel ? COLOR_NAVY : COLOR_WHITE;
+            char glyph[8] = "";
+            memcpy(glyph, p, step);
+            glyph[step] = '\0';
+
+            int gw = tc_calc_string_width(glyph, step);
+            RECT gr = { x, y, x + gw, y + 16 };
+            if (in_sel) fill_rec(dev, &gr, bg);
+            drw_tc_string(dev, x, y, glyph, fg, bg);
+
+            x += gw;
+            p += step;
+            byte_idx += step;
         }
 
         /* Draw Blinking/Solid Cursor and Inline TIP Composition */
@@ -1354,7 +979,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
         drw_tc_string(dev, 42, dev->height - 38, vobj_str, COLOR_NAVY, COLOR_LTGRAY);
     }
 
-    /* Status Bar Footer with Mozc indicator (REQ-5) */
+    /* Status Bar Footer with Mozc indicator */
     RECT sb = { 0, dev->height - 20, dev->width, dev->height };
     fill_rec(dev, &sb, COLOR_LTGRAY);
     drw_lin(dev, 0, dev->height - 20, dev->width, dev->height - 20);
@@ -1376,7 +1001,14 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     drw_tc_string(dev, mode_badge.left + 6, mode_badge.top + 2, badge_str, COLOR_BLACK, 0x00000000);
 
     /* ── 4. Floating Menu & Cascading Submenu Overlay (Topmost Layer) ─── */
-    paint_menu_dropdown_overlay(ed, dev);
+    if (ed->menu_bar.active_menu >= 0) {
+        app_menu_paint_dropdown(&ed->menu_bar, dev);
+        if (ed->menu_bar.active_menu == 0 && ed->menu_bar.active_submenu == 1) {
+            char files[32][64];
+            int file_cnt = teditor_get_asset_files(files, 32);
+            app_menu_paint_cascading_strings(&ed->menu_bar, dev, (const char(*)[64])files, file_cnt);
+        }
+    }
 }
 
 WND* open_t_editor_window_with_file(const char *filepath) {

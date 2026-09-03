@@ -7,6 +7,7 @@
 #include <btron/dp.h>
 #include <btron/troncode.h>
 #include <btron/wnd.h>
+#include <btron/app_menu.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -101,23 +102,28 @@ static void paint_appearance_settings(WND *wnd, GDEV *dev) {
     drw_tc_string(dev, 8, 6, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: System Themes & Visual Appearance */
-    RECT s1 = { 10, 38, dev->width - 10, 154 };
+    RECT s1 = { 10, 34, dev->width - 10, 186 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 30, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_radio(dev, 18, 52, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
-    paint_ui_radio(dev, 18, 74, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
-    paint_ui_radio(dev, 18, 96, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
-    paint_ui_checkbox(dev, 18, 118, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
+    drw_tc_string(dev, 16, 26, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_radio(dev, 18, 44, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
+    paint_ui_radio(dev, 18, 66, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
+    paint_ui_radio(dev, 18, 88, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
+    paint_ui_checkbox(dev, 18, 110, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
+
+    /* Menu Style Toggle Options */
+    BOOL is_classic = (app_menu_get_global_style() == APP_MENU_STYLE_CLASSIC_3D);
+    paint_ui_radio(dev, 18, 134, "Menu Style: Classic Chokanji 3D (超漢字3Dベベル)", is_classic, FALSE);
+    paint_ui_radio(dev, 18, 156, "Menu Style: Modern Flat Card (現代風カード)", !is_classic, FALSE);
 
     /* Section 2: Typography & Glyph Rendering */
-    RECT s2 = { 10, 168, dev->width - 10, 262 };
+    RECT s2 = { 10, 196, dev->width - 10, 280 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 160, " [2. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 182, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
-    paint_ui_checkbox(dev, 18, 204, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
-    paint_ui_checkbox(dev, 18, 226, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
+    drw_tc_string(dev, 16, 188, " [2. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 206, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
+    paint_ui_checkbox(dev, 18, 228, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
+    paint_ui_checkbox(dev, 18, 250, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;
@@ -134,43 +140,55 @@ static void handle_appearance_event(WND *wnd, const EVT *evt) {
         H client_w = wnd->client.right - wnd->client.left;
         H client_h = wnd->client.bottom - wnd->client.top;
 
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 50 && rel_y <= 68) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 42 && rel_y <= 60) {
             g_state_appearance.checks[0] = !g_state_appearance.checks[0];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 72 && rel_y <= 90) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 64 && rel_y <= 82) {
             g_state_appearance.checks[1] = !g_state_appearance.checks[1];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 94 && rel_y <= 112) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 86 && rel_y <= 104) {
             g_state_appearance.checks[2] = !g_state_appearance.checks[2];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 116 && rel_y <= 134) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 108 && rel_y <= 126) {
             g_state_appearance.checks[3] = !g_state_appearance.checks[3];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 180 && rel_y <= 198) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 132 && rel_y <= 150) {
+            app_menu_set_global_style(APP_MENU_STYLE_CLASSIC_3D);
+            g_state_appearance.is_dirty = TRUE;
+            redraw_all_windows();
+            return;
+        }
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 154 && rel_y <= 172) {
+            app_menu_set_global_style(APP_MENU_STYLE_MODERN_CARD);
+            g_state_appearance.is_dirty = TRUE;
+            redraw_all_windows();
+            return;
+        }
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 204 && rel_y <= 222) {
             g_state_appearance.checks[4] = !g_state_appearance.checks[4];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 202 && rel_y <= 220) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 226 && rel_y <= 244) {
             g_state_appearance.checks[5] = !g_state_appearance.checks[5];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 224 && rel_y <= 242) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 248 && rel_y <= 266) {
             g_state_appearance.checks[6] = !g_state_appearance.checks[6];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();

@@ -97,6 +97,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/font/jis_fonts.c     \
               src/font/tibetan_fonts.c \
               src/window/wnd.c         \
+              src/window/app_menu.c    \
               src/window/event.c       \
               src/vobject/vobj.c       \
               src/desktop/desktop.c    \
@@ -213,6 +214,7 @@ COMMON_NO_SDL_SRCS = \
     src/font/jis_fonts.c   \
     src/font/tibetan_fonts.c \
     src/window/wnd.c       \
+    src/window/app_menu.c  \
     src/window/event.c     \
     src/vobject/vobj.c     \
     src/desktop/desktop.c  \
@@ -560,7 +562,7 @@ $(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # T-Editor UI & Internal Functions Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/apps/t_editor.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
+TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/apps/t_editor.c src/window/app_menu.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
                    src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                    src/graphics/dp_core.c
 TEST_EDITOR_OBJS = $(TEST_EDITOR_SRCS:.c=.test.o)
@@ -606,7 +608,7 @@ html2tad:
 # ═══════════════════════════════════════════════════════════════════
 # Native TAD Document Browser & Cabinet Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c \
+TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c src/window/app_menu.c \
                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c \
                 src/window/wnd.c src/graphics/dp_core.c
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
@@ -684,6 +686,7 @@ TEST_SETTINGS_SRCS = src/settings/test_language_settings.c \
                      src/font/jis_fonts.c \
                      src/font/tibetan_fonts.c \
                      src/window/wnd.c \
+                     src/window/app_menu.c \
                      src/graphics/dp_core.c \
                      src/tip/tip_vobj.c
 
@@ -717,7 +720,24 @@ test-global-menu: $(TEST_GMENU_BIN)
 $(TEST_GMENU_BIN): $(TEST_GMENU_OBJS)
 	$(CC) $(TEST_GMENU_OBJS) -o $@ $(LDFLAGS) -lm
 
-test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker test-settings test-global-menu
+# ═══════════════════════════════════════════════════════════════════
+# Common Application Menu Subsystem Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_APP_MENU_SRCS = src/window/test_app_menu.c src/window/app_menu.c src/window/wnd.c \
+                     src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
+TEST_APP_MENU_OBJS = $(TEST_APP_MENU_SRCS:.c=.test.o)
+TEST_APP_MENU_BIN  = test_app_menu
+
+test-app-menu: $(TEST_APP_MENU_BIN)
+	@echo "=========================================================="
+	@echo " Running Common Application Menu Subsystem Tests..."
+	@echo "=========================================================="
+	@./$(TEST_APP_MENU_BIN)
+
+$(TEST_APP_MENU_BIN): $(TEST_APP_MENU_OBJS)
+	$(CC) $(TEST_APP_MENU_OBJS) -o $@ $(LDFLAGS)
+
+test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker test-settings test-global-menu test-app-menu
 	@echo "=========================================================="
 	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
 	@echo "=========================================================="

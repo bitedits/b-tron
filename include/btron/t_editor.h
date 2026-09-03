@@ -14,6 +14,8 @@ extern "C" {
 #define TEDITOR_VIEW_ROWS 14
 #define TEDITOR_VIEW_COLS 80
 
+#include <btron/app_menu.h>
+
 typedef struct {
     char lines[TEDITOR_MAX_ROWS][TEDITOR_MAX_COLS];
     int total_lines;
@@ -45,6 +47,7 @@ typedef struct {
     int active_submenu;    /* -1 = none, 0..N = item index spawning cascading submenu */
     int hover_subitem;     /* -1 = none, 0..N = hovered item in cascading submenu */
     BOOL show_line_nums;   /* TRUE = display gutter line numbers */
+    APP_MENU_BAR menu_bar;
 } TEditor;
 
 WND* open_t_editor_window(void);

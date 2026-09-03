@@ -11,6 +11,7 @@
 #include <btron/wnd.h>
 #include <btron/dp.h>
 #include <btron/vobj.h>
+#include <btron/app_menu.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,6 +92,7 @@ typedef struct {
     int hover_submenu;      /* -1 = none, 0..N = hovered cascading submenu item */
     BOOL wrap_text;         /* TRUE by default */
     int zoom_percent;       /* 100 default */
+    APP_MENU_BAR menu_bar;
 } TAD_BROWSER;
 
 /* Lifecycle & Window APIs */

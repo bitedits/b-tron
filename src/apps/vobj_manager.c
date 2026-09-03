@@ -10,6 +10,7 @@
 #include <btron/event.h>
 #include <btron/error.h>
 #include <btron/tad_browser.h>
+#include <btron/app_menu.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -81,6 +82,7 @@ typedef struct {
     int hover_menu;        /* -1 = none, 0..4 = hovered header in closed state */
     int hover_item;        /* -1 = none, 0..N = hovered dropdown item */
     int sort_mode;         /* 0=Name, 1=Date/ID, 2=Size, 3=TOC/Type */
+    APP_MENU_BAR menu_bar;
 } CABINET_EXPLORER;
 
 static CABINET_EXPLORER g_cabinet;
@@ -413,148 +415,58 @@ enum {
     CCMD_HELP_GUIDE
 };
 
-typedef struct {
-    char label[64];
-    char shortcut[16];
-    int cmd_id;
-    BOOL is_separator;
-    BOOL is_checked;
-    BOOL enabled;
-} CabMenuItem;
-
-typedef struct {
-    const char *title;
-    RECT rect;
-    int item_count;
-    CabMenuItem items[10];
-} CabMenuHeader;
-
-static CabMenuHeader s_cab_headers[CMENU_HDR_COUNT] = {
-    {
-        .title = "ファイル(F)",
-        .rect = { 4, 0, 108, 21 },
-        .item_count = 7,
-        .items = {
-            { "実身を開く (Open)", "Enter", CCMD_FILE_OPEN, FALSE, FALSE, TRUE },
-            { "実身を閲覧 (View)", "Space", CCMD_FILE_VIEW_TAD, FALSE, FALSE, TRUE },
-            { "新規実身の作成 (New)", "Ctrl+N", CCMD_FILE_NEW, FALSE, FALSE, TRUE },
-            { "---", "", CCMD_NONE, TRUE, FALSE, FALSE },
-            { "実身の複製 (Duplicate)", "Ctrl+D", CCMD_FILE_DUPLICATE, FALSE, FALSE, TRUE },
-            { "---", "", CCMD_NONE, TRUE, FALSE, FALSE },
-            { "閉じる (Close)", "Ctrl+W", CCMD_FILE_CLOSE, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "編集(E)",
-        .rect = { 114, 0, 186, 21 },
-        .item_count = 5,
-        .items = {
-            { "すべて選択 (Select All)", "Ctrl+A", CCMD_EDIT_SELECT_ALL, FALSE, FALSE, TRUE },
-            { "選択解除 (Deselect)", "Esc", CCMD_EDIT_DESELECT, FALSE, FALSE, TRUE },
-            { "---", "", CCMD_NONE, TRUE, FALSE, FALSE },
-            { "名称変更 (Rename)", "F2", CCMD_EDIT_RENAME, FALSE, FALSE, TRUE },
-            { "属性 (Properties...)", "Alt+Enter", CCMD_EDIT_PROPERTIES, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "表示(V)",
-        .rect = { 192, 0, 264, 21 },
-        .item_count = 8,
-        .items = {
-            { "一覧表示 (List View)", "Ctrl+1", CCMD_VIEW_LIST, FALSE, FALSE, TRUE },
-            { "アイコン表示 (Icon View)", "Ctrl+2", CCMD_VIEW_GRID, FALSE, FALSE, TRUE },
-            { "---", "", CCMD_NONE, TRUE, FALSE, FALSE },
-            { "名前順で整列 (Sort Name)", "F6", CCMD_VIEW_SORT_NAME, FALSE, FALSE, TRUE },
-            { "日付順で整列 (Sort Date)", "F7", CCMD_VIEW_SORT_DATE, FALSE, FALSE, TRUE },
-            { "サイズ順で整列 (Sort Size)", "F8", CCMD_VIEW_SORT_SIZE, FALSE, FALSE, TRUE },
-            { "種類順で整列 (Sort Type)", "F9", CCMD_VIEW_SORT_TYPE, FALSE, FALSE, TRUE },
-            { "再走査・更新 (Rescan)", "F5", CCMD_VIEW_REFRESH, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "仮身(O)",
-        .rect = { 270, 0, 342, 21 },
-        .item_count = 3,
-        .items = {
-            { "仮身リンク作成 (New Link)", "Ctrl+L", CCMD_VOBJ_CREATE_LINK, FALSE, FALSE, TRUE },
-            { "キャビネット移動 (Move...)", "", CCMD_VOBJ_MOVE, FALSE, FALSE, TRUE },
-            { "総索引 (Global Index)", "Ctrl+I", CCMD_VOBJ_GLOBAL_INDEX, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "ヘルプ(H)",
-        .rect = { 348, 0, 436, 21 },
-        .item_count = 2,
-        .items = {
-            { "キャビネット について (About)", "", CCMD_HELP_ABOUT, FALSE, FALSE, TRUE },
-            { "実身・仮身モデル解説 (Guide)", "", CCMD_HELP_GUIDE, FALSE, FALSE, TRUE }
-        }
-    }
-};
-
-static void draw_cab_menu_separator_v(GDEV *dev, H x, H y1, H y2) {
-    if (!dev) return;
-    RECT s1 = { x, y1, x + 1, y2 };
-    RECT s2 = { x + 1, y1, x + 2, y2 };
-    fill_rec(dev, &s1, COLOR_DKGRAY);
-    fill_rec(dev, &s2, COLOR_WHITE);
+static void cab_sync_menu_state(void) {
+    g_cabinet.active_menu = g_cabinet.menu_bar.active_menu;
+    g_cabinet.hover_menu = g_cabinet.menu_bar.hover_menu;
+    g_cabinet.hover_item = g_cabinet.menu_bar.hover_item;
 }
 
-/* ── Nano About Box for Cabinet ────────────────────────────────────── */
-static void paint_vobj_about_window(WND *wnd, GDEV *dev) {
-    if (!wnd || !dev) return;
-    RECT r = { 0, 0, dev->width, dev->height };
-    fill_rec(dev, &r, COLOR_LTGRAY);
-    drw_rec(dev, &r);
+static void cab_init_menu_bar(void) {
+    app_menu_init(&g_cabinet.menu_bar, APP_MENU_STYLE_CLASSIC_3D);
 
-    RECT card = { 6, 6, dev->width - 6, dev->height - 34 };
-    fill_rec(dev, &card, COLOR_WHITE);
-    drw_rec(dev, &card);
+    int h0 = app_menu_add_header(&g_cabinet.menu_bar, "ファイル(F)", 104);
+    app_menu_add_item(&g_cabinet.menu_bar, h0, "実身を開く (Open)", "Enter", CCMD_FILE_OPEN, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h0, "実身を閲覧 (View)", "Space", CCMD_FILE_VIEW_TAD, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h0, "新規実身の作成 (New)", "Ctrl+N", CCMD_FILE_NEW, TRUE);
+    app_menu_add_separator(&g_cabinet.menu_bar, h0);
+    app_menu_add_item(&g_cabinet.menu_bar, h0, "実身の複製 (Duplicate)", "Ctrl+D", CCMD_FILE_DUPLICATE, TRUE);
+    app_menu_add_separator(&g_cabinet.menu_bar, h0);
+    app_menu_add_item(&g_cabinet.menu_bar, h0, "閉じる (Close)", "Ctrl+W", CCMD_FILE_CLOSE, TRUE);
 
-    drw_tc_string(dev, 16, 12, "Cabinet 3.20 (実身・仮身)", COLOR_NAVY, 0x00000000);
-    drw_tc_string(dev, 16, 30, "Cleanroom BTRON Object Manager", COLOR_DKGRAY, 0x00000000);
-    drw_tc_string(dev, 16, 50, "Brought to B-System by 5HT", COLOR_BLACK, 0x00000000);
+    int h1 = app_menu_add_header(&g_cabinet.menu_bar, "編集(E)", 72);
+    app_menu_add_item(&g_cabinet.menu_bar, h1, "すべて選択 (Select All)", "Ctrl+A", CCMD_EDIT_SELECT_ALL, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h1, "選択解除 (Deselect)", "Esc", CCMD_EDIT_DESELECT, TRUE);
+    app_menu_add_separator(&g_cabinet.menu_bar, h1);
+    app_menu_add_item(&g_cabinet.menu_bar, h1, "名称変更 (Rename)", "F2", CCMD_EDIT_RENAME, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h1, "属性 (Properties...)", "Alt+Enter", CCMD_EDIT_PROPERTIES, TRUE);
 
-    H btn_w = 64, btn_h = 20;
-    H btn_x = (dev->width - btn_w) / 2;
-    H btn_y = dev->height - 26;
-    RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
-    fill_rec(dev, &ok_btn, COLOR_LTGRAY);
-    drw_rec(dev, &ok_btn);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
-    drw_tc_string(dev, btn_x + 22, btn_y + 2, "OK", COLOR_BLACK, 0x00000000);
-}
+    int h2 = app_menu_add_header(&g_cabinet.menu_bar, "表示(V)", 72);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "一覧表示 (List View)", "Ctrl+1", CCMD_VIEW_LIST, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "アイコン表示 (Icon View)", "Ctrl+2", CCMD_VIEW_GRID, TRUE);
+    app_menu_add_separator(&g_cabinet.menu_bar, h2);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "名前順で整列 (Sort Name)", "F6", CCMD_VIEW_SORT_NAME, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "日付順で整列 (Sort Date)", "F7", CCMD_VIEW_SORT_DATE, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "サイズ順で整列 (Sort Size)", "F8", CCMD_VIEW_SORT_SIZE, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "種類順で整列 (Sort Type)", "F9", CCMD_VIEW_SORT_TYPE, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h2, "再走査・更新 (Rescan)", "F5", CCMD_VIEW_REFRESH, TRUE);
 
-static void handle_vobj_about_event(WND *wnd, const EVT *evt) {
-    if (!wnd || !evt) return;
+    int h3 = app_menu_add_header(&g_cabinet.menu_bar, "仮身(O)", 72);
+    app_menu_add_item(&g_cabinet.menu_bar, h3, "仮身リンク作成 (New Link)", "Ctrl+L", CCMD_VOBJ_CREATE_LINK, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h3, "キャビネット移動 (Move...)", "", CCMD_VOBJ_MOVE, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h3, "総索引 (Global Index)", "Ctrl+I", CCMD_VOBJ_GLOBAL_INDEX, TRUE);
 
-    if (evt->type == EV_BUT_DOWN) {
-        H rel_x = evt->pos.x - (wnd->bounds.left + 4);
-        H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        H btn_w = 64, btn_h = 20;
-        H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
-        H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
-        H btn_x = (dev_w - btn_w) / 2;
-        H btn_y = dev_h - 26;
-        if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
-            cls_wnd(wnd);
-        }
-    } else if (evt->type == EV_KEY_DOWN) {
-        if (evt->key == BTRON_KEY_ESCAPE || evt->key == 0x0D || evt->key == ' ') {
-            cls_wnd(wnd);
-        }
-    }
+    int h4 = app_menu_add_header(&g_cabinet.menu_bar, "ヘルプ(H)", 88);
+    app_menu_add_item(&g_cabinet.menu_bar, h4, "キャビネット について (About)", "", CCMD_HELP_ABOUT, TRUE);
+    app_menu_add_item(&g_cabinet.menu_bar, h4, "実身・仮身モデル解説 (Guide)", "", CCMD_HELP_GUIDE, TRUE);
+
+    cab_sync_menu_state();
 }
 
 WND* open_vobj_about_window(void) {
-    WND *wnd = opn_wnd("About Cabinet (バージョン情報)", 280, 180, 280, 135,
-                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
-    if (wnd) {
-        wnd->paint = paint_vobj_about_window;
-        wnd->event_handler = handle_vobj_about_event;
-    }
-    return wnd;
+    return app_menu_create_about_dialog("Cabinet", "実身・仮身",
+                                        "Cleanroom BTRON Object Manager",
+                                        "Brought to B-System by 5HT",
+                                        280, 180);
 }
 
 static void paint_vobj_manager(WND *wnd, GDEV *dev) {
@@ -565,114 +477,105 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
 
     /* ── 1. In-Window Application Menu Bar (y = 0..21) ────────────────────────── */
-    RECT mbar_r = { 0, 0, dev->width, 21 };
-    fill_rec(dev, &mbar_r, COLOR_LTGRAY);
-    drw_lin(dev, 0, 21, dev->width, 21);
-
-    for (int h = 0; h < CMENU_HDR_COUNT; h++) {
-        const CabMenuHeader *hdr = &s_cab_headers[h];
-        RECT hr = hdr->rect;
-        BOOL is_active = (g_cabinet.active_menu == h);
-        BOOL is_hover = (g_cabinet.hover_menu == h);
-
-        if (is_active) {
-            fill_rec(dev, &hr, COLOR_NAVY);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
-        } else if (is_hover) {
-            fill_rec(dev, &hr, COLOR_WHITE);
-            drw_rec(dev, &hr);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_NAVY, 0x00000000);
-        } else {
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
-        }
-
-        if (h < CMENU_HDR_COUNT - 1) {
-            H sep_x = (hdr->rect.right + s_cab_headers[h + 1].rect.left) / 2;
-            draw_cab_menu_separator_v(dev, sep_x, 3, 19);
-        }
-    }
-    draw_cab_menu_separator_v(dev, s_cab_headers[CMENU_HDR_COUNT - 1].rect.right + 3, 3, 19);
+    if (g_cabinet.menu_bar.header_count == 0) cab_init_menu_bar();
+    char count_buf[32];
+    snprintf(count_buf, sizeof(count_buf), "%d 実身", g_cabinet.item_count);
+    app_menu_set_right_text(&g_cabinet.menu_bar, count_buf);
+    app_menu_paint_bar(&g_cabinet.menu_bar, dev);
 
     /* Quick View Mode Toggle Button on right */
     if (dev->width >= 560) {
-        RECT view_btn = { (H)(s_cab_headers[CMENU_HDR_COUNT - 1].rect.right + 8), 1,
-                          (H)(s_cab_headers[CMENU_HDR_COUNT - 1].rect.right + 110), 20 };
+        RECT view_btn = { 440, 1, 542, 20 };
         fill_rec(dev, &view_btn, COLOR_WHITE);
         drw_rec(dev, &view_btn);
         const char *v_lbl = (g_cabinet.view_mode == CAB_VIEW_LIST) ? "[一覧表示]" : "[アイコン表示]";
         drw_tc_string(dev, view_btn.left + 8, view_btn.top + 2, v_lbl, COLOR_BLUE, 0x00000000);
     }
 
-    /* Right Margin: Item Count Status */
-    char count_buf[32];
-    snprintf(count_buf, sizeof(count_buf), "%d 実身", g_cabinet.item_count);
-    int cb_w = tc_calc_string_width(count_buf, (int)strlen(count_buf));
-    drw_tc_string(dev, dev->width - cb_w - 12, 3, count_buf, COLOR_DKGRAY, 0x00000000);
-
     /* ── 2. Content Viewport (starts at y = 26) ────────────────────────────── */
     int start_y = 26;
-    int visible_rows = (dev->height - 52) / 22;
+    int client_h = dev->height - 48;
+    int visible_rows = client_h / 22;
     if (visible_rows < 1) visible_rows = 1;
 
-    int max_scroll = g_cabinet.item_count - visible_rows;
-    if (max_scroll < 0) max_scroll = 0;
-    if (g_cabinet.scroll_offset > max_scroll) g_cabinet.scroll_offset = max_scroll;
-    if (g_cabinet.scroll_offset < 0) g_cabinet.scroll_offset = 0;
+    if (g_cabinet.view_mode == CAB_VIEW_LIST) {
+        for (int r_idx = 0; r_idx < visible_rows; r_idx++) {
+            int item_idx = g_cabinet.scroll_offset + r_idx;
+            if (item_idx >= g_cabinet.item_count) break;
 
-    int end_i = g_cabinet.scroll_offset + visible_rows;
-    if (end_i > g_cabinet.item_count) end_i = g_cabinet.item_count;
+            CABINET_ITEM *it = &g_cabinet.items[item_idx];
+            int y = start_y + r_idx * 22;
+            RECT row_r = { 4, y, dev->width - 4, y + 20 };
 
-    for (int i = g_cabinet.scroll_offset; i < end_i; i++) {
-        CABINET_ITEM *it = &g_cabinet.items[i];
-        int row_idx = i - g_cabinet.scroll_offset;
-        int item_y = start_y + (row_idx * 22);
+            BOOL is_sel = (g_cabinet.selected_idx == item_idx);
+            BOOL is_hov = (g_cabinet.hovered_idx == item_idx);
 
-        RECT row_rect = { 8, item_y - 2, dev->width - 24, item_y + 18 };
+            if (is_sel) {
+                fill_rec(dev, &row_r, COLOR_NAVY);
+            } else if (is_hov) {
+                fill_rec(dev, &row_r, COLOR_LTGRAY);
+            }
 
-        if (i == g_cabinet.selected_idx) {
-            fill_rec(dev, &row_rect, COLOR_NAVY);
-        } else if (i == g_cabinet.hovered_idx) {
-            fill_rec(dev, &row_rect, COLOR_LTGRAY);
-            drw_rec(dev, &row_rect);
+            COLOR txt_col = is_sel ? COLOR_WHITE : COLOR_BLACK;
+
+            /* Icon badge */
+            drw_tc_string(dev, 8, y + 2, (it->type == 1) ? "[文書]" : "[画像]", is_sel ? COLOR_WHITE : COLOR_BLUE, 0x00000000);
+
+            /* Real Object Name */
+            char name_str[80];
+            snprintf(name_str, sizeof(name_str), "%s", it->name);
+            drw_tc_string(dev, 60, y + 2, name_str, txt_col, 0x00000000);
+
+            /* Real Object ID */
+            char id_str[16];
+            snprintf(id_str, sizeof(id_str), "#%d", it->robj_id);
+            drw_tc_string(dev, dev->width - 150, y + 2, id_str, is_sel ? COLOR_WHITE : COLOR_DKGRAY, 0x00000000);
+
+            /* Byte Size */
+            char size_str[16];
+            snprintf(size_str, sizeof(size_str), "%u B", it->size_bytes);
+            drw_tc_string(dev, dev->width - 80, y + 2, size_str, is_sel ? COLOR_WHITE : COLOR_DKGRAY, 0x00000000);
         }
+    } else {
+        /* Grid Icon View */
+        int col_w = 90;
+        int row_h = 70;
+        int cols = (dev->width - 16) / col_w;
+        if (cols < 1) cols = 1;
 
-        COLOR txt_col = (i == g_cabinet.selected_idx) ? COLOR_WHITE : COLOR_BLACK;
+        for (int i = 0; i < g_cabinet.item_count; i++) {
+            CABINET_ITEM *it = &g_cabinet.items[i];
+            int col = i % cols;
+            int r_idx = i / cols;
+            int x = 12 + col * col_w;
+            int y = start_y + r_idx * row_h;
 
-        /* Col 1: Icon Tag */
-        drw_tc_string(dev, 14, item_y, it->icon_tag, txt_col, 0x00000000);
+            if (y + row_h > dev->height - 24) break;
 
-        /* Col 2: TOC Hierarchy Path */
-        drw_tc_string(dev, 115, item_y, it->category, txt_col, 0x00000000);
+            BOOL is_sel = (g_cabinet.selected_idx == i);
+            RECT box = { x, y, x + col_w - 8, y + row_h - 4 };
 
-        /* Col 3: Real Body ID */
-        char id_str[16];
-        snprintf(id_str, sizeof(id_str), "#%-4d", it->robj_id);
-        drw_tc_string(dev, 265, item_y, id_str, txt_col, 0x00000000);
+            if (is_sel) {
+                fill_rec(dev, &box, COLOR_NAVY);
+            } else {
+                fill_rec(dev, &box, COLOR_WHITE);
+                drw_rec(dev, &box);
+            }
 
-        /* Col 4: Document Name */
-        drw_tc_string(dev, 315, item_y, it->name, txt_col, 0x00000000);
+            COLOR fg = is_sel ? COLOR_WHITE : COLOR_BLACK;
 
-        /* Col 5: File Size */
-        char sz_str[24];
-        snprintf(sz_str, sizeof(sz_str), "%6u B", it->size_bytes);
-        drw_tc_string(dev, dev->width - 85, item_y, sz_str, txt_col, 0x00000000);
-    }
+            /* Icon box */
+            RECT icn = { x + (col_w - 8 - 28) / 2, y + 6, x + (col_w - 8 + 28) / 2, y + 34 };
+            fill_rec(dev, &icn, is_sel ? COLOR_WHITE : COLOR_LTGRAY);
+            drw_rec(dev, &icn);
+            drw_tc_string(dev, icn.left + 4, icn.top + 5, "実", COLOR_BLACK, 0x00000000);
 
-    /* ── 3. Scrollbar Indicator (Right Margin) ─────────────────────────────── */
-    if (g_cabinet.item_count > visible_rows) {
-        int sb_x = dev->width - 16;
-        RECT sb_track = { sb_x, 26, dev->width - 4, dev->height - 24 };
-        fill_rec(dev, &sb_track, COLOR_LTGRAY);
-        drw_rec(dev, &sb_track);
-
-        int track_h = (dev->height - 50);
-        int thumb_h = (visible_rows * track_h) / g_cabinet.item_count;
-        if (thumb_h < 15) thumb_h = 15;
-        int thumb_y = 26 + (g_cabinet.scroll_offset * (track_h - thumb_h)) / max_scroll;
-
-        RECT sb_thumb = { sb_x + 1, thumb_y, dev->width - 5, thumb_y + thumb_h };
-        fill_rec(dev, &sb_thumb, COLOR_DKGRAY);
-        drw_rec(dev, &sb_thumb);
+            /* Truncated Name */
+            char short_name[12];
+            strncpy(short_name, it->name, 10);
+            short_name[10] = '\0';
+            drw_tc_string(dev, x + 4, y + 38, short_name, fg, 0x00000000);
+        }
     }
 
     /* ── 4. Status Bar Footer (Bottom: height-22 .. height) ────────────────── */
@@ -689,43 +592,8 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
     drw_tc_string(dev, 10, dev->height - 17, foot_text, COLOR_BLACK, 0x00000000);
 
     /* ── 5. Dropdown Menu Overlay ──────────────────────────────────────────── */
-    if (g_cabinet.active_menu >= 0 && g_cabinet.active_menu < CMENU_HDR_COUNT) {
-        const CabMenuHeader *hdr = &s_cab_headers[g_cabinet.active_menu];
-        H menu_x = hdr->rect.left;
-        H menu_y = 22;
-        H menu_w = CMENU_DROPDOWN_WIDTH;
-        H menu_h = hdr->item_count * CMENU_ROW_HEIGHT + 6;
-
-        RECT mr = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
-        RECT shadow = { menu_x + 3, menu_y + 3, menu_x + menu_w + 3, menu_y + menu_h + 3 };
-        fill_rec(dev, &shadow, COLOR_DKGRAY);
-
-        fill_rec(dev, &mr, COLOR_WHITE);
-        drw_rec(dev, &mr);
-        drw_lin(dev, mr.left + 1, mr.top + 1, mr.right - 2, mr.top + 1);
-        drw_lin(dev, mr.left + 1, mr.top + 1, mr.left + 1, mr.bottom - 2);
-
-        for (int i = 0; i < hdr->item_count; i++) {
-            const CabMenuItem *it = &hdr->items[i];
-            RECT ir = { menu_x + 3, menu_y + 3 + i * CMENU_ROW_HEIGHT,
-                        menu_x + menu_w - 3, menu_y + 3 + (i + 1) * CMENU_ROW_HEIGHT };
-
-            if (it->is_separator) {
-                H sep_y = (ir.top + ir.bottom) / 2;
-                drw_lin(dev, ir.left + 4, sep_y, ir.right - 4, sep_y);
-                continue;
-            }
-
-            BOOL is_hov = (g_cabinet.hover_item == i);
-            if (is_hov) fill_rec(dev, &ir, COLOR_NAVY);
-            COLOR txt_col = is_hov ? COLOR_WHITE : (it->enabled ? COLOR_BLACK : COLOR_GRAY);
-
-            drw_tc_string(dev, ir.left + 8, ir.top + 2, it->label, txt_col, 0x00000000);
-            if (it->shortcut[0]) {
-                int sc_w = tc_calc_string_width(it->shortcut, (int)strlen(it->shortcut));
-                drw_tc_string(dev, ir.right - sc_w - 10, ir.top + 2, it->shortcut, txt_col, 0x00000000);
-            }
-        }
+    if (g_cabinet.menu_bar.active_menu >= 0) {
+        app_menu_paint_dropdown(&g_cabinet.menu_bar, dev);
     }
 }
 
@@ -736,55 +604,13 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
     H rel_y = evt->pos.y - (wnd->bounds.top + 26);
 
     if (evt->type == EV_MOUSE_MOVE) {
-        /* 1. Header Hover in closed state (y = 0..21) */
-        if (g_cabinet.active_menu == -1) {
-            g_cabinet.hover_menu = -1;
-            if (rel_y >= 0 && rel_y <= 21) {
-                for (int h = 0; h < CMENU_HDR_COUNT; h++) {
-                    if (rel_x >= s_cab_headers[h].rect.left && rel_x <= s_cab_headers[h].rect.right) {
-                        g_cabinet.hover_menu = h;
-                        break;
-                    }
-                }
-            }
-        }
-        /* 2. Hot header tracking and dropdown item tracking when active */
-        else {
-            if (rel_y >= 0 && rel_y <= 21) {
-                for (int h = 0; h < CMENU_HDR_COUNT; h++) {
-                    if (rel_x >= s_cab_headers[h].rect.left && rel_x <= s_cab_headers[h].rect.right) {
-                        if (g_cabinet.active_menu != h) {
-                            g_cabinet.active_menu = h;
-                            g_cabinet.hover_menu = h;
-                            g_cabinet.hover_item = -1;
-                        }
-                        return;
-                    }
-                }
-            }
-
-            const CabMenuHeader *hdr = &s_cab_headers[g_cabinet.active_menu];
-            H menu_x = hdr->rect.left;
-            H menu_y = 22;
-            H menu_w = CMENU_DROPDOWN_WIDTH;
-            H menu_h = hdr->item_count * CMENU_ROW_HEIGHT + 6;
-
-            if (rel_x >= menu_x && rel_x <= menu_x + menu_w && rel_y >= menu_y && rel_y <= menu_y + menu_h) {
-                int item_idx = (rel_y - (menu_y + 3)) / CMENU_ROW_HEIGHT;
-                if (item_idx >= 0 && item_idx < hdr->item_count) {
-                    if (!hdr->items[item_idx].is_separator && hdr->items[item_idx].enabled) {
-                        g_cabinet.hover_item = item_idx;
-                    } else {
-                        g_cabinet.hover_item = -1;
-                    }
-                }
-            } else {
-                g_cabinet.hover_item = -1;
-            }
+        if (app_menu_handle_mouse_move(&g_cabinet.menu_bar, rel_x, rel_y)) {
+            cab_sync_menu_state();
             return;
         }
+        cab_sync_menu_state();
 
-        /* 3. List Item Hover (starts at y = 26) */
+        /* List Item Hover (starts at y = 26) */
         int start_y = 26;
         int row = (rel_y - start_y) / 22;
         int idx = g_cabinet.scroll_offset + row;
@@ -797,108 +623,74 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
     }
 
     if (evt->type == EV_BUT_DOWN) {
-        /* A. Menu Bar Header Clicks (y = 0..21) */
-        if (rel_y >= 0 && rel_y <= 21) {
-            for (int h = 0; h < CMENU_HDR_COUNT; h++) {
-                if (rel_x >= s_cab_headers[h].rect.left && rel_x <= s_cab_headers[h].rect.right) {
-                    if (g_cabinet.active_menu == h) {
-                        g_cabinet.active_menu = -1;
-                        g_cabinet.hover_item = -1;
-                    } else {
-                        g_cabinet.active_menu = h;
-                        g_cabinet.hover_menu = h;
-                        g_cabinet.hover_item = -1;
-                    }
-                    return;
-                }
-            }
-
-            /* Quick toggle button on right of Menu Bar */
-            H dev_w = wnd->dev ? wnd->dev->width : 560;
-            if (dev_w >= 560) {
-                H btn_l = s_cab_headers[CMENU_HDR_COUNT - 1].rect.right + 8;
-                H btn_r = btn_l + 102;
-                if (rel_x >= btn_l && rel_x <= btn_r) {
-                    g_cabinet.view_mode = (g_cabinet.view_mode == CAB_VIEW_LIST) ? CAB_VIEW_GRID : CAB_VIEW_LIST;
-                    return;
-                }
+        /* Quick toggle button on right of Menu Bar */
+        H dev_w = wnd->dev ? wnd->dev->width : 560;
+        if (dev_w >= 560 && rel_y >= 0 && rel_y <= 21) {
+            if (rel_x >= 440 && rel_x <= 542) {
+                g_cabinet.view_mode = (g_cabinet.view_mode == CAB_VIEW_LIST) ? CAB_VIEW_GRID : CAB_VIEW_LIST;
+                return;
             }
         }
 
-        /* B. Dropdown Menu Item Clicks */
-        if (g_cabinet.active_menu >= 0) {
-            const CabMenuHeader *hdr = &s_cab_headers[g_cabinet.active_menu];
-            H menu_x = hdr->rect.left;
-            H menu_y = 22;
-            H menu_w = CMENU_DROPDOWN_WIDTH;
-            H menu_h = hdr->item_count * CMENU_ROW_HEIGHT + 6;
-
-            if (rel_x >= menu_x && rel_x <= menu_x + menu_w && rel_y >= menu_y && rel_y <= menu_y + menu_h) {
-                int item_idx = (rel_y - (menu_y + 3)) / CMENU_ROW_HEIGHT;
-                if (item_idx >= 0 && item_idx < hdr->item_count) {
-                    int cmd = hdr->items[item_idx].cmd_id;
-                    g_cabinet.active_menu = -1;
-                    g_cabinet.hover_item = -1;
-
-                    switch (cmd) {
-                        case CCMD_FILE_OPEN:
-                        case CCMD_FILE_VIEW_TAD:
-                            if (g_cabinet.selected_idx >= 0 && g_cabinet.selected_idx < g_cabinet.item_count) {
-                                open_tad_browser_window(g_cabinet.items[g_cabinet.selected_idx].path,
-                                                       g_cabinet.items[g_cabinet.selected_idx].name);
-                            }
-                            return;
-                        case CCMD_FILE_NEW:
-                            if (open_t_editor_window) open_t_editor_window();
-                            return;
-                        case CCMD_FILE_CLOSE:
-                            cls_wnd(wnd);
-                            return;
-                        case CCMD_EDIT_SELECT_ALL:
-                            g_cabinet.selected_idx = 0;
-                            return;
-                        case CCMD_EDIT_DESELECT:
-                            g_cabinet.selected_idx = -1;
-                            return;
-                        case CCMD_VIEW_LIST:
-                            g_cabinet.view_mode = CAB_VIEW_LIST;
-                            return;
-                        case CCMD_VIEW_GRID:
-                            g_cabinet.view_mode = CAB_VIEW_GRID;
-                            return;
-                        case CCMD_VIEW_SORT_NAME:
-                            g_cabinet.sort_mode = 0;
-                            cabinet_sort_items(&g_cabinet);
-                            return;
-                        case CCMD_VIEW_SORT_DATE:
-                            g_cabinet.sort_mode = 1;
-                            cabinet_sort_items(&g_cabinet);
-                            return;
-                        case CCMD_VIEW_SORT_SIZE:
-                            g_cabinet.sort_mode = 2;
-                            cabinet_sort_items(&g_cabinet);
-                            return;
-                        case CCMD_VIEW_SORT_TYPE:
-                            g_cabinet.sort_mode = 3;
-                            cabinet_sort_items(&g_cabinet);
-                            return;
-                        case CCMD_VIEW_REFRESH:
-                            cabinet_init_defaults(&g_cabinet);
-                            return;
-                        case CCMD_HELP_ABOUT:
-                            open_vobj_about_window();
-                            return;
-                        default:
-                            return;
-                    }
+        int cmd = 0, sub_idx = -1;
+        if (app_menu_handle_mouse_down(&g_cabinet.menu_bar, rel_x, rel_y, &cmd, &sub_idx)) {
+            cab_sync_menu_state();
+            if (cmd != 0) {
+                switch (cmd) {
+                    case CCMD_FILE_OPEN:
+                    case CCMD_FILE_VIEW_TAD:
+                        if (g_cabinet.selected_idx >= 0 && g_cabinet.selected_idx < g_cabinet.item_count) {
+                            open_tad_browser_window(g_cabinet.items[g_cabinet.selected_idx].path,
+                                                   g_cabinet.items[g_cabinet.selected_idx].name);
+                        }
+                        return;
+                    case CCMD_FILE_NEW:
+                        if (open_t_editor_window) open_t_editor_window();
+                        return;
+                    case CCMD_FILE_CLOSE:
+                        cls_wnd(wnd);
+                        return;
+                    case CCMD_EDIT_SELECT_ALL:
+                        g_cabinet.selected_idx = 0;
+                        return;
+                    case CCMD_EDIT_DESELECT:
+                        g_cabinet.selected_idx = -1;
+                        return;
+                    case CCMD_VIEW_LIST:
+                        g_cabinet.view_mode = CAB_VIEW_LIST;
+                        return;
+                    case CCMD_VIEW_GRID:
+                        g_cabinet.view_mode = CAB_VIEW_GRID;
+                        return;
+                    case CCMD_VIEW_SORT_NAME:
+                        g_cabinet.sort_mode = 0;
+                        cabinet_sort_items(&g_cabinet);
+                        return;
+                    case CCMD_VIEW_SORT_DATE:
+                        g_cabinet.sort_mode = 1;
+                        cabinet_sort_items(&g_cabinet);
+                        return;
+                    case CCMD_VIEW_SORT_SIZE:
+                        g_cabinet.sort_mode = 2;
+                        cabinet_sort_items(&g_cabinet);
+                        return;
+                    case CCMD_VIEW_SORT_TYPE:
+                        g_cabinet.sort_mode = 3;
+                        cabinet_sort_items(&g_cabinet);
+                        return;
+                    case CCMD_VIEW_REFRESH:
+                        cabinet_init_defaults(&g_cabinet);
+                        return;
+                    case CCMD_HELP_ABOUT:
+                        open_vobj_about_window();
+                        return;
+                    default:
+                        return;
                 }
             }
-
-            /* Click outside active dropdown closes it */
-            g_cabinet.active_menu = -1;
-            g_cabinet.hover_item = -1;
             return;
         }
+        cab_sync_menu_state();
 
         /* C. Item Selection Click (starts at y = 26) */
         int start_y = 26;
@@ -923,12 +715,13 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
 
     if (evt->type == EV_KEY_DOWN) {
         UW key = evt->key;
-        if (key == BTRON_KEY_ESCAPE) {
-            if (g_cabinet.active_menu >= 0) {
-                g_cabinet.active_menu = -1;
-                g_cabinet.hover_item = -1;
+        if (key == BTRON_KEY_ESCAPE || key == 27) {
+            int cmd = 0;
+            if (app_menu_handle_key(&g_cabinet.menu_bar, key, (uint16_t)(uintptr_t)evt->data, &cmd)) {
+                cab_sync_menu_state();
                 return;
             }
+            cab_sync_menu_state();
         }
 
         if (key == BTRON_KEY_UP || key == 'k') {

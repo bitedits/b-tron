@@ -103,6 +103,7 @@ extern WND* open_vobj_manager_window(void);
 
 /* Global Browser Instance for standalone window */
 static TAD_BROWSER g_active_browser;
+static void tad_init_menu_bar(TAD_BROWSER *tb);
 
 void tad_browser_init(TAD_BROWSER *tb) {
     if (!tb) return;
@@ -115,12 +116,9 @@ void tad_browser_init(TAD_BROWSER *tb) {
     tb->history_count = 0;
     tb->history_idx = -1;
 
-    tb->active_menu = -1;
-    tb->hover_menu = -1;
-    tb->hover_item = -1;
-    tb->hover_submenu = -1;
     tb->wrap_text = TRUE;
     tb->zoom_percent = 100;
+    tad_init_menu_bar(tb);
 }
 
 static void parse_text_tad_lines(TAD_BROWSER *tb, const char *text, UW len) {
@@ -1454,16 +1452,10 @@ static void paint_wrap_line_cb(const char *line_str, int line_len, H line_w, int
     }
 }
 
-#define TMENU_BAR_HEIGHT        22
-#define TMENU_HDR_COUNT         4
 #define TMENU_HDR_FILE          0
 #define TMENU_HDR_VIEW          1
 #define TMENU_HDR_VOBJ          2
 #define TMENU_HDR_HELP          3
-
-#define TMENU_DROPDOWN_WIDTH    250
-#define TMENU_SUBMENU_WIDTH     260
-#define TMENU_ROW_HEIGHT        20
 #define MAX_TAD_FILES           32
 
 enum {
@@ -1490,77 +1482,45 @@ enum {
     TCMD_HELP_SPEC
 };
 
-typedef struct {
-    char label[64];
-    char shortcut[16];
-    int cmd_id;
-    BOOL is_separator;
-    BOOL has_submenu;
-    BOOL is_checked;
-    BOOL enabled;
-} TADMenuItem;
+static void tad_sync_menu_state(TAD_BROWSER *tb) {
+    if (!tb) return;
+    tb->active_menu = tb->menu_bar.active_menu;
+    tb->hover_menu = tb->menu_bar.hover_menu;
+    tb->hover_item = tb->menu_bar.hover_item;
+    tb->hover_submenu = tb->menu_bar.hover_subitem;
+}
 
-typedef struct {
-    const char *title;
-    RECT rect;
-    int item_count;
-    TADMenuItem items[10];
-} TADMenuHeader;
+static void tad_init_menu_bar(TAD_BROWSER *tb) {
+    if (!tb) return;
+    app_menu_init(&tb->menu_bar, APP_MENU_STYLE_CLASSIC_3D);
 
-static TADMenuHeader s_tad_headers[TMENU_HDR_COUNT] = {
-    {
-        .title = "ファイル(F)",
-        .rect = { 4, 0, 108, 21 },
-        .item_count = 3,
-        .items = {
-            { "開く (Open Document...) ▶", "", TCMD_FILE_OPEN_CASCADE, FALSE, TRUE, FALSE, TRUE },
-            { "---", "", TCMD_NONE, TRUE, FALSE, FALSE, FALSE },
-            { "閉じる (Close Window)", "Ctrl+W", TCMD_FILE_CLOSE, FALSE, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "表示(V)",
-        .rect = { 114, 0, 186, 21 },
-        .item_count = 9,
-        .items = {
-            { "戻る (Back)", "Alt+Left", TCMD_VIEW_BACK, FALSE, FALSE, FALSE, TRUE },
-            { "進む (Forward)", "Alt+Right", TCMD_VIEW_FORWARD, FALSE, FALSE, FALSE, TRUE },
-            { "ホーム / 先頭 (Home)", "Alt+Home", TCMD_VIEW_HOME, FALSE, FALSE, FALSE, TRUE },
-            { "再読込 (Reload)", "Ctrl+R", TCMD_VIEW_RELOAD, FALSE, FALSE, FALSE, TRUE },
-            { "---", "", TCMD_NONE, TRUE, FALSE, FALSE, FALSE },
-            { "拡大 (Zoom In)", "+", TCMD_VIEW_ZOOM_IN, FALSE, FALSE, FALSE, TRUE },
-            { "縮小 (Zoom Out)", "-", TCMD_VIEW_ZOOM_OUT, FALSE, FALSE, FALSE, TRUE },
-            { "標準サイズ (100%)", "0", TCMD_VIEW_ZOOM_100, FALSE, FALSE, FALSE, TRUE },
-            { "行折り返し (Wrap Text)", "Ctrl+W", TCMD_VIEW_WRAP_TOGGLE, FALSE, FALSE, TRUE, TRUE }
-        }
-    },
-    {
-        .title = "仮身(O)",
-        .rect = { 192, 0, 264, 21 },
-        .item_count = 3,
-        .items = {
-            { "リンク先を開く (Follow Fusen)", "Enter", TCMD_VOBJ_FOLLOW, FALSE, FALSE, FALSE, TRUE },
-            { "別窓で開く (New Window)", "", TCMD_VOBJ_OPEN_NEW, FALSE, FALSE, FALSE, TRUE },
-            { "実身キャビネットで表示", "Ctrl+O", TCMD_VOBJ_CABINET, FALSE, FALSE, FALSE, TRUE }
-        }
-    },
-    {
-        .title = "ヘルプ(H)",
-        .rect = { 270, 0, 358, 21 },
-        .item_count = 2,
-        .items = {
-            { "TADブラウザ について (About)", "", TCMD_HELP_ABOUT, FALSE, FALSE, FALSE, TRUE },
-            { "BTRON 仕様書 (TAD Spec...)", "", TCMD_HELP_SPEC, FALSE, FALSE, FALSE, TRUE }
-        }
-    }
-};
+    int h0 = app_menu_add_header(&tb->menu_bar, "ファイル(F)", 104);
+    app_menu_add_submenu_item(&tb->menu_bar, h0, "開く (Open Document...) ▶", TCMD_FILE_OPEN_CASCADE, 1);
+    app_menu_add_separator(&tb->menu_bar, h0);
+    app_menu_add_item(&tb->menu_bar, h0, "閉じる (Close Window)", "Ctrl+W", TCMD_FILE_CLOSE, TRUE);
 
-static void draw_tad_menu_separator_v(GDEV *dev, H x, H y1, H y2) {
-    if (!dev) return;
-    RECT s1 = { x, y1, x + 1, y2 };
-    RECT s2 = { x + 1, y1, x + 2, y2 };
-    fill_rec(dev, &s1, COLOR_DKGRAY);
-    fill_rec(dev, &s2, COLOR_WHITE);
+    int h1 = app_menu_add_header(&tb->menu_bar, "表示(V)", 72);
+    app_menu_add_item(&tb->menu_bar, h1, "戻る (Back)", "Alt+Left", TCMD_VIEW_BACK, TRUE);
+    app_menu_add_item(&tb->menu_bar, h1, "進む (Forward)", "Alt+Right", TCMD_VIEW_FORWARD, TRUE);
+    app_menu_add_item(&tb->menu_bar, h1, "ホーム / 先頭 (Home)", "Alt+Home", TCMD_VIEW_HOME, TRUE);
+    app_menu_add_item(&tb->menu_bar, h1, "再読込 (Reload)", "Ctrl+R", TCMD_VIEW_RELOAD, TRUE);
+    app_menu_add_separator(&tb->menu_bar, h1);
+    app_menu_add_item(&tb->menu_bar, h1, "拡大 (Zoom In)", "+", TCMD_VIEW_ZOOM_IN, TRUE);
+    app_menu_add_item(&tb->menu_bar, h1, "縮小 (Zoom Out)", "-", TCMD_VIEW_ZOOM_OUT, TRUE);
+    app_menu_add_item(&tb->menu_bar, h1, "標準サイズ (100%)", "0", TCMD_VIEW_ZOOM_100, TRUE);
+    app_menu_add_separator(&tb->menu_bar, h1);
+    app_menu_add_item(&tb->menu_bar, h1, "行折り返し (Wrap Text)", "Ctrl+W", TCMD_VIEW_WRAP_TOGGLE, TRUE);
+
+    int h2 = app_menu_add_header(&tb->menu_bar, "仮身(O)", 72);
+    app_menu_add_item(&tb->menu_bar, h2, "リンク先を開く (Follow Fusen)", "Enter", TCMD_VOBJ_FOLLOW, TRUE);
+    app_menu_add_item(&tb->menu_bar, h2, "別窓で開く (New Window)", "", TCMD_VOBJ_OPEN_NEW, TRUE);
+    app_menu_add_item(&tb->menu_bar, h2, "実身キャビネットで表示", "Ctrl+O", TCMD_VOBJ_CABINET, TRUE);
+
+    int h3 = app_menu_add_header(&tb->menu_bar, "ヘルプ(H)", 88);
+    app_menu_add_item(&tb->menu_bar, h3, "TADブラウザ について (About)", "", TCMD_HELP_ABOUT, TRUE);
+    app_menu_add_item(&tb->menu_bar, h3, "BTRON 仕様書 (TAD Spec...)", "", TCMD_HELP_SPEC, TRUE);
+
+    tad_sync_menu_state(tb);
 }
 
 static int tad_scan_available_files(char files[MAX_TAD_FILES][64]) {
@@ -1600,61 +1560,11 @@ static int tad_scan_available_files(char files[MAX_TAD_FILES][64]) {
     return count;
 }
 
-/* ── Nano About Box for TAD Browser ────────────────────────────────── */
-static void paint_tad_browser_about_window(WND *wnd, GDEV *dev) {
-    if (!wnd || !dev) return;
-    RECT r = { 0, 0, dev->width, dev->height };
-    fill_rec(dev, &r, COLOR_LTGRAY);
-    drw_rec(dev, &r);
-
-    RECT card = { 6, 6, dev->width - 6, dev->height - 34 };
-    fill_rec(dev, &card, COLOR_WHITE);
-    drw_rec(dev, &card);
-
-    drw_tc_string(dev, 16, 12, "TAD Browser 3.20 (実身閲覧)", COLOR_NAVY, 0x00000000);
-    drw_tc_string(dev, 16, 30, "Cleanroom BTRON Document Viewer", COLOR_DKGRAY, 0x00000000);
-    drw_tc_string(dev, 16, 50, "Brought to B-System by 5HT", COLOR_BLACK, 0x00000000);
-
-    H btn_w = 64, btn_h = 20;
-    H btn_x = (dev->width - btn_w) / 2;
-    H btn_y = dev->height - 26;
-    RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
-    fill_rec(dev, &ok_btn, COLOR_LTGRAY);
-    drw_rec(dev, &ok_btn);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
-    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
-    drw_tc_string(dev, btn_x + 22, btn_y + 2, "OK", COLOR_BLACK, 0x00000000);
-}
-
-static void handle_tad_browser_about_event(WND *wnd, const EVT *evt) {
-    if (!wnd || !evt) return;
-
-    if (evt->type == EV_BUT_DOWN) {
-        H rel_x = evt->pos.x - (wnd->bounds.left + 4);
-        H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        H btn_w = 64, btn_h = 20;
-        H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
-        H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
-        H btn_x = (dev_w - btn_w) / 2;
-        H btn_y = dev_h - 26;
-        if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
-            cls_wnd(wnd);
-        }
-    } else if (evt->type == EV_KEY_DOWN) {
-        if (evt->key == BTRON_KEY_ESCAPE || evt->key == 0x0D || evt->key == ' ') {
-            cls_wnd(wnd);
-        }
-    }
-}
-
 WND* open_tad_browser_about_window(void) {
-    WND *wnd = opn_wnd("About TAD Browser (バージョン情報)", 260, 180, 280, 135,
-                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
-    if (wnd) {
-        wnd->paint = paint_tad_browser_about_window;
-        wnd->event_handler = handle_tad_browser_about_event;
-    }
-    return wnd;
+    return app_menu_create_about_dialog("TAD Browser", "実身閲覧",
+                                        "Cleanroom BTRON Document Viewer",
+                                        "Brought to B-System by 5HT",
+                                        260, 180);
 }
 
 void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
@@ -1765,39 +1675,11 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     set_clip(dev, &orig_clip);
 
     /* ── 1. In-Window Application Menu Bar (y = 0..21) ────────────────────────── */
-    RECT mbar_r = { 0, 0, dev->width, 21 };
-    fill_rec(dev, &mbar_r, COLOR_LTGRAY);
-    drw_lin(dev, 0, 21, dev->width, 21);
-
-    for (int h = 0; h < TMENU_HDR_COUNT; h++) {
-        const TADMenuHeader *hdr = &s_tad_headers[h];
-        RECT hr = hdr->rect;
-        BOOL is_active = (tb->active_menu == h);
-        BOOL is_hover = (tb->hover_menu == h);
-
-        if (is_active) {
-            fill_rec(dev, &hr, COLOR_NAVY);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
-        } else if (is_hover) {
-            fill_rec(dev, &hr, COLOR_WHITE);
-            drw_rec(dev, &hr);
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_NAVY, 0x00000000);
-        } else {
-            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
-        }
-
-        if (h < TMENU_HDR_COUNT - 1) {
-            H sep_x = (hdr->rect.right + s_tad_headers[h + 1].rect.left) / 2;
-            draw_tad_menu_separator_v(dev, sep_x, 3, 19);
-        }
-    }
-    draw_tad_menu_separator_v(dev, s_tad_headers[TMENU_HDR_COUNT - 1].rect.right + 3, 3, 19);
-
-    /* Right Margin: Zoom & Status indicator */
+    if (tb->menu_bar.header_count == 0) tad_init_menu_bar(tb);
     char zoom_buf[32];
     snprintf(zoom_buf, sizeof(zoom_buf), "[%d%%] (実身閲覧)", tb->zoom_percent);
-    int zb_w = tc_calc_string_width(zoom_buf, (int)strlen(zoom_buf));
-    drw_tc_string(dev, dev->width - zb_w - 12, 3, zoom_buf, COLOR_DKGRAY, 0x00000000);
+    app_menu_set_right_text(&tb->menu_bar, zoom_buf);
+    app_menu_paint_bar(&tb->menu_bar, dev);
 
     /* ── 2. Japanese Navigation Toolbar (y = 22..46) ───────────────────────── */
     RECT nb_bar = { 0, 22, dev->width, 46 };
@@ -1876,71 +1758,12 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     }
 
     /* ── 5. Dropdown Menu Overlay ──────────────────────────────────────────── */
-    if (tb->active_menu >= 0 && tb->active_menu < TMENU_HDR_COUNT) {
-        const TADMenuHeader *hdr = &s_tad_headers[tb->active_menu];
-        H menu_x = hdr->rect.left;
-        H menu_y = 22;
-        H menu_w = TMENU_DROPDOWN_WIDTH;
-        H menu_h = hdr->item_count * TMENU_ROW_HEIGHT + 6;
-
-        RECT mr = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
-        RECT shadow = { menu_x + 3, menu_y + 3, menu_x + menu_w + 3, menu_y + menu_h + 3 };
-        fill_rec(dev, &shadow, COLOR_DKGRAY);
-
-        fill_rec(dev, &mr, COLOR_WHITE);
-        drw_rec(dev, &mr);
-        drw_lin(dev, mr.left + 1, mr.top + 1, mr.right - 2, mr.top + 1);
-        drw_lin(dev, mr.left + 1, mr.top + 1, mr.left + 1, mr.bottom - 2);
-
-        for (int i = 0; i < hdr->item_count; i++) {
-            const TADMenuItem *it = &hdr->items[i];
-            RECT ir = { menu_x + 3, menu_y + 3 + i * TMENU_ROW_HEIGHT,
-                        menu_x + menu_w - 3, menu_y + 3 + (i + 1) * TMENU_ROW_HEIGHT };
-
-            if (it->is_separator) {
-                H sep_y = (ir.top + ir.bottom) / 2;
-                drw_lin(dev, ir.left + 4, sep_y, ir.right - 4, sep_y);
-                continue;
-            }
-
-            BOOL is_hov = (tb->hover_item == i);
-            if (is_hov) fill_rec(dev, &ir, COLOR_NAVY);
-            COLOR txt_col = is_hov ? COLOR_WHITE : (it->enabled ? COLOR_BLACK : COLOR_GRAY);
-
-            drw_tc_string(dev, ir.left + 8, ir.top + 2, it->label, txt_col, 0x00000000);
-            if (it->shortcut[0]) {
-                int sc_w = tc_calc_string_width(it->shortcut, (int)strlen(it->shortcut));
-                drw_tc_string(dev, ir.right - sc_w - 10, ir.top + 2, it->shortcut, txt_col, 0x00000000);
-            }
-        }
-
-        /* Cascading Submenu for File -> Open Document */
-        if (tb->active_menu == TMENU_HDR_FILE && tb->hover_item == 0) {
+    if (tb->menu_bar.active_menu >= 0) {
+        app_menu_paint_dropdown(&tb->menu_bar, dev);
+        if (tb->menu_bar.active_menu == 0 && tb->menu_bar.active_submenu >= 0) {
             char tad_files[MAX_TAD_FILES][64];
             int tad_count = tad_scan_available_files(tad_files);
-
-            H sub_x = menu_x + menu_w - 4;
-            H sub_y = menu_y + 3;
-            H sub_w = TMENU_SUBMENU_WIDTH;
-            H sub_h = tad_count * TMENU_ROW_HEIGHT + 6;
-
-            RECT smr = { sub_x, sub_y, sub_x + sub_w, sub_y + sub_h };
-            RECT sm_shadow = { sub_x + 3, sub_y + 3, sub_x + sub_w + 3, sub_y + sub_h + 3 };
-            fill_rec(dev, &sm_shadow, COLOR_DKGRAY);
-
-            fill_rec(dev, &smr, COLOR_WHITE);
-            drw_rec(dev, &smr);
-            drw_lin(dev, smr.left + 1, smr.top + 1, smr.right - 2, smr.top + 1);
-            drw_lin(dev, smr.left + 1, smr.top + 1, smr.left + 1, smr.bottom - 2);
-
-            for (int f = 0; f < tad_count; f++) {
-                RECT fir = { sub_x + 3, sub_y + 3 + f * TMENU_ROW_HEIGHT,
-                             sub_x + sub_w - 3, sub_y + 3 + (f + 1) * TMENU_ROW_HEIGHT };
-                BOOL f_hov = (tb->hover_submenu == f);
-                if (f_hov) fill_rec(dev, &fir, COLOR_NAVY);
-                COLOR ftxt_col = f_hov ? COLOR_WHITE : COLOR_BLACK;
-                drw_tc_string(dev, fir.left + 8, fir.top + 2, tad_files[f], ftxt_col, 0x00000000);
-            }
+            app_menu_paint_cascading_strings(&tb->menu_bar, dev, (const char(*)[64])tad_files, tad_count);
         }
     }
 }
@@ -2177,71 +2000,11 @@ static void handle_tad_browser_event(WND *wnd, const EVT *evt) {
     H rel_y = evt->pos.y - (wnd->bounds.top + 26);
 
     if (evt->type == EV_MOUSE_MOVE) {
-        /* 1. Header Hover in closed state (y = 0..21) */
-        if (tb->active_menu == -1) {
-            tb->hover_menu = -1;
-            if (rel_y >= 0 && rel_y <= 21) {
-                for (int h = 0; h < TMENU_HDR_COUNT; h++) {
-                    if (rel_x >= s_tad_headers[h].rect.left && rel_x <= s_tad_headers[h].rect.right) {
-                        tb->hover_menu = h;
-                        break;
-                    }
-                }
-            }
+        if (app_menu_handle_mouse_move(&tb->menu_bar, rel_x, rel_y)) {
+            tad_sync_menu_state(tb);
+            return;
         }
-        /* 2. Hot header tracking and dropdown item tracking when active */
-        else {
-            if (rel_y >= 0 && rel_y <= 21) {
-                for (int h = 0; h < TMENU_HDR_COUNT; h++) {
-                    if (rel_x >= s_tad_headers[h].rect.left && rel_x <= s_tad_headers[h].rect.right) {
-                        if (tb->active_menu != h) {
-                            tb->active_menu = h;
-                            tb->hover_menu = h;
-                            tb->hover_item = -1;
-                            tb->hover_submenu = -1;
-                        }
-                        return;
-                    }
-                }
-            }
-
-            const TADMenuHeader *hdr = &s_tad_headers[tb->active_menu];
-            H menu_x = hdr->rect.left;
-            H menu_y = 22;
-            H menu_w = TMENU_DROPDOWN_WIDTH;
-            H menu_h = hdr->item_count * TMENU_ROW_HEIGHT + 6;
-
-            if (rel_x >= menu_x && rel_x <= menu_x + menu_w && rel_y >= menu_y && rel_y <= menu_y + menu_h) {
-                int item_idx = (rel_y - (menu_y + 3)) / TMENU_ROW_HEIGHT;
-                if (item_idx >= 0 && item_idx < hdr->item_count) {
-                    if (!hdr->items[item_idx].is_separator && hdr->items[item_idx].enabled) {
-                        tb->hover_item = item_idx;
-                    } else {
-                        tb->hover_item = -1;
-                    }
-                }
-            } else {
-                /* Check cascading submenu hover */
-                if (tb->active_menu == TMENU_HDR_FILE && tb->hover_item == 0) {
-                    char files[MAX_TAD_FILES][64];
-                    int cnt = tad_scan_available_files(files);
-                    H sub_x = menu_x + menu_w - 4;
-                    H sub_y = menu_y + 3;
-                    H sub_w = TMENU_SUBMENU_WIDTH;
-                    H sub_h = cnt * TMENU_ROW_HEIGHT + 6;
-
-                    if (rel_x >= sub_x && rel_x <= sub_x + sub_w && rel_y >= sub_y && rel_y <= sub_y + sub_h) {
-                        int f_idx = (rel_y - (sub_y + 3)) / TMENU_ROW_HEIGHT;
-                        if (f_idx >= 0 && f_idx < cnt) {
-                            tb->hover_submenu = f_idx;
-                        }
-                        return;
-                    } else {
-                        tb->hover_submenu = -1;
-                    }
-                }
-            }
-        }
+        tad_sync_menu_state(tb);
 
         /* Pass mouse move to content area if below chrome */
         if (rel_y >= 48) {
@@ -2251,115 +2014,62 @@ static void handle_tad_browser_event(WND *wnd, const EVT *evt) {
     }
 
     if (evt->type == EV_BUT_DOWN) {
-        /* A. Menu Bar Header Clicks (y = 0..21) */
-        if (rel_y >= 0 && rel_y <= 21) {
-            for (int h = 0; h < TMENU_HDR_COUNT; h++) {
-                if (rel_x >= s_tad_headers[h].rect.left && rel_x <= s_tad_headers[h].rect.right) {
-                    if (tb->active_menu == h) {
-                        tb->active_menu = -1;
-                        tb->hover_item = -1;
-                        tb->hover_submenu = -1;
-                    } else {
-                        tb->active_menu = h;
-                        tb->hover_menu = h;
-                        tb->hover_item = -1;
-                        tb->hover_submenu = -1;
-                    }
-                    return;
-                }
-            }
-        }
-
-        /* B. Dropdown Menu Item Clicks */
-        if (tb->active_menu >= 0) {
-            const TADMenuHeader *hdr = &s_tad_headers[tb->active_menu];
-            H menu_x = hdr->rect.left;
-            H menu_y = 22;
-            H menu_w = TMENU_DROPDOWN_WIDTH;
-            H menu_h = hdr->item_count * TMENU_ROW_HEIGHT + 6;
-
-            /* Check Cascading Submenu Clicks */
-            if (tb->active_menu == TMENU_HDR_FILE && tb->hover_item == 0) {
+        int cmd = 0, sub_idx = -1;
+        if (app_menu_handle_mouse_down(&tb->menu_bar, rel_x, rel_y, &cmd, &sub_idx)) {
+            tad_sync_menu_state(tb);
+            if (cmd == TCMD_FILE_OPEN_CASCADE && sub_idx >= 0) {
                 char files[MAX_TAD_FILES][64];
                 int cnt = tad_scan_available_files(files);
-                H sub_x = menu_x + menu_w - 4;
-                H sub_y = menu_y + 3;
-                H sub_w = TMENU_SUBMENU_WIDTH;
-                H sub_h = cnt * TMENU_ROW_HEIGHT + 6;
-
-                if (rel_x >= sub_x && rel_x <= sub_x + sub_w && rel_y >= sub_y && rel_y <= sub_y + sub_h) {
-                    int f_idx = (rel_y - (sub_y + 3)) / TMENU_ROW_HEIGHT;
-                    if (f_idx >= 0 && f_idx < cnt) {
-                        tad_browser_navigate(tb, files[f_idx]);
-                        tb->active_menu = -1;
-                        tb->hover_item = -1;
-                        tb->hover_submenu = -1;
+                if (sub_idx < cnt) {
+                    tad_browser_navigate(tb, files[sub_idx]);
+                }
+                return;
+            }
+            if (cmd != 0) {
+                switch (cmd) {
+                    case TCMD_FILE_CLOSE:
+                        cls_wnd(wnd);
                         return;
-                    }
+                    case TCMD_VIEW_BACK:
+                        tad_browser_go_back(tb);
+                        return;
+                    case TCMD_VIEW_FORWARD:
+                        tad_browser_go_forward(tb);
+                        return;
+                    case TCMD_VIEW_HOME:
+                        tad_browser_go_home(tb);
+                        return;
+                    case TCMD_VIEW_RELOAD:
+                        tad_browser_reload(tb);
+                        return;
+                    case TCMD_VIEW_ZOOM_IN:
+                        tb->zoom_percent += 10;
+                        if (tb->zoom_percent > 200) tb->zoom_percent = 200;
+                        return;
+                    case TCMD_VIEW_ZOOM_OUT:
+                        tb->zoom_percent -= 10;
+                        if (tb->zoom_percent < 50) tb->zoom_percent = 50;
+                        return;
+                    case TCMD_VIEW_ZOOM_100:
+                        tb->zoom_percent = 100;
+                        return;
+                    case TCMD_VIEW_WRAP_TOGGLE:
+                        tb->wrap_text = !tb->wrap_text;
+                        tad_browser_layout(tb, tb->doc_width);
+                        return;
+                    case TCMD_VOBJ_CABINET:
+                        if (open_vobj_manager_window) open_vobj_manager_window();
+                        return;
+                    case TCMD_HELP_ABOUT:
+                        open_tad_browser_about_window();
+                        return;
+                    default:
+                        return;
                 }
             }
-
-            /* Main dropdown click */
-            if (rel_x >= menu_x && rel_x <= menu_x + menu_w && rel_y >= menu_y && rel_y <= menu_y + menu_h) {
-                int item_idx = (rel_y - (menu_y + 3)) / TMENU_ROW_HEIGHT;
-                if (item_idx >= 0 && item_idx < hdr->item_count) {
-                    int cmd = hdr->items[item_idx].cmd_id;
-                    if (cmd == TCMD_FILE_OPEN_CASCADE) {
-                        /* Submenu expands on hover/click */
-                        return;
-                    }
-                    tb->active_menu = -1;
-                    tb->hover_item = -1;
-
-                    switch (cmd) {
-                        case TCMD_FILE_CLOSE:
-                            cls_wnd(wnd);
-                            return;
-                        case TCMD_VIEW_BACK:
-                            tad_browser_go_back(tb);
-                            return;
-                        case TCMD_VIEW_FORWARD:
-                            tad_browser_go_forward(tb);
-                            return;
-                        case TCMD_VIEW_HOME:
-                            tad_browser_go_home(tb);
-                            return;
-                        case TCMD_VIEW_RELOAD:
-                            tad_browser_reload(tb);
-                            return;
-                        case TCMD_VIEW_ZOOM_IN:
-                            tb->zoom_percent += 10;
-                            if (tb->zoom_percent > 200) tb->zoom_percent = 200;
-                            return;
-                        case TCMD_VIEW_ZOOM_OUT:
-                            tb->zoom_percent -= 10;
-                            if (tb->zoom_percent < 50) tb->zoom_percent = 50;
-                            return;
-                        case TCMD_VIEW_ZOOM_100:
-                            tb->zoom_percent = 100;
-                            return;
-                        case TCMD_VIEW_WRAP_TOGGLE:
-                            tb->wrap_text = !tb->wrap_text;
-                            tad_browser_layout(tb, tb->doc_width);
-                            return;
-                        case TCMD_VOBJ_CABINET:
-                            if (open_vobj_manager_window) open_vobj_manager_window();
-                            return;
-                        case TCMD_HELP_ABOUT:
-                            open_tad_browser_about_window();
-                            return;
-                        default:
-                            return;
-                    }
-                }
-            }
-
-            /* Click outside active dropdown closes it */
-            tb->active_menu = -1;
-            tb->hover_item = -1;
-            tb->hover_submenu = -1;
             return;
         }
+        tad_sync_menu_state(tb);
 
         /* C. Navigation Toolbar Clicks (y = 22..46) */
         if (rel_y >= 22 && rel_y <= 46) {
@@ -2399,13 +2109,13 @@ static void handle_tad_browser_event(WND *wnd, const EVT *evt) {
 
     if (evt->type == EV_KEY_DOWN) {
         UW key = evt->key;
-        if (key == BTRON_KEY_ESCAPE) {
-            if (tb->active_menu >= 0) {
-                tb->active_menu = -1;
-                tb->hover_item = -1;
-                tb->hover_submenu = -1;
+        if (key == BTRON_KEY_ESCAPE || key == 27) {
+            int cmd = 0;
+            if (app_menu_handle_key(&tb->menu_bar, key, (uint16_t)(uintptr_t)evt->data, &cmd)) {
+                tad_sync_menu_state(tb);
                 return;
             }
+            tad_sync_menu_state(tb);
         }
 
         if (key == BTRON_KEY_BACKSPACE || key == 'b' || key == 'B') {
