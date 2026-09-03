@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cassette – リアルタイム音響・カセットデッキ | B-System</title>
+  <meta name="description" content="SONY TC-K777ES Precision Stereo Cassette Deck, Type I-IV Selector, Dolby B-C NR, HX Pro & Segmented Digital VU Meters — BTRON-native Audio Deck">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="./apps.css">
+</head>
+<body>
+  <nav class="app-nav">
+    <a href="../../b-system.html">B-System</a>
+    <span class="sep">/</span>
+    <a href="../../b-system.html#apps">Applications</a>
+    <span class="sep">/</span>
+    <span class="current">Cassette</span>
+  </nav>
+  <div class="app-hero">
+    <div class="app-hero-icon">📼</div>
+    <h1>Cassette</h1>
+    <div class="app-hero-badge">リアルタイム音響</div>
+    <div class="subtitle">SONY TC-K777ES Precision Stereo Cassette Deck &amp; Media Environment</div>
+  </div>
+  <div class="app-content">
+    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+    <div class="tagline-card"><strong>"SONY Precision Audio Engineering — 3-Head Dual Capstan, Dolby B-C NR, Type I-IV Selector &amp; Real-Time BTRON Audio Stream"</strong></div>
+    <div class="section">
+      <h2>Overview</h2>
+      <p>Precision Hi-Fi stereo cassette deck and media playback environment implemented in <code>src/apps/audio_player.c</code> (<code>open_audio_player_window</code>). Designed in authentic SONY workstation industrial aesthetics (deep titanium slate, brushed graphite, gold/cyan indicators), featuring mechanical rotating tape spools with real-time tape transfer physics, digital tape counter, 4-way cassette type selector (Type I Normal, Type II CrO2, Type III FeCr, Type IV Metal), Dolby B-C NR &amp; HX Pro headroom extension, and 16-segment dual-channel L/R digital peak VU meters.</p>
+      <div class="app-desc-jp"><b>カセット（Cassette Deck）：</b> SONY TC-K777ESの設計思想を継承したBTRONネイティブの高精度ステレオカセットデッキ・音響プレイヤー（<code>src/apps/audio_player.c</code>）。チタンスレートとグラファイトのSONYワークステーション意匠、磁気テープ巻取りアニメーション、デジタルカウンター、4種カセットテープセレクター（Type I ノーマル、Type II ハイポジション/CrO2、Type III フェリクローム、Type IV メタル）、ドルビーB-C NR / HX Proヘッドルーム拡張、および16セグメント高精度デジタルピークVUメーターを完全装備。</div>
+    </div>
+    <div class="section">
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/audio_player.c</code>（カセットデッキ・オーディオプレイヤー <code>open_audio_player_window</code>）</li>
+        <li>SONY Precision Industrial Palette（チタンスレート、ブラッシュドグラファイト、ゴールド・シアン・グリーンLED）</li>
+        <li>4種カセットテープ対応セレクター：TYPE I (NORM), TYPE II (CrO2), TYPE III (FeCr), TYPE IV (METAL)</li>
+        <li>Dolby B-C NR（ノイズリダクション）＆ HX Proヘッドルーム拡張、MPXフィルター連動</li>
+        <li>16セグメント L/R デジタルピークホールドVUメーター（-30dB〜+8dB、グリーン→シアン→ゴールド→レッド遷移）</li>
+        <li>磁気テープ巻取り物理シミュレーション（再生・早送り・巻戻しに伴うテープハブの動的回転とテープパック厚み変化）</li>
+        <li>タクタイル・トランスポートキー群（REW, REV PLAY, PLAY, FF, STOP, PAUSE, REC）</li>
+        <li>μITRON高精度タイマーに基づくジッターフリー低遅延ストリーミングパイプライン</li>
+        <li>TADハイパーメディア文書へのシームレスな音声・仮想オブジェクト（Virtual Body）直接埋め込み</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Typical Workflow</h2>
+      <ol class="workflow-list">
+        <li>Launch Cassette from the BTRON Deskbar Tracker menu or Desktop audio icon.</li>
+        <li>Select cassette tape formulation (Normal, CrO2, FeCr, or Metal) and configure Dolby B/C NR.</li>
+        <li>Engage transport controls (Play, Fast Forward, Rewind) with real-time rotating tape hub telemetry.</li>
+        <li>Monitor dual-channel stereo peak levels on the graduated 16-segment digital VU meters.</li>
+        <li>Drag recorded audio Virtual Bodies into T-Editor or TAD documents for instant hypermedia linkage.</li>
+      </ol>
+    </div>
+  </div>
+  <footer class="app-footer">
+    <div class="app-footer-top">
+      <a href="../../b-system.html">← B-System</a>
+      <span class="site-name">B-System Applications</span>
+    </div>
+    <div class="app-footer-grid">
+      <div class="app-footer-col">
+        <h4>System</h4>
+        <ul>
+            <li><a href="Workbench.html">Workbench</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
+            <li><a href="Commander.html">Commander</a></li>
+            <li><a href="Calculator.html">Calculator</a></li>
+            <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
+            <li><a href="Preferences.html">Preferences</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>TAD</h4>
+        <ul>
+            <li><a href="Cabinet.html">Cabinet</a></li>
+            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
+            <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
+            <li><a href="Browser.html">Browser</a></li>
+            <li><a href="Chat.html">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="Cassette.html" class="active">Cassette</a></li>
+            <li><a href="Paint.html">Paint</a></li>
+            <li><a href="Music.html">Music</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="../settings/Appearance.html">Appearance</a></li>
+            <li><a href="../settings/Desktop.html">Desktop</a></li>
+            <li><a href="../settings/Input.html">Input</a></li>
+            <li><a href="../settings/Language.html">Language</a></li>
+            <li><a href="../settings/Sound.html">Sound</a></li>
+            <li><a href="../settings/Network.html">Network</a></li>
+            <li><a href="../settings/Display.html">Display</a></li>
+            <li><a href="../settings/Media.html">Media</a></li>
+            <li><a href="../settings/System.html">System</a></li>
+            <li><a href="../settings/Security.html">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+  </footer>
+</body>
+</html>
