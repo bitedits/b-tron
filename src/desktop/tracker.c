@@ -53,12 +53,14 @@ static void tracker_format_wnd_title(char *dst, int max_len, BOOL focused, const
 /* Forward declarations of BTRON application entry points with weak linkage */
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((weak)) WND* open_vobj_manager_window(void);
+__attribute__((weak)) WND* open_control_panel_window(void);
 __attribute__((weak)) WND* open_t_editor_window(void);
 __attribute__((weak)) WND* open_gterm_window(void);
 __attribute__((weak)) WND* open_audio_player_window(void);
 __attribute__((weak)) WND* launch_beos_chat(void);
 #else
 extern WND* open_vobj_manager_window(void);
+extern WND* open_control_panel_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_gterm_window(void);
 extern WND* open_audio_player_window(void);
@@ -114,6 +116,7 @@ void tracker_refresh_windows(void) {
 
     /* 1. Core Knowledge & System Applications */
     tracker_add_item(TRACKER_CMD_CABINET,   "実身・仮身 (Cabinet)", NULL);
+    tracker_add_item(TRACKER_CMD_SETTINGS,  "環境設定 (Control Panel)", NULL);
     tracker_add_item(TRACKER_CMD_TEDITOR,   "T-Editor (文書編集)", NULL);
     tracker_add_item(TRACKER_CMD_MATRIX,    "Matrix (表計算・APL)", NULL);
     tracker_add_item(TRACKER_CMD_TERMINAL,  "Terminal (gterm 端末)", NULL);
@@ -254,6 +257,9 @@ static void tracker_execute_item(H index) {
     switch (item->type) {
         case TRACKER_CMD_CABINET:
             if (open_vobj_manager_window) open_vobj_manager_window();
+            break;
+        case TRACKER_CMD_SETTINGS:
+            if (open_control_panel_window) open_control_panel_window();
             break;
         case TRACKER_CMD_TEDITOR:
             if (open_t_editor_window) open_t_editor_window();

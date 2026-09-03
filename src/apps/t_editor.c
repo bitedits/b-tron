@@ -33,6 +33,7 @@ extern void* tkl_memmove(void *dest, const void *src, size_t n);
 #define memcpy  tkl_memcpy
 #define memmove tkl_memmove
 #define strlen  tkl_strlen
+#define strstr  tkl_strstr
 #endif
 
 /* TEditor struct is defined in <btron/t_editor.h> */

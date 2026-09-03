@@ -277,3 +277,50 @@ In the original TRON and BTRON specifications (Sakamura Lab, TRON Association BT
 
 * Namdak Tonpa
 
+
+## 8. Multilingual Keyboard Schema & Settings Cabinet (EN / JP / TB)
+
+### 8.1 Universal Keyboard Schema
+
+The B-System TIP (Text Input Processor) provides a unified, deterministic keyboard schema across English (`[EN]`), Japanese (`[JP あ]` / `[JP ア]`), and Tibetan (`[TB བོད]`) input modes:
+
+```
++---------------------------------------------------------------------------------------------------+
+| Mode Switching:                                                                                   |
+|   F10               : Cycle Input Mode: [EN] -> [JP あ] -> [JP ア] -> [TB བོད] -> [EN]            |
+|   Ctrl+Space / Alt  : Toggle between Direct ASCII [EN] and active Asian Script mode                |
+|   F6 / F7 / F8 / F9 : Direct Hiragana (F6) / Katakana (F7) / Tibetan (F8) / Fullwidth Alpha (F9)  |
++---------------------+----------------------------------+------------------------------------------+
+| Script Mode         | Space Bar Key Action             | Tab / Shift+Space Action                 |
++---------------------+----------------------------------+------------------------------------------+
+| Direct English [EN] | Standard ASCII space (0x20)      | Standard Tab indentation (\t)            |
+| Japanese [JP あ/ア] | Viterbi KKC Kanji Conversion     | Candidate Suggestion Popup Window        |
+| Tibetan [TB བོད]    | Tsheg Syllable Delimiter ('་')   | Dharma Dictionary Suggestion Popup       |
++---------------------+----------------------------------+------------------------------------------+
+| Candidate Window    | Down / Ctrl+N : Next Candidate   | Up / Ctrl+P : Previous Candidate         |
+| Navigation          | 1 - 9         : Direct Selection | Return / Space : Commit Candidate        |
+| (All Modes)         | Esc           : Dismiss Popup    | Shift+Tab   : Previous Candidate         |
++---------------------------------------------------------------------------------------------------+
+```
+
+### 8.2 Ergonomic Rationale & Scriptio Continua
+
+* **Japanese Scriptio Continua**: Standard Japanese sentences do not use spaces between words. The `Space` key is therefore dedicated to Kana-Kanji conversion (KKC). In IDLE state, pressing `Space` inserts a fullwidth Japanese space (`　` `U+3000`).
+* **Tibetan Syllable Delimitation**: Every classical Tibetan syllable requires a terminal **Tsheg (`་` `U+0F0B`)**. Repurposing `Space` to emit a Tsheg allows continuous, natural typing of Tibetan text (`chos` + `Space` $\rightarrow$ `ཆོས་`), while `Tab` or `Shift+Space` accesses the rich Rangjung Yeshe / Mahāvyutpatti philosophical dictionary popup.
+
+### 8.3 Settings Cabinet Application (`src/settings/language.c`)
+
+The BTRON **Settings Cabinet (環境設定キャビネット)** provides an interactive GUI applet (`open_language_settings_window()`) for customizing IME keyboard shortcuts:
+
+* **Mode Switching Configuration**: Customize default shortcut keys for cycling and direct language selection.
+* **Japanese Mode Options**:
+  - `jp_space_is_convert`: Toggle whether Space initiates Kanji conversion.
+  - `jp_tab_is_popup`: Toggle whether Tab opens the candidate popup.
+* **Tibetan Mode Options**:
+  - `tb_space_is_tsheg`: Toggle whether Space inserts Tsheg (`་`) or raw ASCII space.
+  - `tb_tab_is_popup`: Toggle whether Tab triggers dictionary lookups.
+  - `tb_shift_space_popup`: Toggle whether Shift+Space opens dictionary popup.
+* **Candidate Navigation Options**:
+  - `arrow_nav_enabled`: Enable/disable Up/Down arrow list traversal.
+  - `num_select_enabled`: Enable/disable 1–9 numeric candidate selection.
+* **Control Actions**: `[Apply]` saves configuration to system preferences, `[Revert]` rolls back pending changes, and `[Default]` restores standard factory shortcuts.

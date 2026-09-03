@@ -73,6 +73,34 @@ typedef struct {
     BOOL candidate_window_visible;
 } TIP_CONTEXT;
 
+
+/* Dynamic TIP Key Schema Configuration */
+typedef struct {
+    UW mode_toggle_key;        /* Key to cycle EN -> JP Hiragana -> JP Katakana -> TB (Default: BTRON_KEY_F10) */
+    UW direct_en_key;          /* Key for direct EN ASCII (Default: 0 / none) */
+    UW direct_jp_hira_key;     /* Key for direct Hiragana (Default: BTRON_KEY_F6) */
+    UW direct_jp_kata_key;     /* Key for direct Katakana (Default: BTRON_KEY_F7) */
+    UW direct_tb_key;          /* Key for direct Tibetan (Default: BTRON_KEY_F8) */
+
+    /* Japanese Mode Keyboard Schema */
+    BOOL jp_space_is_convert;  /* Space triggers Kanji conversion (Default: TRUE) */
+    BOOL jp_tab_is_popup;      /* Tab opens candidate popup (Default: TRUE) */
+
+    /* Tibetan Mode Keyboard Schema */
+    BOOL tb_space_is_tsheg;    /* Space outputs Tsheg '་' (Default: TRUE) */
+    BOOL tb_tab_is_popup;      /* Tab opens Dharma dictionary popup (Default: TRUE) */
+    BOOL tb_shift_space_popup; /* Shift+Space opens dictionary popup (Default: TRUE) */
+
+    /* General Candidate Window Navigation */
+    BOOL arrow_nav_enabled;    /* Up/Down arrow candidate navigation (Default: TRUE) */
+    BOOL num_select_enabled;   /* 1-9 direct numeric selection (Default: TRUE) */
+} TIP_KEY_SETTINGS;
+
+/* Key Settings API */
+void tip_get_key_settings(TIP_KEY_SETTINGS *out_settings);
+void tip_set_key_settings(const TIP_KEY_SETTINGS *settings);
+void tip_reset_default_key_settings(void);
+
 /* Global TIP API */
 ER tip_init(void);
 TIP_DFA_STATE tip_get_state(void);

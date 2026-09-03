@@ -31,6 +31,47 @@ static inline int snprintf(char *str, size_t size, const char *format, ...) {
 }
 #endif
 
+
+static TIP_KEY_SETTINGS g_tip_key_settings = {
+    .mode_toggle_key      = BTRON_KEY_F10,
+    .direct_en_key        = 0,
+    .direct_jp_hira_key   = BTRON_KEY_F6,
+    .direct_jp_kata_key   = BTRON_KEY_F7,
+    .direct_tb_key        = BTRON_KEY_F8,
+    .jp_space_is_convert  = TRUE,
+    .jp_tab_is_popup      = TRUE,
+    .tb_space_is_tsheg    = TRUE,
+    .tb_tab_is_popup      = TRUE,
+    .tb_shift_space_popup = TRUE,
+    .arrow_nav_enabled    = TRUE,
+    .num_select_enabled   = TRUE
+};
+
+void tip_get_key_settings(TIP_KEY_SETTINGS *out_settings) {
+    if (!out_settings) return;
+    *out_settings = g_tip_key_settings;
+}
+
+void tip_set_key_settings(const TIP_KEY_SETTINGS *settings) {
+    if (!settings) return;
+    g_tip_key_settings = *settings;
+}
+
+void tip_reset_default_key_settings(void) {
+    g_tip_key_settings.mode_toggle_key      = BTRON_KEY_F10;
+    g_tip_key_settings.direct_en_key        = 0;
+    g_tip_key_settings.direct_jp_hira_key   = BTRON_KEY_F6;
+    g_tip_key_settings.direct_jp_kata_key   = BTRON_KEY_F7;
+    g_tip_key_settings.direct_tb_key        = BTRON_KEY_F8;
+    g_tip_key_settings.jp_space_is_convert  = TRUE;
+    g_tip_key_settings.jp_tab_is_popup      = TRUE;
+    g_tip_key_settings.tb_space_is_tsheg    = TRUE;
+    g_tip_key_settings.tb_tab_is_popup      = TRUE;
+    g_tip_key_settings.tb_shift_space_popup = TRUE;
+    g_tip_key_settings.arrow_nav_enabled    = TRUE;
+    g_tip_key_settings.num_select_enabled   = TRUE;
+}
+
 static TIP_CONTEXT g_tip;
 
 ER tip_init(void) {

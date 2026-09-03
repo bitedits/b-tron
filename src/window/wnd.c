@@ -125,11 +125,20 @@ WND* opn_wnd(const char *title, H x, H y, H w, H h, UW attr) {
 
     const char *src_t = title ? title : "BTRON Window";
     int ti = 0;
-    for (; ti < 63 && src_t[ti] != '\0'; ti++) {
-        wnd->title[ti] = src_t[ti];
+    while (src_t[ti] != '\0') {
+        unsigned char c = (unsigned char)src_t[ti];
+        int step = 1;
+        if ((c & 0x80) == 0) step = 1;
+        else if ((c & 0xE0) == 0xC0) step = 2;
+        else if ((c & 0xF0) == 0xE0) step = 3;
+        else if ((c & 0xF8) == 0xF0) step = 4;
+        if (ti + step >= 64) break;
+        for (int k = 0; k < step; k++) {
+            wnd->title[ti + k] = src_t[ti + k];
+        }
+        ti += step;
     }
     wnd->title[ti] = '\0';
-
     wnd->bounds.left = x;
     wnd->bounds.top = y;
     wnd->bounds.right = x + w;

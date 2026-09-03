@@ -109,6 +109,17 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/apps/audio_player.c  \
               src/apps/chat.c          \
               src/apps/chat_xml.c      \
+              src/settings/language.c  \
+              src/settings/control_panel.c \
+              src/settings/appearance.c \
+              src/settings/desktop.c \
+              src/settings/display.c \
+              src/settings/input.c \
+              src/settings/sound.c \
+              src/settings/network.c \
+              src/settings/media.c \
+              src/settings/security.c \
+              src/settings/system.c    \
               src/hmi/hmi_core.c       \
               src/hmi/hmi_switch.c     \
               src/hmi/hmi_selector.c   \
@@ -208,6 +219,7 @@ COMMON_NO_SDL_SRCS = \
     src/apps/tad_browser.c \
     src/apps/t_editor.c    \
     src/apps/gterm.c       \
+    src/settings/language.c \
     $(IME_SRCS)
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
@@ -646,7 +658,43 @@ verify:
 # ═══════════════════════════════════════════════════════════════════
 # Unified Test Suite Runner
 # ═══════════════════════════════════════════════════════════════════
-test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker
+
+TEST_SETTINGS_BIN = test_settings
+TEST_SETTINGS_SRCS = src/settings/test_language_settings.c \
+                     src/settings/language.c \
+                     src/settings/control_panel.c \
+                     src/settings/appearance.c \
+                     src/settings/desktop.c \
+                     src/settings/display.c \
+                     src/settings/input.c \
+                     src/settings/sound.c \
+                     src/settings/network.c \
+                     src/settings/media.c \
+                     src/settings/security.c \
+                     src/settings/system.c \
+                     src/tip/tip_ife.c \
+                     src/tip/mozc_kkc.c \
+                     src/tip/wylie.c \
+                     src/tip/tibetan_dict.c \
+                     src/font/troncode.c \
+                     src/font/jis_fonts.c \
+                     src/font/tibetan_fonts.c \
+                     src/window/wnd.c \
+                     src/graphics/dp_core.c \
+                     src/tip/tip_vobj.c
+
+TEST_SETTINGS_OBJS = $(TEST_SETTINGS_SRCS:.c=.test.o)
+
+$(TEST_SETTINGS_BIN): $(TEST_SETTINGS_OBJS)
+	$(CC) $(TEST_SETTINGS_OBJS) -o $@ $(LDFLAGS)
+
+test-settings: $(TEST_SETTINGS_BIN)
+	@echo "=========================================================="
+	@echo " Running Settings Cabinet: Language & IME Settings Tests..."
+	@echo "=========================================================="
+	./$(TEST_SETTINGS_BIN)
+
+test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker test-settings
 	@echo "=========================================================="
 	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
 	@echo "=========================================================="
