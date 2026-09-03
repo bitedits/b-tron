@@ -1,41 +1,45 @@
 # B-System (BTRON 3.20) Window Menu Architecture & Specification (MENU.md)
 
-This document specifies the architecture, behavioral rules, and implementation details for the BTRON 3.20 Window Menu System and its modern BeOS/Haiku-style Menu Bar integration.
-
----
+This document specifies the architecture, behavioral rules, and implementation details for the BTRON 3.20
+Window Menu System and its modern BeOS/Haiku-style Menu Bar integration.
 
 ## 1. Architectural Foundation & Spec Conformance
 
 ### 1.1 BTRON3 SPEC 3.20 Menu Manager Conformance
+
 According to BTRON3 Specification 3.20 (Chapter 7.2 *Menu Manager*), the system defines two complementary menu mechanisms:
+
 1. **Standard Menu (Стандартне меню / Menu Bar & Pull-down Submenus)**:
    - Displayed in a horizontal row at the top of the window client area.
    - Registered and managed through data structures (`MENUITEM`, `MENUDISP`) and system calls (`mcre_men`, `mopn_men`, `mpop_men`, `mact_men`).
    - Items support activation states (`inact` bitmask), selection indicators (`select` bitmask), and keyboard macros (`MC_KEY1`..`MC_KEY15`).
+
 2. **Generic Menu (GMENU / Pop-up Context Menu)**:
    - Free-floating popup menu positioned anywhere relative to cursor coordinates.
    - Supports custom rectangular layout zones (`RECT r[32]`).
 
 ### 1.2 Elimination of the Modal "Open Dialog" Window
+
 - **Historical & Philosophical Context**:
-  Traditional desktop systems (Macintosh, MS Windows, Unix CUA/X11) are **application-centric**. Launching an application forces the user to navigate a hierarchical directory tree (`/path/to/folder`) through a modal "File Open" dialog box.
-  
+  Traditional desktop systems (Macintosh, MS Windows, Unix CUA/X11) are **application-centric**.
+  Launching an application forces the user to navigate a hierarchical directory tree (`/path/to/folder`) through a modal "File Open" dialog box.
   In Ken Sakamura's TRON Architecture, the operating system is **document-centric**:
   - The filing system is modeled as a hypermedia network of **Real Objects (実身)** and **Virtual Objects (仮身)**.
   - Documents are opened directly from Cabinets or embedded Virtual Object fusen links without a file picker dialog.
-  
+
 - **Cleanroom Implementation Rule**:
   T-Editor and BTRON applications do not use modal file-opening dialogs. Instead:
   - The `ファイル(F)` (File) menu contains an **`開く (Open) ▶` cascading dropdown menu**.
   - The menu dynamically scans available document repositories (e.g., `assets/texts/` filtering `.txt` files).
   - The user accesses any document in **1–2 fluid clicks** with zero modal interruption, zero path typing, and zero file picker friction.
 
----
-
 ## 2. Menu Bar Structure & Layout
 
 ### 2.1 Streamlined Vertical Window Geometry
-Following the elimination of the redundant legacy CUA toolbar row and the consolidation of the TIP indicator to the status bar footer, the Menu Bar is purely dedicated to application commands and document status:
+
+Following the elimination of the redundant legacy CUA toolbar row and the consolidation of the TIP
+indicator to the status bar footer, the Menu Bar is purely dedicated to application commands and document status:
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ [Title Bar] Window Title                              [X]   │
@@ -51,7 +55,9 @@ Following the elimination of the redundant legacy CUA toolbar row and the consol
 ```
 
 ### 2.2 Standard Top-Level Menus & Non-Overfull Margins
-All top-level headers are sized to strictly eliminate text overfulls, accounting for 16px wide JIS/Kanji glyphs and 8px wide ASCII glyphs with a guaranteed 8px horizontal padding on each side:
+
+All top-level headers are sized to strictly eliminate text overfulls, accounting for 16px wide JIS/Kanji
+glyphs and 8px wide ASCII glyphs with a guaranteed 8px horizontal padding on each side:
 
 | Menu Title | Text Width | Button Rect | Internal Margins | Items & Shortcuts |
 | :--- | :--- | :--- | :--- | :--- |
@@ -63,14 +69,18 @@ All top-level headers are sized to strictly eliminate text overfulls, accounting
 | **Document Status** | Dynamic | `[width - title_w - 14, 3]` | 8px left / 14px right | Dynamic width right-aligned filename status |
 
 ### 2.3 Explicit Item Division: 3D Etched Distance Shadow / Separator
+
 To maximize CPU rendering efficiency while delivering a distinct visual separation between top-level menu items:
+
 - **Etched Dual-Line Groove**: Each horizontal item boundary is demarcated by a 2-pixel vertical etched groove:
   - Left column (`COLOR_DKGRAY`): 1px shadow line from `y = 3` to `y = 19`.
   - Right column (`COLOR_WHITE`): 1px highlight line directly adjacent (`x + 1`) from `y = 3` to `y = 19`.
+
 - **CPU Efficiency**:
   - Implemented via contiguous 1px vertical pixel writes (`fill_rec`).
   - Exactly 16 dword writes per line (32 writes total per separator).
   - Sub-microsecond execution time with zero overdraw, zero blending, and zero matrix transformations.
+
 - **Placement**:
   - Between `ファイル(F)` and `編集(E)` (`x = 110`)
   - Between `編集(E)` and `表示(V)` (`x = 186`)
@@ -78,11 +88,10 @@ To maximize CPU rendering efficiency while delivering a distinct visual separati
   - Between `仮身(O)` and `ヘルプ(H)` (`x = 338`)
   - Before the Document Status Title (`x = width - title_w - 22`)
 
----
-
 ## 3. BeOS/Haiku & Modern Menu Bar Behavioral Rules
 
 ### 3.1 Hover Selection Architecture
+
 Hover selection is supported across all layers of the window and desktop event hierarchy:
 
 1. **Desktop Event Forwarding (`src/desktop/main.c`)**:
@@ -105,12 +114,12 @@ Hover selection is supported across all layers of the window and desktop event h
    - Clicking outside any active menu closes the menu system and returns focus to the editor canvas.
    - Pressing `Escape` cancels and dismisses active menus cleanly.
 
----
-
 ## 4. Dynamic Asset Filesystem Discovery (`assets/texts/*.txt`)
 
 ### 4.1 Asset Scanner Architecture
+
 The `開く (Open) ▶` cascading menu dynamically scans the filesystem to populate available document items:
+
 - Target Directory: `assets/texts/` (with fallback to `assets/`).
 - File Filter: Only files ending in `.txt` (case-insensitive).
 - Invariant & Safety:
@@ -119,8 +128,6 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
 - Item Representation:
   - Displays icon and filename: `📄 <filename>`.
   - Selecting an item invokes `teditor_load_file()` directly.
-
----
 
 ## 5. Keyboard Accelerator Specifications
 
@@ -138,8 +145,6 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
 | **Zoom Out** | `-` | Decreases window size / visible text lines |
 | **Toggle IME** | `F10` | Switches TRON IME mode (ASCII → Hiragana → Katakana → Tibetan) |
 
----
-
 ## 6. Visual Design & Theme Tokens
 
 - **Menu Bar Background**: `COLOR_LTGRAY` (`0xFFD0D0D0`) with bottom separator line `0xFF808080`.
@@ -149,12 +154,12 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
 - **Separator Lines**: Inset etched horizontal line (`drw_lin` with `COLOR_GRAY` and `COLOR_WHITE` 1px offset).
 - **Submenu Arrow**: `▶` (Unicode `U+25B6` / TRON Code) placed at right margin.
 
----
-
 ## 7. Global System Menu (B-right/V Chokanji & Haiku Desktop Control Bar)
 
 ### 7.1 Architectural Role: System Control Bar vs. In-Window Menus
+
 In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Chokanji (超漢字):
+
 - **Autonomous Window Menus**: Individual application windows (such as T-Editor and TAD Browser) possess their own in-window Menu Bar for document operations (`ファイル(F)`, `編集(E)`, `表示(V)`, etc.).
 - **Global Desktop Control Bar (システム操作バー)**: The top bar of the screen (`y = 0..25`) belongs exclusively to the Desktop Shell & System Manager. It does not mirror or duplicate active window file menus, eliminating visual collision and confusion.
 
@@ -175,25 +180,27 @@ In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Ch
 | **道具・文字(T)** | Alt+T | Tools, Character Palette & Code | `文字パレット (TRON Character Palette)`, `TRONコード検索 (TRON-Code Plane Lookup)`, `Mozc 日本語辞書 (IME Dictionary Tool)`, `---`, `表計算・計算機 (Matrix & Calculator)`, `端末 (gterm Terminal)` |
 
 ### 7.3 Authentic Japanese Tray & Cultural Ergonomics
+
 - **Japanese Calendar & Kanji Weekday (曜日表示)**:
   - Real-time display: `M月D日(曜日) HH:MM:SS` (e.g. `9月4日(金) 00:57:30`).
   - Kanji weekday dynamically derived from `tm_wday`: `(日)`, `(月)`, `(火)`, `(水)`, `(木)`, `(金)`, `(土)`.
   - Recessed 3D plate in `COLOR_LTGRAY` with dark gray top/left shadow.
+
 - **Global TIP Input Method Status**:
   - Direct interactive indicator: `[TIP: あ (F10)]` (Hiragana `あ`, Katakana `ア`, ASCII `A`, Tibetan `བོད`).
   - Clicking cycles mode globally; reflects active Mozc composition state.
+
 - **CPU & Resource Gauge**:
   - Compact SMP multi-core load indicator showing kernel thread activity.
 
 ### 7.4 Non-Overfull Margins & Etched Distance Shadows
+
 - Sized with guaranteed 8px margins per side accounting for 16px JIS kanji glyphs.
 - Separated by CPU-efficient 2px 3D etched grooves (`draw_menu_separator_v`).
 - Full BeOS-style live hover selection:
   - Closed header hover highlight (white bevel + navy text).
   - Hot header tracking when a global menu is open.
   - Automatic dismissal when clicking on the desktop or any window.
-
----
 
 ## 8. TAD Browser Menu Specification (実身閲覧・TAD表示)
 
@@ -211,8 +218,6 @@ In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Ch
 | **表示(V)** | Alt+V | `戻る (Back)` (`Alt+Left`)<br>`進む (Forward)` (`Alt+Right`)<br>`ホーム / 先頭 (Home)`<br>`再読込 (Reload)` (`Ctrl+R`)<br>`---`<br>`拡大 (Zoom In)` (`+`)<br>`縮小 (Zoom Out)` (`-`)<br>`標準サイズ (100%)`<br>`---`<br>`行折り返し (Wrap Text)` | Navigation history, zoom scaling, and dynamic word wrapping |
 | **仮身(O)** | Alt+O | `リンク先を開く (Follow Fusen Link)` (`Enter`)<br>`リンク先を別窓で開く (Open Link in New Window)`<br>`実身キャビネットで表示 (Show in Cabinet)` | Hypermedia Fusen link traversal and cabinet cross-referencing |
 | **ヘルプ(H)** | Alt+H | `TADブラウザ について (About...)`<br>`BTRON TAD 仕様書 (TAD Spec...)` | Nano About Box ("Brought to B-System by 5HT") and technical documentation |
-
----
 
 ## 9. Cabinet App Menu Specification (実身・仮身キャビネット)
 
@@ -232,27 +237,30 @@ In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Ch
 | **仮身(O)** | Alt+O | `新規仮身リンクの作成 (Create Fusen Link)` (`Ctrl+L`)<br>`所属キャビネットの変更 (Move to Cabinet...)`<br>`総索引の表示 (Global Index Catalog)` (`Ctrl+I`) | Virtual Object link creation and hypermedia organizing |
 | **ヘルプ(H)** | Alt+H | `キャビネット について (About Cabinet...)`<br>`実身・仮身モデル解説 (Hypermedia Architecture...)` | Nano About Box ("Brought to B-System by 5HT") and Sakamura hypermedia architecture guide |
 
----
-
 ## 10. Unified Application Menu Engine & Multi-Style System Settings
 
 ### 10.1 Architecture & Complete Deduplication
+
 Prior to BTRON 3.20 Update 9, T-Editor, TAD Browser, and Cabinet Manager maintained independent in-window menu structures, event hit testers, and drawing algorithms. This led to code duplication and visual inconsistencies.
 
 The **Unified Application Menu Engine** (`include/btron/app_menu.h`, `src/window/app_menu.c`) standardizes all application-level menus:
+
 - **Shared Data Structures**:
   - `APP_MENU_BAR`: Encapsulates headers, items, bounding geometries, hover state, active header index, and right-aligned status text.
   - `APP_MENU_HEADER`: Represents top-level categories with computed margins and item arrays.
   - `APP_MENU_ITEM`: Unified entry supporting normal commands, checkable states, separators, and cascading submenus (`▶`).
+
 - **Standardized Event Handling**:
   - `app_menu_handle_mouse_move`: Fluid BeOS-style hot header gliding, closed hover detection, item highlighting, and cascading submenu tracking.
   - `app_menu_handle_mouse_down`: Top-level header toggle, dropdown item selection, cascading item loading, and outside dismissal.
   - `app_menu_handle_key`: Universal `Escape` dismissal.
+
 - **Zero Duplication**:
   - `TEditor`, `TAD_BROWSER`, and `CABINET_EXPLORER` now directly use `APP_MENU_BAR` and common painting/event routines.
   - Legacy tracking fields (`active_menu`, `hover_menu`, `hover_item`) are synchronized seamlessly for full backward compatibility.
 
 ### 10.2 Dual Menu Styles Configurable in Appearance Settings
+
 As requested by users who appreciate both authentic retro ergonomics and contemporary visual polish, B-System supports two selectable menu visual styles:
 
 ```
@@ -267,6 +275,7 @@ As requested by users who appreciate both authentic retro ergonomics and contemp
    - 4-sided crisp 3D bevel box (`draw_3d_bevel_box`) with `COLOR_LTGRAY` background fill.
    - `COLOR_WHITE` top/left highlight lines and `COLOR_DKGRAY` bottom/right shadow lines.
    - Clean 3D vertical etched separators between menu bar headers.
+
 2. **Modern Flat Card (`APP_MENU_STYLE_MODERN_CARD`)**:
    - Flat card surface with 1px border.
    - 3px offset soft drop shadow (`COLOR_DKGRAY`) mimicking modern desktop window cards.
@@ -275,14 +284,19 @@ As requested by users who appreciate both authentic retro ergonomics and contemp
 Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all in-window menus (T-Editor, TAD Browser, Cabinet), the top-level **Global System Menu Bar (`src/desktop/global_menu.c`)**, and the **Haiku-Style Deskbar Start Menu (`src/desktop/tracker.c`)**.
 
 ### 10.3 Standardized Nano About Box Dialog
+
 All applications instantiate their About Box using the unified `app_menu_create_about_dialog()` API:
+
 - **Compact Dimensions**: Exactly 280×135 pixels.
+
 - **Visual Presentation**:
   - Classic 3D beveled container (`COLOR_LTGRAY`) with inner card (`COLOR_WHITE`).
   - Bilingual title duplication (e.g., `T-Editor 3.20 (文書編集)`).
   - Explicit attribution: **`"Brought to B-System by 5HT"`**.
   - Centered 3D `[ OK ]` button.
+
 - **Universal Dismissal**: Closes immediately on `OK` click, window close button `[X]`, or pressing `Escape`, `Enter`, or `Space`.
 
+# Credits
 
-
+* Namdak Tonpa and Grok 4.5

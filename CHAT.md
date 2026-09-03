@@ -143,3 +143,7 @@ All TRON IPC messages carry standardized XMPP XML stanzas parsed and generated b
 - **No Unbounded Loops**: All string operations, XML tokenization loops, and message queues have strict upper limits (`MAX_CHAT_MSG = 256`, `MAX_ROSTER = 64`, `MAX_XML_DEPTH = 8`).
 - **Deterministic Memory**: Fixed capacity ring buffers for message logs and roster tables without runtime fragmentation.
 - **Fail-Safe Defaults**: Non-blocking IPC message dispatch and graceful handling of disconnected or closed windows.
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5

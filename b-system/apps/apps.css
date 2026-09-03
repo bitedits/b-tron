@@ -47,6 +47,7 @@ body {
     backdrop-filter: blur(16px);
 }
 .app-hero-icon { font-size: 4rem; line-height: 1; margin-bottom: 0.8rem; }
+.app-hero-icon img { width: 4rem; height: 4rem; display: inline-block; vertical-align: middle; }
 .app-hero h1 {
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800; letter-spacing: -0.02em;

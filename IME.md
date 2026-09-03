@@ -324,3 +324,7 @@ The BTRON **Settings Cabinet (環境設定キャビネット)** provides an inte
   - `arrow_nav_enabled`: Enable/disable Up/Down arrow list traversal.
   - `num_select_enabled`: Enable/disable 1–9 numeric candidate selection.
 * **Control Actions**: `[Apply]` saves configuration to system preferences, `[Revert]` rolls back pending changes, and `[Default]` restores standard factory shortcuts.
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5

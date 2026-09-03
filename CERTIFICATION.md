@@ -1,10 +1,10 @@
 # BTRON 3.20 Implementation Certification
 
-**Document class:** Formal Specification and Implementation Audit  
-**Specification version:** BTRON 3.20  
-**Implementation:** btron (cleanroom reference, 2026)  
-**Normative reference:** `doc/os_spec/` HTML corpus (Ukrainian translation of the original Japanese specification)  
-**Audit date:** 2026-09-01  
+**Document class:** Formal Specification and Implementation Audit
+**Specification version:** BTRON 3.20
+**Implementation:** btron (cleanroom reference, 2026)
+**Normative reference:** `doc/os_spec/` HTML corpus (Ukrainian translation of the original Japanese specification)
+**Audit date:** 2026-09-01
 
 ## Status Legend
 
@@ -890,3 +890,6 @@ UNIMPLEMENTED SUBSYSTEMS REQUIRING IMPLEMENTATION:
 4. `include/btron/*.h` — implementation ground truth (audited 2026-09-01)
 5. `src/` — implementation source (audited 2026-09-01)
 
+# Credits
+
+* Namdak Tonpa and Grok 4.5

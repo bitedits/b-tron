@@ -204,7 +204,7 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Visual Frame & Geometry:** Rendered within a distinct 3D beveled BTRON frame with navy header banner (`[🖼 <image_path>]`), clear drawing canvas, and bottom caption.
+- **Visual Frame & Geometry:** Rendered within a distinct 3D beveled BTRON frame with navy header banner (`[<image_path>]`), clear drawing canvas, and bottom caption.
 - **Dual Raster Decoders (GIF & PNG):**
   - **GIF Decoder:** Decodes LZW-compressed 8-bit palette GIF specification diagrams (218 spec diagrams across `tad_bin/**/gif/`).
   - **PNG Decoder:** Decodes Deflate-compressed RGB and RGBA PNG diagrams with full scanline unfiltering (Paeth, Sub, Up, Average, None) (220+ illustrations across `tad_bin/b-hmi/img/`).

@@ -145,12 +145,21 @@ $ make run-posix
 In the spirit of NetBSD, BeOS, and TRON, compilation requires only a plain **BSD Makefile**:
 
 ```bash
-make
-./btron
+$ make sakamura
+$ ./btron-sakamura.elf
+B-System/BTRON3 3.20 (sakamura-tkernel-virtio) Ken Sakamura — T-Kernel 2.0
+Copyright 2026 Synrc Research Center. MIT License.
+[BOOT] Host: Darwin 25.5.0 arm64
+[CORE] Sakamura T-Kernel 2.0 Engine  BTRON_SAKAMURA
+[T-KERNEL] All Sakamura T-Kernel 2.0 subsystems initialized.
+[VIRTIO] MMIO Controller registered at address 0x10001000
+[MEM ] T-Kernel hosted: memory managed by host OS allocator
+[HFDS] POSIX file I/O: host filesystem passthrough  [OK]
+[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]
+[TRACE-COCOA] Activated nswin=0x9b15b0280 contentView=0x9b17a8500
+[B-System] Launching Sakamura B-System Desktop & Accessories...
 ```
 
-### Clean Build
+# Credits
 
-```bash
-make clean
-```
+* Namdak Tonpa and Grok 4.5
