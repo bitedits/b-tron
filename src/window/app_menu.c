@@ -36,7 +36,8 @@ APP_MENU_STYLE app_menu_get_global_style(void) {
 }
 
 /* ── 3D Beveled Box (Classic Workstation Plate) ─────────────────────────── */
-static void draw_3d_bevel_box(GDEV *dev, const RECT *r) {
+void app_menu_draw_3d_bevel_box(GDEV *dev, const RECT *r) {
+    if (!dev || !r) return;
     fill_rec(dev, r, COLOR_LTGRAY);
     drw_rec(dev, r);
     /* 3D highlight: white top and left */
@@ -46,6 +47,7 @@ static void draw_3d_bevel_box(GDEV *dev, const RECT *r) {
     drw_lin(dev, r->left + 1, r->bottom - 2, r->right - 2, r->bottom - 2);
     drw_lin(dev, r->right - 2, r->top + 1, r->right - 2, r->bottom - 2);
 }
+#define draw_3d_bevel_box app_menu_draw_3d_bevel_box
 
 /* ── 3D Dual-Line Etched Groove (Distance Separator) ────────────────────── */
 static void draw_menu_separator_v(GDEV *dev, H x, H y1, H y2) {

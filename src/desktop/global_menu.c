@@ -12,6 +12,7 @@
 #include <btron/troncode.h>
 #include <btron/tip.h>
 #include <btron/about.h>
+#include <btron/app_menu.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -305,17 +306,21 @@ void global_menu_render_overlay(GDEV *dev) {
 
     RECT mr = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
 
-    /* 3D Drop Shadow */
-    RECT shadow = { menu_x + 3, menu_y + 3, menu_x + menu_w + 3, menu_y + menu_h + 3 };
-    fill_rec(dev, &shadow, COLOR_DKGRAY);
+    APP_MENU_STYLE style = app_menu_get_global_style();
+    if (style == APP_MENU_STYLE_CLASSIC_3D) {
+        /* Style 1: Classic Chokanji 3D Beveled Box Plate */
+        app_menu_draw_3d_bevel_box(dev, &mr);
+    } else {
+        /* Style 2: Modern Flat Card with Soft Drop Shadow */
+        RECT shadow = { menu_x + 3, menu_y + 3, menu_x + menu_w + 3, menu_y + menu_h + 3 };
+        fill_rec(dev, &shadow, COLOR_DKGRAY);
 
-    /* Background panel */
-    fill_rec(dev, &mr, COLOR_WHITE);
-    drw_rec(dev, &mr);
+        fill_rec(dev, &mr, COLOR_WHITE);
+        drw_rec(dev, &mr);
 
-    /* 3D Outer Bevel */
-    drw_lin(dev, mr.left + 1, mr.top + 1, mr.right - 2, mr.top + 1);
-    drw_lin(dev, mr.left + 1, mr.top + 1, mr.left + 1, mr.bottom - 2);
+        drw_lin(dev, mr.left + 1, mr.top + 1, mr.right - 2, mr.top + 1);
+        drw_lin(dev, mr.left + 1, mr.top + 1, mr.left + 1, mr.bottom - 2);
+    }
 
     for (int i = 0; i < hdr->item_count; i++) {
         const GMenuItem *it = &hdr->items[i];

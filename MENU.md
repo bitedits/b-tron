@@ -272,7 +272,7 @@ As requested by users who appreciate both authentic retro ergonomics and contemp
    - 3px offset soft drop shadow (`COLOR_DKGRAY`) mimicking modern desktop window cards.
    - Minimalist vertical separator lines.
 
-Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all running applications.
+Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all in-window menus (T-Editor, TAD Browser, Cabinet), the top-level **Global System Menu Bar (`src/desktop/global_menu.c`)**, and the **Haiku-Style Deskbar Start Menu (`src/desktop/tracker.c`)**.
 
 ### 10.3 Standardized Nano About Box Dialog
 All applications instantiate their About Box using the unified `app_menu_create_about_dialog()` API:

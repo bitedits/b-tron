@@ -9,6 +9,7 @@
 #include <btron/troncode.h>
 #include <btron/apps.h>
 #include <btron/about.h>
+#include <btron/app_menu.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -452,13 +453,20 @@ void tracker_render_menu(GDEV *dev) {
 
     RECT *mr = &g_tracker.menu_rect;
 
-    /* Drop Shadow (Right & Bottom) */
-    RECT shadow = { mr->left + 3, mr->top + 3, mr->right + 3, mr->bottom + 3 };
-    fill_rec(dev, &shadow, COLOR_GRAY);
+    APP_MENU_STYLE style = app_menu_get_global_style();
+    if (style == APP_MENU_STYLE_CLASSIC_3D) {
+        /* Style 1: Classic Chokanji 3D Beveled Box Plate */
+        app_menu_draw_3d_bevel_box(dev, mr);
+    } else {
+        /* Style 2: Modern Flat Card with Soft Drop Shadow */
+        RECT shadow = { mr->left + 3, mr->top + 3, mr->right + 3, mr->bottom + 3 };
+        fill_rec(dev, &shadow, COLOR_DKGRAY);
 
-    /* Menu Container Surface */
-    fill_rec(dev, mr, COLOR_LTGRAY);
-    drw_rec(dev, mr);
+        fill_rec(dev, mr, COLOR_WHITE);
+        drw_rec(dev, mr);
+        drw_lin(dev, mr->left + 1, mr->top + 1, mr->right - 2, mr->top + 1);
+        drw_lin(dev, mr->left + 1, mr->top + 1, mr->left + 1, mr->bottom - 2);
+    }
 
     /* Left accent vertical stripe (Haiku Deskbar leaf blue bar) */
     RECT bar = { mr->left + 1, mr->top + 1, mr->left + 4, mr->bottom - 1 };

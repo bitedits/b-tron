@@ -83,6 +83,7 @@ void app_menu_close(APP_MENU_BAR *bar);
 void app_menu_open(APP_MENU_BAR *bar, int header_idx);
 
 /* ── Rendering Functions ───────────────────────────────────────────────── */
+void app_menu_draw_3d_bevel_box(GDEV *dev, const RECT *r);
 void app_menu_paint_bar(const APP_MENU_BAR *bar, GDEV *dev);
 void app_menu_paint_dropdown(const APP_MENU_BAR *bar, GDEV *dev);
 void app_menu_paint_cascading_strings(const APP_MENU_BAR *bar, GDEV *dev, const char items[][64], int count);

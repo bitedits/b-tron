@@ -646,6 +646,7 @@ $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 # BTRON Deskbar Tracker & Task Manager Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/desktop/about.c src/window/wnd.c \
+                    src/window/app_menu.c \
                     src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
 TEST_TRACKER_OBJS = $(TEST_TRACKER_SRCS:.c=.test.o)
 TEST_TRACKER_BIN  = test_tracker
@@ -705,6 +706,7 @@ test-settings: $(TEST_SETTINGS_BIN)
 # BTRON Global System Menu (Chokanji & Haiku) Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_GMENU_SRCS = src/desktop/test_global_menu.c src/desktop/global_menu.c src/desktop/tracker.c \
+                  src/window/app_menu.c \
                   src/desktop/about.c src/window/wnd.c src/graphics/dp_core.c src/font/troncode.c \
                   src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_ife.c src/tip/mozc_kkc.c \
                   src/tip/wylie.c src/tip/tibetan_dict.c src/tip/tip_vobj.c

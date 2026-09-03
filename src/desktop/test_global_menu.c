@@ -14,6 +14,7 @@
 #include <btron/tip.h>
 #include <btron/tracker.h>
 #include <btron/global_menu.h>
+#include <btron/app_menu.h>
 
 static int g_tests_total = 0;
 static int g_tests_passed = 0;
@@ -235,9 +236,9 @@ static void test_window_management_actions(void) {
     cls_dev(scr);
 }
 
-/* ── Test Group 8: Rendering Benchmarks ── */
+/* ── Test Group 8: Rendering Benchmarks & Appearance Style Support ── */
 static void test_rendering_benchmarks(void) {
-    printf("\n[TEST GROUP 8] Global Menu Rendering Verification\n");
+    printf("\n[TEST GROUP 8] Global Menu Rendering Verification & Appearance Style Support\n");
 
     GDEV *dev = opn_dev(1280, 800);
     TEST_ASSERT(dev != NULL, "Allocated 1280x800 test display device");
@@ -246,11 +247,28 @@ static void test_rendering_benchmarks(void) {
     global_menu_render_bar(dev);
     TEST_ASSERT(dev->pixels != NULL, "Rendered top system menu bar successfully");
 
-    /* Open menu and render overlay */
+    /* 1. Classic 3D Style Rendering */
+    app_menu_set_global_style(APP_MENU_STYLE_CLASSIC_3D);
     global_menu_handle_mouse_down(140, 10);
     global_menu_render_overlay(dev);
-    TEST_ASSERT(dev->pixels != NULL, "Rendered 3D dropdown overlay successfully");
+    TEST_ASSERT(dev->pixels != NULL, "Rendered Classic 3D global dropdown overlay successfully");
 
+    /* 2. Modern Flat Card Style Rendering */
+    app_menu_set_global_style(APP_MENU_STYLE_MODERN_CARD);
+    global_menu_render_overlay(dev);
+    TEST_ASSERT(dev->pixels != NULL, "Rendered Modern Flat Card global dropdown overlay successfully");
+
+    /* 3. Deskbar Tracker Menu with Appearance Style */
+    global_menu_close();
+    global_menu_handle_mouse_down(20, 10); /* Header 0: [BTRON] */
+    global_menu_render_overlay(dev);
+    TEST_ASSERT(dev->pixels != NULL, "Rendered Deskbar menu with Modern Card style");
+
+    app_menu_set_global_style(APP_MENU_STYLE_CLASSIC_3D);
+    global_menu_render_overlay(dev);
+    TEST_ASSERT(dev->pixels != NULL, "Rendered Deskbar menu with Classic 3D style");
+
+    global_menu_close();
     cls_dev(dev);
 }
 
