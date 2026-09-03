@@ -1,0 +1,219 @@
+/*
+ * B-System (BTRON 3.20) Language & IME Settings Application: language.c
+ * Applet inside Settings Cabinet (環境設定キャビネット)
+ * Configures default IME keyboard shortcuts & behaviors for EN / JP / TB.
+ */
+
+#include <btron/language_settings.h>
+#include <btron/dp.h>
+#include <btron/troncode.h>
+#include <btron/event.h>
+#include <btron/tip.h>
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#include <libstr.h>
+#define memset tkl_memset
+#define strlen tkl_strlen
+#define snprintf tkl_snprintf
+#endif
+
+static LanguageSettingsApp g_lang_settings;
+
+static void paint_checkbox(GDEV *dev, H x, H y, const char *label, BOOL checked, BOOL focused) {
+    RECT box = { x, y + 2, x + 12, y + 14 };
+    fill_rec(dev, &box, COLOR_WHITE);
+    drw_rec(dev, &box);
+    if (checked) {
+        /* Draw checkmark cross */
+        drw_lin(dev, x + 2, y + 4, x + 10, y + 12);
+        drw_lin(dev, x + 2, y + 12, x + 10, y + 4);
+    }
+    COLOR text_col = focused ? COLOR_NAVY : COLOR_BLACK;
+    drw_tc_string(dev, x + 18, y, label, text_col, COLOR_WHITE);
+}
+
+static void paint_button(GDEV *dev, H x, H y, H w, H h, const char *label, BOOL pressed) {
+    RECT btn = { x, y, x + w, y + h };
+    fill_rec(dev, &btn, pressed ? COLOR_DKGRAY : COLOR_LTGRAY);
+    drw_rec(dev, &btn);
+    H tx = x + (w - (H)strlen(label) * 8) / 2;
+    drw_tc_string(dev, tx > x ? tx : x + 4, y + 3, label, COLOR_BLACK, pressed ? COLOR_DKGRAY : COLOR_LTGRAY);
+}
+
+static void paint_language_settings(WND *wnd, GDEV *dev) {
+    if (!wnd || !dev) return;
+
+    /* Background */
+    RECT r = { 0, 0, dev->width, dev->height };
+    fill_rec(dev, &r, COLOR_WHITE);
+    drw_rec(dev, &r);
+
+    /* Header Bar: Settings Cabinet Icon & Title */
+    RECT hdr = { 0, 0, dev->width, 26 };
+    fill_rec(dev, &hdr, COLOR_LTGRAY);
+    drw_lin(dev, 0, 26, dev->width, 26);
+    drw_tc_string(dev, 8, 5, "[Settings Cabinet] Language & Input Method (IME) Preferences", COLOR_BLACK, COLOR_LTGRAY);
+
+    /* Section 1: Multilingual Mode Switching */
+    RECT s1 = { 10, 36, dev->width - 10, 100 };
+    fill_rec(dev, &s1, COLOR_WHITE);
+    drw_rec(dev, &s1);
+    drw_tc_string(dev, 16, 28, " [1. Language Switching Shortcuts] ", COLOR_NAVY, COLOR_WHITE);
+
+    drw_tc_string(dev, 20, 48, "Cycle Mode Key (EN -> JP Hiragana -> JP Katakana -> TB):  F10", COLOR_BLACK, COLOR_WHITE);
+    drw_tc_string(dev, 20, 66, "Direct Language Keys:  F6 (JP あ) | F7 (JP ア) | F8 (TB བོད) | F9 (Zen/Alphanum)", COLOR_GRAY, COLOR_WHITE);
+    drw_tc_string(dev, 20, 84, "Standard Modifier Toggle:  Ctrl + Space / Alt + Space (Hankaku/Zenkaku)", COLOR_GRAY, COLOR_WHITE);
+
+    /* Section 2: Japanese Mozc Keyboard Behavior */
+    RECT s2 = { 10, 110, dev->width - 10, 180 };
+    fill_rec(dev, &s2, COLOR_WHITE);
+    drw_rec(dev, &s2);
+    drw_tc_string(dev, 16, 102, " [2. Japanese Mode (JP あ / JP ア)] ", COLOR_NAVY, COLOR_WHITE);
+
+    paint_checkbox(dev, 20, 122, "Space Key triggers Kana-to-Kanji (KKC) Lattice Search", g_lang_settings.current_config.jp_space_is_convert, FALSE);
+    paint_checkbox(dev, 20, 142, "Tab Key opens Candidate Suggestion Popup", g_lang_settings.current_config.jp_tab_is_popup, FALSE);
+    paint_checkbox(dev, 20, 162, "Fullwidth Space (　 U+3000) inserted when Space is pressed in IDLE", TRUE, FALSE);
+
+    /* Section 3: Tibetan Wylie Keyboard Behavior */
+    RECT s3 = { 10, 190, dev->width - 10, 260 };
+    fill_rec(dev, &s3, COLOR_WHITE);
+    drw_rec(dev, &s3);
+    drw_tc_string(dev, 16, 182, " [3. Tibetan Mode (TB བོད)] ", COLOR_NAVY, COLOR_WHITE);
+
+    paint_checkbox(dev, 20, 202, "Space Key directly outputs Tsheg ('་' U+0F0B) syllable delimiter", g_lang_settings.current_config.tb_space_is_tsheg, FALSE);
+    paint_checkbox(dev, 20, 222, "Tab Key opens Dharma Dictionary Suggestion Popup", g_lang_settings.current_config.tb_tab_is_popup, FALSE);
+    paint_checkbox(dev, 20, 242, "Shift + Space / Ctrl + Space opens Dictionary Popup", g_lang_settings.current_config.tb_shift_space_popup, FALSE);
+
+    /* Section 4: Universal Candidate Popup Navigation */
+    RECT s4 = { 10, 270, dev->width - 10, 335 };
+    fill_rec(dev, &s4, COLOR_WHITE);
+    drw_rec(dev, &s4);
+    drw_tc_string(dev, 16, 262, " [4. Candidate Popup Navigation (All Modes)] ", COLOR_NAVY, COLOR_WHITE);
+
+    paint_checkbox(dev, 20, 282, "Up / Down Arrow Keys navigate candidate list (Ctrl+P / Ctrl+N)", g_lang_settings.current_config.arrow_nav_enabled, FALSE);
+    paint_checkbox(dev, 20, 302, "1-9 Numeric Keys select candidate item directly", g_lang_settings.current_config.num_select_enabled, FALSE);
+
+    /* Footer Action Buttons */
+    H btn_y = dev->height - 35;
+    paint_button(dev, dev->width - 320, btn_y, 70, 24, "Default", FALSE);
+    paint_button(dev, dev->width - 240, btn_y, 70, 24, "Revert", FALSE);
+    paint_button(dev, dev->width - 160, btn_y, 70, 24, "Apply", g_lang_settings.is_dirty);
+    paint_button(dev, dev->width - 80, btn_y, 70, 24, "Close", FALSE);
+}
+
+void language_settings_event_handler(WND *wnd, const EVT *evt) {
+    if (!wnd || !evt) return;
+
+    if (evt->type == EV_BUT_DOWN) {
+        H rel_x = evt->pos.x - wnd->client.left;
+        H rel_y = evt->pos.y - wnd->client.top;
+        H client_w = wnd->client.right - wnd->client.left;
+        H client_h = wnd->client.bottom - wnd->client.top;
+
+        /* Checkbox Toggles */
+        if (rel_x >= 20 && rel_x <= 450) {
+            if (rel_y >= 122 && rel_y <= 136) {
+                g_lang_settings.current_config.jp_space_is_convert = !g_lang_settings.current_config.jp_space_is_convert;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 142 && rel_y <= 156) {
+                g_lang_settings.current_config.jp_tab_is_popup = !g_lang_settings.current_config.jp_tab_is_popup;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 202 && rel_y <= 216) {
+                g_lang_settings.current_config.tb_space_is_tsheg = !g_lang_settings.current_config.tb_space_is_tsheg;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 222 && rel_y <= 236) {
+                g_lang_settings.current_config.tb_tab_is_popup = !g_lang_settings.current_config.tb_tab_is_popup;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 242 && rel_y <= 256) {
+                g_lang_settings.current_config.tb_shift_space_popup = !g_lang_settings.current_config.tb_shift_space_popup;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 282 && rel_y <= 296) {
+                g_lang_settings.current_config.arrow_nav_enabled = !g_lang_settings.current_config.arrow_nav_enabled;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_y >= 302 && rel_y <= 316) {
+                g_lang_settings.current_config.num_select_enabled = !g_lang_settings.current_config.num_select_enabled;
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+        }
+
+        /* Action Buttons */
+        H btn_y = client_h - 35;
+        if (rel_y >= btn_y && rel_y <= btn_y + 24) {
+            if (rel_x >= client_w - 320 && rel_x <= client_w - 250) {
+                /* Default */
+                tip_reset_default_key_settings();
+                tip_get_key_settings(&g_lang_settings.current_config);
+                g_lang_settings.is_dirty = TRUE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_x >= client_w - 240 && rel_x <= client_w - 170) {
+                /* Revert */
+                g_lang_settings.current_config = g_lang_settings.saved_config;
+                tip_set_key_settings(&g_lang_settings.saved_config);
+                g_lang_settings.is_dirty = FALSE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_x >= client_w - 160 && rel_x <= client_w - 90) {
+                /* Apply */
+                tip_set_key_settings(&g_lang_settings.current_config);
+                g_lang_settings.saved_config = g_lang_settings.current_config;
+                g_lang_settings.is_dirty = FALSE;
+                redraw_all_windows();
+                return;
+            }
+            if (rel_x >= client_w - 80 && rel_x <= client_w - 10) {
+                /* Close */
+                if (g_lang_settings.is_dirty) {
+                    tip_set_key_settings(&g_lang_settings.current_config);
+                }
+                cls_wnd(wnd);
+                return;
+            }
+        }
+    }
+}
+
+WND* open_language_settings_window(void) {
+    memset(&g_lang_settings, 0, sizeof(LanguageSettingsApp));
+    tip_get_key_settings(&g_lang_settings.current_config);
+    g_lang_settings.saved_config = g_lang_settings.current_config;
+
+    WND *wnd = opn_wnd("Settings Cabinet - Language & IME Preferences",
+                       80, 50, 620, 440,
+                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
+    if (!wnd) return NULL;
+
+    g_lang_settings.wnd = wnd;
+    wnd->user_data = (VW)(uintptr_t)&g_lang_settings;
+    wnd->paint = paint_language_settings;
+    wnd->event_handler = language_settings_event_handler;
+    return wnd;
+}
