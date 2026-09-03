@@ -37,6 +37,14 @@ typedef struct {
     /* VOBJ Embed */
     BOOL has_vobj;
     char vobj_name[64];
+
+    /* Menu Bar State (BeOS BMenuBar / BTRON 3.20 Menu Manager) */
+    int active_menu;       /* -1 = closed, 0=File, 1=Edit, 2=View, 3=Objects, 4=Help */
+    int hover_menu;        /* -1 = none, 0..4 = hovered top-level menu header */
+    int hover_item;        /* -1 = none, 0..N = hovered item in active menu */
+    int active_submenu;    /* -1 = none, 0..N = item index spawning cascading submenu */
+    int hover_subitem;     /* -1 = none, 0..N = hovered item in cascading submenu */
+    BOOL show_line_nums;   /* TRUE = display gutter line numbers */
 } TEditor;
 
 WND* open_t_editor_window(void);
@@ -45,6 +53,11 @@ TEditor* teditor_get_current(void);
 int teditor_load_file(TEditor *ed, const char *filepath);
 int teditor_save_file(TEditor *ed, const char *filepath);
 int teditor_close_file(TEditor *ed);
+
+/* Menu Manager APIs */
+int teditor_get_asset_files(char files[][64], int max_files);
+void teditor_open_menu(TEditor *ed, int menu_idx);
+void teditor_close_menu(TEditor *ed);
 
 #ifdef __cplusplus
 }
