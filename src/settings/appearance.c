@@ -7,6 +7,7 @@
 #include <btron/dp.h>
 #include <btron/troncode.h>
 #include <btron/wnd.h>
+#include <btron/settings_icon.h>
 #include <btron/app_menu.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -94,36 +95,38 @@ static void paint_appearance_settings(WND *wnd, GDEV *dev) {
     drw_rec(dev, &r);
 
     /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 28 };
+    RECT hdr = { 0, 0, dev->width, 76 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 28, dev->width, 28);
+    drw_lin(dev, 0, 76, dev->width, 76);
+    /* 64×64 icon in header: 6px top padding */
+    draw_setting_gif_icon(dev, "appearance", 6, 6);
     char hdr_str[128];
     snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Appearance", "外観", "Themes, colours & window styles");
-    drw_tc_string(dev, 8, 6, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: System Themes & Visual Appearance */
-    RECT s1 = { 10, 34, dev->width - 10, 186 };
+    RECT s1 = { 10, 82, dev->width - 10, 186 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 26, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_radio(dev, 18, 44, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
-    paint_ui_radio(dev, 18, 66, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
-    paint_ui_radio(dev, 18, 88, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
-    paint_ui_checkbox(dev, 18, 110, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
+    drw_tc_string(dev, 16, 74, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_radio(dev, 18, 80, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
+    paint_ui_radio(dev, 18, 102, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
+    paint_ui_radio(dev, 18, 124, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
+    paint_ui_checkbox(dev, 18, 146, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
 
     /* Menu Style Toggle Options */
     BOOL is_classic = (app_menu_get_global_style() == APP_MENU_STYLE_CLASSIC_3D);
-    paint_ui_radio(dev, 18, 134, "Menu Style: Classic Chokanji 3D (超漢字3Dベベル)", is_classic, FALSE);
-    paint_ui_radio(dev, 18, 156, "Menu Style: Modern Flat Card (現代風カード)", !is_classic, FALSE);
+    paint_ui_radio(dev, 18, 170, "Menu Style: Classic Chokanji 3D (超漢字3Dベベル)", is_classic, FALSE);
+    paint_ui_radio(dev, 18, 192, "Menu Style: Modern Flat Card (現代風カード)", !is_classic, FALSE);
 
     /* Section 2: Typography & Glyph Rendering */
-    RECT s2 = { 10, 196, dev->width - 10, 280 };
+    RECT s2 = { 10, 232, dev->width - 10, 280 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 188, " [2. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 206, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
-    paint_ui_checkbox(dev, 18, 228, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
-    paint_ui_checkbox(dev, 18, 250, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
+    drw_tc_string(dev, 16, 224, " [2. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 242, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
+    paint_ui_checkbox(dev, 18, 264, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
+    paint_ui_checkbox(dev, 18, 286, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;

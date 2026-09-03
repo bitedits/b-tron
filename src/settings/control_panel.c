@@ -10,6 +10,7 @@
 #include <btron/dp.h>
 #include <btron/troncode.h>
 #include <btron/wnd.h>
+#include <btron/settings_icon.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -167,10 +168,10 @@ static void calculate_bar_layout(ControlBarLayout *bar, H x, H y, H w, H h, cons
     if (!bar || !info) return;
 
     /* 1. Calculate Image / Icon Placeholder subelement */
-    H icon_w = 40;
-    H icon_h = 42;
-    if (w < 80) icon_w = (w > 20) ? (w / 2) : 10;
-    if (h < 50) icon_h = (h > 12) ? (h - 10) : 6;
+    H icon_w = 72;
+    H icon_h = 72;
+    if (w < 90) icon_w = (w > 20) ? (w / 2) : 10;
+    if (h < 80) icon_h = (h > 12) ? (h - 10) : 6;
 
     H icon_pad_x = 8;
     H icon_pad_y = (h > icon_h) ? (h - icon_h) / 2 : 2;
@@ -225,8 +226,8 @@ static void calculate_control_panel_layout(ControlPanelLayout *layout, H client_
     H start_x = 16;
     H start_y = 60;
     H item_w = (client_w - 48) / 2;
-    if (item_w < 60) item_w = 60;
-    H item_h = 60;
+    if (item_w < 80) item_w = 80;
+    H item_h = 80;
 
     H min_x = client_w;
     H min_y = client_h;
@@ -332,8 +333,16 @@ static void paint_control_panel(WND *wnd, GDEV *dev) {
             drw_lin(dev, b->icon_box.left, b->icon_box.top, b->icon_box.left + 3, b->icon_box.top);
             drw_lin(dev, b->icon_box.right - 4, b->icon_box.bottom - 1, b->icon_box.right - 1, b->icon_box.bottom - 1);
 
-            /* Icon Glyph inside placeholder */
-            drw_tc_string(dev, b->icon_symbol_x, b->icon_symbol_y, g_app_registry[i].icon_symbol, icon_border, icon_bg);
+            /* Draw 64×64 GIF icon centred inside the 72×72 placeholder box.
+             * 4 px padding on each side: (72-64)/2 = 4. */
+            H icon_draw_x = b->icon_box.left + (H)(((int)(b->icon_box.right - b->icon_box.left) - 64) / 2);
+            H icon_draw_y = b->icon_box.top  + (H)(((int)(b->icon_box.bottom - b->icon_box.top)  - 64) / 2);
+            draw_setting_gif_icon(dev, g_app_registry[i].id_str, (int)icon_draw_x, (int)icon_draw_y);
+            /* Fallback text glyph when icon did not render (freestanding or missing file) */
+            if (b->icon_box.right - b->icon_box.left < 32) {
+                drw_tc_string(dev, b->icon_symbol_x, b->icon_symbol_y,
+                              g_app_registry[i].icon_symbol, icon_border, icon_bg);
+            }
         }
 
         /* Title (Subelement) */
@@ -471,7 +480,7 @@ static void handle_control_panel_event(WND *wnd, const EVT *evt) {
 WND* open_control_panel_window(void) {
     g_ctrl_panel.selected_index = 0;
     WND *wnd = opn_wnd("Settings Cabinet - SONY Control Panel (環境設定キャビネット)",
-                       (1280 - 680) / 2, (800 - 480) / 2, 680, 480,
+                       (1280 - 680) / 2, (800 - 900) / 2 < 0 ? 0 : (800 - 900) / 2, 680, 900,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
     g_ctrl_panel.wnd = wnd;

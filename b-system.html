@@ -343,9 +343,7 @@
         }
 
         .setting-icon {
-            font-size: 1.45rem;
             background: #eff6ff;
-            color: #1d4ed8;
             width: 42px;
             height: 42px;
             border-radius: 10px;
@@ -353,6 +351,12 @@
             align-items: center;
             justify-content: center;
             border: 1px solid #bfdbfe;
+            flex-shrink: 0;
+        }
+        .setting-icon img {
+            width: 32px;
+            height: 32px;
+            display: block;
         }
 
         .setting-title {
@@ -1028,7 +1032,7 @@
                 <!-- 1. Appearance -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🎨</div>
+                        <div class="setting-icon"><img src="assets/icons/appearance.png" alt="Appearance" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Appearance.html" style="color:inherit;text-decoration:none;">Appearance（外観）</a></h3>
                         </div>
@@ -1044,7 +1048,7 @@
                 <!-- 2. Desktop -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🖥️</div>
+                        <div class="setting-icon"><img src="assets/icons/desktop.png" alt="Desktop" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Desktop.html" style="color:inherit;text-decoration:none;">Desktop（デスクトップ）</a></h3>
                         </div>
@@ -1060,7 +1064,7 @@
                 <!-- 3. Input (Keyboard & MOZC) -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">⌨️</div>
+                        <div class="setting-icon"><img src="assets/icons/input.png" alt="Input" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Input.html" style="color:inherit;text-decoration:none;">Input (Keyboard &amp; MOZC)（入力環境）</a></h3>
                         </div>
@@ -1076,7 +1080,7 @@
                 <!-- 4. Language & TRON Code -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🈴</div>
+                        <div class="setting-icon"><img src="assets/icons/language.png" alt="Language" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Language.html" style="color:inherit;text-decoration:none;">Language &amp; TRON Code（言語・文字コード）</a></h3>
                         </div>
@@ -1092,7 +1096,7 @@
                 <!-- 5. Sound -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🔊</div>
+                        <div class="setting-icon"><img src="assets/icons/sound.png" alt="Sound" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Sound.html" style="color:inherit;text-decoration:none;">Sound（サウンド）</a></h3>
                         </div>
@@ -1108,7 +1112,7 @@
                 <!-- 6. Network -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🌐</div>
+                        <div class="setting-icon"><img src="assets/icons/network.png" alt="Network" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Network.html" style="color:inherit;text-decoration:none;">Network（ネットワーク）</a></h3>
                         </div>
@@ -1124,7 +1128,7 @@
                 <!-- 7. Display -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🖥️</div>
+                        <div class="setting-icon"><img src="assets/icons/display.png" alt="Display" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Display.html" style="color:inherit;text-decoration:none;">Display（ディスプレイ）</a></h3>
                         </div>
@@ -1140,7 +1144,7 @@
                 <!-- 8. Media -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">📼</div>
+                        <div class="setting-icon"><img src="assets/icons/media.png" alt="Media" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Media.html" style="color:inherit;text-decoration:none;">Media（メディア）</a></h3>
                         </div>
@@ -1156,7 +1160,7 @@
                 <!-- 9. System -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">⚡</div>
+                        <div class="setting-icon"><img src="assets/icons/system.png" alt="System" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/System.html" style="color:inherit;text-decoration:none;">System（システム）</a></h3>
                         </div>
@@ -1172,7 +1176,7 @@
                 <!-- 10. Security -->
                 <div class="setting-card">
                     <div class="setting-top">
-                        <div class="setting-icon">🛡️</div>
+                        <div class="setting-icon"><img src="assets/icons/security.png" alt="Security" width="32" height="32"></div>
                         <div>
                             <h3 class="setting-title"><a href="b-system/settings/Security.html" style="color:inherit;text-decoration:none;">Security（セキュリティ）</a></h3>
                         </div>

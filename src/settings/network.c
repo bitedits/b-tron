@@ -7,6 +7,7 @@
 #include <btron/dp.h>
 #include <btron/troncode.h>
 #include <btron/wnd.h>
+#include <btron/settings_icon.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -93,12 +94,14 @@ static void paint_network_settings(WND *wnd, GDEV *dev) {
     drw_rec(dev, &r);
 
     /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 28 };
+    RECT hdr = { 0, 0, dev->width, 76 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 28, dev->width, 28);
+    drw_lin(dev, 0, 76, dev->width, 76);
+    /* 64×64 icon in header: 6px top padding */
+    draw_setting_gif_icon(dev, "network", 6, 6);
     char hdr_str[128];
     snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Network", "通信網", "Interfaces, TCP/IP & XMPP connectivity");
-    drw_tc_string(dev, 8, 6, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Network Interface Configuration */
     RECT s1 = { 10, 38, dev->width - 10, 132 };
