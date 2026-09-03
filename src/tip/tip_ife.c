@@ -382,6 +382,56 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
         return FALSE;
     }
 
+    /* UP Arrow / Ctrl+P: Navigate to previous candidate in suggestion window */
+    if (key == BTRON_KEY_UP || (key == 'p' && (modifiers & BTRON_KMOD_CTRL))) {
+        if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
+            g_tip.state = TIP_STATE_CANDIDATE_SELECT;
+            g_tip.candidate_window_visible = TRUE;
+            if (g_tip.num_clauses > 0) {
+                TIP_CLAUSE *c = &g_tip.clauses[g_tip.active_clause];
+                if (c->num_candidates > 0) {
+                    c->selected_candidate = (c->selected_candidate - 1 + c->num_candidates) % c->num_candidates;
+                    strncpy(c->converted, c->candidates[c->selected_candidate].value, TIP_MAX_STR_LEN - 1);
+                }
+            }
+            return TRUE;
+        }
+    }
+
+    /* DOWN Arrow / Ctrl+N: Navigate to next candidate in suggestion window */
+    if (key == BTRON_KEY_DOWN || (key == 'n' && (modifiers & BTRON_KMOD_CTRL))) {
+        if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
+            g_tip.state = TIP_STATE_CANDIDATE_SELECT;
+            g_tip.candidate_window_visible = TRUE;
+            if (g_tip.num_clauses > 0) {
+                TIP_CLAUSE *c = &g_tip.clauses[g_tip.active_clause];
+                if (c->num_candidates > 0) {
+                    c->selected_candidate = (c->selected_candidate + 1) % c->num_candidates;
+                    strncpy(c->converted, c->candidates[c->selected_candidate].value, TIP_MAX_STR_LEN - 1);
+                }
+            }
+            return TRUE;
+        }
+    }
+
+    /* LEFT / RIGHT Arrow: Clause navigation in multi-clause conversion */
+    if (key == BTRON_KEY_LEFT) {
+        if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
+            if (g_tip.num_clauses > 1) {
+                g_tip.active_clause = (g_tip.active_clause - 1 + g_tip.num_clauses) % g_tip.num_clauses;
+                return TRUE;
+            }
+        }
+    }
+    if (key == BTRON_KEY_RIGHT) {
+        if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
+            if (g_tip.num_clauses > 1) {
+                g_tip.active_clause = (g_tip.active_clause + 1) % g_tip.num_clauses;
+                return TRUE;
+            }
+        }
+    }
+
     /* Numeric selection in candidate select mode (1-9) */
     if (g_tip.state == TIP_STATE_CANDIDATE_SELECT && key >= '1' && key <= '9') {
         int sel = (key - '1');

@@ -1,11 +1,10 @@
 /*
  * B-System (BTRON 3.20) Tibetan-English Lexicon & Candidate Engine: tibetan_dict.c
- * Canonical Buddhist Digital Resource Center & Rangjung Yeshe Dictionary Subsystem
+ * Sources: Rangjung Yeshe / BDRC / Mahavyutpatti / Hopkins Tibetan-English Dictionary
+ * Provides complete Tibetan terms with rich English philosophical translations.
  */
 
 #include <btron/tibetan_dict.h>
-#include <btron/tip.h>
-#include "wylie.h"
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,98 +13,118 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libstr.h>
-#define strlen   tkl_strlen
-#define strcmp   tkl_strcmp
-#define strncmp(s1, s2, n) tkl_memcmp(s1, s2, n)
-#define strncpy  tkl_strncpy
+#define memset tkl_memset
+#define strlen tkl_strlen
+#define strncpy tkl_strncpy
+#define strcmp tkl_strcmp
+#define strncmp tkl_strncmp
 #define snprintf tkl_snprintf
-#define memset   tkl_memset
 #endif
 
 static const TibetanDictEntry g_tibetan_lexicon[] = {
-    /* Fundamental Buddhist & Philosophical Terminology */
-    { "chos", "ཆོས", "Dharma / Phenomenon / Truth / Teaching", "Dharma" },
-    { "chos nyid", "ཆོས་ཉིད", "Dharmatā / Ultimate Nature of Reality", "Dharmatā" },
-    { "chos sku", "ཆོས་སྐུ", "Dharmakāya / Truth Body of Buddha", "Dharmakāya" },
-    { "longs sku", "ལོངས་སྐུ", "Saṃbhogakāya / Enjoyment Body", "Saṃbhogakāya" },
-    { "sprul sku", "སྤྲུལ་སྐུ", "Nirmāṇakāya / Emanation Body / Tulku", "Nirmāṇakāya" },
-    { "sku gsum", "སྐུ་གསུམ", "Trikāya / Three Bodies of Buddha", "Trikāya" },
+    /* ── Prajnaparamita & Heart Sutra Core Terminology ── */
+    { "chos", "ཆོས", "dharma / phenomenon / teaching / truth / reality", "dharma" },
+    { "chos_nyid", "ཆོས་ཉིད", "dharmatā / nature of reality / true nature", "dharmatā" },
+    { "chos_kyi_dbyings", "ཆོས་ཀྱི་དབྱིངས", "dharmadhātu / expanse of reality / sphere of phenomena", "dharmadhātu" },
+    { "chos_sku", "ཆོས་སྐུ", "dharmakāya / truth body of the Buddha", "dharmakāya" },
+    { "chos_can", "ཆོས་ཅན", "dharmin / subject / property-possessor", "dharmin" },
+    { "chos_rnams", "ཆོས་རྣམས", "all dharmas / all phenomena", "dharmāḥ" },
+    { "chos_thams_cad", "ཆོས་ཐམས་ཅད", "all phenomena / all things without exception", "sarvadharmāḥ" },
+    
+    { "shes_rab", "ཤེས་རབ", "prajñā / transcendent wisdom / discriminating awareness", "prajñā" },
+    { "pha_rol_tu_phyin_pa", "pha_rol_tu_phyin_pa", "pāramitā / perfection / gone to the other shore", "pāramitā" },
+    { "shes_rab_snying_po", "ཤེས་རབ་སྙིང་པོ", "Prajñāpāramitā Hṛdaya / Heart Sutra", "Prajñāhṛdaya" },
+    { "snying_po", "སྙིང་པོ", "hṛdaya / essence / core / pith", "hṛdaya" },
+    
+    { "stong_pa", "སྟོང་པ", "empty / void / hollow / non-inherent", "śūnya" },
+    { "stong_pa_nyid", "སྟོང་པ་ཉིད", "śūnyatā / emptiness / lack of inherent existence", "śūnyatā" },
+    { "gzugs", "གཟུགས", "rūpa / form / matter / physical appearance", "rūpa" },
+    { "tshor_ba", "ཚོར་བ", "vedanā / feeling / sensation", "vedanā" },
+    { "du_shes", "'du_shes", "saṃjñā / perception / conceptual cognition", "saṃjñā" },
+    { "'du_shes", "'du_shes", "saṃjñā / perception / recognition", "saṃjñā" },
+    { "'du_byed", "'du_byed", "saṃskāra / formative factors / volitional formations", "saṃskāra" },
+    { "rnam_shes", "རྣམ་ཤེས", "vijñāna / consciousness / cognitive awareness", "vijñāna" },
+    { "rnam_par_shes_pa", "རྣམ་པར་ཤེས་པ", "vijñāna / primary consciousness", "vijñāna" },
+    { "phung_po", "ཕུང་པོ", "skandha / aggregate / collection / heap", "skandha" },
+    { "phung_po_lnga", "ཕུང་པོ་ལྔ", "five aggregates of clinging", "pañcaskandha" },
+    
+    /* ── Four Noble Truths & Two Truths ── */
+    { "bden_pa", "བདེན་པ", "satya / truth / real existence", "satya" },
+    { "bden_pa_bzhi", "བདེན་པ་བཞི", "Four Noble Truths", "catvāri āryasatyāni" },
+    { "sdug_bsngal", "སྡུག་བསྔལ", "duḥkha / suffering / unsatisfactoriness", "duḥkha" },
+    { "kun_'byung", "ཀུན་འབྱུང", "samudaya / origin of suffering", "samudaya" },
+    { "'gog_pa", "'gog_pa", "nirodha / cessation of suffering", "nirodha" },
+    { "lam", "ལམ", "mārga / path to liberation", "mārga" },
+    { "kun_rdzob", "ཀུན་རྫོབ", "saṃvṛti / conventional / relative truth", "saṃvṛti" },
+    { "don_dam", "དོན་དམ", "paramārtha / ultimate / absolute truth", "paramārtha" },
+    { "dbu_ma", "དབུ་མ", "Madhyamaka / Middle Way Philosophy", "Madhyamaka" },
+    
+    /* ── Enlightened Beings, Masters & Refuge ── */
+    { "sangs_rgyas", "སངས་རྒྱས", "Buddha / Awakened One / Fully Enlightened", "Buddha" },
+    { "byang_chub", "བྱང་ཆུབ", "bodhi / enlightenment / awakening", "bodhi" },
+    { "byang_chub_sems", "བྱང་ཆུབ་སེམས", "bodhicitta / mind of enlightenment", "bodhicitta" },
+    { "byang_chub_sems_dpa'", "བྱང་ཆུབ་སེམས་དཔའ", "bodhisattva / heroic awakening being", "bodhisattva" },
+    { "bla_ma", "བླ་མ", "Guru / Spiritual Teacher / Supreme Master", "Guru" },
+    { "yi_dam", "ཡི་དམ", "Iṣṭadevatā / Meditation Deity", "Iṣṭadevatā" },
+    { "mkha'_'gro_ma", "མཁའ་འགྲོ་མ", "Dākinī / Sky-farer / Wisdom Goddess", "Dākinī" },
+    { "chos_skyong", "ཆོས་སྐྱོང", "Dharmapāla / Dharma Protector", "Dharmapāla" },
+    { "dge_slong", "དགེ་སློང", "Bhikṣu / Fully Ordained Buddhist Monk", "Bhikṣu" },
+    { "dge_'dun", "དགེ་འདུན", "Saṅgha / Noble Spiritual Community", "Saṅgha" },
+    { "dkon_mchog_gsum", "དཀོན་མཆོག་གསུམ", "Three Jewels / Triratna (Buddha, Dharma, Sangha)", "Triratna" },
+    { "bcom_ldan_'das", "བཅོམ་ལྡན་འདས", "Bhagavān / Victorious Lord / Transcendent One", "Bhagavān" },
+    { "spyan_ras_gzigs", "སྤྱན་རས་གཟིགས", "Avalokiteśvara / Lord of Infinite Compassion", "Avalokiteśvara" },
+    { "sha_ri'i_bu", "ཤཱ་རིའི་བུ", "Śāriputra / Foremost Disciple in Wisdom", "Śāriputra" },
+    { "rgyal_po", "རྒྱལ་པོ", "Rāja / King / Sovereign Ruler", "Rāja" },
+    { "sems_can", "སེམས་ཅན", "sattva / sentient beings / living beings", "sattva" },
 
-    { "snying thig", "སྙིང་ཐིག", "Heart Essence / Innermost Vitality (Dzogchen)", "Cittatilaka" },
-    { "rdzogs chen", "རྫོགས་ཆེན", "Great Perfection / Atiyoga", "Mahāsaṃdhi" },
-    { "phyag rgya chen po", "ཕྱག་རྒྱ་ཆེན་པོ", "Great Seal / Mahāmudrā", "Mahāmudrā" },
-    { "dbu ma", "དབུ་མ", "Middle Way Philosophy / Madhyamaka", "Madhyamaka" },
-    { "tshad ma", "ཚད་མ", "Valid Cognition / Epistemology & Logic", "Pramāṇa" },
-    { "phar phyin", "ཕར་ཕྱིན", "Perfection / Transcendent Virtue", "Pāramitā" },
+    /* ── Meditation & Ultimate Realization ── */
+    { "ting_nge_'dzin", "ཏིང་ངེ་འཛིན", "samādhi / meditative absorption / meditative state", "samādhi" },
+    { "zhi_gnas", "ཞི་གནས", "śamatha / calm abiding / mental tranquility", "śamatha" },
+    { "lhag_mthong", "ལྷག་མཐོང", "vipaśyanā / special insight / deep seeing", "vipaśyanā" },
+    { "ye_shes", "ཡེ་ཤེས", "jñāna / primordial wisdom / timeless awareness", "jñāna" },
+    { "thabs", "ཐབས", "upāya / skillful means / method", "upāya" },
+    { "snying_rje", "སྙིང་རྗེ", "karuṇā / compassionate heart", "karuṇā" },
+    { "byams_pa", "བྱམས་པ", "maitrī / loving-kindness / Maitreya", "maitrī" },
+    { "bde_ba", "བདེ་བ", "sukha / bliss / genuine happiness", "sukha" },
+    { "myang_'das", "མྱང་འདས", "nirvāṇa / state beyond sorrow / liberation", "nirvāṇa" },
+    { "grol_ba", "གྲོལ་བ", "mokṣa / liberation / freedom from saṃsāra", "mokṣa" },
+    { "'khor_ba", "'khor_ba", "saṃsāra / cyclic existence of rebirth", "saṃsāra" },
+    { "las", "ལས", "karma / intentional action and cause-effect", "karma" },
+    { "bsod_nams", "བསོད་ནམས", "puṇya / spiritual merit / virtue", "puṇya" },
+    { "dam_chos", "དམ་ཆོས", "Saddharma / Holy Sacred Doctrine", "Saddharma" },
+    { "zag_med", "ཟག་མེད", "anāsrava / untainted / uncontaminated", "anāsrava" },
+    { "ma_skyes_pa", "མ་སྐྱེས་པ", "anutpāda / unproduced / unborn", "anutpāda" },
+    { "ma_'gags_pa", "མ་འགགས་པ", "anirodha / unceasing / indestructible", "anirodha" },
 
-    { "byang chub", "བྱང་ཆུབ", "Enlightenment / Awakening / Bodhi", "Bodhi" },
-    { "byang chub sems", "བྱང་ཆུབ་སེམས", "Awakened Mind / Bodhicitta", "Bodhicitta" },
-    { "byang chub sems dpa'", "བྱང་ཆུབ་སེམས་དཔའ", "Bodhisattva / Heroic Being", "Bodhisattva" },
-    { "sems", "སེམས", "Mind / Mental Consciousness / Citta", "Citta" },
-    { "sems nyid", "སེམས་ཉིད", "Nature of Mind / Pure Awareness", "Cittatā" },
-    { "rig pa", "རིག་པ", "Intrinsic Pure Awareness / Vidya", "Vidyā" },
-    { "ma rig pa", "མ་རིག་པ", "Fundamental Ignorance / Delusion", "Avidyā" },
-    { "ye shes", "ཡེ་ཤེས", "Primordial Pristine Wisdom", "Jñāna" },
-    { "shes rab", "ཤེས་རབ", "Transcendent Wisdom / Discriminating Insight", "Prajñā" },
-    { "thabs", "ཐབས", "Skillful Means / Method", "Upāya" },
-    { "snying rje", "སྙིང་རྗེ", "Universal Compassion / Karuṇā", "Karuṇā" },
-    { "byams pa", "བྱམས་པ", "Loving Kindness / Maitrī", "Maitrī" },
+    /* ── Tri-Kaya & Enlightened Dimensions ── */
+    { "sku", "སྐུ", "kāya / sacred body / enlightened dimension", "kāya" },
+    { "gsung", "གསུང", "vāk / sacred speech / enlightened voice", "vāk" },
+    { "thugs", "ཐུགས", "citta / sacred enlightened mind / wisdom heart", "citta" },
+    { "sku_gsum", "སྐུ་གསུམ", "Trikāya / Three Dimensions of Buddhahood", "Trikāya" },
+    { "sprul_sku", "སྤྲུལ་སྐུ", "nirmāṇakāya / emanation body / Tulku", "nirmāṇakāya" },
+    { "longs_sku", "ལོངས་སྐུ", "saṃbhogakāya / enjoyment body of light", "saṃbhogakāya" },
+    { "ngo_bo_nyid_sku", "ངོ་བོ་ཉིད་སྐུ", "svābhāvikakāya / essential nature body", "svābhāvikakāya" },
 
-    { "stong pa nyid", "སྟོང་པ་ཉིད", "Emptiness / Voidness / Śūnyatā", "Śūnyatā" },
-    { "bde ba", "བདེ་བ", "Bliss / Joy / Well-Being / Sukha", "Sukha" },
-    { "sdug bsngal", "སྡུག་བསྔལ", "Suffering / Dissatisfaction / Duḥkha", "Duḥkha" },
-    { "las", "ལས", "Action / Intentional Deeds / Karma", "Karma" },
-    { "'khor ba", "འཁོར་བ", "Cyclic Existence / Saṃsāra", "Saṃsāra" },
-    { "mya ngan las 'das pa", "མྱ་ངན་ལས་འདས་པ", "Nirvāṇa / Cessation of Suffering", "Nirvāṇa" },
-    { "kun gzhi", "ཀུན་གཞི", "All-Ground Consciousness / Ālayavijñāna", "Ālayavijñāna" },
+    /* ── Treatises, Canons & Dzogchen ── */
+    { "bka'_'gyur", "བཀའ་འགྱུར", "Kangyur / Translated Word of the Buddha Canon", "Buddhavacana" },
+    { "bstan_'gyur", "བསྟན་འགྱུར", "Tengyur / Translated Shastras & Commentaries", "Śāstra" },
+    { "mdo", "མདོ", "Sūtra / Canonical Buddhist Discourse", "Sūtra" },
+    { "rgyud", "རྒྱུད", "Tantra / Vajrayana Continuous Stream", "Tantra" },
+    { "man_ngag", "མན་ངག", "Upadeśa / Secret Pith Instruction", "Upadeśa" },
+    { "klong_chen_snying_thig", "ཀློང་ཆེན་སྙིང་ཐིག", "Longchen Nyingthig / Heart Essence of the Vast Expanse", "Mahāsandhi" },
+    { "rdzogs_chen", "རྫོགས་ཆེན", "Dzogchen / Great Perfection / Atiyoga", "Mahāsaṃdhi" },
+    { "phyag_rgya_chen_po", "ཕྱག་རྒྱ་ཆེན་པོ", "Mahāmudrā / Great Seal of Reality", "Mahāmudrā" },
+    { "tshad_ma", "ཚད་མ", "Pramāṇa / Valid Cognition & Buddhist Logic", "Pramāṇa" },
 
-    { "bla ma", "བླ་མ", "Guru / Spiritual Teacher / Lama", "Guru" },
-    { "sangs rgyas", "སངས་རྒྱས", "Buddha / Fully Awakened One", "Buddha" },
-    { "dge 'dun", "དགེ་འདུན", "Saṅgha / Noble Spiritual Community", "Saṅgha" },
-    { "dkon mchog gsum", "དཀོན་མཆོག་གསུམ", "Three Precious Jewels / Triratna", "Triratna" },
-    { "yi dam", "ཡི་དམ", "Meditation Deity / Iṣṭadevatā", "Iṣṭadevatā" },
-    { "mkha' 'gro ma", "མཁའ་འགྲོ་མ", "Sky Farer / Wisdom Dākinī", "Dākinī" },
-    { "chos skyong", "ཆོས་སྐྱོང", "Dharmapāla / Dharma Protector", "Dharmapāla" },
-
-    { "bka' 'gyur", "བཀའ་འགྱུར", "Kangyur / Word of the Buddha Canon", "Buddhavacana" },
-    { "bstan 'gyur", "བསྟན་འགྱུར", "Tengyur / Translated Shastra Treatises", "Śāstra" },
-    { "sutra", "མདོ", "Discourse / Sutra Scripture", "Sūtra" },
-    { "mdo", "མདོ", "Sutra / Discourse of the Buddha", "Sūtra" },
-    { "rgyud", "རྒྱུད", "Continuum / Tantra Scripture", "Tantra" },
-    { "smon lam", "སྨོན་ལམ", "Aspiration Prayer / Praṇidhāna", "Praṇidhāna" },
-    { "tshogs", "ཚོགས", "Assembly / Gathering of Merit (Gaṇacakra)", "Gaṇacakra" },
-    { "dbang", "དབང", "Empowerment / Initiation / Abhiṣeka", "Abhiṣeka" },
-    { "khrid", "ཁྲིད", "Practical Guidance / Meditation Manual", "Upadeśa" },
-    { "gter ma", "གཏེར་མ", "Treasure Revelation / Terma", "Nidhi" },
-
-    /* Mantras & Invocations */
-    { "oM AH hU~M", "ཨོཾ་ཨཱཿ་ཧཱུྃ", "Mantra of Body, Speech and Mind", "Kāyavākcitta" },
-    { "oM ma Ni pad+me hU~M", "ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ", "Six-Syllable Avalokiteśvara Mantra", "Ṣaḍakṣara" },
-    { "oM badz+ra sa twa hU~M", "ཨོཾ་བཛྲ་སཏྭ་ཧཱུྃ", "Vajrasattva Purification Mantra", "Vajrasattva" },
-    { "badz+ra", "བཛྲ", "Indestructible Diamond Scepter / Vajra", "Vajra" },
-    { "pad+ma", "པདྨ", "Lotus Flower / Purity / Padma", "Padma" },
-    { "rat+na", "རཏྣ", "Precious Jewel / Ratna", "Ratna" },
-    { "kar+ma", "ཀརྨ", "Action / Activity / Karma Family", "Karma" },
-
-    /* Grammatical Particles & Common Words */
-    { "kyi", "ཀྱི", "Genitive Particle (of / 's)", "Genitive" },
-    { "gi", "གི", "Genitive Particle (of / 's)", "Genitive" },
-    { "gyi", "གྱི", "Genitive Particle (of / 's)", "Genitive" },
-    { "'i", "འི", "Genitive Particle (of / 's)", "Genitive" },
-    { "la", "ལ", "Locative / Dative Particle (in / at / to)", "Locative" },
-    { "nas", "ནས", "Ablative Particle (from / having done)", "Ablative" },
-    { "las", "ལས", "Comparative / Source Particle (than / from)", "Source" },
-    { "dang", "དང", "Conjunctive Particle (and / with)", "Conjunction" },
-    { "kyang", "ཀྱང", "Concessive Particle (even / also / although)", "Concessive" },
-    { "yang", "ཡང", "Concessive Particle (also / too)", "Concessive" },
-    { "ste", "སྟེ", "Continuative Particle (and / semi-colon)", "Continuative" },
-    { "te", "ཏེ", "Continuative Particle (and / which)", "Continuative" },
-    { "de", "དེ", "Demonstrative Pronoun (that / the aforesaid)", "That" },
-    { "'di", "འདི", "Demonstrative Pronoun (this / the present)", "This" },
-    { "pa", "པ", "Nominalizing / Agent Particle", "Nominalizer" },
-    { "ba", "བ", "Nominalizing / Affirmative Particle", "Nominalizer" },
-    { "po", "པོ", "Masculine / Agentive Particle", "Agent" },
-    { "mo", "མོ", "Feminine Particle", "Feminine" },
+    /* ── Mantras & Seed Syllables ── */
+    { "oM", "ཨོཾ", "OṂ / Primordial Seed Syllable", "Oṃ" },
+    { "AH", "ཨཱཿ", "ĀḤ / Seed Syllable of Pure Speech", "Āḥ" },
+    { "hU~M", "ཧཱུྃ", "HŪṂ / Seed Syllable of Wisdom Mind", "Hūṃ" },
+    { "swA_hA", "སྭཱ་ཧཱ", "Svāhā / Mantra Benediction & Accomplishment", "Svāhā" },
+    { "badz_ra", "བཛྲ", "Vajra / Indestructible Diamond Scepter", "Vajra" },
+    { "pad_ma", "པདྨ", "Padma / Sacred Lotus of Pristine Purity", "Padma" },
+    { "rat_na", "རཏྣ", "Ratna / Wish-Fulfilling Jewel", "Ratna" },
+    { "kar_ma", "ཀརྨ", "Karma / Enlightened Activity Family", "Karma" },
 
     { NULL, NULL, NULL, NULL }
 };
@@ -118,7 +137,7 @@ int tibetan_lookup_candidates(const char *wylie_input,
 
     int count = 0;
 
-    /* 1. Exact Dictionary Matches */
+    /* 1. Exact Dictionary Match */
     if (wylie_input && wylie_input[0] != '\0') {
         for (int i = 0; g_tibetan_lexicon[i].wylie != NULL && count < max_candidates; i++) {
             if (strcmp(wylie_input, g_tibetan_lexicon[i].wylie) == 0) {
@@ -136,7 +155,6 @@ int tibetan_lookup_candidates(const char *wylie_input,
 
     /* 2. Direct Transliteration Candidate */
     if (tibetan_reading && tibetan_reading[0] != '\0' && count < max_candidates) {
-        /* Check if not already identical to candidate 0 */
         if (count == 0 || strcmp(out_candidates[0].value, tibetan_reading) != 0) {
             strncpy(out_candidates[count].value, tibetan_reading, TIP_MAX_STR_LEN - 1);
             out_candidates[count].value[TIP_MAX_STR_LEN - 1] = '\0';
@@ -146,14 +164,13 @@ int tibetan_lookup_candidates(const char *wylie_input,
         }
     }
 
-    /* 3. Prefix/Partial Dictionary Matches */
+    /* 3. Compound / Prefix Dictionary Matches (e.g. 'chos' -> 'chos_nyid', 'chos_kyi_dbyings', 'chos_sku') */
     if (wylie_input && wylie_input[0] != '\0') {
         size_t in_len = strlen(wylie_input);
         for (int i = 0; g_tibetan_lexicon[i].wylie != NULL && count < max_candidates; i++) {
             if (strncmp(g_tibetan_lexicon[i].wylie, wylie_input, in_len) == 0 &&
                 strcmp(g_tibetan_lexicon[i].wylie, wylie_input) != 0) {
                 
-                /* Avoid duplicate values */
                 int dup = 0;
                 for (int k = 0; k < count; k++) {
                     if (strcmp(out_candidates[k].value, g_tibetan_lexicon[i].tibetan) == 0) {
@@ -175,7 +192,7 @@ int tibetan_lookup_candidates(const char *wylie_input,
     /* 4. Variant with Terminal Tsheg (་) */
     if (tibetan_reading && tibetan_reading[0] != '\0' && count < max_candidates) {
         char with_tsheg[TIP_MAX_STR_LEN];
-        snprintf(with_tsheg, sizeof(with_tsheg), "%s\xe0\xbc\x8b", tibetan_reading); /* 0x0F0B in UTF-8 */
+        snprintf(with_tsheg, sizeof(with_tsheg), "%s\xe0\xbc\x8b", tibetan_reading);
         strncpy(out_candidates[count].value, with_tsheg, TIP_MAX_STR_LEN - 1);
         out_candidates[count].value[TIP_MAX_STR_LEN - 1] = '\0';
         strncpy(out_candidates[count].annotation, "With Syllable Tsheg (་)", TIP_MAX_STR_LEN - 1);
@@ -186,7 +203,7 @@ int tibetan_lookup_candidates(const char *wylie_input,
     /* 5. Variant with Terminal Shad (།) */
     if (tibetan_reading && tibetan_reading[0] != '\0' && count < max_candidates) {
         char with_shad[TIP_MAX_STR_LEN];
-        snprintf(with_shad, sizeof(with_shad), "%s\xe0\xbc\x8d", tibetan_reading); /* 0x0F0D in UTF-8 */
+        snprintf(with_shad, sizeof(with_shad), "%s\xe0\xbc\x8d", tibetan_reading);
         strncpy(out_candidates[count].value, with_shad, TIP_MAX_STR_LEN - 1);
         out_candidates[count].value[TIP_MAX_STR_LEN - 1] = '\0';
         strncpy(out_candidates[count].annotation, "With Verse Shad (།)", TIP_MAX_STR_LEN - 1);
@@ -194,7 +211,7 @@ int tibetan_lookup_candidates(const char *wylie_input,
         count++;
     }
 
-    /* 6. Raw Wylie ASCII String Candidate */
+    /* 6. Raw Wylie ASCII String */
     if (wylie_input && wylie_input[0] != '\0' && count < max_candidates) {
         strncpy(out_candidates[count].value, wylie_input, TIP_MAX_STR_LEN - 1);
         out_candidates[count].value[TIP_MAX_STR_LEN - 1] = '\0';

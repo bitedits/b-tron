@@ -576,7 +576,7 @@ int main(int argc, char **argv) {
     strcpy(test_clause.candidates[0].value, "ཆོས");
     strcpy(test_clause.candidates[0].annotation, "dharma");
     
-    strcpy(test_clause.candidates[1].value, "ཆོས་ཀྱི་དབྱིངས་");
+    strcpy(test_clause.candidates[1].value, "ཆོས་ཀྱི་དབྱིངས");
     strcpy(test_clause.candidates[1].annotation, "dharmadhatu / expanse of reality");
     
     strcpy(test_clause.candidates[2].value, "པྲ་ཛྙཱ་པཱ་ར་མི་ཏཱ");
@@ -589,6 +589,46 @@ int main(int argc, char **argv) {
     H val1_w = tip_calc_text_width(test_clause.candidates[1].value);
     H ann1_w = tip_calc_text_width(test_clause.candidates[1].annotation);
     TEST_ASSERT(popup_w > val1_w + ann1_w + 30, "Popup width provides sufficient margin without clipping");
+
+    /* [TEST GROUP 15] UP and DOWN Arrow Candidate Window Navigation */
+    printf("\n[TEST GROUP 15] UP and DOWN Arrow Candidate Window Navigation\n");
+    tip_set_mode(TIP_MODE_TIBETAN);
+    char tb_nav[128] = {0};
+    tip_cancel();
+    tip_process_key('c', 0, tb_nav, sizeof(tb_nav));
+    tip_process_key('h', 0, tb_nav, sizeof(tb_nav));
+    tip_process_key('o', 0, tb_nav, sizeof(tb_nav));
+    tip_process_key('s', 0, tb_nav, sizeof(tb_nav));
+    tip_process_key('\t', 0, tb_nav, sizeof(tb_nav)); /* Open suggestion popup */
+
+    TEST_ASSERT(tip_is_candidate_window_visible() == TRUE, "Candidate window visible on Tab");
+    tip_get_converted_text(tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས") == 0, "Initial top candidate is 'ཆོས'");
+
+    /* Press DOWN Arrow: moves to 2nd candidate 'ཆོས་ཉིད' */
+    tip_process_key(BTRON_KEY_DOWN, 0, tb_nav, sizeof(tb_nav));
+    tip_get_converted_text(tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས་ཉིད") == 0, "DOWN arrow selects 2nd candidate 'ཆོས་ཉིད'");
+
+    /* Press DOWN Arrow again: moves to 3rd candidate 'ཆོས་ཀྱི་དབྱིངས' */
+    tip_process_key(BTRON_KEY_DOWN, 0, tb_nav, sizeof(tb_nav));
+    tip_get_converted_text(tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས་ཀྱི་དབྱིངས") == 0, "DOWN arrow selects 3rd candidate 'ཆོས་ཀྱི་དབྱིངས'");
+
+    /* Press UP Arrow: moves back to 2nd candidate 'ཆོས་ཉིད' */
+    tip_process_key(BTRON_KEY_UP, 0, tb_nav, sizeof(tb_nav));
+    tip_get_converted_text(tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས་ཉིད") == 0, "UP arrow returns to 2nd candidate 'ཆོས་ཉིད'");
+
+    /* Press UP Arrow again: moves back to 1st candidate 'ཆོས' */
+    tip_process_key(BTRON_KEY_UP, 0, tb_nav, sizeof(tb_nav));
+    tip_get_converted_text(tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས") == 0, "UP arrow returns to top candidate 'ཆོས'");
+
+    /* Press Return: confirms active candidate */
+    tip_process_key('\r', 0, tb_nav, sizeof(tb_nav));
+    TEST_ASSERT(strcmp(tb_nav, "ཆོས") == 0, "Return commits candidate selected via arrow keys");
+    TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "TIP returns to IDLE after arrow selection commit");
 
     tip_set_mode(TIP_MODE_HIRAGANA);
 

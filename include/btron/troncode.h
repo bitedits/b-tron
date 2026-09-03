@@ -42,6 +42,10 @@ ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_c
 /* Render TRON Code string with underline styling (TIP feedback) */
 ER drw_tc_string_underlined(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_col, BOOL dotted);
 
+/* Calculate character advance and string width with multilingual proportional metrics */
+H tc_get_char_advance(TC code, TC prev_code);
+H tc_calc_string_width(const char *utf8_text, int max_bytes);
+
 /* Get pixel bitmap for a character (8x16 ASCII / 16x16 Kanji/Kana) */
 const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height);
 

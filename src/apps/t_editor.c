@@ -292,15 +292,19 @@ static int teditor_find_byte_offset_from_x(const char *line, int target_x) {
     if (!line || target_x <= 36) return 0;
     int cur_x = 36;
     int i = 0;
+    TC prev_code = 0;
     while (line[i]) {
         int consumed = 0;
         TC code = utf8_to_tc(&line[i], &consumed);
         int step = (consumed > 0 ? consumed : 1);
-        int gw = (code < 128) ? 8 : 16;
-        if (target_x < cur_x + gw / 2) {
+        int gw = tc_get_char_advance(code, prev_code);
+        if (gw > 0 && target_x < cur_x + gw / 2) {
             return i;
         }
         cur_x += gw;
+        if (gw > 0 || (code >> 8) != 0x6F) {
+            prev_code = code;
+        }
         i += step;
     }
     return i;
@@ -774,17 +778,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
         /* Draw Blinking/Solid Cursor and Inline TIP Composition */
         if (r_idx == ed->cursor_row) {
-            int cur_x = 36;
-            const char *lp = line;
-            int bi = 0;
-            while (*lp && bi < ed->cursor_col) {
-                int consumed = 0;
-                TC code = utf8_to_tc(lp, &consumed);
-                int step = (consumed > 0 ? consumed : 1);
-                cur_x += (code < 128) ? 8 : 16;
-                lp += step;
-                bi += step;
-            }
+            int cur_x = 36 + tc_calc_string_width(line, ed->cursor_col);
             if (cur_x >= 36 && cur_x < dev->width - 10) {
                 if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
                     char comp_buf[128];
@@ -798,7 +792,6 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
                 }
             }
         }
-
         y += 18;
     }
 

@@ -630,6 +630,53 @@ const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height) {
     return synthesize_japanese_glyph(code);
 }
 
+
+H tc_get_char_advance(TC code, TC prev_code) {
+    if ((code >> 8) == 0x6F) {
+        UW cp = 0x0F00 + (code & 0xFF);
+        if ((cp >= 0x0F71 && cp <= 0x0F84) || (cp >= 0x0F90 && cp <= 0x0FBC)) {
+            /* Combining Vowel / Subjoined Consonant: stacks onto previous base (0 advance) */
+            return 0;
+        } else if (cp == 0x0F0B || cp == 0x0F0C || cp == 0x0F0D || cp == 0x0F0E) {
+            /* Tsheg / Shad delimiter: compact 3px advance */
+            return 3;
+        } else {
+            /* Root consonant: 8px advance */
+            return 8;
+        }
+    } else if (code == ' ') {
+        if (prev_code == 0x6F0B) {
+            /* Collapse redundant ASCII space following Tsheg */
+            return 0;
+        }
+        return 6;
+    } else if (code < 128) {
+        return 8;
+    } else {
+        return 16;
+    }
+}
+
+H tc_calc_string_width(const char *utf8_text, int max_bytes) {
+    if (!utf8_text || max_bytes <= 0) return 0;
+    H total_w = 0;
+    TC prev_code = 0;
+    int bi = 0;
+    while (utf8_text[bi] && bi < max_bytes) {
+        if (utf8_text[bi] == '\n' || utf8_text[bi] == '\r') break;
+        int consumed = 0;
+        TC code = utf8_to_tc(&utf8_text[bi], &consumed);
+        int step = (consumed > 0 ? consumed : 1);
+        H adv = tc_get_char_advance(code, prev_code);
+        total_w += adv;
+        if (adv > 0 || (code >> 8) != 0x6F) {
+            prev_code = code;
+        }
+        bi += step;
+    }
+    return total_w;
+}
+
 static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_col, BOOL is_underlined, BOOL is_dotted) {
     if (!dev || !text || !dev->pixels) return E_PAR;
 
@@ -678,10 +725,10 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
                 advance = 0;
             } else if (cp == 0x0F0B || cp == 0x0F0C) {
                 /* Tsheg syllable dot: compact advance */
-                advance = 5;
+                advance = 3;
             } else if (cp == 0x0F0D || cp == 0x0F0E) {
                 /* Shad verse bar: compact advance */
-                advance = 5;
+                advance = 3;
             } else {
                 /* Base consonants: compact 8px advance */
                 advance = 8;
