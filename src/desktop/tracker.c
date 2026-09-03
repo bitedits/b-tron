@@ -8,6 +8,7 @@
 #include <btron/dp.h>
 #include <btron/troncode.h>
 #include <btron/apps.h>
+#include <btron/about.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -280,6 +281,8 @@ static void tracker_execute_item(H index) {
             }
             break;
         case TRACKER_CMD_ABOUT:
+            open_about_window();
+            break;
         case TRACKER_CMD_RESTART:
         case TRACKER_CMD_SHUTDOWN:
         default:

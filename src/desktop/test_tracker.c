@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <time.h>
 #include <btron/tracker.h>
+#include <btron/about.h>
 #include <btron/wnd.h>
 
 /* Mock / Stub BTRON accessory window entry points for standalone testing */
@@ -158,6 +159,22 @@ int main(void) {
     double elapsed_ms = ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
     printf("  [BENCH] 100,000 hit tests completed in %.2f ms (%.4f us / call)\n", elapsed_ms, (elapsed_ms * 1000.0) / (ITERS * 2));
     TEST_ASSERT(elapsed_ms < 50.0, "O(1) hit testing operates under 50ms for 100k calls");
+
+
+    /* [TEST GROUP 8] Demoscene About Window Lifecycle */
+    printf("\n[TEST GROUP 8] Demoscene About Window Lifecycle & Sprites\n");
+    init_wnd_mgr(NULL);
+    WND *about_wnd = open_about_window();
+    TEST_ASSERT(about_wnd != NULL, "open_about_window() returns valid window");
+    TEST_ASSERT(strstr(about_wnd->title, "About B-System") != NULL, "About window title matches specification");
+    
+    /* Simulate paint */
+    GDEV *test_dev = opn_dev(560, 340);
+    TEST_ASSERT(test_dev != NULL, "Created test GDEV for About window paint");
+    about_wnd->paint(about_wnd, test_dev);
+    TEST_ASSERT(test_dev->pixels != NULL, "Rendered animated monk and demoscene stage");
+    cls_dev(test_dev);
+    cls_wnd(about_wnd);
 
     printf("\n==========================================================\n");
     printf(" TRACKER TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

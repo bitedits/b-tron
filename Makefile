@@ -101,6 +101,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/vobject/vobj.c       \
               src/desktop/desktop.c    \
               src/desktop/tracker.c    \
+              src/desktop/about.c      \
               src/desktop/main.c       \
               src/apps/vobj_manager.c  \
               src/apps/tad_browser.c   \
@@ -215,6 +216,7 @@ COMMON_NO_SDL_SRCS = \
     src/vobject/vobj.c     \
     src/desktop/desktop.c  \
     src/desktop/tracker.c  \
+    src/desktop/about.c    \
     src/apps/vobj_manager.c \
     src/apps/tad_browser.c \
     src/apps/t_editor.c    \
@@ -639,7 +641,7 @@ $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # BTRON Deskbar Tracker & Task Manager Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/window/wnd.c \
+TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/desktop/about.c src/window/wnd.c \
                     src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
 TEST_TRACKER_OBJS = $(TEST_TRACKER_SRCS:.c=.test.o)
 TEST_TRACKER_BIN  = test_tracker
