@@ -1474,6 +1474,7 @@ int teditor_load_file(TEditor *ed, const char *filepath) {
 
     return 0;
 #else
+    (void)filepath;
     return 0;
 #endif
 }
@@ -1493,6 +1494,7 @@ int teditor_save_file(TEditor *ed, const char *filepath) {
     ed->is_modified = FALSE;
     return 0;
 #else
+    (void)target;
     ed->is_modified = FALSE;
     return 0;
 #endif

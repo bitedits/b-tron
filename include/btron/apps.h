@@ -7,6 +7,7 @@
 WND* open_t_editor_window(void);
 WND* open_gterm_window(void);
 WND* open_vobj_manager_window(void);
+WND* open_vobj_about_window(void);
 WND* open_audio_player_window(void);
 WND* open_tad_browser_window(const char *filepath, const char *title);
 WND* launch_beos_chat(void);

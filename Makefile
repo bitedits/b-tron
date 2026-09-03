@@ -102,6 +102,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/desktop/desktop.c    \
               src/desktop/tracker.c    \
               src/desktop/about.c      \
+              src/desktop/global_menu.c \
               src/desktop/main.c       \
               src/apps/vobj_manager.c  \
               src/apps/tad_browser.c   \
@@ -217,6 +218,7 @@ COMMON_NO_SDL_SRCS = \
     src/desktop/desktop.c  \
     src/desktop/tracker.c  \
     src/desktop/about.c    \
+    src/desktop/global_menu.c \
     src/apps/vobj_manager.c \
     src/apps/tad_browser.c \
     src/apps/t_editor.c    \
@@ -696,7 +698,26 @@ test-settings: $(TEST_SETTINGS_BIN)
 	@echo "=========================================================="
 	./$(TEST_SETTINGS_BIN)
 
-test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker test-settings
+# ═══════════════════════════════════════════════════════════════════
+# BTRON Global System Menu (Chokanji & Haiku) Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_GMENU_SRCS = src/desktop/test_global_menu.c src/desktop/global_menu.c src/desktop/tracker.c \
+                  src/desktop/about.c src/window/wnd.c src/graphics/dp_core.c src/font/troncode.c \
+                  src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_ife.c src/tip/mozc_kkc.c \
+                  src/tip/wylie.c src/tip/tibetan_dict.c src/tip/tip_vobj.c
+TEST_GMENU_OBJS = $(TEST_GMENU_SRCS:.c=.test.o)
+TEST_GMENU_BIN  = test_global_menu
+
+test-global-menu: $(TEST_GMENU_BIN)
+	@echo "=========================================================="
+	@echo " Running BTRON Global System Menu & Japanese Deskbar Tests..."
+	@echo "=========================================================="
+	@./$(TEST_GMENU_BIN)
+
+$(TEST_GMENU_BIN): $(TEST_GMENU_OBJS)
+	$(CC) $(TEST_GMENU_OBJS) -o $@ $(LDFLAGS) -lm
+
+test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker test-settings test-global-menu
 	@echo "=========================================================="
 	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
 	@echo "=========================================================="
@@ -746,7 +767,7 @@ clean:
 	rm -f *.out
 	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN) $(TEST_GMENU_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true

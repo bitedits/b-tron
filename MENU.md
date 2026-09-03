@@ -148,3 +148,88 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
 - **Hover Selection**: `COLOR_NAVY` (`0xFF003366`) with `COLOR_WHITE` text.
 - **Separator Lines**: Inset etched horizontal line (`drw_lin` with `COLOR_GRAY` and `COLOR_WHITE` 1px offset).
 - **Submenu Arrow**: `▶` (Unicode `U+25B6` / TRON Code) placed at right margin.
+
+---
+
+## 7. Global System Menu (B-right/V Chokanji & Haiku Desktop Control Bar)
+
+### 7.1 Architectural Role: System Control Bar vs. In-Window Menus
+In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Chokanji (超漢字):
+- **Autonomous Window Menus**: Individual application windows (such as T-Editor and TAD Browser) possess their own in-window Menu Bar for document operations (`ファイル(F)`, `編集(E)`, `表示(V)`, etc.).
+- **Global Desktop Control Bar (システム操作バー)**: The top bar of the screen (`y = 0..25`) belongs exclusively to the Desktop Shell & System Manager. It does not mirror or duplicate active window file menus, eliminating visual collision and confusion.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ［BTRON］ システム(S) ▼  実身・仮身(O) ▼  ウィンドウ(W) ▼  道具・文字(T) ▼   [TIP: あ]  9月4日(金) 00:57:30 │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.2 Global Menu Hierarchy (Full Chokanji)
+
+| Header | Mnemonic | Purpose | Dropdown Items |
+| :--- | :--- | :--- | :--- |
+| **［BTRON］** | Start / Deskbar | Haiku-style Root Launcher | Quick App Launcher, Recent Files, Active Tasks, Power |
+| **システム(S)** | Alt+S | System Environment & Hardware | `システム情報 (About B-System...)`, `環境設定 (Settings Cabinet...)`, `---`, `音響機器 (Cassette Audio...)`, `画面表示 (Display Settings...)`, `---`, `デスクトップ再起動 (Restart Desktop)`, `システムの終了 (Shutdown)` |
+| **実身・仮身(O)** | Alt+O | Real/Virtual Object Hypermedia | `実身キャビネットを開く (Open Root Cabinet)`, `実身・仮身の検索 (Search Real/Virtual Bodies)`, `新規実身の作成 (New Real Object Fusen)`, `共有実身保管庫 (Shared Storage Pool)` |
+| **ウィンドウ(W)** | Alt+W | Window Management & Task List | `重ねて整列 (Cascade Windows)`, `並べて整列 (Tile Windows)`, `すべて隠す (Hide All)`, `次のウィンドウ (Cycle Focus - Alt+Tab)`, `---`, `[*] Window Title 1`, `[ ] Window Title 2...` |
+| **道具・文字(T)** | Alt+T | Tools, Character Palette & Code | `文字パレット (TRON Character Palette)`, `TRONコード検索 (TRON-Code Plane Lookup)`, `Mozc 日本語辞書 (IME Dictionary Tool)`, `---`, `表計算・計算機 (Matrix & Calculator)`, `端末 (gterm Terminal)` |
+
+### 7.3 Authentic Japanese Tray & Cultural Ergonomics
+- **Japanese Calendar & Kanji Weekday (曜日表示)**:
+  - Real-time display: `M月D日(曜日) HH:MM:SS` (e.g. `9月4日(金) 00:57:30`).
+  - Kanji weekday dynamically derived from `tm_wday`: `(日)`, `(月)`, `(火)`, `(水)`, `(木)`, `(金)`, `(土)`.
+  - Recessed 3D plate in `COLOR_LTGRAY` with dark gray top/left shadow.
+- **Global TIP Input Method Status**:
+  - Direct interactive indicator: `[TIP: あ (F10)]` (Hiragana `あ`, Katakana `ア`, ASCII `A`, Tibetan `བོད`).
+  - Clicking cycles mode globally; reflects active Mozc composition state.
+- **CPU & Resource Gauge**:
+  - Compact SMP multi-core load indicator showing kernel thread activity.
+
+### 7.4 Non-Overfull Margins & Etched Distance Shadows
+- Sized with guaranteed 8px margins per side accounting for 16px JIS kanji glyphs.
+- Separated by CPU-efficient 2px 3D etched grooves (`draw_menu_separator_v`).
+- Full BeOS-style live hover selection:
+  - Closed header hover highlight (white bevel + navy text).
+  - Hot header tracking when a global menu is open.
+  - Automatic dismissal when clicking on the desktop or any window.
+
+---
+
+## 8. TAD Browser Menu Specification (実身閲覧・TAD表示)
+
+### 8.1 Menu Bar Layout (`y = 0..21`)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ファイル(F) │ 表示(V) │ 仮身(O) │ ヘルプ(H) │ [◄ 戻る] [► 進む]  tad_bin/sample.tad                   │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Header | Mnemonic | Items | Purpose |
+| :--- | :--- | :--- | :--- |
+| **ファイル(F)** | Alt+F | `開く (Open Document...) ▶`<br>`---`<br>`印刷 (Print...)`<br>`---`<br>`閉じる (Close Window)` | Document selection cascading submenu, printing, and window closing (`Ctrl+W`) |
+| **表示(V)** | Alt+V | `戻る (Back)` (`Alt+Left`)<br>`進む (Forward)` (`Alt+Right`)<br>`ホーム / 先頭 (Home)`<br>`再読込 (Reload)` (`Ctrl+R`)<br>`---`<br>`拡大 (Zoom In)` (`+`)<br>`縮小 (Zoom Out)` (`-`)<br>`標準サイズ (100%)`<br>`---`<br>`行折り返し (Wrap Text)` | Navigation history, zoom scaling, and dynamic word wrapping |
+| **仮身(O)** | Alt+O | `リンク先を開く (Follow Fusen Link)` (`Enter`)<br>`リンク先を別窓で開く (Open Link in New Window)`<br>`実身キャビネットで表示 (Show in Cabinet)` | Hypermedia Fusen link traversal and cabinet cross-referencing |
+| **ヘルプ(H)** | Alt+H | `TADブラウザ について (About...)`<br>`BTRON TAD 仕様書 (TAD Spec...)` | Nano About Box ("Brought to B-System by 5HT") and technical documentation |
+
+---
+
+## 9. Cabinet App Menu Specification (実身・仮身キャビネット)
+
+### 9.1 Menu Bar Layout (`y = 0..21`)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ファイル(F) │ 編集(E) │ 表示(V) │ 仮身(O) │ ヘルプ(H) │ [一覧/アイコン]         128 実身 / 32 保管庫    │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Header | Mnemonic | Items | Purpose |
+| :--- | :--- | :--- | :--- |
+| **ファイル(F)** | Alt+F | `実身を開く (Open Real Body)` (`Enter`)<br>`実身を閲覧 (View in TAD Browser)` (`Space`)<br>`新規実身の作成 (New Real Object)` (`Ctrl+N`)<br>`---`<br>`実身の複製 (Duplicate Real Object)` (`Ctrl+D`)<br>`実身の削除 (Delete Real Object)` (`Delete`)<br>`---`<br>`閉じる (Close Cabinet)` (`Ctrl+W`) | Lifecycle management of Real Objects in storage |
+| **編集(E)** | Alt+E | `すべて選択 (Select All)` (`Ctrl+A`)<br>`選択解除 (Deselect All)` (`Escape`)<br>`---`<br>`名称変更 (Rename Real Object)` (`F2`)<br>`プロパティ (Object Properties...)` (`Alt+Enter`) | Real Body item selection and metadata editing |
+| **表示(V)** | Alt+V | `[*] 一覧表示 (List View)` (`Ctrl+1`)<br>`[ ] アイコン表示 (Icon Grid View)` (`Ctrl+2`)<br>`---`<br>`名前順で整列 (Sort by Name)` (`F6`)<br>`日付順で整列 (Sort by Date)` (`F7`)<br>`サイズ順で整列 (Sort by Size)` (`F8`)<br>`種類順で整列 (Sort by Type)` (`F9`)<br>`---`<br>`再走査・更新 (Rescan / Refresh)` (`F5`) | View switching and multi-criteria sorting |
+| **仮身(O)** | Alt+O | `新規仮身リンクの作成 (Create Fusen Link)` (`Ctrl+L`)<br>`所属キャビネットの変更 (Move to Cabinet...)`<br>`総索引の表示 (Global Index Catalog)` (`Ctrl+I`) | Virtual Object link creation and hypermedia organizing |
+| **ヘルプ(H)** | Alt+H | `キャビネット について (About Cabinet...)`<br>`実身・仮身モデル解説 (Hypermedia Architecture...)` | Nano About Box ("Brought to B-System by 5HT") and Sakamura hypermedia architecture guide |
+
+

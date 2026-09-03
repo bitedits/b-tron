@@ -62,6 +62,12 @@ WND* find_wnd_at(H x, H y);
 WND* get_top_wnd(void);
 WND* get_wnd_list(void);
 
+/* Desktop Window Layout Management */
+void wnd_cascade_all(void);
+void wnd_tile_all(void);
+void wnd_hide_all(void);
+void wnd_cycle_focus(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -83,6 +83,14 @@ typedef struct {
 
     BOOL is_binary_tad;     /* TRUE if parsed from binary TAD stream */
     UW total_bytes;         /* Document byte size */
+
+    /* In-Window Application Menu State */
+    int active_menu;        /* -1 = closed, 0=File, 1=View, 2=VObj, 3=Help */
+    int hover_menu;         /* -1 = none, 0..3 = hovered header in closed state */
+    int hover_item;         /* -1 = none, 0..N = hovered dropdown item */
+    int hover_submenu;      /* -1 = none, 0..N = hovered cascading submenu item */
+    BOOL wrap_text;         /* TRUE by default */
+    int zoom_percent;       /* 100 default */
 } TAD_BROWSER;
 
 /* Lifecycle & Window APIs */
@@ -111,6 +119,7 @@ int decode_and_draw_png(GDEV *dev, const char *file_path, int dst_x, int dst_y, 
 
 /* Open Standard Application Windows */
 WND* open_tad_browser_window(const char *filepath, const char *title);
+WND* open_tad_browser_about_window(void);
 
 #ifdef __cplusplus
 }

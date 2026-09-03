@@ -647,6 +647,154 @@ static void test_dynamic_text_wrapping_and_reflow(void) {
     TEST_ASSERT(tb.doc_width == 480, "tad_browser_paint automatically re-flowed document layout to device width 480px");
 }
 
+/* ── Test Group 15: TAD Browser In-Window Menu & Nano About Box ────────── */
+static void test_tad_browser_menu_and_about_box(void) {
+    printf("\n[TEST GROUP 15] TAD Browser In-Window Menu & Nano About Box\n");
+
+    WND *wnd = open_tad_browser_window("tad_bin/01_btron_overview.tad", "TAD Menu Test");
+    TEST_ASSERT(wnd != NULL, "Opened TAD Browser window for menu testing");
+
+    TAD_BROWSER *tb = (TAD_BROWSER*)(uintptr_t)wnd->user_data;
+    TEST_ASSERT(tb != NULL, "TAD Browser context attached to window user_data");
+    TEST_ASSERT(tb->active_menu == -1, "Menu starts in closed state");
+
+    /* 1. Header Hover in closed state (y = 0..21 in client coords) */
+    EVT ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.type = EV_MOUSE_MOVE;
+
+    /* Move over 'ファイル(F)' (x = 40, rel_x = 36, rel_y = 10) */
+    ev.pos.x = wnd->bounds.left + 4 + 40;
+    ev.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->hover_menu == 0, "Hovering over 'ファイル(F)' sets hover_menu = 0");
+
+    /* Move over '表示(V)' (x = 140) */
+    ev.pos.x = wnd->bounds.left + 4 + 140;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->hover_menu == 1, "Hovering over '表示(V)' sets hover_menu = 1");
+
+    /* Move over '仮身(O)' (x = 220) */
+    ev.pos.x = wnd->bounds.left + 4 + 220;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->hover_menu == 2, "Hovering over '仮身(O)' sets hover_menu = 2");
+
+    /* Move over 'ヘルプ(H)' (x = 300) */
+    ev.pos.x = wnd->bounds.left + 4 + 300;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->hover_menu == 3, "Hovering over 'ヘルプ(H)' sets hover_menu = 3");
+
+    /* Move mouse out to content area (rel_y = 60) */
+    ev.pos.y = wnd->bounds.top + 26 + 60;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->hover_menu == -1, "Moving pointer off menu bar clears hover_menu = -1");
+
+    /* 2. Menu Click and Hot Header Gliding */
+    ev.type = EV_BUT_DOWN;
+    ev.pos.x = wnd->bounds.left + 4 + 140; /* Click on '表示(V)' */
+    ev.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->active_menu == 1, "Clicking '表示(V)' opens dropdown (active_menu = 1)");
+
+    /* Gliding mouse over '仮身(O)' */
+    ev.type = EV_MOUSE_MOVE;
+    ev.pos.x = wnd->bounds.left + 4 + 220;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->active_menu == 2, "Hot header gliding switches active menu to '仮身(O)'");
+
+    /* Press Escape */
+    ev.type = EV_KEY_DOWN;
+    ev.key = BTRON_KEY_ESCAPE;
+    wnd->event_handler(wnd, &ev);
+    TEST_ASSERT(tb->active_menu == -1, "Escape key dismisses active menu");
+
+    /* 3. Nano About Box Lifecycle & 5HT Attribution */
+    WND *about_wnd = open_tad_browser_about_window();
+    TEST_ASSERT(about_wnd != NULL, "Opened TAD Browser nano About box window");
+    H w = about_wnd->bounds.right - about_wnd->bounds.left;
+    H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
+    TEST_ASSERT(w == 280 && h == 135, "Nano About box has compact 280x135 dimensions");
+    TEST_ASSERT(strstr(about_wnd->title, "About TAD Browser") != NULL, "About title is 'About TAD Browser (バージョン情報)'");
+
+    /* Dismiss via Escape */
+    ev.type = EV_KEY_DOWN;
+    ev.key = BTRON_KEY_ESCAPE;
+    about_wnd->event_handler(about_wnd, &ev);
+
+    cls_wnd(wnd);
+}
+
+/* ── Test Group 16: Cabinet In-Window Menu & Nano About Box ────────────── */
+extern WND* open_vobj_about_window(void);
+
+static void test_cabinet_menu_and_about_box(void) {
+    printf("\n[TEST GROUP 16] Cabinet In-Window Menu & Nano About Box\n");
+
+    WND *wnd = open_vobj_manager_window();
+    TEST_ASSERT(wnd != NULL, "Opened Cabinet Explorer window for menu testing");
+
+    /* 1. Header Hover in closed state (y = 0..21 in client coords) */
+    EVT ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.type = EV_MOUSE_MOVE;
+
+    /* Move over 'ファイル(F)' (x = 40, rel_x = 36, rel_y = 10) */
+    ev.pos.x = wnd->bounds.left + 4 + 40;
+    ev.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &ev);
+
+    /* Move over '編集(E)' (x = 140) */
+    ev.pos.x = wnd->bounds.left + 4 + 140;
+    wnd->event_handler(wnd, &ev);
+
+    /* Move over '表示(V)' (x = 210) */
+    ev.pos.x = wnd->bounds.left + 4 + 210;
+    wnd->event_handler(wnd, &ev);
+
+    /* Move over '仮身(O)' (x = 290) */
+    ev.pos.x = wnd->bounds.left + 4 + 290;
+    wnd->event_handler(wnd, &ev);
+
+    /* Move over 'ヘルプ(H)' (x = 370) */
+    ev.pos.x = wnd->bounds.left + 4 + 370;
+    wnd->event_handler(wnd, &ev);
+
+    /* Move off menu bar (rel_y = 60) */
+    ev.pos.y = wnd->bounds.top + 26 + 60;
+    wnd->event_handler(wnd, &ev);
+
+    /* 2. Menu Click and Hot Header Gliding */
+    ev.type = EV_BUT_DOWN;
+    ev.pos.x = wnd->bounds.left + 4 + 210; /* Click '表示(V)' */
+    ev.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &ev);
+
+    /* Gliding mouse over '仮身(O)' */
+    ev.type = EV_MOUSE_MOVE;
+    ev.pos.x = wnd->bounds.left + 4 + 290;
+    wnd->event_handler(wnd, &ev);
+
+    /* Press Escape */
+    ev.type = EV_KEY_DOWN;
+    ev.key = BTRON_KEY_ESCAPE;
+    wnd->event_handler(wnd, &ev);
+
+    /* 3. Nano About Box Lifecycle & 5HT Attribution */
+    WND *about_wnd = open_vobj_about_window();
+    TEST_ASSERT(about_wnd != NULL, "Opened Cabinet nano About box window");
+    H w = about_wnd->bounds.right - about_wnd->bounds.left;
+    H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
+    TEST_ASSERT(w == 280 && h == 135, "Cabinet Nano About box has compact 280x135 dimensions");
+    TEST_ASSERT(strstr(about_wnd->title, "About Cabinet") != NULL, "About title is 'About Cabinet (バージョン情報)'");
+
+    /* Dismiss via Escape */
+    ev.type = EV_KEY_DOWN;
+    ev.key = BTRON_KEY_ESCAPE;
+    about_wnd->event_handler(about_wnd, &ev);
+
+    cls_wnd(wnd);
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-System Native TAD Document Browser & Cabinet Test Suite\n");
@@ -667,6 +815,8 @@ int main(void) {
     test_multi_window_context_isolation();
     test_btron3_compact_sliding_tabs();
     test_dynamic_text_wrapping_and_reflow();
+    test_tad_browser_menu_and_about_box();
+    test_cabinet_menu_and_about_box();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

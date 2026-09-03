@@ -87,35 +87,11 @@ void render_desktop_background(GDEV *dev) {
     drw_tc_string(dev, 12, 422, "会話通信", COLOR_WHITE, 0x00000000);
 }
 
+#include <btron/global_menu.h>
+
 void render_system_panel(GDEV *dev) {
     if (!dev) return;
-
-    /* Top BTRON Panel Bar */
-    RECT panel = { 0, 0, dev->width, 26 };
-    fill_rec(dev, &panel, COLOR_LTGRAY);
-    drw_lin(dev, 0, 25, dev->width, 25);
-
-    /* Haiku-Style START [BTRON] Button (Deskbar Tracker) */
-    tracker_render_button(dev);
-
-    /* Top Menus in Japanese */
-    drw_tc_string(dev, 92, 5, "ファイル(F)", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 175, 5, "編集(E)", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 245, 5, "表示(V)", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 315, 5, "実身・仮身(O)", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 420, 5, "ウィンドウ(W)", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 520, 5, "ヘルプ(H)", COLOR_BLACK, 0x00000000);
-
-    /* System Real-Time Clock */
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
-    char time_buf[32];
-    snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
-    drw_tc_string(dev, dev->width - 90, 8, time_buf, COLOR_WHITE, COLOR_NAVY);
-#else
-    drw_tc_string(dev, dev->width - 90, 8, "12:00:00", COLOR_WHITE, COLOR_NAVY);
-#endif
+    global_menu_render_bar(dev);
 }
 
 

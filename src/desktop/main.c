@@ -7,6 +7,7 @@
 #include <btron/tip.h>
 #include <btron/apps.h>
 #include <btron/tracker.h>
+#include <btron/global_menu.h>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +102,7 @@ int main(int argc, char **argv) {
     GDEV *screen_dev = opn_dev(screen_w, screen_h);
     init_wnd_mgr(screen_dev);
     tracker_init();
+    global_menu_init();
 
     /* Open initial BTRON desktop accessories */
     open_vobj_manager_window();
@@ -114,10 +116,13 @@ int main(int argc, char **argv) {
                 running = FALSE;
             } else if (ev.type == EV_BUT_DOWN) {
                 raise_sdl_window();
-                /* 0. Check Haiku-style Start [BTRON] Button / Tracker Root Menu */
-                if (tracker_handle_mouse_down(ev.pos.x, ev.pos.y)) {
-                    /* Consumed by Tracker Start Button / Menu */
+                /* 0. Check Global System Menu (Deskbar & Chokanji Top Menus) */
+                if (global_menu_handle_mouse_down(ev.pos.x, ev.pos.y)) {
+                    /* Consumed by Global System Menu Bar */
                 } else {
+                    if (global_menu_is_open()) {
+                        global_menu_close();
+                    }
                     WND *clicked = find_wnd_at(ev.pos.x, ev.pos.y);
                     if (clicked) {
                         if (get_top_wnd() != clicked) {
@@ -211,6 +216,7 @@ int main(int argc, char **argv) {
                     top->event_handler(top, &ev);
                 }
             } else if (ev.type == EV_MOUSE_MOVE) {
+                global_menu_handle_mouse_move(ev.pos.x, ev.pos.y);
                 tracker_handle_mouse_move(ev.pos.x, ev.pos.y);
                 if (sliding_tab && slide_wnd) {
                     H new_off = slide_orig_off + (ev.pos.x - slide_start_x);
@@ -228,7 +234,9 @@ int main(int argc, char **argv) {
                     }
                 }
             } else if (ev.type == EV_KEY_DOWN) {
-                if (tracker_handle_key(ev.key)) {
+                if (global_menu_handle_key(ev.key, ev.data)) {
+                    /* Handled by Global System Menu */
+                } else if (tracker_handle_key(ev.key)) {
                     /* Handled by Tracker Start menu navigation */
                 } else {
                     /* Exclusively route keystrokes to the top focused active window */
@@ -252,9 +260,9 @@ int main(int argc, char **argv) {
 
         render_system_panel(screen_dev);
 
-        /* Render Haiku-style Start menu overlay when open */
-        if (tracker_is_menu_open()) {
-            tracker_render_menu(screen_dev);
+        /* Render Global Menu dropdown overlay when open */
+        if (global_menu_is_open()) {
+            global_menu_render_overlay(screen_dev);
         }
 
         /* Flush composite buffer to SDL window */

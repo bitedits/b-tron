@@ -1,4 +1,4 @@
-﻿/*
+/*
  * B-System (BTRON 3.20) Window Manager: wnd.c
  * Sakamura style retro double-bordered windows and client region management.
  */
@@ -445,4 +445,97 @@ WND* get_top_wnd(void) {
 
 WND* get_wnd_list(void) {
     return g_wnd_head;
+}
+
+void wnd_cascade_all(void) {
+    H base_x = 40;
+    H base_y = 42;
+    H step = 28;
+    H def_w = 580;
+    H def_h = 380;
+
+    int idx = 0;
+    WND *curr = g_wnd_head;
+    while (curr) {
+        if (curr->visible) {
+            RECT r = {
+                (H)(base_x + (idx % 10) * step),
+                (H)(base_y + (idx % 10) * step),
+                (H)(base_x + (idx % 10) * step + def_w),
+                (H)(base_y + (idx % 10) * step + def_h)
+            };
+            wrsz_wnd(curr, &r);
+            idx++;
+        }
+        curr = curr->next;
+    }
+}
+
+void wnd_tile_all(void) {
+    int count = 0;
+    WND *curr = g_wnd_head;
+    while (curr) {
+        if (curr->visible) count++;
+        curr = curr->next;
+    }
+    if (count == 0) return;
+
+    H scr_w = g_screen_dev ? g_screen_dev->width : 1280;
+    H scr_h = g_screen_dev ? g_screen_dev->height : 800;
+    H top_margin = 32;
+    H bot_margin = 10;
+    H left_margin = 10;
+    H right_margin = 10;
+
+    H avail_w = scr_w - left_margin - right_margin;
+    H avail_h = scr_h - top_margin - bot_margin;
+
+    int cols = 1, rows = 1;
+    if (count == 2) { cols = 2; rows = 1; }
+    else if (count <= 4) { cols = 2; rows = 2; }
+    else if (count <= 6) { cols = 3; rows = 2; }
+    else { cols = 3; rows = (count + 2) / 3; }
+
+    H tile_w = avail_w / cols;
+    H tile_h = avail_h / rows;
+
+    int idx = 0;
+    curr = g_wnd_head;
+    while (curr) {
+        if (curr->visible) {
+            int c = idx % cols;
+            int r_idx = idx / cols;
+            RECT r = {
+                (H)(left_margin + c * tile_w),
+                (H)(top_margin + r_idx * tile_h),
+                (H)(left_margin + (c + 1) * tile_w - 4),
+                (H)(top_margin + (r_idx + 1) * tile_h - 4)
+            };
+            wrsz_wnd(curr, &r);
+            idx++;
+        }
+        curr = curr->next;
+    }
+}
+
+void wnd_hide_all(void) {
+    WND *curr = g_wnd_head;
+    while (curr) {
+        curr->visible = FALSE;
+        curr = curr->next;
+    }
+}
+
+void wnd_cycle_focus(void) {
+    if (!g_wnd_head || !g_wnd_head->next) return;
+
+    /* Find last window in list and bring it to front */
+    WND *curr = g_wnd_head;
+    while (curr->next) {
+        curr = curr->next;
+    }
+    if (curr && curr != g_wnd_head) {
+        curr->visible = TRUE;
+        top_wnd(curr);
+    }
 }
