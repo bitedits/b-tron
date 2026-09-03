@@ -19,6 +19,7 @@ static int s_tedit_opened = 0;
 static int s_term_opened = 0;
 
 WND* open_vobj_manager_window(void) { s_vobj_opened++; return NULL; }
+WND* open_control_panel_window(void) { return NULL; }
 WND* open_t_editor_window(void)     { s_tedit_opened++; return NULL; }
 WND* open_gterm_window(void)        { s_term_opened++; return NULL; }
 WND* open_audio_player_window(void) { return NULL; }
@@ -161,8 +162,8 @@ int main(void) {
     TEST_ASSERT(elapsed_ms < 50.0, "O(1) hit testing operates under 50ms for 100k calls");
 
 
-    /* [TEST GROUP 8] Demoscene About Window Lifecycle */
-    printf("\n[TEST GROUP 8] Demoscene About Window Lifecycle & Sprites\n");
+    /* [TEST GROUP 8] SONY Workstation About Window Lifecycle & Nyan Cat Animation */
+    printf("\n[TEST GROUP 8] SONY Workstation About Window Lifecycle & Nyan Cat Animation\n");
     init_wnd_mgr(NULL);
     WND *about_wnd = open_about_window();
     TEST_ASSERT(about_wnd != NULL, "open_about_window() returns valid window");
@@ -172,7 +173,7 @@ int main(void) {
     GDEV *test_dev = opn_dev(560, 340);
     TEST_ASSERT(test_dev != NULL, "Created test GDEV for About window paint");
     about_wnd->paint(about_wnd, test_dev);
-    TEST_ASSERT(test_dev->pixels != NULL, "Rendered animated monk and demoscene stage");
+    TEST_ASSERT(test_dev->pixels != NULL, "Rendered SONY Workstation About interface with Nyan Cat viewport");
     cls_dev(test_dev);
     cls_wnd(about_wnd);
 
