@@ -93,33 +93,32 @@ static void paint_display_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 76 };
+    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 76, dev->width, 76);
-    /* 64×64 icon in header: 6px top padding */
-    draw_setting_gif_icon(dev, "display", 6, 6);
+    drw_lin(dev, 0, 40, dev->width, 40);
+    draw_setting_gif_icon_scaled(dev, "display", 6, 4, 32, 32);
     char hdr_str[128];
     snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Display", "画面表示", "Resolution & DPI scaling");
-    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 46, 12, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Resolution & Video Mode */
-    RECT s1 = { 10, 38, dev->width - 10, 132 };
+    RECT s1 = { 10, 56, dev->width - 10, 150 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 30, " [1. Resolution & Video Mode] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_radio(dev, 18, 52, "1024 x 768 @ 60Hz (24-bit TrueColor) - Recommended", g_state_display.checks[0], FALSE);
-    paint_ui_radio(dev, 18, 74, "800 x 600 @ 60Hz (Legacy PC-98 / VESA Mode)", g_state_display.checks[1], FALSE);
-    paint_ui_radio(dev, 18, 96, "1920 x 1080 Full HD (VirtIO-GPU / Modern DRM)", g_state_display.checks[2], FALSE);
+    drw_tc_string(dev, 16, 48, " [1. Resolution & Video Mode] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_radio(dev, 18, 70, "1024 x 768 @ 60Hz (24-bit TrueColor) - Recommended", g_state_display.checks[0], FALSE);
+    paint_ui_radio(dev, 18, 92, "800 x 600 @ 60Hz (Legacy PC-98 / VESA Mode)", g_state_display.checks[1], FALSE);
+    paint_ui_radio(dev, 18, 114, "1920 x 1080 Full HD (VirtIO-GPU / Modern DRM)", g_state_display.checks[2], FALSE);
 
     /* Section 2: DPI Scaling & Color Profiles */
-    RECT s2 = { 10, 146, dev->width - 10, 240 };
+    RECT s2 = { 10, 164, dev->width - 10, 258 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 138, " [2. DPI Scaling & Color Profiles] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 160, "Enable 1:1 Pixel Mapping (100% Standard Scale)", g_state_display.checks[3], FALSE);
-    paint_ui_checkbox(dev, 18, 182, "Apply sRGB TRON Standard Color Profile (Gamma 2.2)", g_state_display.checks[4], FALSE);
-    paint_ui_checkbox(dev, 18, 204, "Enable VESA Double Buffering Surface Compositor", g_state_display.checks[5], FALSE);
+    drw_tc_string(dev, 16, 156, " [2. DPI Scaling & Color Profiles] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 178, "Enable 1:1 Pixel Mapping (100% Standard Scale)", g_state_display.checks[3], FALSE);
+    paint_ui_checkbox(dev, 18, 200, "Apply sRGB TRON Standard Color Profile (Gamma 2.2)", g_state_display.checks[4], FALSE);
+    paint_ui_checkbox(dev, 18, 222, "Enable VESA Double Buffering Surface Compositor", g_state_display.checks[5], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;
@@ -136,37 +135,37 @@ static void handle_display_event(WND *wnd, const EVT *evt) {
         H client_w = wnd->client.right - wnd->client.left;
         H client_h = wnd->client.bottom - wnd->client.top;
 
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 50 && rel_y <= 68) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 70 && rel_y <= 88) {
             g_state_display.checks[0] = !g_state_display.checks[0];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 72 && rel_y <= 90) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 92 && rel_y <= 110) {
             g_state_display.checks[1] = !g_state_display.checks[1];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 94 && rel_y <= 112) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 114 && rel_y <= 132) {
             g_state_display.checks[2] = !g_state_display.checks[2];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 158 && rel_y <= 176) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 178 && rel_y <= 196) {
             g_state_display.checks[3] = !g_state_display.checks[3];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 180 && rel_y <= 198) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 200 && rel_y <= 218) {
             g_state_display.checks[4] = !g_state_display.checks[4];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 202 && rel_y <= 220) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 222 && rel_y <= 240) {
             g_state_display.checks[5] = !g_state_display.checks[5];
             g_state_display.is_dirty = TRUE;
             redraw_all_windows();

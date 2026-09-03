@@ -23,6 +23,19 @@
 #define snprintf tkl_snprintf
 #endif
 
+/* Global Icon Display Size Preference: Defaults to 64x64 */
+static BTRON_ICON_SIZE g_global_icon_size = BTRON_ICON_SIZE_64;
+
+BTRON_ICON_SIZE appearance_get_icon_size(void) {
+    return g_global_icon_size;
+}
+
+void appearance_set_icon_size(BTRON_ICON_SIZE size) {
+    if (size == BTRON_ICON_SIZE_32 || size == BTRON_ICON_SIZE_64) {
+        g_global_icon_size = size;
+    }
+}
+
 typedef struct {
     WND *wnd;
     BOOL checks[11];
@@ -94,39 +107,49 @@ static void paint_appearance_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 76 };
+    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 76, dev->width, 76);
-    /* 64×64 icon in header: 6px top padding */
-    draw_setting_gif_icon(dev, "appearance", 6, 6);
+    drw_lin(dev, 0, 40, dev->width, 40);
+    draw_setting_gif_icon_scaled(dev, "appearance", 6, 4, 32, 32);
     char hdr_str[128];
     snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Appearance", "外観", "Themes, colours & window styles");
-    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 46, 12, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: System Themes & Visual Appearance */
-    RECT s1 = { 10, 82, dev->width - 10, 186 };
+    RECT s1 = { 10, 56, dev->width - 10, 154 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 74, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_radio(dev, 18, 80, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
-    paint_ui_radio(dev, 18, 102, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
-    paint_ui_radio(dev, 18, 124, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
-    paint_ui_checkbox(dev, 18, 146, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
+    drw_tc_string(dev, 16, 48, " [1. System Themes & Visual Appearance] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_radio(dev, 18, 64, "Classic Teal & Navy (BTRON Standard 3.20)", g_state_appearance.checks[0], FALSE);
+    paint_ui_radio(dev, 18, 86, "Dark Navy High-Contrast Theme (Chapter 7)", g_state_appearance.checks[1], FALSE);
+    paint_ui_radio(dev, 18, 108, "Retro Amber Phosphor Display Palette", g_state_appearance.checks[2], FALSE);
+    paint_ui_checkbox(dev, 18, 130, "Enable 3D Double Bezel Window Frame Shadows", g_state_appearance.checks[3], FALSE);
 
-    /* Menu Style Toggle Options */
-    BOOL is_classic = (app_menu_get_global_style() == APP_MENU_STYLE_CLASSIC_3D);
-    paint_ui_radio(dev, 18, 170, "Menu Style: Classic Chokanji 3D (超漢字3Dベベル)", is_classic, FALSE);
-    paint_ui_radio(dev, 18, 192, "Menu Style: Modern Flat Card (現代風カード)", !is_classic, FALSE);
-
-    /* Section 2: Typography & Glyph Rendering */
-    RECT s2 = { 10, 232, dev->width - 10, 280 };
+    /* Section 2: Icon Size & Menu Display Styles */
+    RECT s2 = { 10, 170, dev->width - 10, 276 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 224, " [2. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 242, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
-    paint_ui_checkbox(dev, 18, 264, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
-    paint_ui_checkbox(dev, 18, 286, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
+    drw_tc_string(dev, 16, 162, " [2. Icon Size & Menu Display Styles] ", COLOR_NAVY, COLOR_WHITE);
+
+    /* Icon Size Radio Buttons */
+    BOOL is_size_32 = (g_global_icon_size == BTRON_ICON_SIZE_32);
+    paint_ui_radio(dev, 18, 178, "Icon Display Size: Standard 32×32 (標準 32×32 アイコン)", is_size_32, FALSE);
+    paint_ui_radio(dev, 18, 200, "Icon Display Size: Large 64×64 (大 64×64 高解像度アイコン)", !is_size_32, FALSE);
+
+    /* Menu Style Radio Buttons */
+    BOOL is_classic = (app_menu_get_global_style() == APP_MENU_STYLE_CLASSIC_3D);
+    paint_ui_radio(dev, 18, 226, "Menu Style: Classic Chokanji 3D (超漢字3Dベベル)", is_classic, FALSE);
+    paint_ui_radio(dev, 18, 248, "Menu Style: Modern Flat Card (現代風カード)", !is_classic, FALSE);
+
+    /* Section 3: Typography & Glyph Rendering */
+    RECT s3 = { 10, 292, dev->width - 10, 372 };
+    fill_rec(dev, &s3, COLOR_WHITE);
+    drw_rec(dev, &s3);
+    drw_tc_string(dev, 16, 284, " [3. Typography & Glyph Rendering] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 300, "Enable TRON Multilingual 16px Vector/Bitmap Engine", g_state_appearance.checks[4], FALSE);
+    paint_ui_checkbox(dev, 18, 322, "Load Classical Tibetan Jomolhari Unicode Plane", g_state_appearance.checks[5], FALSE);
+    paint_ui_checkbox(dev, 18, 344, "Enable Subpixel Vector Font Anti-Aliasing", g_state_appearance.checks[6], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;
@@ -143,66 +166,88 @@ static void handle_appearance_event(WND *wnd, const EVT *evt) {
         H client_w = wnd->client.right - wnd->client.left;
         H client_h = wnd->client.bottom - wnd->client.top;
 
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 42 && rel_y <= 60) {
+        /* Section 1: Themes & Bezel */
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 64 && rel_y <= 82) {
             g_state_appearance.checks[0] = !g_state_appearance.checks[0];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 64 && rel_y <= 82) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 86 && rel_y <= 104) {
             g_state_appearance.checks[1] = !g_state_appearance.checks[1];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 86 && rel_y <= 104) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 108 && rel_y <= 126) {
             g_state_appearance.checks[2] = !g_state_appearance.checks[2];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 108 && rel_y <= 126) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 130 && rel_y <= 148) {
             g_state_appearance.checks[3] = !g_state_appearance.checks[3];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 132 && rel_y <= 150) {
+
+        /* Section 2: Icon Size Options */
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 178 && rel_y <= 196) {
+            appearance_set_icon_size(BTRON_ICON_SIZE_32);
+            g_state_appearance.is_dirty = TRUE;
+            redraw_all_windows();
+            return;
+        }
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 200 && rel_y <= 218) {
+            appearance_set_icon_size(BTRON_ICON_SIZE_64);
+            g_state_appearance.is_dirty = TRUE;
+            redraw_all_windows();
+            return;
+        }
+
+        /* Section 2: Menu Style Options */
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 226 && rel_y <= 244) {
             app_menu_set_global_style(APP_MENU_STYLE_CLASSIC_3D);
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 154 && rel_y <= 172) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 248 && rel_y <= 266) {
             app_menu_set_global_style(APP_MENU_STYLE_MODERN_CARD);
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 204 && rel_y <= 222) {
+
+        /* Section 3: Typography */
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 300 && rel_y <= 318) {
             g_state_appearance.checks[4] = !g_state_appearance.checks[4];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 226 && rel_y <= 244) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 322 && rel_y <= 340) {
             g_state_appearance.checks[5] = !g_state_appearance.checks[5];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 248 && rel_y <= 266) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 344 && rel_y <= 362) {
             g_state_appearance.checks[6] = !g_state_appearance.checks[6];
             g_state_appearance.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
+
         /* Action Buttons */
         H btn_y = client_h - 35;
         if (rel_y >= btn_y && rel_y <= btn_y + 24) {
             if (rel_x >= client_w - 240 && rel_x <= client_w - 170) {
                 /* Default */
                 for (int i = 0; i < 7; i++) g_state_appearance.checks[i] = TRUE;
+                appearance_set_icon_size(BTRON_ICON_SIZE_64);
+                app_menu_set_global_style(APP_MENU_STYLE_CLASSIC_3D);
                 g_state_appearance.is_dirty = TRUE;
                 redraw_all_windows();
                 return;
@@ -227,7 +272,7 @@ WND* open_appearance_settings_window(void) {
     for (int i = 0; i < 7; i++) g_state_appearance.checks[i] = TRUE;
 
     WND *wnd = opn_wnd("Appearance (外観)",
-                       80, 45, 640, 430,
+                       80, 45, 640, 440,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
     g_state_appearance.wnd = wnd;

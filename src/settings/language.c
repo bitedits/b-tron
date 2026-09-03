@@ -9,6 +9,7 @@
 #include <btron/troncode.h>
 #include <btron/event.h>
 #include <btron/tip.h>
+#include <btron/settings_icon.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -26,16 +27,19 @@
 static LanguageSettingsApp g_lang_settings;
 
 static void paint_checkbox(GDEV *dev, H x, H y, const char *label, BOOL checked, BOOL focused) {
-    RECT box = { x, y + 2, x + 12, y + 14 };
+    RECT box = { x, y + 1, x + 15, y + 16 };
     fill_rec(dev, &box, COLOR_WHITE);
     drw_rec(dev, &box);
+
     if (checked) {
-        /* Draw checkmark cross */
-        drw_lin(dev, x + 2, y + 4, x + 10, y + 12);
-        drw_lin(dev, x + 2, y + 12, x + 10, y + 4);
+        drw_lin(dev, x + 3, y + 8, x + 6, y + 12);
+        drw_lin(dev, x + 6, y + 12, x + 12, y + 4);
+        drw_lin(dev, x + 3, y + 9, x + 6, y + 13);
+        drw_lin(dev, x + 6, y + 13, x + 12, y + 5);
     }
+
     COLOR text_col = focused ? COLOR_NAVY : COLOR_BLACK;
-    drw_tc_string(dev, x + 18, y, label, text_col, COLOR_WHITE);
+    drw_tc_string(dev, x + 22, y, label, text_col, COLOR_WHITE);
 }
 
 static void paint_button(GDEV *dev, H x, H y, H w, H h, const char *label, BOOL pressed) {
@@ -54,47 +58,50 @@ static void paint_language_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar: Settings Cabinet Icon & Title */
-    RECT hdr = { 0, 0, dev->width, 26 };
+    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 26, dev->width, 26);
-    drw_tc_string(dev, 8, 5, "[Settings Cabinet] Language & Input Method (IME) Preferences", COLOR_BLACK, COLOR_LTGRAY);
+    drw_lin(dev, 0, 40, dev->width, 40);
+    draw_setting_gif_icon_scaled(dev, "language", 6, 4, 32, 32);
+    char hdr_str[128];
+    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Language", "言語・文字", "TRON Code, TIP Mozc & Tibetan Wylie");
+    drw_tc_string(dev, 46, 12, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Multilingual Mode Switching */
-    RECT s1 = { 10, 36, dev->width - 10, 100 };
+    RECT s1 = { 10, 46, dev->width - 10, 110 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 28, " [1. Language Switching Shortcuts] ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, 16, 38, " [1. Language Switching Shortcuts] ", COLOR_NAVY, COLOR_WHITE);
 
-    drw_tc_string(dev, 20, 48, "Cycle Mode Key (EN -> JP Hiragana -> JP Katakana -> TB):  F10", COLOR_BLACK, COLOR_WHITE);
-    drw_tc_string(dev, 20, 66, "Direct Language Keys:  F6 (JP あ) | F7 (JP ア) | F8 (TB བོད) | F9 (Zen/Alphanum)", COLOR_GRAY, COLOR_WHITE);
-    drw_tc_string(dev, 20, 84, "Standard Modifier Toggle:  Ctrl + Space / Alt + Space (Hankaku/Zenkaku)", COLOR_GRAY, COLOR_WHITE);
+    drw_tc_string(dev, 20, 52, "Cycle Mode Key (EN -> JP Hiragana -> JP Katakana -> TB):  F10", COLOR_BLACK, COLOR_WHITE);
+    drw_tc_string(dev, 20, 70, "Direct Language Keys:  F6 (JP あ) | F7 (JP ア) | F8 (TB བོད) | F9 (Zen/Alphanum)", COLOR_GRAY, COLOR_WHITE);
+    drw_tc_string(dev, 20, 88, "Standard Modifier Toggle:  Ctrl + Space / Alt + Space (Hankaku/Zenkaku)", COLOR_GRAY, COLOR_WHITE);
 
     /* Section 2: Japanese Mozc Keyboard Behavior */
-    RECT s2 = { 10, 110, dev->width - 10, 180 };
+    RECT s2 = { 10, 116, dev->width - 10, 186 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 102, " [2. Japanese Mode (JP あ / JP ア)] ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, 16, 108, " [2. Japanese Mode (JP あ / JP ア)] ", COLOR_NAVY, COLOR_WHITE);
 
     paint_checkbox(dev, 20, 122, "Space Key triggers Kana-to-Kanji (KKC) Lattice Search", g_lang_settings.current_config.jp_space_is_convert, FALSE);
     paint_checkbox(dev, 20, 142, "Tab Key opens Candidate Suggestion Popup", g_lang_settings.current_config.jp_tab_is_popup, FALSE);
     paint_checkbox(dev, 20, 162, "Fullwidth Space (　 U+3000) inserted when Space is pressed in IDLE", TRUE, FALSE);
 
     /* Section 3: Tibetan Wylie Keyboard Behavior */
-    RECT s3 = { 10, 190, dev->width - 10, 260 };
+    RECT s3 = { 10, 192, dev->width - 10, 262 };
     fill_rec(dev, &s3, COLOR_WHITE);
     drw_rec(dev, &s3);
-    drw_tc_string(dev, 16, 182, " [3. Tibetan Mode (TB བོད)] ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, 16, 184, " [3. Tibetan Mode (TB བོད)] ", COLOR_NAVY, COLOR_WHITE);
 
     paint_checkbox(dev, 20, 202, "Space Key directly outputs Tsheg ('་' U+0F0B) syllable delimiter", g_lang_settings.current_config.tb_space_is_tsheg, FALSE);
     paint_checkbox(dev, 20, 222, "Tab Key opens Dharma Dictionary Suggestion Popup", g_lang_settings.current_config.tb_tab_is_popup, FALSE);
     paint_checkbox(dev, 20, 242, "Shift + Space / Ctrl + Space opens Dictionary Popup", g_lang_settings.current_config.tb_shift_space_popup, FALSE);
 
     /* Section 4: Universal Candidate Popup Navigation */
-    RECT s4 = { 10, 270, dev->width - 10, 335 };
+    RECT s4 = { 10, 268, dev->width - 10, 335 };
     fill_rec(dev, &s4, COLOR_WHITE);
     drw_rec(dev, &s4);
-    drw_tc_string(dev, 16, 262, " [4. Candidate Popup Navigation (All Modes)] ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, 16, 260, " [4. Candidate Popup Navigation (All Modes)] ", COLOR_NAVY, COLOR_WHITE);
 
     paint_checkbox(dev, 20, 282, "Up / Down Arrow Keys navigate candidate list (Ctrl+P / Ctrl+N)", g_lang_settings.current_config.arrow_nav_enabled, FALSE);
     paint_checkbox(dev, 20, 302, "1-9 Numeric Keys select candidate item directly", g_lang_settings.current_config.num_select_enabled, FALSE);
@@ -176,7 +183,6 @@ void language_settings_event_handler(WND *wnd, const EVT *evt) {
             if (rel_x >= client_w - 240 && rel_x <= client_w - 170) {
                 /* Revert */
                 g_lang_settings.current_config = g_lang_settings.saved_config;
-                tip_set_key_settings(&g_lang_settings.saved_config);
                 g_lang_settings.is_dirty = FALSE;
                 redraw_all_windows();
                 return;
@@ -207,7 +213,7 @@ WND* open_language_settings_window(void) {
     g_lang_settings.saved_config = g_lang_settings.current_config;
 
     WND *wnd = opn_wnd("Settings Cabinet - Language & IME Preferences",
-                       80, 50, 620, 440,
+                       80, 50, 640, 420,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
 

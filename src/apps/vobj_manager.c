@@ -11,6 +11,8 @@
 #include <btron/error.h>
 #include <btron/tad_browser.h>
 #include <btron/app_menu.h>
+#include <btron/settings.h>
+#include <btron/settings_icon.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -343,6 +345,16 @@ static void cabinet_discover_dir(CABINET_EXPLORER *cab, const char *dir_path) {
 }
 #endif
 
+static const char* deduce_gif_icon(const CABINET_ITEM *it) {
+    if (!it) return "tad_browser";
+    if (it->type == VOBJ_TYPE_DRAW) return "paint";
+    if (strstr(it->path, "shared_data")) return "notebook";
+    if (strstr(it->path, "b-hmi")) return "appearance";
+    if (strstr(it->path, "t-kernel") || strstr(it->path, "kernel")) return "system";
+    if (strstr(it->path, "b-free")) return "workbench";
+    return "tad_browser";
+}
+
 static void cabinet_init_defaults(CABINET_EXPLORER *cab) {
     memset(cab, 0, sizeof(CABINET_EXPLORER));
     cab->selected_idx = 0;
@@ -538,8 +550,10 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
         }
     } else {
         /* Grid Icon View */
-        int col_w = 90;
-        int row_h = 70;
+        BTRON_ICON_SIZE sz = appearance_get_icon_size();
+        int icon_dim = (sz == BTRON_ICON_SIZE_32) ? 32 : 64;
+        int col_w = (sz == BTRON_ICON_SIZE_32) ? 96 : 110;
+        int row_h = (sz == BTRON_ICON_SIZE_32) ? 72 : 104;
         int cols = (dev->width - 16) / col_w;
         if (cols < 1) cols = 1;
 
@@ -565,16 +579,24 @@ static void paint_vobj_manager(WND *wnd, GDEV *dev) {
             COLOR fg = is_sel ? COLOR_WHITE : COLOR_BLACK;
 
             /* Icon box */
-            RECT icn = { x + (col_w - 8 - 28) / 2, y + 6, x + (col_w - 8 + 28) / 2, y + 34 };
+            int icn_box_w = icon_dim + 8;
+            int icn_box_h = icon_dim + 8;
+            RECT icn = { x + (col_w - 8 - icn_box_w) / 2, y + 4,
+                         x + (col_w - 8 + icn_box_w) / 2, y + 4 + icn_box_h };
             fill_rec(dev, &icn, is_sel ? COLOR_WHITE : COLOR_LTGRAY);
             drw_rec(dev, &icn);
-            drw_tc_string(dev, icn.left + 4, icn.top + 5, "実", COLOR_BLACK, 0x00000000);
+
+            const char *icon_id = deduce_gif_icon(it);
+            int icn_x = icn.left + 4;
+            int icn_y = icn.top + 4;
+            draw_setting_gif_icon_scaled(dev, icon_id, icn_x, icn_y, icon_dim, icon_dim);
 
             /* Truncated Name */
-            char short_name[12];
-            strncpy(short_name, it->name, 10);
-            short_name[10] = '\0';
-            drw_tc_string(dev, x + 4, y + 38, short_name, fg, 0x00000000);
+            char short_name[14];
+            strncpy(short_name, it->name, 12);
+            short_name[12] = '\0';
+            H text_y = y + icn_box_h + 6;
+            drw_tc_string(dev, x + 4, text_y, short_name, fg, 0x00000000);
         }
     }
 
@@ -610,15 +632,28 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
         }
         cab_sync_menu_state();
 
-        /* List Item Hover (starts at y = 26) */
+        /* Item Hover (starts at y = 26) */
         int start_y = 26;
-        int row = (rel_y - start_y) / 22;
-        int idx = g_cabinet.scroll_offset + row;
-        if (idx >= 0 && idx < g_cabinet.item_count) {
-            g_cabinet.hovered_idx = idx;
+        int idx = -1;
+        if (g_cabinet.view_mode == CAB_VIEW_GRID) {
+            BTRON_ICON_SIZE sz = appearance_get_icon_size();
+            int col_w = (sz == BTRON_ICON_SIZE_32) ? 96 : 110;
+            int row_h = (sz == BTRON_ICON_SIZE_32) ? 72 : 104;
+            H dev_w = wnd->dev ? wnd->dev->width : 560;
+            int cols = (dev_w - 16) / col_w;
+            if (cols < 1) cols = 1;
+            int c = (rel_x - 12) / col_w;
+            int r = (rel_y - start_y) / row_h;
+            if (c >= 0 && c < cols && r >= 0 && rel_x >= 12 && rel_y >= start_y) {
+                int calc = r * cols + c;
+                if (calc < g_cabinet.item_count) idx = calc;
+            }
         } else {
-            g_cabinet.hovered_idx = -1;
+            int row = (rel_y - start_y) / 22;
+            int calc = g_cabinet.scroll_offset + row;
+            if (calc >= 0 && calc < g_cabinet.item_count) idx = calc;
         }
+        g_cabinet.hovered_idx = idx;
         return;
     }
 
@@ -694,8 +729,26 @@ static void handle_vobj_manager_event(WND *wnd, const EVT *evt) {
 
         /* C. Item Selection Click (starts at y = 26) */
         int start_y = 26;
-        int row = (rel_y - start_y) / 22;
-        int idx = g_cabinet.scroll_offset + row;
+        int idx = -1;
+        if (g_cabinet.view_mode == CAB_VIEW_GRID) {
+            BTRON_ICON_SIZE sz = appearance_get_icon_size();
+            int col_w = (sz == BTRON_ICON_SIZE_32) ? 96 : 110;
+            int row_h = (sz == BTRON_ICON_SIZE_32) ? 72 : 104;
+            H dev_w = wnd->dev ? wnd->dev->width : 560;
+            int cols = (dev_w - 16) / col_w;
+            if (cols < 1) cols = 1;
+            int c = (rel_x - 12) / col_w;
+            int r = (rel_y - start_y) / row_h;
+            if (c >= 0 && c < cols && r >= 0 && rel_x >= 12 && rel_y >= start_y) {
+                int calc = r * cols + c;
+                if (calc < g_cabinet.item_count) idx = calc;
+            }
+        } else {
+            int row = (rel_y - start_y) / 22;
+            int calc = g_cabinet.scroll_offset + row;
+            if (calc >= 0 && calc < g_cabinet.item_count) idx = calc;
+        }
+
         if (idx >= 0 && idx < g_cabinet.item_count) {
             static int s_last_click_idx = -1;
             static UW s_last_click_time = 0;

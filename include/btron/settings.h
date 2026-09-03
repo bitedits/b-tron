@@ -57,6 +57,15 @@ WND* open_media_settings_window(void);
 WND* open_security_settings_window(void);
 WND* open_system_settings_window(void);
 
+/* Global Appearance Preferences: Icon Display Size */
+typedef enum {
+    BTRON_ICON_SIZE_32 = 32,
+    BTRON_ICON_SIZE_64 = 64
+} BTRON_ICON_SIZE;
+
+BTRON_ICON_SIZE appearance_get_icon_size(void);
+void appearance_set_icon_size(BTRON_ICON_SIZE size);
+
 #ifdef __cplusplus
 }
 #endif

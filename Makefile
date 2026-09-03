@@ -226,6 +226,7 @@ COMMON_NO_SDL_SRCS = \
     src/apps/t_editor.c    \
     src/apps/gterm.c       \
     src/settings/language.c \
+    src/settings/appearance.c \
     $(IME_SRCS)
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
@@ -609,6 +610,7 @@ html2tad:
 # Native TAD Document Browser & Cabinet Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c src/window/app_menu.c \
+                src/settings/appearance.c \
                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c \
                 src/window/wnd.c src/graphics/dp_core.c
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)

@@ -1,13 +1,14 @@
 /*
- * settings_icon.h — Inline 32×32 GIF icon loader for Control Panel & Settings Applets
+ * settings_icon.h — GIF icon loader & scaler for Control Panel, Settings & TAD
  * B-System (BTRON 3.20)
  *
- * Usage: include this header once per .c file that needs to draw a settings icon.
- * Call: draw_setting_gif_icon(dev, "appearance", x, y);
- *       The id_str must match a file in assets/icons/<id_str>.gif
+ * Usage:
+ *   draw_setting_gif_icon(dev, "appearance", x, y);
+ *   draw_setting_gif_icon_scaled(dev, "cabinet", x, y, 32, 32);
+ *   draw_setting_gif_icon_scaled(dev, "cabinet", x, y, 64, 64);
  *
- * Works only in hosted builds (__STDC_HOSTED__ == 1).
- * In freestanding builds the function is a no-op.
+ * Works in hosted builds (__STDC_HOSTED__ == 1).
+ * In freestanding builds the function is a safe no-op.
  */
 
 #ifndef _BTRON_SETTINGS_ICON_H_
@@ -21,20 +22,19 @@
 #include <stdint.h>
 
 #define SI_LZW_DICT    4096
-#define SI_MAX_PIXELS  4096  /* 64×64 = 4096 pixels max */
+#define SI_MAX_PIXELS  4096  /* 64x64 = 4096 pixels max */
 
-/* Static GIF decode buffers — one set is enough (no re-entrance needed) */
+/* Static GIF decode buffers (one set is sufficient; UI paint is single-threaded) */
 static uint16_t s_si_gif_prefix[SI_LZW_DICT];
 static uint8_t  s_si_gif_suffix[SI_LZW_DICT];
 static uint8_t  s_si_gif_stack [SI_LZW_DICT + 1];
 static uint8_t  s_si_gif_raw   [SI_MAX_PIXELS];
 
 /*
- * draw_setting_gif_icon — draw a 32×32 GIF icon at (dst_x, dst_y).
- * id_str is the base name (e.g. "appearance").
- * Searches the following prefixes in order until a file opens successfully.
+ * draw_setting_gif_icon_scaled — decode a GIF icon and draw it scaled to target_w x target_h.
+ * If target_w <= 0 or target_h <= 0, renders at the native decoded dimensions.
  */
-static void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
+static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, int dst_x, int dst_y, int target_w, int target_h) {
     if (!dev || !dev->pixels || !id_str || id_str[0] == '\0') return;
 
     static const char *prefixes[] = {
@@ -47,14 +47,28 @@ static void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int 
 
     FILE *fp = NULL;
     char path[128];
-    for (int p = 0; prefixes[p]; p++) {
-        snprintf(path, sizeof(path), "%s%s.gif", prefixes[p], id_str);
-        fp = fopen(path, "rb");
-        if (fp) break;
+
+    /* 1. Try size-specific filename first if target size specified (e.g. appearance_32.gif) */
+    if (target_w > 0) {
+        for (int p = 0; prefixes[p]; p++) {
+            snprintf(path, sizeof(path), "%s%s_%d.gif", prefixes[p], id_str, target_w);
+            fp = fopen(path, "rb");
+            if (fp) break;
+        }
     }
+
+    /* 2. Fall back to standard filename (e.g. appearance.gif) */
+    if (!fp) {
+        for (int p = 0; prefixes[p]; p++) {
+            snprintf(path, sizeof(path), "%s%s.gif", prefixes[p], id_str);
+            fp = fopen(path, "rb");
+            if (fp) break;
+        }
+    }
+
     if (!fp) return;
 
-    /* --- GIF89a / GIF87a decoder (32×32 subset) --- */
+    /* --- GIF87a / GIF89a Header --- */
     uint8_t hdr[13];
     if (fread(hdr, 1, 13, fp) != 13) { fclose(fp); return; }
     if (memcmp(hdr, "GIF87a", 6) != 0 && memcmp(hdr, "GIF89a", 6) != 0) { fclose(fp); return; }
@@ -75,7 +89,6 @@ static void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int 
 
     int trans_idx = -1;
     int img_w = 0, img_h = 0;
-    int img_read = 0;
 
     while (!feof(fp)) {
         int b = fgetc(fp);
@@ -188,32 +201,55 @@ static void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int 
                 old_code = code;
             }
 
-            for (int y = 0; y < img_h && y < 64; y++) {
-                    int out_y = dst_y + y;
-                    if (out_y < 0 || out_y >= dev->height) continue;
-                    if (out_y < dev->clip.top || out_y >= dev->clip.bottom) continue;
-                    for (int x = 0; x < img_w && x < 64; x++) {
-                        int out_x = dst_x + x;
-                        if (out_x < 0 || out_x >= dev->width) continue;
-                        if (out_x < dev->clip.left || out_x >= dev->clip.right) continue;
-                        uint8_t p_idx = s_si_gif_raw[y * img_w + x];
-                        if ((int)p_idx == trans_idx) continue;
-                        uint32_t col = palette[p_idx];
-                        dev->pixels[out_y * dev->width + out_x] = (COLOR)(0xFF000000 | col);
-                    }
+            /* Determine render dimensions */
+            int render_w = (target_w > 0) ? target_w : img_w;
+            int render_h = (target_h > 0) ? target_h : img_h;
+            if (render_w > 64) render_w = 64;
+            if (render_h > 64) render_h = 64;
+
+            /* Render to GDEV surface with clipping and scaling */
+            for (int y = 0; y < render_h; y++) {
+                int out_y = dst_y + y;
+                if (out_y < 0 || out_y >= dev->height) continue;
+                if (out_y < dev->clip.top || out_y >= dev->clip.bottom) continue;
+
+                int src_y = (img_h > 0) ? (y * img_h / render_h) : 0;
+                if (src_y >= img_h) src_y = img_h - 1;
+
+                for (int x = 0; x < render_w; x++) {
+                    int out_x = dst_x + x;
+                    if (out_x < 0 || out_x >= dev->width) continue;
+                    if (out_x < dev->clip.left || out_x >= dev->clip.right) continue;
+
+                    int src_x = (img_w > 0) ? (x * img_w / render_w) : 0;
+                    if (src_x >= img_w) src_x = img_w - 1;
+
+                    uint8_t p_idx = s_si_gif_raw[src_y * img_w + src_x];
+                    if ((int)p_idx == trans_idx) continue;
+                    uint32_t col = palette[p_idx];
+                    dev->pixels[out_y * dev->width + out_x] = (COLOR)(0xFF000000 | col);
                 }
-                img_read = 1;
             }
-            break;
+            break; /* First image decoded */
         }
     }
     fclose(fp);
-    (void)img_read;
+}
+
+/*
+ * draw_setting_gif_icon — draw icon at native size (or standard 64x64/32x32).
+ */
+static inline void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
+    draw_setting_gif_icon_scaled(dev, id_str, dst_x, dst_y, 0, 0);
 }
 
 #else  /* freestanding */
 
-static void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
+static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, int dst_x, int dst_y, int target_w, int target_h) {
+    (void)dev; (void)id_str; (void)dst_x; (void)dst_y; (void)target_w; (void)target_h;
+}
+
+static inline void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
     (void)dev; (void)id_str; (void)dst_x; (void)dst_y;
 }
 

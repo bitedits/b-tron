@@ -93,33 +93,32 @@ static void paint_sound_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 76 };
+    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 76, dev->width, 76);
-    /* 64×64 icon in header: 6px top padding */
-    draw_setting_gif_icon(dev, "sound", 6, 6);
+    drw_lin(dev, 0, 40, dev->width, 40);
+    draw_setting_gif_icon_scaled(dev, "sound", 6, 4, 32, 32);
     char hdr_str[128];
-    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Sound", "音響・音声", "Audio devices & Cassette routing");
-    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Sound", "音響・音声", "Audio devices & volume control");
+    drw_tc_string(dev, 46, 12, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Audio Master Output */
-    RECT s1 = { 10, 38, dev->width - 10, 154 };
+    RECT s1 = { 10, 56, dev->width - 10, 172 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 30, " [1. Audio Master Output] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 52, "Master Audio Output (Volume: 85% / -3.5 dB Headroom)", g_state_sound.checks[0], FALSE);
-    paint_ui_checkbox(dev, 18, 74, "Enable System Event Chimes & Terminal Bell Sounds", g_state_sound.checks[1], FALSE);
-    paint_ui_radio(dev, 18, 96, "VirtIO-Sound / Intel High Definition Audio (HDA)", g_state_sound.checks[2], FALSE);
-    paint_ui_radio(dev, 18, 118, "BCM2835 PWM Audio Driver Output", g_state_sound.checks[3], FALSE);
+    drw_tc_string(dev, 16, 48, " [1. Audio Master Output] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 70, "Master Audio Output (Volume: 85% / -3.5 dB Headroom)", g_state_sound.checks[0], FALSE);
+    paint_ui_checkbox(dev, 18, 92, "Enable System Event Chimes & Terminal Bell Sounds", g_state_sound.checks[1], FALSE);
+    paint_ui_radio(dev, 18, 114, "VirtIO-Sound / Intel High Definition Audio (HDA)", g_state_sound.checks[2], FALSE);
+    paint_ui_radio(dev, 18, 136, "BCM2835 PWM Audio Driver Output", g_state_sound.checks[3], FALSE);
 
     /* Section 2: Cassette DSP Engine */
-    RECT s2 = { 10, 168, dev->width - 10, 240 };
+    RECT s2 = { 10, 186, dev->width - 10, 258 };
     fill_rec(dev, &s2, COLOR_WHITE);
     drw_rec(dev, &s2);
-    drw_tc_string(dev, 16, 160, " [2. Cassette DSP Engine] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 182, "Audio Sample Rate: 48,000 Hz / 16-bit Stereo PCM", g_state_sound.checks[4], FALSE);
-    paint_ui_checkbox(dev, 18, 204, "Low-Latency Buffer: 128 samples (2.6 ms Real-Time DSP)", g_state_sound.checks[5], FALSE);
+    drw_tc_string(dev, 16, 178, " [2. Cassette DSP Engine] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 200, "Audio Sample Rate: 48,000 Hz / 16-bit Stereo PCM", g_state_sound.checks[4], FALSE);
+    paint_ui_checkbox(dev, 18, 222, "Low-Latency Buffer: 128 samples (2.6 ms Real-Time DSP)", g_state_sound.checks[5], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;
@@ -136,37 +135,37 @@ static void handle_sound_event(WND *wnd, const EVT *evt) {
         H client_w = wnd->client.right - wnd->client.left;
         H client_h = wnd->client.bottom - wnd->client.top;
 
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 50 && rel_y <= 68) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 70 && rel_y <= 88) {
             g_state_sound.checks[0] = !g_state_sound.checks[0];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 72 && rel_y <= 90) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 92 && rel_y <= 110) {
             g_state_sound.checks[1] = !g_state_sound.checks[1];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 94 && rel_y <= 112) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 114 && rel_y <= 132) {
             g_state_sound.checks[2] = !g_state_sound.checks[2];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 116 && rel_y <= 134) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 136 && rel_y <= 154) {
             g_state_sound.checks[3] = !g_state_sound.checks[3];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 180 && rel_y <= 198) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 200 && rel_y <= 218) {
             g_state_sound.checks[4] = !g_state_sound.checks[4];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 202 && rel_y <= 220) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 222 && rel_y <= 240) {
             g_state_sound.checks[5] = !g_state_sound.checks[5];
             g_state_sound.is_dirty = TRUE;
             redraw_all_windows();

@@ -158,6 +158,55 @@ int main(void) {
     TEST_ASSERT(s2.jp_space_is_convert != orig_space_conv, "Checkbox clicked and applied via relative coordinates");
     cls_wnd(wnd_lang);
 
+    /* [TEST GROUP 7] Icon Size Preferences (32x32 vs 64x64) and Settings Windows */
+    printf("\n[TEST GROUP 7] Icon Size Preferences and Window Headers\n");
+
+    appearance_set_icon_size(BTRON_ICON_SIZE_32);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_32, "Icon size set to 32x32");
+
+    WND *w_cp32 = open_control_panel_window();
+    TEST_ASSERT(w_cp32 != NULL, "Control Panel opened with 32x32 icon setting");
+    TEST_ASSERT((w_cp32->bounds.bottom - w_cp32->bounds.top) == 460, "Control Panel height is 460 in 32x32 mode");
+    cls_wnd(w_cp32);
+
+    appearance_set_icon_size(BTRON_ICON_SIZE_64);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_64, "Icon size set to 64x64");
+
+    WND *w_cp64 = open_control_panel_window();
+    TEST_ASSERT(w_cp64 != NULL, "Control Panel opened with 64x64 icon setting");
+    TEST_ASSERT((w_cp64->bounds.bottom - w_cp64->bounds.top) == 580, "Control Panel height is 580 in 64x64 mode");
+    cls_wnd(w_cp64);
+
+    /* Test Appearance setting radio button clicks */
+    WND *w_app = open_appearance_settings_window();
+    TEST_ASSERT(w_app != NULL, "Appearance settings window opened");
+
+    memset(&click_evt, 0, sizeof(EVT));
+    click_evt.type = EV_BUT_DOWN;
+    click_evt.pos.x = w_app->client.left + 30;
+    click_evt.pos.y = w_app->client.top + 185; /* 32x32 radio */
+    w_app->event_handler(w_app, &click_evt);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_32, "Clicking 32x32 radio button switches size to 32");
+
+    click_evt.pos.y = w_app->client.top + 205; /* 64x64 radio */
+    w_app->event_handler(w_app, &click_evt);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_64, "Clicking 64x64 radio button switches size to 64");
+    cls_wnd(w_app);
+
+    /* Test rendering a settings window with 32x32 icon header */
+    WND *w_dsk = open_desktop_settings_window();
+    TEST_ASSERT(w_dsk != NULL, "Desktop settings window opened with 32x32 icon header");
+    COLOR pix[640 * 360];
+    GDEV dev_test = {
+        .pixels = pix,
+        .width = 640,
+        .height = 360,
+        .clip = { 0, 0, 640, 360 }
+    };
+    w_dsk->paint(w_dsk, &dev_test);
+    TEST_ASSERT(dev_test.pixels[10 * 640 + 10] != 0, "Desktop settings painted surface with 32x32 header");
+    cls_wnd(w_dsk);
+
     printf("\n==========================================================\n");
     printf(" SETTINGS TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
            g_tests_passed, g_tests_total,

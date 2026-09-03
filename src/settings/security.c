@@ -56,7 +56,7 @@ static void paint_ui_checkbox(GDEV *dev, H x, H y, const char *label, BOOL check
 }
 
 /* 3D Crisp Graphical Radio Button */
-static void paint_ui_radio(GDEV *dev, H x, H y, const char *label, BOOL checked, BOOL focused) {
+static inline void __attribute__((unused)) paint_ui_radio(GDEV *dev, H x, H y, const char *label, BOOL checked, BOOL focused) {
     RECT box = { x, y + 1, x + 15, y + 16 };
     fill_rec(dev, &box, COLOR_WHITE);
     drw_rec(dev, &box);
@@ -93,24 +93,23 @@ static void paint_security_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar */
-    RECT hdr = { 0, 0, dev->width, 76 };
+    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
-    drw_lin(dev, 0, 76, dev->width, 76);
-    /* 64×64 icon in header: 6px top padding */
-    draw_setting_gif_icon(dev, "security", 6, 6);
+    drw_lin(dev, 0, 40, dev->width, 40);
+    draw_setting_gif_icon_scaled(dev, "security", 6, 4, 32, 32);
     char hdr_str[128];
-    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Security", "保全・権限", "Permissions, ACLs & capability sandbox");
-    drw_tc_string(dev, 78, 27, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
+    snprintf(hdr_str, sizeof(hdr_str), "[Settings Cabinet] %s (%s) - %s", "Security", "保全・権限", "Real-object ACLs & permissions");
+    drw_tc_string(dev, 46, 12, hdr_str, COLOR_BLACK, COLOR_LTGRAY);
 
     /* Section 1: Access Control Lists (ACL) */
-    RECT s1 = { 10, 38, dev->width - 10, 132 };
+    RECT s1 = { 10, 56, dev->width - 10, 150 };
     fill_rec(dev, &s1, COLOR_WHITE);
     drw_rec(dev, &s1);
-    drw_tc_string(dev, 16, 30, " [1. Access Control Lists (ACL)] ", COLOR_NAVY, COLOR_WHITE);
-    paint_ui_checkbox(dev, 18, 52, "Enforce Owner Read/Write/Execute Permission Policies", g_state_security.checks[0], FALSE);
-    paint_ui_checkbox(dev, 18, 74, "Isolate Virtual Body References across Foreign Domains", g_state_security.checks[1], FALSE);
-    paint_ui_checkbox(dev, 18, 96, "Enable Ring 0 Kernel / Ring 3 Application Sandbox", g_state_security.checks[2], FALSE);
+    drw_tc_string(dev, 16, 48, " [1. Access Control Lists (ACL)] ", COLOR_NAVY, COLOR_WHITE);
+    paint_ui_checkbox(dev, 18, 70, "Enforce Owner Read/Write/Execute Permission Policies", g_state_security.checks[0], FALSE);
+    paint_ui_checkbox(dev, 18, 92, "Isolate Virtual Body References across Foreign Domains", g_state_security.checks[1], FALSE);
+    paint_ui_checkbox(dev, 18, 114, "Enable Ring 0 Kernel / Ring 3 Application Sandbox", g_state_security.checks[2], FALSE);
 
     /* Action Buttons */
     H btn_y = dev->height - 35;
@@ -127,19 +126,19 @@ static void handle_security_event(WND *wnd, const EVT *evt) {
         H client_w = wnd->client.right - wnd->client.left;
         H client_h = wnd->client.bottom - wnd->client.top;
 
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 50 && rel_y <= 68) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 70 && rel_y <= 88) {
             g_state_security.checks[0] = !g_state_security.checks[0];
             g_state_security.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 72 && rel_y <= 90) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 92 && rel_y <= 110) {
             g_state_security.checks[1] = !g_state_security.checks[1];
             g_state_security.is_dirty = TRUE;
             redraw_all_windows();
             return;
         }
-        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 94 && rel_y <= 112) {
+        if (rel_x >= 18 && rel_x <= 480 && rel_y >= 114 && rel_y <= 132) {
             g_state_security.checks[2] = !g_state_security.checks[2];
             g_state_security.is_dirty = TRUE;
             redraw_all_windows();
