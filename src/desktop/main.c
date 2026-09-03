@@ -221,6 +221,11 @@ int main(int argc, char **argv) {
                     rsz_wnd(resize_wnd, new_w, new_h);
                 } else if (dragging && drag_wnd) {
                     mov_wnd(drag_wnd, ev.pos.x - drag_off_x, ev.pos.y - drag_off_y);
+                } else {
+                    WND *top = get_top_wnd();
+                    if (top && top->focused && top->event_handler) {
+                        top->event_handler(top, &ev);
+                    }
                 }
             } else if (ev.type == EV_KEY_DOWN) {
                 if (tracker_handle_key(ev.key)) {

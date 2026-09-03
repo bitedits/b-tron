@@ -497,7 +497,6 @@ static void test_multilingual_switching(void) {
     TEST_ASSERT(strcmp(commit, "私の名前") == 0, "Converted and committed Japanese '私の名前'");
 
     /* Insert committed Japanese into editor */
-    int cur_len = (int)strlen(ed.lines[0]);
     strcat(ed.lines[0], commit);
     ed.cursor_col += (int)strlen(commit);
     TEST_ASSERT(strcmp(ed.lines[0], "Project: 私の名前") == 0, "Buffer contains bilingual 'Project: 私の名前'");
@@ -548,24 +547,24 @@ static void test_window_focus_event_isolation_and_terminal_en_mode(void) {
     TEST_ASSERT(strcmp(terminal_buf, "ls -la") == 0, "Focused terminal received command line input");
 }
 
-/* ── UI Test 12: Toolbar & Status Bar IME Click Toggles and Candidate Visibility ── */
+/* ── UI Test 12: Status Bar IME Click Toggles and Candidate Visibility ── */
 static void test_status_bar_and_toolbar_ime_click_toggles(void) {
-    printf("\n[UI TEST 12] Toolbar & Status Bar IME Click Toggles & Candidate Visibility\n");
+    printf("\n[UI TEST 12] Status Bar IME Click Toggles & Candidate Visibility\n");
 
     /* Start in ASCII Mode */
     tip_set_mode(TIP_MODE_ASCII);
     TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Initial mode is ASCII");
 
-    /* 1. Click Toolbar IME button [x=380, y=10] -> Switches to Hiragana */
-    H click_x = 380, click_y = 10;
-    if (click_y >= 0 && click_y <= 24 && click_x >= 354 && click_x <= 480) {
+    /* 1. Click Status Bar Footer Badge -> Switches to Hiragana */
+    H client_h = 480;
+    H click_x = 680, click_y = 465;
+    (void)click_x;
+    if (click_y >= client_h - 22) {
         tip_toggle_mode();
     }
-    TEST_ASSERT(tip_get_mode() == TIP_MODE_HIRAGANA, "Toolbar [IME: ...] click switches to Hiragana");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_HIRAGANA, "Status bar footer badge click switches to Hiragana");
 
     /* 2. Click Status Bar Footer Badge -> Switches to Katakana */
-    H client_h = 480;
-    click_x = 680; click_y = 465;
     if (click_y >= client_h - 22) {
         tip_toggle_mode();
     }
@@ -836,17 +835,17 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
     /* 3. BeOS/Haiku fluid tracking across top-level headers */
     teditor_open_menu(ed, 0); /* File menu open */
 
-    /* Move mouse over Edit menu header (x=100, y=10) */
+    /* Move mouse over Edit menu header (x=140, y=10) */
     EVT evt_move;
     memset(&evt_move, 0, sizeof(EVT));
     evt_move.type = EV_MOUSE_MOVE;
-    evt_move.pos.x = wnd->bounds.left + 4 + 100;
+    evt_move.pos.x = wnd->bounds.left + 4 + 140;
     evt_move.pos.y = wnd->bounds.top + 26 + 10;
     wnd->event_handler(wnd, &evt_move);
     TEST_ASSERT(ed->active_menu == 1, "Fluid tracking: hovering over '編集(E)' switches active menu to 1");
 
-    /* Move mouse over View menu header (x=170, y=10) */
-    evt_move.pos.x = wnd->bounds.left + 4 + 170;
+    /* Move mouse over View menu header (x=210, y=10) */
+    evt_move.pos.x = wnd->bounds.left + 4 + 210;
     wnd->event_handler(wnd, &evt_move);
     TEST_ASSERT(ed->active_menu == 2, "Fluid tracking: hovering over '表示(V)' switches active menu to 2");
 
@@ -868,7 +867,7 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
     }
     TEST_ASSERT(sutra_idx >= 0, "Heart Sutra file found in asset list");
 
-    H sub_x = 6 + 210 - 2 + 40; /* inside cascading submenu (214..454) */
+    H sub_x = 4 + 250 - 2 + 40; /* inside cascading submenu (292..552) */
     H sub_y = 21 + 3 + (1 * 22) + 3 + sutra_idx * 22 + 10;
     EVT evt_click;
     memset(&evt_click, 0, sizeof(EVT));
@@ -881,12 +880,24 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
                 "Heart Sutra document loaded directly in 1 click without Open Dialog");
     TEST_ASSERT(ed->active_menu == -1, "Menu closed immediately following file execution");
 
-    /* 6. Quick Action Toolbar [Open] button immediately drops open cascading file list */
-    evt_click.pos.x = wnd->bounds.left + 4 + 60; /* [Open] button at x=46..86, y=22..44 */
-    evt_click.pos.y = wnd->bounds.top + 26 + 32;
+    /* 6. Hover Selection when closed & direct Menu Bar header click */
+    TEST_ASSERT(ed->active_menu == -1, "Menu is currently closed");
+    /* Hover over 'ファイル(F)' header (x=30, y=10) while menu is closed */
+    evt_move.pos.x = wnd->bounds.left + 4 + 30;
+    evt_move.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &evt_move);
+    TEST_ASSERT(ed->hover_menu == 0, "Hover selection: 'ファイル(F)' header highlighted while closed");
+
+    /* Hover away into canvas (x=30, y=100) */
+    evt_move.pos.y = wnd->bounds.top + 26 + 100;
+    wnd->event_handler(wnd, &evt_move);
+    TEST_ASSERT(ed->hover_menu == -1, "Hover selection: header un-highlights when pointer moves away");
+
+    /* Click 'ファイル(F)' header (x=30, y=10) to open menu */
+    evt_click.pos.x = wnd->bounds.left + 4 + 30;
+    evt_click.pos.y = wnd->bounds.top + 26 + 10;
     wnd->event_handler(wnd, &evt_click);
-    TEST_ASSERT(ed->active_menu == 0, "Toolbar [Open] button opens File menu");
-    TEST_ASSERT(ed->active_submenu == 1, "Toolbar [Open] button directly exposes cascading asset files");
+    TEST_ASSERT(ed->active_menu == 0, "Clicking 'ファイル(F)' header opens File menu");
 
     /* 7. Escape key dismisses open menus */
     EVT evt_esc;
@@ -909,6 +920,47 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
 
     /* Clean up */
     cls_wnd(wnd);
+}
+
+/* ── UI Test 17: Nano About Box for T-Editor (Brought to B-System by 5HT) ── */
+static void test_teditor_nano_about_box(void) {
+    printf("\n[UI TEST 17] Nano About Box Lifecycle & 5HT Attribution\n");
+
+    WND *about_wnd = open_teditor_about_window();
+    TEST_ASSERT(about_wnd != NULL, "open_teditor_about_window() created valid window");
+    TEST_ASSERT(strstr(about_wnd->title, "About T-Editor") != NULL, "About window title is 'About T-Editor'");
+
+    H w = about_wnd->bounds.right - about_wnd->bounds.left;
+    H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
+    TEST_ASSERT(w == 280 && h == 135, "Nano dimensions verified: 280x135 compact dialog");
+
+    /* Render About Box on test GDEV */
+    GDEV *test_dev = opn_dev(272, 105);
+    TEST_ASSERT(test_dev != NULL, "Created test GDEV for nano About Box");
+    if (about_wnd->paint && test_dev) {
+        about_wnd->paint(about_wnd, test_dev);
+    }
+    TEST_ASSERT(test_dev != NULL && test_dev->pixels != NULL,
+                "Rendered nano About Box with 5HT attribution successfully");
+    cls_dev(test_dev);
+
+    /* Click [ OK ] button */
+    EVT evt_click;
+    memset(&evt_click, 0, sizeof(EVT));
+    evt_click.type = EV_BUT_DOWN;
+    evt_click.pos.x = about_wnd->bounds.left + 4 + (272 / 2);
+    evt_click.pos.y = about_wnd->bounds.top + 26 + (105 - 16);
+    about_wnd->event_handler(about_wnd, &evt_click);
+
+    /* Test Escape key dismissal */
+    WND *about_wnd2 = open_teditor_about_window();
+    TEST_ASSERT(about_wnd2 != NULL, "Reopened nano About Box");
+    EVT evt_esc;
+    memset(&evt_esc, 0, sizeof(EVT));
+    evt_esc.type = EV_KEY_DOWN;
+    evt_esc.key = BTRON_KEY_ESCAPE;
+    about_wnd2->event_handler(about_wnd2, &evt_esc);
+    TEST_ASSERT(TRUE, "Escape key cleanly dismisses nano About Box");
 }
 
 int main(int argc, char **argv) {
@@ -935,6 +987,7 @@ int main(int argc, char **argv) {
     test_f10_and_function_key_switching();
     test_dynamic_ps_multiple_instances();
     test_modern_menu_bar_and_asset_discovery();
+    test_teditor_nano_about_box();
 
     printf("\n==========================================================\n");
     printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

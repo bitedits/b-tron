@@ -1578,7 +1578,7 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     fill_rec(dev, &loc_box, COLOR_WHITE);
     drw_rec(dev, &loc_box);
     char loc_text[128];
-    snprintf(loc_text, sizeof(loc_text), "📄 %s", tb->file_path[0] ? tb->file_path : "TAD Document");
+    snprintf(loc_text, sizeof(loc_text), "%s", tb->file_path[0] ? tb->file_path : "TAD Document (実身文書)");
     drw_tc_string(dev, 298, 8, loc_text, COLOR_DKGRAY, 0x00000000);
 
     /* ── Scrollbar Indicator (Right Margin) ────────────────────────────────── */

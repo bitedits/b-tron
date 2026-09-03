@@ -58,6 +58,7 @@ int teditor_close_file(TEditor *ed);
 int teditor_get_asset_files(char files[][64], int max_files);
 void teditor_open_menu(TEditor *ed, int menu_idx);
 void teditor_close_menu(TEditor *ed);
+WND* open_teditor_about_window(void);
 
 #ifdef __cplusplus
 }

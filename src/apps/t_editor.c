@@ -509,9 +509,12 @@ typedef struct {
     TMenuItem items[8];
 } TMenuHeader;
 
+#define TMENU_DROPDOWN_WIDTH 250
+#define TMENU_SUBMENU_WIDTH  260
+
 static const TMenuHeader g_menus[TMENU_COUNT] = {
     {
-        "ファイル(F)", { 6, 0, 82, 21 }, 5,
+        "ファイル(F)", { 4, 0, 108, 21 }, 5,
         {
             { "新規作成 (New)",         "Ctrl+N", TCMD_FILE_NEW,          TRUE,  FALSE },
             { "開く (Open)",             "Ctrl+O", TCMD_FILE_OPEN_SUBMENU,  TRUE,  TRUE  },
@@ -521,7 +524,7 @@ static const TMenuHeader g_menus[TMENU_COUNT] = {
         }
     },
     {
-        "編集(E)", { 86, 0, 146, 21 }, 6,
+        "編集(E)", { 112, 0, 184, 21 }, 6,
         {
             { "元に戻す (Undo)",         "Ctrl+Z", TCMD_EDIT_UNDO,         FALSE, FALSE },
             { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
@@ -532,7 +535,7 @@ static const TMenuHeader g_menus[TMENU_COUNT] = {
         }
     },
     {
-        "表示(V)", { 150, 0, 210, 21 }, 4,
+        "表示(V)", { 188, 0, 260, 21 }, 4,
         {
             { "拡大 (Zoom In)",         "+",      TCMD_VIEW_ZOOM_IN,      TRUE,  FALSE },
             { "縮小 (Zoom Out)",        "-",      TCMD_VIEW_ZOOM_OUT,     TRUE,  FALSE },
@@ -541,14 +544,14 @@ static const TMenuHeader g_menus[TMENU_COUNT] = {
         }
     },
     {
-        "仮身(O)", { 214, 0, 278, 21 }, 2,
+        "仮身(O)", { 264, 0, 336, 21 }, 2,
         {
             { "仮身を挿入 (Insert Fusen)", "",     TCMD_VOBJ_INSERT,       TRUE,  FALSE },
             { "実身キャビネット (Cabinet)", "",    TCMD_VOBJ_CABINET,      TRUE,  FALSE }
         }
     },
     {
-        "ヘルプ(H)", { 282, 0, 352, 21 }, 1,
+        "ヘルプ(H)", { 340, 0, 428, 21 }, 1,
         {
             { "T-Editor について (About)", "",     TCMD_HELP_ABOUT,        TRUE,  FALSE }
         }
@@ -684,70 +687,156 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
             if (open_vobj_manager_window) open_vobj_manager_window();
             break;
         case TCMD_HELP_ABOUT:
-            teditor_insert_text(ed, "\n--- BTRON3 3.20 T-Editor Word Processor (Cleanroom Edition) ---\n");
+            open_teditor_about_window();
             break;
         default:
             break;
     }
 }
 
-static BOOL teditor_handle_menu_mouse_move(TEditor *ed, H x, H y) {
-    if (!ed || ed->active_menu < 0) return FALSE;
+static void paint_teditor_about_window(WND *wnd, GDEV *dev) {
+    if (!wnd || !dev) return;
+    RECT r = { 0, 0, dev->width, dev->height };
+    fill_rec(dev, &r, COLOR_LTGRAY);
+    drw_rec(dev, &r);
 
-    /* 1. Check if moving over another top-level menu header (BeOS fluid tracking) */
-    if (y >= 0 && y <= 21) {
-        for (int m = 0; m < TMENU_COUNT; m++) {
-            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
-                if (ed->active_menu != m) {
-                    ed->active_menu = m;
-                    ed->hover_menu = m;
-                    ed->hover_item = -1;
-                    ed->active_submenu = -1;
-                    ed->hover_subitem = -1;
+    /* Inner card with clean retro bevel */
+    RECT card = { 6, 6, dev->width - 6, dev->height - 34 };
+    fill_rec(dev, &card, COLOR_WHITE);
+    drw_rec(dev, &card);
+
+    /* App Title & Subtitle */
+    drw_tc_string(dev, 16, 12, "T-Editor 3.20 (文書編集)", COLOR_NAVY, 0x00000000);
+    drw_tc_string(dev, 16, 30, "Cleanroom BTRON Word Processor", COLOR_DKGRAY, 0x00000000);
+
+    /* Dedicated attribution requested by user */
+    drw_tc_string(dev, 16, 50, "Brought to B-System by 5HT", COLOR_BLACK, 0x00000000);
+
+    /* 3D OK Button */
+    H btn_w = 64, btn_h = 20;
+    H btn_x = (dev->width - btn_w) / 2;
+    H btn_y = dev->height - 26;
+    RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
+    fill_rec(dev, &ok_btn, COLOR_LTGRAY);
+    drw_rec(dev, &ok_btn);
+    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
+    drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
+    drw_tc_string(dev, btn_x + 22, btn_y + 2, "OK", COLOR_BLACK, 0x00000000);
+}
+
+static void handle_teditor_about_event(WND *wnd, const EVT *evt) {
+    if (!wnd || !evt) return;
+
+    if (evt->type == EV_BUT_DOWN) {
+        H rel_x = evt->pos.x - (wnd->bounds.left + 4);
+        H rel_y = evt->pos.y - (wnd->bounds.top + 26);
+        H btn_w = 64, btn_h = 20;
+        H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
+        H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
+        H btn_x = (dev_w - btn_w) / 2;
+        H btn_y = dev_h - 26;
+        if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
+            cls_wnd(wnd);
+        }
+        return;
+    }
+
+    if (evt->type == EV_KEY_DOWN) {
+        if (evt->key == BTRON_KEY_ESCAPE || evt->key == '\r' || evt->key == '\n' || evt->key == ' ') {
+            cls_wnd(wnd);
+        }
+        return;
+    }
+}
+
+WND* open_teditor_about_window(void) {
+    WND *wnd = opn_wnd("About T-Editor (バージョン情報)", 240, 160, 280, 135,
+                       WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
+    if (!wnd) return NULL;
+    wnd->paint = paint_teditor_about_window;
+    wnd->event_handler = handle_teditor_about_event;
+    return wnd;
+}
+
+static BOOL teditor_handle_menu_mouse_move(TEditor *ed, H x, H y) {
+    if (!ed) return FALSE;
+
+    /* When a menu is open: track headers, items, and submenus */
+    if (ed->active_menu >= 0) {
+        /* 1. Check if moving over another top-level menu header (BeOS fluid tracking) */
+        if (y >= 0 && y <= 21) {
+            for (int m = 0; m < TMENU_COUNT; m++) {
+                if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
+                    if (ed->active_menu != m) {
+                        ed->active_menu = m;
+                        ed->hover_menu = m;
+                        ed->hover_item = -1;
+                        ed->active_submenu = -1;
+                        ed->hover_subitem = -1;
+                        return TRUE;
+                    }
+                }
+            }
+        }
+
+        const TMenuHeader *hdr = &g_menus[ed->active_menu];
+        H menu_x = hdr->rect.left;
+        H menu_y = 21;
+        H menu_w = TMENU_DROPDOWN_WIDTH;
+        H menu_h = hdr->item_count * 22 + 6;
+
+        /* 2. Check if moving inside cascading submenu (if open) */
+        if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
+            char files[32][64];
+            int file_cnt = teditor_get_asset_files(files, 32);
+            H sub_x = menu_x + menu_w - 2;
+            H sub_y = menu_y + 3 + (1 * 22);
+            H sub_w = TMENU_SUBMENU_WIDTH;
+            H sub_h = file_cnt * 22 + 6;
+
+            if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
+                int sub_idx = (y - (sub_y + 3)) / 22;
+                if (sub_idx >= 0 && sub_idx < file_cnt) {
+                    ed->hover_subitem = sub_idx;
                     return TRUE;
                 }
             }
         }
-    }
 
-    const TMenuHeader *hdr = &g_menus[ed->active_menu];
-    H menu_x = hdr->rect.left;
-    H menu_y = 21;
-    H menu_w = 210;
-    H menu_h = hdr->item_count * 22 + 6;
-
-    /* 2. Check if moving inside cascading submenu (if open) */
-    if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
-        char files[32][64];
-        int file_cnt = teditor_get_asset_files(files, 32);
-        H sub_x = menu_x + menu_w - 2;
-        H sub_y = menu_y + 3 + (1 * 22);
-        H sub_w = 240;
-        H sub_h = file_cnt * 22 + 6;
-
-        if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
-            int sub_idx = (y - (sub_y + 3)) / 22;
-            if (sub_idx >= 0 && sub_idx < file_cnt) {
-                ed->hover_subitem = sub_idx;
-                return TRUE;
+        /* 3. Check if moving inside active dropdown menu */
+        if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
+            int idx = (y - (menu_y + 3)) / 22;
+            if (idx >= 0 && idx < hdr->item_count) {
+                if (hdr->items[idx].cmd != TCMD_NONE) {
+                    ed->hover_item = idx;
+                    if (hdr->items[idx].has_submenu) {
+                        ed->active_submenu = idx;
+                    } else {
+                        ed->active_submenu = -1;
+                        ed->hover_subitem = -1;
+                    }
+                    return TRUE;
+                }
             }
         }
+        return FALSE;
     }
 
-    /* 3. Check if moving inside active dropdown menu */
-    if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
-        int idx = (y - (menu_y + 3)) / 22;
-        if (idx >= 0 && idx < hdr->item_count) {
-            if (hdr->items[idx].cmd != TCMD_NONE) {
-                ed->hover_item = idx;
-                if (hdr->items[idx].has_submenu) {
-                    ed->active_submenu = idx;
-                } else {
-                    ed->active_submenu = -1;
-                    ed->hover_subitem = -1;
-                }
-                return TRUE;
+    /* When menu is closed: track top-level header hover for subtle feedback */
+    if (y >= 0 && y <= 21) {
+        int prev_hov = ed->hover_menu;
+        ed->hover_menu = -1;
+        for (int m = 0; m < TMENU_COUNT; m++) {
+            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
+                ed->hover_menu = m;
+                break;
             }
+        }
+        return (ed->hover_menu != prev_hov);
+    } else {
+        if (ed->hover_menu != -1) {
+            ed->hover_menu = -1;
+            return TRUE;
         }
     }
 
@@ -762,7 +851,7 @@ static BOOL teditor_handle_menu_mouse_down(TEditor *ed, WND *wnd, H x, H y) {
         const TMenuHeader *hdr = &g_menus[ed->active_menu];
         H menu_x = hdr->rect.left;
         H menu_y = 21;
-        H menu_w = 210;
+        H menu_w = TMENU_DROPDOWN_WIDTH;
         H menu_h = hdr->item_count * 22 + 6;
 
         /* Click inside cascading submenu */
@@ -771,7 +860,7 @@ static BOOL teditor_handle_menu_mouse_down(TEditor *ed, WND *wnd, H x, H y) {
             int file_cnt = teditor_get_asset_files(files, 32);
             H sub_x = menu_x + menu_w - 2;
             H sub_y = menu_y + 3 + (1 * 22);
-            H sub_w = 240;
+            H sub_w = TMENU_SUBMENU_WIDTH;
             H sub_h = file_cnt * 22 + 6;
 
             if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
@@ -838,9 +927,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     if (evt->type == EV_MOUSE_MOVE) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        if (ed->active_menu >= 0) {
-            teditor_handle_menu_mouse_move(ed, rel_x, rel_y);
-        }
+        teditor_handle_menu_mouse_move(ed, rel_x, rel_y);
         return;
     }
 
@@ -858,50 +945,16 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             if (teditor_handle_menu_mouse_down(ed, wnd, rel_x, rel_y)) return;
         }
 
-        /* 3. Toolbar button click checks (y = 22..44) */
-        if (rel_y >= 22 && rel_y <= 44) {
-            if (rel_x >= 4 && rel_x <= 40) {
-                /* [New] */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_NEW, -1);
-            } else if (rel_x >= 44 && rel_x <= 84) {
-                /* [Open] Open File Menu with cascading document list immediately */
-                teditor_open_menu(ed, TMENU_FILE);
-                ed->active_submenu = 1;
-            } else if (rel_x >= 88 && rel_x <= 128) {
-                /* [Save] */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_SAVE, -1);
-            } else if (rel_x >= 132 && rel_x <= 168) {
-                /* [Cut] */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_CUT, -1);
-            } else if (rel_x >= 172 && rel_x <= 212) {
-                /* [Copy] */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_COPY, -1);
-            } else if (rel_x >= 216 && rel_x <= 260) {
-                /* [Paste] */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_PASTE, -1);
-            } else if (rel_x >= 266 && rel_x <= 306) {
-                /* [ - ] Shrink Editor Window */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_VIEW_ZOOM_OUT, -1);
-            } else if (rel_x >= 310 && rel_x <= 350) {
-                /* [ + ] Expand Editor Window */
-                teditor_execute_menu_cmd(ed, wnd, TCMD_VIEW_ZOOM_IN, -1);
-            } else if (rel_x >= 354 && rel_x <= 480) {
-                /* [IME: あ/A (F10)] Toolbar Button Click */
-                tip_toggle_mode();
-            }
-            return;
-        }
-
-        /* 4. Status Bar Footer click -> Toggle JP / EN mode */
+        /* 3. Status Bar Footer click -> Toggle JP / EN mode */
         H client_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 26);
         if (rel_y >= client_h - 22) {
             tip_toggle_mode();
             return;
         }
 
-        /* 5. Editor client click -> Move cursor */
-        if (rel_y >= 46) {
-            int click_r = (rel_y - 48) / 18 + ed->scroll_row;
+        /* 4. Editor client canvas click -> Move cursor (y >= 24) */
+        if (rel_y >= 24) {
+            int click_r = (rel_y - 24) / 18 + ed->scroll_row;
             if (click_r >= 0 && click_r < ed->total_lines) {
                 ed->cursor_row = click_r;
                 int text_x_offset = ed->show_line_nums ? 36 : 10;
@@ -1081,6 +1134,13 @@ static void draw_3d_bevel_box(GDEV *dev, const RECT *r) {
     drw_lin(dev, r->right - 2, r->top + 1, r->right - 2, r->bottom - 2);
 }
 
+static void draw_menu_separator_v(GDEV *dev, H x, H y1, H y2) {
+    RECT shadow = { x, y1, x + 1, y2 };
+    RECT highlight = { x + 1, y1, x + 2, y2 };
+    fill_rec(dev, &shadow, COLOR_DKGRAY);
+    fill_rec(dev, &highlight, COLOR_WHITE);
+}
+
 static void paint_menu_bar(TEditor *ed, GDEV *dev) {
     RECT bar_rect = { 0, 0, dev->width, 21 };
     fill_rec(dev, &bar_rect, COLOR_LTGRAY);
@@ -1091,13 +1151,30 @@ static void paint_menu_bar(TEditor *ed, GDEV *dev) {
         RECT hr = hdr->rect;
         if (ed->active_menu == m) {
             fill_rec(dev, &hr, COLOR_NAVY);
-            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
-        } else if (ed->hover_menu == m && ed->active_menu >= 0) {
+            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
+        } else if (ed->hover_menu == m) {
             fill_rec(dev, &hr, COLOR_WHITE);
-            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
+            drw_rec(dev, &hr);
+            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_NAVY, 0x00000000);
         } else {
-            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
+            drw_tc_string(dev, hr.left + 8, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
         }
+
+        /* Explicit horizontal separator / distance shadow between menu items */
+        if (m < TMENU_COUNT - 1) {
+            H sep_x = (hdr->rect.right + g_menus[m + 1].rect.left) / 2;
+            draw_menu_separator_v(dev, sep_x, 3, 19);
+        }
+    }
+
+    /* Document Status Title (Right-Aligned with 14px window margin) */
+    char title_buf[128];
+    snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
+    int title_w = tc_calc_string_width(title_buf, (int)strlen(title_buf));
+    int title_x = dev->width - title_w - 14;
+    if (title_x > g_menus[TMENU_COUNT - 1].rect.right + 20) {
+        draw_menu_separator_v(dev, title_x - 8, 3, 19);
+        drw_tc_string(dev, title_x, 3, title_buf, COLOR_NAVY, COLOR_LTGRAY);
     }
 }
 
@@ -1107,7 +1184,7 @@ static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
     const TMenuHeader *hdr = &g_menus[ed->active_menu];
     H menu_x = hdr->rect.left;
     H menu_y = 21;
-    H menu_w = 210;
+    H menu_w = TMENU_DROPDOWN_WIDTH;
     H menu_h = hdr->item_count * 22 + 6;
 
     RECT menu_box = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
@@ -1134,11 +1211,11 @@ static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
         drw_tc_string(dev, ir.left + 8, ir.top + 3, it->label, txt_col, 0x00000000);
 
         if (it->accel && it->accel[0] != '\0') {
-            drw_tc_string(dev, ir.right - 56, ir.top + 3, it->accel, acc_col, 0x00000000);
+            drw_tc_string(dev, ir.right - 58, ir.top + 3, it->accel, acc_col, 0x00000000);
         }
 
         if (it->has_submenu) {
-            drw_tc_string(dev, ir.right - 16, ir.top + 3, "▶", txt_col, 0x00000000);
+            drw_tc_string(dev, ir.right - 18, ir.top + 3, "▶", txt_col, 0x00000000);
         }
     }
 
@@ -1148,7 +1225,7 @@ static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
         int file_cnt = teditor_get_asset_files(files, 32);
         H sub_x = menu_x + menu_w - 2;
         H sub_y = menu_y + 3 + (1 * 22);
-        H sub_w = 240;
+        H sub_w = TMENU_SUBMENU_WIDTH;
         H sub_h = file_cnt * 22 + 6;
 
         RECT sub_box = { sub_x, sub_y, sub_x + sub_w, sub_y + sub_h };
@@ -1163,7 +1240,7 @@ static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
             COLOR sub_txt_col = is_sub_hov ? COLOR_WHITE : COLOR_BLACK;
 
             char fname_buf[80];
-            snprintf(fname_buf, sizeof(fname_buf), "📄 %s", files[f]);
+            snprintf(fname_buf, sizeof(fname_buf), "%s", files[f]);
             drw_tc_string(dev, sir.left + 8, sir.top + 3, fname_buf, sub_txt_col, 0x00000000);
         }
     }
@@ -1178,47 +1255,17 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* ── 1. BTRON 3.20 Standard Menu Bar (BeOS BMenuBar style) ───────────── */
+    /* ── 1. BTRON 3.20 Standard Menu Bar with Integrated IME & Status ─── */
     paint_menu_bar(ed, dev);
 
-    /* ── 2. Quick Action Toolbar Header (y = 21..44) ─────────────────────── */
-    RECT tb = { 0, 21, dev->width, 44 };
-    fill_rec(dev, &tb, COLOR_LTGRAY);
-    drw_lin(dev, 0, 44, dev->width, 44);
-
-    /* CUA Action Buttons */
-    drw_tc_string(dev, 6, 25, "[New]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 46, 25, "[Open]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 90, 25, "[Save]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 134, 25, "[Cut]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 174, 25, "[Copy]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 218, 25, "[Paste]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 268, 25, "[-]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 312, 25, "[+]", COLOR_BLACK, COLOR_LTGRAY);
-
-    /* Dedicated Toolbar IME Switcher Button */
-    RECT ime_tb_btn = { 354, 23, 476, 42 };
-    COLOR ime_bg = (tip_get_mode() == TIP_MODE_ASCII) ? COLOR_LTGRAY : COLOR_CYAN;
-    fill_rec(dev, &ime_tb_btn, ime_bg);
-    drw_rec(dev, &ime_tb_btn);
-    const char *tb_ime_tag = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[IME: あ (F10)]" :
-                             ((tip_get_mode() == TIP_MODE_KATAKANA) ? "[IME: ア (F10)]" :
-                              "[IME: A (F10)]");
-    drw_tc_string(dev, 358, 25, tb_ime_tag, COLOR_BLACK, 0x00000000);
-
-    /* Document Status Title */
-    char title_buf[128];
-    snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
-    drw_tc_string(dev, dev->width - 120, 25, title_buf, COLOR_NAVY, COLOR_LTGRAY);
-
-    /* ── 3. Render Gutter & Text Lines ────────────────────────────────────── */
+    /* ── 2. Render Gutter & Text Lines (Canvas starts directly at y=24) ── */
     int view_rows = (dev->height - 60) / 18;
     if (view_rows < 1) view_rows = 1;
     int start_r = ed->scroll_row;
     int end_r = start_r + view_rows;
     if (end_r > ed->total_lines) end_r = ed->total_lines;
 
-    int y = 48;
+    int y = 24;
     for (int r_idx = start_r; r_idx < end_r; r_idx++) {
         /* Gutter line number */
         if (ed->show_line_nums) {
