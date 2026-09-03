@@ -555,6 +555,98 @@ static void test_btron3_compact_sliding_tabs(void) {
     cls_wnd(w_jp);
 }
 
+/* ── Test 14: Dynamic Multilingual Text Line Wrapping & Window Resize Re-flow ── */
+static void test_dynamic_text_wrapping_and_reflow(void) {
+    printf("\n[TEST GROUP 14] Dynamic Multilingual Text Line Wrapping & Viewport Re-flow\n");
+
+    /* 1. English word wrapping */
+    const char *en_text =
+        "The TRON Application Databus specification establishes a stream-oriented architecture "
+        "for compound hyper-documents across all BTRON operating system environments.";
+    int en_lines_wide = tad_browser_wrap_text(en_text, 600, NULL, NULL);
+    int en_lines_narrow = tad_browser_wrap_text(en_text, 250, NULL, NULL);
+    TEST_ASSERT(en_lines_wide >= 2 && en_lines_wide <= 3, "English text wraps into 2-3 lines at 600px width");
+    TEST_ASSERT(en_lines_narrow >= 5, "English text wraps into >=5 lines at narrow 250px width");
+
+    /* 2. Ukrainian / Cyrillic word wrapping */
+    const char *uk_text =
+        "Ця специфікація описує деталізовану структуру даних TAD (TRON Application Databus). "
+        "Пояснення базових концепцій специфікації BTRON у цьому документі опущено.";
+    int uk_lines_wide = tad_browser_wrap_text(uk_text, 600, NULL, NULL);
+    int uk_lines_narrow = tad_browser_wrap_text(uk_text, 250, NULL, NULL);
+    TEST_ASSERT(uk_lines_wide >= 2, "Ukrainian Cyrillic text wraps into >=2 lines at 600px width");
+    TEST_ASSERT(uk_lines_narrow >= 4, "Ukrainian Cyrillic text wraps into >=4 lines at narrow 250px width");
+
+    /* 3. Japanese CJK character boundary wrapping with Kinsoku */
+    const char *jp_text =
+        "BTRONアーキテクチャの基本概念とデータ型定義。ブート完了後の動的ヒープ確保を完全禁止し、全てのメモリ領域を有界化します。";
+    int jp_lines_wide = tad_browser_wrap_text(jp_text, 600, NULL, NULL);
+    int jp_lines_narrow = tad_browser_wrap_text(jp_text, 240, NULL, NULL);
+    TEST_ASSERT(jp_lines_wide >= 1, "Japanese text wraps correctly at 600px width");
+    TEST_ASSERT(jp_lines_narrow >= 3, "Japanese text wraps into >=3 lines at 240px width");
+
+    /* 4. Full document loading, span heights, and dynamic resize re-flow */
+    const char *doc_text =
+        "■ 第1章 BTRON アーキテクチャ概要\n"
+        "Ця специфікація описує деталізовану структуру даних TAD (TRON Application Databus). Пояснення базових концепцій специфікації BTRON у цьому документі опущено.\n"
+        "[仮身] #501 : Detailed Memory Model & Zero Post-Boot Dynamic Heap Allocation\n"
+        "────────────────────────────────────────\n"
+        "The quick brown fox jumps over the lazy dog repeatedly to test long lines without horizontal scrolling in the document viewer.\n";
+
+    TAD_BROWSER tb;
+    tad_browser_init(&tb);
+    ER er = tad_browser_load_buffer(&tb, doc_text, (UW)strlen(doc_text), "Wrap & Reflow Test");
+    TEST_ASSERT(er == E_OK, "Loaded test document for layout re-flow");
+
+    /* Layout at wide 700px viewport */
+    tad_browser_layout(&tb, 700);
+    int height_wide = tb.doc_height;
+    int span1_h_wide = tb.spans[1].bounds.bottom - tb.spans[1].bounds.top;
+    TEST_ASSERT(tb.doc_width == 700, "Layout document width is 700px");
+    TEST_ASSERT(span1_h_wide >= 20, "Span 1 has valid computed multi-line height");
+
+    /* Verify all spans stay within viewport right margin (no horizontal overflow) */
+    BOOL strictly_within_margins = TRUE;
+    for (int i = 0; i < tb.span_count; i++) {
+        if (tb.spans[i].bounds.right > tb.doc_width - 20) {
+            strictly_within_margins = FALSE;
+            break;
+        }
+    }
+    TEST_ASSERT(strictly_within_margins, "All spans strictly fit within viewport width (zero horizontal overflow)");
+
+    /* Layout at narrow 360px viewport (simulating window resize) */
+    tad_browser_layout(&tb, 360);
+    int height_narrow = tb.doc_height;
+    int span1_h_narrow = tb.spans[1].bounds.bottom - tb.spans[1].bounds.top;
+    TEST_ASSERT(tb.doc_width == 360, "Updated document width to 360px");
+    TEST_ASSERT(span1_h_narrow > span1_h_wide, "Span height increased on narrow viewport (paragraphs wrapped into more lines)");
+    TEST_ASSERT(height_narrow > height_wide, "Document total height increased dynamically on narrow viewport");
+
+    /* Verify strict monotonic vertical progression at narrow width */
+    BOOL strictly_monotonic = TRUE;
+    for (int i = 1; i < tb.span_count; i++) {
+        if (tb.spans[i].bounds.top < tb.spans[i-1].bounds.bottom) {
+            strictly_monotonic = FALSE;
+            break;
+        }
+    }
+    TEST_ASSERT(strictly_monotonic, "Spans maintain strictly monotonic non-overlapping vertical progression");
+
+    /* 5. Window Paint Auto-Reflow Check */
+    GDEV dev;
+    memset(&dev, 0, sizeof(dev));
+    dev.width = 480;
+    dev.height = 400;
+    COLOR pixels[480 * 400];
+    dev.pixels = pixels;
+    dev.clip.left = 0; dev.clip.top = 0; dev.clip.right = 480; dev.clip.bottom = 400;
+
+    RECT client_rect = { 0, 0, 480, 400 };
+    tad_browser_paint(&tb, &dev, &client_rect);
+    TEST_ASSERT(tb.doc_width == 480, "tad_browser_paint automatically re-flowed document layout to device width 480px");
+}
+
 int main(void) {
     printf("==========================================================\n");
     printf(" B-System Native TAD Document Browser & Cabinet Test Suite\n");
@@ -574,6 +666,7 @@ int main(void) {
     test_canonical_books_links_resolution();
     test_multi_window_context_isolation();
     test_btron3_compact_sliding_tabs();
+    test_dynamic_text_wrapping_and_reflow();
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

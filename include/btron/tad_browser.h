@@ -43,11 +43,14 @@ typedef struct {
     char vobj_path[128];
 } TAD_STYLE;
 
+/* Text Line Wrapping & Layout Callback */
+typedef void (*tad_wrap_line_cb)(const char *line_str, int line_len, H line_w, int line_idx, void *user_data);
+
 /* Computed Layout Span */
 typedef struct {
     RECT bounds;            /* Visual bounding box (x, y, w, h) in document space */
     TAD_STYLE style;        /* Fusen styling */
-    char text[256];         /* Text segment buffer */
+    char text[512];         /* Text segment buffer */
     BOOL is_link;           /* Clickable VOBJ link */
 } TAD_SPAN;
 
@@ -87,6 +90,7 @@ void tad_browser_init(TAD_BROWSER *tb);
 ER tad_browser_load_file(TAD_BROWSER *tb, const char *filepath);
 ER tad_browser_load_buffer(TAD_BROWSER *tb, const void *buf, UW len, const char *doc_title);
 void tad_browser_layout(TAD_BROWSER *tb, int view_width);
+int tad_browser_wrap_text(const char *utf8_text, int max_w, tad_wrap_line_cb cb, void *user_data);
 void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect);
 BOOL tad_browser_handle_mouse(TAD_BROWSER *tb, int mouse_x, int mouse_y, BOOL is_click, ID *out_clicked_robj, char *out_clicked_path);
 void tad_browser_scroll(TAD_BROWSER *tb, int delta_y);

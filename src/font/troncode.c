@@ -650,7 +650,7 @@ H tc_get_char_advance(TC code, TC prev_code) {
             return 0;
         }
         return 6;
-    } else if (code < 128) {
+    } else if (code < 128 || (code >> 8) == 0x27) {
         return 8;
     } else {
         return 16;

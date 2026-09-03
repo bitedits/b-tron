@@ -119,12 +119,27 @@ static void parse_text_tad_lines(TAD_BROWSER *tb, const char *text, UW len) {
     UW pos = 0;
     while (pos < len && tb->span_count < TAD_MAX_SPANS) {
         /* Read line */
-        char line[256];
+        char line[512];
         int l_idx = 0;
         while (pos < len && text[pos] != '\n' && text[pos] != '\r' && l_idx < (int)sizeof(line) - 1) {
             line[l_idx++] = text[pos++];
         }
         line[l_idx] = '\0';
+        if (pos < len && text[pos] != '\n' && text[pos] != '\r') {
+            int safe_idx = l_idx;
+            while (safe_idx > l_idx / 2 && line[safe_idx - 1] != ' ') safe_idx--;
+            if (safe_idx > l_idx / 2) {
+                pos -= (l_idx - safe_idx);
+                l_idx = safe_idx;
+                line[l_idx] = '\0';
+            } else {
+                while (l_idx > 0 && ((unsigned char)text[pos] & 0xC0) == 0x80) {
+                    pos--;
+                    l_idx--;
+                }
+                line[l_idx] = '\0';
+            }
+        }
         while (pos < len && (text[pos] == '\n' || text[pos] == '\r')) pos++;
 
         if (l_idx == 0) {
@@ -372,12 +387,27 @@ ER tad_browser_load_buffer(TAD_BROWSER *tb, const void *buf, UW len, const char 
 
                 UW max_off = offset;
                 offset = txt_start;
-                char line[256];
+                char line[512];
                 int l_idx = 0;
                 while (offset < max_off && p[offset] != '\n' && l_idx < (int)sizeof(line) - 1) {
                     line[l_idx++] = p[offset++];
                 }
                 line[l_idx] = '\0';
+                if (offset < max_off && p[offset] != '\n') {
+                    int safe_idx = l_idx;
+                    while (safe_idx > l_idx / 2 && line[safe_idx - 1] != ' ') safe_idx--;
+                    if (safe_idx > l_idx / 2) {
+                        offset -= (l_idx - safe_idx);
+                        l_idx = safe_idx;
+                        line[l_idx] = '\0';
+                    } else {
+                        while (l_idx > 0 && ((unsigned char)p[offset] & 0xC0) == 0x80) {
+                            offset--;
+                            l_idx--;
+                        }
+                        line[l_idx] = '\0';
+                    }
+                }
                 if (offset < max_off && p[offset] == '\n') offset++;
 
                 if (l_idx > 0) {
@@ -425,6 +455,142 @@ ER tad_browser_load_file(TAD_BROWSER *tb, const char *filepath) {
 #endif
 }
 
+/* Japanese / CJK Kinsoku Shori (行頭禁則文字 - characters that must not begin a wrapped line) */
+static BOOL is_cjk_no_break_before(TC code) {
+    if (code == '.' || code == ',' || code == '!' || code == '?' ||
+        code == ':' || code == ';' || code == ')' || code == ']' || code == '}') {
+        return TRUE;
+    }
+    if ((code >> 8) == 0x21) {
+        UB low = code & 0xFF;
+        if (low >= 0x22 && low <= 0x2A) return TRUE; /* 、 。 ， ． ・ ： ； ？ ！ */
+        if (low == 0x3C) return TRUE; /* ー */
+        if (low == 0x4B || low == 0x4D || low == 0x4F || low == 0x51 ||
+            low == 0x53 || low == 0x55 || low == 0x57 || low == 0x59 || low == 0x5B) {
+            return TRUE; /* ） 〕 〉 》 ］ ｝ 」 』 】 */
+        }
+    }
+    return FALSE;
+}
+
+int tad_browser_wrap_text(const char *utf8_text, int max_w, tad_wrap_line_cb cb, void *user_data) {
+    if (!utf8_text) return 0;
+    if (utf8_text[0] == '\0') {
+        if (cb) cb("", 0, 0, 0, user_data);
+        return 1;
+    }
+    if (max_w < 40) max_w = 40;
+
+    const char *p = utf8_text;
+    const char *line_start = p;
+    const char *last_break = NULL;
+    H last_break_w = 0;
+    H cur_line_w = 0;
+    TC prev_code = 0;
+    int line_idx = 0;
+
+    while (*p) {
+        if (*p == '\n' || *p == '\r') {
+            /* Explicit newline */
+            if (cb) {
+                char buf[512];
+                int len = (int)(p - line_start);
+                if (len > (int)sizeof(buf) - 1) len = (int)sizeof(buf) - 1;
+                memcpy(buf, line_start, len);
+                buf[len] = '\0';
+                cb(buf, len, cur_line_w, line_idx, user_data);
+            }
+            line_idx++;
+            p++;
+            if (*p == '\n' && *(p - 1) == '\r') p++;
+            line_start = p;
+            last_break = NULL;
+            last_break_w = 0;
+            cur_line_w = 0;
+            prev_code = 0;
+            continue;
+        }
+
+        int consumed = 0;
+        TC code = utf8_to_tc(p, &consumed);
+        int step = (consumed > 0) ? consumed : 1;
+        H adv = tc_get_char_advance(code, prev_code);
+
+        /* Determine if this position is a valid break candidate */
+        if (*p == ' ') {
+            last_break = p;
+            last_break_w = cur_line_w;
+        } else if (*p == '-' || *p == '/') {
+            last_break = p + 1;
+            last_break_w = cur_line_w + adv;
+        } else if ((code >> 8) == 0x6F && (code & 0xFF) == 0x0B) {
+            /* Tibetan Tsheg: break after tsheg */
+            last_break = p + step;
+            last_break_w = cur_line_w + adv;
+        } else if (adv == 16) {
+            /* CJK character: break before this character if allowed */
+            if (prev_code != 0 && !is_cjk_no_break_before(code)) {
+                last_break = p;
+                last_break_w = cur_line_w;
+            }
+        }
+
+        /* Check if adding this character exceeds line width */
+        if (cur_line_w + adv > max_w && cur_line_w > 0) {
+            const char *break_pt = last_break;
+            H break_w = last_break_w;
+
+            if (!break_pt || break_pt <= line_start) {
+                /* No previous break point found on this line; hard break at current character */
+                break_pt = p;
+                break_w = cur_line_w;
+            }
+
+            /* Emit line from line_start to break_pt */
+            if (cb) {
+                char buf[512];
+                int len = (int)(break_pt - line_start);
+                if (len > (int)sizeof(buf) - 1) len = (int)sizeof(buf) - 1;
+                memcpy(buf, line_start, len);
+                buf[len] = '\0';
+                cb(buf, len, break_w, line_idx, user_data);
+            }
+            line_idx++;
+
+            /* Advance to next line */
+            p = break_pt;
+            while (*p == ' ') p++; /* Skip leading spaces on wrapped line */
+            line_start = p;
+            last_break = NULL;
+            last_break_w = 0;
+            cur_line_w = 0;
+            prev_code = 0;
+            continue;
+        }
+
+        cur_line_w += adv;
+        if (adv > 0 || (code >> 8) != 0x6F) {
+            prev_code = code;
+        }
+        p += step;
+    }
+
+    /* Emit remaining tail of line */
+    if (p > line_start || line_idx == 0) {
+        if (cb) {
+            char buf[512];
+            int len = (int)(p - line_start);
+            if (len > (int)sizeof(buf) - 1) len = (int)sizeof(buf) - 1;
+            memcpy(buf, line_start, len);
+            buf[len] = '\0';
+            cb(buf, len, cur_line_w, line_idx, user_data);
+        }
+        line_idx++;
+    }
+
+    return line_idx;
+}
+
 void tad_browser_layout(TAD_BROWSER *tb, int view_width) {
     if (!tb) return;
     tb->doc_width = (view_width > 200) ? view_width : 640;
@@ -456,17 +622,43 @@ void tad_browser_layout(TAD_BROWSER *tb, int view_width) {
         int indent = s->style.indent;
         if (indent <= 0) indent = 10;
 
+        if (s->style.is_hr) {
+            s->bounds.left = indent;
+            s->bounds.top = cur_y;
+            s->bounds.right = tb->doc_width - 24;
+            s->bounds.bottom = cur_y + pitch;
+            cur_y += pitch;
+            continue;
+        }
+
+        if (s->text[0] == '\0') {
+            s->bounds.left = indent;
+            s->bounds.top = cur_y;
+            s->bounds.right = indent;
+            s->bounds.bottom = cur_y + pitch;
+            cur_y += pitch;
+            continue;
+        }
+
+        int avail_w = tb->doc_width - indent - 24;
+        if (avail_w < 80) avail_w = 80;
+
+        int num_lines = tad_browser_wrap_text(s->text, avail_w, NULL, NULL);
+        if (num_lines < 1) num_lines = 1;
+        int span_h = num_lines * pitch;
+
         int text_len = (int)strlen(s->text);
-        int calc_w = text_len * ((s->style.font_size >= 16) ? 10 : 7);
-        if (calc_w > tb->doc_width - indent - 30) calc_w = tb->doc_width - indent - 30;
+        int calc_w = text_len * ((s->style.font_size >= 16) ? 10 : 8);
+        if (calc_w > avail_w || num_lines > 1) calc_w = avail_w;
         if (calc_w < 50 && s->style.is_vobj) calc_w = 260;
+        if (calc_w > avail_w) calc_w = avail_w;
 
         s->bounds.left = indent;
         s->bounds.top = cur_y;
         s->bounds.right = indent + calc_w;
-        s->bounds.bottom = cur_y + pitch;
+        s->bounds.bottom = cur_y + span_h;
 
-        cur_y += pitch;
+        cur_y += span_h;
     }
     tb->doc_height = cur_y + 30;
 }
@@ -1227,8 +1419,31 @@ static int resolve_and_draw_image(const TAD_BROWSER *tb, GDEV *dev, const TAD_SP
     return -1;
 }
 
+typedef struct {
+    GDEV *dev;
+    H x;
+    H y;
+    H pitch;
+    COLOR text_col;
+} TAD_PAINT_WRAP_CTX;
+
+static void paint_wrap_line_cb(const char *line_str, int line_len, H line_w, int line_idx, void *user_data) {
+    (void)line_len;
+    (void)line_w;
+    TAD_PAINT_WRAP_CTX *ctx = (TAD_PAINT_WRAP_CTX*)user_data;
+    H line_y = ctx->y + line_idx * ctx->pitch;
+    if (line_y + ctx->pitch >= ctx->dev->clip.top && line_y < ctx->dev->clip.bottom) {
+        drw_tc_string(ctx->dev, ctx->x, line_y, line_str, ctx->text_col, 0x00000000);
+    }
+}
+
 void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
     if (!tb || !dev || !client_rect) return;
+
+    int view_w = client_rect->right - client_rect->left;
+    if (view_w > 100 && tb->doc_width != view_w) {
+        tad_browser_layout(tb, view_w);
+    }
 
     /* Background Fill */
     RECT bg = { 0, 0, dev->width, dev->height };
@@ -1236,6 +1451,11 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
 
     int view_h = client_rect->bottom - client_rect->top;
     tb->page_height = view_h - 60; /* Account for toolbar & status bar */
+
+    int max_scroll = tb->doc_height - tb->page_height;
+    if (max_scroll < 0) max_scroll = 0;
+    if (tb->scroll_y > max_scroll) tb->scroll_y = max_scroll;
+    if (tb->scroll_y < 0) tb->scroll_y = 0;
 
     /* ── Render Visible Document Spans (Strictly Clipped to Content Viewport) ── */
     RECT orig_clip = dev->clip;
@@ -1281,21 +1501,42 @@ void tad_browser_paint(TAD_BROWSER *tb, GDEV *dev, const RECT *client_rect) {
             drw_lin(dev, s->bounds.left, vy + 6, dev->width - 30, vy + 6);
         } else if (s->style.is_vobj || s->is_link) {
             /* Virtual Body Hyper-Link Container */
-            RECT link_bg = { s->bounds.left - 2, vy - 1, s->bounds.right + 4, vy + s->style.line_pitch - 2 };
+            int avail_w = tb->doc_width - s->bounds.left - 24;
+            if (avail_w < 80) avail_w = 80;
+            int pitch = (s->style.line_pitch > 0) ? s->style.line_pitch : 22;
+
+            RECT link_bg = { s->bounds.left - 2, vy - 1, s->bounds.right + 4, vy + span_h - 2 };
             COLOR bg_col = (tb->hovered_link_idx == i) ? COLOR_LTGRAY : COLOR_WHITE;
 
             fill_rec(dev, &link_bg, bg_col);
             drw_rec(dev, &link_bg);
 
-            drw_tc_string(dev, s->bounds.left + 4, vy, s->text, COLOR_BLUE, 0x00000000);
+            TAD_PAINT_WRAP_CTX ctx;
+            ctx.dev = dev;
+            ctx.x = s->bounds.left + 4;
+            ctx.y = vy;
+            ctx.pitch = pitch;
+            ctx.text_col = COLOR_BLUE;
+            tad_browser_wrap_text(s->text, avail_w - 8, paint_wrap_line_cb, &ctx);
+
             if (tb->hovered_link_idx == i) {
-                drw_lin(dev, s->bounds.left + 4, vy + s->style.line_pitch - 3, s->bounds.right + 2, vy + s->style.line_pitch - 3);
+                drw_lin(dev, s->bounds.left + 4, vy + span_h - 3, s->bounds.right + 2, vy + span_h - 3);
             }
         } else {
-            /* Standard text line */
+            /* Standard text line / paragraph */
             if (s->text[0] != '\0') {
                 COLOR text_col = (s->style.color != 0) ? s->style.color : COLOR_BLACK;
-                drw_tc_string(dev, s->bounds.left, vy, s->text, text_col, 0x00000000);
+                int pitch = (s->style.line_pitch > 0) ? s->style.line_pitch : 20;
+                int avail_w = tb->doc_width - s->bounds.left - 24;
+                if (avail_w < 80) avail_w = 80;
+
+                TAD_PAINT_WRAP_CTX ctx;
+                ctx.dev = dev;
+                ctx.x = s->bounds.left;
+                ctx.y = vy;
+                ctx.pitch = pitch;
+                ctx.text_col = text_col;
+                tad_browser_wrap_text(s->text, avail_w, paint_wrap_line_cb, &ctx);
             }
         }
     }
