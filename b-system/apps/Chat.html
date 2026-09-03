@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat – リアルタイムTAD対話 | B-System</title>
+  <meta name="description" content="Native TAD real-time messaging and collaboration client featuring a simplified Wordpad-class TAD layouter from T-Editor.">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="./apps.css">
+</head>
+<body>
+  <nav class="app-nav">
+    <a href="../../b-system.html">B-System</a>
+    <span class="sep">/</span>
+    <a href="../../b-system.html#apps">Applications</a>
+    <span class="sep">/</span>
+    <span class="current">Chat</span>
+  </nav>
+  <div class="app-hero">
+    <div class="app-hero-icon">💬</div>
+    <h1>Chat</h1>
+    <div class="app-hero-badge">リアルタイムTAD対話</div>
+    <div class="subtitle">Native TAD Real-Time Messaging &amp; Collaboration with Simplified T-Editor Layouter (TAD API)</div>
+  </div>
+  <div class="app-content">
+    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+    <div class="tagline-card"><strong>"Every message connects via the TAD API — rich inline formatting with simplified T-Editor layouter and instant Real Body drop."</strong></div>
+    <div class="section">
+      <h2>Overview</h2>
+      <p>Native real-time messaging and team collaboration application categorized under the <strong>TAD Applications</strong> plane. Implemented in <code>src/apps/chat.c</code> and <code>src/apps/chat_xml.c</code>, Chat is powered by an XMPP protocol core and features a <strong>simplified TAD layouter derived from T-Editor</strong>. Messages are not restricted to plain text: chat bubbles support inline rich-text formatting (bold, italic, color highlights), interactive Fusen badges (仮身付箋), and live Real Body drops (image snippets, Matrix formulas, and code blocks). Important conversations and research exchanges can be archived permanently as searchable TAD Real Bodies in Cabinet.</p>
+      <div class="app-desc-jp"><b>チャット：</b> BTRON3 TADアプリケーション層（TAD Application）に位置づけられたリアルタイム対話・共同作業クライアント。実体コードはチャットUI・通信基盤（<code>src/apps/chat.c</code>）およびXMPP/XMLスタンザ処理部（<code>src/apps/chat_xml.c</code>）で構成。<br><br>最大の特徴は「T-Editorから継承された簡易TADレイアウター（Simplified TAD Layouter）」です。単なるプレーンテキスト送受信にとどまらず、発言バブル内で見出し・太字・文字色などの簡易リッチテキストや仮身付箋（Virtual Body Fusen）を美しく表示。画像スニペット、Matrix計算式、ソースコードをドラッグ＆ドロップで即座に共有でき、重要な対話ログはそのまま1つのTAD実身（Real Body）としてキャビネットへ永続アーカイブ可能です。</div>
+    </div>
+    <div class="section">
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/chat.c</code>（TADチャットUI・簡易レイアウター）</li>
+        <li>XML・XMPP基盤：<code>src/apps/chat_xml.c</code>（XMPPプロトコル・メッセージスタンザパーサー）</li>
+        <li>T-Editor派生の簡易自動TADレイアウターによる美しい発言バブルレンダリング</li>
+        <li>インライン仮身付箋（Fusen）および実身（画像・数式・コード）の直接ドロップ送信</li>
+        <li>Mozc TIP 日本語入力完全対応による高速な日本語リアルタイムチャット</li>
+        <li>対話ログのワンクリックTAD実身アーカイブ（Cabinet連携）</li>
+        <li>BTRON HMI標準に準拠したクリーンなバディリスト・プレゼンス管理</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Why the Market Needs It</h2>
+      <ul class="app-features-list">
+        <li>Modern chat tools (Slack, Discord, Teams) are bloated, track user activity, and silo conversations away from the operating system.</li>
+        <li>Technical teams need an instant, privacy-respecting native XMPP chat client that integrates directly with their local hypermedia workspace.</li>
+        <li>Chat allows research notes, code, and diagrams to be discussed and archived as first-class TAD objects.</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Replaces / Normalises</h2>
+      <table class="market-table">
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Slack / Discord / Teams</td>
+            <td>Lightweight native C99 execution, zero telemetry, full TAD hypermedia message formatting</td>
+            <td rowspan="2">Engineering teams, research laboratories, collaborative workgroups, remote developers</td>
+          </tr>
+          <tr>
+            <td>Plain IRC / Terminal Chat</td>
+            <td>Rich inline TAD formatting from T-Editor layouter with interactive Fusen links</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Typical Workflow</h2>
+      <ol class="workflow-list">
+        <li>Open Chat from Deskbar and connect to your team's XMPP collaboration server.</li>
+        <li>Engage in 1-on-1 direct messaging or multi-user research group channels.</li>
+        <li>Type messages using Mozc TIP; use simplified TAD formatting for key terms and formulas.</li>
+        <li>Drag a Virtual Body Fusen link directly from Cabinet into the chat to share a document with colleagues.</li>
+        <li>Export the entire discussion transcript as a TAD Real Body to include in a T-Editor or Clarity report.</li>
+      </ol>
+    </div>
+  </div>
+    <footer class="app-footer">
+    <div class="app-footer-top">
+      <a href="../../b-system.html">← B-System</a>
+      <span class="site-name">B-System Applications</span>
+    </div>
+    <div class="app-footer-grid">
+      <div class="app-footer-col">
+        <h4>System</h4>
+        <ul>
+            <li><a href="Workbench.html">Workbench</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
+            <li><a href="Commander.html">Commander</a></li>
+            <li><a href="Calculator.html">Calculator</a></li>
+            <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
+            <li><a href="Preferences.html">Preferences</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>TAD</h4>
+        <ul>
+            <li><a href="Cabinet.html">Cabinet</a></li>
+            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
+            <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
+            <li><a href="Browser.html">Browser</a></li>
+            <li><a href="Chat.html" class="active">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="MediaPulse.html">MediaPulse</a></li>
+            <li><a href="Paint.html">Paint</a></li>
+            <li><a href="Music.html">Music</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="../settings/Appearance.html">Appearance</a></li>
+            <li><a href="../settings/Desktop.html">Desktop</a></li>
+            <li><a href="../settings/Input.html">Input</a></li>
+            <li><a href="../settings/Language.html">Language</a></li>
+            <li><a href="../settings/Sound.html">Sound</a></li>
+            <li><a href="../settings/Network.html">Network</a></li>
+            <li><a href="../settings/Display.html">Display</a></li>
+            <li><a href="../settings/Media.html">Media</a></li>
+            <li><a href="../settings/System.html">System</a></li>
+            <li><a href="../settings/Security.html">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+  </footer>
+</body>
+</html>

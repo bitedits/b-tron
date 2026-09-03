@@ -501,6 +501,96 @@ int main(int argc, char **argv) {
     test_rendering_integrity();
     test_extended_transliterations();
     test_btron3_syscall_port_api();
+    /* Test Group 13: Distinguishable Tibetan TB Mode & Wylie Dictionary-Based Input */
+    printf("\n[TEST GROUP 13] Distinguishable Tibetan TB Mode & Wylie Dictionary-Based Input\n");
+    
+    /* 1. Mode String Identifiers */
+    tip_set_mode(TIP_MODE_ASCII);
+    TEST_ASSERT(strcmp(tip_get_mode_str(), "[EN]") == 0, "tip_get_mode_str() returns [EN]");
+    tip_set_mode(TIP_MODE_HIRAGANA);
+    TEST_ASSERT(strcmp(tip_get_mode_str(), "[JP あ]") == 0, "tip_get_mode_str() returns [JP あ]");
+    tip_set_mode(TIP_MODE_KATAKANA);
+    TEST_ASSERT(strcmp(tip_get_mode_str(), "[JP ア]") == 0, "tip_get_mode_str() returns [JP ア]");
+    tip_set_mode(TIP_MODE_TIBETAN);
+    TEST_ASSERT(strcmp(tip_get_mode_str(), "[TB བོད]") == 0, "tip_get_mode_str() returns [TB བོད]");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_TIBETAN, "tip_set_mode to TIP_MODE_TIBETAN");
+
+    /* 2. Direct Precomposition: 'chos' -> 'ཆོས' */
+    char tb_commit[128] = {0};
+    tip_process_key('c', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('h', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('o', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('s', 0, tb_commit, sizeof(tb_commit));
+    
+    char tb_out[128] = {0};
+    tip_get_converted_text(tb_out, sizeof(tb_out));
+    TEST_ASSERT(strcmp(tb_out, "ཆོས") == 0, "TIP_MODE_TIBETAN precomposition 'chos' -> 'ཆོས'");
+
+    /* 3. Space Key Directly Commits Pre-edit with Tsheg ('་') */
+    tip_process_key(' ', 0, tb_commit, sizeof(tb_commit));
+    TEST_ASSERT(strstr(tb_commit, "ཆོས") != NULL, "Space key commits syllable with Tsheg");
+    TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "TIP returns to IDLE after Space Tsheg commit");
+
+    /* 4. Standalone Space key in IDLE emits Tsheg ('་') */
+    memset(tb_commit, 0, sizeof(tb_commit));
+    tip_process_key(' ', 0, tb_commit, sizeof(tb_commit));
+    TEST_ASSERT(strcmp(tb_commit, "\xE0\xBC\x8B") == 0, "Standalone Space emits Tsheg in Tibetan mode");
+
+    /* 5. Tab Key triggers Tibetan Dictionary Candidate Popup */
+    tip_process_key('c', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('h', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('o', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('s', 0, tb_commit, sizeof(tb_commit));
+    tip_process_key('\t', 0, tb_commit, sizeof(tb_commit)); /* Tab trigger */
+    TEST_ASSERT(tip_get_state() == TIP_STATE_CANDIDATE_SELECT, "Tab key opens Tibetan Candidate Popup");
+    TEST_ASSERT(tip_is_candidate_window_visible() == TRUE, "Candidate window visible on Tab/Shift+Space");
+
+    /* 6. Second Tab advances to next dictionary candidate 'ཆོས་ཉིད' */
+    tip_process_key('\t', 0, tb_commit, sizeof(tb_commit));
+    tip_get_converted_text(tb_out, sizeof(tb_out));
+    TEST_ASSERT(strcmp(tb_out, "ཆོས་ཉིད") == 0, "Tab advances candidate to 'ཆོས་ཉིད'");
+
+    /* 7. Return commits candidate */
+    tip_process_key('\r', 0, tb_commit, sizeof(tb_commit));
+    TEST_ASSERT(strcmp(tb_commit, "ཆོས་ཉིད") == 0, "Committed Tibetan dictionary term 'ཆོས་ཉིད'");
+    TEST_ASSERT(tip_get_state() == TIP_STATE_IDLE, "TIP returns to IDLE after commit");
+
+    /* 8. Test Multi-word Buddhist Term via Underscore: 'byang_chub_sems' -> 'བྱང་ཆུབ་སེམས' */
+    tip_cancel();
+    const char *w_term = "byang_chub_sems";
+    for (size_t i = 0; i < strlen(w_term); i++) {
+        tip_process_key((UW)w_term[i], 0, tb_commit, sizeof(tb_commit));
+    }
+    tip_get_converted_text(tb_out, sizeof(tb_out));
+    TEST_ASSERT(strstr(tb_out, "བྱ") != NULL, "Precomposition contains Tibetan characters");
+    
+    tip_process_key('\r', 0, tb_commit, sizeof(tb_commit));
+    TEST_ASSERT(strstr(tb_commit, "བྱ") != NULL, "Committed Bodhicitta Tibetan phrase");
+
+    /* [TEST GROUP 14] Dynamic Candidate Popup Width & Anti-Clipping Calculation */
+    printf("\n[TEST GROUP 14] Dynamic Candidate Popup Width & Anti-Clipping Calculation\n");
+    TIP_CLAUSE test_clause;
+    memset(&test_clause, 0, sizeof(test_clause));
+    test_clause.num_candidates = 3;
+    
+    strcpy(test_clause.candidates[0].value, "ཆོས");
+    strcpy(test_clause.candidates[0].annotation, "dharma");
+    
+    strcpy(test_clause.candidates[1].value, "ཆོས་ཀྱི་དབྱིངས་");
+    strcpy(test_clause.candidates[1].annotation, "dharmadhatu / expanse of reality");
+    
+    strcpy(test_clause.candidates[2].value, "པྲ་ཛྙཱ་པཱ་ར་མི་ཏཱ");
+    strcpy(test_clause.candidates[2].annotation, "prajnaparamita");
+
+    H popup_w = tip_calc_candidate_window_width(&test_clause);
+    printf("  Calculated popup width for long dictionary items: %d px\n", popup_w);
+    TEST_ASSERT(popup_w >= 280, "Candidate popup automatically expands for longest dictionary entry");
+    
+    H val1_w = tip_calc_text_width(test_clause.candidates[1].value);
+    H ann1_w = tip_calc_text_width(test_clause.candidates[1].annotation);
+    TEST_ASSERT(popup_w > val1_w + ann1_w + 30, "Popup width provides sufficient margin without clipping");
+
+    tip_set_mode(TIP_MODE_HIRAGANA);
 
     printf("\n==========================================================\n");
     printf(" TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

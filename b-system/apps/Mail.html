@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mail – システム電子メール | B-System</title>
+  <meta name="description" content="Native system email client for B-System: robust IMAP/SMTP message management, mailbox folders, background notifications, and attachment routing.">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="./apps.css">
+</head>
+<body>
+  <nav class="app-nav">
+    <a href="../../b-system.html">B-System</a>
+    <span class="sep">/</span>
+    <a href="../../b-system.html#apps">Applications</a>
+    <span class="sep">/</span>
+    <span class="current">Mail</span>
+  </nav>
+  <div class="app-hero">
+    <div class="app-hero-icon">📫</div>
+    <h1>Mail</h1>
+    <div class="app-hero-badge">システム電子メール</div>
+    <div class="subtitle">Native System Email, IMAP/SMTP Client &amp; Mailbox Manager (System Plane)</div>
+  </div>
+  <div class="app-content">
+    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+    <div class="tagline-card"><strong>"Clean, distraction-free system email — robust IMAP/SMTP client, mailbox organization, and unified system notifications."</strong></div>
+    <div class="section">
+      <h2>Overview</h2>
+      <p>Official system-level email client for B-System, categorized under the core <strong>System Applications</strong> plane. Implemented in <code>src/apps/mail.c</code> with network protocol backend in <code>src/apps/mail_client.c</code>, Mail provides reliable, high-throughput email communication supporting standard IMAP4, SMTP, and local Maildir formats. Built for professionals who value speed and clarity, Mail delivers multi-account inboxes, threaded message conversations, background mail synchronization, and system Deskbar notifications without bloated web wrappers.</p>
+      <div class="app-desc-jp"><b>メール：</b> B-Systemの基本システム層（System Plane）に位置づけられた公式電子メールクライアント。実体コードはメールUI・フォルダ管理基盤（<code>src/apps/mail.c</code>）およびIMAP/SMTP通信エンジン（<code>src/apps/mail_client.c</code>）で構成。標準的なIMAP4、SMTP、およびローカルMaildir形式に完全対応。マルチアカウント受信箱、スレッド表示、バックグラウンド定期受信、およびDeskbar連動通知を軽快なネイティブC99設計で提供。日常のビジネス連絡やシステム通知を確実に処理します。</div>
+    </div>
+    <div class="section">
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/mail.c</code>（システムメールUI・受信箱スレッド管理）</li>
+        <li>ネットワークエンジン：<code>src/apps/mail_client.c</code>（IMAP4、SMTP、TLS暗号化通信）</li>
+        <li>基本システムアプリ（System Application）としての確実なバックグラウンド動作</li>
+        <li>マルチアカウント対応（複数プロバイダの受信箱・送信箱一元管理）</li>
+        <li>スレッド別メッセージ一覧および高速プレビューペイン表示</li>
+        <li>Deskbarタスクトレイへの新着メール即時通知と未読バッジ表示</li>
+        <li>添付ファイルの安全な受信とCabinetへのワンクリック保存</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Why the Market Needs It</h2>
+      <ul class="app-features-list">
+        <li>Modern email apps (Electron-based web wrappers) consume hundreds of megabytes of RAM just to show plain text messages.</li>
+        <li>Users need a fast, deterministic C99 system email client that starts instantly and handles high-volume mailboxes with zero lag.</li>
+        <li>Mail provides clean separation between formal asynchronous email (System plane) and real-time interactive TAD messaging (Chat).</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Replaces / Normalises</h2>
+      <table class="market-table">
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Thunderbird / Outlook / Webmail</td>
+            <td>Sub-second launch time, minimal memory consumption, native C99 IMAP/SMTP engine</td>
+            <td rowspan="2">System administrators, business professionals, researchers, developers</td>
+          </tr>
+          <tr>
+            <td>Bloated Electron Email Clients</td>
+            <td>Native OS integration with Deskbar alerts and local Maildir reliability</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Typical Workflow</h2>
+      <ol class="workflow-list">
+        <li>Launch Mail or receive an automatic Deskbar notification of incoming messages.</li>
+        <li>Browse threaded conversations with full search across headers and message bodies.</li>
+        <li>Compose new messages with standard formatting and attach documents directly from Cabinet.</li>
+        <li>Send via SMTP; copies are automatically synchronized to your IMAP Sent folder.</li>
+      </ol>
+    </div>
+  </div>
+    <footer class="app-footer">
+    <div class="app-footer-top">
+      <a href="../../b-system.html">← B-System</a>
+      <span class="site-name">B-System Applications</span>
+    </div>
+    <div class="app-footer-grid">
+      <div class="app-footer-col">
+        <h4>System</h4>
+        <ul>
+            <li><a href="Workbench.html">Workbench</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
+            <li><a href="Commander.html">Commander</a></li>
+            <li><a href="Calculator.html">Calculator</a></li>
+            <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html" class="active">Mail</a></li>
+            <li><a href="Preferences.html">Preferences</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>TAD</h4>
+        <ul>
+            <li><a href="Cabinet.html">Cabinet</a></li>
+            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
+            <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
+            <li><a href="Browser.html">Browser</a></li>
+            <li><a href="Chat.html">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="MediaPulse.html">MediaPulse</a></li>
+            <li><a href="Paint.html">Paint</a></li>
+            <li><a href="Music.html">Music</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="../settings/Appearance.html">Appearance</a></li>
+            <li><a href="../settings/Desktop.html">Desktop</a></li>
+            <li><a href="../settings/Input.html">Input</a></li>
+            <li><a href="../settings/Language.html">Language</a></li>
+            <li><a href="../settings/Sound.html">Sound</a></li>
+            <li><a href="../settings/Network.html">Network</a></li>
+            <li><a href="../settings/Display.html">Display</a></li>
+            <li><a href="../settings/Media.html">Media</a></li>
+            <li><a href="../settings/System.html">System</a></li>
+            <li><a href="../settings/Security.html">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+  </footer>
+</body>
+</html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Language & TRON Code – 言語・文字コード | B-System Settings</title>
-  <meta name="description" content="System language, character planes and font rules.">
+  <title>Language & TRON Code – 言語・文字コード＆TIP Mozc・Wylie | B-System Settings</title>
+  <meta name="description" content="TRON Input Processor (TIP), Mozc Kana-Kanji conversion engine, TRON Code character planes 1-16, and Extended Wylie Tibetan (EWTS) transliteration subsystem.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -21,33 +21,121 @@
   <div class="setting-hero">
     <div class="setting-hero-icon">🈴</div>
     <h1>Language &amp; TRON Code</h1>
-    <div class="setting-hero-badge">言語・文字コード</div>
-    <div class="subtitle">System language, character planes and font rules</div>
+    <div class="setting-hero-badge">言語・文字コード · TIP Mozc · チベットWylie</div>
+    <div class="subtitle">TRON Input Processor (TIP), Mozc Kana/Kanji Engine, TRON Code 180,000+ Kanji Planes &amp; Extended Wylie Tibetan Transcoding</div>
   </div>
 
   <div class="setting-content">
     <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
 
     <div class="tagline-card">
-      <strong>Language &amp; TRON Code</strong> — System language, character planes and font rules.
+      <strong>Language &amp; TRON Code</strong> — Complete multilingual input management: TIP Mozc Kana-Kanji engine, 180,000+ TRON Code glyph planes, and pure C99 Extended Wylie (EWTS) Tibetan Unicode converter.
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>System language, character planes and font rules.</p>
-      <div class="setting-desc-jp">多言語システム言語、TRON文字コード面（第1面〜第16面・超漢字収容18万文字）、古代文字・異体字プレーン、文字フォント優先順位（フォールバック）規則。</div>
+      <h2>Overview &amp; Architecture</h2>
+      <p>The B-System Language and Character Subsystem represents the pinnacle of multi-lingual OS typography and input method design. Complying with the <strong>BTRON3 SPEC 3.20</strong> standards, the subsystem unifies real-time keyboard transliteration, dictionary-based kana-kanji morphological synthesis, comprehensive character plane switching, and authentic Asian script encoding.</p>
+      
+      <div class="setting-desc-jp"><b>言語・文字コード設定（Language &amp; TRON Code）：</b> BTRON 3.20規格に基づく超多言語・高精度文字入出力基盤。純国産かな漢字変換エンジン「TIP Mozc」（<code>src/tip/mozc_kkc.c</code>, <code>tip_ife.c</code>, <code>tip_task.c</code>）、18万字超を収容するTRON文字コード第1面〜第16面、および純C99ポーティングされた「チベット語Extended Wylie（EWTS）変換器」（<code>src/kernel/tip/wylie.c</code>）を統合管理します。</div>
     </div>
 
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>System UI language selection (Japanese, English, multilingual)</li>
-        <li>TRON Code planes 1–16: 180 000+ kanji and historical characters</li>
-        <li>Variant and archaic character plane activation</li>
-        <li>Font fallback chain: TRON Code → Unicode → system default</li>
-        <li>Locale settings: date, time, number, and currency formats</li>
-        <li>Right-to-left and vertical writing layout support</li>
+      <h2>1. TRON Input Processor (TIP) &amp; Mozc Kana-Kanji Engine</h2>
+      <p>The TRON Input Processor (TIP) serves as the system-wide Input Method Framework. Realized via a micro-kernel event server architecture, TIP exposes standard system call ports (<code>iopn_tip</code>, <code>ichg_mod</code>, <code>iput_key</code>, <code>icls_tip</code>) ensuring universal input support across all GUI widgets, editors, and terminal consoles.</p>
+      
+      <table class="market-table">
+        <thead><tr><th>Component / API</th><th>Source File</th><th>Technical Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>TIP IFE (Input Front End)</b></td>
+            <td><code>src/tip/tip_ife.c</code></td>
+            <td>Romaji-to-Hiragana finite state machine, pre-edit buffer composition (<code>TIP_CNV</code>), caret tracking (<code>TIP_CAR</code>), and output commit dispatch (<code>TIP_OUT</code>).</td>
+          </tr>
+          <tr>
+            <td><b>Mozc KKC Engine</b></td>
+            <td><code>src/tip/mozc_kkc.c</code></td>
+            <td>Prefix-tree (Trie) dictionary lookup, dynamic morphological clause segmentation, candidate ranking, and statistical n-gram candidate ranking.</td>
+          </tr>
+          <tr>
+            <td><b>TIP Task Server</b></td>
+            <td><code>src/tip/tip_task.c</code></td>
+            <td>Asynchronous task port scheduler managing inter-process communication between applications and active input conversion dictionaries.</td>
+          </tr>
+          <tr>
+            <td><b>TIP V-Object Integration</b></td>
+            <td><code>src/tip/tip_vobj.c</code></td>
+            <td>Direct inline embedding of active pre-edit text compositions into TAD Real Bodies and Virtual Objects.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Transliteration &amp; Functional Key Rules (ファンクションキー変換機能)</h3>
+      <ul>
+        <li><b>[F6] 平仮名変換 (Hiragana):</b> 即座に未確定文字列を全角ひらがなへ転換（例: <code>ナカノデス</code> → <code>なかのです</code>）。</li>
+        <li><b>[F7] 全角片仮名変換 (Fullwidth Katakana):</b> 未確定文字列を全角カタカナへ転換（例: <code>なかのです</code> → <code>ナカノデス</code>）。</li>
+        <li><b>[F8] 半角片仮名変換 (Halfwidth Katakana):</b> 濁点・半濁点・促音を結合したJIS半角カナへ転換（例: <code>がっこう</code> → <code>ｶﾞｯｺｳ</code>）。</li>
+        <li><b>[F9] 全角英数変換 (Fullwidth Alphanumeric):</b> 英数字・記号をJIS全角コードへ転換（例: <code>BTRON 3.20</code> → <code>ＢＴＲＯＮ　３．２０</code>）。</li>
+        <li><b>[F10] 半角英数変換 / 変換確定:</b> 英数小文字・大文字トグルおよびダイレクト確定。</li>
       </ul>
+    </div>
+
+    <div class="section">
+      <h2>2. TRON Code Multilingual Character Planes (TRON文字コード体系)</h2>
+      <p>B-System implements the entire 16-plane TRON Multilingual Character Architecture, accommodating over 180,000 distinct kanji, classical glyphs, and international scripts without code collision:</p>
+      <ul class="setting-features">
+        <li><b>第1面 (Plane 1 - JIS 基本文字):</b> JIS X 0208 基本漢字、非漢字記号、第一水準・第二水準漢字。</li>
+        <li><b>第2面 (Plane 2 - 補助漢字・拡張):</b> JIS X 0212 補助漢字、JIS X 0213 第3・第4水準漢字、人名用漢字。</li>
+        <li><b>第3面 (Plane 3 - 中国語簡体字):</b> GB 2312 規格中国大陸標準文字セット。</li>
+        <li><b>第4面 (Plane 4 - 韓国語ハングル・ハンチャ):</b> KS C 5601 規格韓国語文字セット。</li>
+        <li><b>第5面〜第9面 (Planes 5-9 - 諸橋大漢和・古典漢字):</b> 『大漢和辞典』完全収録漢字約5万字、古典籍・変体仮名・甲骨文字・金文。</li>
+        <li><b>第10面〜第16面 (Planes 10-16 - チベット・サンスクリット・異体字):</b> チベット文字、梵字（悉曇・Siddham）、仏教典籍異体字、GT文字セット。</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>3. Extended Wylie Tibetan (EWTS) Subsystem (チベット語Wylie変換基盤)</h2>
+      <p>Implemented in <code>src/kernel/tip/wylie.c</code> and verified by <code>src/kernel/tip/test_wylie.c</code> (ported directly from the canonical Erlang implementation by Namdak Tonpa), the Wylie engine provides real-time ASCII-to-Tibetan Unicode transcoding with complete subjoining and stack resolution.</p>
+
+      <table class="market-table">
+        <thead><tr><th>Wylie Input (EWTS ASCII)</th><th>Tibetan Output (Unicode UTF-8)</th><th>Syllable / Stacking Significance</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>oM AH hU~M</code></td>
+            <td><b>ཨོཾ་ཨཱཿ་ཧཱུྃ</b></td>
+            <td>Sacred Mantra of the Three Vajras (Anusvara, Visarga, Nada).</td>
+          </tr>
+          <tr>
+            <td><code>klong chen snying thig</code></td>
+            <td><b>ཀློང་ཆེན་སྙིང་ཐིག</b></td>
+            <td>Longchen Nyingthig tradition (Lata subjoined <code>ླ</code>, root consonants).</td>
+          </tr>
+          <tr>
+            <td><code>rnam dag ston pa</code></td>
+            <td><b>རྣམ་དག་སྟོན་པ</b></td>
+            <td>Philosophical treatise title (Root initial A-chen resolution).</td>
+          </tr>
+          <tr>
+            <td><code>oM ar+g+haM pad+yaM puSh+pe...</code></td>
+            <td><b>ཨོཾ་ཨརྒྷཾ་པདྱཾ་པུཥྤེ་...</b></td>
+            <td>Sanskrit Puja Offerings (Explicit subjoining <code>+</code>, retroflex consonants).</td>
+          </tr>
+          <tr>
+            <td><code>tad+ya thA:_oM mu ne...</code></td>
+            <td><b>ཏདྱ་ཐཱ༔ ཨོཾ་མུ་ནེ་...</b></td>
+            <td>Muni Dharani (Rinchen spungs shad <code>༔</code>, root space <code>_</code> initial vowel).</td>
+          </tr>
+          <tr>
+            <td><code>badz+ra sa ma yA dza:...</code></td>
+            <td><b>བཛྲ་ས་མ་ཡཱ་ཛ༔ ཛ༔...</b></td>
+            <td>Vajrasattva Invocations (Tsheg <code>་</code> vs double colon shad <code>༔</code>).</td>
+          </tr>
+          <tr>
+            <td><code>oM ye d+har+mA he tu...</code></td>
+            <td><b>ཨོཾ་ཡེ་དྷརྨཱ་ཧེ་ཏུ་...</b></td>
+            <td>Pratītyasamutpāda Gāthā (Aspirated conjuncts <code>d+h</code>, Rata <code>ྲ</code>).</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="section">
@@ -55,6 +143,8 @@
       <div class="related-apps">
         <a href="../apps/TEditor.html">✍️ T-Editor</a>
         <a href="../apps/Clarity.html">📖 Clarity</a>
+        <a href="../apps/Notebook.html">📓 Notebook</a>
+        <a href="../apps/Chat.html">💬 Chat</a>
       </div>
     </div>
   </div>
@@ -73,8 +163,9 @@
             <li><a href="../apps/Commander.html">Commander</a></li>
             <li><a href="../apps/Calculator.html">Calculator</a></li>
             <li><a href="../apps/Clock.html">Clock</a></li>
+            <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-          <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Bootloader</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -84,9 +175,10 @@
             <li><a href="../apps/TEditor.html">T-Editor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
-            <li><a href="../apps/LivingBook.html">Living Book</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
-            <li><a href="../apps/MailChat.html">Mail &amp; Chat</a></li>
+            <li><a href="../apps/Notebook.html">Notebook</a></li>
+            <li><a href="../apps/Review.html">Review</a></li>
+            <li><a href="../apps/Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -113,7 +205,7 @@
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Language &amp; TRON Code</div>
   </footer>
 
 </body>

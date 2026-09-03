@@ -20,7 +20,8 @@ extern "C" {
 typedef enum {
     TIP_MODE_ASCII = 0,
     TIP_MODE_HIRAGANA,
-    TIP_MODE_KATAKANA
+    TIP_MODE_KATAKANA,
+    TIP_MODE_TIBETAN
 } TIP_INPUT_MODE;
 
 /* TIP DFA State Machine States (Section 6, Formal Verification) */
@@ -76,6 +77,7 @@ typedef struct {
 ER tip_init(void);
 TIP_DFA_STATE tip_get_state(void);
 TIP_INPUT_MODE tip_get_mode(void);
+const char* tip_get_mode_str(void);
 void tip_set_mode(TIP_INPUT_MODE mode);
 void tip_toggle_mode(void);
 BOOL tip_is_active(void);
@@ -95,6 +97,8 @@ int tip_get_composition_length(void);
 
 /* Render floating candidate window with classic B-TRON double border */
 void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y);
+H    tip_calc_candidate_window_width(const TIP_CLAUSE *clause);
+H    tip_calc_text_width(const char *text);
 
 /* Update caret coordinates for candidate window positioning */
 void tip_set_caret_pos(H x, H y);

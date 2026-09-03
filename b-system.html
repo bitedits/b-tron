@@ -510,7 +510,7 @@
             <div style="text-align: center; max-width: 900px; margin: 0 auto 1.5rem auto;">
                 <span class="app-badge teal" style="font-size:0.85rem; padding: 0.35rem 0.8rem; margin-bottom: 0.5rem;">CORE SUITE</span>
                 <h2 class="jp-title" style="font-size: 2.1rem; margin-top: 0.3rem;">B-System アプリケーション体系 (Applications)</h2>
-                <p style="color: #64748b; font-size: 1.05rem;">すべてのツールが実身（Real Body）を共有し、仮身（Virtual Body）として相互に埋め込み可能な14のネイティブ環境</p>
+                <p style="color: #64748b; font-size: 1.05rem;">すべてのツールが実身（Real Body）を共有し、仮身（Virtual Body）として相互に埋め込み可能な19のネイティブ環境</p>
             </div>
 
             <!-- Search & Category Filters -->
@@ -520,14 +520,14 @@
                     <input type="text" id="appSearchInput" class="search-input" placeholder="アプリケーションや機能（例: TAD, メディア, 仮想オブジェクト）を検索..." onkeyup="filterApps()">
                 </div>
                 <div class="filter-buttons">
-                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (16)</button>
+                    <button class="filter-btn active" onclick="setAppFilter('all', this)">すべて表示 (19)</button>
                     <button class="filter-btn" onclick="setAppFilter('system', this)">システム (System)</button>
                     <button class="filter-btn" onclick="setAppFilter('tad', this)">TAD (知識・文書)</button>
                     <button class="filter-btn" onclick="setAppFilter('media', this)">メディア (Media)</button>
                 </div>
             </div>
 
-            <div class="app-grid" id="appsContainer">
+                        <div class="app-grid" id="appsContainer">
                 
                 <!-- 1. MediaPulse -->
                 <div class="app-card" data-category="media" data-keywords="mediapulse メディアパルス audio video gif png beos media kit timeline annotation scrubbable Real Body tad Virtual Body">
@@ -540,7 +540,7 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Unified real-time media environment. Drop any audio, video, GIF or PNG and it becomes a live, scrubbable Virtual Body. Supports timeline annotations, live queries, frame-accurate work and direct embedding into any TAD document. Extremely responsive, BeOS Media Kit spirit.
+                            Unified real-time media environment implemented in <code>src/apps/audio_player.c</code>. Drop any audio, video, GIF or PNG and it becomes a live, scrubbable Virtual Body. Supports timeline annotations, frame-accurate editing, and direct TAD document embedding.
                         </div>
                         <div class="app-desc-jp">
                             <b>メディアパルス：</b> あらゆる音声、動画、GIF、PNGをドラッグ＆ドロップするだけで即座にスクラブ可能な「生きた仮想オブジェクト」へと変換。タイムライン注釈、ライブクエリ検索、フレーム精度の編集、およびTAD文書へのシームレスな直接埋め込みに対応。BeOS Media Kitの精神を受け継ぐ超低遅延応答性を実現。
@@ -564,20 +564,20 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Spatial desktop canvas and central root menu inspired by CTWM and Haiku Deskbar. Implemented in pure C99 (<code>src/desktop/main.c</code>, <code>src/desktop/desktop.c</code>, and <code>src/desktop/tracker.c</code>) for instant workspace and task switching.
+                            Spatial desktop canvas and central root menu inspired by CTWM and Haiku Deskbar. Implemented in pure C99 (<code>src/apps/workbench.c</code>, <code>src/desktop/main.c</code>, <code>tracker.c</code>) for instant workspace and task switching.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ワークベンチ：</b> CTWMやHaiku Deskbarの軽快さを継承した純粋C99製デスクトップ＆システムメニュー。実体コード（<code>src/desktop/main.c</code>, <code>desktop.c</code>, <code>tracker.c</code>）により、空間キャンバス、仮想ワークスペース、タスク管理、STARTボタン階層型ルートランチャーを提供。
+                            <b>ワークベンチ：</b> CTWMやHaiku Deskbarの軽快さを継承した純粋C99製デスクトップ＆システムメニュー。実体コード（<code>src/apps/workbench.c</code>, <code>src/desktop/desktop.c</code>, <code>tracker.c</code>）により、空間キャンバス、仮想ワークスペース、タスク管理、STARTボタン階層型ルートランチャーを提供。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>実体実装：<code>main.c</code>（イベントループ）＆ <code>desktop.c</code>（コンポジタ）</li>
+                        <li>実体実装：<code>workbench.c</code> ＆ <code>desktop.c</code>（コンポジタ）</li>
                         <li>Haiku流 STARTボタン＆タスク追跡：<code>src/desktop/tracker.c</code></li>
                         <li>純粋C99システム設計（仮想ワークスペース・タスク切り替え）</li>
                     </ul>
                 </div>
 
-                <!-- 2b. Cabinet Explorer -->
+                <!-- 3. Cabinet Explorer -->
                 <div class="app-card" data-category="tad" data-keywords="cabinet explorer キャビネット エクスプローラー real virtual body vobj tad api hypermedia fusen links">
                     <div>
                         <div class="app-header">
@@ -588,10 +588,10 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Official hypermedia object navigator connected to the TAD API. Browse Real Body cabinets, inspect Virtual Body fusen links, and manage hypermedia networks.
+                            Official hypermedia object navigator implemented in <code>src/apps/cabinet.c</code> and <code>src/apps/vobj_manager.c</code>. Browse Real Body cabinets, inspect Virtual Body fusen links, and manage hypermedia networks across the OS.
                         </div>
                         <div class="app-desc-jp">
-                            <b>キャビネット・エクスプローラー：</b> BTRON TAD APIに直結した公式ハイパーメディア・オブジェクトマネージャ。実身（Real Body）と仮身（Virtual Body）のリンク網を可視化し、グリッド・リスト両表示でキャビネット構造を管理。
+                            <b>キャビネット・エクスプローラー：</b> BTRON TAD APIに直結した公式ハイパーメディア・オブジェクトマネージャ（<code>src/apps/cabinet.c</code>, <code>vobj_manager.c</code>）。実身（Real Body）と仮身（Virtual Body）のリンク網を可視化し、グリッド・リスト両表示でキャビネット構造を管理。
                         </div>
                     </div>
                     <ul class="app-features-list">
@@ -601,248 +601,297 @@
                     </ul>
                 </div>
 
-                <!-- 3. Clarity -->
-                <div class="app-card" data-category="tad" data-keywords="clarity クラリティ quark xpress dtp publishing layout frames master pages baseline grid live tad source linking">
-                    <div>
-                        <div class="app-header">
-                            <div class="app-icon-wrapper">📖</div>
-                            <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/Clarity.html" style="color:inherit;text-decoration:none;">Clarity</a> <span class="app-badge gold">DTP組版出版環境</span></h3>
-                                <div class="app-subtitle-en">QuarkXPress 4.0 Class Publishing &amp; Layout (TAD Linking)</div>
-                            </div>
-                        </div>
-                        <div class="app-desc-en">
-                            Professional DTP layout engine competing with QuarkXPress 4.0. Features multi-column text frames, master pages, baseline grids, and live linking of native TAD Real Body sources.
-                        </div>
-                        <div class="app-desc-jp">
-                            <b>クラリティ：</b> QuarkXPress 4.0匹敵の本格DTP組版レイアウト環境。段組テキスト枠、任意ポリゴン回り込み、マスターページ、ベースライングリッドを完備し、TAD実身原稿を直接リンクして出版紙面へリアルタイム連動更新。
-                        </div>
-                    </div>
-                    <ul class="app-features-list">
-                        <li>QuarkXPress 4.0準拠の本格DTP段組・テキスト枠連結</li>
-                        <li>任意ポリゴン画像枠と図形回り込み（Runaround）</li>
-                        <li>TADソース動的リンク（T-Editor原稿やPaint図版のリアルタイム更新連動）</li>
-                    </ul>
-                </div>
-
-                <!-- 4. Living Book -->
-                <div class="app-card" data-category="tad" data-keywords="living book リビングブック pdf reader scientific research papers annotations tad real body formulas citations">
-                    <div>
-                        <div class="app-header">
-                            <div class="app-icon-wrapper">📚</div>
-                            <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/LivingBook.html" style="color:inherit;text-decoration:none;">Living Book</a> <span class="app-badge teal">科学PDFリーダー</span></h3>
-                                <div class="app-subtitle-en">Scientific PDF Reader &amp; TAD Annotation Lab (For Scientists)</div>
-                            </div>
-                        </div>
-                        <div class="app-desc-en">
-                            Distraction-free scientific PDF reader for researchers. Rapid academic paper rendering with live TAD Real Body margin notes, formula linking, and reproducible citation networks.
-                        </div>
-                        <div class="app-desc-jp">
-                            <b>リビングブック：</b> 科学者・研究者のための超高速科学PDFリーダー＆TAD注釈ラボ。arXivやIEEE等の多段組論文をベクター品質で瞬時レンダリング。マージンメモ、数式スニペット、音声を永続的なTAD実身として記録し、実験データと双方向リンク。
-                        </div>
-                    </div>
-                    <ul class="app-features-list">
-                        <li>TeX/LaTeX数式・多段組論文の高速PDFレンダリング</li>
-                        <li>マージン注釈・数式スニペットのTAD実身恒久保存</li>
-                        <li>論文図表とMatrix実験データ・解析コードの双方向リンク</li>
-                    </ul>
-                </div>
-
-                <!-- 5. T-Editor -->
-                <div class="app-card" data-category="tad" data-keywords="t-editor tエディタ word replacement general word processor rich text styles margins headers tad real body fusen links">
+                <!-- 4. T-Editor -->
+                <div class="app-card" data-category="tad" data-keywords="teditor t-editor tエディタ wordpad ワープロ rich text word processor styles margins auto layout tad fusen mozc">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">✍️</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/TEditor.html" style="color:inherit;text-decoration:none;">T-Editor</a> <span class="app-badge pink">汎用ワードプロセッサ</span></h3>
-                                <div class="app-subtitle-en">General Word Processor with Native TAD Abilities</div>
+                                <div class="app-subtitle-en">Wordpad-Class Word Processor with Basic Auto TAD Layout</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            General Word replacement for daily documents, reports, and manuscripts. Familiar formatting, styles, and margins with the unmatched power of native TAD Real Bodies and Fusen links.
+                            Clean, lightweight Wordpad-class word processor for everyday writing and memos. Implemented in <code>src/apps/t_editor.c</code> with a basic automatic TAD layouter, paragraph styles, margins, and inline Real Body / Fusen embedding.
                         </div>
                         <div class="app-desc-jp">
-                            <b>Tエディタ：</b> Microsoft WordやLibreOffice Writerを置き換える、軽快な日常用汎用ワードプロセッサ。見出しスタイル、ルーラー、余白、脚注など標準機能を完備し、さらに文書内に画像・音声・表計算（Matrix）を実身として直接埋め込み可能。
+                            <b>Tエディタ：</b> Windows Wordpadのような超軽快さと直感性を誇る日常業務・執筆用汎用ワードプロセッサ（<code>src/apps/t_editor.c</code>）。基本自動TADレイアウトエンジン（自動行折り返し・余白揃え）、見出しスタイル、ルーラーを完備し、画像・音声・Matrix表計算を実身としてインライン直接挿入。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>Microsoft Word完全置換（見出しスタイル・ルーラー・余白・脚注）</li>
+                        <li>基本自動TADレイアウト（行幅に応じた高速自動行折り返し・余白揃え）</li>
                         <li>実身インライン埋め込み（画像・音声・Matrix表計算の直接挿入）</li>
-                        <li>仮身付箋（Virtual Body Fusen）による関連資料の非線形リンク</li>
+                        <li>Mozc TIP 日本語入力完全統合（F6〜F10ファンクションキー変換）</li>
                     </ul>
                 </div>
 
-                <!-- 5b. Matrix -->
-                <div class="app-card" data-category="tad" data-keywords="matrix マトリクス excel replacement spreadsheet calculation grid apl array engine nyse nasdaq quantitative finance formulas sum vlookup charts tad real body cells">
+                <!-- 5. Matrix -->
+                <div class="app-card" data-category="tad" data-keywords="matrix マトリクス 表計算 spreadsheet apl iverson vector financial timeseries nyse nasdaq tick analytics">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">📊</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Matrix.html" style="color:inherit;text-decoration:none;">Matrix</a> <span class="app-badge teal">表計算・APL数理解析</span></h3>
-                                <div class="app-subtitle-en">High-Performance Spreadsheet &amp; APL Analytics (NYSE/Nasdaq)</div>
+                                <div class="app-subtitle-en">2D Calculation Grid &amp; APL Vector Processor (TAD API)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Universal Excel replacement with native APL array analytics. High-speed 2D formula grid, vector charting, and live cell-embedded Real Bodies for high-frequency NYSE/Nasdaq quantitative modeling.
+                            High-throughput calculation spreadsheet with native Iverson APL vector math engine (<code>src/apps/matrix.c</code>, <code>matrix_apl.c</code>). Process NYSE/Nasdaq tick streams, matrix inversions, and live TAD cell embeddings.
                         </div>
                         <div class="app-desc-jp">
-                            <b>マトリクス：</b> Microsoft Excelを置き換える新世代の高速表計算＆APL数理解析環境。アイバーソン記法（APL配列処理エンジン）をネイティブ統合し、NYSEやNasdaqのミリ秒ティックデータやリスク行列を超並列計算。各セルにTAD実身を埋め込み可能。
+                            <b>マトリクス：</b> 2次元計算グリッドにIverson APLベクトル配列演算エンジンを統合した超高速表計算環境（<code>src/apps/matrix.c</code>, <code>matrix_apl.c</code>）。NYSE/Nasdaq金融ティック時系列処理、SIMD並列計算、およびT-Editor/Clarityへのセル埋め込み連動に対応。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>APL配列エンジン統合（内積 <code>+.×</code>、逆行列 <code>⌹</code> によるNYSE/Nasdaqクオンツ解析）</li>
-                        <li>Microsoft Excel完全置換（高速2Dセルグリッド・充実した関数網羅）</li>
+                        <li>ネイティブAPLベクトル配列計算プロセッサ（Iverson記法完全対応）</li>
+                        <li>NYSE/Nasdaqティックデータおよび金融数理モデルの高速解析</li>
                         <li>セル内TAD実身埋め込み＆T-Editor/Clarityへの連動更新埋め込み</li>
                     </ul>
                 </div>
 
-                <!-- 6. Terminal -->
-                <div class="app-card" data-category="system" data-keywords="terminal ターミナル tron code unicode shell command cli gterm pure c99 pty virtio-console">
+                                <!-- 6. Clarity -->
+                <div class="app-card" data-category="tad" data-keywords="clarity クラリティ quark xpress dtp publishing layout frames master pages tex latex math baseline grid pecha tibetan 和装本 縦書き 美濃判 四六判 菊判 文庫判 live tad source linking">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">📰</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Clarity.html" style="color:inherit;text-decoration:none;">Clarity</a> <span class="app-badge gold">DTP組版出版＆伝統文化保全</span></h3>
+                                <div class="app-subtitle-en">QuarkXPress-Class DTP, Native TeX, Horizontal Pecha (དཔེ་ཆ་) &amp; Japanese Legacy Formats (和装本・和式伝統判型)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            QuarkXPress-class professional publishing system (<code>src/apps/clarity.c</code>) with dynamic Cabinet source gathering, native <strong>TeX Mode</strong> (<code>src/apps/clarity_tex.c</code>), <strong>Horizontal Tibetan Pecha (དཔེ་ཆ་)</strong> loose-leaf formatting, and full <strong>Japanese Legacy Paper Formats (美濃判, 半紙, 四六判, 菊判, 文庫判, 短冊, 和装本袋綴じ)</strong> with vertical right-to-left typography.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>クラリティ（Clarity）：</b> QuarkXPress 4.0を凌駕するDTP組版出版環境（<code>src/apps/clarity.c</code>, <code>clarity_tex.c</code>）。キャビネットTADソース動的集約とTeX数理組版に加え、<b>チベット伝統Pecha横長判型（དཔེ་ཆ་）</b>および<b>日本固有伝統判型（美濃判・半紙・四六判・菊判・新書判・文庫判・大奉書・短冊・色紙・和装本袋綴じ等）</b>を第一級文化保全機能として完全宣言・実装。ルビ、割注、禁則処理、縦中横の精密縦書き組版に対応。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>チベットPecha横長判型（デルゲ版・大蔵経判・朱黒二重枠・余白葉番号・割注）</li>
+                        <li>日本固有伝統判型14種＆高精度縦書き組版（ルビ・割注・禁則処理・行取り）</li>
+                        <li>キャビネットTADソース動的集約（原稿更新が紙面組版へ自動リアルタイム連動）</li>
+                        <li>ネイティブTeXモード（LaTeX/TeX数式記法・学術タイポグラフィ生成）</li>
+                    </ul>
+                </div>
+
+                <!-- 7. Notebook -->
+                <div class="app-card" data-category="tad" data-keywords="notebook ノートブック mathematica jupyter interactive cell scientist scientific lab matrix apl scheme python wasm vm">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">📓</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Notebook.html" style="color:inherit;text-decoration:none;">Notebook</a> <span class="app-badge teal">科学計算ノートブック</span></h3>
+                                <div class="app-subtitle-en">Interactive Mathematica &amp; Jupyter-Style Scientific Notebook (TAD + Language VMs)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Interactive computational laboratory for scientists (<code>src/apps/notebook.c</code>, <code>notebook_vm.c</code>). Features live reactive cells, direct Matrix TAD dataset inputs, and multi-language VMs (APL, Scheme/Lisp, Python/Wasm, Micro-VMs).
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>ノートブック：</b> MathematicaやJupyterスタイルの科学者向け対話型計算ノートブック（<code>src/apps/notebook.c</code>, <code>notebook_vm.c</code>）。実行可能セル、Matrix生データ直結、多言語VM（APL, Lisp, Python/Wasm）による数理シミュレーションとインライン作図を提供。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>対話型セル実行＆Matrix TADデータソース直結</li>
+                        <li>マルチ言語VMディスパッチャー（APL、Scheme/Lisp、Python/Wasm、C Micro-VM）</li>
+                        <li>Review査読注釈からの数式・パラメータ直接引用と実験再現性保証</li>
+                    </ul>
+                </div>
+
+                                <!-- 8. Review -->
+                <div class="app-card" data-category="tad" data-keywords="review レビュー 査読 学術査読 科学pdfリーダー ocr annotation paper citations tad real body cabinet clarity notebook">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">🔬</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Review.html" style="color:inherit;text-decoration:none;">Review</a> <span class="app-badge teal">学術査読＆科学PDF</span></h3>
+                                <div class="app-subtitle-en">High-Performance Scientific Review &amp; TAD Peer-Review Annotation Engine</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Vector scientific PDF reader and peer-review workspace (<code>src/apps/review.c</code>) equipped with the <strong>PDF TAD Annotation Engine</strong> (<code>src/apps/pdf_tad_anno.c</code>). Saves peer-review marginalia and extracted equations directly as TAD Real Bodies in Cabinet for Notebook &amp; Clarity.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>レビュー（Review）：</b> 学術論文・技術仕様書の精読と査読に特化した高速科学PDFリーダー＆査読ワークスペース（<code>src/apps/review.c</code>）。TAD注釈エンジン（<code>pdf_tad_anno.c</code>）により、欄外メモや抽出数式を独立したTAD実身としてキャビネットへ永続保存し、NotebookやClarityへ即時引用。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>高精細ベクターPDF描画とミリ秒単位の超高速ページ送り</li>
+                        <li>TAD査読注釈エンジン（<code>pdf_tad_anno.c</code>）によるキャビネット実身自動永続化</li>
+                        <li>Notebook（計算検証引用）およびClarity（学術文献引用）へのシームレス知識連携</li>
+                    </ul>
+                </div>
+
+                <!-- 9. Browser -->
+                <div class="app-card" data-category="tad" data-keywords="browser ブラウザ tad browser html plugin html2tad netsurf web conversion filter real body">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">🌐</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Browser.html" style="color:inherit;text-decoration:none;">Browser</a> <span class="app-badge teal">ネイティブTADブラウザ</span></h3>
+                                <div class="app-subtitle-en">Native TAD Document Browser with Modular HTML-to-TAD Plugin (TAD API)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            High-performance native TAD document browser (<code>src/apps/tad_browser.c</code>) focused on pure TAD hypermedia. Web (HTML4/CSS) support is modularized as an extensible <strong>HTML-to-TAD Plugin Filter</strong> (<code>src/apps/browser_html_plugin.c</code>) for deterministic speed and security.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>ブラウザ：</b> BTRON3 TAD文書の超高速閲覧に特化したネイティブブラウザ（<code>src/apps/tad_browser.c</code>）。Webページ閲覧は「HTML→TAD変換プラグイン（<code>src/apps/browser_html_plugin.c</code>）」として分離され、Web知識を安全かつ永続的なTAD実身へとコンパイルして取り込みます。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>ネイティブTADハイパーメディア文書の超高速・高精細レンダリング</li>
+                        <li>モジュール型HTMLプラグインによるWebページのワンクリックTAD実身化</li>
+                        <li>Web脆弱性を排除した決定論的かつ安全なクリーンルームC99設計</li>
+                    </ul>
+                </div>
+
+                <!-- 10. Chat -->
+                <div class="app-card" data-category="tad" data-keywords="chat チャット xmpp tad layouter t-editor simplified wordpad messaging realtime fusen stickers">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">💬</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Chat.html" style="color:inherit;text-decoration:none;">Chat</a> <span class="app-badge pink">リアルタイムTAD対話</span></h3>
+                                <div class="app-subtitle-en">Native TAD Real-Time Messaging with Simplified T-Editor Layouter (XMPP)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Native TAD real-time messaging application (<code>src/apps/chat.c</code>, <code>chat_xml.c</code>). Features a simplified Wordpad-class TAD layouter from T-Editor for rich formatting, inline Fusen stickers, live Real Body drops, and chat transcript archiving.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>チャット：</b> XMPPプロトコル基盤に、T-Editorから継承された「簡易TADレイアウター」を搭載したリアルタイム対話クライアント（<code>src/apps/chat.c</code>, <code>chat_xml.c</code>）。発言バブル内でのリッチテキスト・仮身付箋表示、画像・計算式の直接ドロップ共有に対応。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>T-Editor派生の簡易自動TADレイアウターによるリッチ発言バブル描画</li>
+                        <li>インライン仮身付箋（Fusen）および実身（画像・数式・コード）の即時ドロップ送信</li>
+                        <li>対話ログのワンクリックTAD実身化とキャビネット永続アーカイブ</li>
+                    </ul>
+                </div>
+
+                <!-- 11. Mail -->
+                <div class="app-card" data-category="system" data-keywords="mail メール imap smtp maildir email inbox system application deskbar notification">
+                    <div>
+                        <div class="app-header">
+                            <div class="app-icon-wrapper">📫</div>
+                            <div class="app-title-area">
+                                <h3 class="app-title"><a href="b-system/apps/Mail.html" style="color:inherit;text-decoration:none;">Mail</a> <span class="app-badge teal">システム電子メール</span></h3>
+                                <div class="app-subtitle-en">Native System Email, IMAP/SMTP Client &amp; Mailbox Manager (System Plane)</div>
+                            </div>
+                        </div>
+                        <div class="app-desc-en">
+                            Official system-level email client (<code>src/apps/mail.c</code>, <code>mail_client.c</code>). Handles high-throughput IMAP4/SMTP mailboxes, multi-account inboxes, threaded messages, and Deskbar notifications without bloated web runtimes.
+                        </div>
+                        <div class="app-desc-jp">
+                            <b>メール：</b> B-System基本システム層（System Plane）に位置する公式電子メールクライアント（<code>src/apps/mail.c</code>, <code>mail_client.c</code>）。IMAP4/SMTP/Maildir完全対応、マルチアカウント受信箱、スレッド表示、Deskbar新着通知を軽快なC99設計で提供。
+                        </div>
+                    </div>
+                    <ul class="app-features-list">
+                        <li>純粋C99製高速IMAP4/SMTP通信＆マルチアカウント受信箱管理</li>
+                        <li>システム基本アプリ（System App）としての確実なバックグラウンド常駐</li>
+                        <li>Deskbarタスクトレイ連動の新着メール即時通知と未読バッジ</li>
+                    </ul>
+                </div>
+
+                <!-- 12. Terminal -->
+                <div class="app-card" data-category="system" data-keywords="terminal gterm tron terminal ansi xterm posix cli system plane pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">💻</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Terminal.html" style="color:inherit;text-decoration:none;">Terminal</a> <span class="app-badge teal">TRON端末</span></h3>
-                                <div class="app-subtitle-en">Low-Latency TRON Code &amp; Unicode Terminal (gterm)</div>
+                                <div class="app-subtitle-en">POSIX ANSI Terminal Emulator (System Plane · gterm)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Pure C99 terminal emulator over VirtIO-Console, UART, and POSIX PTYs. Full TRON Code and Unicode support with zero TAD dependencies.
+                            High-performance, pure C99 ANSI terminal emulator (<code>src/apps/gterm.c</code>) executing directly on the System Plane. Zero TAD dependencies for guaranteed sub-millisecond CLI response.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ターミナル：</b> TRONコード体系および最新Unicodeに完全準拠した、純粋C99製（gterm.c）の低遅延・高機能端末エミュレータ。VirtIO-Console、シリアル、POSIX PTY直結でTAD API非依存。
+                            <b>TRON端末（gterm）：</b> システム基本層で直接動作する純粋C99製ANSIターミナルエミュレータ（<code>src/apps/gterm.c</code>）。TAD非依存設計により、ミリ秒以下の極小遅延CLI応答と高い信頼性を保証。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>TRON多言語文字コード＆Unicode完全ネイティブ表示</li>
-                        <li>純粋C99システム設計（TAD API非依存・低レイテンシ）</li>
-                        <li>低遅延VirtIO-Console &amp; POSIX PTYサブシステム連携</li>
+                        <li>実体コード実装：<code>src/apps/gterm.c</code>（C99 ANSI/VT100エミュレータ）</li>
+                        <li>TAD非依存の純粋システムアプリ（超低遅延CLI）</li>
+                        <li>Mozc TIP 日本語入力および英語直接入力の自動切替</li>
                     </ul>
                 </div>
 
-                <!-- 7. Commander -->
-                <div class="app-card" data-category="system" data-keywords="commander コマンダー dual-pane orthodox file manager ofm btron fs pure c99">
+                <!-- 13. Commander -->
+                <div class="app-card" data-category="system" data-keywords="commander コマンダー midnight commander dual pane posix file manager pure c99">
                     <div>
                         <div class="app-header">
-                            <div class="app-icon-wrapper">🗂️</div>
+                            <div class="app-icon-wrapper">📁</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Commander.html" style="color:inherit;text-decoration:none;">Commander</a> <span class="app-badge gold">2画面ファイラー</span></h3>
-                                <div class="app-subtitle-en">Dual-Pane Orthodox File Manager (OFM)</div>
+                                <div class="app-subtitle-en">Dual-Pane POSIX File Manager (System Plane)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Pure C99 keyboard-driven dual-pane orthodox file manager for BTRON FS, POSIX file trees, and block devices with zero TAD dependencies.
+                            High-speed 2-pane file manager inspired by Norton / Midnight Commander (<code>src/apps/commander.c</code>). Directly manages raw POSIX/VirtIO block storage files without TAD database overhead.
                         </div>
                         <div class="app-desc-jp">
-                            <b>コマンダー：</b> キーボード主導の高速操作が可能な純粋C99製左右2画面（OFM）ファイルマネージャ。BTRON FS、POSIXファイルツリー、VirtIOデバイス間の高速ファイル操作に対応。
+                            <b>コマンダー：</b> Norton/Midnight Commanderの操作性を継承した2画面高速ファイラー（<code>src/apps/commander.c</code>）。生ストレージ上のPOSIXファイルをキーボードショートカットで瞬時に操作。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>熟練エンジニアのための高速キーボード主導2画面レイアウト</li>
-                        <li>純粋C99システム設計（TAD API非依存・高速ファイルI/O）</li>
-                        <li>ファンクションキー操作（F3〜F8）と内蔵バイナリ/HEXビューア</li>
+                        <li>伝統の左右2画面分割UIによる高速ファイル操作（コピー・移動・削除）</li>
+                        <li>生POSIX/VirtIOブロックストレージ直接操作（TAD非依存）</li>
+                        <li>1キーアーカイブ展開・プレビュー表示</li>
                     </ul>
                 </div>
 
-                <!-- 8. Browser -->
-                <div class="app-card" data-category="tad" data-keywords="browser ブラウザ lightweight html 4.1 html-to-tad conversion Real Body web">
-                    <div>
-                        <div class="app-header">
-                            <div class="app-icon-wrapper">🌐</div>
-                            <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/Browser.html" style="color:inherit;text-decoration:none;">Browser</a> <span class="app-badge teal">HTML→TAD変換</span></h3>
-                                <div class="app-subtitle-en">Lightweight HTML 4.1 Browser with TAD Export</div>
-                            </div>
-                        </div>
-                        <div class="app-desc-en">
-                            Lightweight HTML 4.1 browser with one-click HTML-to-TAD conversion. Any page can become a native, editable Real Body.
-                        </div>
-                        <div class="app-desc-jp">
-                            <b>ブラウザ：</b> 軽量・軽快なHTML 4.1 Webブラウザ。ワンクリックで閲覧中のWebページをネイティブかつ編集可能な実身（TAD Real Body）へと変換・ローカル保存。Webの知識を永久に散逸しない知識資産へ。
-                        </div>
-                    </div>
-                    <ul class="app-features-list">
-                        <li>1クリックでWebページをTAD実身文書へ完全変換</li>
-                        <li>無駄なスクリプトを排した超高速レンダリング</li>
-                        <li>T-Editorでの即座な再編集・注釈追記</li>
-                    </ul>
-                </div>
-
-                <!-- 9. Mail & Chat -->
-                <div class="app-card" data-category="tad" data-keywords="mail chat メール チャット xmpp messaging conversations Virtual Bodys blabber communication">
-                    <div>
-                        <div class="app-header">
-                            <div class="app-icon-wrapper">💬</div>
-                            <div class="app-title-area">
-                                <h3 class="app-title"><a href="b-system/apps/MailChat.html" style="color:inherit;text-decoration:none;">Mail &amp; Chat</a> <span class="app-badge pink">統合通信</span></h3>
-                                <div class="app-subtitle-en">Unified XMPP Mail &amp; Real-Time Chat</div>
-                            </div>
-                        </div>
-                        <div class="app-desc-en">
-                            Unified XMPP-based mail and real-time chat. Conversations and messages are first-class Virtual Bodys that can be dropped into documents.
-                        </div>
-                        <div class="app-desc-jp">
-                            <b>メール＆チャット：</b> XMPPプロトコルを基盤とするメールとリアルタイム対話の統合環境。個々のメッセージや会話スレッド全体が第一級の仮想オブジェクトとして扱われ、そのまま研究メモやTAD報告書にドロップ可能。
-                        </div>
-                    </div>
-                    <ul class="app-features-list">
-                        <li>標準XMPP / Erlang Pub-Sub基盤による堅牢な暗号化通信</li>
-                        <li>対話メッセージの実身・仮身化とドキュメント貼付</li>
-                        <li>連絡先ごとのリアルタイムプレゼンス表示</li>
-                    </ul>
-                </div>
-
-                <!-- 10. Paint -->
-                <div class="app-card" data-category="media" data-keywords="paint ペイント bitmap vector sketching tad graphics png gif graphics annotation">
+                <!-- 14. Paint -->
+                <div class="app-card" data-category="media" data-keywords="paint ペイント vector bitmap drawing sketch tad graphics segments pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🎨</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Paint.html" style="color:inherit;text-decoration:none;">Paint</a> <span class="app-badge gold">作図・スケッチ</span></h3>
-                                <div class="app-subtitle-en">Fast Bitmap &amp; Vector Sketching Tool</div>
+                                <div class="app-subtitle-en">Geometric Vector &amp; Pixel Drawing Studio (TAD DP)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Fast bitmap/vector sketching. Output is native TAD graphics or PNG/GIF, ready for immediate embedding and annotation.
+                            Geometric vector drawing and sketching tool (<code>src/apps/paint.c</code>) integrated with BTRON Display Primitives. Exports drawings directly as native TAD Graphic Segments for insertion into T-Editor or Clarity.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ペイント：</b> 軽快なビットマップおよびベクター図形スケッチツール。出力はネイティブなTADグラフィックスセグメント、または汎用PNG/GIFに対応。描いた瞬間にT-EditorやMediaPulseへ埋め込み可能。
+                            <b>ペイント：</b> BTRON Display Primitives描画パイプラインと直結したベクター作図＆ピクセルスケッチ環境（<code>src/apps/paint.c</code>）。作成した図面をネイティブTADグラフィックセグメントとして即座に出力し、T-EditorやClarityへ直接埋め込み可能。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>TRON Display Primitives（DP）直結のベクター/ラスター作図</li>
-                        <li>ネイティブTAD図形セグメント出力で解像度無依存</li>
-                        <li>直感的なパレット操作とクイック注釈機能</li>
+                        <li>ベクター図形（直線、矩形、楕円、多角形、ベジェ曲線）の精密描画</li>
+                        <li>ネイティブTAD図形セグメントとしてのワンクリック出力</li>
+                        <li>Clarity出版枠への任意形状回り込み図形としての連動連携</li>
                     </ul>
                 </div>
 
-                <!-- 11. Music -->
-                <div class="app-card" data-category="media" data-keywords="music ミュージック audio tool composition patterns samples mediapulse synthesis">
+                <!-- 15. Music -->
+                <div class="app-card" data-category="media" data-keywords="music 音楽 audio midi tracker synthesis real time sound pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🎵</div>
                             <div class="app-title-area">
                                 <h3 class="app-title"><a href="b-system/apps/Music.html" style="color:inherit;text-decoration:none;">Music</a> <span class="app-badge teal">音響制作</span></h3>
-                                <div class="app-subtitle-en">Lightweight Composition &amp; Audio Synthesis</div>
+                                <div class="app-subtitle-en">Real-Time Audio Synthesizer &amp; MIDI Tracker (Media Kit)</div>
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Lightweight composition and audio tool. Patterns, samples and projects exist as Virtual Bodys usable in MediaPulse or documents.
+                            Real-time audio synthesis and tracker environment (<code>src/apps/music.c</code>, <code>audio_player.c</code>) leveraging the VirtIO-Sound DSP pipeline with sub-millisecond audio latency.
                         </div>
                         <div class="app-desc-jp">
-                            <b>ミュージック：</b> 軽量な音楽制作・波形編集・シンセシスツール。作曲したパターン、録音サンプル、プロジェクト全体が仮想オブジェクトとして存在し、MediaPulseのタイムラインやTAD文書で直接再利用可能。
+                            <b>音楽：</b> VirtIO-Sound DSPパイプライン直結のリアルタイム音響合成＆MIDIトラッカー環境（<code>src/apps/music.c</code>, <code>audio_player.c</code>）。極小遅延でのマルチトラック演奏とTADオーディオ実身エクスポートに対応。
                         </div>
                     </div>
                     <ul class="app-features-list">
-                        <li>μITRON高精度タイマーに基づくジッターフリー再生</li>
-                        <li>パターンやサンプル単位での仮想オブジェクト再利用</li>
-                        <li>MediaPulseとのゼロコピー・オーディオルーター連携</li>
+                        <li>VirtIO-Sound DSP直結によるサブミリ秒オーディオレイテンシ</li>
+                        <li>マルチトラック・パターンエディタと波形シンセサイザー</li>
+                        <li>TADオーディオ実身としての楽曲エクスポート</li>
                     </ul>
                 </div>
 
-                <!-- 12. Calculator -->
-                <div class="app-card" data-category="system" data-keywords="calculator 電卓 precise history paper roll math scientific programmer hex bin pure c99">
+                <!-- 16. Calculator -->
+                <div class="app-card" data-category="system" data-keywords="calculator 電卓 scientific programmer math paper roll history pure c99">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🔢</div>
@@ -852,10 +901,10 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Pure C99 scientific and programmer calculator with arbitrary precision, bitwise operations, paper roll history, and system clipboard copy/paste.
+                            Pure C99 scientific and programmer calculator (<code>src/apps/calculator.c</code>) with arbitrary precision, bitwise operations, paper roll history, and system clipboard integration.
                         </div>
                         <div class="app-desc-jp">
-                            <b>電卓：</b> 任意桁整数、倍精度浮動小数点、科学関数、プログラマー向け基数変換（HEX/DEC/OCT/BIN）とビット演算を備えた純粋C99製計算機。ロールペーパー履歴とOSクリップボード連携に対応。
+                            <b>電卓：</b> 任意桁整数、倍精度浮動小数点、科学関数、プログラマー向け基数変換（HEX/DEC/OCT/BIN）とビット演算を備えた純粋C99製計算機（<code>src/apps/calculator.c</code>）。ロールペーパー履歴とOSクリップボード連携に対応。
                         </div>
                     </div>
                     <ul class="app-features-list">
@@ -865,7 +914,7 @@
                     </ul>
                 </div>
 
-                <!-- 13. Clock -->
+                <!-- 17. Clock -->
                 <div class="app-card" data-category="system" data-keywords="clock 時計 rtc hpet itron timers alarms world clocks pure c99 time">
                     <div>
                         <div class="app-header">
@@ -876,10 +925,10 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Pure C99 system clock and timekeeping utility interfacing directly with hardware RTC, HPET, and μITRON timers with zero TAD dependencies.
+                            Pure C99 system clock and timekeeping utility (<code>src/apps/clock.c</code>) interfacing directly with hardware RTC, HPET, and μITRON timers with zero TAD dependencies.
                         </div>
                         <div class="app-desc-jp">
-                            <b>時計：</b> ハードウェアRTC、HPET、およびμITRONカーネルタイマーAPIに直結した純粋C99製システム時計。高品位アナログ・デジタル表示、世界時計、ミリ秒タイマーを搭載。
+                            <b>時計：</b> ハードウェアRTC、HPET、およびμITRONカーネルタイマーAPIに直結した純粋C99製システム時計（<code>src/apps/clock.c</code>）。高品位アナログ・デジタル表示、世界時計、ミリ秒タイマーを搭載。
                         </div>
                     </div>
                     <ul class="app-features-list">
@@ -889,7 +938,7 @@
                     </ul>
                 </div>
 
-                <!-- 14. Preferences -->
+                <!-- 18. Preferences -->
                 <div class="app-card" data-category="system" data-keywords="preferences 環境設定 quick access panel system settings control panel pure c99 kernel">
                     <div>
                         <div class="app-header">
@@ -900,10 +949,10 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Pure C99 system control panel for kernel sysctl, display resolutions, Mozc TIP input method, network, and audio settings applied live without rebooting.
+                            Pure C99 system control panel (<code>src/apps/preferences.c</code>) for kernel sysctl, display resolutions, Mozc TIP input method, network, and audio settings applied live without rebooting.
                         </div>
                         <div class="app-desc-jp">
-                            <b>環境設定パネル：</b> カーネル設定、画面解像度、Mozc TIP日本語入力、VirtIOネットワーク、音量を一元管理する純粋C99製設定パネル。OS再起動不要で即時反映。
+                            <b>環境設定パネル：</b> カーネル設定、画面解像度、Mozc TIP日本語入力、VirtIOネットワーク、音量を一元管理する純粋C99製設定パネル（<code>src/apps/preferences.c</code>）。OS再起動不要で即時反映。
                         </div>
                     </div>
                     <ul class="app-features-list">
@@ -913,8 +962,8 @@
                     </ul>
                 </div>
 
-                            <!-- 15. Ski Bootloader -->
-                <div class="app-card">
+                <!-- 19. Ski Bootloader -->
+                <div class="app-card" data-category="system" data-keywords="boot bootloader ski スキー ブートマネージャ uefi smp arm mmio rpi5 pc98">
                     <div>
                         <div class="app-header">
                             <div class="app-icon-wrapper">🎿</div>
@@ -924,7 +973,7 @@
                             </div>
                         </div>
                         <div class="app-desc-en">
-                            Haiku-quality graphical & ANSI boot manager for B-System. Supports Raspberry Pi 1–5 (ARM MMIO), x86_64 UEFI SMP (ACPI MADT AP bring-up), and authentic NEC PC-98 real-mode boot.
+                            Haiku-quality graphical &amp; ANSI boot manager for B-System (<code>src/kernel/ski.c</code>, <code>src/apps/test_ski.c</code>). Supports Raspberry Pi 1–5 (ARM MMIO), x86_64 UEFI SMP (ACPI MADT AP bring-up), and authentic NEC PC-98 real-mode boot.
                         </div>
                         <div class="app-desc-jp">
                             <b>スキー・ブートローダー：</b> Haiku流の洗練されたUIとNetBSD水準の信頼性を併せ持つB-System公式ブートマネージャ。ARM MMIO（Raspberry Pi 1〜5）、x86_64 UEFI SMP、NEC PC-98リアルモードを統合サポート。

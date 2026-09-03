@@ -34,14 +34,14 @@
 
     <div class="section">
       <h2>Overview</h2>
-      <p>Official hypermedia object navigator implemented in <code>src/apps/vobj_manager.c</code> and backed by the core BTRON object manager (<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>) and TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>, <code>omgr.h</code>). Unlike traditional hierarchical file managers, Cabinet manages the network of Real Bodies (実身) and Virtual Bodies (仮身) that forms the foundation of BTRON hypermedia. Users can inspect object IDs, resolve fusen link pointers, organize nested cabinet containers, and seamlessly launch documents into T-Editor or TAD Browser.</p>
-      <div class="app-desc-jp"><b>キャビネット・エクスプローラー：</b> BTRON TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>、<code>omgr.h</code>）およびオブジェクト管理基盤（<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>）に直結した公式ハイパーメディア・オブジェクトマネージャ実装（<code>src/apps/vobj_manager.c</code>）。階層的ディレクトリスキームを超越した、BTRONの中核概念である「実身（Real Body）」と「仮身（Virtual Body）」のネットワーク構造を可視化・管理。実身ID（robj_id）の追跡、付箋（Fusen）リンクの解決、キャビネット構造の整理、およびT-EditorやTAD Browserへの即座展開を実現。</div>
+      <p>Official hypermedia object navigator implemented in <code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>) and backed by the core BTRON object manager (<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>) and TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>, <code>omgr.h</code>). Unlike traditional hierarchical file managers, Cabinet manages the network of Real Bodies (実身) and Virtual Bodies (仮身) that forms the foundation of BTRON hypermedia. Users can inspect object IDs, resolve fusen link pointers, organize nested cabinet containers, and seamlessly launch documents into T-Editor or TAD Browser.</p>
+      <div class="app-desc-jp"><b>キャビネット・エクスプローラー：</b> BTRON TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>、<code>omgr.h</code>）およびオブジェクト管理基盤（<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>）に直結した公式ハイパーメディア・オブジェクトマネージャ実装（<code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>)）。階層的ディレクトリスキームを超越した、BTRONの中核概念である「実身（Real Body）」と「仮身（Virtual Body）」のネットワーク構造を可視化・管理。実身ID（robj_id）の追跡、付箋（Fusen）リンクの解決、キャビネット構造の整理、およびT-EditorやTAD Browserへの即座展開を実現。</div>
     </div>
 
     <div class="section">
       <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/vobj_manager.c</code>（UI・グリッド/リスト表示・コンテナ管理）</li>
+        <li>実体コード実装：<code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>)（UI・グリッド/リスト表示・コンテナ管理）</li>
         <li>実身・仮身バックエンド：<code>src/vobject/vobj.c</code> ＆ <code>src/vobject/omgr.c</code>（TADオブジェクト層）</li>
         <li>TAD API（<code>vobj.h</code>, <code>omgr.h</code>）直結による実身・仮身リレーションの双方向ブラウジング</li>
         <li>グリッド表示（Grid View）および詳細リスト表示（List View）の瞬時切り替え（<code>CAB_VIEW_MODE</code>）</li>
@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <footer class="app-footer">
+      <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
       <span class="site-name">B-System Applications</span>
@@ -105,8 +105,9 @@
             <li><a href="Commander.html">Commander</a></li>
             <li><a href="Calculator.html">Calculator</a></li>
             <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-          <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -116,9 +117,10 @@
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
-            <li><a href="LivingBook.html">Living Book</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
             <li><a href="Browser.html">Browser</a></li>
-            <li><a href="MailChat.html">Mail &amp; Chat</a></li>
+            <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">

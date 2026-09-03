@@ -26,7 +26,7 @@ CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf \
         html2tad tad_bin test test-kernel \
-        test-mozc test-editor test-hmi test-tad test-chat verify \
+        test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
         run-posix run-qemu run-kernel run-yoko run-sakamura run-uefi run-eufi run-uefu run-pc98 debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
@@ -86,13 +86,16 @@ endif
 IME_SRCS    = src/tip/mozc_kkc.c       \
               src/tip/tip_ife.c        \
               src/tip/tip_task.c       \
-              src/tip/tip_vobj.c
+              src/tip/tip_vobj.c       \
+              src/tip/wylie.c          \
+              src/tip/tibetan_dict.c
 
 # ── Common SDL2-hosted app sources ────────────────────────────────
 COMMON_SRCS = src/graphics/dp_core.c   \
               src/graphics/dp_sdl.c    \
               src/font/troncode.c      \
               src/font/jis_fonts.c     \
+              src/font/tibetan_fonts.c \
               src/window/wnd.c         \
               src/window/event.c       \
               src/vobject/vobj.c       \
@@ -195,6 +198,7 @@ COMMON_NO_SDL_SRCS = \
     src/graphics/dp_core.c \
     src/font/troncode.c    \
     src/font/jis_fonts.c   \
+    src/font/tibetan_fonts.c \
     src/window/wnd.c       \
     src/window/event.c     \
     src/vobject/vobj.c     \
@@ -519,8 +523,8 @@ debug-gdb: $(ARM32_TARGET)
 # ═══════════════════════════════════════════════════════════════════
 # Mozc Kana-Kanji Conversion & TIP Unit Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_MOZC_SRCS = src/tip/test_mozc.c src/tip/mozc_kkc.c src/tip/tip_ife.c \
-                 src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
+TEST_MOZC_SRCS = src/tip/test_mozc.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
+                 src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                  src/graphics/dp_core.c
 TEST_MOZC_OBJS = $(TEST_MOZC_SRCS:.c=.test.o)
 TEST_MOZC_BIN  = test_mozc
@@ -540,8 +544,8 @@ $(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # T-Editor UI & Internal Functions Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/tip/mozc_kkc.c src/tip/tip_ife.c \
-                   src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
+TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
+                   src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                    src/graphics/dp_core.c
 TEST_EDITOR_OBJS = $(TEST_EDITOR_SRCS:.c=.test.o)
 TEST_EDITOR_BIN  = test_editor
@@ -561,7 +565,7 @@ $(TEST_EDITOR_BIN): $(TEST_EDITOR_OBJS)
 TEST_HMI_SRCS = src/hmi/test_hmi.c src/hmi/hmi_core.c src/hmi/hmi_switch.c \
                 src/hmi/hmi_selector.c src/hmi/hmi_volume.c src/hmi/hmi_meter.c \
                 src/hmi/hmi_controller.c src/hmi/hmi_panel.c src/graphics/dp_core.c \
-                src/font/troncode.c src/font/jis_fonts.c src/window/wnd.c
+                src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/window/wnd.c
 TEST_HMI_OBJS = $(TEST_HMI_SRCS:.c=.test.o)
 TEST_HMI_BIN  = test_hmi
 
@@ -587,7 +591,7 @@ html2tad:
 # Native TAD Document Browser & Cabinet Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c \
-                src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/tip/tip_vobj.c \
+                src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c \
                 src/window/wnd.c src/graphics/dp_core.c
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
 TEST_TAD_BIN  = test_tad_browser
@@ -606,7 +610,7 @@ $(TEST_TAD_BIN): $(TEST_TAD_OBJS)
 # BeOS Chat & TRON IPC Pub/Sub Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_CHAT_SRCS = src/apps/test_chat.c src/apps/chat.c src/apps/chat_xml.c \
-                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c \
+                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c \
                  src/window/wnd.c src/graphics/dp_core.c
 TEST_CHAT_OBJS = $(TEST_CHAT_SRCS:.c=.test.o)
 TEST_CHAT_BIN  = test_chat
@@ -624,7 +628,7 @@ $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 # BTRON Deskbar Tracker & Task Manager Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/window/wnd.c \
-                    src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c
+                    src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
 TEST_TRACKER_OBJS = $(TEST_TRACKER_SRCS:.c=.test.o)
 TEST_TRACKER_BIN  = test_tracker
 
@@ -642,7 +646,7 @@ verify:
 # ═══════════════════════════════════════════════════════════════════
 # Unified Test Suite Runner
 # ═══════════════════════════════════════════════════════════════════
-test: test-kernel test-tad test-editor test-chat test-mozc test-hmi test-ski test-tracker
+test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi test-ski test-tracker
 	@echo "=========================================================="
 	@echo " ALL B-SYSTEM TEST SUITES PASSED (100% SUCCESS)!"
 	@echo "=========================================================="
@@ -666,6 +670,23 @@ test-ski: $(TEST_SKI_BIN)
 
 $(TEST_SKI_BIN): $(TEST_SKI_OBJS)
 	$(CC) $(TEST_SKI_OBJS) -o $@ $(LDFLAGS) -lm
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Kernel TIP Extended Wylie (EWTS) Test Suite
+# ═══════════════════════════════════════════════════════════════════
+TEST_WYLIE_SRCS = src/tip/test_wylie.c src/tip/wylie.c
+TEST_WYLIE_OBJS = $(TEST_WYLIE_SRCS:.c=.test.o)
+TEST_WYLIE_BIN  = test_wylie
+
+test-wylie: $(TEST_WYLIE_BIN)
+	@echo "=========================================================="
+	@echo " Running Kernel TIP Extended Wylie (EWTS) Tests..."
+	@echo "=========================================================="
+	@./$(TEST_WYLIE_BIN)
+
+$(TEST_WYLIE_BIN): $(TEST_WYLIE_OBJS)
+	$(CC) $(TEST_WYLIE_OBJS) -o $@ $(LDFLAGS) -lm
 
 clean:
 	@$(MAKE) -C verify clean >/dev/null 2>&1 || true

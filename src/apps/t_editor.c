@@ -1,3 +1,4 @@
+#include <btron/t_editor.h>
 /*
  * B-System (BTRON 3.20) BTRON Accessory: TRON CUA Text Editor Window (t_editor)
  * Pure Specification-based implementation of Sakamura BTRON / BTRON3 Architecture.
@@ -34,35 +35,7 @@ extern void* tkl_memmove(void *dest, const void *src, size_t n);
 #define strlen  tkl_strlen
 #endif
 
-#define TEDITOR_MAX_LINES 500
-#define TEDITOR_MAX_COLS  512
-#define TEDITOR_VIEW_ROWS 14
-#define TEDITOR_VIEW_COLS 80
-
-typedef struct {
-    char lines[TEDITOR_MAX_LINES][TEDITOR_MAX_COLS];
-    int total_lines;
-
-    int cursor_row;
-    int cursor_col;
-
-    /* Selection */
-    BOOL sel_active;
-    int sel_start_r, sel_start_c;
-    int sel_end_r, sel_end_c;
-
-    /* Scrolling */
-    int scroll_row;
-    int scroll_col;
-
-    /* File State */
-    char filename[128];
-    BOOL is_modified;
-
-    /* VOBJ Embed */
-    BOOL has_vobj;
-    char vobj_name[64];
-} TEditor;
+/* TEditor struct is defined in <btron/t_editor.h> */
 
 static TEditor g_teditor;
 static char g_clipboard[2048] = "";
@@ -486,8 +459,17 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
                 ed->total_lines = 1;
                 ed->lines[0][0] = '\0';
             } else if (rel_x >= 44 && rel_x <= 84) {
-                /* [Open] */
-                teditor_init_default(ed);
+                /* [Open] Toggle/Load between Tibetan Heart Sutra and BTRON3 Report */
+                if (strstr(ed->filename, "Heart_Sutra") != NULL) {
+                    if (teditor_load_file(ed, "assets/texts/BTRON3_Report.txt") != 0) {
+                        teditor_init_default(ed);
+                    }
+                    snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
+                } else {
+                    if (teditor_load_file(ed, "assets/texts/Heart_Sutra_Tibetan.txt") == 0) {
+                        snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
+                    }
+                }
             } else if (rel_x >= 88 && rel_x <= 128) {
                 /* [Save] */
                 ed->is_modified = FALSE;
@@ -581,6 +563,18 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
                 teditor_init_default(ed);
                 ed->total_lines = 1;
                 ed->lines[0][0] = '\0';
+                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - Untitled.txt");
+                return;
+            } else if (sym == 'o' || sym == 'O') {
+                /* Ctrl+O: Open / Switch to Heart Sutra or BTRON3 Report */
+                if (strstr(ed->filename, "Heart_Sutra") != NULL) {
+                    if (teditor_load_file(ed, "assets/texts/BTRON3_Report.txt") != 0) {
+                        teditor_init_default(ed);
+                    }
+                } else {
+                    teditor_load_file(ed, "assets/texts/Heart_Sutra_Tibetan.txt");
+                }
+                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
                 return;
             }
         }
@@ -732,24 +726,30 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
         /* Line content */
         const char *line = ed->lines[r_idx];
-        const char *p = line;
-        int byte_idx = 0;
-        int x = 36;
+        if (!ed->sel_active) {
+            drw_tc_string(dev, 36, y, line, COLOR_BLACK, COLOR_WHITE);
+        } else {
+            const char *p = line;
+            int byte_idx = 0;
+            int x = 36;
+            while (*p && x < dev->width - 16) {
+                int consumed = 0;
+                TC code = utf8_to_tc(p, &consumed);
+                int step = (consumed > 0 ? consumed : 1);
+                H gw = (code < 128) ? 8 : 16;
+                if ((code >> 8) == 0x6F) {
+                    UW cp = 0x0F00 + (code & 0xFF);
+                    if ((cp >= 0x0F71 && cp <= 0x0F84) || (cp >= 0x0F90 && cp <= 0x0FBC)) gw = 0;
+                    else if (cp == 0x0F0B || cp == 0x0F0D || cp == 0x0F0E) gw = 6;
+                    else gw = 14;
+                }
 
-        while (*p && x < dev->width - 16) {
-            int consumed = 0;
-            TC code = utf8_to_tc(p, &consumed);
-            int step = (consumed > 0 ? consumed : 1);
-            H gw = (code < 128) ? 8 : 16;
+                char ch_str[8];
+                int n = (step < 7) ? step : 7;
+                for (int k = 0; k < n; k++) ch_str[k] = p[k];
+                ch_str[n] = '\0';
 
-            char ch_str[8];
-            int n = (step < 7) ? step : 7;
-            for (int k = 0; k < n; k++) ch_str[k] = p[k];
-            ch_str[n] = '\0';
-
-            /* Check if character is inside CUA selection range */
-            BOOL is_selected = FALSE;
-            if (ed->sel_active) {
+                BOOL is_selected = FALSE;
                 int r1 = ed->sel_start_r, c1 = ed->sel_start_c;
                 int r2 = ed->sel_end_r, c2 = ed->sel_end_c;
                 if (r1 > r2 || (r1 == r2 && c1 > c2)) {
@@ -760,16 +760,16 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
                 else if (r_idx == r1 && r_idx == r2 && byte_idx >= c1 && byte_idx < c2) is_selected = TRUE;
                 else if (r_idx == r1 && r_idx < r2 && byte_idx >= c1) is_selected = TRUE;
                 else if (r_idx == r2 && r_idx > r1 && byte_idx < c2) is_selected = TRUE;
+
+                COLOR fg = is_selected ? COLOR_WHITE : COLOR_BLACK;
+                COLOR bg = is_selected ? COLOR_NAVY : COLOR_WHITE;
+
+                drw_tc_string(dev, x, y, ch_str, fg, bg);
+
+                p += step;
+                byte_idx += step;
+                x += gw;
             }
-
-            COLOR fg = is_selected ? COLOR_WHITE : COLOR_BLACK;
-            COLOR bg = is_selected ? COLOR_NAVY : COLOR_WHITE;
-
-            drw_tc_string(dev, x, y, ch_str, fg, bg);
-
-            p += step;
-            byte_idx += step;
-            x += gw;
         }
 
         /* Draw Blinking/Solid Cursor and Inline TIP Composition */
@@ -818,9 +818,10 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     drw_lin(dev, 0, dev->height - 20, dev->width, dev->height - 20);
 
     const char *mode_str = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "あ" :
-                           ((tip_get_mode() == TIP_MODE_KATAKANA) ? "ア" : "A");
+                           ((tip_get_mode() == TIP_MODE_KATAKANA) ? "ア" :
+                            ((tip_get_mode() == TIP_MODE_TIBETAN) ? "བོད" : "A"));
     char status_buf[128];
-    snprintf(status_buf, sizeof(status_buf), " Line %d, Col %d  |  TRON-Code  |  [CUA INS]",
+    snprintf(status_buf, sizeof(status_buf), " Line %d, Col %d  |  TRON-Code (Tibetan/JIS)  |  [CUA INS]",
              ed->cursor_row + 1, ed->cursor_col + 1);
     drw_tc_string(dev, 8, dev->height - 16, status_buf, COLOR_BLACK, COLOR_LTGRAY);
 
@@ -829,16 +830,22 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     fill_rec(dev, &mode_badge, (tip_get_mode() == TIP_MODE_ASCII) ? COLOR_LTGRAY : COLOR_CYAN);
     drw_rec(dev, &mode_badge);
     char badge_str[32];
-    snprintf(badge_str, sizeof(badge_str), "[Mozc: %s (F10)]", mode_str);
+    snprintf(badge_str, sizeof(badge_str), "[TIP: %s (F10)]", mode_str);
     drw_tc_string(dev, mode_badge.left + 6, mode_badge.top + 2, badge_str, COLOR_BLACK, 0x00000000);
 }
 
-WND* open_t_editor_window(void) {
+WND* open_t_editor_window_with_file(const char *filepath) {
     TEditor *ed = (TEditor*)calloc(1, sizeof(TEditor));
     if (!ed) return NULL;
-    teditor_init_default(ed);
 
-    WND *wnd = opn_wnd("T-Editor - BTRON3_Report.txt", 220, 50, 760, 480,
+    if (!filepath || teditor_load_file(ed, filepath) != 0) {
+        teditor_init_default(ed);
+    }
+
+    char title[128];
+    snprintf(title, sizeof(title), "T-Editor - %s", ed->filename);
+
+    WND *wnd = opn_wnd(title, 220, 50, 760, 480,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (wnd) {
         wnd->user_data = (VW)(uintptr_t)ed;
@@ -850,3 +857,102 @@ WND* open_t_editor_window(void) {
     }
     return wnd;
 }
+
+WND* open_t_editor_window(void) {
+    return open_t_editor_window_with_file("assets/texts/BTRON3_Report.txt");
+}
+
+TEditor* teditor_get_current(void) {
+    return &g_teditor;
+}
+
+
+/* ── File Management & Real Object/Virtual Object Storage Subsystem ── */
+
+int teditor_load_file(TEditor *ed, const char *filepath) {
+    if (!ed || !filepath) return -1;
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    FILE *fp = fopen(filepath, "r");
+    if (!fp) {
+        return -1;
+    }
+
+    ed->total_lines = 0;
+    ed->cursor_row = 0;
+    ed->cursor_col = 0;
+    ed->scroll_row = 0;
+    ed->scroll_col = 0;
+    ed->sel_active = FALSE;
+    ed->is_modified = FALSE;
+
+    char line_buf[TEDITOR_MAX_COLS * 2];
+    while (fgets(line_buf, sizeof(line_buf), fp) && ed->total_lines < TEDITOR_MAX_ROWS) {
+        /* Strip trailing newline */
+        size_t len = strlen(line_buf);
+        while (len > 0 && (line_buf[len - 1] == '\n' || line_buf[len - 1] == '\r')) {
+            line_buf[--len] = '\0';
+        }
+        strncpy(ed->lines[ed->total_lines], line_buf, TEDITOR_MAX_COLS - 1);
+        ed->lines[ed->total_lines][TEDITOR_MAX_COLS - 1] = '\0';
+        ed->total_lines++;
+    }
+    fclose(fp);
+
+    if (ed->total_lines == 0) {
+        ed->total_lines = 1;
+        ed->lines[0][0] = '\0';
+    }
+
+    /* Extract base filename */
+    const char *slash = strrchr(filepath, '/');
+#ifdef _WIN32
+    const char *bslash = strrchr(filepath, '\\');
+    if (bslash && (!slash || bslash > slash)) slash = bslash;
+#endif
+    const char *base = slash ? slash + 1 : filepath;
+    strncpy(ed->filename, base, sizeof(ed->filename) - 1);
+    ed->filename[sizeof(ed->filename) - 1] = '\0';
+
+    return 0;
+#else
+    return 0;
+#endif
+}
+
+int teditor_save_file(TEditor *ed, const char *filepath) {
+    if (!ed) return -1;
+    const char *target = filepath ? filepath : ed->filename;
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    FILE *fp = fopen(target, "w");
+    if (!fp) return -1;
+
+    for (int i = 0; i < ed->total_lines; i++) {
+        fprintf(fp, "%s\n", ed->lines[i]);
+    }
+    fclose(fp);
+    ed->is_modified = FALSE;
+    return 0;
+#else
+    ed->is_modified = FALSE;
+    return 0;
+#endif
+}
+
+int teditor_close_file(TEditor *ed) {
+    if (!ed) return -1;
+    memset(ed->lines, 0, sizeof(ed->lines));
+    ed->total_lines = 1;
+    ed->lines[0][0] = '\0';
+    ed->cursor_row = 0;
+    ed->cursor_col = 0;
+    ed->scroll_row = 0;
+    ed->scroll_col = 0;
+    ed->sel_active = FALSE;
+    ed->is_modified = FALSE;
+    strncpy(ed->filename, "Untitled.txt", sizeof(ed->filename) - 1);
+    return 0;
+}
+
+

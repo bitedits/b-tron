@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mail &amp; Chat – 統合通信 | B-System</title>
-  <meta name="description" content="Every message and thread is linkable via the TAD API — archive conversations and drop message citations straight into your TAD documents">
+  <title>Mail &amp; Chat – 通信スイート案内 | B-System</title>
+  <meta name="description" content="Overview of B-System unified communications: System Mail for asynchronous email, and TAD Chat for real-time rich messaging.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -17,44 +17,35 @@
     <span class="current">Mail &amp; Chat</span>
   </nav>
   <div class="app-hero">
-    <div class="app-hero-icon">💬</div>
+    <div class="app-hero-icon">📬</div>
     <h1>Mail &amp; Chat</h1>
-    <div class="app-hero-badge">統合通信</div>
-    <div class="subtitle">Unified XMPP Mail &amp; Real-Time Chat (TAD API)</div>
+    <div class="app-hero-badge">統合通信案内</div>
+    <div class="subtitle">Unified Communications: System Mail &amp; Native TAD Real-Time Chat</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Every message and thread connects via the TAD API — archive conversations and drop citations straight into your TAD documents."</strong></div>
+    <div class="tagline-card"><strong>"Clear architectural separation — formal asynchronous email on the System plane, and real-time rich hypermedia messaging on the TAD plane."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Unified XMPP-based mail and real-time messaging environment implemented in <code>src/apps/chat.c</code> and <code>src/apps/chat_xml.c</code> (<code>launch_beos_chat</code>), connected to the TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>). Important conversations, research exchanges, and attachments can be archived directly as permanent TAD Real Bodies and referenced as Virtual Body citations across research reports and T-Editor documents.</p>
-      <div class="app-desc-jp"><b>メール＆チャット：</b> XMPPプロトコルおよびXMLスタンザ処理基盤（<code>src/apps/chat.c</code>, <code>src/apps/chat_xml.c</code>）を基盤とするメールとリアルタイム対話の統合通信環境。TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>）と連携し、重要なやり取りや添付ファイルを永続的なTAD実身（Real Body）として自動アーカイブ。研究メモやTAD報告書へ仮身（Virtual Body）として引用・埋め込み可能。</div>
-    </div>
-    <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/chat.c</code>（チャットクライアントUI・ウィンドウ管理 <code>launch_beos_chat</code>）</li>
-        <li>プロトコル処理：<code>src/apps/chat_xml.c</code>（XMLパーサー・ストリーミング処理・スタンザ生成）</li>
-        <li>テスト検証基盤：<code>src/apps/test_chat.c</code>（XMPPメッセージング・対話セッション検証）</li>
-        <li>標準XMPP / Erlang Pub-Sub基盤による堅牢な暗号化通信（OMEMO）</li>
-        <li>TAD APIを介した対話メッセージの実身化・仮身リンク生成</li>
-        <li>連絡先ごとのリアルタイムプレゼンス＆ステータス表示</li>
-        <li>添付ファイルのTAD Real Body自動関連付けとメタデータ保存</li>
-        <li>Clarityのミリ秒グローバル検索から会話スレッドを横断検索可能</li>
-        <li>T-Editor文書内へメッセージを引用仮身（Virtual Body Fusen）として直接埋め込み</li>
-      </ul>
-    </div>
-    <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Send or receive messages in Mail &amp; Chat over secure XMPP / VirtIO-Net.</li>
-        <li>Select an important discussion thread → archive it as a permanent TAD Real Body via the TAD API.</li>
-        <li>Drop the thread's Virtual Body into a T-Editor report or Living Book annotation to cite the exchange inline.</li>
-        <li>Search for any message content instantly from Clarity's global search bar.</li>
-      </ol>
+      <p>In B-System, communication tools are architecturally organized into two dedicated applications tailored to their distinct operational models:</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0;">
+        <div style="background: rgba(0, 87, 183, 0.05); border: 1px solid var(--tron-blue); padding: 1.25rem; border-radius: 8px;">
+          <h3 style="margin-top:0; color:var(--tron-blue);"><a href="Mail.html" style="text-decoration:none; color:inherit;">📫 Mail (System App)</a></h3>
+          <p style="font-size:0.95rem; line-height:1.5;"><strong>System Email &amp; Inboxes:</strong> Robust IMAP/SMTP client, multi-account mailbox organization, background mail syncing, and Deskbar notifications.</p>
+          <a href="Mail.html" style="font-weight:600; color:var(--tron-blue);">Open System Mail Details →</a>
+        </div>
+        <div style="background: rgba(255, 45, 149, 0.05); border: 1px solid #ff2d95; padding: 1.25rem; border-radius: 8px;">
+          <h3 style="margin-top:0; color:#ff2d95;"><a href="Chat.html" style="text-decoration:none; color:inherit;">💬 Chat (TAD App)</a></h3>
+          <p style="font-size:0.95rem; line-height:1.5;"><strong>Real-Time TAD Messaging:</strong> XMPP collaboration with simplified T-Editor TAD layouter, inline Fusen stickers, live Real Body drops, and discussion archiving.</p>
+          <a href="Chat.html" style="font-weight:600; color:#ff2d95;">Open TAD Chat Details →</a>
+        </div>
+      </div>
+      <div class="app-desc-jp"><b>メール＆チャット案内：</b> B-Systemでは、非同期の公式連絡を行う「システム電子メール」と、即時コラボレーションを行う「リアルタイムTADチャット」を明確に分離して提供しています：<br><br>
+      1. <b><a href="Mail.html">Mail（システム電子メール）</a>：</b> システム基本層に属するIMAP/SMTPメールクライアント。確実な受信箱管理と通知。<br>
+      2. <b><a href="Chat.html">Chat（リアルタイムTAD対話）</a>：</b> TADアプリケーション層に属するXMPP対話環境。T-Editor派生の簡易TADレイアウターによるリッチな発言表示と付箋共有。</div>
     </div>
   </div>
-  <footer class="app-footer">
+    <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
       <span class="site-name">B-System Applications</span>
@@ -68,8 +59,9 @@
             <li><a href="Commander.html">Commander</a></li>
             <li><a href="Calculator.html">Calculator</a></li>
             <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-          <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -79,9 +71,10 @@
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
-            <li><a href="LivingBook.html">Living Book</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
             <li><a href="Browser.html">Browser</a></li>
-            <li><a href="MailChat.html" class="active">Mail &amp; Chat</a></li>
+            <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">

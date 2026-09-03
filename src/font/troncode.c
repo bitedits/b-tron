@@ -239,6 +239,11 @@ TC utf8_to_tc(const char *utf8_str, int *bytes_consumed) {
         if (bytes_consumed) *bytes_consumed = 3;
         UW cp = ((s[0] & 0x0F) << 12) | ((s[1] & 0x3F) << 6) | (s[2] & 0x3F);
 
+        /* Tibetan block U+0F00 - U+0FFF -> TRON Code Plane 10 (0x6F00 | (cp - 0x0F00)) */
+        if (cp >= 0x0F00 && cp <= 0x0FFF) {
+            return (TC)(0x6F00 | (cp - 0x0F00));
+        }
+
         /* CJK Symbols and Punctuation U+3000 - U+303F -> Plane 1 (0x21xx) */
         if (cp >= 0x3000 && cp <= 0x303F) {
             return (TC)(0x2100 | (cp - 0x3000));
@@ -291,7 +296,15 @@ int tc_to_utf8(TC code, char *utf8_buf, int max_len) {
     UW high = (code >> 8) & 0xFF;
     UW low  = code & 0xFF;
 
-    if (high == 0x27) {
+    if (high == 0x6F) {
+        /* Tibetan Block: U+0F00 + low */
+        UW cp = 0x0F00 + low;
+        utf8_buf[0] = (char)(0xE0 | ((cp >> 12) & 0x0F));
+        utf8_buf[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
+        utf8_buf[2] = (char)(0x80 | (cp & 0x3F));
+        utf8_buf[3] = '\0';
+        return 3;
+    } else if (high == 0x27) {
         /* Cyrillic & Ukrainian Block: U+0400 + low */
         UW cp = 0x0400 + low;
         if (low == 0x90) cp = 0x0490;
@@ -552,12 +565,19 @@ static const UB* synthesize_japanese_glyph(TC code) {
 }
 
 #include <btron/jis_fonts.h>
+#include <btron/tibetan_fonts.h>
 
 const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height) {
     if (code < 128) {
         if (out_width) *out_width = 8;
         if (out_height) *out_height = 16;
         return font_ascii_8x16[code];
+    }
+
+    /* Tibetan Block in TRON Code Plane 10 (0x6F00..0x6FFF) */
+    if ((code >> 8) == 0x6F) {
+        UW cp = 0x0F00 + (code & 0xFF);
+        return get_tibetan_glyph_bitmap_ex(cp, out_width, out_height);
     }
 
     /* Cyrillic & Ukrainian Block in TRON Code Plane 1 (0x2700..0x27FF) */
@@ -593,6 +613,14 @@ const UB* get_glyph_bitmap(TC code, H *out_width, H *out_height) {
                 (((unsigned char)utf8_buf[1] & 0x3F) << 6) |
                 ((unsigned char)utf8_buf[2] & 0x3F);
 
+        /* Tibetan Unicode Block (U+0F00..U+0FFF) */
+        if (cp >= 0x0F00 && cp <= 0x0FFF) {
+            const UB *tb_bmp = get_tibetan_glyph_bitmap(cp);
+            if (tb_bmp) {
+                return tb_bmp;
+            }
+        }
+
         const UB *bmp = get_jis_glyph_bitmap(cp);
         if (bmp) {
             return bmp;
@@ -607,6 +635,8 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
 
     H cur_x = x;
     H cur_y = y;
+    H prev_adv = 0;
+    TC prev_code = 0;
     const char *p = text;
     volatile COLOR *pix = (volatile COLOR*)dev->pixels;
     H width = dev->width;
@@ -615,6 +645,8 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
         if (*p == '\n') {
             cur_x = x;
             cur_y += 18;
+            prev_adv = 0;
+            prev_code = 0;
             p++;
             continue;
         }
@@ -623,24 +655,53 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
         TC code = utf8_to_tc(p, &consumed);
         p += (consumed > 0 ? consumed : 1);
 
+        /* Collapse redundant ASCII space following a Tibetan Tsheg to prevent long gaps */
+        if (code == ' ' && prev_code == 0x6F0B) {
+            continue;
+        }
+
         H gw = 8, gh = 16;
         const UB *bmp = get_glyph_bitmap(code, &gw, &gh);
         if (!bmp) continue;
 
-        int y_off = (gw <= 8) ? 2 : 0; /* Align roman fonts 2 pixels down */
+        BOOL is_combining = FALSE;
+        H render_x = cur_x;
+        H advance = gw;
+
+        /* Tibetan Typography & Stacking Rules */
+        if ((code >> 8) == 0x6F) {
+            UW cp = 0x0F00 + (code & 0xFF);
+            if ((cp >= 0x0F71 && cp <= 0x0F84) || (cp >= 0x0F90 && cp <= 0x0FBC)) {
+                /* Combining Vowel Sign / Subjoined Consonant: stack onto previous base */
+                is_combining = TRUE;
+                render_x = (prev_adv > 0) ? (cur_x - prev_adv) : cur_x;
+                advance = 0;
+            } else if (cp == 0x0F0B || cp == 0x0F0C) {
+                /* Tsheg syllable dot: compact advance */
+                advance = 5;
+            } else if (cp == 0x0F0D || cp == 0x0F0E) {
+                /* Shad verse bar: compact advance */
+                advance = 5;
+            } else {
+                /* Base consonants: compact 8px advance */
+                advance = 8;
+            }
+        } else if (code == ' ') {
+            advance = 6;
+        }
 
         for (int row = 0; row < gh; row++) {
-            H py = cur_y + row + y_off;
+            H py = cur_y + row;
             if (py < dev->clip.top || py >= dev->clip.bottom) continue;
 
             if (gw <= 8) {
                 UB line = bmp[row];
-                for (int col = 0; col < gw; col++) {
-                    H px = cur_x + col;
+                for (int col = 0; col < 8; col++) {
+                    H px = render_x + col;
                     if (px >= dev->clip.left && px < dev->clip.right) {
                         if (line & (0x80 >> col)) {
                             pix[py * width + px] = fg_col;
-                        } else if (bg_col != 0x00000000) {
+                        } else if (bg_col != 0x00000000 && !is_combining) {
                             pix[py * width + px] = bg_col;
                         }
                     }
@@ -649,12 +710,12 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
                 UB b0 = bmp[row * 2];
                 UB b1 = bmp[row * 2 + 1];
                 for (int col = 0; col < 16; col++) {
-                    H px = cur_x + col;
+                    H px = render_x + col;
                     if (px >= dev->clip.left && px < dev->clip.right) {
                         UB bit = (col < 8) ? (b0 & (0x80 >> col)) : (b1 & (0x80 >> (col - 8)));
                         if (bit) {
                             pix[py * width + px] = fg_col;
-                        } else if (bg_col != 0x00000000) {
+                        } else if (bg_col != 0x00000000 && !is_combining) {
                             pix[py * width + px] = bg_col;
                         }
                     }
@@ -663,11 +724,11 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
         }
 
         /* TIP Feedback: underline ONLY when explicitly requested */
-        if (is_underlined) {
+        if (is_underlined && advance > 0) {
             H underline_y = cur_y + gh - 1;
             if (underline_y >= dev->clip.top && underline_y < dev->clip.bottom) {
-                for (int col = 0; col < gw; col++) {
-                    H px = cur_x + col;
+                for (int col = 0; col < advance; col++) {
+                    H px = render_x + col;
                     if (px >= dev->clip.left && px < dev->clip.right) {
                         if (!is_dotted || (col % 2 == 0)) {
                             pix[underline_y * width + px] = fg_col;
@@ -677,11 +738,16 @@ static ER render_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, 
             }
         }
 
-        cur_x += gw;
+        if (!is_combining) {
+            prev_adv = advance;
+            prev_code = code;
+        }
+        cur_x += advance;
     }
 
     return E_OK;
 }
+
 
 ER drw_tc_string(GDEV *dev, H x, H y, const char *text, COLOR fg_col, COLOR bg_col) {
     return render_tc_string(dev, x, y, text, fg_col, bg_col, FALSE, FALSE);

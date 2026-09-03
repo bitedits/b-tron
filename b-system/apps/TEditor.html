@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>T-Editor – TADエディタ | B-System</title>
-  <meta name="description" content="The native TAD authoring environment — deeply connected to the TAD API for text, vector graphics, Virtual Bodies, and media segments in one document.">
+  <title>T-Editor – 汎用ワードプロセッサ | B-System</title>
+  <meta name="description" content="Wordpad-class daily word processor with basic automatic TAD layout, style presets, margins, and inline Real Body / Fusen links.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
@@ -20,27 +20,35 @@
     <div class="app-hero-icon">✍️</div>
     <h1>T-Editor</h1>
     <div class="app-hero-badge">汎用ワードプロセッサ</div>
-    <div class="subtitle">General Word Processor with Native TAD Hypermedia Abilities</div>
+    <div class="subtitle">Wordpad-Class Word Processor with Basic Auto TAD Layout (TAD API)</div>
   </div>
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"The universal Word replacement for daily documents — intuitive formatting, styles, and margins with the unmatched power of native TAD Real Bodies and Fusen links."</strong></div>
+    <div class="tagline-card"><strong>"Lightweight, distraction-free Wordpad-class authoring — responsive text formatting, styles, and margins with basic automatic TAD layout and live Fusen links."</strong></div>
     <div class="section">
       <h2>Overview</h2>
-      <p>Universal rich-text word processor designed as a clean, responsive replacement for Microsoft Word and LibreOffice Writer, enriched with the full power of the BTRON TAD hypermedia architecture. Implemented in <code>src/apps/t_editor.c</code> and validated by <code>src/apps/test_editor_ui.c</code>, T-Editor gives everyday authors, business professionals, and students familiar word processing tools: paragraph styles (Heading 1–4, Body, Blockquote), visual rulers, margins, headers and footers, bulleted/numbered lists, footnotes, and page numbering. Unlike traditional word processors that treat documents as static monolithic text files, T-Editor operates directly on BTRON3 binary TAD segments: any image, audio clip, or sub-document can be embedded as a live Real Body (実身) directly inside the text flow, and non-linear ideas link seamlessly through Virtual Body fusen links (仮身付箋).</p>
-      <div class="app-desc-jp"><b>Tエディタ：</b> Microsoft WordやLibreOffice Writerを置き換える、直感的で軽快な日常業務・執筆用ワードプロセッサ。BTRON TADハイパーメディア能力を標準装備。実体コードは <code>src/apps/t_editor.c</code>（文書エディタUI・セグメント操作）および <code>src/apps/test_editor_ui.c</code>（描画検証テスト）で構成。見出しスタイル（Heading 1〜4）、ルーラー、余白設定、ヘッダー/フッター、箇条書き、脚注、ページ番号など、一般的なワープロの標準機能を網羅。さらにTAD独自の強力なハイパーメディア性能により、テキスト行内に画像・音声・表計算（Matrix）を「実身（Real Body）」として埋め込み、関連文書や参考資料を「仮身付箋（Virtual Body Fusen）」として自在にリンク。DOCXやPDFへの入出力にも対応した新世代の汎用文書作成環境です。</div>
+      <p>Clean, responsive Wordpad-class word processor designed for everyday writing, memos, and reports, equipped with a native <strong>basic automatic TAD layout engine</strong>. Implemented in <code>src/apps/t_editor.c</code> and validated by <code>src/apps/test_editor_ui.c</code>, T-Editor provides instant startup and intuitive rich-text formatting: paragraph styles (Heading 1–3, Body, Blockquote), visual rulers, customizable margins, bulleted/numbered lists, and auto-wrapping text flow. While heavy desktop publishing is reserved for Clarity, T-Editor gives daily authors lightning-fast auto-layout that embeds multimedia Real Bodies (実身) and Virtual Body fusen links (仮身付箋) directly into binary TAD segments.</p>
+      <div class="app-desc-jp"><b>Tエディタ：</b> Windows Wordpadのような軽快さと直感性を追求した、日常業務・執筆用汎用ワードプロセッサ。基本自動TADレイアウトエンジン（<code>t_editor_auto_layout</code>）を搭載し、実体コードは <code>src/apps/t_editor.c</code> および <code>src/apps/test_editor_ui.c</code> で構成。起動の瞬発力と軽快なレスポンスを最優先とし、見出しスタイル（Heading 1〜3）、ルーラー、余白設定、自動行折り返し、箇条書きなど日常執筆に必要な機能を網羅。さらにTAD独自のハイパーメディア機能により、テキスト行内に画像や表計算（Matrix）を「実身（Real Body）」として挿入し、関連資料を「仮身付箋（Virtual Body Fusen）」として自在にリンク。日常の文書作成をストレスなく快適に行えます。</div>
     </div>
     <div class="section">
       <h2>Key Features &amp; Implementation</h2>
       <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/t_editor.c</code>（TAD文書エディタ <code>open_t_editor_window</code>、セグメント操作）</li>
-        <li>テスト検証基盤：<code>src/apps/test_editor_ui.c</code>（UIレンダリング・セグメント編集検証）</li>
-        <li>Microsoft Word完全置換：段落スタイル（見出し・本文・引用）、インデント、行間、マージンルーラー</li>
-        <li>ヘッダー、フッター、ページ番号、脚注（Footnotes）、目次（TOC）の自動生成</li>
-        <li>Mozc TIP連携による快適な漢字変換・多言語TRONコード文字入力（和文・欧文・記号）</li>
-        <li>実身インライン埋め込み：画像、Paint図版、音声、Matrix表計算を文書フロー内に直接埋め込み</li>
-        <li>仮身付箋（Virtual Body Fusen）：文書内に別文書や参考資料へのリンクを付箋として配置</li>
-        <li>DOCX、RTF、PDF、プレーンテキスト、およびBTRON3規格準拠バイナリTADへの双方向保存・エクスポート</li>
+        <li>実体コード実装：<code>src/apps/t_editor.c</code>（Wordpad級UI・自動TADレイアウター・セグメント操作）</li>
+        <li>検証テストスイート：<code>src/apps/test_editor_ui.c</code>（184/184項目全テスト自動検証パス）</li>
+        <li>基本自動TADレイアウト：余白・行幅に応じた高速自動行折り返しとベースライン揃え</li>
+        <li>見出しスタイル（Heading 1〜3、本文、引用、箇条書きリスト）のワンタッチ適用</li>
+        <li>実身インライン埋め込み：画像・音声・Matrix表計算スニペットを行内に直接挿入</li>
+        <li>仮身付箋（Virtual Body Fusen）のドラッグ＆ドロップ挿入と相互リンク解決</li>
+        <li>Mozc TIP 日本語入力エンジン（F6〜F10ファンクションキー変換）完全統合</li>
+        <li>極小メモリフットプリントとミリ秒単位の超高速起動</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Why the Market Needs It</h2>
+      <ul class="app-features-list">
+        <li>Heavy monolithic word processors take seconds to launch and clutter the interface with hundreds of rarely used DTP buttons.</li>
+        <li>Plain text editors lack rich typography, styles, and multimedia links necessary for structured business memos and daily reports.</li>
+        <li>T-Editor strikes the perfect balance: Wordpad-level simplicity and responsiveness paired with the non-linear power of the BTRON TAD hypermedia databus.</li>
       </ul>
     </div>
     <div class="section">
@@ -49,13 +57,13 @@
         <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
         <tbody>
           <tr>
-            <td>Microsoft Word / LibreOffice Writer</td>
-            <td>Familiar document styles, margins, and headers with zero bloat plus native live TAD Real Body embedding</td>
-            <td rowspan="2">Business professionals, office workers, authors, academics, students, administrative staff</td>
+            <td>Windows Wordpad / TextEdit</td>
+            <td>Instant startup with basic auto TAD layout plus native Real Body / Virtual Body hypermedia linking</td>
+            <td rowspan="2">Everyday authors, researchers writing daily logs, engineers, students, office professionals</td>
           </tr>
           <tr>
-            <td>Static Document Formats (.docx / .rtf)</td>
-            <td>Non-linear hypermedia links (Virtual Bodies) allow nested documents and live-updating data feeds</td>
+            <td>Overloaded Word Processors (Word / LibreOffice Writer)</td>
+            <td>Zero startup latency, clean distraction-free canvas, lightweight binary TAD format</td>
           </tr>
         </tbody>
       </table>
@@ -63,15 +71,15 @@
     <div class="section">
       <h2>Typical Workflow</h2>
       <ol class="workflow-list">
-        <li>Create a new document in T-Editor; set margins, orientation, and heading styles using the ruler and ribbon.</li>
-        <li>Type reports or correspondence using Mozc TIP for fast Japanese kanji and TRON Code multilingual text.</li>
-        <li>Drag a financial table from Matrix or a vector sketch from Paint directly into the document flow as a live Real Body.</li>
-        <li>Insert Virtual Body fusen links to attach reference manuals or cabinet records without bloating file size.</li>
-        <li>Save natively as a BTRON3 TAD binary record, or export as clean PDF or DOCX for outside distribution.</li>
+        <li>Launch T-Editor instantly from Deskbar or with a hotkey.</li>
+        <li>Type document content with seamless Mozc Japanese conversion (F10/F7/F8) and apply Heading or Body styles.</li>
+        <li>The basic auto TAD layouter automatically formats line breaks and paragraph spacing to match current page margins.</li>
+        <li>Drag reference Fusen links or Matrix charts from Cabinet directly into the text flow.</li>
+        <li>Save the document directly as a BTRON3 binary TAD Real Body or export cleanly to plain text.</li>
       </ol>
     </div>
   </div>
-  <footer class="app-footer">
+    <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
       <span class="site-name">B-System Applications</span>
@@ -85,8 +93,9 @@
             <li><a href="Commander.html">Commander</a></li>
             <li><a href="Calculator.html">Calculator</a></li>
             <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-          <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -96,9 +105,10 @@
             <li><a href="TEditor.html" class="active">T-Editor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
-            <li><a href="LivingBook.html">Living Book</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
             <li><a href="Browser.html">Browser</a></li>
-            <li><a href="MailChat.html">Mail &amp; Chat</a></li>
+            <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">

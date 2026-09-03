@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clarity – 知識環境 | B-System</title>
-  <meta name="description" content="Instant-search knowledge hub and reading environment connected to the TAD API — index, read, annotate and retrieve Real Bodies in milliseconds.">
+  <title>Clarity – DTP組版出版＆チベットPecha・和式伝統判型 | B-System</title>
+  <meta name="description" content="QuarkXPress-class professional publishing system with dynamic Cabinet TAD source gathering, TeX Mode, Horizontal Tibetan Pecha layout, and First-Class Native Japanese Legacy Paper Formats.">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-
   <nav class="app-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
@@ -17,81 +16,164 @@
     <span class="sep">/</span>
     <span class="current">Clarity</span>
   </nav>
-
   <div class="app-hero">
-    <div class="app-hero-icon">📖</div>
+    <div class="app-hero-icon">📰</div>
     <h1>Clarity</h1>
-    <div class="app-hero-badge">DTP組版出版環境</div>
-    <div class="subtitle">QuarkXPress 4.0 Class Publishing &amp; Layout Engine (TAD Source Linking)</div>
+    <div class="app-hero-badge">DTP組版出版 · 伝統出版文化保全</div>
+    <div class="subtitle">QuarkXPress-Class Publishing &amp; Cabinet Link Aggregator with Native TeX, Horizontal Pecha (དཔེ་ཆ་) &amp; Japanese Legacy Formats (和装本・和式伝統判型)</div>
   </div>
-
   <div class="app-content">
     <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-
-    <div class="tagline-card">
-      <strong>"QuarkXPress 4.0 class professional publishing</strong> — multi-column layout frames, master pages, and live TAD source linking for modern publishers."
-    </div>
-
+    <div class="tagline-card"><strong>"QuarkXPress 4.0 class professional publishing — multi-column geometric frames, dynamic TAD Cabinet source gathering, native TeX Mode, Horizontal Tibetan Pecha (དཔེ་ཆ་) layout, and complete Japanese legacy vertical paper formats."</strong></div>
+    
     <div class="section">
       <h2>Overview</h2>
-      <p>Professional desktop publishing (DTP) and high-precision page layout engine engineered to compete directly with QuarkXPress 4.0. Implemented in pure C99 over the TAD browser and layout core (<code>src/apps/tad_browser.c</code>) and Display Primitives (<code>src/graphics/dp_core.c</code>), Clarity provides publishers, book designers, and editorial teams with geometric multi-column text frames, arbitrary polygon runaround, master pages, and baseline grids. What sets Clarity apart is its native TAD source linking: rather than copying static text, publication frames link directly to living TAD Real Bodies (実身) and Virtual Bodies (仮身). When authors edit chapters in T-Editor or diagrams in Paint, the publication layout in Clarity updates live in real time.</p>
-      <div class="app-desc-jp"><b>クラリティ：</b> QuarkXPress 4.0の精密組版機能を凌駕する、出版社・エディトリアルデザイナー向けプロフェッショナルDTP組版レイアウト環境。実体コードはTADブラウザー＆レイアウト基盤（<code>src/apps/tad_browser.c</code>）およびDisplay Primitives（<code>src/graphics/dp_core.c</code>）で構成。複数段組テキストボックス、任意ポリゴン回り込み、マスターページ、ベースライングリッド、トラッキング/カーニング精密制御を完備。最大の特長は「TADソース・リンク能力」であり、静的テキストの流し込みではなくTAD実身（Real Body）や仮身（Virtual Body）をフレームに直結。著者や編集者がT-Editorで原稿を更新したりPaintで図版を修正すると、Clarity上の出版組版紙面へリアルタイムに自動反映されます。</div>
-    </div>
-
-    <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（DTPレイアウトエンジン、フレーム連結、段組処理）</li>
-        <li>描画サブシステム：<code>src/graphics/dp_core.c</code>（ベクター枠、ポリゴン回り込み、トンボ/裁ち落とし描画）</li>
-        <li>QuarkXPress 4.0準拠の本格DTP組版（複数段組テキストフレーム、連結ストーリーフロー）</li>
-        <li>任意形状ポリゴン画像枠および図形回り込み（Runaround / Text Wrap）</li>
-        <li>マスターページ（見開き左右ページ、親ページ継承、ヘッダー/ノンブル連動）</li>
-        <li>TADソース動的リンク：T-Editor原稿実身やPaintベクター図形をフレームに直結し、更新を即時紙面に反映</li>
-        <li>ミリポイント単位の高精度タイポグラフィ（文字詰め、行送り、カーニング、ベースライングリッド）</li>
-        <li>CMYK分版プレビュー、特色（Spot Color）、トンボ・ブリード裁ち落とし対応のPostScript/PDF出力</li>
+      <p>Professional desktop publishing (DTP) and high-precision page layout engine engineered to surpass QuarkXPress 4.0 and advanced publishing suites. Implemented in <code>src/apps/clarity.c</code> and powered by its dedicated mathematical and cultural macro engine <code>src/apps/clarity_tex.c</code>, Clarity delivers geometric multi-column text frames, arbitrary polygon runaround, master pages, baseline grids, and millipoint typography control.</p>
+      
+      <p>Clarity serves as a <strong>First-Class Cultural Preservation Engine</strong> for two distinct Asian typography traditions — <strong>Tibetan</strong> and <strong>Japanese</strong>:</p>
+      <ul>
+        <li><strong>Horizontal Pecha Mode (དཔེ་ཆ་ · Tibetan Sacred Manuscripts):</strong> Authentic elongated horizontal loose-leaf geometry with ceremonial red/black double borders (lcags-ri), marginal folio markers (sna-chen / sna-chung), Tibetan numeral pagination (tshig-grangs), and interlinear root/commentary layout (mchan-'grel).</li>
+        <li><strong>Native Japanese Legacy Paper Formats &amp; Vertical Typesetting (和式伝統判型＆縦書き和装本):</strong> Native support for all historic Japanese paper standards (美濃判, 半紙, 四六判, 菊判, 新書判, 文庫判, 大奉書, 大福帳, 短冊, 色紙, 懐紙, 折本, 巻子本, 和装本袋綴じ) with precise vertical right-to-left flow (縦書き), ruby (ルビ), inline double-column notes (割注), line-breaking rules (禁則処理), and multi-line heading spans (行取り).</li>
       </ul>
+
+      <div class="app-desc-jp"><b>クラリティ（Clarity）：</b> QuarkXPress 4.0やAdobe InDesignの高度組版機能を融合した、プロフェッショナル向けDTP出版・組版環境。実体コードはDTP組版コンポジター（<code>src/apps/clarity.c</code>）およびTeX数理・伝統マクロエンジン（<code>src/apps/clarity_tex.c</code>）で構成。<br><br>
+      最大の特長は、キャビネットTADソース動的集約とTeXモードに加え、<b>「チベット伝統Pecha（དཔེ་ཆ་）横長判型」</b>および<b>「日本固有伝統判型（和装本・縦書き組版）」</b>を第一級（First-Class）文化保全機能として完全宣言・実装している点です：<br><br>
+      <b>1. チベットPecha横長判型モード（Horizontal Pecha Mode）：</b> チベット大蔵経（Kangyur/Tengyur）やデルゲ版（Derge）の横長非綴じ経典（560×110mm、650×140mm等）に完全準拠。朱黒二重枠（lcags-ri）、余白葉番号（tshig-grangs）、左余白表題（sna-chen）、本文・割注二段解説（mchan-'grel）を自動組版。<br>
+      <b>2. 日本固有伝統判型＆縦書き組版（Japanese Legacy Paper Formats）：</b> 江戸時代以来の和紙寸法および近代出版判型（美濃判、半紙、四六判、菊判、新書判、文庫判、大奉書、大福帳、短冊、色紙、懐紙、折本、巻子本、和装本袋綴じ）を完全網羅。右から左への縦書き行送り、ルビ（振り仮名）、割注、禁則処理、縦中横、行取りをミリポイント単位で精密制御します。</div>
     </div>
 
     <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Traditional DTP software (QuarkXPress, InDesign) treats text and images as detached static imports; every editorial revision requires tedious manual re-importing and layout reflow.</li>
-        <li>Clarity's live TAD source linking connects editorial writing directly with prepress layout: authors write in T-Editor, illustrators draw in Paint, and the publication layout updates continuously.</li>
-        <li>Eliminates massive proprietary subscription bloat with a lightning-fast, crash-proof C99 publishing engine tailored for professional books, magazines, journals, and newspapers.</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>Native Japanese Legacy Paper Formats Catalog (日本固有伝統判型一覧)</h2>
       <table class="market-table">
-        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead><tr><th>伝統判型 (Japanese Format)</th><th>寸法 (Dimensions)</th><th>用途・出版文化的位置づけ (Cultural Publishing Usage)</th></tr></thead>
         <tbody>
           <tr>
-            <td>QuarkXPress 4.0 / InDesign</td>
-            <td>Full professional multi-column DTP layout plus dynamic live linking to native TAD Real Body sources</td>
-            <td rowspan="2">Publishers, editorial houses, book designers, magazine art directors, technical documentation teams</td>
+            <td><b>美濃判 (Mino-ban)</b></td>
+            <td>273 × 394 mm</td>
+            <td>江戸時代公用紙・和装本標準判型。美濃和紙の規格寸法であり、歴史的文書・古典籍の最高峰規格。</td>
           </tr>
           <tr>
-            <td>Static DTP Workflow (manual copy/paste revisions)</td>
-            <td>Zero re-import friction: editorial edits in T-Editor and graphic updates in Paint propagate instantly into page layouts</td>
+            <td><b>半紙 (Hanshi)</b></td>
+            <td>242 × 333 mm</td>
+            <td>和装本・書道・古典草双紙の伝統規格。日本文化における最も親しまれた手書き原稿・木版刷り用紙。</td>
+          </tr>
+          <tr>
+            <td><b>四六判 (Shiroku-ban)</b></td>
+            <td>127 × 188 mm</td>
+            <td>近代日本文芸単行本・小説の標準規格（美濃判を四六に断裁した寸法に由来）。最も格調高い単行本判型。</td>
+          </tr>
+          <tr>
+            <td><b>菊判 (Kiku-ban)</b></td>
+            <td>150 × 218 mm</td>
+            <td>学術専門書、文芸雑誌、評論集、美術書の代表的判型（輸入洋紙「菊花紋」規格由来）。</td>
+          </tr>
+          <tr>
+            <td><b>新書判 (Shinsho-ban)</b></td>
+            <td>105 × 173 mm</td>
+            <td>教養新書、ノンフィクション、コミックス単行本の黄金比判型。軽快な持ち運びと高い可読性を両立。</td>
+          </tr>
+          <tr>
+            <td><b>文庫判 (Bunko-ban)</b></td>
+            <td>105 × 148 mm</td>
+            <td>岩波文庫・新潮文庫以来のポケット文学規格（A6相当）。手のひらに収まる国民的出版フォーマット。</td>
+          </tr>
+          <tr>
+            <td><b>大奉書 (Hōsho-ban)</b></td>
+            <td>394 × 530 mm</td>
+            <td>最高級公用文書、宮中令達、浮世絵版画（錦絵）の伝統規格。極上の風合いを持つ大判格式紙。</td>
+          </tr>
+          <tr>
+            <td><b>大福帳 (Daifukuchō-ban)</b></td>
+            <td>160 × 240 mm</td>
+            <td>江戸・明治期の商人勘定帳・台帳様式。縦長勘定綴じの伝統的ビジネス記録判型。</td>
+          </tr>
+          <tr>
+            <td><b>短冊 (Tanzaku-ban)</b></td>
+            <td>60 × 363 mm</td>
+            <td>俳句・短歌の詠進専用の極細縦長短冊判型。一行〜二行の雅やかな縦書き配置に最適化。</td>
+          </tr>
+          <tr>
+            <td><b>色紙 (Shikishi-ban)</b></td>
+            <td>242 × 272 mm</td>
+            <td>和歌、書画、揮毫、記念贈呈用の正方形に近い格式高い厚紙判型。</td>
+          </tr>
+          <tr>
+            <td><b>懐紙 (Kaishi-ban)</b></td>
+            <td>145 × 175 mm</td>
+            <td>茶道・和歌詠進・礼法に用いられる伝統懐紙寸法。</td>
+          </tr>
+          <tr>
+            <td><b>折本 (Orihon)</b></td>
+            <td>80 × 260 mm (可変)</td>
+            <td>蛇腹（アコーディオン）折りの仏教経典・年表・祝詞集。連続する紙面が折り畳まれた伝統装丁。</td>
+          </tr>
+          <tr>
+            <td><b>巻子本 (Kansubon)</b></td>
+            <td>280 × 1200+ mm (巻物)</td>
+            <td>絵巻物・歴史古文書の巻物形式。水平に広がりながら右から左へ縦書き段落が展開。</td>
+          </tr>
+          <tr>
+            <td><b>和装本・袋綴じ (Wasōbon Fukurotoji)</b></td>
+            <td>180 × 250 mm</td>
+            <td>一枚の紙を二つ折りにして外側に折り目を向け、背を四つ目綴じ（四穴）で糸留めする伝統装丁規格。</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <h2>Typical Workflow</h2>
+      <h2>Tibetan Horizontal Pecha Specifications (チベットPecha横長判型仕様)</h2>
+      <table class="market-table">
+        <thead><tr><th>Pecha 規格 (Pecha Standard)</th><th>寸法 (Dimensions)</th><th>用途・伝統的写本形式 (Manuscript &amp; Woodblock Tradition)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>Rinchen Terdzö (大蔵経・宝庫判)</b></td>
+            <td>650 × 140 mm</td>
+            <td>大宝蔵（リンチェン・テルズ）等、チベット密教大著述・儀軌集の大判長方形木版経典。</td>
+          </tr>
+          <tr>
+            <td><b>Kangyur / Tengyur (仏説・論疏標準判)</b></td>
+            <td>560 × 110 mm</td>
+            <td>デルゲ版・北京版チベット大蔵経の標準寸法。横長非綴じ葉（Loose-Leaf）形式。</td>
+          </tr>
+          <tr>
+            <td><b>Derge Woodblock (デルゲ木版大判)</b></td>
+            <td>700 × 180 mm</td>
+            <td>東チベット・デルゲ印経院に伝わる最高峰の大型木版刷り経典寸法。</td>
+          </tr>
+          <tr>
+            <td><b>Pocket Dharma (行者暗誦判)</b></td>
+            <td>320 × 85 mm</td>
+            <td>僧侶・修行者が携帯して読誦・暗記するための小型ポータブルPecha判型。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/clarity.c</code>（DTPコンポジター・伝統判型エンジン）</li>
+        <li>TeX数式＆伝統マクロ：<code>src/apps/clarity_tex.c</code>（LaTeX数理組版、\pecha、\tategakiマクロ）</li>
+        <li>日本固有伝統判型14種（美濃判・半紙・四六判・菊判・文庫判・短冊・和装本袋綴じ等）完全宣言</li>
+        <li>チベット横長Pecha判型（デルゲ版・大蔵経判・朱黒二重枠lcags-ri・余白葉番号・割注mchan）完全対応</li>
+        <li>高精度縦書き組版（ルビ、割注、禁則処理、縦中横、行取り）のミリポイント制御</li>
+        <li>キャビネットTADソース動的集約（原稿・表計算・作図の更新を紙面へリアルタイム自動連動）</li>
+        <li>CMYK分版、トンボ・ブリード裁ち落とし対応のカメラレディPostScript/PDF出力</li>
+        <li>NASA JPLおよびBTRON3 SPEC 3.20規格に準拠したクリーンルームC99実装</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Typical Cultural Publishing Workflow</h2>
       <ol class="workflow-list">
-        <li>Define master pages, column grids, margins, and folio numbering in Clarity.</li>
-        <li>Create linked text frames across pages to establish the main story flow.</li>
-        <li>Link external TAD Real Bodies (chapters written in T-Editor) directly into text frames via the TAD API.</li>
-        <li>Drop vector illustrations or charts from Paint/Matrix — text automatically wraps around polygon borders.</li>
-        <li>When the editorial team revises text in T-Editor, Clarity automatically updates the publication layout in real time.</li>
-        <li>Export camera-ready CMYK PostScript or PDF with bleed marks for high-end press production.</li>
+        <li><b>チベットPecha組版：</b> Clarityで「Pecha Mode (Kangyur 560×110mm)」を選択。Cabinetからチベット語TAD原稿をリンクし、朱黒二重枠（lcags-ri）と左余白表題（sna-chen）を設定して木版風レイアウトを出力。</li>
+        <li><b>和装本・文学単行本組版：</b> 「和装本モード（四六判 縦書き）」を選択。T-Editorで執筆された章原稿を流し込み、ルビ・割注・禁則処理を適用してリアルタイムに縦書き段組をプレビュー。</li>
+        <li><b>学術TeX出版：</b> 論文モードでTeX数式（\int, \frac, 行列）を混植し、Reviewの査読注釈実身（<code>pdf_tad_anno.c</code>）を参考文献として自動連動。</li>
+        <li><b>印刷所入稿：</b> トンボ（Crop marks）付きの高解像度CMYK PostScript / PDFをワンクリックで生成。</li>
       </ol>
     </div>
   </div>
-
   <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
@@ -106,8 +188,9 @@
             <li><a href="Commander.html">Commander</a></li>
             <li><a href="Calculator.html">Calculator</a></li>
             <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-          <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -117,9 +200,10 @@
             <li><a href="TEditor.html">T-Editor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html" class="active">Clarity</a></li>
-            <li><a href="LivingBook.html">Living Book</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
             <li><a href="Browser.html">Browser</a></li>
-            <li><a href="MailChat.html">Mail &amp; Chat</a></li>
+            <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -148,6 +232,5 @@
     </div>
     <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
   </footer>
-
 </body>
 </html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review – 学術査読＆科学PDFリーダー | B-System</title>
+  <meta name="description" content="High-performance scientific PDF reader and peer-review workspace with TAD annotation engine that stores peer-review records in Cabinet for Notebook and Clarity.">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="./apps.css">
+</head>
+<body>
+  <nav class="app-nav">
+    <a href="../../b-system.html">B-System</a>
+    <span class="sep">/</span>
+    <a href="../../b-system.html#apps">Applications</a>
+    <span class="sep">/</span>
+    <span class="current">Review</span>
+  </nav>
+  <div class="app-hero">
+    <div class="app-hero-icon">🔬</div>
+    <h1>Review</h1>
+    <div class="app-hero-badge">学術査読＆科学PDF</div>
+    <div class="subtitle">High-Performance Scientific PDF Reader &amp; TAD Peer-Review Annotation Engine</div>
+  </div>
+  <div class="app-content">
+    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+    <div class="tagline-card"><strong>"Distraction-free scientific paper reading and rigorous peer-review — vector PDF rendering, margin annotations, and TAD Real Body peer-review records feeding Notebook and Clarity."</strong></div>
+    <div class="section">
+      <h2>Overview</h2>
+      <p>High-performance vector PDF reader and academic peer-review workspace engineered specifically for reading, annotating, and dissecting scientific papers, technical specifications, and research manuscripts. Implemented in <code>src/apps/review.c</code> (and <code>src/apps/pdf_reader.c</code>) and powered by its dedicated annotation engine <code>src/apps/pdf_tad_anno.c</code>, Review transforms static published papers into active knowledge sources.</p>
+      <p>Rather than trapping annotations inside opaque proprietary PDF comments, the <strong>PDF TAD Annotation Engine (<code>pdf_tad_anno.c</code>)</strong> serializes marginalia, peer-review critiques, highlighted theorem passages, and extracted formulas directly as <strong>native TAD Real Bodies (実身) stored in Cabinet</strong>. These annotation Real Bodies serve as authoritative knowledge citations: <strong>Notebook</strong> can pull formulas for live computational verification, and <strong>Clarity</strong> can embed them as dynamically synced bibliography citations in published papers.</p>
+      <div class="app-desc-jp"><b>レビュー（Review）：</b> 学術論文、技術仕様書、査読原稿の精読・査読・引用抽出に特化した高精度科学PDFリーダー＆査読ワークスペース。実体コードは査読UI・閲覧基盤（<code>src/apps/review.c</code>）およびPDF TAD注釈エンジン（<code>src/apps/pdf_tad_anno.c</code>）で構成。ベクター描画による鮮明な数式・図表表示とミリ秒単位のページ送りを実現。<br><br>最大の特徴は「TAD査読注釈のキャビネット永続化」です。PDF上のハイライト、欄外メモ、査読コメント、抽出数式をPDFファイル内に閉じ込めることなく、独立した「TAD実身（Real Body）」としてキャビネットへ自動保存。この注釈実身は、<strong>Notebook</strong>での数式実験（計算引用）や、<strong>Clarity</strong>での学術論文組版（参考文献・査読引用）の生データソースとして直接連携し、再現性のあるオープンサイエンス研究基盤を形成します。</div>
+    </div>
+    <div class="section">
+      <h2>Key Features &amp; Implementation</h2>
+      <ul class="app-features-list">
+        <li>実体コード実装：<code>src/apps/review.c</code>（ベクターPDFレンダラー・査読ワークスペース）</li>
+        <li>TAD注釈エンジン：<code>src/apps/pdf_tad_anno.c</code>（査読メモ・ハイライトのTAD実身シリアライザー）</li>
+        <li>注釈のキャビネット自動保存：すべてのメモ・査読意見が永続的なTAD Real Bodyとしてカタログ化</li>
+        <li>Notebook連携：論文中の数式・パラメータ注釈をNotebookセルへワンクリックで計算引用</li>
+        <li>Clarity連携：論文からの引用文・図表注釈を出版紙面のテキスト枠へダイナミックリンク</li>
+        <li>学術論文に最適化された2段組自動認識、数式ズーム、および目次・しおりツリー表示</li>
+        <li>オフライン完全対応・テレメトリ排除による機密査読論文の安全な精読環境</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Why the Market Needs It</h2>
+      <ul class="app-features-list">
+        <li>Commercial PDF readers (Adobe Acrobat) are slow, bloated, and lock user highlights in opaque proprietary formats.</li>
+        <li>Academic researchers spend hours manually copying equations and citations from PDFs into their code or LaTeX drafts.</li>
+        <li>Review turns scientific reading into an active knowledge pipeline: every annotation becomes a live TAD Real Body usable across the entire OS.</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Replaces / Normalises</h2>
+      <table class="market-table">
+        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Adobe Acrobat / Mendeley Reader</td>
+            <td>Lightweight C99 speed; annotations saved as native TAD Real Bodies in Cabinet instead of closed databases</td>
+            <td rowspan="2">Scientists, peer reviewers, academic researchers, professors, graduate students, engineers</td>
+          </tr>
+          <tr>
+            <td>Static Paper Reading &amp; Manual Copy-Paste</td>
+            <td>Live quotation pipeline directly feeding Notebook simulations and Clarity publication layouts</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>Typical Workflow</h2>
+      <ol class="workflow-list">
+        <li>Open an academic paper (e.g. arXiv PDF or IEEE spec) in Review.</li>
+        <li>Highlight an equation or theorem and write a peer-review critique in the margin.</li>
+        <li>The <code>pdf_tad_anno</code> engine instantly generates a TAD Real Body record in Cabinet.</li>
+        <li>Open Notebook and import the annotation ID to verify the author's mathematical formula with live data.</li>
+        <li>Open Clarity and drop the annotation fusen into the literature review section of your forthcoming publication.</li>
+      </ol>
+    </div>
+  </div>
+  <footer class="app-footer">
+    <div class="app-footer-top">
+      <a href="../../b-system.html">← B-System</a>
+      <span class="site-name">B-System Applications</span>
+    </div>
+    <div class="app-footer-grid">
+      <div class="app-footer-col">
+        <h4>System</h4>
+        <ul>
+            <li><a href="Workbench.html">Workbench</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
+            <li><a href="Commander.html">Commander</a></li>
+            <li><a href="Calculator.html">Calculator</a></li>
+            <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
+            <li><a href="Preferences.html">Preferences</a></li>
+            <li><a href="Boot.html">Bootloader</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>TAD</h4>
+        <ul>
+            <li><a href="Cabinet.html">Cabinet</a></li>
+            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
+            <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html" class="active">Review</a></li>
+            <li><a href="Browser.html">Browser</a></li>
+            <li><a href="Chat.html">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="MediaPulse.html">MediaPulse</a></li>
+            <li><a href="Paint.html">Paint</a></li>
+            <li><a href="Music.html">Music</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="../settings/Appearance.html">Appearance</a></li>
+            <li><a href="../settings/Desktop.html">Desktop</a></li>
+            <li><a href="../settings/Input.html">Input</a></li>
+            <li><a href="../settings/Language.html">Language</a></li>
+            <li><a href="../settings/Sound.html">Sound</a></li>
+            <li><a href="../settings/Network.html">Network</a></li>
+            <li><a href="../settings/Display.html">Display</a></li>
+            <li><a href="../settings/Media.html">Media</a></li>
+            <li><a href="../settings/System.html">System</a></li>
+            <li><a href="../settings/Security.html">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+  </footer>
+</body>
+</html>

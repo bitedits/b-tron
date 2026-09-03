@@ -50,6 +50,7 @@ VERIFY_SRCS = btron_verify.c \
               ../src/hmi/hmi_panel.c \
               ../src/font/troncode.c \
               ../src/font/jis_fonts.c \
+              ../src/font/tibetan_fonts.c \
               ../src/font/font_mgr.c
 
 VERIFY_OBJS = $(VERIFY_SRCS:.c=.o)

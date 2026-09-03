@@ -4,6 +4,8 @@
  */
 
 #include <btron/tip.h>
+#include "wylie.h"
+#include <btron/tibetan_dict.h>
 #include <btron/event.h>
 #include <btron/mozc_engine.h>
 #include <btron/troncode.h>
@@ -47,6 +49,17 @@ TIP_INPUT_MODE tip_get_mode(void) {
     return g_tip.mode;
 }
 
+const char* tip_get_mode_str(void) {
+    switch (g_tip.mode) {
+        case TIP_MODE_HIRAGANA: return "[JP あ]";
+        case TIP_MODE_KATAKANA: return "[JP ア]";
+        case TIP_MODE_TIBETAN: return "[TB བོད]";
+        case TIP_MODE_ASCII:
+        default: return "[EN]";
+    }
+}
+
+
 void tip_set_mode(TIP_INPUT_MODE mode) {
     g_tip.mode = mode;
     if (g_tip.state != TIP_STATE_IDLE) {
@@ -59,6 +72,8 @@ void tip_toggle_mode(void) {
         g_tip.mode = TIP_MODE_HIRAGANA;
     } else if (g_tip.mode == TIP_MODE_HIRAGANA) {
         g_tip.mode = TIP_MODE_KATAKANA;
+    } else if (g_tip.mode == TIP_MODE_KATAKANA) {
+        g_tip.mode = TIP_MODE_TIBETAN;
     } else {
         g_tip.mode = TIP_MODE_ASCII;
     }
@@ -104,6 +119,10 @@ const char* tip_get_converted_text(char *out_buf, int max_len) {
     if (g_tip.state == TIP_STATE_PRECOMP) {
         if (g_tip.mode == TIP_MODE_KATAKANA) {
             mozc_hiragana_to_katakana(g_tip.reading_buf, out_buf, max_len);
+            return out_buf;
+        }
+        if (g_tip.mode == TIP_MODE_TIBETAN) {
+            wylie_to_tibetan(g_tip.romaji_buf, out_buf, (size_t)max_len);
             return out_buf;
         }
         strncpy(out_buf, g_tip.reading_buf, max_len - 1);
@@ -229,7 +248,11 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
             if (g_tip.romaji_len > 0) {
                 g_tip.romaji_len--;
                 g_tip.romaji_buf[g_tip.romaji_len] = '\0';
-                mozc_romaji_to_hiragana(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+                if (g_tip.mode == TIP_MODE_TIBETAN) {
+                    wylie_to_tibetan(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+                } else {
+                    mozc_romaji_to_hiragana(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+                }
                 g_tip.reading_len = (int)strlen(g_tip.reading_buf);
 
                 if (g_tip.romaji_len == 0) {
@@ -253,10 +276,87 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
         return FALSE;
     }
 
-    /* Space key: trigger Mozc Kana-Kanji conversion or advance candidate */
-    if (key == ' ') {
+    /* Tibetan Dictionary Popup Trigger: Tab, Shift+Space, Ctrl+Space, or F4 */
+    BOOL is_shift_space = (key == ' ' && (modifiers & (BTRON_KMOD_SHIFT | BTRON_KMOD_CTRL)));
+    BOOL is_tab_trigger = (key == '	' || key == 9 || key == BTRON_KEY_F4);
+
+    if (g_tip.mode == TIP_MODE_TIBETAN && (is_shift_space || is_tab_trigger)) {
         if (g_tip.state == TIP_STATE_PRECOMP) {
-            /* Execute Mozc lattice search and show candidate window immediately */
+            g_tip.num_clauses = 1;
+            g_tip.active_clause = 0;
+            strncpy(g_tip.clauses[0].reading, g_tip.reading_buf, TIP_MAX_STR_LEN - 1);
+            g_tip.clauses[0].selected_candidate = 0;
+            g_tip.clauses[0].num_candidates = tibetan_lookup_candidates(
+                g_tip.romaji_buf,
+                g_tip.reading_buf,
+                g_tip.clauses[0].candidates,
+                TIP_MAX_CANDIDATES
+            );
+            if (g_tip.clauses[0].num_candidates > 0) {
+                strncpy(g_tip.clauses[0].converted,
+                        g_tip.clauses[0].candidates[0].value,
+                        TIP_MAX_STR_LEN - 1);
+            } else {
+                strncpy(g_tip.clauses[0].converted, g_tip.reading_buf, TIP_MAX_STR_LEN - 1);
+            }
+            g_tip.state = TIP_STATE_CANDIDATE_SELECT;
+            g_tip.candidate_window_visible = TRUE;
+            return TRUE;
+        } else if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
+            /* Cycle candidate in Tibetan mode */
+            if (g_tip.num_clauses > 0) {
+                TIP_CLAUSE *c = &g_tip.clauses[g_tip.active_clause];
+                if (c->num_candidates > 0) {
+                    c->selected_candidate = (c->selected_candidate + 1) % c->num_candidates;
+                    strncpy(c->converted, c->candidates[c->selected_candidate].value, TIP_MAX_STR_LEN - 1);
+                }
+            }
+            return TRUE;
+        }
+    }
+
+    /* Space key handling: In Tibetan mode, Space commits pre-edit with Tsheg ('་') directly */
+    if (key == ' ' && !(modifiers & (BTRON_KMOD_SHIFT | BTRON_KMOD_CTRL))) {
+        if (g_tip.mode == TIP_MODE_TIBETAN) {
+            if (g_tip.state == TIP_STATE_PRECOMP) {
+                if (out_commit && max_commit > 0) {
+                    char temp_buf[TIP_MAX_STR_LEN];
+                    tip_get_converted_text(temp_buf, sizeof(temp_buf));
+                    size_t cur_len = strlen(temp_buf);
+                    /* Append Tsheg (་ = 0x0F0B = à¼) if not ending in tsheg/shad */
+                    if (cur_len >= 3 &&
+                        (unsigned char)temp_buf[cur_len-3] == 0xE0 &&
+                        (unsigned char)temp_buf[cur_len-2] == 0xBC &&
+                        ((unsigned char)temp_buf[cur_len-1] == 0x8B ||
+                         (unsigned char)temp_buf[cur_len-1] == 0x8D ||
+                         (unsigned char)temp_buf[cur_len-1] == 0x8E)) {
+                        snprintf(out_commit, max_commit, "%s", temp_buf);
+                    } else {
+                        snprintf(out_commit, max_commit, "%s\xe0\xbc\x8b", temp_buf);
+                    }
+                }
+                tip_cancel();
+                return TRUE;
+            } else if (g_tip.state == TIP_STATE_CANDIDATE_SELECT || g_tip.state == TIP_STATE_CONVERTING) {
+                /* Commit selected candidate with Tsheg */
+                if (out_commit && max_commit > 0) {
+                    char temp_buf[TIP_MAX_STR_LEN];
+                    tip_get_converted_text(temp_buf, sizeof(temp_buf));
+                    snprintf(out_commit, max_commit, "%s\xe0\xbc\x8b", temp_buf);
+                }
+                tip_cancel();
+                return TRUE;
+            } else if (g_tip.state == TIP_STATE_IDLE) {
+                /* In Tibetan mode, pressing space emits a Tsheg (་) */
+                if (out_commit && max_commit > 0) {
+                    snprintf(out_commit, max_commit, "\xe0\xbc\x8b");
+                }
+                return TRUE;
+            }
+        }
+
+        /* Japanese Mozc Mode Space key */
+        if (g_tip.state == TIP_STATE_PRECOMP) {
             mozc_lattice_search(g_tip.reading_buf, g_tip.clauses, &g_tip.num_clauses, TIP_MAX_CLAUSES);
             if (g_tip.mode == TIP_MODE_KATAKANA) {
                 for (int i = 0; i < g_tip.num_clauses; i++) {
@@ -268,7 +368,6 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
             g_tip.candidate_window_visible = TRUE;
             return TRUE;
         } else if (g_tip.state == TIP_STATE_CONVERTING || g_tip.state == TIP_STATE_CANDIDATE_SELECT) {
-            /* Open Candidate window / cycle candidate */
             g_tip.state = TIP_STATE_CANDIDATE_SELECT;
             g_tip.candidate_window_visible = TRUE;
             if (g_tip.num_clauses > 0) {
@@ -317,7 +416,11 @@ BOOL tip_process_key(UW key, UW modifiers, char *out_commit, int max_commit) {
             g_tip.romaji_buf[g_tip.romaji_len++] = (char)key;
             g_tip.romaji_buf[g_tip.romaji_len] = '\0';
 
-            mozc_romaji_to_hiragana(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+            if (g_tip.mode == TIP_MODE_TIBETAN) {
+                wylie_to_tibetan(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+            } else {
+                mozc_romaji_to_hiragana(g_tip.romaji_buf, g_tip.reading_buf, sizeof(g_tip.reading_buf));
+            }
             g_tip.reading_len = (int)strlen(g_tip.reading_buf);
             g_tip.state = TIP_STATE_PRECOMP;
             return TRUE;
@@ -343,6 +446,77 @@ BOOL tip_is_candidate_window_visible(void) {
 /*
  * Render Floating Candidate Window in classic Sakamura double-bordered style (btron-tip.tex Section 4.2)
  */
+H tip_calc_text_width(const char *text) {
+    if (!text) return 0;
+    H total_w = 0;
+    const unsigned char *p = (const unsigned char *)text;
+    while (*p) {
+        if (*p == '\n') {
+            p++;
+            continue;
+        }
+        if (*p < 0x80) {
+            total_w += 8;
+            p++;
+        } else if ((*p & 0xE0) == 0xC0) {
+            total_w += 16;
+            p += (p[1] != '\0' ? 2 : 1);
+        } else if ((*p & 0xF0) == 0xE0) {
+            UW cp = 0;
+            if (p[1] && p[2]) {
+                cp = ((p[0] & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F);
+            }
+            if (cp >= 0x0F00 && cp <= 0x0FFF) {
+                if ((cp >= 0x0F71 && cp <= 0x0F84) || (cp >= 0x0F90 && cp <= 0x0FBC)) {
+                    /* Combining vowel mark or subjoined consonant */
+                    total_w += 0;
+                } else if (cp == 0x0F0B || cp == 0x0F0C || cp == 0x0F0D || cp == 0x0F0E) {
+                    total_w += 5;
+                } else {
+                    total_w += 8;
+                }
+            } else {
+                total_w += 16;
+            }
+            p += (p[1] && p[2] ? 3 : 1);
+        } else if ((*p & 0xF8) == 0xF0) {
+            total_w += 16;
+            p += (p[1] && p[2] && p[3] ? 4 : 1);
+        } else {
+            total_w += 8;
+            p++;
+        }
+    }
+    return total_w;
+}
+
+H tip_calc_candidate_window_width(const TIP_CLAUSE *clause) {
+    if (!clause || clause->num_candidates == 0) return 260;
+
+    H max_val_w = 0;
+    H max_ann_w = 0;
+
+    for (int i = 0; i < clause->num_candidates; i++) {
+        H val_w = tip_calc_text_width(clause->candidates[i].value);
+        if (val_w > max_val_w) max_val_w = val_w;
+
+        if (clause->candidates[i].annotation[0] != '\0') {
+            H ann_w = tip_calc_text_width(clause->candidates[i].annotation) + 16; /* for parentheses */
+            if (ann_w > max_ann_w) max_ann_w = ann_w;
+        }
+    }
+
+    H num_prefix_w = 28; /* "1  " */
+    H val_col_w = max_val_w;
+    H ann_spacing = (max_ann_w > 0) ? 14 : 0;
+    H ann_col_w = max_ann_w;
+
+    /* Total calculated width: margins(16) + prefix + value + spacing + annotation */
+    H total_needed_w = 16 + num_prefix_w + val_col_w + ann_spacing + ann_col_w + 16;
+    H min_w = 260;
+    return (total_needed_w > min_w) ? total_needed_w : min_w;
+}
+
 void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y) {
     if (!dev || !g_tip.candidate_window_visible ||
         (g_tip.state != TIP_STATE_CONVERTING && g_tip.state != TIP_STATE_CANDIDATE_SELECT)) {
@@ -353,7 +527,14 @@ void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y) {
     const TIP_CLAUSE *clause = &g_tip.clauses[g_tip.active_clause];
     if (clause->num_candidates == 0) return;
 
-    H win_w = 260;
+    /* Dynamically calculate popup width from longest candidate and longest annotation */
+    H max_val_w = 0;
+    for (int i = 0; i < clause->num_candidates; i++) {
+        H vw = tip_calc_text_width(clause->candidates[i].value);
+        if (vw > max_val_w) max_val_w = vw;
+    }
+
+    H win_w = tip_calc_candidate_window_width(clause);
     H item_h = 18;
     H header_h = 22;
     H footer_h = 20;
@@ -378,15 +559,18 @@ void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y) {
     RECT inner_rect = { win_x + 2, win_y + 2, win_x + win_w - 2, win_y + win_h - 2 };
     drw_rec(dev, &inner_rect);
 
-    /* 3. Title Bar: "Candidates - Mozc [x]" */
+    /* 3. Title Bar: "Candidates - Mozc / Tibetan TIP [x]" */
     RECT title_rect = { win_x + 3, win_y + 3, win_x + win_w - 3, win_y + header_h };
     fill_rec(dev, &title_rect, COLOR_LTGRAY);
     drw_lin(dev, win_x + 2, win_y + header_h, win_x + win_w - 2, win_y + header_h);
-    drw_tc_string(dev, win_x + 8, win_y + 5, "Candidates - Mozc", COLOR_NAVY, 0x00000000);
+    const char *title_str = (g_tip.mode == TIP_MODE_TIBETAN) ? "Candidates - Tibetan TIP" : "Candidates - Mozc";
+    drw_tc_string(dev, win_x + 8, win_y + 5, title_str, COLOR_NAVY, 0x00000000);
     drw_tc_string(dev, win_x + win_w - 22, win_y + 5, "[x]", COLOR_BLACK, 0x00000000);
 
-    /* 4. Candidate List with Categories */
+    /* 4. Candidate List with Categories & Dynamic Unclipped Annotation Alignment */
     H list_y = win_y + header_h + 2;
+    H ann_offset_x = 8 + 28 + max_val_w + 12;
+
     for (int i = 0; i < clause->num_candidates; i++) {
         RECT item_rect = { win_x + 4, list_y, win_x + win_w - 4, list_y + item_h };
         COLOR fg = COLOR_BLACK;
@@ -401,11 +585,11 @@ void tip_render_candidate_window(GDEV *dev, H caret_x, H caret_y) {
         snprintf(item_buf, sizeof(item_buf), "%d  %s", i + 1, clause->candidates[i].value);
         drw_tc_string(dev, win_x + 8, list_y + 2, item_buf, fg, bg);
 
-        /* Category Annotation */
+        /* Category Annotation aligned without clipping */
         if (clause->candidates[i].annotation[0] != '\0') {
-            char ann_buf[32];
+            char ann_buf[64];
             snprintf(ann_buf, sizeof(ann_buf), "(%s)", clause->candidates[i].annotation);
-            drw_tc_string(dev, win_x + 160, list_y + 2, ann_buf, i == clause->selected_candidate ? COLOR_YELLOW : COLOR_GRAY, bg);
+            drw_tc_string(dev, win_x + ann_offset_x, list_y + 2, ann_buf, i == clause->selected_candidate ? COLOR_YELLOW : COLOR_GRAY, bg);
         }
 
         list_y += item_h;

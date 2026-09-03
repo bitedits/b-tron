@@ -600,11 +600,17 @@ static void test_status_bar_and_toolbar_ime_click_toggles(void) {
     }
     TEST_ASSERT(tip_get_mode() == TIP_MODE_KATAKANA, "Status bar footer badge click switches to Katakana");
 
-    /* 3. Click Status Bar Footer Badge again -> Switches to ASCII */
+    /* 3. Click Status Bar Footer Badge again -> Switches to Tibetan (TB) */
     if (click_y >= client_h - 22) {
         tip_toggle_mode();
     }
-    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Status bar footer badge click switches to ASCII");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_TIBETAN, "Status bar footer badge click switches to Tibetan");
+
+    /* 4. Click Status Bar Footer Badge again -> Switches back to ASCII */
+    if (click_y >= client_h - 22) {
+        tip_toggle_mode();
+    }
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "Status bar footer badge click switches back to ASCII");
 
     /* 4. Candidate window visibility check on Space */
     tip_set_mode(TIP_MODE_HIRAGANA); /* In Hiragana */
@@ -706,10 +712,15 @@ static void test_f10_and_function_key_switching(void) {
     TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
     TEST_ASSERT(tip_get_mode() == TIP_MODE_KATAKANA, "F10 successfully switched from Hiragana to Katakana");
 
-    /* 3. Press F10 again -> Switches to ASCII */
+    /* 3. Press F10 again -> Switches to Tibetan (TB) */
     handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
     TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
-    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "F10 successfully switched back from Katakana to ASCII");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_TIBETAN, "F10 successfully switched from Katakana to Tibetan");
+
+    /* 4. Press F10 again -> Switches back to ASCII */
+    handled = tip_process_key(BTRON_KEY_F10, 0, commit, sizeof(commit));
+    TEST_ASSERT(handled == TRUE, "F10 keystroke was handled by TIP");
+    TEST_ASSERT(tip_get_mode() == TIP_MODE_ASCII, "F10 successfully switched back from Tibetan to ASCII");
 
     /* 4. Direct F6 (Hiragana) and F7 (Katakana) functional switching */
     handled = tip_process_key(BTRON_KEY_F6, 0, commit, sizeof(commit));
