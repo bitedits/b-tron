@@ -128,6 +128,7 @@ static void paint_tab_people(GDEV *dev, const RECT *body_r) {
                 {
                     "Ken Sakamura (TRON Project Leader & Founding Father)",
                     "Travis Geiselbrecht (Real-Time Executive & Threading Master)",
+                    "Dave Cutler (VAX VMS)",
                     "Namdak Tonpa (Kernel Hacker)"
                 }
             },
