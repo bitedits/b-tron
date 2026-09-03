@@ -558,7 +558,7 @@ $(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # T-Editor UI & Internal Functions Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
+TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/apps/t_editor.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
                    src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
                    src/graphics/dp_core.c
 TEST_EDITOR_OBJS = $(TEST_EDITOR_SRCS:.c=.test.o)

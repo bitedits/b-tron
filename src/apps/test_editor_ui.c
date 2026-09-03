@@ -35,36 +35,7 @@
 #define SDLK_x           'x'
 #define SDLK_KP_ENTER    0x40000058
 
-/* Replicate TEditor structure for isolated unit testing */
-#define TEDITOR_MAX_LINES 500
-#define TEDITOR_MAX_COLS  512
-#define TEDITOR_VIEW_ROWS 14
-#define TEDITOR_VIEW_COLS 80
-
-typedef struct {
-    char lines[TEDITOR_MAX_LINES][TEDITOR_MAX_COLS];
-    int total_lines;
-
-    int cursor_row;
-    int cursor_col;
-
-    /* Selection */
-    BOOL sel_active;
-    int sel_start_r, sel_start_c;
-    int sel_end_r, sel_end_c;
-
-    /* Scrolling */
-    int scroll_row;
-    int scroll_col;
-
-    /* File State */
-    char filename[128];
-    BOOL is_modified;
-
-    /* VOBJ Embed */
-    BOOL has_vobj;
-    char vobj_name[64];
-} TEditor;
+#include <btron/t_editor.h>
 
 static char g_clipboard[2048] = "";
 
@@ -833,6 +804,113 @@ static void test_dynamic_ps_multiple_instances(void) {
     cls_wnd(w4);
 }
 
+/* ── UI Test 16: Modern Menu Bar & Zero-Friction Asset Discovery ── */
+static void test_modern_menu_bar_and_asset_discovery(void) {
+    printf("\n[UI TEST 16] Modern Menu Bar & Zero-Friction Asset Discovery\n");
+
+    /* 1. Filesystem asset discovery (filtering .txt files) */
+    char files[32][64];
+    int cnt = teditor_get_asset_files(files, 32);
+    TEST_ASSERT(cnt >= 2, "Discovered at least 2 .txt asset files in repository");
+
+    BOOL found_report = FALSE, found_sutra = FALSE;
+    for (int i = 0; i < cnt; i++) {
+        if (strcmp(files[i], "BTRON3_Report.txt") == 0) found_report = TRUE;
+        if (strcmp(files[i], "Heart_Sutra_Tibetan.txt") == 0) found_sutra = TRUE;
+    }
+    TEST_ASSERT(found_report, "Discovered BTRON3_Report.txt in assets/texts");
+    TEST_ASSERT(found_sutra, "Discovered Heart_Sutra_Tibetan.txt in assets/texts");
+
+    /* 2. Menu lifecycle on T-Editor window */
+    WND *wnd = open_t_editor_window();
+    TEST_ASSERT(wnd != NULL, "Created T-Editor window instance");
+    TEditor *ed = (TEditor*)(uintptr_t)wnd->user_data;
+    TEST_ASSERT(ed != NULL, "TEditor instance exists");
+    TEST_ASSERT(ed->active_menu == -1, "Menu starts in closed state (-1)");
+
+    teditor_open_menu(ed, 0);
+    TEST_ASSERT(ed->active_menu == 0, "Explicitly opened File menu (0)");
+    teditor_close_menu(ed);
+    TEST_ASSERT(ed->active_menu == -1, "Explicitly closed menu (-1)");
+
+    /* 3. BeOS/Haiku fluid tracking across top-level headers */
+    teditor_open_menu(ed, 0); /* File menu open */
+
+    /* Move mouse over Edit menu header (x=100, y=10) */
+    EVT evt_move;
+    memset(&evt_move, 0, sizeof(EVT));
+    evt_move.type = EV_MOUSE_MOVE;
+    evt_move.pos.x = wnd->bounds.left + 4 + 100;
+    evt_move.pos.y = wnd->bounds.top + 26 + 10;
+    wnd->event_handler(wnd, &evt_move);
+    TEST_ASSERT(ed->active_menu == 1, "Fluid tracking: hovering over '編集(E)' switches active menu to 1");
+
+    /* Move mouse over View menu header (x=170, y=10) */
+    evt_move.pos.x = wnd->bounds.left + 4 + 170;
+    wnd->event_handler(wnd, &evt_move);
+    TEST_ASSERT(ed->active_menu == 2, "Fluid tracking: hovering over '表示(V)' switches active menu to 2");
+
+    /* 4. Cascading submenu activation via mouse hover */
+    teditor_open_menu(ed, 0); /* File menu open */
+    /* Hover over item 1 '開く (Open) ▶' (x=30, y=21 + 3 + 22 + 10 = 56) */
+    evt_move.pos.x = wnd->bounds.left + 4 + 30;
+    evt_move.pos.y = wnd->bounds.top + 26 + 56;
+    wnd->event_handler(wnd, &evt_move);
+    TEST_ASSERT(ed->active_submenu == 1, "Hovering over '開く (Open) ▶' expands cascading document submenu");
+
+    /* 5. Direct single-click file loading from cascading submenu (Zero Dialogs) */
+    int sutra_idx = -1;
+    for (int i = 0; i < cnt; i++) {
+        if (strcmp(files[i], "Heart_Sutra_Tibetan.txt") == 0) {
+            sutra_idx = i;
+            break;
+        }
+    }
+    TEST_ASSERT(sutra_idx >= 0, "Heart Sutra file found in asset list");
+
+    H sub_x = 6 + 210 - 2 + 40; /* inside cascading submenu (214..454) */
+    H sub_y = 21 + 3 + (1 * 22) + 3 + sutra_idx * 22 + 10;
+    EVT evt_click;
+    memset(&evt_click, 0, sizeof(EVT));
+    evt_click.type = EV_BUT_DOWN;
+    evt_click.pos.x = wnd->bounds.left + 4 + sub_x;
+    evt_click.pos.y = wnd->bounds.top + 26 + sub_y;
+    wnd->event_handler(wnd, &evt_click);
+
+    TEST_ASSERT(strstr(ed->filename, "Heart_Sutra") != NULL,
+                "Heart Sutra document loaded directly in 1 click without Open Dialog");
+    TEST_ASSERT(ed->active_menu == -1, "Menu closed immediately following file execution");
+
+    /* 6. Quick Action Toolbar [Open] button immediately drops open cascading file list */
+    evt_click.pos.x = wnd->bounds.left + 4 + 60; /* [Open] button at x=46..86, y=22..44 */
+    evt_click.pos.y = wnd->bounds.top + 26 + 32;
+    wnd->event_handler(wnd, &evt_click);
+    TEST_ASSERT(ed->active_menu == 0, "Toolbar [Open] button opens File menu");
+    TEST_ASSERT(ed->active_submenu == 1, "Toolbar [Open] button directly exposes cascading asset files");
+
+    /* 7. Escape key dismisses open menus */
+    EVT evt_esc;
+    memset(&evt_esc, 0, sizeof(EVT));
+    evt_esc.type = EV_KEY_DOWN;
+    evt_esc.key = BTRON_KEY_ESCAPE;
+    evt_esc.data = 0;
+    wnd->event_handler(wnd, &evt_esc);
+    TEST_ASSERT(ed->active_menu == -1, "Escape key cleanly dismisses active menu");
+
+    /* 8. Keyboard accelerator Ctrl+O opens cascading document list */
+    EVT evt_ctrl_o;
+    memset(&evt_ctrl_o, 0, sizeof(EVT));
+    evt_ctrl_o.type = EV_KEY_DOWN;
+    evt_ctrl_o.key = 'o';
+    evt_ctrl_o.data = (VW)BTRON_KMOD_CTRL;
+    wnd->event_handler(wnd, &evt_ctrl_o);
+    TEST_ASSERT(ed->active_menu == 0 && ed->active_submenu == 1,
+                "Ctrl+O accelerator directly opens cascading document list");
+
+    /* Clean up */
+    cls_wnd(wnd);
+}
+
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -856,6 +934,7 @@ int main(int argc, char **argv) {
     test_verified_jis_font_matrix_coverage();
     test_f10_and_function_key_switching();
     test_dynamic_ps_multiple_instances();
+    test_modern_menu_bar_and_asset_discovery();
 
     printf("\n==========================================================\n");
     printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",

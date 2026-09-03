@@ -85,6 +85,12 @@ static void teditor_init_default(TEditor *ed) {
     ed->scroll_col = 0;
     ed->has_vobj = TRUE;
     strncpy(ed->vobj_name, "Diagram.draw", sizeof(ed->vobj_name) - 1);
+    ed->active_menu = -1;
+    ed->hover_menu = -1;
+    ed->hover_item = -1;
+    ed->active_submenu = -1;
+    ed->hover_subitem = -1;
+    ed->show_line_nums = TRUE;
 }
 
 static void teditor_ensure_cursor_visible(TEditor *ed) {
@@ -450,54 +456,435 @@ static void destroy_t_editor(WND *wnd) {
     }
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((weak)) WND* open_vobj_manager_window(void) {
+    return NULL;
+}
+#else
+extern WND* open_vobj_manager_window(void);
+#endif
+
+/* ── BTRON 3.20 & BeOS-Style Menu System ─────────────────────────────── */
+typedef enum {
+    TMENU_FILE = 0,
+    TMENU_EDIT,
+    TMENU_VIEW,
+    TMENU_VOBJ,
+    TMENU_HELP,
+    TMENU_COUNT
+} TMenuId;
+
+enum {
+    TCMD_NONE = 0,
+    TCMD_FILE_NEW,
+    TCMD_FILE_OPEN_SUBMENU,
+    TCMD_FILE_OPEN_ASSET,
+    TCMD_FILE_SAVE,
+    TCMD_FILE_CLOSE,
+    TCMD_EDIT_UNDO,
+    TCMD_EDIT_CUT,
+    TCMD_EDIT_COPY,
+    TCMD_EDIT_PASTE,
+    TCMD_EDIT_SELECT_ALL,
+    TCMD_VIEW_ZOOM_IN,
+    TCMD_VIEW_ZOOM_OUT,
+    TCMD_VIEW_TOGGLE_LINES,
+    TCMD_VOBJ_INSERT,
+    TCMD_VOBJ_CABINET,
+    TCMD_HELP_ABOUT
+};
+
+typedef struct {
+    const char *label;
+    const char *accel;
+    int cmd;
+    BOOL enabled;
+    BOOL has_submenu;
+} TMenuItem;
+
+typedef struct {
+    const char *title;
+    RECT rect; /* in window coordinates: top=0, bottom=21 */
+    int item_count;
+    TMenuItem items[8];
+} TMenuHeader;
+
+static const TMenuHeader g_menus[TMENU_COUNT] = {
+    {
+        "ファイル(F)", { 6, 0, 82, 21 }, 5,
+        {
+            { "新規作成 (New)",         "Ctrl+N", TCMD_FILE_NEW,          TRUE,  FALSE },
+            { "開く (Open)",             "Ctrl+O", TCMD_FILE_OPEN_SUBMENU,  TRUE,  TRUE  },
+            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
+            { "上書き保存 (Save)",       "Ctrl+S", TCMD_FILE_SAVE,         TRUE,  FALSE },
+            { "閉じる (Close)",         "Ctrl+W", TCMD_FILE_CLOSE,        TRUE,  FALSE }
+        }
+    },
+    {
+        "編集(E)", { 86, 0, 146, 21 }, 6,
+        {
+            { "元に戻す (Undo)",         "Ctrl+Z", TCMD_EDIT_UNDO,         FALSE, FALSE },
+            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
+            { "切り取り (Cut)",         "Ctrl+X", TCMD_EDIT_CUT,          TRUE,  FALSE },
+            { "コピー (Copy)",           "Ctrl+C", TCMD_EDIT_COPY,         TRUE,  FALSE },
+            { "貼り付け (Paste)",         "Ctrl+V", TCMD_EDIT_PASTE,        TRUE,  FALSE },
+            { "すべて選択 (Select All)", "Ctrl+A", TCMD_EDIT_SELECT_ALL,    TRUE,  FALSE }
+        }
+    },
+    {
+        "表示(V)", { 150, 0, 210, 21 }, 4,
+        {
+            { "拡大 (Zoom In)",         "+",      TCMD_VIEW_ZOOM_IN,      TRUE,  FALSE },
+            { "縮小 (Zoom Out)",        "-",      TCMD_VIEW_ZOOM_OUT,     TRUE,  FALSE },
+            { "---",                     "",       TCMD_NONE,              FALSE, FALSE },
+            { "行番号表示 (Line Nums)",  "",       TCMD_VIEW_TOGGLE_LINES, TRUE,  FALSE }
+        }
+    },
+    {
+        "仮身(O)", { 214, 0, 278, 21 }, 2,
+        {
+            { "仮身を挿入 (Insert Fusen)", "",     TCMD_VOBJ_INSERT,       TRUE,  FALSE },
+            { "実身キャビネット (Cabinet)", "",    TCMD_VOBJ_CABINET,      TRUE,  FALSE }
+        }
+    },
+    {
+        "ヘルプ(H)", { 282, 0, 352, 21 }, 1,
+        {
+            { "T-Editor について (About)", "",     TCMD_HELP_ABOUT,        TRUE,  FALSE }
+        }
+    }
+};
+
+int teditor_get_asset_files(char files[][64], int max_files) {
+    if (!files || max_files <= 0) return 0;
+    int count = 0;
+
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    const char *dirs[] = { "assets/texts", "assets", NULL };
+    for (int d_idx = 0; dirs[d_idx] && count < max_files; d_idx++) {
+        DIR *d = opendir(dirs[d_idx]);
+        if (!d) continue;
+        struct dirent *de;
+        while ((de = readdir(d)) != NULL && count < max_files) {
+            if (de->d_name[0] == '.') continue;
+            size_t nlen = strlen(de->d_name);
+            if (nlen > 4 && strcmp(de->d_name + nlen - 4, ".txt") == 0) {
+                BOOL dup = FALSE;
+                for (int i = 0; i < count; i++) {
+                    if (strcmp(files[i], de->d_name) == 0) { dup = TRUE; break; }
+                }
+                if (!dup) {
+                    strncpy(files[count], de->d_name, 63);
+                    files[count][63] = '\0';
+                    count++;
+                }
+            }
+        }
+        closedir(d);
+    }
+#endif
+
+    if (count == 0) {
+        strncpy(files[0], "BTRON3_Report.txt", 63);
+        count++;
+        if (max_files > 1) {
+            strncpy(files[1], "Heart_Sutra_Tibetan.txt", 63);
+            count++;
+        }
+    }
+    return count;
+}
+
+void teditor_open_menu(TEditor *ed, int menu_idx) {
+    if (!ed || menu_idx < 0 || menu_idx >= TMENU_COUNT) return;
+    ed->active_menu = menu_idx;
+    ed->hover_menu = menu_idx;
+    ed->hover_item = -1;
+    ed->active_submenu = -1;
+    ed->hover_subitem = -1;
+}
+
+void teditor_close_menu(TEditor *ed) {
+    if (!ed) return;
+    ed->active_menu = -1;
+    ed->hover_menu = -1;
+    ed->hover_item = -1;
+    ed->active_submenu = -1;
+    ed->hover_subitem = -1;
+}
+
+static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx) {
+    switch (cmd) {
+        case TCMD_FILE_NEW:
+            teditor_init_default(ed);
+            ed->total_lines = 1;
+            ed->lines[0][0] = '\0';
+            snprintf(wnd->title, sizeof(wnd->title), "T-Editor - Untitled.txt");
+            break;
+        case TCMD_FILE_OPEN_ASSET: {
+            char files[32][64];
+            int cnt = teditor_get_asset_files(files, 32);
+            if (sub_idx >= 0 && sub_idx < cnt) {
+                char path[128];
+                snprintf(path, sizeof(path), "assets/texts/%s", files[sub_idx]);
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+                FILE *fp = fopen(path, "r");
+                if (!fp) {
+                    snprintf(path, sizeof(path), "assets/%s", files[sub_idx]);
+                } else {
+                    fclose(fp);
+                }
+#endif
+                teditor_load_file(ed, path);
+                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
+            }
+            break;
+        }
+        case TCMD_FILE_SAVE:
+            teditor_save_file(ed, ed->filename);
+            ed->is_modified = FALSE;
+            break;
+        case TCMD_FILE_CLOSE:
+            cls_wnd(wnd);
+            break;
+        case TCMD_EDIT_CUT:
+            teditor_copy_selection(ed);
+            teditor_delete_selection(ed);
+            break;
+        case TCMD_EDIT_COPY:
+            teditor_copy_selection(ed);
+            break;
+        case TCMD_EDIT_PASTE:
+            teditor_paste_clipboard(ed);
+            break;
+        case TCMD_EDIT_SELECT_ALL:
+            ed->sel_active = TRUE;
+            ed->sel_start_r = 0;
+            ed->sel_start_c = 0;
+            ed->sel_end_r = ed->total_lines - 1;
+            ed->sel_end_c = (int)strlen(ed->lines[ed->total_lines - 1]);
+            ed->cursor_row = ed->sel_end_r;
+            ed->cursor_col = ed->sel_end_c;
+            break;
+        case TCMD_VIEW_ZOOM_IN:
+            if (wnd->bounds.right - wnd->bounds.left < 980) wnd->bounds.right += 60;
+            if (wnd->bounds.bottom - wnd->bounds.top < 650) wnd->bounds.bottom += 40;
+            break;
+        case TCMD_VIEW_ZOOM_OUT:
+            if (wnd->bounds.right - wnd->bounds.left > 480) wnd->bounds.right -= 60;
+            if (wnd->bounds.bottom - wnd->bounds.top > 300) wnd->bounds.bottom -= 40;
+            break;
+        case TCMD_VIEW_TOGGLE_LINES:
+            ed->show_line_nums = !ed->show_line_nums;
+            break;
+        case TCMD_VOBJ_INSERT:
+            teditor_insert_text(ed, "[仮身: #101 図形 (Diagram.draw)]\n");
+            break;
+        case TCMD_VOBJ_CABINET:
+            if (open_vobj_manager_window) open_vobj_manager_window();
+            break;
+        case TCMD_HELP_ABOUT:
+            teditor_insert_text(ed, "\n--- BTRON3 3.20 T-Editor Word Processor (Cleanroom Edition) ---\n");
+            break;
+        default:
+            break;
+    }
+}
+
+static BOOL teditor_handle_menu_mouse_move(TEditor *ed, H x, H y) {
+    if (!ed || ed->active_menu < 0) return FALSE;
+
+    /* 1. Check if moving over another top-level menu header (BeOS fluid tracking) */
+    if (y >= 0 && y <= 21) {
+        for (int m = 0; m < TMENU_COUNT; m++) {
+            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
+                if (ed->active_menu != m) {
+                    ed->active_menu = m;
+                    ed->hover_menu = m;
+                    ed->hover_item = -1;
+                    ed->active_submenu = -1;
+                    ed->hover_subitem = -1;
+                    return TRUE;
+                }
+            }
+        }
+    }
+
+    const TMenuHeader *hdr = &g_menus[ed->active_menu];
+    H menu_x = hdr->rect.left;
+    H menu_y = 21;
+    H menu_w = 210;
+    H menu_h = hdr->item_count * 22 + 6;
+
+    /* 2. Check if moving inside cascading submenu (if open) */
+    if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
+        char files[32][64];
+        int file_cnt = teditor_get_asset_files(files, 32);
+        H sub_x = menu_x + menu_w - 2;
+        H sub_y = menu_y + 3 + (1 * 22);
+        H sub_w = 240;
+        H sub_h = file_cnt * 22 + 6;
+
+        if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
+            int sub_idx = (y - (sub_y + 3)) / 22;
+            if (sub_idx >= 0 && sub_idx < file_cnt) {
+                ed->hover_subitem = sub_idx;
+                return TRUE;
+            }
+        }
+    }
+
+    /* 3. Check if moving inside active dropdown menu */
+    if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
+        int idx = (y - (menu_y + 3)) / 22;
+        if (idx >= 0 && idx < hdr->item_count) {
+            if (hdr->items[idx].cmd != TCMD_NONE) {
+                ed->hover_item = idx;
+                if (hdr->items[idx].has_submenu) {
+                    ed->active_submenu = idx;
+                } else {
+                    ed->active_submenu = -1;
+                    ed->hover_subitem = -1;
+                }
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
+}
+
+static BOOL teditor_handle_menu_mouse_down(TEditor *ed, WND *wnd, H x, H y) {
+    if (!ed) return FALSE;
+
+    /* If a menu is open, handle clicks inside dropdown or submenu */
+    if (ed->active_menu >= 0) {
+        const TMenuHeader *hdr = &g_menus[ed->active_menu];
+        H menu_x = hdr->rect.left;
+        H menu_y = 21;
+        H menu_w = 210;
+        H menu_h = hdr->item_count * 22 + 6;
+
+        /* Click inside cascading submenu */
+        if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
+            char files[32][64];
+            int file_cnt = teditor_get_asset_files(files, 32);
+            H sub_x = menu_x + menu_w - 2;
+            H sub_y = menu_y + 3 + (1 * 22);
+            H sub_w = 240;
+            H sub_h = file_cnt * 22 + 6;
+
+            if (x >= sub_x && x <= sub_x + sub_w && y >= sub_y && y <= sub_y + sub_h) {
+                int sub_idx = (y - (sub_y + 3)) / 22;
+                if (sub_idx >= 0 && sub_idx < file_cnt) {
+                    teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_OPEN_ASSET, sub_idx);
+                    teditor_close_menu(ed);
+                    return TRUE;
+                }
+            }
+        }
+
+        /* Click inside active dropdown menu */
+        if (x >= menu_x && x <= menu_x + menu_w && y >= menu_y && y <= menu_y + menu_h) {
+            int idx = (y - (menu_y + 3)) / 22;
+            if (idx >= 0 && idx < hdr->item_count) {
+                if (hdr->items[idx].has_submenu) {
+                    ed->active_submenu = idx;
+                    return TRUE;
+                } else if (hdr->items[idx].enabled) {
+                    teditor_execute_menu_cmd(ed, wnd, hdr->items[idx].cmd, -1);
+                    teditor_close_menu(ed);
+                    return TRUE;
+                }
+            }
+        }
+
+        /* Click on another menu header */
+        if (y >= 0 && y <= 21) {
+            for (int m = 0; m < TMENU_COUNT; m++) {
+                if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
+                    if (ed->active_menu == m) {
+                        teditor_close_menu(ed);
+                    } else {
+                        teditor_open_menu(ed, m);
+                    }
+                    return TRUE;
+                }
+            }
+        }
+
+        /* Clicked outside menu -> dismiss menu */
+        teditor_close_menu(ed);
+        return TRUE;
+    }
+
+    /* Menu is not currently open; check if clicking on menu bar header */
+    if (y >= 0 && y <= 21) {
+        for (int m = 0; m < TMENU_COUNT; m++) {
+            if (x >= g_menus[m].rect.left && x <= g_menus[m].rect.right) {
+                teditor_open_menu(ed, m);
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
+}
+
 static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
     TEditor *ed = (wnd->user_data) ? (TEditor*)(uintptr_t)wnd->user_data : &g_teditor;
+
+    if (evt->type == EV_MOUSE_MOVE) {
+        H rel_x = evt->pos.x - (wnd->bounds.left + 4);
+        H rel_y = evt->pos.y - (wnd->bounds.top + 26);
+        if (ed->active_menu >= 0) {
+            teditor_handle_menu_mouse_move(ed, rel_x, rel_y);
+        }
+        return;
+    }
 
     if (evt->type == EV_BUT_DOWN) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
 
-        /* Toolbar button click checks */
-        if (rel_y >= 0 && rel_y <= 24) {
+        /* 1. If an active menu or cascading submenu is open, handle click */
+        if (ed->active_menu >= 0) {
+            if (teditor_handle_menu_mouse_down(ed, wnd, rel_x, rel_y)) return;
+        }
+
+        /* 2. Menu Bar Header Click (y = 0..21) */
+        if (rel_y >= 0 && rel_y <= 21) {
+            if (teditor_handle_menu_mouse_down(ed, wnd, rel_x, rel_y)) return;
+        }
+
+        /* 3. Toolbar button click checks (y = 22..44) */
+        if (rel_y >= 22 && rel_y <= 44) {
             if (rel_x >= 4 && rel_x <= 40) {
                 /* [New] */
-                teditor_init_default(ed);
-                ed->total_lines = 1;
-                ed->lines[0][0] = '\0';
+                teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_NEW, -1);
             } else if (rel_x >= 44 && rel_x <= 84) {
-                /* [Open] Toggle/Load between Tibetan Heart Sutra and BTRON3 Report */
-                if (strstr(ed->filename, "Heart_Sutra") != NULL) {
-                    if (teditor_load_file(ed, "assets/texts/BTRON3_Report.txt") != 0) {
-                        teditor_init_default(ed);
-                    }
-                    snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
-                } else {
-                    if (teditor_load_file(ed, "assets/texts/Heart_Sutra_Tibetan.txt") == 0) {
-                        snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
-                    }
-                }
+                /* [Open] Open File Menu with cascading document list immediately */
+                teditor_open_menu(ed, TMENU_FILE);
+                ed->active_submenu = 1;
             } else if (rel_x >= 88 && rel_x <= 128) {
                 /* [Save] */
-                ed->is_modified = FALSE;
+                teditor_execute_menu_cmd(ed, wnd, TCMD_FILE_SAVE, -1);
             } else if (rel_x >= 132 && rel_x <= 168) {
                 /* [Cut] */
-                teditor_copy_selection(ed);
-                teditor_delete_selection(ed);
+                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_CUT, -1);
             } else if (rel_x >= 172 && rel_x <= 212) {
                 /* [Copy] */
-                teditor_copy_selection(ed);
+                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_COPY, -1);
             } else if (rel_x >= 216 && rel_x <= 260) {
                 /* [Paste] */
-                teditor_paste_clipboard(ed);
+                teditor_execute_menu_cmd(ed, wnd, TCMD_EDIT_PASTE, -1);
             } else if (rel_x >= 266 && rel_x <= 306) {
                 /* [ - ] Shrink Editor Window */
-                if (wnd->bounds.right - wnd->bounds.left > 480) wnd->bounds.right -= 60;
-                if (wnd->bounds.bottom - wnd->bounds.top > 300) wnd->bounds.bottom -= 40;
+                teditor_execute_menu_cmd(ed, wnd, TCMD_VIEW_ZOOM_OUT, -1);
             } else if (rel_x >= 310 && rel_x <= 350) {
                 /* [ + ] Expand Editor Window */
-                if (wnd->bounds.right - wnd->bounds.left < 980) wnd->bounds.right += 60;
-                if (wnd->bounds.bottom - wnd->bounds.top < 650) wnd->bounds.bottom += 40;
+                teditor_execute_menu_cmd(ed, wnd, TCMD_VIEW_ZOOM_IN, -1);
             } else if (rel_x >= 354 && rel_x <= 480) {
                 /* [IME: あ/A (F10)] Toolbar Button Click */
                 tip_toggle_mode();
@@ -505,19 +892,20 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
             return;
         }
 
-        /* Status Bar Footer click -> Toggle JP / EN mode */
+        /* 4. Status Bar Footer click -> Toggle JP / EN mode */
         H client_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 26);
         if (rel_y >= client_h - 22) {
             tip_toggle_mode();
             return;
         }
 
-        /* Editor client click -> Move cursor */
-        if (rel_y >= 30) {
-            int click_r = (rel_y - 30) / 18 + ed->scroll_row;
+        /* 5. Editor client click -> Move cursor */
+        if (rel_y >= 46) {
+            int click_r = (rel_y - 48) / 18 + ed->scroll_row;
             if (click_r >= 0 && click_r < ed->total_lines) {
                 ed->cursor_row = click_r;
-                ed->cursor_col = teditor_find_byte_offset_from_x(ed->lines[click_r], rel_x);
+                int text_x_offset = ed->show_line_nums ? 36 : 10;
+                ed->cursor_col = teditor_find_byte_offset_from_x(ed->lines[click_r], rel_x - (text_x_offset - 36));
                 ed->sel_active = FALSE;
                 teditor_ensure_cursor_visible(ed);
             }
@@ -542,6 +930,13 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
         }
 
         UW sym = key_code;
+
+        if (sym == BTRON_KEY_ESCAPE || sym == 27) {
+            if (ed->active_menu >= 0) {
+                teditor_close_menu(ed);
+                return;
+            }
+        }
 
         if (ctrl) {
             if (sym == 'c' || sym == 'C') {
@@ -573,15 +968,12 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
                 snprintf(wnd->title, sizeof(wnd->title), "T-Editor - Untitled.txt");
                 return;
             } else if (sym == 'o' || sym == 'O') {
-                /* Ctrl+O: Open / Switch to Heart Sutra or BTRON3 Report */
-                if (strstr(ed->filename, "Heart_Sutra") != NULL) {
-                    if (teditor_load_file(ed, "assets/texts/BTRON3_Report.txt") != 0) {
-                        teditor_init_default(ed);
-                    }
-                } else {
-                    teditor_load_file(ed, "assets/texts/Heart_Sutra_Tibetan.txt");
-                }
-                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
+                /* Ctrl+O: Open File Menu with cascading document list */
+                teditor_open_menu(ed, TMENU_FILE);
+                ed->active_submenu = 1;
+                return;
+            } else if (sym == 'w' || sym == 'W') {
+                cls_wnd(wnd);
                 return;
             }
         }
@@ -678,6 +1070,105 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
     }
 }
 
+static void draw_3d_bevel_box(GDEV *dev, const RECT *r) {
+    fill_rec(dev, r, COLOR_LTGRAY);
+    drw_rec(dev, r);
+    /* 3D highlight: white top and left */
+    drw_lin(dev, r->left + 1, r->top + 1, r->right - 2, r->top + 1);
+    drw_lin(dev, r->left + 1, r->top + 1, r->left + 1, r->bottom - 2);
+    /* 3D shadow: dark gray bottom and right */
+    drw_lin(dev, r->left + 1, r->bottom - 2, r->right - 2, r->bottom - 2);
+    drw_lin(dev, r->right - 2, r->top + 1, r->right - 2, r->bottom - 2);
+}
+
+static void paint_menu_bar(TEditor *ed, GDEV *dev) {
+    RECT bar_rect = { 0, 0, dev->width, 21 };
+    fill_rec(dev, &bar_rect, COLOR_LTGRAY);
+    drw_lin(dev, 0, 21, dev->width, 21);
+
+    for (int m = 0; m < TMENU_COUNT; m++) {
+        const TMenuHeader *hdr = &g_menus[m];
+        RECT hr = hdr->rect;
+        if (ed->active_menu == m) {
+            fill_rec(dev, &hr, COLOR_NAVY);
+            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_WHITE, 0x00000000);
+        } else if (ed->hover_menu == m && ed->active_menu >= 0) {
+            fill_rec(dev, &hr, COLOR_WHITE);
+            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
+        } else {
+            drw_tc_string(dev, hr.left + 6, hr.top + 3, hdr->title, COLOR_BLACK, 0x00000000);
+        }
+    }
+}
+
+static void paint_menu_dropdown_overlay(TEditor *ed, GDEV *dev) {
+    if (!ed || ed->active_menu < 0 || ed->active_menu >= TMENU_COUNT) return;
+
+    const TMenuHeader *hdr = &g_menus[ed->active_menu];
+    H menu_x = hdr->rect.left;
+    H menu_y = 21;
+    H menu_w = 210;
+    H menu_h = hdr->item_count * 22 + 6;
+
+    RECT menu_box = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
+    draw_3d_bevel_box(dev, &menu_box);
+
+    for (int i = 0; i < hdr->item_count; i++) {
+        const TMenuItem *it = &hdr->items[i];
+        RECT ir = { menu_x + 3, menu_y + 3 + i * 22, menu_x + menu_w - 3, menu_y + 3 + (i + 1) * 22 };
+
+        if (it->cmd == TCMD_NONE) {
+            /* Separator */
+            drw_lin(dev, ir.left + 4, ir.top + 10, ir.right - 4, ir.top + 10);
+            continue;
+        }
+
+        BOOL is_hov = (ed->hover_item == i && it->enabled);
+        if (is_hov) {
+            fill_rec(dev, &ir, COLOR_NAVY);
+        }
+
+        COLOR txt_col = is_hov ? COLOR_WHITE : (it->enabled ? COLOR_BLACK : COLOR_GRAY);
+        COLOR acc_col = is_hov ? COLOR_LTGRAY : (it->enabled ? COLOR_DKGRAY : COLOR_GRAY);
+
+        drw_tc_string(dev, ir.left + 8, ir.top + 3, it->label, txt_col, 0x00000000);
+
+        if (it->accel && it->accel[0] != '\0') {
+            drw_tc_string(dev, ir.right - 56, ir.top + 3, it->accel, acc_col, 0x00000000);
+        }
+
+        if (it->has_submenu) {
+            drw_tc_string(dev, ir.right - 16, ir.top + 3, "▶", txt_col, 0x00000000);
+        }
+    }
+
+    /* Draw cascading submenu if active */
+    if (ed->active_menu == TMENU_FILE && ed->active_submenu == 1) {
+        char files[32][64];
+        int file_cnt = teditor_get_asset_files(files, 32);
+        H sub_x = menu_x + menu_w - 2;
+        H sub_y = menu_y + 3 + (1 * 22);
+        H sub_w = 240;
+        H sub_h = file_cnt * 22 + 6;
+
+        RECT sub_box = { sub_x, sub_y, sub_x + sub_w, sub_y + sub_h };
+        draw_3d_bevel_box(dev, &sub_box);
+
+        for (int f = 0; f < file_cnt; f++) {
+            RECT sir = { sub_x + 3, sub_y + 3 + f * 22, sub_x + sub_w - 3, sub_y + 3 + (f + 1) * 22 };
+            BOOL is_sub_hov = (ed->hover_subitem == f);
+            if (is_sub_hov) {
+                fill_rec(dev, &sir, COLOR_NAVY);
+            }
+            COLOR sub_txt_col = is_sub_hov ? COLOR_WHITE : COLOR_BLACK;
+
+            char fname_buf[80];
+            snprintf(fname_buf, sizeof(fname_buf), "📄 %s", files[f]);
+            drw_tc_string(dev, sir.left + 8, sir.top + 3, fname_buf, sub_txt_col, 0x00000000);
+        }
+    }
+}
+
 static void paint_t_editor(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
     TEditor *ed = (wnd->user_data) ? (TEditor*)(uintptr_t)wnd->user_data : &g_teditor;
@@ -687,58 +1178,65 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* CUA Toolbar Header */
-    RECT tb = { 0, 0, dev->width, 24 };
+    /* ── 1. BTRON 3.20 Standard Menu Bar (BeOS BMenuBar style) ───────────── */
+    paint_menu_bar(ed, dev);
+
+    /* ── 2. Quick Action Toolbar Header (y = 21..44) ─────────────────────── */
+    RECT tb = { 0, 21, dev->width, 44 };
     fill_rec(dev, &tb, COLOR_LTGRAY);
-    drw_lin(dev, 0, 24, dev->width, 24);
+    drw_lin(dev, 0, 44, dev->width, 44);
 
     /* CUA Action Buttons */
-    drw_tc_string(dev, 6, 4, "[New]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 46, 4, "[Open]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 90, 4, "[Save]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 134, 4, "[Cut]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 174, 4, "[Copy]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 218, 4, "[Paste]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 268, 4, "[-]", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 312, 4, "[+]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 6, 25, "[New]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 46, 25, "[Open]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 90, 25, "[Save]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 134, 25, "[Cut]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 174, 25, "[Copy]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 218, 25, "[Paste]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 268, 25, "[-]", COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 312, 25, "[+]", COLOR_BLACK, COLOR_LTGRAY);
 
     /* Dedicated Toolbar IME Switcher Button */
-    RECT ime_tb_btn = { 354, 2, 476, 22 };
+    RECT ime_tb_btn = { 354, 23, 476, 42 };
     COLOR ime_bg = (tip_get_mode() == TIP_MODE_ASCII) ? COLOR_LTGRAY : COLOR_CYAN;
     fill_rec(dev, &ime_tb_btn, ime_bg);
     drw_rec(dev, &ime_tb_btn);
     const char *tb_ime_tag = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[IME: あ (F10)]" :
                              ((tip_get_mode() == TIP_MODE_KATAKANA) ? "[IME: ア (F10)]" :
                               "[IME: A (F10)]");
-    drw_tc_string(dev, 358, 4, tb_ime_tag, COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, 358, 25, tb_ime_tag, COLOR_BLACK, 0x00000000);
 
     /* Document Status Title */
     char title_buf[128];
     snprintf(title_buf, sizeof(title_buf), "%s%s", ed->filename, ed->is_modified ? " *" : "");
-    drw_tc_string(dev, dev->width - 120, 4, title_buf, COLOR_NAVY, COLOR_LTGRAY);
+    drw_tc_string(dev, dev->width - 120, 25, title_buf, COLOR_NAVY, COLOR_LTGRAY);
 
-    /* Render Gutter & Text Lines */
+    /* ── 3. Render Gutter & Text Lines ────────────────────────────────────── */
     int view_rows = (dev->height - 60) / 18;
     if (view_rows < 1) view_rows = 1;
     int start_r = ed->scroll_row;
     int end_r = start_r + view_rows;
     if (end_r > ed->total_lines) end_r = ed->total_lines;
 
-    int y = 30;
+    int y = 48;
     for (int r_idx = start_r; r_idx < end_r; r_idx++) {
         /* Gutter line number */
-        char num_str[10];
-        snprintf(num_str, sizeof(num_str), "%2d|", r_idx + 1);
-        drw_tc_string(dev, 6, y, num_str, COLOR_GRAY, COLOR_WHITE);
+        if (ed->show_line_nums) {
+            char num_str[10];
+            snprintf(num_str, sizeof(num_str), "%2d|", r_idx + 1);
+            drw_tc_string(dev, 6, y, num_str, COLOR_GRAY, COLOR_WHITE);
+        }
+
+        int text_x_start = ed->show_line_nums ? 36 : 12;
 
         /* Line content */
         const char *line = ed->lines[r_idx];
         if (!ed->sel_active) {
-            drw_tc_string(dev, 36, y, line, COLOR_BLACK, COLOR_WHITE);
+            drw_tc_string(dev, text_x_start, y, line, COLOR_BLACK, COLOR_WHITE);
         } else {
             const char *p = line;
             int byte_idx = 0;
-            int x = 36;
+            int x = text_x_start;
             while (*p && x < dev->width - 16) {
                 int consumed = 0;
                 TC code = utf8_to_tc(p, &consumed);
@@ -781,8 +1279,9 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
 
         /* Draw Blinking/Solid Cursor and Inline TIP Composition */
         if (r_idx == ed->cursor_row) {
-            int cur_x = 36 + tc_calc_string_width(line, ed->cursor_col);
-            if (cur_x >= 36 && cur_x < dev->width - 10) {
+            int text_x_start = ed->show_line_nums ? 36 : 12;
+            int cur_x = text_x_start + tc_calc_string_width(line, ed->cursor_col);
+            if (cur_x >= text_x_start && cur_x < dev->width - 10) {
                 if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
                     char comp_buf[128];
                     tip_get_converted_text(comp_buf, sizeof(comp_buf));
@@ -828,11 +1327,21 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
     char badge_str[32];
     snprintf(badge_str, sizeof(badge_str), "[TIP: %s (F10)]", mode_str);
     drw_tc_string(dev, mode_badge.left + 6, mode_badge.top + 2, badge_str, COLOR_BLACK, 0x00000000);
+
+    /* ── 4. Floating Menu & Cascading Submenu Overlay (Topmost Layer) ─── */
+    paint_menu_dropdown_overlay(ed, dev);
 }
 
 WND* open_t_editor_window_with_file(const char *filepath) {
     TEditor *ed = (TEditor*)calloc(1, sizeof(TEditor));
     if (!ed) return NULL;
+
+    ed->active_menu = -1;
+    ed->hover_menu = -1;
+    ed->hover_item = -1;
+    ed->active_submenu = -1;
+    ed->hover_subitem = -1;
+    ed->show_line_nums = TRUE;
 
     if (!filepath || teditor_load_file(ed, filepath) != 0) {
         teditor_init_default(ed);
@@ -867,6 +1376,12 @@ TEditor* teditor_get_current(void) {
 
 int teditor_load_file(TEditor *ed, const char *filepath) {
     if (!ed || !filepath) return -1;
+
+    ed->active_menu = -1;
+    ed->hover_menu = -1;
+    ed->hover_item = -1;
+    ed->active_submenu = -1;
+    ed->hover_subitem = -1;
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
     FILE *fp = fopen(filepath, "r");
