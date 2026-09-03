@@ -22,6 +22,7 @@ extern void  Ifree(void *ptr);
 #define memcpy   tkl_memcpy
 #define strlen   tkl_strlen
 #define strncpy  tkl_strncpy
+#define strstr   tkl_strstr
 #define snprintf tkl_snprintf
 #endif
 
@@ -482,13 +483,248 @@ void app_menu_paint_cascading_strings(const APP_MENU_BAR *bar, GDEV *dev, const 
     }
 }
 
-/* ── Common Nano About Box Dialog Implementation ────────────────────────── */
+/* ── Common About Box Dialog Implementation with 32x32 Raster Icon ─────── */
 typedef struct {
     char title_full[128];
     char app_name[64];
-    char desc[64];
+    char desc[128];
     char attribution[64];
 } AboutDialogData;
+
+#define ABOUT_ICON_LZW_DICT   4096
+#define ABOUT_ICON_MAX_PIXELS (64 * 64)
+
+static uint16_t s_about_gif_prefix[ABOUT_ICON_LZW_DICT];
+static uint8_t  s_about_gif_suffix[ABOUT_ICON_LZW_DICT];
+static uint8_t  s_about_gif_stack[ABOUT_ICON_LZW_DICT + 1];
+static uint8_t  s_about_gif_raw[ABOUT_ICON_MAX_PIXELS];
+
+static int decode_and_draw_about_gif(GDEV *dev, const char *filepath, int dst_x, int dst_y) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (!dev || !dev->pixels || !filepath) return -1;
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) return -1;
+
+    uint8_t hdr[13];
+    if (fread(hdr, 1, 13, fp) != 13) { fclose(fp); return -1; }
+    if (memcmp(hdr, "GIF87a", 6) != 0 && memcmp(hdr, "GIF89a", 6) != 0) { fclose(fp); return -1; }
+
+    uint8_t flags = hdr[10];
+    int has_gct = (flags & 0x80) != 0;
+    int gct_size = 1 << ((flags & 0x07) + 1);
+    uint32_t gct[256];
+    memset(gct, 0, sizeof(gct));
+
+    if (has_gct) {
+        uint8_t gct_raw[768];
+        if (fread(gct_raw, 1, gct_size * 3, fp) != (size_t)(gct_size * 3)) { fclose(fp); return -1; }
+        for (int i = 0; i < gct_size; i++) {
+            gct[i] = (gct_raw[i*3] << 16) | (gct_raw[i*3+1] << 8) | gct_raw[i*3+2];
+        }
+    }
+
+    int trans_idx = -1;
+    int img_w = 0, img_h = 0;
+    int img_read = 0;
+
+    while (!feof(fp)) {
+        int b = fgetc(fp);
+        if (b == EOF || b == 0x3B) break;
+        if (b == 0x21) {
+            int ext_label = fgetc(fp);
+            if (ext_label == 0xF9) {
+                int block_size = fgetc(fp);
+                if (block_size == 4) {
+                    uint8_t gce[4];
+                    if (fread(gce, 1, 4, fp) == 4 && (gce[0] & 0x01)) trans_idx = gce[3];
+                }
+                while (1) { int l = fgetc(fp); if (l <= 0) break; fseek(fp, l, SEEK_CUR); }
+            } else {
+                while (1) { int l = fgetc(fp); if (l <= 0) break; fseek(fp, l, SEEK_CUR); }
+            }
+        } else if (b == 0x2C) {
+            uint8_t idesc[9];
+            if (fread(idesc, 1, 9, fp) != 9) break;
+            img_w = idesc[4] | (idesc[5] << 8);
+            img_h = idesc[6] | (idesc[7] << 8);
+            uint8_t iflags = idesc[8];
+            int has_lct = (iflags & 0x80) != 0;
+            int lct_size = 1 << ((iflags & 0x07) + 1);
+            uint32_t lct[256];
+            memset(lct, 0, sizeof(lct));
+            uint32_t *palette = gct;
+            if (has_lct) {
+                uint8_t lct_raw[768];
+                if (fread(lct_raw, 1, lct_size * 3, fp) != (size_t)(lct_size * 3)) break;
+                for (int i = 0; i < lct_size; i++) {
+                    lct[i] = (lct_raw[i*3] << 16) | (lct_raw[i*3+1] << 8) | lct_raw[i*3+2];
+                }
+                palette = lct;
+            }
+
+            int min_code_size = fgetc(fp);
+            if (min_code_size < 2 || min_code_size > 8) break;
+            int clear_code = 1 << min_code_size;
+            int eoi_code = clear_code + 1;
+            int code_size = min_code_size + 1;
+            int code_mask = (1 << code_size) - 1;
+            int next_code = eoi_code + 1;
+
+            int bit_count = 0;
+            uint32_t bit_buf = 0;
+            int pixel_count = 0;
+            int total_pixels = img_w * img_h;
+            if (total_pixels > ABOUT_ICON_MAX_PIXELS) total_pixels = ABOUT_ICON_MAX_PIXELS;
+
+            int old_code = -1, first_char = 0, stack_top = 0;
+            for (int i = 0; i < clear_code; i++) {
+                s_about_gif_prefix[i] = 0;
+                s_about_gif_suffix[i] = (uint8_t)i;
+            }
+
+            uint8_t sub_buf[256];
+            int sub_len = 0, sub_pos = 0;
+
+            while (pixel_count < total_pixels) {
+                while (bit_count < code_size) {
+                    if (sub_pos >= sub_len) {
+                        sub_len = fgetc(fp);
+                        if (sub_len <= 0) break;
+                        if (fread(sub_buf, 1, sub_len, fp) != (size_t)sub_len) break;
+                        sub_pos = 0;
+                    }
+                    bit_buf |= ((uint32_t)sub_buf[sub_pos++] << bit_count);
+                    bit_count += 8;
+                }
+                if (bit_count < code_size) break;
+                int code = bit_buf & code_mask;
+                bit_buf >>= code_size;
+                bit_count -= code_size;
+
+                if (code == clear_code) {
+                    code_size = min_code_size + 1;
+                    code_mask = (1 << code_size) - 1;
+                    next_code = eoi_code + 1;
+                    old_code = -1;
+                    continue;
+                }
+                if (code == eoi_code) break;
+
+                int cur_code = code;
+                if (cur_code >= next_code) {
+                    s_about_gif_stack[stack_top++] = (uint8_t)first_char;
+                    cur_code = old_code;
+                }
+                while (cur_code >= clear_code && cur_code < ABOUT_ICON_LZW_DICT) {
+                    s_about_gif_stack[stack_top++] = s_about_gif_suffix[cur_code];
+                    cur_code = s_about_gif_prefix[cur_code];
+                }
+                first_char = s_about_gif_suffix[cur_code];
+                s_about_gif_stack[stack_top++] = (uint8_t)first_char;
+
+                while (stack_top > 0 && pixel_count < total_pixels) {
+                    s_about_gif_raw[pixel_count++] = s_about_gif_stack[--stack_top];
+                }
+
+                if (old_code >= 0 && next_code < ABOUT_ICON_LZW_DICT) {
+                    s_about_gif_prefix[next_code] = old_code;
+                    s_about_gif_suffix[next_code] = (uint8_t)first_char;
+                    next_code++;
+                    if (next_code > code_mask && code_size < 12) {
+                        code_size++;
+                        code_mask = (1 << code_size) - 1;
+                    }
+                }
+                old_code = code;
+            }
+
+            if (pixel_count > 0) {
+                for (int y = 0; y < img_h && y < 32; y++) {
+                    int out_y = dst_y + y;
+                    if (out_y < dev->clip.top || out_y >= dev->clip.bottom) continue;
+                    if (out_y < 0 || out_y >= dev->height) continue;
+                    for (int x = 0; x < img_w && x < 32; x++) {
+                        int out_x = dst_x + x;
+                        if (out_x < dev->clip.left || out_x >= dev->clip.right) continue;
+                        if (out_x < 0 || out_x >= dev->width) continue;
+                        uint8_t p_idx = s_about_gif_raw[y * img_w + x];
+                        if (p_idx == trans_idx) continue;
+                        uint32_t col = palette[p_idx];
+                        dev->pixels[out_y * dev->width + out_x] = (COLOR)(0xFF000000 | col);
+                    }
+                }
+                img_read = 1;
+            }
+            break;
+        }
+    }
+    fclose(fp);
+    return img_read ? 0 : -1;
+#else
+    (void)dev; (void)filepath; (void)dst_x; (void)dst_y;
+    return -1;
+#endif
+}
+
+static void draw_about_app_icon(GDEV *dev, const char *app_name, int dst_x, int dst_y) {
+    if (!dev || !dev->pixels) return;
+
+    char name_lower[32];
+    memset(name_lower, 0, sizeof(name_lower));
+    int nlen = 0;
+
+    if (app_name) {
+        if (strstr(app_name, "Cabinet") || strstr(app_name, "キャビネット")) {
+            strncpy(name_lower, "cabinet", sizeof(name_lower) - 1);
+        } else if (strstr(app_name, "T-Editor") || strstr(app_name, "Editor") || strstr(app_name, "文書編集")) {
+            strncpy(name_lower, "teditor", sizeof(name_lower) - 1);
+        } else if (strstr(app_name, "Browser") || strstr(app_name, "TAD") || strstr(app_name, "実身閲覧")) {
+            strncpy(name_lower, "browser", sizeof(name_lower) - 1);
+        } else {
+            for (int i = 0; app_name[i] && nlen < 30; i++) {
+                char c = app_name[i];
+                if (c == ' ' || c == '-' || c == '_') continue;
+                if (c >= 'A' && c <= 'Z') c = c + ('a' - 'A');
+                if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+                    name_lower[nlen++] = c;
+                }
+            }
+        }
+    }
+
+    const char *prefixes[] = {
+        "assets/icons/",
+        "assets/",
+        "assets/apps/",
+        "../assets/icons/",
+        "../assets/",
+        NULL
+    };
+
+    int loaded = -1;
+    if (name_lower[0]) {
+        for (int p = 0; prefixes[p]; p++) {
+            char path[128];
+            snprintf(path, sizeof(path), "%s%s.gif", prefixes[p], name_lower);
+            if (decode_and_draw_about_gif(dev, path, dst_x, dst_y) == 0) {
+                loaded = 0;
+                break;
+            }
+        }
+    }
+
+    if (loaded != 0) {
+        /* Fallback decorative 32x32 retro beveled icon badge */
+        RECT badge = { dst_x, dst_y, dst_x + 32, dst_y + 32 };
+        fill_rec(dev, &badge, COLOR_LTGRAY);
+        drw_rec(dev, &badge);
+        drw_lin(dev, dst_x + 1, dst_y + 1, dst_x + 30, dst_y + 1);
+        drw_lin(dev, dst_x + 1, dst_y + 1, dst_x + 1, dst_y + 30);
+        char initial[2] = { (char)((app_name && app_name[0]) ? app_name[0] : 'B'), 0 };
+        if (initial[0] >= 'a' && initial[0] <= 'z') initial[0] -= ('a' - 'A');
+        drw_tc_string(dev, dst_x + 11, dst_y + 8, initial, COLOR_NAVY, 0x00000000);
+    }
+}
 
 static void paint_about_dialog(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
@@ -504,21 +740,26 @@ static void paint_about_dialog(WND *wnd, GDEV *dev) {
     drw_rec(dev, &card);
 
     if (data) {
-        drw_tc_string(dev, 16, 12, data->app_name, COLOR_NAVY, 0x00000000);
-        drw_tc_string(dev, 16, 30, data->desc, COLOR_DKGRAY, 0x00000000);
-        drw_tc_string(dev, 16, 50, data->attribution, COLOR_BLACK, 0x00000000);
+        /* Draw 32x32 Application Icon */
+        draw_about_app_icon(dev, data->app_name, card.left + 12, card.top + 18);
+
+        /* Render Aligned Text Information */
+        H text_x = card.left + 12 + 32 + 14; /* x = 64 */
+        drw_tc_string(dev, text_x, card.top + 10, data->app_name, COLOR_NAVY, 0x00000000);
+        drw_tc_string(dev, text_x, card.top + 32, data->desc, COLOR_DKGRAY, 0x00000000);
+        drw_tc_string(dev, text_x, card.top + 54, data->attribution, COLOR_BLACK, 0x00000000);
     }
 
     /* 3D OK Button */
-    H btn_w = 64, btn_h = 20;
+    H btn_w = 72, btn_h = 22;
     H btn_x = (dev->width - btn_w) / 2;
-    H btn_y = dev->height - 26;
+    H btn_y = dev->height - 28;
     RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
     fill_rec(dev, &ok_btn, COLOR_LTGRAY);
     drw_rec(dev, &ok_btn);
     drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
     drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
-    drw_tc_string(dev, btn_x + 22, btn_y + 2, "OK", COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, btn_x + 26, btn_y + 3, "OK", COLOR_BLACK, 0x00000000);
 }
 
 static void handle_about_dialog_event(WND *wnd, const EVT *evt) {
@@ -527,11 +768,11 @@ static void handle_about_dialog_event(WND *wnd, const EVT *evt) {
     if (evt->type == EV_BUT_DOWN) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        H btn_w = 64, btn_h = 20;
+        H btn_w = 72, btn_h = 22;
         H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
         H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
         H btn_x = (dev_w - btn_w) / 2;
-        H btn_y = dev_h - 26;
+        H btn_y = dev_h - 28;
         if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
             cls_wnd(wnd);
         }
@@ -560,7 +801,7 @@ WND* app_menu_create_about_dialog(const char *app_name, const char *jp_title,
     snprintf(data->desc, sizeof(data->desc), "%s", desc ? desc : "BTRON Application");
     snprintf(data->attribution, sizeof(data->attribution), "%s", attribution ? attribution : "Brought to B-System by 5HT");
 
-    WND *wnd = opn_wnd(data->title_full, x, y, 280, 135,
+    WND *wnd = opn_wnd(data->title_full, x, y, 380, 155,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (wnd) {
         wnd->user_data = (VW)(uintptr_t)data;

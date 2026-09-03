@@ -287,13 +287,14 @@ Both styles can be selected dynamically at runtime from **Appearance Settings (`
 
 All applications instantiate their About Box using the unified `app_menu_create_about_dialog()` API:
 
-- **Compact Dimensions**: Exactly 280×135 pixels.
+- **Aligned Dimensions**: Exactly 380×155 pixels (aligned from tight 280×135 to provide comfortable breathing room).
 
 - **Visual Presentation**:
   - Classic 3D beveled container (`COLOR_LTGRAY`) with inner card (`COLOR_WHITE`).
+  - Integrated 32×32 raster application icon (`assets/icons/*.gif` / `*.png` converted from OpenMoji SVGs) with transparent color palette clipping.
   - Bilingual title duplication (e.g., `T-Editor 3.20 (文書編集)`).
-  - Explicit attribution: **`"Brought to B-System by 5HT"`**.
-  - Centered 3D `[ OK ]` button.
+  - Clean text alignment for application name, full description, and explicit attribution: **`"Brought to B-System by 5HT"`**.
+  - Centered 3D `[ OK ]` button (72×22).
 
 - **Universal Dismissal**: Closes immediately on `OK` click, window close button `[X]`, or pressing `Escape`, `Enter`, or `Space`.
 

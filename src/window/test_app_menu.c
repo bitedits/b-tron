@@ -181,7 +181,7 @@ static void test_nano_about_box(void) {
     TEST_ASSERT(wnd != NULL, "Created nano About box dialog window");
     H w = wnd->bounds.right - wnd->bounds.left;
     H h = wnd->bounds.bottom - wnd->bounds.top;
-    TEST_ASSERT(w == 280 && h == 135, "Nano dialog has standard 280x135 dimensions");
+    TEST_ASSERT(w == 380 && h == 155, "About dialog has aligned 380x155 dimensions");
     TEST_ASSERT(strstr(wnd->title, "About CommonApp") != NULL, "Dialog title contains app name");
 
     /* Dismiss via Escape */

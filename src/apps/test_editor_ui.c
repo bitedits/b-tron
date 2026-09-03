@@ -932,24 +932,24 @@ static void test_teditor_nano_about_box(void) {
 
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
-    TEST_ASSERT(w == 280 && h == 135, "Nano dimensions verified: 280x135 compact dialog");
+    TEST_ASSERT(w == 380 && h == 155, "About box dimensions verified: 380x155 aligned dialog");
 
     /* Render About Box on test GDEV */
-    GDEV *test_dev = opn_dev(272, 105);
-    TEST_ASSERT(test_dev != NULL, "Created test GDEV for nano About Box");
+    GDEV *test_dev = opn_dev(372, 125);
+    TEST_ASSERT(test_dev != NULL, "Created test GDEV for About Box");
     if (about_wnd->paint && test_dev) {
         about_wnd->paint(about_wnd, test_dev);
     }
     TEST_ASSERT(test_dev != NULL && test_dev->pixels != NULL,
-                "Rendered nano About Box with 5HT attribution successfully");
+                "Rendered About Box with 5HT attribution successfully");
     cls_dev(test_dev);
 
     /* Click [ OK ] button */
     EVT evt_click;
     memset(&evt_click, 0, sizeof(EVT));
     evt_click.type = EV_BUT_DOWN;
-    evt_click.pos.x = about_wnd->bounds.left + 4 + (272 / 2);
-    evt_click.pos.y = about_wnd->bounds.top + 26 + (105 - 16);
+    evt_click.pos.x = about_wnd->bounds.left + 4 + (372 / 2);
+    evt_click.pos.y = about_wnd->bounds.top + 26 + (125 - 18);
     about_wnd->event_handler(about_wnd, &evt_click);
 
     /* Test Escape key dismissal */
