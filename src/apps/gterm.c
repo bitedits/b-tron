@@ -831,14 +831,18 @@ static void gterm_dispatch_cmd(WND *wnd, GTermState *st, int cmd) {
             shell_execute_cmd("help", gterm_shell_out, st, wnd);
             return;
         case TCMD_HELP_ABOUT:
-            app_menu_create_about_dialog("gterm", "端末",
-                "B-System Terminal Emulator (VT100 / TRON Console)",
-                "Brought to B-System by 5HT",
-                300, 200);
+            open_gterm_about_window();
             return;
         default:
             return;
     }
+}
+
+WND* open_gterm_about_window(void) {
+    return app_menu_create_about_dialog("gterm", "端末",
+        "B-System Terminal Emulator (VT100 / TRON Console)",
+        "Brought to B-System by 5HT",
+        300, 200);
 }
 
 static void handle_gterm_event(WND *wnd, const EVT *evt) {

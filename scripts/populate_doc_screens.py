@@ -101,6 +101,11 @@ APPS_MAP = {
             "screen": "../img/screens/Cabinet_Menu_Opened.png",
             "caption": "実機描画フレームバッファより自動抽出された実身キャビネット・エクスプローラ (ファイルメニュー展開・実身一覧表示)",
             "alt": "実身キャビネット (Cabinet Application - Menu Opened)"
+        },
+        {
+            "screen": "../img/screens/Cabinet_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Cabinet)",
+            "alt": "実身キャビネット バージョン情報 (About Cabinet)"
         }
     ],
     "Editor.html": [
@@ -108,6 +113,11 @@ APPS_MAP = {
             "screen": "../img/screens/Editor_Menu_Opened.png",
             "caption": "実機描画フレームバッファより自動抽出された基本文章編集 T-Editor (ファイルメニュー展開・本文テキスト表示)",
             "alt": "基本文章編集 (Editor Application - Menu Opened)"
+        },
+        {
+            "screen": "../img/screens/Editor_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Editor)",
+            "alt": "文書編集 バージョン情報 (About Editor)"
         }
     ],
     "Browser.html": [
@@ -115,6 +125,11 @@ APPS_MAP = {
             "screen": "../img/screens/Browser_Menu_Opened.png",
             "caption": "実機描画フレームバッファより自動抽出された仕様書閲覧 TAD Browser (ファイルメニュー展開・仕様書TAD文書表示)",
             "alt": "仕様書閲覧 (Browser Application - Menu Opened)"
+        },
+        {
+            "screen": "../img/screens/Browser_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About TAD Browser)",
+            "alt": "TADブラウザ バージョン情報 (About TAD Browser)"
         }
     ],
     "Terminal.html": [
@@ -122,6 +137,11 @@ APPS_MAP = {
             "screen": "../img/screens/Terminal_Menu_Opened.png",
             "caption": "実機描画フレームバッファより自動抽出されたBTRON端末エミュレータ GTerm (ファイルメニュー展開・シェル対話表示)",
             "alt": "端末 (Terminal Application - Menu Opened)"
+        },
+        {
+            "screen": "../img/screens/Terminal_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About gterm)",
+            "alt": "端末 バージョン情報 (About gterm)"
         }
     ],
     "Cassette.html": [

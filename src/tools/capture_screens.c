@@ -36,13 +36,16 @@ extern WND* open_sound_settings_window(void);
 extern WND* open_system_settings_window(void);
 extern WND* open_terminal_settings_window(void);
 
-/* Forward declarations for Applications window openers */
 extern WND* open_vobj_manager_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_tad_browser_window(const char *filepath, const char *title);
 extern WND* open_audio_player_window(void);
 extern WND* open_gterm_window(void);
 extern WND* open_about_window(void);
+extern WND* open_teditor_about_window(void);
+extern WND* open_vobj_about_window(void);
+extern WND* open_tad_browser_about_window(void);
+extern WND* open_gterm_about_window(void);
 
 /* Forward declarations for GTerm internals */
 typedef struct GTermState GTermState;
@@ -284,6 +287,38 @@ int main(int argc, char **argv) {
         if (w_abt) {
             redraw_all_windows();
             dump_window_rect(dev, w_abt, "/tmp/btron_raw_screens/About_Application.raw");
+        }
+
+        /* Editor About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_ed = open_teditor_about_window();
+        if (w_abt_ed) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_ed, "/tmp/btron_raw_screens/Editor_About.raw");
+        }
+
+        /* Cabinet About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_cab = open_vobj_about_window();
+        if (w_abt_cab) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_cab, "/tmp/btron_raw_screens/Cabinet_About.raw");
+        }
+
+        /* TAD Browser About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_brw = open_tad_browser_about_window();
+        if (w_abt_brw) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_brw, "/tmp/btron_raw_screens/Browser_About.raw");
+        }
+
+        /* Terminal About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_term = open_gterm_about_window();
+        if (w_abt_term) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_term, "/tmp/btron_raw_screens/Terminal_About.raw");
         }
     }
 
