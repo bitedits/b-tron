@@ -722,7 +722,7 @@ $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/desktop/desktop.c src/settings/appearance.c \
                     src/vobject/vobj.c src/desktop/about.c src/window/wnd.c \
                     src/window/app_menu.c \
-                    src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
+                    src/graphics/dp_core.c src/graphics/icons_bundle.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
 TEST_TRACKER_OBJS = $(TEST_TRACKER_SRCS:.c=.test.o)
 TEST_TRACKER_BIN  = test_tracker
 
@@ -910,7 +910,8 @@ CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
                        src/font/tibetan_fonts.c \
                        src/window/wnd.c \
                        src/window/app_menu.c \
-                       src/graphics/dp_core.c
+                       src/graphics/dp_core.c \
+                       src/graphics/icons_bundle.c
 
 CAPTURE_SCREENS_OBJS = $(CAPTURE_SCREENS_SRCS:.c=.test.o)
 
