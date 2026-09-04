@@ -227,3 +227,6 @@ In BTRON3 SPEC 3.20, illustrations, diagrams, and raster images are embedded dir
 | **Window Corner Resize** | BTRON 3.20 Resize Grip | Default 16x16 Corner Hatch Grip | **100% Spec Conformance** |
 | **Platform Target** | Bare-metal PC-AT (x86) | POSIX, QEMU ARM/AArch64, Pi 2B/3B/4B | **Universal Deployment** |
 
+# Credits
+
+* Namdak Tonpa and Grok 4.5

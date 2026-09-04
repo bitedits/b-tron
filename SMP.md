@@ -2,8 +2,6 @@
 
 This document outlines the architectural specification, memory protection model, and implementation roadmap for **Symmetric Multiprocessing (SMP)** and **Subsystem Process Isolation** in B-System (BTRON3 SPEC 3.20 Cleanroom Edition).
 
----
-
 ## 1. Executive Summary
 
 B-System enforces a rigorous architectural distinction between its hardware target tiers:
@@ -22,8 +20,6 @@ B-System enforces a rigorous architectural distinction between its hardware targ
   │ • Microkernel MMU isolation strictly counterproductive   │ • Zero-switch message passing: N-Worker / N-MPSC Queues  │
   └──────────────────────────────────────────────────────────┴──────────────────────────────────────────────────────────┘
 ```
-
----
 
 ## 2. Virtual Address Space Layout in UEFI SMP
 
@@ -59,18 +55,19 @@ In the x86\_64 UEFI SMP kernel (`src/kernel/core_smp.c`), each process is assign
 1. **Unique Virtual Address Spaces:**
    * Entries `0` through `255` of each process's PML4 root table point to unique Page Directory Pointer Tables (PDPT) with the User bit enabled (`U/S = 1`).
    * Process A cannot read, write, or execute memory belonging to Process B or the kernel.
+
 2. **Hardware Fault Containment:**
    * Any unauthorized memory access, null pointer dereference, or wild branch in a Ring 3 user process triggers a Page Fault (`#PF`, Vector 14). The kernel terminates or restarts the offending task without compromising the machine or adjacent tasks.
+
 3. **Shared Kernel High-Half:**
    * Entries `256` through `511` of the PML4 are identical pointers mirrored across all processes (`U/S = 0`, Supervisor Ring 0).
    * Kernel traps (`SYSCALL`, hardware IRQs, LAPIC timer ticks) do not require a `CR3` reload to access kernel data structures.
-4. **TLB Optimization via PCID:**
+
+4. TLB Optimization via PCID:
    * Using x86\_64 **Process Context Identifiers** (`CR4.PCIDE = 1`), switching address spaces preserves cached TLB entries across task switches, avoiding traditional microkernel TLB flush penalties:
      ```assembly
      mov %rax, %cr3   /* CR3[11:0] holds the process PCID tag */
      ```
-
----
 
 ## 3. The Concurrency Paradigm: Erlang-Style Actor Runtime
 
@@ -141,8 +138,6 @@ btron_msg_t *btron_mpsc_dequeue(btron_mpsc_queue_t *q) {
 }
 ```
 
----
-
 ## 4. The Historical Lesson: Windows NT 3.51 vs. NT 4.0
 
 A frequent design error in microkernel advocacy is placing the **Graphical Subsystem** in user space:
@@ -158,8 +153,6 @@ A frequent design error in microkernel advocacy is placing the **Graphical Subsy
 | **TLB Invalidation** | Frequent (Process switch) | None | None (Single-address or shared ring) |
 | **Drawing Throughput** | Low ($< 25\text{k ops/s}$) | High ($> 250\text{k ops/s}$) | Maximum ($> 1.2\text{M ops/s}$) |
 | **Fault Isolation** | High (Graphics crash isolated) | None (Kernel crash on fault) | High (Domain-partitioned Ring 3 + shared DP) |
-
----
 
 ## 5. Subsystem Isolation Matrix: Real BTRON Components
 
@@ -197,40 +190,49 @@ In B-System, the classical TRON subsystem architecture (`src/kernel/subsystem.c`
 ### Mapping T-Kernel Subsystem Registration (`tk_def_ssy`) to SMP
 
 In classic T-Kernel (`src/kernel/subsystem.c`), subsystems are registered via:
+
 ```c
 ER tk_def_ssy(ID ssid, const T_DSSY *pk_dssy);
 ```
+
 In B-System UEFI SMP:
+
 1. When a subsystem registers with `tk_def_ssy`, the kernel assigns it an isolated task ID (`tskid`), allocates a dedicated PML4 root (`cr3_phys`), and initializes its lock-free inbound MPSC queue (`ipc_queue`).
+
 2. Client applications invoke subsystem APIs via fast `SYSCALL` instructions.
+
 3. The kernel's system call dispatcher inspects the target subsystem ID (`ssid`) and translates the request into an atomic lock-free enqueue into the target subsystem's MPSC queue:
    ```c
    /* Atomic enqueue to target subsystem without scheduler preemption */
    btron_mpsc_enqueue(&s_smp_tasks[target_idx].ipc_queue, msg);
    ```
-4. Subsystems running on dedicated cores consume requests in pure non-blocking C loops, achieving full hardware memory isolation with sub-microsecond message dispatch latency.
 
----
+4. Subsystems running on dedicated cores consume requests in pure non-blocking C loops, achieving full hardware memory isolation with sub-microsecond message dispatch latency.
 
 ## 6. Minimal-Change Implementation Plan for `core_smp.c`
 
 To introduce hardware process isolation into `src/kernel/core_smp.c` while maintaining full $\mu$ITRON API compatibility (`cre_tsk`, `sta_tsk`, `wup_tsk`, `cre_sem`):
 
 ### Stage 1: PML4 Page Table Allocation
+
 1. Create a master kernel PML4 template mirroring identity mappings for physical RAM and MMIO ranges (`0xFEE00000` LAPIC, `0xFEC00000` IO-APIC, `0xFED00000` HPET) in entries 256–511.
 2. For each user task, allocate a private PML4 root. Copy entries 256–511 from the master template. Allocate private PDPT/PD/PT tables for entries 0–255 with `PAGE_USER | PAGE_RW | PAGE_PRESENT`.
 
 ### Stage 2: GDT and Task State Segment (TSS)
+
 1. Configure Global Descriptor Table (GDT) entries:
    * `0x08`: Kernel Code 64-bit (`DPL = 0`)
    * `0x10`: Kernel Data 64-bit (`DPL = 0`)
    * `0x18`: User Data 64-bit (`DPL = 3`, selector `0x1B`)
    * `0x20`: User Code 64-bit (`DPL = 3`, selector `0x23`)
    * `0x28`: 64-bit Task State Segment (TSS)
+
 2. Populate `g_cpu_topology[i].tss.rsp0` with the CPU's dedicated kernel stack top.
 
 ### Stage 3: Task Structure Augmentation
+
 Update `SMP_TASK` in `src/kernel/core_smp.c`:
+
 ```c
 typedef struct {
     ID                  tskid;
@@ -248,14 +250,18 @@ typedef struct {
 ```
 
 ### Stage 4: Fast System Call Gateway (`SYSCALL`/`SYSRET`)
+
 Program Model Specific Registers (MSRs) during core initialization (`btron_core_init`):
+
 * `IA32_EFER` (`0xC0000080`): Enable bit 0 (`SCE`).
 * `IA32_STAR` (`0xC0000081`): Set kernel selector `0x08` and user selector `0x1B`.
 * `IA32_LSTAR` (`0xC0000082`): Set system call handler address (`btron_syscall_entry`).
 * `IA32_FMASK` (`0xC0000084`): Mask interrupt flag (`IF`) on syscall entry.
 
 ### Stage 5: Ring 3 Transition Trampoline
+
 Launch isolated user tasks via `iretq`:
+
 ```assembly
 .global btron_enter_ring3
 btron_enter_ring3:
@@ -272,11 +278,13 @@ btron_enter_ring3:
     iretq                       /* Atomic transition to Ring 3 */
 ```
 
----
-
 ## 7. Scientific References
 
 For full mathematical proofs, formal latency models, and historical analysis, refer to the accompanying scientific papers in this repository:
 
 * **[btron-smp.tex](btron-smp.tex) / [btron-smp.pdf](btron-smp.pdf):** *Microkernels, Unikernels, and the Actor Core: Architectural Trade-Offs, Real-Time Determinism, and SMP Subsystem Isolation in B-System (BTRON 3.20)*
 * **[btron-article.tex](btron-article.tex) / [btron-article.pdf](btron-article.pdf):** *B-System Virtualization and Formal Foundations: A Cleanroom Architecture for Real-Time Operating Systems from Embedded MCUs to Modern Hypervisors*
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5

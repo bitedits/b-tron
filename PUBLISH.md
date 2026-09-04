@@ -1,8 +1,6 @@
-# B-System Documentation Publishing & Screenshot Pipeline Specification (PUBLISH.md)
+# B-System Documentation Publishing & Screenshot Pipeline Specification
 
 This document specifies the automated, deterministic, and lightweight screenshot extraction and publishing pipeline for **B-System (BTRON 3.20)** documentation.
-
----
 
 ## 1. Design Philosophy & Requirements
 
@@ -23,8 +21,6 @@ The B-System documentation pipeline is designed to be **cheap, instant, authenti
   - System desktop menus use descriptive opened names (e.g. `Desktop_MainMenu_Opened.png`, `GlobalMenu_System_Opened.png`).
 - **Sub-Second Batch Execution**: Renders all 27+ system windows and menus, encodes compressed PNGs, and populates documentation pages in **<100 milliseconds** total.
 - **Lightweight Lossless Storage**: Pure RGBA PNGs (zlib level 9 compression) averaging **4 KB to 28 KB** per window frame.
-
----
 
 ## 2. Pipeline Architecture & Execution Flow
 
@@ -78,8 +74,6 @@ The B-System documentation pipeline is designed to be **cheap, instant, authenti
 └────────────────────────────────────────────────────────┘
 ```
 
----
-
 ## 3. Geometric Crop & Framing Formula
 
 When a window is rendered to the headless canvas, the standard client bounds (`wnd->bounds`) do not include the BTRON3 title tab, 3D outer bevels, and drop shadow. The capture harness calculates the bounding box using the following formula:
@@ -95,8 +89,6 @@ y_1 &= \min(\text{dev}\to\text{height}, \text{wnd}\to\text{bounds.bottom} + 6)
 - **Left Offset ($-4\text{ px}$)**: Captures the 3D raised light bevel.
 - **Right/Bottom Offset ($+6\text{ px}$)**: Captures the 3D recessed shadow bevel and resize thumb grip.
 
----
-
 ## 4. Pixel Format & Color Fidelity
 
 The headless canvas uses a 32-bit ARGB pixel format (`COLOR = uint32_t`, `0xAARRGGBB`).
@@ -109,19 +101,19 @@ The headless canvas uses a 32-bit ARGB pixel format (`COLOR = uint32_t`, `0xAARR
 | **Alpha (A)** | Byte 3 | Preserved from Framebuffer (`0x00` outside window, `0xFF` window surface) |
 
 The pipeline ensures authentic reproduction of:
+
 - **SONY Dark Charcoal Palette** (`#2E3436`, `#1E2224`)
 - **BTRON Classic Desktop Teal** (`#008080`)
 - **3D Surface Bevels** (Highlight `#FFFFFF`, Shadow `#404040`)
 - **Multi-Script Fonts** (TRONCode Kanji, Kana, Ascii, Tibetan dBu-can)
 - **Transparent Desktop Cutouts** (Clean overlay on both dark and light documentation themes)
 
----
-
 ## 5. Screen Asset Inventory & HTML Page Mapping
 
 Screenshots are generated into `b-system/img/screens/` and populated across documentation pages:
 
 ### 5.1 Settings Applets (`./b-system/settings/*.html`)
+
 | Applet Document | Japanese Title | Embedded Screenshot File | Typical Size |
 | :--- | :--- | :--- | :--- |
 | [`Appearance.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/settings/Appearance.html) | 外観 (Appearance) | `Appearance_Settings.png` | ~10.6 KB |
@@ -138,6 +130,7 @@ Screenshots are generated into `b-system/img/screens/` and populated across docu
 | [`Terminal.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/settings/Terminal.html) | 端末・通信設定 (Terminal) | `Terminal_Settings.png` | ~10.7 KB |
 
 ### 5.2 Core Applications (`./b-system/apps/*.html` — Single Opened-Menu & Content Screenshots)
+
 > **App Screenshot Standard**: For Applications documentation, only single screenshots featuring an active window with its dropdown menu opened and authentic document/shell content are embedded:
 
 | Application Document | Japanese Title | Embedded Screenshot File (Opened Menu & Content) | Typical Size |
@@ -152,14 +145,13 @@ Screenshots are generated into `b-system/img/screens/` and populated across docu
 | [`Preferences.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Preferences.html) | 環境設定 (Preferences) | `Preferences_Settings.png` (コントロールパネルハブ) | ~28.8 KB |
 
 ### 5.3 Desktop BTRON Main Menu & System Overlays
+
 | Component | State / Dropdown | Generated Screenshot | Typical Size |
 | :--- | :--- | :--- | :--- |
 | **GlobalMenu** | システムメニューバー (通常状態) | `GlobalMenu.png` | ~1.7 KB |
 | **Desktop_MainMenu** | ［BTRON］メインメニュー展開 (Deskbar Hub) | `Desktop_MainMenu_Opened.png` | ~5.0 KB |
 | **GlobalMenu_System** | システム(S) ドロップダウン展開 | `GlobalMenu_System_Opened.png` | ~3.5 KB |
 | **GlobalMenu_Window** | ウィンドウ(W) ドロップダウン展開 | `GlobalMenu_Window_Opened.png` | ~2.8 KB |
-
----
 
 ## 6. HTML & TAD Embedding Standard (Plain Images)
 
@@ -175,8 +167,6 @@ All documentation pages link to their corresponding isolated window screenshot u
 </div>
 ```
 
----
-
 ## 7. Makefile Commands
 
 ```bash
@@ -189,3 +179,7 @@ elixir scripts/html2tad.exs
 # 3. Run entire test suite (including GUI, kernel, and app tests)
 make test
 ```
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5

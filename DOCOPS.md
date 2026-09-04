@@ -177,3 +177,7 @@ elixir scripts/html2tad.exs
 # 2. Execute full regression test suite
 make test
 ```
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5
