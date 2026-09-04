@@ -8,6 +8,7 @@
 #include <btron/apps.h>
 #include <btron/tracker.h>
 #include <btron/global_menu.h>
+#include <btron/desktop.h>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,21 +188,8 @@ int main(int argc, char **argv) {
                             clicked->event_handler(clicked, &ev);
                         }
                     }
-                } else if (ev.pos.y > 50 && ev.pos.y < 100 && ev.pos.x < 70) {
-                    /* Desktop Cabinet Icon click -> Open VOBJ Manager */
-                    open_vobj_manager_window();
-                } else if (ev.pos.y > 130 && ev.pos.y < 180 && ev.pos.x < 70) {
-                    /* Desktop T-Editor Icon click -> Open Editor */
-                    open_t_editor_window();
-                } else if (ev.pos.y > 210 && ev.pos.y < 260 && ev.pos.x < 70) {
-                    /* Desktop Terminal Icon click -> Open Terminal */
-                    open_gterm_window();
-                } else if (ev.pos.y > 290 && ev.pos.y < 340 && ev.pos.x < 70) {
-                    /* Desktop Audio Deck Icon click -> Open Audio Player */
-                    open_audio_player_window();
-                } else if (ev.pos.y > 370 && ev.pos.y < 420 && ev.pos.x < 70) {
-                    /* Desktop Chat Icon click -> Launch BeOS Chat */
-                    launch_beos_chat();
+                } else if (desktop_handle_click(ev.pos.x, ev.pos.y)) {
+                    /* Handled by desktop icon dispatcher */
                 }
                 } /* end else of tracker_handle_mouse_down */
             } else if (ev.type == EV_BUT_UP) {

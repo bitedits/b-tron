@@ -26,6 +26,7 @@ ER init_desktop_vram(H width, H height, COLOR *vram_ptr);
 void run_desktop_loop(void);
 void render_desktop_background(GDEV *dev);
 void render_system_panel(GDEV *dev);
+BOOL desktop_handle_click(H x, H y);
 
 #ifdef __cplusplus
 }

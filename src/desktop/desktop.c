@@ -8,10 +8,35 @@
 #include <btron/vobj.h>
 #include <btron/wnd.h>
 #include <btron/tracker.h>
+#include <btron/settings.h>
+#include <btron/settings_icon.h>
+#include <btron/apps.h>
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#include <libstr.h>
+#define strlen tkl_strlen
 #endif
+
+typedef struct {
+    const char *id_str;
+    const char *label;
+    const char *glyph;
+    COLOR glyph_col;
+    WND* (*action)(void);
+} DESKTOP_ICON_DEF;
+
+static const DESKTOP_ICON_DEF s_desktop_icons[] = {
+    { "cabinet",   "実身・仮身",   "実身", COLOR_NAVY,  open_vobj_manager_window },
+    { "t_editor",  "基本エディタ", "文書", COLOR_BLACK, open_t_editor_window },
+    { "terminal",  "端末シェル",   "端末", COLOR_BLACK, open_gterm_window },
+    { "sound",     "音響機器",     "音響", COLOR_RED,   open_audio_player_window },
+    { "chat",      "会話通信",     "対話", COLOR_NAVY,  launch_beos_chat },
+};
 
 static BTRON_DESKTOP g_desktop;
 
@@ -41,6 +66,62 @@ ER init_desktop_vram(H width, H height, COLOR *vram_ptr) {
     return E_OK;
 }
 
+
+static void get_desktop_icon_layout(int idx, int *out_dim, RECT *out_plate, int *out_icon_x, int *out_icon_y, int *out_lbl_x, int *out_lbl_y, RECT *out_hit) {
+    BTRON_ICON_SIZE sz = appearance_get_icon_size();
+    if (sz == BTRON_ICON_SIZE_64) {
+        int icon_dim = 64;
+        int plate_w = 78;
+        int plate_h = 74;
+        int start_x = 16;
+        int start_y = 44;
+        int step_y = 104;
+        int top = start_y + idx * step_y;
+        if (out_dim) *out_dim = icon_dim;
+        if (out_plate) {
+            out_plate->left = start_x;
+            out_plate->top = top;
+            out_plate->right = start_x + plate_w;
+            out_plate->bottom = top + plate_h;
+        }
+        if (out_icon_x) *out_icon_x = start_x + (plate_w - icon_dim) / 2;
+        if (out_icon_y) *out_icon_y = top + (plate_h - icon_dim) / 2;
+        if (out_lbl_x) *out_lbl_x = (idx == 1) ? 14 : 16;
+        if (out_lbl_y) *out_lbl_y = top + plate_h + 6;
+        if (out_hit) {
+            out_hit->left = 10;
+            out_hit->top = top - 2;
+            out_hit->right = start_x + plate_w + 16;
+            out_hit->bottom = top + plate_h + 24;
+        }
+    } else {
+        int icon_dim = 32;
+        int plate_w = 50;
+        int plate_h = 45;
+        int start_x = 20;
+        int start_y = 50;
+        int step_y = 80;
+        int top = start_y + idx * step_y;
+        if (out_dim) *out_dim = icon_dim;
+        if (out_plate) {
+            out_plate->left = start_x;
+            out_plate->top = top;
+            out_plate->right = start_x + plate_w;
+            out_plate->bottom = top + plate_h;
+        }
+        if (out_icon_x) *out_icon_x = start_x + (plate_w - icon_dim) / 2;
+        if (out_icon_y) *out_icon_y = top + (plate_h - icon_dim) / 2;
+        if (out_lbl_x) *out_lbl_x = (idx == 1) ? 10 : 12;
+        if (out_lbl_y) *out_lbl_y = top + plate_h + 7;
+        if (out_hit) {
+            out_hit->left = 8;
+            out_hit->top = top - 2;
+            out_hit->right = start_x + plate_w + 14;
+            out_hit->bottom = top + plate_h + 22;
+        }
+    }
+}
+
 void render_desktop_background(GDEV *dev) {
     if (!dev) return;
 
@@ -55,36 +136,46 @@ void render_desktop_background(GDEV *dev) {
         }
     }
 
-    /* Desktop Icons / Cabinet Real Bodys */
-    RECT cab_icon = { 20, 50, 70, 95 };
-    fill_rec(dev, &cab_icon, COLOR_LTGRAY);
-    drw_rec(dev, &cab_icon);
-    drw_tc_string(dev, 25, 60, "実身", COLOR_NAVY, 0x00000000);
-    drw_tc_string(dev, 12, 102, "実身・仮身", COLOR_WHITE, 0x00000000);
+    /* Desktop Icons / Pictogram Real Bodys */
+    int icon_count = (int)(sizeof(s_desktop_icons) / sizeof(s_desktop_icons[0]));
+    for (int i = 0; i < icon_count; i++) {
+        int icon_dim, icon_x, icon_y, lbl_x, lbl_y;
+        RECT plate;
+        get_desktop_icon_layout(i, &icon_dim, &plate, &icon_x, &icon_y, &lbl_x, &lbl_y, NULL);
 
-    RECT edit_icon = { 20, 130, 70, 175 };
-    fill_rec(dev, &edit_icon, COLOR_LTGRAY);
-    drw_rec(dev, &edit_icon);
-    drw_tc_string(dev, 25, 140, "文書", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 10, 182, "基本エディタ", COLOR_WHITE, 0x00000000);
+        /* Icon Plate Background */
+        fill_rec(dev, &plate, COLOR_LTGRAY);
+        drw_rec(dev, &plate);
 
-    RECT term_icon = { 20, 210, 70, 255 };
-    fill_rec(dev, &term_icon, COLOR_LTGRAY);
-    drw_rec(dev, &term_icon);
-    drw_tc_string(dev, 25, 220, "端末", COLOR_BLACK, 0x00000000);
-    drw_tc_string(dev, 12, 262, "端末シェル", COLOR_WHITE, 0x00000000);
+        /* Scaled Pictogram Icon (32x32 or 64x64 according to Appearance settings) */
+        draw_setting_gif_icon_scaled(dev, s_desktop_icons[i].id_str, icon_x, icon_y, icon_dim, icon_dim);
 
-    RECT audio_icon = { 20, 290, 70, 335 };
-    fill_rec(dev, &audio_icon, COLOR_LTGRAY);
-    drw_rec(dev, &audio_icon);
-    drw_tc_string(dev, 25, 300, "音響", COLOR_RED, 0x00000000);
-    drw_tc_string(dev, 12, 342, "音響機器", COLOR_WHITE, 0x00000000);
+#if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ != 1
+        /* Fallback kanji glyph for freestanding baremetal mode */
+        drw_tc_string(dev, plate.left + (plate.right - plate.left - 24) / 2,
+                           plate.top + (plate.bottom - plate.top - 16) / 2,
+                           s_desktop_icons[i].glyph, s_desktop_icons[i].glyph_col, 0x00000000);
+#endif
 
-    RECT chat_icon = { 20, 370, 70, 415 };
-    fill_rec(dev, &chat_icon, COLOR_LTGRAY);
-    drw_rec(dev, &chat_icon);
-    drw_tc_string(dev, 25, 380, "対話", COLOR_NAVY, 0x00000000);
-    drw_tc_string(dev, 12, 422, "会話通信", COLOR_WHITE, 0x00000000);
+        /* High-contrast label with shadow */
+        drw_tc_string(dev, lbl_x + 1, lbl_y + 1, s_desktop_icons[i].label, COLOR_BLACK, 0x00000000);
+        drw_tc_string(dev, lbl_x, lbl_y, s_desktop_icons[i].label, COLOR_WHITE, 0x00000000);
+    }
+}
+
+BOOL desktop_handle_click(H x, H y) {
+    int icon_count = (int)(sizeof(s_desktop_icons) / sizeof(s_desktop_icons[0]));
+    for (int i = 0; i < icon_count; i++) {
+        RECT hit;
+        get_desktop_icon_layout(i, NULL, NULL, NULL, NULL, NULL, NULL, &hit);
+        if (x >= hit.left && x <= hit.right && y >= hit.top && y <= hit.bottom) {
+            if (s_desktop_icons[i].action) {
+                s_desktop_icons[i].action();
+            }
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 #include <btron/global_menu.h>
