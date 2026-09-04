@@ -568,9 +568,9 @@ static int adb_poll_devices(GDEV *screen) {
 void btron_core_banner(void) {
     kprintf("\n\n");
     kprintf("==========================================================\n");
-    kprintf("   B-System / BTRON3 3.20 (Motorola 68040 RTOS Kernel)    \n");
-    kprintf("   Dedicated Platform: Apple Macintosh Quadra 800 (q800)  \n");
-    kprintf("   Copyright 2026 Synrc Research Center. MIT License.     \n");
+    kprintf("   B-System/BTRON3 3.20 (m68k-q800) Fumihiko Itagaki — Cleanroom TRON Kernel\n");
+    kprintf("   Dedicated Platform: Apple Macintosh Quadra 800 (q800)\n");
+    kprintf("   Copyright 2026 Synrc Research Center. MIT License.\n");
     kprintf("==========================================================\n\n");
 }
 
@@ -587,22 +587,21 @@ void btron_core_hfds_log(void) {
 }
 
 void btron_core_init(void) {
-    kprintf("[CORE] Cleanroom uITRON 3.0 / BTRON 3.20 Motorola 68040 Engine\n");
+    kprintf("[CORE] Cleanroom uITRON 3.0 / BTRON 3.20 Fumihiko Itagaki Engine (m68k-q800)\n");
 }
 
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
     if (!out_fn) return;
     if (arg && tkl_strcmp(arg, "-a") == 0) {
-        out_fn("BTRON3 btron-m68k 3.20 Motorola-68040-q800 GNU/B-System", COLOR_CYAN, user_data);
+        out_fn("BTRON3 btron-m68k 3.20 (m68k-q800) Motorola-68040 Fumihiko Itagaki GNU/B-System", COLOR_CYAN, user_data);
     } else if (arg && (tkl_strcmp(arg, "-r") == 0 || tkl_strcmp(arg, "-v") == 0)) {
         out_fn("3.20.0-m68k-q800", COLOR_CYAN, user_data);
     } else {
-        out_fn("B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN, user_data);
-        out_fn("Kernel: Cleanroom uITRON 3.0 / T-Kernel 2.0 (Motorola 68040 @ 33 MHz)", COLOR_GREEN, user_data);
-        out_fn("Hardware Target: Apple Macintosh Quadra 800 (NuBus Video, ADB, SCSI)", COLOR_LTGRAY, user_data);
-        out_fn("Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY, user_data);
-        out_fn("Display Compositor: NuBus DAFB Framebuffer (800x600 8-bpp / 24-bpp)", COLOR_LTGRAY, user_data);
-        out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
+        out_fn("B-System BTRON3 3.20 (Motorola 68040 Edition — Fumihiko Itagaki Kernel)", COLOR_GREEN, user_data);
+        out_fn("  Platform: Apple Macintosh Quadra 800 (NuBus Video, ADB, SCSI, VIA1/VIA2)", COLOR_LTGRAY, user_data);
+        out_fn("  Subsystem: NuBus DAFB Framebuffer (800x600 32-bpp), Apple Desktop Bus, ASC Sound", COLOR_LTGRAY, user_data);
+        out_fn("  Bootloader: Direct ELF Loader · Target 7: BTRON_M68K_TARGET (m68k-q800)", COLOR_CYAN, user_data);
+        out_fn("  Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
     }
 }
 

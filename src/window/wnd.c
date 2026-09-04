@@ -32,6 +32,10 @@ ER init_wnd_mgr(GDEV *screen_dev) { if (!screen_dev) return E_PAR;
     return E_OK;
 }
 
+GDEV* wnd_mgr_get_screen(void) {
+    return g_screen_dev;
+}
+
 static H calculate_title_display_width(const char *s) {
     if (!s) return 0;
     H w = 0;

@@ -61,6 +61,7 @@ void redraw_all_windows(void);
 WND* find_wnd_at(H x, H y);
 WND* get_top_wnd(void);
 WND* get_wnd_list(void);
+GDEV* wnd_mgr_get_screen(void);
 
 /* Desktop Window Layout Management */
 void wnd_cascade_all(void);

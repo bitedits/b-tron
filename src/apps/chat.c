@@ -17,6 +17,23 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <libstr.h>
+#define strlen tkl_strlen
+#define strcmp tkl_strcmp
+#define strncpy tkl_strncpy
+#define strstr tkl_strstr
+#define memset tkl_memset
+#define memcpy tkl_memcpy
+#define snprintf tkl_snprintf
+extern void* Imalloc(size_t size);
+extern void  Ifree(void *ptr);
+static inline void* chat_calloc(size_t n, size_t sz) {
+    size_t total = n * sz;
+    void *p = Imalloc(total);
+    if (p) tkl_memset(p, 0, total);
+    return p;
+}
+#define calloc chat_calloc
+#define free Ifree
 #endif
 
 /* Forward Declarations for XML Helpers in chat_xml.c */
@@ -45,11 +62,15 @@ static const char *k_nick_roles[] = {
 };
 #define NUM_NICK_ROLES (sizeof(k_nick_roles) / sizeof(k_nick_roles[0]))
 
-/* ── 1. Component-Based Random Word-Nick Generator ── */
+/* ── 1. Deterministic Nick Generator ── */
 void chat_generate_random_nick(char *out_nick, int max_len) {
     if (!out_nick || max_len <= 0) return;
     if (g_nick_counter == 0) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
         g_nick_counter = (unsigned int)time(NULL) ^ 0x5A5A;
+#else
+        g_nick_counter = 0x5A5A;
+#endif
     }
     int p_idx = (g_nick_counter + 7) % NUM_NICK_PREFIXES;
     int r_idx = (g_nick_counter + 13) % NUM_NICK_ROLES;
@@ -60,6 +81,7 @@ void chat_generate_random_nick(char *out_nick, int max_len) {
 
 /* Helper to get current timestamp "HH:MM:SS" */
 static void get_current_time_str(char *out_time, int max_len) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
     if (tm_info) {
@@ -67,6 +89,9 @@ static void get_current_time_str(char *out_time, int max_len) {
     } else {
         snprintf(out_time, max_len, "12:00:00");
     }
+#else
+    snprintf(out_time, max_len, "12:00:00");
+#endif
 }
 
 /* ── 2. TRON IPC Pub/Sub Message Bus ── */

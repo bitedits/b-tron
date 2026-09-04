@@ -96,6 +96,7 @@ IME_SRCS    = src/tip/mozc_kkc.c       \
 
 # ── Common SDL2-hosted app sources ────────────────────────────────
 COMMON_SRCS = src/graphics/dp_core.c   \
+              src/graphics/icons_bundle.c \
               src/graphics/dp_sdl.c    \
               src/font/troncode.c      \
               src/font/jis_fonts.c     \
@@ -217,6 +218,7 @@ TKERNEL_SRCS = src/kernel/core_tkernel.c \
 # Bare-metal: SDL-free subset only
 COMMON_NO_SDL_SRCS = \
     src/graphics/dp_core.c \
+    src/graphics/icons_bundle.c \
     src/font/troncode.c    \
     src/font/jis_fonts.c   \
     src/font/tibetan_fonts.c \
@@ -233,8 +235,21 @@ COMMON_NO_SDL_SRCS = \
     src/apps/tad_browser.c \
     src/apps/gterm.c       \
     src/apps/t_editor.c    \
+    src/apps/audio_player.c \
+    src/apps/orchestra.c   \
+    src/apps/chat.c        \
+    src/apps/chat_xml.c    \
+    src/settings/control_panel.c \
     src/settings/language.c \
     src/settings/appearance.c \
+    src/settings/desktop.c \
+    src/settings/display.c \
+    src/settings/input.c \
+    src/settings/sound.c \
+    src/settings/network.c \
+    src/settings/media.c \
+    src/settings/security.c \
+    src/settings/system.c  \
     src/settings/terminal.c \
     $(IME_SRCS)
 
@@ -750,6 +765,7 @@ TEST_SETTINGS_SRCS = src/settings/test_language_settings.c \
                      src/window/wnd.c \
                      src/window/app_menu.c \
                      src/graphics/dp_core.c \
+                     src/graphics/icons_bundle.c \
                      src/tip/tip_vobj.c
 
 TEST_SETTINGS_OBJS = $(TEST_SETTINGS_SRCS:.c=.test.o)

@@ -420,12 +420,15 @@ static void launch_and_center_applet(int index) {
             opened = get_top_wnd();
         }
         if (opened) {
+            GDEV *scr = wnd_mgr_get_screen();
+            H scr_w = scr ? scr->width : 800;
+            H scr_h = scr ? scr->height : 600;
             H w = opened->bounds.right - opened->bounds.left;
             H h = opened->bounds.bottom - opened->bounds.top;
-            H cx = (1280 - w) / 2;
-            H cy = (800 - h) / 2;
-            if (cx < 0) cx = 0;
-            if (cy < 0) cy = 0;
+            H cx = (scr_w - w) / 2;
+            H cy = (scr_h - h) / 2;
+            if (cx < 10) cx = 10;
+            if (cy < 30) cy = 30;
             mov_wnd(opened, cx, cy);
         }
     }
@@ -487,9 +490,17 @@ static void handle_control_panel_event(WND *wnd, const EVT *evt) {
 WND* open_control_panel_window(void) {
     g_ctrl_panel.selected_index = 0;
     BTRON_ICON_SIZE sz = appearance_get_icon_size();
+    GDEV *scr = wnd_mgr_get_screen();
+    H scr_w = scr ? scr->width : 1280;
+    H scr_h = scr ? scr->height : 800;
+    int win_w = 680;
     int win_h = (sz == BTRON_ICON_SIZE_32) ? 520 : 660;
+    H win_x = (scr_w - win_w) / 2;
+    H win_y = (scr_h - win_h) / 2;
+    if (win_x < 10) win_x = 10;
+    if (win_y < 28) win_y = 28;
     WND *wnd = opn_wnd("環境設定コントロールパネル (Preferences Panel)",
-                       (1280 - 680) / 2, (800 - win_h) / 2 < 0 ? 0 : (800 - win_h) / 2, 680, win_h,
+                       win_x, win_y, win_w, win_h,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
     g_ctrl_panel.wnd = wnd;

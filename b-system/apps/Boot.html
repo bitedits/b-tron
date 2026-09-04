@@ -21,7 +21,7 @@
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F680.svg" alt="🚀" width="64" height="64"></div>
     <h1>ブート設定 (Boot)</h1>
-    <div class="setting-hero-badge">ダイレクトMultiboot · ハードウェア実値検出 · x86_64 UEFI SMP · ARM MMIO · NEC PC-98</div>
+    <div class="setting-hero-badge">ダイレクトMultiboot · ハードウェア実値検出 · x86_64 UEFI SMP · ARM MMIO · NEC PC-98 · Motorola 68040</div>
     <div class="subtitle">マルチアーキテクチャ起動制御、ハードウェア探索パイプライン、カーネル実行マトリクスの技術仕様<br><span style="font-size:0.9em; opacity:0.85;">"Architectural specification of single-stage Multiboot loading, zero-mock hardware discovery, and multi-target kernel orchestration."</span></div>
   </div>
 
@@ -143,6 +143,11 @@
             <td>ホスト環境でのSDL2サーフェス展開、POSIXスレッドによる仮想リアルタイムタスク管理、共有メモリバッファ接続。</td>
             <td><code>src/kernel/core_posix.c</code><br>SDL2 Video / Event Loop<br>POSIX pthread / shm</td>
           </tr>
+          <tr>
+            <td><b>Motorola 68040<br>(Macintosh Quadra 800)</b></td>
+            <td>0x50000000 Mac-IO (VIA1/VIA2) 初期化、SONY DAFB 800x600 32bpp VRAMマッピング、ADB (Apple Desktop Bus) キーボード・マウス割り込みハンドシェイク、128MB物理RAMダイレクトELF展開。</td>
+            <td><code>src/kernel/core_m68k.c</code><br>Mac-IO MMIO: <code>0x50000000</code><br>VRAM: <code>0xF9000000</code> / ADB VIA1</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -152,8 +157,8 @@
     <div class="section">
       <h2>3. カーネル実行マトリクス (Supported Kernels &amp; Execution Matrix)</h2>
       <p>
-        B-Systemがサポートする全7種類のカーネルビルドターゲットおよび技術仕様マトリクス。<br>
-        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive execution matrix of all seven purpose-built kernel targets spanning host emulation, cloud VirtIO, bare-metal ARM, UEFI SMP, and vintage PC-98."</span>
+        B-Systemがサポートする全8種類のカーネルビルドターゲットおよび技術仕様マトリクス。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive execution matrix of all eight purpose-built kernel targets spanning host emulation, cloud VirtIO, bare-metal ARM, UEFI SMP, vintage PC-98, and Motorola 68040 Macintosh."</span>
       </p>
 
 <div style="margin-top: 1rem;">
@@ -216,6 +221,13 @@
               <td>AArch64 Bare-Metal<br><small style="color: #6b4f7e;">Raspberry Pi 4B (BCM2711)</small></td>
               <td>T-Kernel 2.0</td>
               <td><strong>横山 孝典 (Takanori Yokoyama)</strong><br><small style="color: #6b4f7e;">T-Kernel Core Architect</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge gold">m68k</span></td>
+              <td><small style="color: #6b4f7e;">m68k-q800</small></td>
+              <td>Motorola 68040 Bare-Metal<br><small style="color: #6b4f7e;">Apple Macintosh Quadra 800 (QEMU q800)</small></td>
+              <td>Cleanroom TRON</td>
+              <td><strong>板垣 史彦 (Fumihiko Itagaki)</strong><br><small style="color: #6b4f7e;">Human68k Architect / X68000 &amp; m68k Pioneer</small></td>
             </tr>
           </tbody>
         </table>

@@ -7,81 +7,175 @@
  *   draw_setting_gif_icon_scaled(dev, "cabinet", x, y, 32, 32);
  *   draw_setting_gif_icon_scaled(dev, "cabinet", x, y, 64, 64);
  *
- * Works in hosted builds (__STDC_HOSTED__ == 1).
- * In freestanding builds the function is a safe no-op.
+ * Fully supports embedded GIF bundles via icons_bundle_get() in both hosted
+ * and freestanding baremetal targets (e.g. Motorola 68040, ARM, PC-98).
  */
 
 #ifndef _BTRON_SETTINGS_ICON_H_
 #define _BTRON_SETTINGS_ICON_H_
 
 #include <btron/dp.h>
+#include <btron/icons_bundle.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
+#define _si_memset memset
+#define _si_memcpy memcpy
+#define _si_memcmp memcmp
+#else
+#include <libstr.h>
+#define _si_memset tkl_memset
+#define _si_memcpy tkl_memcpy
+#define _si_memcmp tkl_memcmp
+#endif
 
 #define SI_LZW_DICT    4096
 #define SI_MAX_PIXELS  4096  /* 64x64 = 4096 pixels max */
 
-/* Static GIF decode buffers (one set is sufficient; UI paint is single-threaded) */
+/* Static GIF decode buffers (single-threaded UI paint) */
 static uint16_t s_si_gif_prefix[SI_LZW_DICT];
 static uint8_t  s_si_gif_suffix[SI_LZW_DICT];
 static uint8_t  s_si_gif_stack [SI_LZW_DICT + 1];
 static uint8_t  s_si_gif_raw   [SI_MAX_PIXELS];
 
+typedef struct {
+    const uint8_t *data;
+    size_t size;
+    size_t pos;
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    FILE *fp;
+#endif
+} IconStream;
+
+static inline int icon_stream_getc(IconStream *s) {
+    if (s->data) {
+        if (s->pos < s->size) return (int)s->data[s->pos++];
+        return -1;
+    }
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (s->fp) return fgetc(s->fp);
+#endif
+    return -1;
+}
+
+static inline size_t icon_stream_read(IconStream *s, void *buf, size_t n) {
+    if (s->data) {
+        size_t rem = (s->pos < s->size) ? (s->size - s->pos) : 0;
+        if (n > rem) n = rem;
+        if (n > 0) {
+            _si_memcpy(buf, s->data + s->pos, n);
+            s->pos += n;
+        }
+        return n;
+    }
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (s->fp) return fread(buf, 1, n, s->fp);
+#endif
+    return 0;
+}
+
+static inline void icon_stream_skip(IconStream *s, long offset) {
+    if (s->data) {
+        if (offset < 0) {
+            size_t back = (size_t)(-offset);
+            s->pos = (s->pos > back) ? (s->pos - back) : 0;
+        } else {
+            s->pos += (size_t)offset;
+            if (s->pos > s->size) s->pos = s->size;
+        }
+        return;
+    }
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (s->fp) fseek(s->fp, offset, SEEK_CUR);
+#endif
+}
+
+static inline void icon_stream_close(IconStream *s) {
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    if (s->fp) {
+        fclose(s->fp);
+        s->fp = NULL;
+    }
+#else
+    (void)s;
+#endif
+}
+
 /*
  * draw_setting_gif_icon_scaled — decode a GIF icon and draw it scaled to target_w x target_h.
  * If target_w <= 0 or target_h <= 0, renders at the native decoded dimensions.
  */
-static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, int dst_x, int dst_y, int target_w, int target_h) {
-    if (!dev || !dev->pixels || !id_str || id_str[0] == '\0') return;
+static inline BOOL draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, int dst_x, int dst_y, int target_w, int target_h) {
+    if (!dev || !dev->pixels || !id_str || id_str[0] == '\0') return FALSE;
 
-    static const char *prefixes[] = {
-        "assets/icons/",
-        "../assets/icons/",
-        "assets/",
-        "../assets/",
-        NULL
-    };
+    IconStream st;
+    _si_memset(&st, 0, sizeof(st));
 
-    FILE *fp = NULL;
-    char path[128];
-
-    /* 1. Try size-specific filename first if target size specified (e.g. appearance_32.gif) */
-    if (target_w > 0) {
-        for (int p = 0; prefixes[p]; p++) {
-            snprintf(path, sizeof(path), "%s%s_%d.gif", prefixes[p], id_str, target_w);
-            fp = fopen(path, "rb");
-            if (fp) break;
-        }
+    /* 1. Try embedded icon bundle (available in all builds) */
+    size_t embedded_sz = 0;
+    const uint8_t *embedded_data = NULL;
+    if (icons_bundle_get) {
+        embedded_data = icons_bundle_get(id_str, &embedded_sz);
+    }
+    if (embedded_data && embedded_sz > 0) {
+        st.data = embedded_data;
+        st.size = embedded_sz;
+        st.pos  = 0;
     }
 
-    /* 2. Fall back to standard filename (e.g. appearance.gif) */
-    if (!fp) {
-        for (int p = 0; prefixes[p]; p++) {
-            snprintf(path, sizeof(path), "%s%s.gif", prefixes[p], id_str);
-            fp = fopen(path, "rb");
-            if (fp) break;
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+    /* 2. On hosted builds, fall back to filesystem if not in embedded bundle */
+    if (!st.data) {
+        static const char *prefixes[] = {
+            "assets/icons/",
+            "../assets/icons/",
+            "assets/",
+            "../assets/",
+            NULL
+        };
+        char path[128];
+        if (target_w > 0) {
+            for (int p = 0; prefixes[p]; p++) {
+                snprintf(path, sizeof(path), "%s%s_%d.gif", prefixes[p], id_str, target_w);
+                st.fp = fopen(path, "rb");
+                if (st.fp) break;
+            }
+        }
+        if (!st.fp) {
+            for (int p = 0; prefixes[p]; p++) {
+                snprintf(path, sizeof(path), "%s%s.gif", prefixes[p], id_str);
+                st.fp = fopen(path, "rb");
+                if (st.fp) break;
+            }
         }
     }
+#endif
 
-    if (!fp) return;
+    if (!st.data
+#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
+        && !st.fp
+#endif
+    ) {
+        return FALSE;
+    }
 
     /* --- GIF87a / GIF89a Header --- */
     uint8_t hdr[13];
-    if (fread(hdr, 1, 13, fp) != 13) { fclose(fp); return; }
-    if (memcmp(hdr, "GIF87a", 6) != 0 && memcmp(hdr, "GIF89a", 6) != 0) { fclose(fp); return; }
+    if (icon_stream_read(&st, hdr, 13) != 13) { icon_stream_close(&st); return FALSE; }
+    if (_si_memcmp(hdr, "GIF87a", 6) != 0 && _si_memcmp(hdr, "GIF89a", 6) != 0) { icon_stream_close(&st); return FALSE; }
 
     uint8_t flags = hdr[10];
     int has_gct  = (flags & 0x80) != 0;
     int gct_size = 1 << ((flags & 0x07) + 1);
     uint32_t gct[256];
-    memset(gct, 0, sizeof(gct));
+    _si_memset(gct, 0, sizeof(gct));
 
     if (has_gct) {
         uint8_t gct_raw[768];
-        if (fread(gct_raw, 1, gct_size * 3, fp) != (size_t)(gct_size * 3)) { fclose(fp); return; }
+        if (icon_stream_read(&st, gct_raw, gct_size * 3) != (size_t)(gct_size * 3)) { icon_stream_close(&st); return FALSE; }
         for (int i = 0; i < gct_size; i++) {
             gct[i] = ((uint32_t)gct_raw[i*3] << 16) | ((uint32_t)gct_raw[i*3+1] << 8) | gct_raw[i*3+2];
         }
@@ -90,42 +184,50 @@ static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, i
     int trans_idx = -1;
     int img_w = 0, img_h = 0;
 
-    while (!feof(fp)) {
-        int b = fgetc(fp);
-        if (b == EOF || b == 0x3B) break;
+    while (1) {
+        int b = icon_stream_getc(&st);
+        if (b < 0 || b == 0x3B) break;
         if (b == 0x21) {
-            int ext_label = fgetc(fp);
+            int ext_label = icon_stream_getc(&st);
             if (ext_label == 0xF9) {
-                int block_size = fgetc(fp);
+                int block_size = icon_stream_getc(&st);
                 if (block_size == 4) {
                     uint8_t gce[4];
-                    if (fread(gce, 1, 4, fp) == 4 && (gce[0] & 0x01)) trans_idx = gce[3];
+                    if (icon_stream_read(&st, gce, 4) == 4 && (gce[0] & 0x01)) trans_idx = gce[3];
                 }
-                while (1) { int l = fgetc(fp); if (l <= 0) break; fseek(fp, l, SEEK_CUR); }
+                while (1) {
+                    int l = icon_stream_getc(&st);
+                    if (l <= 0) break;
+                    icon_stream_skip(&st, l);
+                }
             } else {
-                while (1) { int l = fgetc(fp); if (l <= 0) break; fseek(fp, l, SEEK_CUR); }
+                while (1) {
+                    int l = icon_stream_getc(&st);
+                    if (l <= 0) break;
+                    icon_stream_skip(&st, l);
+                }
             }
         } else if (b == 0x2C) {
             uint8_t idesc[9];
-            if (fread(idesc, 1, 9, fp) != 9) break;
+            if (icon_stream_read(&st, idesc, 9) != 9) break;
             img_w = idesc[4] | (idesc[5] << 8);
             img_h = idesc[6] | (idesc[7] << 8);
             uint8_t iflags = idesc[8];
             int has_lct  = (iflags & 0x80) != 0;
             int lct_size = 1 << ((iflags & 0x07) + 1);
             uint32_t lct[256];
-            memset(lct, 0, sizeof(lct));
+            _si_memset(lct, 0, sizeof(lct));
             uint32_t *palette = gct;
             if (has_lct) {
                 uint8_t lct_raw[768];
-                if (fread(lct_raw, 1, lct_size * 3, fp) != (size_t)(lct_size * 3)) break;
+                if (icon_stream_read(&st, lct_raw, lct_size * 3) != (size_t)(lct_size * 3)) break;
                 for (int i = 0; i < lct_size; i++) {
                     lct[i] = ((uint32_t)lct_raw[i*3] << 16) | ((uint32_t)lct_raw[i*3+1] << 8) | lct_raw[i*3+2];
                 }
                 palette = lct;
             }
 
-            int min_code_size = fgetc(fp);
+            int min_code_size = icon_stream_getc(&st);
             if (min_code_size < 2 || min_code_size > 8) break;
             int clear_code = 1 << min_code_size;
             int eoi_code   = clear_code + 1;
@@ -151,9 +253,9 @@ static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, i
             while (pixel_count < total_pixels) {
                 while (bit_count < code_size) {
                     if (sub_pos >= sub_len) {
-                        sub_len = fgetc(fp);
+                        sub_len = icon_stream_getc(&st);
                         if (sub_len <= 0) break;
-                        if (fread(sub_buf, 1, sub_len, fp) != (size_t)sub_len) break;
+                        if (icon_stream_read(&st, sub_buf, sub_len) != (size_t)sub_len) break;
                         sub_pos = 0;
                     }
                     bit_buf |= ((uint32_t)sub_buf[sub_pos++] << bit_count);
@@ -230,29 +332,19 @@ static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, i
                     dev->pixels[out_y * dev->width + out_x] = (COLOR)(0xFF000000 | col);
                 }
             }
-            break; /* First image decoded */
+            icon_stream_close(&st);
+            return TRUE; /* First image decoded */
         }
     }
-    fclose(fp);
+    icon_stream_close(&st);
+    return FALSE;
 }
 
 /*
  * draw_setting_gif_icon — draw icon at native size (or standard 64x64/32x32).
  */
-static inline void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
-    draw_setting_gif_icon_scaled(dev, id_str, dst_x, dst_y, 0, 0);
+static inline BOOL draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
+    return draw_setting_gif_icon_scaled(dev, id_str, dst_x, dst_y, 0, 0);
 }
-
-#else  /* freestanding */
-
-static inline void draw_setting_gif_icon_scaled(GDEV *dev, const char *id_str, int dst_x, int dst_y, int target_w, int target_h) {
-    (void)dev; (void)id_str; (void)dst_x; (void)dst_y; (void)target_w; (void)target_h;
-}
-
-static inline void draw_setting_gif_icon(GDEV *dev, const char *id_str, int dst_x, int dst_y) {
-    (void)dev; (void)id_str; (void)dst_x; (void)dst_y;
-}
-
-#endif /* __STDC_HOSTED__ */
 
 #endif /* _BTRON_SETTINGS_ICON_H_ */

@@ -148,13 +148,17 @@ void render_desktop_background(GDEV *dev) {
         drw_rec(dev, &plate);
 
         /* Scaled Pictogram Icon (32x32 or 64x64 according to Appearance settings) */
-        draw_setting_gif_icon_scaled(dev, s_desktop_icons[i].id_str, icon_x, icon_y, icon_dim, icon_dim);
+        BOOL icon_drawn = draw_setting_gif_icon_scaled(dev, s_desktop_icons[i].id_str, icon_x, icon_y, icon_dim, icon_dim);
 
 #if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ != 1
-        /* Fallback kanji glyph for freestanding baremetal mode */
-        drw_tc_string(dev, plate.left + (plate.right - plate.left - 24) / 2,
-                           plate.top + (plate.bottom - plate.top - 16) / 2,
-                           s_desktop_icons[i].glyph, s_desktop_icons[i].glyph_col, 0x00000000);
+        if (!icon_drawn) {
+            /* Fallback kanji glyph for freestanding baremetal mode if icon not available */
+            drw_tc_string(dev, plate.left + (plate.right - plate.left - 24) / 2,
+                               plate.top + (plate.bottom - plate.top - 16) / 2,
+                               s_desktop_icons[i].glyph, s_desktop_icons[i].glyph_col, 0x00000000);
+        }
+#else
+        (void)icon_drawn;
 #endif
 
         /* High-contrast label with shadow */

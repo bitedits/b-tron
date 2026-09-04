@@ -25,6 +25,10 @@
 #include <libstr.h>
 #define strlen tkl_strlen
 #define snprintf tkl_snprintf
+#define memset tkl_memset
+#define memcpy tkl_memcpy
+#define memmove tkl_memmove
+#define memcmp tkl_memcmp
 #endif
 
 #define CASSETTE_WND_W 660

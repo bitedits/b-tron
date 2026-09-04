@@ -27,8 +27,12 @@
 #include <stdint.h>
 #include <libstr.h>
 #define strlen tkl_strlen
+#define strcmp tkl_strcmp
 #define strncpy tkl_strncpy
 #define memset tkl_memset
+#define memcpy tkl_memcpy
+#define memmove tkl_memmove
+#define memcmp tkl_memcmp
 #define snprintf tkl_snprintf
 #endif
 
