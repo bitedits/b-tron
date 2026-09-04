@@ -9,6 +9,7 @@
 #   uefi          B-System/BTRON3 3.20 (x86_64-uefi-smp) Kota Uchida — T-Kernel 2.0 [Target 4]
 #   pc98          B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 [Target 5]
 #   arm64-elf     B-System/BTRON3 3.20 (aarch64-bcm2711-yoko) Takahiro Yokobayashi — T-Kernel 2.0 [Target 6]
+#   m68k          B-System/BTRON3 3.20 (m68k-q800) Motorola 68040 — Cleanroom TRON Kernel [Target 7]
 #
 # Run Commands:
 #   run-posix     Boot POSIX Microkernel Desktop (btron-posix)
@@ -18,20 +19,23 @@
 #   run-sakamura  Boot Sakamura T-Kernel 2.0 Desktop (btron-sakamura.elf, display, kbd, mouse)
 #   run-uefi      Boot x86_64 UEFI SMP in QEMU (btron-uchida.elf, aliases: run-eufi, run-uefu)
 #   run-pc98      Boot NEC PC-9801/PC-9821 VM in QEMU (btron-morris.elf)
+#   run-m68k      Boot Motorola 68040 Macintosh Quadra 800 in QEMU (btron-m68k.elf)
 #   test-kernel   Test Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
 #   debug-gdb     QEMU + GDB stub on Pi 2B
 
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
-.PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf \
-        html2tad tad_bin test test-kernel \
+.PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k \
+        html2tad tad_bin test test-kernel test-m68k \
         test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
-        run-posix run-qemu run-kernel run-yoko run-sakamura run-uefi run-eufi run-uefu run-pc98 debug-virtio debug-gdb clean
+        run-posix run-qemu run-kernel run-yoko run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 QEMU_X86_64  ?= qemu-system-x86_64
+QEMU_M68K    ?= qemu-system-m68k
+M68K_CC      ?= m68k-elf-gcc
 
 LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
 LLD_BIN    := $(shell for p in /opt/homebrew/bin/ld.lld /usr/local/bin/ld.lld /usr/bin/ld.lld ld.lld /opt/homebrew/opt/llvm/bin/ld.lld /usr/lib/llvm-*/bin/ld.lld; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
@@ -436,6 +440,49 @@ test-pc98: $(PC98_TARGET)
 	@./$(PC98_TARGET)
 
 # ═══════════════════════════════════════════════════════════════════
+# Motorola 68040 Macintosh Quadra 800 Kernel (q800)
+# ═══════════════════════════════════════════════════════════════════
+M68K_TARGET     = btron-m68k.elf
+M68K_LD_SCRIPT  = src/kernel/m68k_q800.ld
+M68K_CFLAGS     = -O2 -Wall -Wextra -std=c99 -mcpu=68040 -ffreestanding -nostdlib -DBTRON_TARGET=7 -DBTRON_M68K_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel
+M68K_OBJS       = src/kernel/boot_m68k.m68k.o src/kernel/core_m68k.m68k.o
+
+%.m68k.o: %.s
+	$(M68K_CC) -mcpu=68040 -c $< -o $@
+
+%.m68k.o: %.c
+	$(M68K_CC) $(M68K_CFLAGS) -c $< -o $@
+
+m68k: $(M68K_TARGET)
+
+$(M68K_TARGET): $(M68K_OBJS) $(M68K_LD_SCRIPT)
+	@echo "=========================================================="
+	@echo " Building B-System M68K Quadra 800 Kernel: $@"
+	@echo "=========================================================="
+	$(M68K_CC) -mcpu=68040 -nostdlib -T $(M68K_LD_SCRIPT) $(M68K_OBJS) -o $@
+	@echo "[M68K-ELF] Built: $@"
+	@file $@
+
+run-m68k: $(M68K_TARGET)
+	@echo "=========================================================="
+	@echo " Launching B-System M68K Macintosh Quadra 800 on QEMU"
+	@echo " Machine  : Apple Macintosh Quadra 800 (-M q800)"
+	@echo " CPU      : Motorola 68040 @ 33 MHz (MMU / FPU Active)"
+	@echo " RAM      : 128 MB (32-Bit Linear Address Space)"
+	@echo " Display  : NuBus Slot 9 DAFB Framebuffer 800x600 @ 8-bpp"
+	@echo " Input    : MOS 6522 VIA1 / VIA2 System Controllers & ADB"
+	@echo " Serial   : Zilog Z8530 ESCC Dual UART (Port A Active)"
+	@echo " Storage  : NCR 53C96 ESP SCSI Host Adapter"
+	@echo "=========================================================="
+	$(QEMU_M68K) -M q800 -cpu m68040 -m 128M \
+	    $(QEMU_DISPLAY) \
+	    -kernel $(M68K_TARGET) -serial stdio
+
+test-m68k: $(M68K_TARGET)
+	$(QEMU_M68K) -M q800 -cpu m68040 -m 128M \
+	    -kernel $(M68K_TARGET) -serial stdio -display none
+
+# ═══════════════════════════════════════════════════════════════════
 # Bare-Metal ARM32 ELF — BCM283x Pi 2B (Cortex-A7 / ARMv7 / BCM2836)
 # ═══════════════════════════════════════════════════════════════════
 arm-elf: tad_bin $(ARM32_TARGET)
@@ -796,9 +843,9 @@ clean:
 	rm -f *.out
 	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN) $(TEST_GMENU_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(M68K_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN) $(TEST_GMENU_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
-	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.arm32.o" \
+	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.m68k.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true
 
 
