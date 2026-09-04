@@ -61,6 +61,9 @@ extern void global_menu_render_bar(GDEV *dev);
 extern void global_menu_render_overlay(GDEV *dev);
 extern void global_menu_handle_mouse_down(H x, H y);
 extern void global_menu_close(void);
+extern void render_desktop_background(GDEV *screen);
+extern void render_system_panel(GDEV *screen);
+extern void tracker_init(void);
 
 /* Minimal stubs for GTerm interactive commands */
 void btron_core_print_ver(void *out_fn, void *user_data, const char *arg) { (void)out_fn; (void)user_data; (void)arg; }
@@ -69,6 +72,8 @@ void sys_get_mem_stats(void *p) { (void)p; }
 void sys_mouse_get_pos(int *x, int *y) { if (x) *x = 0; if (y) *y = 0; }
 void sys_mouse_set_pos(int x, int y) { (void)x; (void)y; }
 void sys_mouse_click(int b) { (void)b; }
+ER init_evt_sys(void) { return E_OK; }
+ER init_vobj_sys(const char *storage_root) { (void)storage_root; return E_OK; }
 
 /* Helper to dump raw ARGB rectangle to file */
 static void dump_window_rect(GDEV *dev, WND *wnd, const char *out_filename) {
@@ -358,6 +363,24 @@ int main(int argc, char **argv) {
         global_menu_handle_mouse_down(300, 10); /* Header 3: ウィンドウ(W) */
         global_menu_render_overlay(dev);
         dump_raw_region(dev, 250, 0, 290, 280, "Global Menu - Window Dropdown", "/tmp/btron_raw_screens/GlobalMenu_Window_Opened.raw");
+    }
+
+    /* 5. Full Desktop After Load with Opened BTRON Main Menu */
+    {
+        reset_isolation_state(dev);
+        tracker_init();
+        global_menu_init();
+        open_vobj_manager_window();
+        open_t_editor_window();
+        open_gterm_window();
+        render_desktop_background(dev);
+        redraw_all_windows();
+        render_system_panel(dev);
+        global_menu_handle_mouse_down(20, 10); /* Open ［BTRON］ Deskbar Tracker Menu */
+        if (global_menu_is_open()) {
+            global_menu_render_overlay(dev);
+        }
+        dump_raw_region(dev, 0, 0, 1280, 800, "Full Desktop with Opened BTRON Menu", "/tmp/btron_raw_screens/Desktop_Full.raw");
     }
 
     cls_dev(dev);

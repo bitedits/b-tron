@@ -809,6 +809,7 @@ clean:
 # ===================================================================
 CAPTURE_SCREENS_BIN = capture_screens
 CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
+                       src/desktop/desktop.c \
                        src/settings/language.c \
                        src/settings/control_panel.c \
                        src/settings/appearance.c \
@@ -840,8 +841,7 @@ CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
                        src/font/tibetan_fonts.c \
                        src/window/wnd.c \
                        src/window/app_menu.c \
-                       src/graphics/dp_core.c \
-                       src/tip/tip_vobj.c
+                       src/graphics/dp_core.c
 
 CAPTURE_SCREENS_OBJS = $(CAPTURE_SCREENS_SRCS:.c=.test.o)
 

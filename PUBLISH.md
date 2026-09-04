@@ -138,14 +138,17 @@ Screenshots are generated into `b-system/img/screens/` and populated across docu
 | [`Terminal.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/settings/Terminal.html) | 端末・通信設定 (Terminal) | `Terminal_Settings.png` | ~10.7 KB |
 
 ### 5.2 Core Applications (`./b-system/apps/*.html` — Single Opened-Menu & Content Screenshots)
+> **App Screenshot Standard**: For Applications documentation, only single screenshots featuring an active window with its dropdown menu opened and authentic document/shell content are embedded:
+
 | Application Document | Japanese Title | Embedded Screenshot File (Opened Menu & Content) | Typical Size |
 | :--- | :--- | :--- | :--- |
 | [`Cabinet.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Cabinet.html) | 実身キャビネット (Cabinet) | `Cabinet_Menu_Opened.png` (ファイルメニュー展開・実身一覧) | ~9.2 KB |
 | [`TEditor.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/TEditor.html) | 基本文章編集 (TEditor) | `TEditor_Menu_Opened.png` (ファイルメニュー展開・本文テキスト) | ~17.8 KB |
 | [`Browser.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Browser.html) | 仕様書閲覧 (Browser) | `Browser_Menu_Opened.png` (ファイルメニュー展開・仕様書TAD文書) | ~6.0 KB |
-| [`Terminal.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Terminal.html) | 端末 (Terminal / GTerm) | `Terminal_Menu_Opened.png` (ファイルメニュー展開・シェル対話) | ~4.0 KB |
+| [`Terminal.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Terminal.html) | 端末 (Terminal / GTerm) | `Terminal_Menu_Opened.png` (ファイルメニュー展開・シェル対話) | ~5.2 KB |
 | [`Cassette.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Cassette.html) | カセット (Cassette) | `Cassette_Application.png` (ステレオカセットデッキ) | ~10.1 KB |
-| [`Chat.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Chat.html) | 対話通信 (Chat) | `Chat_Application.png` (Blabber Chat ロスター) | ~4.1 KB |
+| [`Preferences.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Preferences.html) | 環境設定 (Preferences) | `Preferences_Settings.png` (コントロールパネルハブ) | ~28.8 KB |
+| [`Workbench.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Workbench.html) | ワークベンチ (Workbench) | `Desktop_Full.png` (初期起動画面 Full Desktop), `About_Application.png` (システム情報ダイアログ) | ~41.2 KB |
 | [`Preferences.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Preferences.html) | 環境設定 (Preferences) | `Preferences_Settings.png` (コントロールパネルハブ) | ~28.8 KB |
 
 ### 5.3 Desktop BTRON Main Menu & System Overlays

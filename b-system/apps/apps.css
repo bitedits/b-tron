@@ -314,3 +314,31 @@ code {
     max-width: 680px;
     line-height: 1.5;
 }
+
+/* ── screen-preview: responsive plain image container without overfull overflow ── */
+.screen-preview {
+    width: 100%;
+    max-width: 100%;
+    margin: 1.5rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+.screen-preview img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+.screen-preview p {
+    font-size: 0.88rem;
+    color: #6b4f7e;
+    margin: 0.75rem auto 0;
+    font-style: italic;
+    text-align: center;
+    max-width: 680px;
+    line-height: 1.5;
+}
