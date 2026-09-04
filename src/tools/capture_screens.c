@@ -61,6 +61,7 @@ extern void global_menu_render_bar(GDEV *dev);
 extern void global_menu_render_overlay(GDEV *dev);
 extern void global_menu_handle_mouse_down(H x, H y);
 extern void global_menu_close(void);
+extern BOOL global_menu_is_open(void);
 extern void render_desktop_background(GDEV *screen);
 extern void render_system_panel(GDEV *screen);
 extern void tracker_init(void);
