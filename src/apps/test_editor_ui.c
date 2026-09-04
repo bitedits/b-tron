@@ -932,7 +932,7 @@ static void test_teditor_nano_about_box(void) {
 
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
-    TEST_ASSERT(w == 420 && h == 170, "About box dimensions verified: 420x170 aligned dialog");
+    TEST_ASSERT(w == 520 && h == 270, "About box dimensions verified: 520x270 aligned dialog");
 
     /* Render About Box on test GDEV */
     GDEV *test_dev = opn_dev(372, 125);

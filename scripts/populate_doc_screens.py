@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 scripts/populate_doc_screens.py
 Automated injection of native C99 transparent screenshot previews into B-System HTML documentation pages.
