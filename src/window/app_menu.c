@@ -680,6 +680,9 @@ static void draw_about_app_icon(GDEV *dev, const char *app_name, int dst_x, int 
             strncpy(name_lower, "teditor", sizeof(name_lower) - 1);
         } else if (strstr(app_name, "Browser") || strstr(app_name, "TAD") || strstr(app_name, "実身閲覧")) {
             strncpy(name_lower, "browser", sizeof(name_lower) - 1);
+        } else if (strstr(app_name, "gterm") || strstr(app_name, "terminal") ||
+                   strstr(app_name, "Terminal") || strstr(app_name, "端末")) {
+            strncpy(name_lower, "terminal", sizeof(name_lower) - 1);
         } else {
             for (int i = 0; app_name[i] && nlen < 30; i++) {
                 char c = app_name[i];
@@ -730,36 +733,54 @@ static void paint_about_dialog(WND *wnd, GDEV *dev) {
     if (!wnd || !dev) return;
     AboutDialogData *data = (AboutDialogData*)(uintptr_t)wnd->user_data;
 
+    /* Window background */
     RECT r = { 0, 0, dev->width, dev->height };
     fill_rec(dev, &r, COLOR_LTGRAY);
     drw_rec(dev, &r);
 
-    /* Inner card with clean retro bevel */
-    RECT card = { 6, 6, dev->width - 6, dev->height - 34 };
+    /* Inner white card */
+    RECT card = { 8, 8, dev->width - 8, dev->height - 38 };
     fill_rec(dev, &card, COLOR_WHITE);
     drw_rec(dev, &card);
+    /* Subtle 3D bevel on card */
+    drw_lin(dev, card.left + 1, card.top + 1, card.right - 2, card.top + 1);
+    drw_lin(dev, card.left + 1, card.top + 1, card.left + 1, card.bottom - 2);
 
     if (data) {
-        /* Draw 32x32 Application Icon */
-        draw_about_app_icon(dev, data->app_name, card.left + 12, card.top + 18);
+        /* 32x32 icon, vertically centred in the card */
+        H icon_x = card.left + 14;
+        H icon_y = card.top + (card.bottom - card.top - 32) / 2;
+        draw_about_app_icon(dev, data->app_name, icon_x, icon_y);
 
-        /* Render Aligned Text Information */
-        H text_x = card.left + 12 + 32 + 14; /* x = 64 */
-        drw_tc_string(dev, text_x, card.top + 10, data->app_name, COLOR_NAVY, 0x00000000);
-        drw_tc_string(dev, text_x, card.top + 32, data->desc, COLOR_DKGRAY, 0x00000000);
-        drw_tc_string(dev, text_x, card.top + 54, data->attribution, COLOR_BLACK, 0x00000000);
+        /* Vertical separator after icon */
+        H sep_x = icon_x + 32 + 12;
+        drw_lin(dev, sep_x, card.top + 8, sep_x, card.bottom - 8);
+
+        /* Aligned text block */
+        H text_x = sep_x + 12;
+        H text_y = card.top + 14;
+        drw_tc_string(dev, text_x, text_y,      data->app_name,   COLOR_NAVY,  0x00000000);
+        drw_tc_string(dev, text_x, text_y + 22, data->desc,        COLOR_DKGRAY,0x00000000);
+
+        /* Horizontal separator */
+        H hsep_y = text_y + 46;
+        drw_lin(dev, sep_x + 6, hsep_y, card.right - 10, hsep_y);
+
+        drw_tc_string(dev, text_x, hsep_y + 8,  data->attribution, COLOR_BLACK, 0x00000000);
+        drw_tc_string(dev, text_x, hsep_y + 26, "B-System BTRON3 3.20 \xc2\xb7 T-Kernel 2.0 \xc2\xb7 TRON IEEE 1394",
+                      COLOR_DKGRAY, 0x00000000);
     }
 
     /* 3D OK Button */
-    H btn_w = 72, btn_h = 22;
+    H btn_w = 80, btn_h = 24;
     H btn_x = (dev->width - btn_w) / 2;
-    H btn_y = dev->height - 28;
+    H btn_y = dev->height - 32;
     RECT ok_btn = { btn_x, btn_y, btn_x + btn_w, btn_y + btn_h };
     fill_rec(dev, &ok_btn, COLOR_LTGRAY);
     drw_rec(dev, &ok_btn);
     drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.right - 2, ok_btn.top + 1);
     drw_lin(dev, ok_btn.left + 1, ok_btn.top + 1, ok_btn.left + 1, ok_btn.bottom - 2);
-    drw_tc_string(dev, btn_x + 26, btn_y + 3, "OK", COLOR_BLACK, 0x00000000);
+    drw_tc_string(dev, btn_x + (btn_w - 16) / 2, btn_y + 4, "OK", COLOR_BLACK, 0x00000000);
 }
 
 static void handle_about_dialog_event(WND *wnd, const EVT *evt) {
@@ -768,11 +789,11 @@ static void handle_about_dialog_event(WND *wnd, const EVT *evt) {
     if (evt->type == EV_BUT_DOWN) {
         H rel_x = evt->pos.x - (wnd->bounds.left + 4);
         H rel_y = evt->pos.y - (wnd->bounds.top + 26);
-        H btn_w = 72, btn_h = 22;
-        H dev_w = wnd->dev ? wnd->dev->width : (wnd->bounds.right - wnd->bounds.left - 8);
+        H btn_w = 80, btn_h = 24;
+        H dev_w = wnd->dev ? wnd->dev->width  : (wnd->bounds.right - wnd->bounds.left - 8);
         H dev_h = wnd->dev ? wnd->dev->height : (wnd->bounds.bottom - wnd->bounds.top - 30);
         H btn_x = (dev_w - btn_w) / 2;
-        H btn_y = dev_h - 28;
+        H btn_y = dev_h - 32;
         if (rel_x >= btn_x && rel_x <= btn_x + btn_w && rel_y >= btn_y && rel_y <= btn_y + btn_h) {
             cls_wnd(wnd);
         }
@@ -801,7 +822,7 @@ WND* app_menu_create_about_dialog(const char *app_name, const char *jp_title,
     snprintf(data->desc, sizeof(data->desc), "%s", desc ? desc : "BTRON Application");
     snprintf(data->attribution, sizeof(data->attribution), "%s", attribution ? attribution : "Brought to B-System by 5HT");
 
-    WND *wnd = opn_wnd(data->title_full, x, y, 380, 155,
+    WND *wnd = opn_wnd(data->title_full, x, y, 420, 170,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (wnd) {
         wnd->user_data = (VW)(uintptr_t)data;

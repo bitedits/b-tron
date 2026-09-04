@@ -198,56 +198,95 @@ static void handle_terminal_settings_event(WND *wnd, const EVT *evt) {
         H rel_y = evt->pos.y - wnd->client.top;
         TERMINAL_SETTINGS *cfg = &g_state_terminal.local_cfg;
 
-        /* Section 1: Themes */
-        if (rel_y >= 58 && rel_y <= 76) {
-            if (rel_x >= 20 && rel_x < 220) { cfg->theme = TERM_THEME_GREEN; cfg->fg_color = 0xFF22C55E; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 230 && rel_x < 430) { cfg->theme = TERM_THEME_AMBER; cfg->fg_color = 0xFFF59E0B; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        } else if (rel_y >= 78 && rel_y <= 96) {
-            if (rel_x >= 20 && rel_x < 220) { cfg->theme = TERM_THEME_WHITE; cfg->fg_color = 0xFFFFFFFF; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 230 && rel_x < 430) { cfg->theme = TERM_THEME_CYAN; cfg->fg_color = 0xFF38BDF8; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        } else if (rel_y >= 98 && rel_y <= 116) {
-            if (rel_x >= 20 && rel_x < 220) { cfg->theme = TERM_THEME_LIGHT; cfg->fg_color = 0xFF0F172A; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        }
-
-        /* Section 2: Font Size */
-        if (rel_y >= 136 && rel_y <= 156) {
-            if (rel_x >= 20 && rel_x < 190) { cfg->font_size = TERM_FONT_12; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 200 && rel_x < 370) { cfg->font_size = TERM_FONT_16; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 380 && rel_x < 510) { cfg->font_size = TERM_FONT_20; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        }
-
-        /* Section 3: Scrollback & Cursor */
-        if (rel_y >= 198 && rel_y <= 218) {
-            if (rel_x >= 20 && rel_x < 150) { cfg->scrollback_lines = 100; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 160 && rel_x < 330) { cfg->scrollback_lines = 300; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 340 && rel_x < 500) { cfg->scrollback_lines = 1000; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        } else if (rel_y >= 224 && rel_y <= 246) {
-            if (rel_x >= 20 && rel_x < 190) { cfg->cursor_style = TERM_CURSOR_UNDERLINE; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 200 && rel_x < 400) { cfg->cursor_style = TERM_CURSOR_BLOCK; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        }
-
-        /* Section 4: Transparency */
-        if (rel_y >= 278 && rel_y <= 298) {
-            if (rel_x >= 20 && rel_x < 190) { cfg->transparency = TERM_TRANSPARENCY_OPAQUE; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 200 && rel_x < 370) { cfg->transparency = TERM_TRANSPARENCY_80; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-            else if (rel_x >= 380 && rel_x < 510) { cfg->transparency = TERM_TRANSPARENCY_60; g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); }
-        }
-
-        /* Buttons */
+        /* Layout mirrors paint function (same constants) */
+        H M = 12, P = 10, LH = 20, GAP = 14, HDR_H = 40, LBL_OVERLAP = 8;
         H client_w = wnd->client.right - wnd->client.left;
-        H btn_y = (wnd->client.bottom - wnd->client.top) - 34;
-        if (rel_y >= btn_y && rel_y <= btn_y + 24) {
+        H col3 = (client_w - 2 * M - 2 * P) / 3;
+
+        /* Section 1 row y-ranges */
+        H s1_top = HDR_H + GAP + LBL_OVERLAP;             /* 64 */
+        H s1r0   = s1_top + P;                             /* 74  — row 0 (Green/Amber) */
+        H s1r1   = s1_top + P + LH;                        /* 94  — row 1 (White/Cyan) */
+        H s1r2   = s1_top + P + LH * 2;                    /* 114 — row 2 (Light) */
+        H s1_bot = s1_top + P + LH * 3 + P;               /* 144 */
+
+        /* Section 2 row y-ranges */
+        H s2_top = s1_bot + GAP + LBL_OVERLAP;             /* 166 */
+        H s2r0   = s2_top + P;                             /* 176 */
+        H s2_bot = s2_top + P + LH + P;                   /* 206 */
+
+        /* Section 3 row y-ranges */
+        H s3_top = s2_bot + GAP + LBL_OVERLAP;             /* 228 */
+        H s3r0   = s3_top + P;                             /* 238 — scrollback */
+        H s3r1   = s3_top + P + LH;                        /* 258 — cursor */
+        H s3_bot = s3_top + P + LH * 2 + P;               /* 288 */
+
+        /* Section 4 row y-ranges */
+        H s4_top = s3_bot + GAP + LBL_OVERLAP;             /* 310 */
+        H s4r0   = s4_top + P;                             /* 320 */
+
+        /* Column x-ranges (3 equal columns) */
+        H c0x = M + P;
+        H c1x = M + P + col3;
+        H c2x = M + P + col3 * 2;
+        H half = client_w / 2;  /* Section 1 uses half-width split */
+
+#define HIT_ROW(rel_y, row_y)    ((rel_y) >= (row_y) && (rel_y) < (row_y) + LH)
+#define REPAINT() do { g_state_terminal.is_dirty = TRUE; wnd->paint(wnd, wnd->dev); } while(0)
+
+        /* ── Section 1: Colour Theme ──────────────────────────────── */
+        if (HIT_ROW(rel_y, s1r0)) {
+            if      (rel_x >= c0x && rel_x < half) { cfg->theme = TERM_THEME_GREEN; cfg->fg_color = 0xFF22C55E; REPAINT(); }
+            else if (rel_x >= half)                 { cfg->theme = TERM_THEME_AMBER; cfg->fg_color = 0xFFF59E0B; REPAINT(); }
+        } else if (HIT_ROW(rel_y, s1r1)) {
+            if      (rel_x >= c0x && rel_x < half) { cfg->theme = TERM_THEME_WHITE; cfg->fg_color = 0xFFFFFFFF; REPAINT(); }
+            else if (rel_x >= half)                 { cfg->theme = TERM_THEME_CYAN;  cfg->fg_color = 0xFF38BDF8; REPAINT(); }
+        } else if (HIT_ROW(rel_y, s1r2)) {
+            if      (rel_x >= c0x && rel_x < half) { cfg->theme = TERM_THEME_LIGHT; cfg->fg_color = 0xFF0F172A; REPAINT(); }
+        }
+
+        /* ── Section 2: Font Size ──────────────────────────────────── */
+        if (HIT_ROW(rel_y, s2r0)) {
+            if      (rel_x >= c0x && rel_x < c1x) { cfg->font_size = TERM_FONT_12; REPAINT(); }
+            else if (rel_x >= c1x && rel_x < c2x) { cfg->font_size = TERM_FONT_16; REPAINT(); }
+            else if (rel_x >= c2x)                 { cfg->font_size = TERM_FONT_20; REPAINT(); }
+        }
+
+        /* ── Section 3: Scrollback & Cursor ───────────────────────── */
+        if (HIT_ROW(rel_y, s3r0)) {
+            if      (rel_x >= c0x && rel_x < c1x) { cfg->scrollback_lines = 100;  REPAINT(); }
+            else if (rel_x >= c1x && rel_x < c2x) { cfg->scrollback_lines = 300;  REPAINT(); }
+            else if (rel_x >= c2x)                 { cfg->scrollback_lines = 1000; REPAINT(); }
+        } else if (HIT_ROW(rel_y, s3r1)) {
+            if      (rel_x >= c0x && rel_x < c1x) { cfg->cursor_style = TERM_CURSOR_UNDERLINE; REPAINT(); }
+            else if (rel_x >= c1x && rel_x < c2x) { cfg->cursor_style = TERM_CURSOR_BLOCK;     REPAINT(); }
+            else if (rel_x >= c2x)                 { cfg->cursor_style = TERM_CURSOR_BAR;       REPAINT(); }
+        }
+
+        /* ── Section 4: Transparency ───────────────────────────────── */
+        if (HIT_ROW(rel_y, s4r0)) {
+            if      (rel_x >= c0x && rel_x < c1x) { cfg->transparency = TERM_TRANSPARENCY_OPAQUE; REPAINT(); }
+            else if (rel_x >= c1x && rel_x < c2x) { cfg->transparency = TERM_TRANSPARENCY_80;     REPAINT(); }
+            else if (rel_x >= c2x)                 { cfg->transparency = TERM_TRANSPARENCY_60;     REPAINT(); }
+        }
+
+        /* ── Buttons ────────────────────────────────────────────────── */
+        H btn_y = (wnd->client.bottom - wnd->client.top) - 36;
+        if (rel_y >= btn_y && rel_y <= btn_y + 26) {
             if (rel_x >= client_w - 240 && rel_x < client_w - 130) {
                 terminal_reset_settings();
                 terminal_get_settings(&g_state_terminal.local_cfg);
                 g_state_terminal.is_dirty = FALSE;
                 wnd->paint(wnd, wnd->dev);
-            } else if (rel_x >= client_w - 120 && rel_x < client_w - 10) {
+            } else if (rel_x >= client_w - 122 && rel_x < client_w - 12) {
                 terminal_set_settings(&g_state_terminal.local_cfg);
                 g_state_terminal.is_dirty = FALSE;
                 cls_wnd(wnd);
             }
         }
+
+#undef HIT_ROW
+#undef REPAINT
     }
 }
 
