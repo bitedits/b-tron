@@ -332,7 +332,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         out_fn("  mouse status        - Display current mouse cursor position", COLOR_LTGRAY, user_data);
         out_fn("  mouse move <X> <Y>  - Move mouse cursor to coordinates", COLOR_LTGRAY, user_data);
         out_fn("  mouse click <X> <Y> - Simulate mouse click at coordinates", COLOR_LTGRAY, user_data);
-        out_fn("  edit, editor        - Launch new T-Editor instance", COLOR_LTGRAY, user_data);
+        out_fn("  edit, editor        - Launch new Editor instance", COLOR_LTGRAY, user_data);
         out_fn("  tad, browser        - Launch new TAD Browser instance", COLOR_LTGRAY, user_data);
         out_fn("  chat                - Launch new BeOS Chat instance", COLOR_LTGRAY, user_data);
         out_fn("  audio               - Launch Audio Player instance", COLOR_LTGRAY, user_data);
@@ -503,7 +503,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
     } else if (strcmp(cmd, "desktop") == 0 || strcmp(cmd, "startx") == 0 || strcmp(cmd, "gui") == 0) {
         out_fn("B-System BTRON3 Graphical Window Compositor & Desktop: Active", COLOR_GREEN, user_data);
         out_fn("  Resolution : 1024x768 (32-bpp Linear Framebuffer)", COLOR_CYAN, user_data);
-        out_fn("  Subsystems : HFDS Cabinet, GTerm Terminal, T-Editor, Mozc IME", COLOR_LTGRAY, user_data);
+        out_fn("  Subsystems : HFDS Cabinet, GTerm Terminal, Editor, Mozc IME", COLOR_LTGRAY, user_data);
         out_fn("  SMP Engine : 4 Cores Live & Scheduled", COLOR_YELLOW, user_data);
     } else if (strcmp(cmd, "ps") == 0) {
         int num_cores = 1;
@@ -535,7 +535,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
                 WND *cw = w_list[i];
                 const char *tname = "btron_app";
                 if (strstr(cw->title, "gterm") || strstr(cw->title, "Terminal")) tname = "gterm";
-                else if (strstr(cw->title, "T-Editor") || strstr(cw->title, "Editor")) tname = "t_editor";
+                else if (strstr(cw->title, "Editor") || strstr(cw->title, "Editor")) tname = "t_editor";
                 else if (strstr(cw->title, "TAD") || strstr(cw->title, "仕様書")) tname = "tad_browser";
                 else if (strstr(cw->title, "Cabinet") || strstr(cw->title, "キャビネット")) tname = "vobj_mgr";
                 else if (strstr(cw->title, "TC-K777ES") || strstr(cw->title, "SONY")) tname = "audio_player";
@@ -547,7 +547,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
                     WND *prev_w = w_list[j];
                     const char *pname = "btron_app";
                     if (strstr(prev_w->title, "gterm") || strstr(prev_w->title, "Terminal")) pname = "gterm";
-                    else if (strstr(prev_w->title, "T-Editor") || strstr(prev_w->title, "Editor")) pname = "t_editor";
+                    else if (strstr(prev_w->title, "Editor") || strstr(prev_w->title, "Editor")) pname = "t_editor";
                     else if (strstr(prev_w->title, "TAD") || strstr(prev_w->title, "仕様書")) pname = "tad_browser";
                     else if (strstr(prev_w->title, "Cabinet") || strstr(prev_w->title, "キャビネット")) pname = "vobj_mgr";
                     else if (strstr(prev_w->title, "TC-K777ES") || strstr(prev_w->title, "SONY")) pname = "audio_player";
@@ -581,7 +581,7 @@ void shell_execute_cmd(const char *cmd_line, ShellOutputFn out_fn, void *user_da
         }
     } else if (strcmp(cmd, "editor") == 0 || strcmp(cmd, "edit") == 0) {
         open_t_editor_window();
-        out_fn("Started new T-Editor instance", COLOR_GREEN, user_data);
+        out_fn("Started new Editor instance", COLOR_GREEN, user_data);
     } else if (strcmp(cmd, "tad") == 0 || strcmp(cmd, "browser") == 0) {
         open_tad_browser_window("tad_bin/01_btron3_spec.tad", "【仕様書】BTRON3 3.20");
         out_fn("Started new TAD Browser instance", COLOR_GREEN, user_data);

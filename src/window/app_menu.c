@@ -396,7 +396,7 @@ void app_menu_paint_dropdown(const APP_MENU_BAR *bar, GDEV *dev) {
     RECT menu_box = { menu_x, menu_y, menu_x + menu_w, menu_y + menu_h };
 
     if (active_style == APP_MENU_STYLE_CLASSIC_3D) {
-        /* Style 1: T-Editor Authentic 3D Beveled Box Plate */
+        /* Style 1: Editor Authentic 3D Beveled Box Plate */
         draw_3d_bevel_box(dev, &menu_box);
     } else {
         /* Style 2: Modern Flat Card with Soft Drop Shadow */
@@ -676,7 +676,7 @@ static void draw_about_app_icon(GDEV *dev, const char *app_name, int dst_x, int 
     if (app_name) {
         if (strstr(app_name, "Cabinet") || strstr(app_name, "キャビネット")) {
             strncpy(name_lower, "cabinet", sizeof(name_lower) - 1);
-        } else if (strstr(app_name, "T-Editor") || strstr(app_name, "Editor") || strstr(app_name, "文書編集")) {
+        } else if (strstr(app_name, "Editor") || strstr(app_name, "Editor") || strstr(app_name, "文書編集")) {
             strncpy(name_lower, "teditor", sizeof(name_lower) - 1);
         } else if (strstr(app_name, "Browser") || strstr(app_name, "TAD") || strstr(app_name, "実身閲覧")) {
             strncpy(name_lower, "browser", sizeof(name_lower) - 1);

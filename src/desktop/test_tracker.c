@@ -200,8 +200,8 @@ int main(void) {
     TEST_ASSERT(s_vobj_opened == 1, "Cabinet window opened on 32x32 icon hit");
 
     s_tedit_opened = 0;
-    TEST_ASSERT(desktop_handle_click(30, 150) == TRUE, "Desktop click at (30, 150) hits T-Editor in 32x32 mode");
-    TEST_ASSERT(s_tedit_opened == 1, "T-Editor window opened on 32x32 icon hit");
+    TEST_ASSERT(desktop_handle_click(30, 150) == TRUE, "Desktop click at (30, 150) hits Editor in 32x32 mode");
+    TEST_ASSERT(s_tedit_opened == 1, "Editor window opened on 32x32 icon hit");
 
     s_term_opened = 0;
     TEST_ASSERT(desktop_handle_click(30, 230) == TRUE, "Desktop click at (30, 230) hits Terminal in 32x32 mode");
@@ -226,8 +226,8 @@ int main(void) {
     TEST_ASSERT(s_vobj_opened == 1, "Cabinet window opened on 64x64 icon hit");
 
     s_tedit_opened = 0;
-    TEST_ASSERT(desktop_handle_click(40, 180) == TRUE, "Desktop click at (40, 180) hits T-Editor in 64x64 mode");
-    TEST_ASSERT(s_tedit_opened == 1, "T-Editor window opened on 64x64 icon hit");
+    TEST_ASSERT(desktop_handle_click(40, 180) == TRUE, "Desktop click at (40, 180) hits Editor in 64x64 mode");
+    TEST_ASSERT(s_tedit_opened == 1, "Editor window opened on 64x64 icon hit");
 
     s_term_opened = 0;
     TEST_ASSERT(desktop_handle_click(40, 280) == TRUE, "Desktop click at (40, 280) hits Terminal in 64x64 mode");

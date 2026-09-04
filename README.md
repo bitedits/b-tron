@@ -80,8 +80,8 @@ btron/
 │   └── desktop/                # Cho-Kanji / BTRON Desktop Compositor & Main Launcher
 └── apps/                       # Authentic BTRON Accessories
     ├── vobj_manager.c          # Real Body Cabinet & Virtual Body Explorer Window
-    ├── t_editor.c              # TRON Text Editor (T-Editor) Window
-    └── gterm.c                 # BTRON Terminal Shell (gterm) Window
+    ├── t_editor.c              # TRON Text Editor (Editor) Window
+    └── gterm.c                 # BTRON Terminal Shell (GTerm) Window
 ```
 
 ## Raspberry Pi 2/3 T-Kernel 2.0 `Yokobayashi`

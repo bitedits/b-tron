@@ -528,7 +528,7 @@ static void teditor_init_menu_bar(TEditor *ed) {
     app_menu_add_item(&ed->menu_bar, h3, "実身キャビネット (Cabinet)", "", TCMD_VOBJ_CABINET, TRUE);
 
     int h4 = app_menu_add_header(&ed->menu_bar, "ヘルプ(H)", 88);
-    app_menu_add_item(&ed->menu_bar, h4, "T-Editor について (About)", "", TCMD_HELP_ABOUT, TRUE);
+    app_menu_add_item(&ed->menu_bar, h4, "Editor について (About)", "", TCMD_HELP_ABOUT, TRUE);
 
     teditor_sync_menu_state(ed);
 }
@@ -592,7 +592,7 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
             teditor_init_default(ed);
             ed->total_lines = 1;
             ed->lines[0][0] = '\0';
-            snprintf(wnd->title, sizeof(wnd->title), "T-Editor - Untitled.txt");
+            snprintf(wnd->title, sizeof(wnd->title), "Editor - Untitled.txt");
             break;
         case TCMD_FILE_OPEN_ASSET: {
             char files[32][64];
@@ -609,7 +609,7 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
                 }
 #endif
                 teditor_load_file(ed, path);
-                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - %s", ed->filename);
+                snprintf(wnd->title, sizeof(wnd->title), "Editor - %s", ed->filename);
             }
             break;
         }
@@ -665,7 +665,7 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
 }
 
 WND* open_teditor_about_window(void) {
-    return app_menu_create_about_dialog("T-Editor", "文書編集",
+    return app_menu_create_about_dialog("Editor", "文書編集",
                                         "Cleanroom BTRON Word Processor",
                                         "Brought to B-System by 5HT",
                                         240, 160);
@@ -773,7 +773,7 @@ static void handle_t_editor_event(WND *wnd, const EVT *evt) {
                 teditor_init_default(ed);
                 ed->total_lines = 1;
                 ed->lines[0][0] = '\0';
-                snprintf(wnd->title, sizeof(wnd->title), "T-Editor - Untitled.txt");
+                snprintf(wnd->title, sizeof(wnd->title), "Editor - Untitled.txt");
                 return;
             } else if (sym == 'o' || sym == 'O') {
                 /* Ctrl+O: Open File Menu with cascading document list */
@@ -1027,7 +1027,7 @@ WND* open_t_editor_window_with_file(const char *filepath) {
     }
 
     char title[128];
-    snprintf(title, sizeof(title), "T-Editor - %s", ed->filename);
+    snprintf(title, sizeof(title), "Editor - %s", ed->filename);
 
     WND *wnd = opn_wnd(title, 220, 50, 760, 480,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);

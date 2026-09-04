@@ -28,7 +28,7 @@ According to BTRON3 Specification 3.20 (Chapter 7.2 *Menu Manager*), the system 
   - Documents are opened directly from Cabinets or embedded Virtual Object fusen links without a file picker dialog.
 
 - **Cleanroom Implementation Rule**:
-  T-Editor and BTRON applications do not use modal file-opening dialogs. Instead:
+  Editor and BTRON applications do not use modal file-opening dialogs. Instead:
   - The `ファイル(F)` (File) menu contains an **`開く (Open) ▶` cascading dropdown menu**.
   - The menu dynamically scans available document repositories (e.g., `assets/texts/` filtering `.txt` files).
   - The user accesses any document in **1–2 fluid clicks** with zero modal interruption, zero path typing, and zero file picker friction.
@@ -65,7 +65,7 @@ glyphs and 8px wide ASCII glyphs with a guaranteed 8px horizontal padding on eac
 | **編集(E)** | 56px | `[112, 0, 184, 21]` (72px) | 8px left / 8px right | `元に戻す Ctrl+Z`, `---`, `切り取り Ctrl+X`, `コピー Ctrl+C`, `貼り付け Ctrl+V`, `すべて選択 Ctrl+A` |
 | **表示(V)** | 56px | `[188, 0, 260, 21]` (72px) | 8px left / 8px right | `拡大 +`, `縮小 -`, `---`, `行番号表示` |
 | **仮身(O)** | 56px | `[264, 0, 336, 21]` (72px) | 8px left / 8px right | `仮身を挿入`, `実身キャビネット` |
-| **ヘルプ(H)** | 72px | `[340, 0, 428, 21]` (88px) | 8px left / 8px right | `T-Editor について (About)` (Opens 280x135 nano About Box with 5HT attribution) |
+| **ヘルプ(H)** | 72px | `[340, 0, 428, 21]` (88px) | 8px left / 8px right | `Editor について (About)` (Opens 280x135 nano About Box with 5HT attribution) |
 | **Document Status** | Dynamic | `[width - title_w - 14, 3]` | 8px left / 14px right | Dynamic width right-aligned filename status |
 
 ### 2.3 Explicit Item Division: 3D Etched Distance Shadow / Separator
@@ -127,7 +127,7 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
   - Deterministic fallback list if running on baremetal/unhosted environments without POSIX `dirent`.
 - Item Representation:
   - Displays icon and filename: `📄 <filename>`.
-  - Selecting an item invokes `teditor_load_file()` directly.
+  - Selecting an item invokes `Editor_load_file()` directly.
 
 ## 5. Keyboard Accelerator Specifications
 
@@ -160,7 +160,7 @@ The `開く (Open) ▶` cascading menu dynamically scans the filesystem to popul
 
 In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Chokanji (超漢字):
 
-- **Autonomous Window Menus**: Individual application windows (such as T-Editor and TAD Browser) possess their own in-window Menu Bar for document operations (`ファイル(F)`, `編集(E)`, `表示(V)`, etc.).
+- **Autonomous Window Menus**: Individual application windows (such as Editor and TAD Browser) possess their own in-window Menu Bar for document operations (`ファイル(F)`, `編集(E)`, `表示(V)`, etc.).
 - **Global Desktop Control Bar (システム操作バー)**: The top bar of the screen (`y = 0..25`) belongs exclusively to the Desktop Shell & System Manager. It does not mirror or duplicate active window file menus, eliminating visual collision and confusion.
 
 ```
@@ -241,7 +241,7 @@ In strict conformance with Ken Sakamura's BTRON specification, B-right/V, and Ch
 
 ### 10.1 Architecture & Complete Deduplication
 
-Prior to BTRON 3.20 Update 9, T-Editor, TAD Browser, and Cabinet Manager maintained independent in-window menu structures, event hit testers, and drawing algorithms. This led to code duplication and visual inconsistencies.
+Prior to BTRON 3.20 Update 9, Editor, TAD Browser, and Cabinet Manager maintained independent in-window menu structures, event hit testers, and drawing algorithms. This led to code duplication and visual inconsistencies.
 
 The **Unified Application Menu Engine** (`include/btron/app_menu.h`, `src/window/app_menu.c`) standardizes all application-level menus:
 
@@ -256,7 +256,7 @@ The **Unified Application Menu Engine** (`include/btron/app_menu.h`, `src/window
   - `app_menu_handle_key`: Universal `Escape` dismissal.
 
 - **Zero Duplication**:
-  - `TEditor`, `TAD_BROWSER`, and `CABINET_EXPLORER` now directly use `APP_MENU_BAR` and common painting/event routines.
+  - `Editor`, `TAD_BROWSER`, and `CABINET_EXPLORER` now directly use `APP_MENU_BAR` and common painting/event routines.
   - Legacy tracking fields (`active_menu`, `hover_menu`, `hover_item`) are synchronized seamlessly for full backward compatibility.
 
 ### 10.2 Dual Menu Styles Configurable in Appearance Settings
@@ -271,7 +271,7 @@ As requested by users who appreciate both authentic retro ergonomics and contemp
 ```
 
 1. **Classic Chokanji 3D (`APP_MENU_STYLE_CLASSIC_3D`) — Default**:
-   - The gold standard established in T-Editor.
+   - The gold standard established in Editor.
    - 4-sided crisp 3D bevel box (`draw_3d_bevel_box`) with `COLOR_LTGRAY` background fill.
    - `COLOR_WHITE` top/left highlight lines and `COLOR_DKGRAY` bottom/right shadow lines.
    - Clean 3D vertical etched separators between menu bar headers.
@@ -281,7 +281,7 @@ As requested by users who appreciate both authentic retro ergonomics and contemp
    - 3px offset soft drop shadow (`COLOR_DKGRAY`) mimicking modern desktop window cards.
    - Minimalist vertical separator lines.
 
-Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all in-window menus (T-Editor, TAD Browser, Cabinet), the top-level **Global System Menu Bar (`src/desktop/global_menu.c`)**, and the **Haiku-Style Deskbar Start Menu (`src/desktop/tracker.c`)**.
+Both styles can be selected dynamically at runtime from **Appearance Settings (`[Settings Cabinet] Appearance`)** via `app_menu_set_global_style()`. Changes take effect immediately across all in-window menus (Editor, TAD Browser, Cabinet), the top-level **Global System Menu Bar (`src/desktop/global_menu.c`)**, and the **Haiku-Style Deskbar Start Menu (`src/desktop/tracker.c`)**.
 
 ### 10.3 Standardized Nano About Box Dialog
 
@@ -292,7 +292,7 @@ All applications instantiate their About Box using the unified `app_menu_create_
 - **Visual Presentation**:
   - Classic 3D beveled container (`COLOR_LTGRAY`) with inner card (`COLOR_WHITE`).
   - Integrated 32×32 raster application icon (`assets/icons/*.gif` / `*.png` converted from OpenMoji SVGs) with transparent color palette clipping.
-  - Bilingual title duplication (e.g., `T-Editor 3.20 (文書編集)`).
+  - Bilingual title duplication (e.g., `Editor 3.20 (文書編集)`).
   - Clean text alignment for application name, full description, and explicit attribution: **`"Brought to B-System by 5HT"`**.
   - Centered 3D `[ OK ]` button (72×22).
 

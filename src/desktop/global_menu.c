@@ -111,7 +111,7 @@ static GMenuHeader g_headers[GMENU_HEADER_COUNT] = {
             { "TRONコード検索 (TRON-Code)",     "",    GMENU_CMD_TOOL_TRONCODE, FALSE, FALSE, TRUE },
             { "Mozc 日本語辞書 (IME Tool)",     "",    GMENU_CMD_TOOL_MOZC_DICT, FALSE, FALSE, TRUE },
             { "---", "", GMENU_CMD_NONE, TRUE, FALSE, FALSE },
-            { "文書編集 (T-Editor)",            "",    GMENU_CMD_TOOL_TEDITOR, FALSE, FALSE, TRUE },
+            { "文書編集 (Editor)",            "",    GMENU_CMD_TOOL_TEDITOR, FALSE, FALSE, TRUE },
             { "表計算・APL (Matrix)",           "",    GMENU_CMD_TOOL_MATRIX, FALSE, FALSE, TRUE },
             { "端末 (gterm Terminal)",          "",    GMENU_CMD_TOOL_TERMINAL, FALSE, FALSE, TRUE }
         }

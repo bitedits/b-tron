@@ -331,7 +331,7 @@ void btron_main(void) {
 
     uart_puts("\n==========================================================\n");
     uart_puts(" Sakamura B-System 3.0 Interactive Keyboard & Mouse Active\n");
-    uart_puts(" Live Windows: Terminal Shell, T-Editor, Real Body Cabinet\n");
+    uart_puts(" Live Windows: Terminal Shell, Editor, Real Body Cabinet\n");
     uart_puts(" Display Resolution: 1024x768 32-bpp Framebuffer VRAM\n");
     uart_puts(" USB HID: DWC2 Keyboard & Mouse Polling Active\n");
     uart_puts(" Mouse: Classic B-System Cursor tracking, Click, and Drag\n");

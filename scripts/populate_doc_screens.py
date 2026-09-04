@@ -2,7 +2,7 @@
 """
 scripts/populate_doc_screens.py
 Automated injection of native C99 transparent screenshot previews into B-System HTML documentation pages.
-- Apps: Opened menu & live content (Cabinet, TEditor, Browser, Terminal),
+- Apps: Opened menu & live content (Cabinet, Editor, Browser, Terminal),
         Control Panel screenshot for Preferences,
         2 screenshots for Workbench (Full Desktop after load + About dialog).
 - Plain image tags without CSS effects.
@@ -103,11 +103,11 @@ APPS_MAP = {
             "alt": "実身キャビネット (Cabinet Application - Menu Opened)"
         }
     ],
-    "TEditor.html": [
+    "Editor.html": [
         {
-            "screen": "../img/screens/TEditor_Menu_Opened.png",
+            "screen": "../img/screens/Editor_Menu_Opened.png",
             "caption": "実機描画フレームバッファより自動抽出された基本文章編集 T-Editor (ファイルメニュー展開・本文テキスト表示)",
-            "alt": "基本文章編集 (TEditor Application - Menu Opened)"
+            "alt": "基本文章編集 (Editor Application - Menu Opened)"
         }
     ],
     "Browser.html": [

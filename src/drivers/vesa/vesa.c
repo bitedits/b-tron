@@ -319,8 +319,8 @@ void vesa_render_desktop(int num_cores) {
     vesa_draw_string(460, 275, "  4  #3    GTERM#1      RUN    0X010C0000", VESA_COLOR_GREEN, 0x00101820);
     vesa_draw_string(460, 310, "BTRON3# _", VESA_COLOR_YELLOW, 0x00101820);
 
-    /* Window 3: T-Editor */
-    vesa_draw_window(70, 380, 340, 260, "T-EDITOR - RELEASE NOTES", 0);
+    /* Window 3: Editor */
+    vesa_draw_window(70, 380, 340, 260, "EDITOR - RELEASE NOTES", 0);
     vesa_fill_rect(78, 412, 324, 220, VESA_COLOR_WHITE);
     vesa_draw_string(90, 430, "WELCOME TO B-SYSTEM 3.20!", VESA_COLOR_TITLE_ACT, VESA_COLOR_WHITE);
     vesa_draw_string(90, 460, "VESA VBE 1024X768 32-BPP LFB", VESA_COLOR_BLACK, VESA_COLOR_WHITE);

@@ -119,7 +119,7 @@ void tracker_refresh_windows(void) {
     /* 1. Core Knowledge & System Applications */
     tracker_add_item(TRACKER_CMD_CABINET,   "実身・仮身 (Cabinet)", NULL);
     tracker_add_item(TRACKER_CMD_SETTINGS,  "環境設定 (Control Panel)", NULL);
-    tracker_add_item(TRACKER_CMD_TEDITOR,   "T-Editor (文書編集)", NULL);
+    tracker_add_item(TRACKER_CMD_TEDITOR,   "Editor (文書編集)", NULL);
     tracker_add_item(TRACKER_CMD_MATRIX,    "Matrix (表計算・APL)", NULL);
     tracker_add_item(TRACKER_CMD_TERMINAL,  "Terminal (gterm 端末)", NULL);
     tracker_add_item(TRACKER_CMD_AUDIODECK, "Cassette (カセットデッキ)", NULL);

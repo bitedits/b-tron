@@ -563,7 +563,7 @@ $(TEST_MOZC_BIN): $(TEST_MOZC_OBJS)
 	$(CC) $(TEST_MOZC_OBJS) -o $@ $(LDFLAGS)
 
 # ═══════════════════════════════════════════════════════════════════
-# T-Editor UI & Internal Functions Test Suite
+# Editor UI & Internal Functions Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_EDITOR_SRCS = src/apps/test_editor_ui.c src/apps/t_editor.c src/window/app_menu.c src/tip/mozc_kkc.c src/tip/tip_ife.c src/tip/wylie.c src/tip/tibetan_dict.c \
                    src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c src/window/wnd.c \
@@ -573,7 +573,7 @@ TEST_EDITOR_BIN  = test_editor
 
 test-editor: $(TEST_EDITOR_BIN)
 	@echo "=========================================================="
-	@echo " Running B-System T-Editor UI & Internal Functions Tests..."
+	@echo " Running B-System Editor UI & Internal Functions Tests..."
 	@echo "=========================================================="
 	@./$(TEST_EDITOR_BIN)
 

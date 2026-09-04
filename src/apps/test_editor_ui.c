@@ -1,5 +1,5 @@
 /*
- * B-Systsem (BTRON 3.20) T-Editor UI & Internal Functions Test Suite: test_editor_ui.c
+ * B-Systsem (BTRON 3.20) Editor UI & Internal Functions Test Suite: test_editor_ui.c
  * Validates CUA editing, Japanese UTF-8 character metrics, TIP IME integration,
  * clipboard, multibyte boundary preservation, and window resizing.
  */
@@ -530,7 +530,7 @@ static void test_window_focus_event_isolation_and_terminal_en_mode(void) {
     char commit[128] = "";
     tip_process_key('k', 0, commit, sizeof(commit));
     tip_process_key('a', 0, commit, sizeof(commit));
-    TEST_ASSERT(tip_get_state() == TIP_STATE_PRECOMP, "T-Editor has active precomposition reading");
+    TEST_ASSERT(tip_get_state() == TIP_STATE_PRECOMP, "Editor has active precomposition reading");
 
     /* Switching window focus calls tip_cancel() */
     tip_cancel();
@@ -762,13 +762,13 @@ static void test_f10_and_function_key_switching(void) {
 static void test_dynamic_ps_multiple_instances(void) {
     printf("\n[UI TEST 15] Dynamic Process Table & Multiple App Instance Reflection\n");
 
-    WND *w1 = opn_wnd("T-Editor - Doc1.txt", 100, 50, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
-    WND *w2 = opn_wnd("T-Editor - Doc2.txt", 120, 70, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w1 = opn_wnd("Editor - Doc1.txt", 100, 50, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
+    WND *w2 = opn_wnd("Editor - Doc2.txt", 120, 70, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
     WND *w3 = opn_wnd("TAD Browser - Spec.tad", 140, 90, 600, 400, WND_ATTR_TITLE | WND_ATTR_CLOSE);
     WND *w4 = opn_wnd("BTRON Terminal (gterm)", 160, 110, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE);
 
     TEST_ASSERT(w1 != NULL && w2 != NULL && w3 != NULL && w4 != NULL, "Created 4 application instances");
-    TEST_ASSERT(w1->id != w2->id, "Unique PID assigned to different T-Editor instances");
+    TEST_ASSERT(w1->id != w2->id, "Unique PID assigned to different Editor instances");
     TEST_ASSERT(w2->id != w3->id, "Unique PID assigned to TAD Browser instance");
 
     /* Verify get_wnd_list contains all created windows */
@@ -820,9 +820,9 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
     TEST_ASSERT(found_report, "Discovered BTRON3_Report.txt in assets/texts");
     TEST_ASSERT(found_sutra, "Discovered Heart_Sutra_Tibetan.txt in assets/texts");
 
-    /* 2. Menu lifecycle on T-Editor window */
+    /* 2. Menu lifecycle on Editor window */
     WND *wnd = open_t_editor_window();
-    TEST_ASSERT(wnd != NULL, "Created T-Editor window instance");
+    TEST_ASSERT(wnd != NULL, "Created Editor window instance");
     TEditor *ed = (TEditor*)(uintptr_t)wnd->user_data;
     TEST_ASSERT(ed != NULL, "TEditor instance exists");
     TEST_ASSERT(ed->active_menu == -1, "Menu starts in closed state (-1)");
@@ -922,13 +922,13 @@ static void test_modern_menu_bar_and_asset_discovery(void) {
     cls_wnd(wnd);
 }
 
-/* ── UI Test 17: Nano About Box for T-Editor (Brought to B-System by 5HT) ── */
+/* ── UI Test 17: Nano About Box for Editor (Brought to B-System by 5HT) ── */
 static void test_teditor_nano_about_box(void) {
     printf("\n[UI TEST 17] Nano About Box Lifecycle & 5HT Attribution\n");
 
     WND *about_wnd = open_teditor_about_window();
     TEST_ASSERT(about_wnd != NULL, "open_teditor_about_window() created valid window");
-    TEST_ASSERT(strstr(about_wnd->title, "About T-Editor") != NULL, "About window title is 'About T-Editor'");
+    TEST_ASSERT(strstr(about_wnd->title, "About Editor") != NULL, "About window title is 'About Editor'");
 
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
@@ -968,7 +968,7 @@ int main(int argc, char **argv) {
     (void)argv;
 
     printf("==========================================================\n");
-    printf(" B-System T-Editor Internal Functions & UI Test Suite\n");
+    printf(" B-System Editor Internal Functions & UI Test Suite\n");
     printf("==========================================================\n");
 
     test_editor_initialization();
@@ -990,7 +990,7 @@ int main(int argc, char **argv) {
     test_teditor_nano_about_box();
 
     printf("\n==========================================================\n");
-    printf(" T-EDITOR TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
+    printf(" Editor TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
              g_tests_passed, g_tests_total,
              (100.0 * g_tests_passed) / (g_tests_total > 0 ? g_tests_total : 1));
     printf("==========================================================\n");

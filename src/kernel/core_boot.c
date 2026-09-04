@@ -399,9 +399,9 @@ static void launch_vesa_desktop_session(int active_cores) {
     uart_puts_raw(" [B-SYSTEM] Authentic BTRON3 Desktop Active (1024x768x32)!\n");
     uart_puts_raw("   * Wallpaper: Sakamura B-TRON Teal with Retro Grid\n");
     uart_puts_raw("   * Double Buffering: Active (Tear-Free Compositor)\n");
-    uart_puts_raw("   * Icons    : Real Body Cabinet, T-Editor, GTerm, Audio, Chat\n");
+    uart_puts_raw("   * Icons    : Real Body Cabinet, Editor, GTerm, Audio, Chat\n");
     uart_puts_raw("   * Panel    : [BTRON] System Menu & Japanese JIS Fonts\n");
-    uart_puts_raw("   * Windows  : HFDS Cabinet Explorer, T-Editor, GTerm Shell\n");
+    uart_puts_raw("   * Windows  : HFDS Cabinet Explorer, Editor, GTerm Shell\n");
     uart_puts_raw(" Controls: Type in active window or press [Esc]/[Q] to return to shell.\n");
     uart_puts_raw("==========================================================\n\n");
 

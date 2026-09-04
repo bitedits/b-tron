@@ -488,7 +488,7 @@ static void test_btron3_compact_sliding_tabs(void) {
         cls_wnd(get_top_wnd());
     }
 
-    WND *w = opn_wnd("T-Editor", 100, 100, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE);
+    WND *w = opn_wnd("Editor", 100, 100, 500, 350, WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE);
     TEST_ASSERT(w != NULL, "Opened window with compact sliding tabs");
     TEST_ASSERT((w->attr & WND_ATTR_COMPACT_TAB) != 0, "WND_ATTR_COMPACT_TAB is active");
     TEST_ASSERT((w->attr & WND_ATTR_SLIDING_TAB) != 0, "WND_ATTR_SLIDING_TAB is active");

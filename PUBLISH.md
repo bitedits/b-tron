@@ -19,7 +19,7 @@ The B-System documentation pipeline is designed to be **cheap, instant, authenti
 - **Plain Unstyled HTML Image Embedding**: Injects clean, raw `<img>` elements into HTML pages with **no artificial CSS box-shadows, borders, or rounded corners**—preserving the exact retro pixel-art aesthetic of authentic BTRON3.
 - **Clear File Suffix Hierarchy**:
   - Settings applets use the `_Settings.png` suffix (e.g. `Appearance_Settings.png`).
-  - Core applications use the `_Application.png` or `_Menu_Opened.png` suffix (e.g. `TEditor_Menu_Opened.png`, `Terminal_Menu_Opened.png`).
+  - Core applications use the `_Application.png` or `_Menu_Opened.png` suffix (e.g. `Editor_Menu_Opened.png`, `Terminal_Menu_Opened.png`).
   - System desktop menus use descriptive opened names (e.g. `Desktop_MainMenu_Opened.png`, `GlobalMenu_System_Opened.png`).
 - **Sub-Second Batch Execution**: Renders all 27+ system windows and menus, encodes compressed PNGs, and populates documentation pages in **<100 milliseconds** total.
 - **Lightweight Lossless Storage**: Pure RGBA PNGs (zlib level 9 compression) averaging **4 KB to 28 KB** per window frame.
@@ -143,7 +143,7 @@ Screenshots are generated into `b-system/img/screens/` and populated across docu
 | Application Document | Japanese Title | Embedded Screenshot File (Opened Menu & Content) | Typical Size |
 | :--- | :--- | :--- | :--- |
 | [`Cabinet.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Cabinet.html) | 実身キャビネット (Cabinet) | `Cabinet_Menu_Opened.png` (ファイルメニュー展開・実身一覧) | ~9.2 KB |
-| [`TEditor.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/TEditor.html) | 基本文章編集 (TEditor) | `TEditor_Menu_Opened.png` (ファイルメニュー展開・本文テキスト) | ~17.8 KB |
+| [`Editor.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Editor.html) | 基本文章編集 (Editor) | `Editor_Menu_Opened.png` (ファイルメニュー展開・本文テキスト) | ~17.8 KB |
 | [`Browser.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Browser.html) | 仕様書閲覧 (Browser) | `Browser_Menu_Opened.png` (ファイルメニュー展開・仕様書TAD文書) | ~6.0 KB |
 | [`Terminal.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Terminal.html) | 端末 (Terminal / GTerm) | `Terminal_Menu_Opened.png` (ファイルメニュー展開・シェル対話) | ~5.2 KB |
 | [`Cassette.html`](file:///Ubuntu-22.04/home/maxim/depot/bitedits/btron/b-system/apps/Cassette.html) | カセット (Cassette) | `Cassette_Application.png` (ステレオカセットデッキ) | ~10.1 KB |
@@ -169,8 +169,8 @@ All documentation pages link to their corresponding isolated window screenshot u
 <div class="section">
   <h2>画面プレビュー (Screen Preview)</h2>
   <div class="screen-preview">
-    <img src="../img/screens/TEditor_Menu_Opened.png" alt="基本文章編集 (TEditor Application - Menu Opened)">
-    <p>実機描画フレームバッファより自動抽出された基本文章編集 T-Editor (ファイルメニュー展開・本文テキスト表示)</p>
+    <img src="../img/screens/Editor_Menu_Opened.png" alt="基本文章編集 (Editor Application - Menu Opened)">
+    <p>実機描画フレームバッファより自動抽出された基本文章編集 Editor (ファイルメニュー展開・本文テキスト表示)</p>
   </div>
 </div>
 ```

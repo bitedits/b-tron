@@ -231,12 +231,12 @@ int main(int argc, char **argv) {
             dump_window_rect(dev, w_cab, "/tmp/btron_raw_screens/Cabinet_Application.raw");
         }
 
-        /* T-Editor Application Window */
+        /* Editor Application Window */
         reset_isolation_state(dev);
         WND *w_ted = open_t_editor_window();
         if (w_ted) {
             redraw_all_windows();
-            dump_window_rect(dev, w_ted, "/tmp/btron_raw_screens/TEditor_Application.raw");
+            dump_window_rect(dev, w_ted, "/tmp/btron_raw_screens/Editor_Application.raw");
         }
 
         /* TAD Browser Application Window */
@@ -289,13 +289,13 @@ int main(int argc, char **argv) {
 
     /* 3. In-App Opened Menu Screenshots (_Menu_Opened suffix) */
     {
-        /* T-Editor File Menu Opened with Live Document Content */
+        /* Editor File Menu Opened with Live Document Content */
         reset_isolation_state(dev);
         WND *w_ted = open_t_editor_window();
         if (w_ted) {
             simulate_menu_click(w_ted, 0); /* File Menu (ファイル) */
             redraw_all_windows();
-            dump_window_rect(dev, w_ted, "/tmp/btron_raw_screens/TEditor_Menu_Opened.raw");
+            dump_window_rect(dev, w_ted, "/tmp/btron_raw_screens/Editor_Menu_Opened.raw");
         }
 
         /* Cabinet File Menu Opened with Real Body Objects */

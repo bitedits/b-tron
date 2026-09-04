@@ -108,7 +108,7 @@ static void paint_media_settings(WND *wnd, GDEV *dev) {
     drw_rec(dev, &s1);
     drw_tc_string(dev, 16, 48, " [1. File Type Associations] ", COLOR_NAVY, COLOR_WHITE);
     paint_ui_checkbox(dev, 18, 70, "Associate TAD Hypertext (.tad) with TAD Browser", g_state_media.checks[0], FALSE);
-    paint_ui_checkbox(dev, 18, 92, "Associate Plain-Text (.txt, .c) with T-Editor", g_state_media.checks[1], FALSE);
+    paint_ui_checkbox(dev, 18, 92, "Associate Plain-Text (.txt, .c) with Editor", g_state_media.checks[1], FALSE);
     paint_ui_checkbox(dev, 18, 114, "Associate Form Documents (.pdf) with PDF TAD Reader", g_state_media.checks[2], FALSE);
     paint_ui_checkbox(dev, 18, 136, "Associate Audio Streams (.wav, .pcm) with Media Deck", g_state_media.checks[3], FALSE);
 

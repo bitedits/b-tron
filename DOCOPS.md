@@ -35,7 +35,7 @@ Documentation across B-System must maintain a cold, precise, and academic techni
 
 ### 1.4 Component Naming & Title Conventions
 
-- **Single-Word English Rule**: The English name/identifier must **always be exactly one single word** across `<title>`, `<h1>` headers, breadcrumbs, and navigation matrices (e.g., `Appearance`, `Desktop`, `Display`, `Input`, `Workbench`, `Cabinet`, `Terminal`, `Browser`, `TEditor`, `Commander`, `Cassette`). Multi-word descriptors (e.g., *Appearance Subsystem*, *Media Deck*, *GTerm*, *Desk Calculator*) are strictly prohibited in titles and headers.
+- **Single-Word English Rule**: The English name/identifier must **always be exactly one single word** across `<title>`, `<h1>` headers, breadcrumbs, and navigation matrices (e.g., `Appearance`, `Desktop`, `Display`, `Input`, `Workbench`, `Cabinet`, `Terminal`, `Browser`, `Editor`, `Commander`, `Cassette`). Multi-word descriptors (e.g., *Appearance Subsystem*, *Media Deck*, *GTerm*, *Desk Calculator*) are strictly prohibited in titles and headers.
 - **Concise Japanese Specifier (No Nested Braces)**: The Japanese title must be simple, concise, and **strictly without nested parentheses or braces** (e.g., `外観設定 (Appearance)`, `コマンダー (Commander)`, `カセット (Cassette)`, `端末 (Terminal)`, `電卓 (Calculator)`). Triple-tagging or descriptive parentheticals like `コマンダー (二面ファイル管理) (Commander)`, `カセット (Media Deck) (Cassette)`, or `ターミナル (GTerm) (Terminal)` are prohibited.
 
 ## 2. Structural & Layout Requirements
