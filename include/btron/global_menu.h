@@ -80,6 +80,7 @@ void global_menu_close(void);
 BOOL global_menu_is_open(void);
 int  global_menu_get_active(void);
 int  global_menu_get_hover_header(void);
+void global_menu_set_screen_width(H w);
 
 #ifdef __cplusplus
 }

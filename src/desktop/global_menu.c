@@ -58,6 +58,11 @@ typedef struct {
 } GlobalMenuState;
 
 static GlobalMenuState g_gmenu;
+static H s_gmenu_scr_w = 1280;
+
+void global_menu_set_screen_width(H w) {
+    if (w > 0) s_gmenu_scr_w = w;
+}
 
 /* Static menu headers and static items */
 static GMenuHeader g_headers[GMENU_HEADER_COUNT] = {
@@ -213,6 +218,7 @@ static void get_japanese_calendar_string(char *buf, size_t max_len) {
 
 void global_menu_render_bar(GDEV *dev) {
     if (!dev) return;
+    if (dev->width > 0) s_gmenu_scr_w = dev->width;
 
     /* Base Bar Plate (y = 0..25) */
     RECT bar = { 0, 0, dev->width, 25 };
@@ -439,7 +445,8 @@ static void global_menu_execute_cmd(int cmd) {
 
 BOOL global_menu_handle_mouse_move(H x, H y) {
     /* Check TIP badge hover */
-    RECT tip_btn = { (H)(1280 - 214 - 134 - 4), 3, (H)(1280 - 214 - 4 - 6), 23 };
+    H sw = s_gmenu_scr_w > 0 ? s_gmenu_scr_w : 1280;
+    RECT tip_btn = { (H)(sw - 214 - 134 - 4), 3, (H)(sw - 214 - 4 - 6), 23 };
     g_gmenu.tip_hover = (x >= tip_btn.left && x <= tip_btn.right && y >= tip_btn.top && y <= tip_btn.bottom);
 
     /* 1. When a menu is actively open */
@@ -511,7 +518,8 @@ BOOL global_menu_handle_mouse_move(H x, H y) {
 
 BOOL global_menu_handle_mouse_down(H x, H y) {
     /* 1. Check Global TIP Mode Badge Click */
-    RECT tip_btn = { (H)(1280 - 214 - 134 - 4), 3, (H)(1280 - 214 - 4 - 6), 23 };
+    H sw = s_gmenu_scr_w > 0 ? s_gmenu_scr_w : 1280;
+    RECT tip_btn = { (H)(sw - 214 - 134 - 4), 3, (H)(sw - 214 - 4 - 6), 23 };
     if (x >= tip_btn.left && x <= tip_btn.right && y >= tip_btn.top && y <= tip_btn.bottom) {
         tip_toggle_mode();
         return TRUE;
