@@ -676,17 +676,24 @@ static void draw_about_app_icon(GDEV *dev, const char *app_name, int dst_x, int 
     if (app_name) {
         if (strstr(app_name, "Cabinet") || strstr(app_name, "キャビネット")) {
             strncpy(name_lower, "cabinet", sizeof(name_lower) - 1);
-        } else if (strstr(app_name, "Editor") || strstr(app_name, "Editor") || strstr(app_name, "文書編集")) {
+        } else if (strstr(app_name, "Editor") || strstr(app_name, "文書編集")) {
             strncpy(name_lower, "teditor", sizeof(name_lower) - 1);
         } else if (strstr(app_name, "Browser") || strstr(app_name, "TAD") || strstr(app_name, "実身閲覧")) {
             strncpy(name_lower, "browser", sizeof(name_lower) - 1);
         } else if (strstr(app_name, "gterm") || strstr(app_name, "terminal") ||
                    strstr(app_name, "Terminal") || strstr(app_name, "端末")) {
             strncpy(name_lower, "terminal", sizeof(name_lower) - 1);
+        } else if (strstr(app_name, "Cassette") || strstr(app_name, "カセット") ||
+                   strstr(app_name, "cassette")) {
+            strncpy(name_lower, "cassette", sizeof(name_lower) - 1);
+        } else if (strstr(app_name, "Orchestra") || strstr(app_name, "管弦楽") ||
+                   strstr(app_name, "Music") || strstr(app_name, "music")) {
+            strncpy(name_lower, "music", sizeof(name_lower) - 1);
         } else {
             for (int i = 0; app_name[i] && nlen < 30; i++) {
                 char c = app_name[i];
-                if (c == ' ' || c == '-' || c == '_') continue;
+                if (c == ' ' || c == '(') break;
+                if (c == '-' || c == '_') continue;
                 if (c >= 'A' && c <= 'Z') c = c + ('a' - 'A');
                 if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
                     name_lower[nlen++] = c;
@@ -767,7 +774,7 @@ static void paint_about_dialog(WND *wnd, GDEV *dev) {
         drw_lin(dev, sep_x + 6, hsep_y, card.right - 10, hsep_y);
 
         drw_tc_string(dev, text_x, hsep_y + 8,  data->attribution, COLOR_BLACK, 0x00000000);
-        drw_tc_string(dev, text_x, hsep_y + 26, "B-System BTRON3 3.20 — T-Kernel 2.0 — TRON ITRON BTRON HMI NET-TRON",
+        drw_tc_string(dev, text_x, hsep_y + 26, "B-System (BTRON3 3.20) TRON ITRON BTRON HMI NET-TRON",
                       COLOR_DKGRAY, 0x00000000);
     }
 

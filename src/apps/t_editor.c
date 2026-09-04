@@ -1025,6 +1025,7 @@ WND* open_t_editor_window_with_file(const char *filepath) {
     if (!filepath || teditor_load_file(ed, filepath) != 0) {
         teditor_init_default(ed);
     }
+    teditor_init_menu_bar(ed);
 
     char title[128];
     snprintf(title, sizeof(title), "Editor - %s", ed->filename);

@@ -48,6 +48,7 @@ extern WND* open_vobj_about_window(void);
 extern WND* open_tad_browser_about_window(void);
 extern WND* open_gterm_about_window(void);
 extern WND* open_orchestra_about_window(void);
+extern WND* open_cassette_about_window(void);
 
 /* Forward declarations for GTerm internals */
 typedef struct GTermState GTermState;
@@ -338,6 +339,14 @@ int main(int argc, char **argv) {
             redraw_all_windows();
             dump_window_rect(dev, w_abt_orch, "/tmp/btron_raw_screens/Orchestra_About.raw");
         }
+
+        /* Cassette About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_cas = open_cassette_about_window();
+        if (w_abt_cas) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_cas, "/tmp/btron_raw_screens/Cassette_About.raw");
+        }
     }
 
     /* 3. In-App Opened Menu Screenshots (_Menu_Opened suffix) */
@@ -346,6 +355,7 @@ int main(int argc, char **argv) {
         reset_isolation_state(dev);
         WND *w_ted = open_t_editor_window();
         if (w_ted) {
+            redraw_all_windows();
             simulate_menu_click(w_ted, 0); /* File Menu (ファイル) */
             redraw_all_windows();
             dump_window_rect(dev, w_ted, "/tmp/btron_raw_screens/Editor_Menu_Opened.raw");
@@ -355,6 +365,7 @@ int main(int argc, char **argv) {
         reset_isolation_state(dev);
         WND *w_cab = open_vobj_manager_window();
         if (w_cab) {
+            redraw_all_windows();
             simulate_menu_click(w_cab, 0); /* File Menu (ファイル) */
             redraw_all_windows();
             dump_window_rect(dev, w_cab, "/tmp/btron_raw_screens/Cabinet_Menu_Opened.raw");
@@ -364,6 +375,7 @@ int main(int argc, char **argv) {
         reset_isolation_state(dev);
         WND *w_brw = open_tad_browser_window("tad_bin/01_btron3_spec.tad", "【仕様書】BTRON3 3.20 OS Specification");
         if (w_brw) {
+            redraw_all_windows();
             simulate_menu_click(w_brw, 0); /* File Menu (ファイル) */
             redraw_all_windows();
             dump_window_rect(dev, w_brw, "/tmp/btron_raw_screens/Browser_Menu_Opened.raw");
@@ -380,6 +392,7 @@ int main(int argc, char **argv) {
                 gterm_append_line(st, "btron:/> tip_status", COLOR_WHITE);
                 gterm_append_line(st, "TIP Engine: Mozc (あ) / Tibetan (EWTS) Active", COLOR_YELLOW);
             }
+            redraw_all_windows();
             simulate_menu_click(w_term, 0); /* File Menu (ファイル) */
             redraw_all_windows();
             dump_window_rect(dev, w_term, "/tmp/btron_raw_screens/Terminal_Menu_Opened.raw");

@@ -149,6 +149,11 @@ APPS_MAP = {
             "screen": "../img/screens/Cassette_Application.png",
             "caption": "実機描画フレームバッファより自動抽出されたステレオカセットデッキ Cassette (Native Headless GDEV Capture)",
             "alt": "カセット (Cassette Application)"
+        },
+        {
+            "screen": "../img/screens/Cassette_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Cassette)",
+            "alt": "カセット バージョン情報 (About Cassette)"
         }
     ],
     "Orchestra.html": [

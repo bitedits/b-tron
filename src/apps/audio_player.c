@@ -12,6 +12,7 @@
 #include <btron/apps.h>
 #include <btron/wnd.h>
 #include <btron/dp.h>
+#include <btron/app_menu.h>
 #include <btron/troncode.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
@@ -569,9 +570,13 @@ static void audio_deck_paint(WND *wnd, GDEV *dev) {
     draw_beveled_box(dev, &btn_eject, SONY_COL_BTN_BG, SONY_COL_BORDER_HI, SONY_COL_BORDER_LO);
     drw_tc_string(dev, btn_eject.left + 14, btn_y + 3, "Eject [^]", SONY_COL_GOLD, SONY_COL_BTN_BG);
 
+    RECT btn_about = { btn_eject.left - 85, btn_y, btn_eject.left - 10, btn_y + btn_h };
+    draw_beveled_box(dev, &btn_about, SONY_COL_BTN_BG, SONY_COL_BORDER_HI, SONY_COL_BORDER_LO);
+    drw_tc_string(dev, btn_about.left + 10, btn_y + 3, "About...", SONY_COL_TEXT_SILVER, SONY_COL_BTN_BG);
+
     /* Telemetry text (strictly clipped before buttons) */
     char telem[96];
-    snprintf(telem, sizeof(telem), "SONY ES-SERIES | %s | %s",
+    snprintf(telem, sizeof(telem), "SONY ES | %s | %s",
              k_tape_names[g_deck.tape_type],
              (g_deck.dolby_mode == DOLBY_OFF) ? "NO NR" : (g_deck.dolby_mode == DOLBY_B ? "DOLBY-B" : "DOLBY-C"));
     drw_tc_string(dev, 14, layout.footer_box.top + 10, telem, SONY_COL_TEXT_DIM, SONY_COL_HEADER);
@@ -660,6 +665,10 @@ static void audio_deck_event_handler(WND *wnd, const EVT *evt) {
                 inval_wnd(wnd);
                 return;
             }
+            if (rel_x >= client_w - 375 && rel_x <= client_w - 300) {
+                open_cassette_about_window();
+                return;
+            }
         }
     }
 }
@@ -710,3 +719,12 @@ WND* open_audio_player_window(void) {
 
     return g_audio_wnd;
 }
+
+/* About Window Creator for Cassette Deck */
+WND* open_cassette_about_window(void) {
+    return app_menu_create_about_dialog("Cassette", "カセットデッキ",
+        "SONY TC-K777ES 3-Head Dual Capstan Stereo Cassette Deck",
+        "Brought to B-System by 5HT",
+        240, 160);
+}
+

@@ -35,57 +35,61 @@
       </span>
     </div>
 
-                                                                                                                        <!-- 画面プレビュー -->
+                                                                                                                                                                <!-- 画面プレビュー -->
     <div class="section">
       <h2>画面プレビュー (Screen Preview)</h2>
       <div class="screen-preview">
         <img src="../img/screens/Cassette_Application.png" alt="カセット (Cassette Application)">
         <p>実機描画フレームバッファより自動抽出されたステレオカセットデッキ Cassette (Native Headless GDEV Capture)</p>
       </div>
+      <div class="screen-preview">
+        <img src="../img/screens/Cassette_About.png" alt="カセット バージョン情報 (About Cassette)">
+        <p>実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Cassette)</p>
+      </div>
     </div>
 
 <div class="section">
       <h2>概要 (Overview)</h2>
       <p>
-        カセット（Cassette）は、B-Systemの仕様に準拠したC99実装アプリケーション。PCMオーディオストリームおよびTADアニメーションのマルチトラック再生デッキ。<br>
-        <span style="font-size:0.9em; opacity:0.85;">"Official technical specification for the Cassette application within the B-System operating environment."</span>
+        カセット（Cassette）は、B-Systemの仕様に準拠したC99実装アプリケーション。SONY TC-K777ES 3-Head Dual Capstan 精密ステレオカセットデッキを忠実に再現した高品位オーディオコンポーネントです。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Official technical specification for the SONY TC-K777ES Hi-Fi Cassette Deck application within the B-System operating environment."</span>
       </p>
     </div>
 
     <div class="section">
       <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
       <p>
-        Cassette が提供する標準メニューバー構造および操作体系の仕様。<br>
-        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+        Cassette が提供する操作体系およびフロントパネルコントロールの仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Front chassis controls, tactile transport operations, and interactive command bindings."</span>
       </p>
       <table class="market-table">
         <thead>
           <tr>
-            <th>メニュー項目</th>
+            <th>操作項目</th>
             <th>機能説明 (Functional Description)</th>
             <th>技術仕様・C99実装 (C99 Architecture)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><b>ファイル (File)</b></td>
-            <td>新規作成、開く、保存、閉じる</td>
-            <td><code>src/apps/cassette.c</code></td>
+            <td><b>走行制御 (Transport)</b></td>
+            <td>再生 (Play)、逆再生 (Rev)、早送り (FF)、巻戻し (Rew)、停止 (Stop)、一時停止 (Pause)、録音 (Rec)</td>
+            <td><code>audio_deck_event_handler</code></td>
           </tr>
           <tr>
-            <td><b>編集 (Edit)</b></td>
-            <td>元に戻す、切り取り、コピー、貼り付け</td>
-            <td>クリップボード連携</td>
+            <td><b>磁気テープ種別 (Tape Type)</b></td>
+            <td>Type I (NORM / Fe2O3), Type II (CrO2), Type III (FeCr), Type IV (METAL) 自動・手動切替</td>
+            <td><code>CASSETTE_TAPE_TYPE</code></td>
           </tr>
           <tr>
-            <td><b>操作 (Action)</b></td>
-            <td>メイン機能実行、パラメータ設定</td>
-            <td>内部状態ディスパッチ</td>
+            <td><b>ノイズリダクション (NR)</b></td>
+            <td>Dolby B / Dolby C ノイズリダクション切替、HX Pro ダイナミックバイアス制御</td>
+            <td><code>DOLBY_MODE</code>, <code>hx_pro</code></td>
           </tr>
           <tr>
-            <td><b>ヘルプ (Help)</b></td>
-            <td>バージョン情報（Nano About Box 420×170px）</td>
-            <td><code>app_menu_create_about_dialog</code></td>
+            <td><b>バージョン情報 (About)</b></td>
+            <td>デッキ情報および作者クレジット表示（Nano About Box 520×270px）</td>
+            <td><code>open_cassette_about_window</code></td>
           </tr>
         </tbody>
       </table>
@@ -109,22 +113,22 @@
           <tr>
             <td><b>アーキテクチャ</b></td>
             <td>BTRON3 Specification 3.20に完全準拠したC99クリーンルーム実装。</td>
-            <td><code>src/apps/cassette.c</code></td>
+            <td><code>src/apps/audio_player.c</code></td>
           </tr>
           <tr>
-            <td><b>メニューシステム</b></td>
-            <td>3DベベルおよびModern Flat Cardメニューバーに完全対応。</td>
-            <td><code>APP_MENU_BAR</code></td>
+            <td><b>デッキ筐体描画</b></td>
+            <td>ブラッシュドグラファイト・チタン質感およびデュアルVUメーター・リール回転アニメーション。</td>
+            <td><code>audio_deck_paint</code></td>
           </tr>
           <tr>
-            <td><b>メモリ管理</b></td>
-            <td>不変ドキュメントコンテキスト分離とリソースの自動解放。</td>
-            <td><code>user_data</code> コンテキスト</td>
+            <td><b>バージョン情報ダイアログ</b></td>
+            <td>レトロアイコン（cassette.gif）と3Dベベル枠による独立ウィンドウ表示。</td>
+            <td><code>app_menu_create_about_dialog</code></td>
           </tr>
           <tr>
             <td><b>イベント処理</b></td>
-            <td>マウス座標、キーボードショートカット、ウィンドウリサイズイベントの処理。</td>
-            <td><code>event_handler</code></td>
+            <td>ボタン押下・テープ装填イジェクト・バイアス調整などのリアルタイムイベントハンドリング。</td>
+            <td><code>audio_deck_event_handler</code></td>
           </tr>
         </tbody>
       </table>

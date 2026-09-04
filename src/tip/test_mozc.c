@@ -224,6 +224,22 @@ static void test_troncode_lossless_bridge(void) {
         "坂村健 T-Kernel 2.0",
         "日本語 Kana-Kanji Conversion Mozc",
         "今日、天気、電車、学校、実身、仮身",
+        "B-System (BTRON3 3.20) — TRON ITRON BTRON HMI NET-TRON",
+        "「日本語」【実身】〔仮身〕（括弧）—ダッシュ―全角ダッシュ…三点リーダ",
+        "—",
+        "―",
+        "–",
+        "‐",
+        "…",
+        "〔",
+        "〕",
+        "【",
+        "】",
+        "「",
+        "」",
+        "（",
+        "）",
+        "“引用” ‘単一’",
         NULL
     };
 

@@ -1066,6 +1066,7 @@ WND* open_gterm_window(void) {
     if (wnd) {
         GTermState *st = (GTermState*)calloc(1, sizeof(GTermState));
         if (st) {
+            gterm_init_menu_bar(st);
             gterm_init_banner(st);
             gterm_execute_cmd(wnd, st, "ver");
             wnd->user_data = (VW)(uintptr_t)st;

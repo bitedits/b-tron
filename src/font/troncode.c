@@ -260,9 +260,12 @@ TC utf8_to_tc(const char *utf8_str, int *bytes_consumed) {
         if (cp >= 0xFF00 && cp <= 0xFFEF) {
             return (TC)(0x2200 | (cp - 0xFF00));
         }
-        /* Ukrainian / General Punctuation U+2000 - U+214F (e.g. № U+2116, — U+2014) */
+        /* General Punctuation U+2000 - U+206F (e.g. — U+2014, ― U+2015, … U+2026) -> Plane 1 (0x26xx) */
+        if (cp >= 0x2000 && cp <= 0x206F) {
+            return (TC)(0x2600 | (cp - 0x2000));
+        }
+        /* Ukrainian / General Symbols (e.g. № U+2116) */
         if (cp == 0x2116) return (TC)0x2116;
-        if (cp >= 0x2010 && cp <= 0x2026) return (TC)(0x2100 | (cp - 0x2000));
 
         /* Common CJK Ideographs U+4E00 - U+9FFF -> Plane 1/2 (0x3000 - 0x8200) */
         if (cp >= 0x4E00 && cp <= 0x9FFF) {
@@ -319,6 +322,14 @@ int tc_to_utf8(TC code, char *utf8_buf, int max_len) {
         utf8_buf[0] = (char)0xE2;
         utf8_buf[1] = (char)0x84;
         utf8_buf[2] = (char)0x96;
+        utf8_buf[3] = '\0';
+        return 3;
+    } else if (high == 0x26 && low <= 0x6F) {
+        /* General Punctuation U+2000 + low (e.g. — U+2014, ― U+2015, … U+2026) */
+        UW cp = 0x2000 + low;
+        utf8_buf[0] = (char)(0xE0 | ((cp >> 12) & 0x0F));
+        utf8_buf[1] = (char)(0x80 | ((cp >> 6) & 0x3F));
+        utf8_buf[2] = (char)(0x80 | (cp & 0x3F));
         utf8_buf[3] = '\0';
         return 3;
     } else if (high == 0x21 && low <= 0x3F) {
@@ -436,6 +447,15 @@ static const UB glyph_jp_colon[32] = {
     0x03,0x00, 0x03,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00
 };
 
+static const UB glyph_em_dash[32] = {
+    0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00,
+    0xFF,0xFE, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00
+};
+static const UB glyph_en_dash[32] = {
+    0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x07,0xC0,
+    0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00
+};
+
 /* Procedural Kanji / Japanese 16x16 Glyph Synthesizer */
 static UB g_glyph_buffer[32];
 
@@ -455,6 +475,9 @@ static const UB* synthesize_japanese_glyph(TC code) {
     } else if (high == 0x22) {
         if (low == 0x1A) return glyph_jp_colon;        /* ： */
         if (low == 0x0F) return glyph_jp_bullet;       /* ／ */
+    } else if (high == 0x26) {
+        if (low == 0x14 || low == 0x15) return glyph_em_dash;   /* — / ― */
+        if (low == 0x10 || low == 0x13) return glyph_en_dash;   /* ‐ / – */
     }
 
     memset(g_glyph_buffer, 0, sizeof(g_glyph_buffer));
