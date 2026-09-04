@@ -105,12 +105,11 @@ extern void     m68k_delay_cycles(uint32_t cycles);
 extern void     m68k_halt(void);
 
 /* Desktop & Mouse Declarations */
+#include <btron/workbench.h>
 extern GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
 extern void  redraw_baremetal_desktop(GDEV *screen, H w, H h);
-void set_baremetal_mouse_pos(H x, H y);
-void get_baremetal_mouse_pos(H *x, H *y);
-void handle_baremetal_mouse_click(GDEV *screen, H x, H y, BOOL is_down);
-void handle_baremetal_mouse_move(GDEV *screen, H x, H y);
+extern void  set_baremetal_mouse_pos(H x, H y);
+extern void  get_baremetal_mouse_pos(H *x, H *y);
 
 /* Desktop Backbuffer (800x600 x 32-bit COLOR) */
 static COLOR s_desktop_backbuffer[BTRON_SCREEN_W * BTRON_SCREEN_H] __attribute__((aligned(16)));
@@ -118,14 +117,6 @@ static COLOR s_desktop_backbuffer[BTRON_SCREEN_W * BTRON_SCREEN_H] __attribute__
 /* Global mouse coordinates */
 static H s_mouse_x = 400;
 static H s_mouse_y = 300;
-static BOOL s_dragging = FALSE;
-static WND *s_drag_wnd = NULL;
-static H s_drag_off_x = 0;
-static H s_drag_off_y = 0;
-static BOOL s_sliding_tab = FALSE;
-static WND *s_slide_wnd = NULL;
-static H s_slide_start_x = 0;
-static H s_slide_orig_off = 0;
 
 uint32_t heap_ptr = 0x00010000;
 
@@ -478,130 +469,8 @@ void adb_init(void) {
     via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x30;
 }
 
-void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down) {
-    set_baremetal_mouse_pos(mx, my);
-
-    if (is_down) {
-        /* 1. Check Top Global Menu Bar Click */
-        if (my < 26) {
-            if (mx >= BTRON_SCREEN_W - 180) {
-                if (tip_get_mode() == TIP_MODE_ASCII) {
-                    tip_set_mode(TIP_MODE_HIRAGANA);
-                } else {
-                    tip_set_mode(TIP_MODE_ASCII);
-                }
-            }
-        }
-        /* 2. Check Left Desktop Virtual Object Clicks */
-        else if (mx < 70) {
-            if (my >= 50 && my < 100) {
-                open_vobj_manager_window();
-            } else if (my >= 130 && my < 180) {
-                open_t_editor_window();
-            } else if (my >= 210 && my < 260) {
-                open_gterm_window();
-            }
-        } else {
-            /* 3. Check Window Clicks */
-            WND *clicked = find_wnd_at(mx, my);
-            if (clicked) {
-                if (get_top_wnd() != clicked) {
-                    tip_cancel();
-                    top_wnd(clicked);
-                }
-
-                if (my >= clicked->bounds.top && my < clicked->bounds.top + 22) {
-                    if (whit_test_close_btn(clicked, mx, my)) {
-                        cls_wnd(clicked);
-                        tip_cancel();
-                    } else if (whit_test_tab(clicked, mx, my)) {
-                        RECT tab_r;
-                        wget_tab_rect(clicked, &tab_r);
-                        if (mx >= tab_r.left && mx < tab_r.left + 12 && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
-                            s_sliding_tab = TRUE;
-                            s_slide_wnd = clicked;
-                            s_slide_start_x = mx;
-                            s_slide_orig_off = clicked->tab_offset_x;
-                        } else {
-                            s_dragging = TRUE;
-                            s_drag_wnd = clicked;
-                            s_drag_off_x = mx - clicked->bounds.left;
-                            s_drag_off_y = my - clicked->bounds.top;
-                        }
-                    } else {
-                        s_dragging = TRUE;
-                        s_drag_wnd = clicked;
-                        s_drag_off_x = mx - clicked->bounds.left;
-                        s_drag_off_y = my - clicked->bounds.top;
-                    }
-                } else {
-                    EVT ev;
-                    ev.type = EV_BUT_DOWN;
-                    ev.button = 1;
-                    ev.pos.x = mx;
-                    ev.pos.y = my;
-                    ev.key = 0;
-                    ev.data = 0;
-                    if (clicked->event_handler) {
-                        clicked->event_handler(clicked, &ev);
-                    }
-                }
-            }
-        }
-    } else {
-        /* Mouse Button Up */
-        s_dragging = FALSE;
-        s_drag_wnd = NULL;
-        s_sliding_tab = FALSE;
-        s_slide_wnd = NULL;
-        WND *top = get_top_wnd();
-        if (top && top->focused && top->event_handler) {
-            EVT ev;
-            ev.type = EV_BUT_UP;
-            ev.button = 1;
-            ev.pos.x = mx;
-            ev.pos.y = my;
-            ev.key = 0;
-            ev.data = 0;
-            top->event_handler(top, &ev);
-        }
-    }
-
-    if (screen) {
-        redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-        blit_backbuffer_to_macfb();
-    }
-}
-
-void handle_baremetal_mouse_move(GDEV *screen, H mx, H my) {
-    set_baremetal_mouse_pos(mx, my);
-
-    if (s_sliding_tab && s_slide_wnd) {
-        H new_off = s_slide_orig_off + (mx - s_slide_start_x);
-        wset_tab_offset(s_slide_wnd, new_off);
-    } else if (s_dragging && s_drag_wnd) {
-        mov_wnd(s_drag_wnd, mx - s_drag_off_x, my - s_drag_off_y);
-    } else {
-        WND *top = get_top_wnd();
-        if (top && top->focused && top->event_handler) {
-            EVT ev;
-            ev.type = EV_MOUSE_MOVE;
-            ev.button = 0;
-            ev.pos.x = mx;
-            ev.pos.y = my;
-            ev.key = 0;
-            ev.data = 0;
-            top->event_handler(top, &ev);
-        }
-    }
-
-    if (screen) {
-        redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-        blit_backbuffer_to_macfb();
-    }
-}
-
 static int adb_poll_devices(GDEV *screen) {
+    (void)screen;
     volatile uint8_t *via1 = (volatile uint8_t*)VIA1_BASE;
     int activity = 0;
 
@@ -641,14 +510,27 @@ static int adb_poll_devices(GDEV *screen) {
                 if (s_mouse_y < 0) s_mouse_y = 0;
                 if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
 
-                handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                EVT ev;
+                ev.type = EV_MOUSE_MOVE;
+                ev.pos.x = s_mouse_x;
+                ev.pos.y = s_mouse_y;
+                ev.button = 0;
+                ev.data = 0;
+                snd_evt(&ev);
                 activity = 1;
             }
 
             static BOOL s_last_mouse_btn = FALSE;
             if (btn_down != s_last_mouse_btn) {
                 s_last_mouse_btn = btn_down;
-                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, btn_down);
+                EVT ev;
+                ev.type = btn_down ? EV_BUT_DOWN : EV_BUT_UP;
+                ev.button = 1;
+                ev.pos.x = s_mouse_x;
+                ev.pos.y = s_mouse_y;
+                ev.key = 0;
+                ev.data = 0;
+                snd_evt(&ev);
                 activity = 1;
             }
         } else if (dev_addr == 2 || dev_cmd == 0x2C) {
@@ -664,7 +546,7 @@ static int adb_poll_devices(GDEV *screen) {
                 if (ch) {
                     EVT ev;
                     ev.type = EV_KEY_DOWN;
-                    ev.key = (UW)ch;
+                    ev.key = (UW)(uint8_t)ch;
                     ev.pos.x = s_mouse_x;
                     ev.pos.y = s_mouse_y;
                     ev.button = 0;
@@ -787,9 +669,10 @@ void m68k_kernel_main(void) {
         kprintf("[FATAL] Failed to initialize B-System Workbench screen!\n");
         m68k_halt();
     }
+    workbench_init(BTRON_SCREEN_W);
 
     /* Initial paint & blit */
-    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    workbench_render(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
     blit_backbuffer_to_macfb();
 
     kprintf("\n==========================================================\n");
@@ -828,7 +711,13 @@ void m68k_kernel_main(void) {
                         else if (dir == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
                         else if (dir == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
                         else if (dir == 'D') s_mouse_x = (s_mouse_x > 10) ? s_mouse_x - 16 : 10;
-                        handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                        EVT mev;
+                        mev.type = EV_MOUSE_MOVE;
+                        mev.pos.x = s_mouse_x;
+                        mev.pos.y = s_mouse_y;
+                        mev.button = 0;
+                        mev.data = 0;
+                        snd_evt(&mev);
                         need_redraw = 1;
                     }
                 }
@@ -846,12 +735,9 @@ void m68k_kernel_main(void) {
             }
         }
 
-        /* C. Dispatch queued BTRON events */
+        /* C. Dispatch queued BTRON events through unified workbench dispatcher */
         while (get_evt(&ev, 0) == E_OK) {
-            WND *top = get_top_wnd();
-            if (top && top->event_handler) {
-                top->event_handler(top, &ev);
-            }
+            workbench_process_event(screen, &ev);
             need_redraw = 1;
         }
 
@@ -862,7 +748,7 @@ void m68k_kernel_main(void) {
         }
 
         if (need_redraw) {
-            redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+            workbench_render(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
             blit_backbuffer_to_macfb();
         }
 

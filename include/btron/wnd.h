@@ -68,6 +68,9 @@ void wnd_tile_all(void);
 void wnd_hide_all(void);
 void wnd_cycle_focus(void);
 
+/* BTRON 3.20 Window Manager Interaction & Event Dispatcher */
+BOOL wnd_mgr_handle_event(const EVT *ev);
+
 #ifdef __cplusplus
 }
 #endif

@@ -102,8 +102,23 @@ void sys_mouse_set_pos(H x, H y) {
 void sys_mouse_click(H x, H y) {
 #if (defined(__arm__) || defined(__aarch64__) || defined(__m68k__)) && (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
     set_baremetal_mouse_pos(x, y);
-    handle_baremetal_mouse_click(NULL, x, y, TRUE);
-    handle_baremetal_mouse_click(NULL, x, y, FALSE);
+    EVT ev_down;
+    ev_down.type = EV_BUT_DOWN;
+    ev_down.button = 1;
+    ev_down.pos.x = x;
+    ev_down.pos.y = y;
+    ev_down.key = 0;
+    ev_down.data = 0;
+    snd_evt(&ev_down);
+
+    EVT ev_up;
+    ev_up.type = EV_BUT_UP;
+    ev_up.button = 1;
+    ev_up.pos.x = x;
+    ev_up.pos.y = y;
+    ev_up.key = 0;
+    ev_up.data = 0;
+    snd_evt(&ev_up);
 #else
     (void)x; (void)y;
 #endif

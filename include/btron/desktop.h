@@ -29,7 +29,7 @@ BOOL desktop_handle_click(H x, H y);
 BTRON_DESKTOP* get_btron_desktop(void);
 GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
 void redraw_baremetal_desktop(GDEV *screen, H w, H h);
-void btron_desktop_process_event(GDEV *screen, const EVT *ev);
+void draw_baremetal_mouse_cursor(GDEV *screen, H mx, H my, H w, H h);
 void set_baremetal_mouse_pos(H x, H y);
 void get_baremetal_mouse_pos(H *x, H *y);
 

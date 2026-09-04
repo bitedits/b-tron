@@ -96,15 +96,73 @@ char* tkl_strstr(const char *haystack, const char *needle) {
 }
 
 /* Heap Memory Allocator (Icalloc / Ifree / Imalloc) */
-static uint8_t s_heap_pool[1024 * 1024 * 8] __attribute__((aligned(16)));
+#define HEAP_MAGIC 0x48454150
+
+typedef struct HeapBlock {
+    size_t size;
+    uint32_t is_free;
+    uint32_t magic;
+    struct HeapBlock *next;
+    struct HeapBlock *prev;
+    uint8_t pad[16];
+} __attribute__((aligned(16))) HeapBlock;
+
+static uint8_t s_heap_pool[1024 * 1024 * 16] __attribute__((aligned(16)));
 static size_t  s_heap_offset = 0;
+static HeapBlock *s_heap_head = NULL;
 
 __attribute__((weak)) void* Imalloc(size_t size) {
+    if (size == 0) return NULL;
     size = (size + 15) & ~15; /* 16-byte alignment */
-    if (s_heap_offset + size > sizeof(s_heap_pool)) return NULL;
-    void *ptr = &s_heap_pool[s_heap_offset];
-    s_heap_offset += size;
-    return ptr;
+
+    /* 1. First-fit search in existing block list */
+    HeapBlock *curr = s_heap_head;
+    while (curr) {
+        if (curr->magic == HEAP_MAGIC && curr->is_free && curr->size >= size) {
+            /* If remaining capacity is large enough, split */
+            if (curr->size >= size + sizeof(HeapBlock) + 16) {
+                HeapBlock *split = (HeapBlock*)((uint8_t*)(curr + 1) + size);
+                split->size = curr->size - size - sizeof(HeapBlock);
+                split->is_free = 1;
+                split->magic = HEAP_MAGIC;
+                split->next = curr->next;
+                split->prev = curr;
+                if (curr->next) curr->next->prev = split;
+                curr->next = split;
+                curr->size = size;
+            }
+            curr->is_free = 0;
+            return (void*)(curr + 1);
+        }
+        curr = curr->next;
+    }
+
+    /* 2. Allocate from bump pool */
+    size_t needed = sizeof(HeapBlock) + size;
+    needed = (needed + 15) & ~15;
+    if (s_heap_offset + needed > sizeof(s_heap_pool)) {
+        return NULL;
+    }
+
+    HeapBlock *blk = (HeapBlock*)&s_heap_pool[s_heap_offset];
+    s_heap_offset += needed;
+
+    blk->size = size;
+    blk->is_free = 0;
+    blk->magic = HEAP_MAGIC;
+    blk->next = NULL;
+    blk->prev = NULL;
+
+    if (!s_heap_head) {
+        s_heap_head = blk;
+    } else {
+        HeapBlock *tail = s_heap_head;
+        while (tail->next) tail = tail->next;
+        tail->next = blk;
+        blk->prev = tail;
+    }
+
+    return (void*)(blk + 1);
 }
 
 __attribute__((weak)) void* Icalloc(size_t nmemb, size_t size) {
@@ -115,7 +173,38 @@ __attribute__((weak)) void* Icalloc(size_t nmemb, size_t size) {
 }
 
 __attribute__((weak)) void Ifree(void *ptr) {
-    (void)ptr;
+    if (!ptr) return;
+    HeapBlock *blk = (HeapBlock*)ptr - 1;
+    if (blk->magic != HEAP_MAGIC) return;
+
+    blk->is_free = 1;
+
+    /* Coalesce forward */
+    if (blk->next && blk->next->is_free && blk->next->magic == HEAP_MAGIC) {
+        HeapBlock *nxt = blk->next;
+        blk->size += sizeof(HeapBlock) + nxt->size;
+        blk->next = nxt->next;
+        if (nxt->next) nxt->next->prev = blk;
+    }
+
+    /* Coalesce backward */
+    if (blk->prev && blk->prev->is_free && blk->prev->magic == HEAP_MAGIC) {
+        HeapBlock *prv = blk->prev;
+        prv->size += sizeof(HeapBlock) + blk->size;
+        prv->next = blk->next;
+        if (blk->next) blk->next->prev = prv;
+        blk = prv;
+    }
+
+    /* Shrink bump pointer if at the end */
+    if (blk->next == NULL && blk->is_free) {
+        if (blk->prev) {
+            blk->prev->next = NULL;
+        } else {
+            s_heap_head = NULL;
+        }
+        s_heap_offset = (size_t)((uint8_t*)blk - s_heap_pool);
+    }
 }
 
 #if !defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0

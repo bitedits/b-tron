@@ -25,6 +25,7 @@ GDEV* opn_dev(H w, H h) {
 
     dev->width = w;
     dev->height = h;
+    dev->is_vram = 0;
 
     dev->pixels = (COLOR*)calloc(w * h, sizeof(COLOR));
     if (!dev->pixels) {
@@ -47,6 +48,7 @@ GDEV* opn_dev_vram(H w, H h, COLOR *vram_buffer) {
 
     dev->width = w;
     dev->height = h;
+    dev->is_vram = 1;
     dev->pixels = vram_buffer;
 
     dev->clip.left = 0;
@@ -59,6 +61,10 @@ GDEV* opn_dev_vram(H w, H h, COLOR *vram_buffer) {
 
 void cls_dev(GDEV *dev) {
     if (dev) {
+        if (!dev->is_vram && dev->pixels) {
+            free(dev->pixels);
+            dev->pixels = NULL;
+        }
         free(dev);
     }
 }

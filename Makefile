@@ -105,6 +105,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/window/event.c       \
               src/vobject/vobj.c       \
               src/desktop/desktop.c    \
+              src/desktop/workbench.c  \
               src/desktop/tracker.c    \
               src/desktop/about.c      \
               src/desktop/global_menu.c \
@@ -224,6 +225,7 @@ COMMON_NO_SDL_SRCS = \
     src/window/event.c     \
     src/vobject/vobj.c     \
     src/desktop/desktop.c  \
+    src/desktop/workbench.c \
     src/desktop/tracker.c  \
     src/desktop/about.c    \
     src/desktop/global_menu.c \

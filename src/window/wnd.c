@@ -425,8 +425,8 @@ WND* find_wnd_at(H x, H y) {
         if (curr->visible) {
             H title_h = (curr->attr & WND_ATTR_TITLE) ? WND_TITLE_HEIGHT : 0;
             /* 1. Main window body (below title tab row) */
-            if (x >= curr->bounds.left && x < curr->bounds.right &&
-                y >= curr->bounds.top + title_h && y < curr->bounds.bottom) {
+            if (x >= curr->bounds.left && x <= curr->bounds.right &&
+                y >= curr->bounds.top + title_h && y <= curr->bounds.bottom) {
                 return curr;
             }
             /* 2. Compact title tab area (only inside tab rect) */
@@ -538,4 +538,146 @@ void wnd_cycle_focus(void) {
         curr->visible = TRUE;
         top_wnd(curr);
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * BTRON 3.20 Window Manager Interaction & Event Dispatcher
+ * ═══════════════════════════════════════════════════════════════════ */
+
+static BOOL s_wnd_dragging = FALSE;
+static WND *s_wnd_drag_target = NULL;
+static H    s_wnd_drag_off_x = 0;
+static H    s_wnd_drag_off_y = 0;
+
+static BOOL s_wnd_sliding_tab = FALSE;
+static WND *s_wnd_slide_target = NULL;
+static H    s_wnd_slide_start_x = 0;
+static H    s_wnd_slide_orig_off = 0;
+
+static BOOL s_wnd_resizing = FALSE;
+static WND *s_wnd_resize_target = NULL;
+static H    s_wnd_resize_orig_w = 0;
+static H    s_wnd_resize_orig_h = 0;
+static H    s_wnd_resize_start_x = 0;
+static H    s_wnd_resize_start_y = 0;
+
+BOOL wnd_mgr_handle_event(const EVT *ev) {
+    if (!ev) return FALSE;
+
+    if (ev->type == EV_BUT_DOWN) {
+        WND *clicked = find_wnd_at(ev->pos.x, ev->pos.y);
+        if (!clicked) {
+            return FALSE;
+        }
+
+        if (get_top_wnd() != clicked) {
+            top_wnd(clicked);
+        }
+
+        /* 1. BTRON3 Bottom-Right Corner Resize Grip Check (16x16 corner) */
+        if ((clicked->attr & WND_ATTR_RESIZE) &&
+            ev->pos.x >= clicked->bounds.right - 18 && ev->pos.x <= clicked->bounds.right &&
+            ev->pos.y >= clicked->bounds.bottom - 18 && ev->pos.y <= clicked->bounds.bottom) {
+            s_wnd_resizing = TRUE;
+            s_wnd_resize_target = clicked;
+            s_wnd_resize_orig_w = clicked->bounds.right - clicked->bounds.left;
+            s_wnd_resize_orig_h = clicked->bounds.bottom - clicked->bounds.top;
+            s_wnd_resize_start_x = ev->pos.x;
+            s_wnd_resize_start_y = ev->pos.y;
+            return TRUE;
+        }
+
+        /* 2. Titlebar & Compact Sliding Tab Check */
+        if (clicked->attr & WND_ATTR_TITLE) {
+            RECT tab_r;
+            wget_tab_rect(clicked, &tab_r);
+            if (ev->pos.y >= clicked->bounds.top && ev->pos.y < tab_r.bottom) {
+                /* Close button check */
+                if (whit_test_close_btn(clicked, ev->pos.x, ev->pos.y)) {
+                    cls_wnd(clicked);
+                    return TRUE;
+                }
+
+                /* Compact Tab Check */
+                if (whit_test_tab(clicked, ev->pos.x, ev->pos.y)) {
+                    /* Left grip on tab triggers sliding tab */
+                    if ((ev->pos.x >= tab_r.left && ev->pos.x < tab_r.left + 14) && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
+                        s_wnd_sliding_tab = TRUE;
+                        s_wnd_slide_target = clicked;
+                        s_wnd_slide_start_x = ev->pos.x;
+                        s_wnd_slide_orig_off = clicked->tab_offset_x;
+                    } else {
+                        s_wnd_dragging = TRUE;
+                        s_wnd_drag_target = clicked;
+                        s_wnd_drag_off_x = ev->pos.x - clicked->bounds.left;
+                        s_wnd_drag_off_y = ev->pos.y - clicked->bounds.top;
+                    }
+                } else {
+                    /* Clicked outside tab on top rail -> drag whole window */
+                    s_wnd_dragging = TRUE;
+                    s_wnd_drag_target = clicked;
+                    s_wnd_drag_off_x = ev->pos.x - clicked->bounds.left;
+                    s_wnd_drag_off_y = ev->pos.y - clicked->bounds.top;
+                }
+                return TRUE;
+            }
+        }
+
+        /* 3. Dispatch to window client area */
+        if (clicked->event_handler) {
+            clicked->event_handler(clicked, ev);
+        }
+        return TRUE;
+    }
+
+    if (ev->type == EV_MOUSE_MOVE) {
+        if (s_wnd_sliding_tab && s_wnd_slide_target) {
+            H new_off = s_wnd_slide_orig_off + (ev->pos.x - s_wnd_slide_start_x);
+            wset_tab_offset(s_wnd_slide_target, new_off);
+            return TRUE;
+        }
+        if (s_wnd_resizing && s_wnd_resize_target) {
+            H new_w = s_wnd_resize_orig_w + (ev->pos.x - s_wnd_resize_start_x);
+            H new_h = s_wnd_resize_orig_h + (ev->pos.y - s_wnd_resize_start_y);
+            rsz_wnd(s_wnd_resize_target, new_w, new_h);
+            return TRUE;
+        }
+        if (s_wnd_dragging && s_wnd_drag_target) {
+            mov_wnd(s_wnd_drag_target, ev->pos.x - s_wnd_drag_off_x, ev->pos.y - s_wnd_drag_off_y);
+            return TRUE;
+        }
+
+        WND *top = get_top_wnd();
+        if (top && top->focused && top->event_handler) {
+            top->event_handler(top, ev);
+        }
+        return FALSE;
+    }
+
+    if (ev->type == EV_BUT_UP) {
+        BOOL was_interacting = (s_wnd_dragging || s_wnd_sliding_tab || s_wnd_resizing);
+        s_wnd_dragging = FALSE;
+        s_wnd_drag_target = NULL;
+        s_wnd_sliding_tab = FALSE;
+        s_wnd_slide_target = NULL;
+        s_wnd_resizing = FALSE;
+        s_wnd_resize_target = NULL;
+
+        WND *top = get_top_wnd();
+        if (top && top->focused && top->event_handler) {
+            top->event_handler(top, ev);
+        }
+        return was_interacting;
+    }
+
+    if (ev->type == EV_KEY_DOWN) {
+        WND *top = get_top_wnd();
+        if (top && top->focused && top->event_handler) {
+            top->event_handler(top, ev);
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    return FALSE;
 }
