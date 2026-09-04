@@ -647,7 +647,8 @@ $(TEST_CHAT_BIN): $(TEST_CHAT_OBJS)
 # ═══════════════════════════════════════════════════════════════════
 # BTRON Deskbar Tracker & Task Manager Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/desktop/about.c src/window/wnd.c \
+TEST_TRACKER_SRCS = src/desktop/test_tracker.c src/desktop/tracker.c src/desktop/desktop.c src/settings/appearance.c \
+                    src/vobject/vobj.c src/desktop/about.c src/window/wnd.c \
                     src/window/app_menu.c \
                     src/graphics/dp_core.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c
 TEST_TRACKER_OBJS = $(TEST_TRACKER_SRCS:.c=.test.o)

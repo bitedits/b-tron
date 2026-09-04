@@ -12,18 +12,29 @@
 #include <btron/tracker.h>
 #include <btron/about.h>
 #include <btron/wnd.h>
+#include <btron/desktop.h>
+#include <btron/settings.h>
 
 /* Mock / Stub BTRON accessory window entry points for standalone testing */
 static int s_vobj_opened = 0;
 static int s_tedit_opened = 0;
 static int s_term_opened = 0;
+static int s_audio_opened = 0;
+static int s_chat_opened = 0;
 
 WND* open_vobj_manager_window(void) { s_vobj_opened++; return NULL; }
 WND* open_control_panel_window(void) { return NULL; }
 WND* open_t_editor_window(void)     { s_tedit_opened++; return NULL; }
 WND* open_gterm_window(void)        { s_term_opened++; return NULL; }
-WND* open_audio_player_window(void) { return NULL; }
-WND* launch_beos_chat(void)         { return NULL; }
+WND* open_audio_player_window(void) { s_audio_opened++; return NULL; }
+WND* launch_beos_chat(void)         { s_chat_opened++; return NULL; }
+void global_menu_render_bar(GDEV *dev) { (void)dev; }
+ER init_evt_sys(void) { return E_OK; }
+ER tip_init(void) { return E_OK; }
+TIP_DFA_STATE tip_get_state(void) { return TIP_STATE_IDLE; }
+H tip_get_caret_x(void) { return 0; }
+H tip_get_caret_y(void) { return 0; }
+void tip_render_candidate_window(GDEV *dev, H x, H y) { (void)dev; (void)x; (void)y; }
 
 static int s_tests_passed = 0;
 static int s_tests_failed = 0;
@@ -176,6 +187,71 @@ int main(void) {
     TEST_ASSERT(test_dev->pixels != NULL, "Rendered SONY Workstation About interface with Nyan Cat viewport");
     cls_dev(test_dev);
     cls_wnd(about_wnd);
+
+    /* [TEST GROUP 9] Desktop Icons Scaling (32x32 vs 64x64) & Hit Testing */
+    printf("\n[TEST GROUP 9] Desktop Icons Scaling & Hit Testing\n");
+
+    /* 1. 32x32 Icon Mode */
+    appearance_set_icon_size(BTRON_ICON_SIZE_32);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_32, "Set appearance icon size to 32x32");
+
+    s_vobj_opened = 0;
+    TEST_ASSERT(desktop_handle_click(30, 70) == TRUE, "Desktop click at (30, 70) hits Cabinet in 32x32 mode");
+    TEST_ASSERT(s_vobj_opened == 1, "Cabinet window opened on 32x32 icon hit");
+
+    s_tedit_opened = 0;
+    TEST_ASSERT(desktop_handle_click(30, 150) == TRUE, "Desktop click at (30, 150) hits T-Editor in 32x32 mode");
+    TEST_ASSERT(s_tedit_opened == 1, "T-Editor window opened on 32x32 icon hit");
+
+    s_term_opened = 0;
+    TEST_ASSERT(desktop_handle_click(30, 230) == TRUE, "Desktop click at (30, 230) hits Terminal in 32x32 mode");
+    TEST_ASSERT(s_term_opened == 1, "Terminal window opened on 32x32 icon hit");
+
+    s_audio_opened = 0;
+    TEST_ASSERT(desktop_handle_click(30, 310) == TRUE, "Desktop click at (30, 310) hits Audio in 32x32 mode");
+    TEST_ASSERT(s_audio_opened == 1, "Audio Player window opened on 32x32 icon hit");
+
+    s_chat_opened = 0;
+    TEST_ASSERT(desktop_handle_click(30, 390) == TRUE, "Desktop click at (30, 390) hits Chat in 32x32 mode");
+    TEST_ASSERT(s_chat_opened == 1, "Chat window opened on 32x32 icon hit");
+
+    TEST_ASSERT(desktop_handle_click(400, 300) == FALSE, "Click on empty desktop wallpaper returns FALSE in 32x32 mode");
+
+    /* 2. 64x64 Icon Mode */
+    appearance_set_icon_size(BTRON_ICON_SIZE_64);
+    TEST_ASSERT(appearance_get_icon_size() == BTRON_ICON_SIZE_64, "Set appearance icon size to 64x64");
+
+    s_vobj_opened = 0;
+    TEST_ASSERT(desktop_handle_click(40, 80) == TRUE, "Desktop click at (40, 80) hits Cabinet in 64x64 mode");
+    TEST_ASSERT(s_vobj_opened == 1, "Cabinet window opened on 64x64 icon hit");
+
+    s_tedit_opened = 0;
+    TEST_ASSERT(desktop_handle_click(40, 180) == TRUE, "Desktop click at (40, 180) hits T-Editor in 64x64 mode");
+    TEST_ASSERT(s_tedit_opened == 1, "T-Editor window opened on 64x64 icon hit");
+
+    s_term_opened = 0;
+    TEST_ASSERT(desktop_handle_click(40, 280) == TRUE, "Desktop click at (40, 280) hits Terminal in 64x64 mode");
+    TEST_ASSERT(s_term_opened == 1, "Terminal window opened on 64x64 icon hit");
+
+    s_audio_opened = 0;
+    TEST_ASSERT(desktop_handle_click(40, 390) == TRUE, "Desktop click at (40, 390) hits Audio in 64x64 mode");
+    TEST_ASSERT(s_audio_opened == 1, "Audio Player window opened on 64x64 icon hit");
+
+    s_chat_opened = 0;
+    TEST_ASSERT(desktop_handle_click(40, 500) == TRUE, "Desktop click at (40, 500) hits Chat in 64x64 mode");
+    TEST_ASSERT(s_chat_opened == 1, "Chat window opened on 64x64 icon hit");
+
+    TEST_ASSERT(desktop_handle_click(400, 300) == FALSE, "Click on empty desktop wallpaper returns FALSE in 64x64 mode");
+
+    /* 3. Render desktop background with scaled icons */
+    GDEV *dsk_dev = opn_dev(800, 600);
+    TEST_ASSERT(dsk_dev != NULL, "Allocated 800x600 test display device");
+    render_desktop_background(dsk_dev);
+    TEST_ASSERT(dsk_dev->pixels[100 * 800 + 100] != 0, "Rendered desktop background with 64x64 pictogram icons");
+    appearance_set_icon_size(BTRON_ICON_SIZE_32);
+    render_desktop_background(dsk_dev);
+    TEST_ASSERT(dsk_dev->pixels[100 * 800 + 100] != 0, "Rendered desktop background with 32x32 pictogram icons");
+    cls_dev(dsk_dev);
 
     printf("\n==========================================================\n");
     printf(" TRACKER TEST RESULTS: %d / %d tests passed (%.1f%%)\n",
