@@ -3,84 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mail – システム電子メール | B-System</title>
-  <meta name="description" content="Native system email client for B-System: robust IMAP/SMTP message management, mailbox folders, background notifications, and attachment routing.">
+  <title>Mail – 電子メール | B-System Specification</title>
+  <meta name="description" content="電子メール（Mail）は、B-Systemの仕様に準拠したC99実装アプリケーション。TADリッチテキスト文書および添付実身送受信に対応したメッセージングクライアント。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Mail</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4EB.svg" alt="📫" width="64" height="64"></div>
-    <h1>Mail</h1>
-    <div class="app-hero-badge">システム電子メール</div>
-    <div class="subtitle">Native System Email, IMAP/SMTP Client &amp; Mailbox Manager (System Plane)</div>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/2709.svg" alt="📧" width="64" height="64"></div>
+    <h1>電子メール (Mail)</h1>
+    <div class="setting-hero-badge">電子メール · BTRON3 3.20 準拠 · C99 実装</div>
+    <div class="subtitle">Mail アプリケーションの機能仕様および内部構造<br><span style="font-size:0.9em; opacity:0.85;">"Functional and architectural specification of the Mail application component."</span></div>
   </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Clean, distraction-free system email — robust IMAP/SMTP client, mailbox organization, and unified system notifications."</strong></div>
-    <div class="section">
-      <h2>Overview</h2>
-      <p>Official system-level email client for B-System, categorized under the core <strong>System Applications</strong> plane. Implemented in <code>src/apps/mail.c</code> with network protocol backend in <code>src/apps/mail_client.c</code>, Mail provides reliable, high-throughput email communication supporting standard IMAP4, SMTP, and local Maildir formats. Built for professionals who value speed and clarity, Mail delivers multi-account inboxes, threaded message conversations, background mail synchronization, and system Deskbar notifications without bloated web wrappers.</p>
-      <div class="app-desc-jp"><b>メール：</b> B-Systemの基本システム層（System Plane）に位置づけられた公式電子メールクライアント。実体コードはメールUI・フォルダ管理基盤（<code>src/apps/mail.c</code>）およびIMAP/SMTP通信エンジン（<code>src/apps/mail_client.c</code>）で構成。標準的なIMAP4、SMTP、およびローカルMaildir形式に完全対応。マルチアカウント受信箱、スレッド表示、バックグラウンド定期受信、およびDeskbar連動通知を軽快なネイティブC99設計で提供。日常のビジネス連絡やシステム通知を確実に処理します。</div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>電子メール（Mail）</strong> — 電子メール（Mail）は、B-Systemの仕様に準拠したC99実装アプリケーション。TADリッチテキスト文書および添付実身送受信に対応したメッセージングクライアント。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Official technical specification for the Mail application within the B-System operating environment."
+      </span>
     </div>
+
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/mail.c</code>（システムメールUI・受信箱スレッド管理）</li>
-        <li>ネットワークエンジン：<code>src/apps/mail_client.c</code>（IMAP4、SMTP、TLS暗号化通信）</li>
-        <li>基本システムアプリ（System Application）としての確実なバックグラウンド動作</li>
-        <li>マルチアカウント対応（複数プロバイダの受信箱・送信箱一元管理）</li>
-        <li>スレッド別メッセージ一覧および高速プレビューペイン表示</li>
-        <li>Deskbarタスクトレイへの新着メール即時通知と未読バッジ表示</li>
-        <li>添付ファイルの安全な受信とCabinetへのワンクリック保存</li>
-      </ul>
+      <h2>概要 (Overview)</h2>
+      <p>
+        電子メール（Mail）は、B-Systemの仕様に準拠したC99実装アプリケーション。TADリッチテキスト文書および添付実身送受信に対応したメッセージングクライアント。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Official technical specification for the Mail application within the B-System operating environment."</span>
+      </p>
     </div>
+
     <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Modern email apps (Electron-based web wrappers) consume hundreds of megabytes of RAM just to show plain text messages.</li>
-        <li>Users need a fast, deterministic C99 system email client that starts instantly and handles high-volume mailboxes with zero lag.</li>
-        <li>Mail provides clean separation between formal asynchronous email (System plane) and real-time interactive TAD messaging (Chat).</li>
-      </ul>
-    </div>
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Mail が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td>Thunderbird / Outlook / Webmail</td>
-            <td>Sub-second launch time, minimal memory consumption, native C99 IMAP/SMTP engine</td>
-            <td rowspan="2">System administrators, business professionals, researchers, developers</td>
+            <td><b>ファイル (File)</b></td>
+            <td>新規作成、開く、保存、閉じる</td>
+            <td><code>src/apps/mail.c</code></td>
           </tr>
           <tr>
-            <td>Bloated Electron Email Clients</td>
-            <td>Native OS integration with Deskbar alerts and local Maildir reliability</td>
+            <td><b>編集 (Edit)</b></td>
+            <td>元に戻す、切り取り、コピー、貼り付け</td>
+            <td>クリップボード連携</td>
+          </tr>
+          <tr>
+            <td><b>操作 (Action)</b></td>
+            <td>メイン機能実行、パラメータ設定</td>
+            <td>内部状態ディスパッチ</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
           </tr>
         </tbody>
       </table>
     </div>
+
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Launch Mail or receive an automatic Deskbar notification of incoming messages.</li>
-        <li>Browse threaded conversations with full search across headers and message bodies.</li>
-        <li>Compose new messages with standard formatting and attach documents directly from Cabinet.</li>
-        <li>Send via SMTP; copies are automatically synchronized to your IMAP Sent folder.</li>
-      </ol>
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Mail アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>アーキテクチャ</b></td>
+            <td>BTRON3 Specification 3.20に完全準拠したC99クリーンルーム実装。</td>
+            <td><code>src/apps/mail.c</code></td>
+          </tr>
+          <tr>
+            <td><b>メニューシステム</b></td>
+            <td>3DベベルおよびModern Flat Cardメニューバーに完全対応。</td>
+            <td><code>APP_MENU_BAR</code></td>
+          </tr>
+          <tr>
+            <td><b>メモリ管理</b></td>
+            <td>不変ドキュメントコンテキスト分離とリソースの自動解放。</td>
+            <td><code>user_data</code> コンテキスト</td>
+          </tr>
+          <tr>
+            <td><b>イベント処理</b></td>
+            <td>マウス座標、キーボードショートカット、ウィンドウリサイズイベントの処理。</td>
+            <td><code>event_handler</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Workbench.html">🗄️ ワークベンチ</a>
+        <a href="Cabinet.html">📁 キャビネット</a>
+        <a href="TEditor.html">✍️ 文書編集</a>
+      </div>
     </div>
   </div>
-    <footer class="app-footer">
+
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -93,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html" class="active">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -130,10 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

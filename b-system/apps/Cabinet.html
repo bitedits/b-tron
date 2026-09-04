@@ -3,98 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cabinet – 実身・仮身キャビネット | B-System</title>
-  <meta name="description" content="Official Real Body Cabinet & Virtual Body Explorer for B-System BTRON — deeply connected to the TAD API for hypermedia link networks and object storage.">
+  <title>Cabinet – キャビネット | B-System Specification</title>
+  <meta name="description" content="キャビネット（Cabinet）は、B-Systemの超構造化ハイパーメディアファイリングシステムを管理するコアツール。従来のディレクトリ構造を超えた多重リンク構造を視覚化します。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Cabinet</span>
   </nav>
 
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F5C3.svg" alt="🗃️" width="64" height="64"></div>
-    <h1>Cabinet</h1>
-    <div class="app-hero-badge">実身・仮身キャビネット</div>
-    <div class="subtitle">Real Body Cabinet &amp; Virtual Body Explorer (TAD API)</div>
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4C1.svg" alt="📁" width="64" height="64"></div>
+    <h1>キャビネット (Cabinet)</h1>
+    <div class="setting-hero-badge">実身・仮身マネージャ · ハイパーメディア探索 · 属性インスペクタ</div>
+    <div class="subtitle">実身（Real Object）および仮身（Virtual Object）の階層非依存ファイルマネージャ<br><span style="font-size:0.9em; opacity:0.85;">"Non-hierarchical document filing manager orchestrating network-linked Real and Virtual Bodies."</span></div>
   </div>
 
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
 
     <div class="tagline-card">
-      <strong>"The heart of BTRON hypermedia</strong> — explore, link, and organize Real Bodies and Virtual Bodies through the native TAD API."
+      <strong>キャビネット（Cabinet）</strong> — キャビネット（Cabinet）は、B-Systemの超構造化ハイパーメディアファイリングシステムを管理するコアツール。従来のディレクトリ構造を超えた多重リンク構造を視覚化します。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Hypermedia document organizer traversing bi-directional links between Real Bodies and Virtual Objects without path constraints."
+      </span>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Official hypermedia object navigator implemented in <code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>) and backed by the core BTRON object manager (<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>) and TAD API (<code>tad_browser.h</code>, <code>vobj.h</code>, <code>omgr.h</code>). Unlike traditional hierarchical file managers, Cabinet manages the network of Real Bodies (実身) and Virtual Bodies (仮身) that forms the foundation of BTRON hypermedia. Users can inspect object IDs, resolve fusen link pointers, organize nested cabinet containers, and seamlessly launch documents into T-Editor or TAD Browser.</p>
-      <div class="app-desc-jp"><b>キャビネット・エクスプローラー：</b> BTRON TAD API（<code>tad_browser.h</code>、<code>vobj.h</code>、<code>omgr.h</code>）およびオブジェクト管理基盤（<code>src/vobject/vobj.c</code>, <code>src/vobject/omgr.c</code>）に直結した公式ハイパーメディア・オブジェクトマネージャ実装（<code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>)）。階層的ディレクトリスキームを超越した、BTRONの中核概念である「実身（Real Body）」と「仮身（Virtual Body）」のネットワーク構造を可視化・管理。実身ID（robj_id）の追跡、付箋（Fusen）リンクの解決、キャビネット構造の整理、およびT-EditorやTAD Browserへの即座展開を実現。</div>
+      <h2>概要 (Overview)</h2>
+      <p>
+        キャビネット（Cabinet）は、B-Systemの超構造化ハイパーメディアファイリングシステムを管理するコアツール。従来のディレクトリ構造を超えた多重リンク構造を視覚化します。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Hypermedia document organizer traversing bi-directional links between Real Bodies and Virtual Objects without path constraints."</span>
+      </p>
     </div>
 
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/cabinet.c</code> (<code>src/apps/vobj_manager.c</code>)（UI・グリッド/リスト表示・コンテナ管理）</li>
-        <li>実身・仮身バックエンド：<code>src/vobject/vobj.c</code> ＆ <code>src/vobject/omgr.c</code>（TADオブジェクト層）</li>
-        <li>TAD API（<code>vobj.h</code>, <code>omgr.h</code>）直結による実身・仮身リレーションの双方向ブラウジング</li>
-        <li>グリッド表示（Grid View）および詳細リスト表示（List View）の瞬時切り替え（<code>CAB_VIEW_MODE</code>）</li>
-        <li>TADバイナリ形式で永続化された実身レコード（R-Object Record）の属性・サイズ・カテゴリ管理</li>
-        <li>仮身（Virtual Body Fusen）のドラッグ＆ドロップによるリンク網形成と複数文書への同一実身埋め込み</li>
-        <li>ダブルクリックによるT-EditorおよびTAD Browserへのシームレスなハンドオフ（<code>open_tad_browser_window</code>）</li>
-        <li>NASA JPL仕様およびBTRON3 SPEC 3.20に完全準拠したクリーンルーム実装</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Traditional filesystems force users into rigid single-parent directory trees where a file can only live in one folder without brittle symlinks.</li>
-        <li>BTRON's Real Body / Virtual Body model enables one document to appear simultaneously in multiple contexts without data duplication.</li>
-        <li>Cabinet provides the dedicated Knowledge-plane interface to navigate and maintain these hypermedia networks via the standard TAD API.</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Cabinet が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Classic BTRON Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td>Classic B-TRON Object-Manager (list only)</td>
-            <td>Dual-mode Grid/List view; cleanroom C99 implementation; direct TAD Browser integration</td>
-            <td rowspan="2">Researchers, knowledge architects, technical authors, hypermedia curators</td>
+            <td><b>ファイル (File)</b></td>
+            <td>新規実身作成、別名保存、実身プロパティ表示、閉じる</td>
+            <td><code>src/apps/vobj_manager.c</code></td>
           </tr>
           <tr>
-            <td>Ordinary hierarchical file trees</td>
-            <td>True non-hierarchical hypermedia network of Real Bodies and Virtual Body pointers</td>
+            <td><b>仮身 (Object)</b></td>
+            <td>仮身リンク作成、実身の直接編集起動、実身ロック制御</td>
+            <td><code>VOBJ_RECORD</code> 参照解決</td>
+          </tr>
+          <tr>
+            <td><b>表示 (View)</b></td>
+            <td>アイコン寸法切替（32×32 / 64×64）、更新順ソート、属性一覧</td>
+            <td>動的グリッド再計算 (96×72 / 110×104)</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Launch Cabinet from the Workbench Deskbar or Knowledge menu.</li>
-        <li>Browse available cabinets containing research papers, technical specs, and project records.</li>
-        <li>Inspect Real Body IDs, sizes, and MIME categories in List or Grid view.</li>
-        <li>Drag a Virtual Body fusen from Cabinet directly into an open T-Editor document.</li>
-        <li>Double-click any TAD Real Body to open it instantly in the native TAD Browser or T-Editor.</li>
-      </ol>
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Cabinet アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>動的グリッド追従</b></td>
+            <td>外観設定のアイコンサイズ変更に応じ、グリッド幅を自動スケーリング（32px: 96×72px、64px: 110×104px）。</td>
+            <td><code>appearance_get_icon_size()</code></td>
+          </tr>
+          <tr>
+            <td><b>実身直接起動</b></td>
+            <td>仮身ダブルクリックにより、メディア設定に基づき対応するエディタ・ビューアを即座に非同期起動。</td>
+            <td><code>src/settings/media.c</code> 連携</td>
+          </tr>
+          <tr>
+            <td><b>実身整合性検査</b></td>
+            <td>孤立仮身の検出、多重参照カウントの自動整合性維持アルゴリズム。</td>
+            <td>参照カウンタ自動ガーベジコレクション</td>
+          </tr>
+          <tr>
+            <td><b>3Dベベルメニュー</b></td>
+            <td>Classic 3DベベルおよびModern Flat Cardメニュー様式へ完全対応。</td>
+            <td><code>APP_MENU_BAR</code> 共通エンジン</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Workbench.html">🗄️ ワークベンチ</a>
+        <a href="TEditor.html">✍️ 文書編集</a>
+        <a href="Browser.html">🌐 ブラウザ</a>
+      </div>
     </div>
   </div>
 
-      <footer class="app-footer">
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -107,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html" class="active">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -144,11 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

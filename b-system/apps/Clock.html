@@ -3,60 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clock – 時刻・タイマー | B-System</title>
-  <meta name="description" content="System clock, alarms, and multi-timezone timekeeper — pure C99 desktop accessory interfacing directly with hardware RTC and μITRON timers.">
+  <title>Clock – 時計 | B-System Specification</title>
+  <meta name="description" content="時計（Clock）は、B-Systemの仕様に準拠したC99実装アプリケーション。アナログ文字盤およびデジタル日時表示を備えた高精度システムクロックアプレット。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Clock</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/23F0.svg" alt="⏰" width="64" height="64"></div>
-    <h1>Clock</h1>
-    <div class="app-hero-badge">時刻・タイマー</div>
-    <div class="subtitle">System Clock, Timers &amp; World Time (RTC / μITRON)</div>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F551.svg" alt="🕒" width="64" height="64"></div>
+    <h1>時計 (Clock)</h1>
+    <div class="setting-hero-badge">時計 · BTRON3 3.20 準拠 · C99 実装</div>
+    <div class="subtitle">Clock アプリケーションの機能仕様および内部構造<br><span style="font-size:0.9em; opacity:0.85;">"Functional and architectural specification of the Clock application component."</span></div>
   </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"High-precision system timekeeping — pure C99 desktop accessory interfacing directly with hardware RTC, HPET, and μITRON timers."</strong></div>
-    <div class="section">
-      <h2>Overview</h2>
-      <p>Lightweight, high-precision system clock and timekeeping utility built in pure C99, backed by the kernel timekeeping subsystems (<code>src/kernel/clk_mgr.c</code>, <code>src/kernel/timer.c</code>, <code>src/kernel/time_calls.c</code>) and hardware RTC drivers (<code>src/drivers/bcm283x/clk/rtc.c</code>). Directly interfaces with the hardware Real-Time Clock (RTC), High Precision Event Timer (HPET), and μITRON kernel timer services (<code>btron/clk.h</code>, <code>btron/timer.h</code>). Features customizable analog and digital clock faces rendered with Display Primitives (<code>dp.h</code>), multiple simultaneous world timezones, millisecond-accurate stopwatch, countdown timers, and system event alarms.</p>
-      <div class="app-desc-jp"><b>時計：</b> カーネル計時サブシステム（<code>src/kernel/clk_mgr.c</code>, <code>timer.c</code>）およびハードウェアRTC（<code>src/drivers/bcm283x/clk/rtc.c</code>）に直結した純粋C99製システム時計ユーティリティ。TRON Display Primitivesによる高品位なアナログ・デジタル盤面描画、ミリ秒精度のストップウォッチ、カウントダウンタイマー、世界各国の複数タイムゾーン表示、およびシステムアラームを搭載し、低リソースで常駐稼働。</div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>時計（Clock）</strong> — 時計（Clock）は、B-Systemの仕様に準拠したC99実装アプリケーション。アナログ文字盤およびデジタル日時表示を備えた高精度システムクロックアプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Official technical specification for the Clock application within the B-System operating environment."
+      </span>
     </div>
+
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/kernel/clk_mgr.c</code> ＆ <code>src/kernel/timer.c</code>（高精度タイマー・クロック管理）</li>
-        <li>ハードウェアRTC直結：<code>src/drivers/bcm283x/clk/rtc.c</code>（時刻保持・割込み通知）</li>
-        <li>ハードウェアRTCおよびμITRON高精度タイマー直結のジッターフリー計時</li>
-        <li>純粋C99システム設計（常駐時もCPU負荷最小）</li>
-        <li>Display Primitivesによる鮮明なアナログ針表示およびデジタルLED表示</li>
-        <li>世界主要都市の複数タイムゾーン同時表示</li>
-        <li>ミリ秒精度ストップウォッチおよびカウントダウンタイマー</li>
-        <li>システムアラーム通知（サウンドおよび画面フラッシュ連動）</li>
-      </ul>
+      <h2>概要 (Overview)</h2>
+      <p>
+        時計（Clock）は、B-Systemの仕様に準拠したC99実装アプリケーション。アナログ文字盤およびデジタル日時表示を備えた高精度システムクロックアプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Official technical specification for the Clock application within the B-System operating environment."</span>
+      </p>
     </div>
+
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Clock launches as a compact, floating accessory or docks into the Workbench deskbar.</li>
-        <li>Set world clocks for your team's locations (Tokyo, Zurich, San Francisco).</li>
-        <li>Start a countdown timer or precision stopwatch for build benchmarks or tasks.</li>
-        <li>Configure scheduled alarms that trigger system notifications directly via the μITRON scheduler.</li>
-      </ol>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Clock が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>ファイル (File)</b></td>
+            <td>新規作成、開く、保存、閉じる</td>
+            <td><code>src/apps/clock.c</code></td>
+          </tr>
+          <tr>
+            <td><b>編集 (Edit)</b></td>
+            <td>元に戻す、切り取り、コピー、貼り付け</td>
+            <td>クリップボード連携</td>
+          </tr>
+          <tr>
+            <td><b>操作 (Action)</b></td>
+            <td>メイン機能実行、パラメータ設定</td>
+            <td>内部状態ディスパッチ</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Clock アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>アーキテクチャ</b></td>
+            <td>BTRON3 Specification 3.20に完全準拠したC99クリーンルーム実装。</td>
+            <td><code>src/apps/clock.c</code></td>
+          </tr>
+          <tr>
+            <td><b>メニューシステム</b></td>
+            <td>3DベベルおよびModern Flat Cardメニューバーに完全対応。</td>
+            <td><code>APP_MENU_BAR</code></td>
+          </tr>
+          <tr>
+            <td><b>メモリ管理</b></td>
+            <td>不変ドキュメントコンテキスト分離とリソースの自動解放。</td>
+            <td><code>user_data</code> コンテキスト</td>
+          </tr>
+          <tr>
+            <td><b>イベント処理</b></td>
+            <td>マウス座標、キーボードショートカット、ウィンドウリサイズイベントの処理。</td>
+            <td><code>event_handler</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Workbench.html">🗄️ ワークベンチ</a>
+        <a href="Cabinet.html">📁 キャビネット</a>
+        <a href="TEditor.html">✍️ 文書編集</a>
+      </div>
     </div>
   </div>
-      <footer class="app-footer">
+
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -69,19 +147,19 @@
             <li><a href="Clock.html" class="active">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -106,10 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

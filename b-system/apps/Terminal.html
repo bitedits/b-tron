@@ -3,60 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal – TRON端末 | B-System</title>
-  <meta name="description" content="Clean, low-latency TRON Code and Unicode terminal emulator — pure C99 system console over VirtIO and POSIX PTYs.">
+  <title>Terminal – 端末 | B-System Specification</title>
+  <meta name="description" content="端末（Terminal）は、ANSI制御シーケンス、UTF-8およびTRON Code文字体系、多重カラーパレット、可変スクロールバックバッファをサポートするB-System標準端末エミュレータです。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Terminal</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4BB.svg" alt="💻" width="64" height="64"></div>
-    <h1>Terminal</h1>
-    <div class="app-hero-badge">TRON端末</div>
-    <div class="subtitle">Low-Latency TRON Code &amp; Unicode System Terminal (gterm)</div>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4BB.svg" alt="💻" width="64" height="64"></div>
+    <h1>端末 (Terminal)</h1>
+    <div class="setting-hero-badge">ANSI エミュレータ · UTF-8/TRONコード · 透過フレームバッファ · 多重配色</div>
+    <div class="subtitle">POSIX CLIシェルおよびT-Kernelコンソールを統合する高機能端末エミュレータ<br><span style="font-size:0.9em; opacity:0.85;">"Integrated ANSI terminal emulator bridging POSIX shell environments and T-Kernel consoles."</span></div>
   </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Clean, low-latency TRON Code and Unicode terminal emulator — pure C99 system console over VirtIO and POSIX PTYs."</strong></div>
-    <div class="section">
-      <h2>Overview</h2>
-      <p>Ultra-fast, low-latency terminal emulator implemented in pure C99 (<code>src/apps/gterm.c</code>). Provides native TRON Code character planes and modern UTF-8 support, ANSI/VT100 escape sequence processing, ring-buffered scrollback, and direct integration with VirtIO-Console, hardware UART, and POSIX pseudo-terminals (PTY). Ensures a robust, lightweight command-line interface under all operating conditions.</p>
-      <div class="app-desc-jp"><b>ターミナル：</b> TRONコード体系（多言語プレーン）および最新Unicode (UTF-8) に完全準拠した、純粋C99実装（<code>src/apps/gterm.c</code>）の低遅延・高機能システム端末エミュレータ。ANSI/VT100エスケープシーケンス、リングバッファスクロールバック、VirtIO-Console、シリアルUART、POSIX擬似端末（PTY）に直結し、システム障害時でも確実に動作する軽量で堅牢なCLI環境を提供。</div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>端末（Terminal）</strong> — 端末（Terminal）は、ANSI制御シーケンス、UTF-8およびTRON Code文字体系、多重カラーパレット、可変スクロールバックバッファをサポートするB-System標準端末エミュレータです。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Graphical terminal console featuring ANSI escape decoding, ring-buffered history, and configurable phosphor themes."
+      </span>
     </div>
+
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/gterm.c</code>（端末ウィンドウ <code>open_gterm_window</code>、VT100解釈、PTY/UART通信）</li>
-        <li>TRONコード多言語文字コード体系＆Unicode (UTF-8) 完全ネイティブ表示</li>
-        <li>純粋C99システム設計（極小フットプリント・高速スクロール）</li>
-        <li>低遅延VirtIO-Console、ハードウェアUART、およびPOSIX PTYサブシステム連携</li>
-        <li>ANSI/VT100エスケープシーケンス完全解釈（256色カラー・カーソル制御）</li>
-        <li>分割ペイン（Split Panes）、タブセッション、およびリングバッファ履歴</li>
-        <li>システムクリップボードとのシームレスなテキスト選択・コピー＆ペースト</li>
-      </ul>
+      <h2>概要 (Overview)</h2>
+      <p>
+        端末（Terminal）は、ANSI制御シーケンス、UTF-8およびTRON Code文字体系、多重カラーパレット、可変スクロールバックバッファをサポートするB-System標準端末エミュレータです。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Graphical terminal console featuring ANSI escape decoding, ring-buffered history, and configurable phosphor themes."</span>
+      </p>
     </div>
+
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Launch Terminal from Workbench or the Deskbar — window and font renderers initialize in microseconds.</li>
-        <li>Run shell commands, interactive utilities, or launch background daemon processes.</li>
-        <li>Switch between multiple tabs or split panes for side-by-side compile and log monitoring.</li>
-        <li>Select text or command logs and copy them to the system clipboard for use across any application.</li>
-        <li>Use Commander integration for one-click shell jumping to the current directory.</li>
-      </ol>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Terminal が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>端末 (Terminal)</b></td>
+            <td>新規セッション、バッファクリア、スクロールバックリセット、閉じる</td>
+            <td><code>src/apps/gterm.c</code></td>
+          </tr>
+          <tr>
+            <td><b>編集 (Edit)</b></td>
+            <td>テキストコピー、貼り付け、全選択</td>
+            <td>クリップボード連携</td>
+          </tr>
+          <tr>
+            <td><b>設定 (Settings)</b></td>
+            <td>配色テーマ切替、フォントサイズ変更（12/16/20px）、透過度設定</td>
+            <td><code>src/settings/terminal.c</code> 連携</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Terminal アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>ANSI 制御シーケンス</b></td>
+            <td>VT100/xterm互換エスケープコード処理、SGR 16色テキストカラー、カーソルアドレッシング。</td>
+            <td>エスケープパーサー FSM</td>
+          </tr>
+          <tr>
+            <td><b>5大配色テーマ</b></td>
+            <td>Matrix Green、Amber CRT、White on Black、Cyan on Navy、Paper Light を即時切替可能。</td>
+            <td><code>TerminalConfig.theme</code></td>
+          </tr>
+          <tr>
+            <td><b>リングバッファ履歴</b></td>
+            <td>100行 / 300行 / 1000行 のメモリ効率の高い循環スクロールバックバッファ。</td>
+            <td>メモリプール自動リサイクル</td>
+          </tr>
+          <tr>
+            <td><b>半透明背景合成</b></td>
+            <td>不透明、20%減光、40%減光のアルファ合成フレームバッファ描画。</td>
+            <td><code>drw_rec</code> アルファブレンド</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="../settings/Terminal.html">💻 端末設定</a>
+        <a href="../settings/Input.html">⌨️ 入力環境設定</a>
+        <a href="../settings/System.html">⚙️ システム情報</a>
+      </div>
     </div>
   </div>
-      <footer class="app-footer">
+
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -69,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -106,10 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

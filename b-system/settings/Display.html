@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Display – ディスプレイ | B-System Settings</title>
-  <meta name="description" content="Resolution, scaling, multi-monitor and colour management.">
+  <title>Display – 画面表示設定 | B-System Specification</title>
+  <meta name="description" content="画面解像度、TrueColor色深度、VirtIO-GPUアクセラレーション、マルチモニタ空間トポロジを管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,196 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F5A5.svg" alt="🖥️" width="64" height="64"></div>
-    <h1>Display</h1>
-    <div class="setting-hero-badge">ディスプレイ</div>
-    <div class="subtitle">Resolution, scaling, multi-monitor and colour management</div>
+    <h1>画面表示設定 (Display)</h1>
+    <div class="setting-hero-badge">解像度制御 · TrueColor フレームバッファ · VirtIO-GPU · マルチモニタ</div>
+    <div class="subtitle">画面解像度、高DPIスケーリング、グラフィックスドライバ、マルチモニタ空間配置の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Framebuffer video modes, high-DPI rasterization matrices, and hardware-accelerated VirtIO 2D blitters."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Display</strong> — Resolution, scaling, multi-monitor and colour management.
+      <strong>画面表示設定（Display）</strong> — 画面解像度、TrueColor色深度、VirtIO-GPUアクセラレーション、マルチモニタ空間トポロジを管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Display adapter configuration: video mode switching, color depth allocation, and multi-head display coordination."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        画面解像度、TrueColor色深度、VirtIO-GPUアクセラレーション、マルチモニタ空間トポロジを管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Display adapter configuration: video mode switching, color depth allocation, and multi-head display coordination."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Resolution, scaling, multi-monitor and colour management.</p>
-      <div class="setting-desc-jp">画面解像度、高DPI（HiDPI）Retinaスケーリング、マルチモニタ空間配置、ICCカラーマネジメントプロファイル。</div>
+      <h2>1. 画面解像度とフレームバッファ仕様 (Display Resolutions & Video Buffers)</h2>
+      <p>
+        利用可能なグラフィックス解像度およびTrueColorフレームバッファの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Supported VESA/VirtIO raster dimensions and ARGB color depth parameters."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Standard Desktop: 1024×768 (VESA)<br><small>標準解像度 1024×768</small></b></td>
+            <td>標準的な4:3アスペクト比での表示。低負荷で安定した描画処理を提供します。</td>
+            <td>解像度: 1024×768 (4:3)<br>C99: <code>g_state_display.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>HiDPI Widescreen: 1280×800 (16:10)<br><small>ワイド解像度 1280×800</small></b></td>
+            <td>16:10ワイドスクリーン向け高精細表示。広大な作業領域を確保します。</td>
+            <td>解像度: 1280×800 (16:10)<br>C99: <code>g_state_display.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>Full HD Resolution: 1920×1080 (1080p)<br><small>フルHD解像度 1920×1080</small></b></td>
+            <td>1080p高解像度ディスプレイ向け表示モード。高密度マルチウィンドウ作業に適しています。</td>
+            <td>解像度: 1920×1080 (16:9)<br>C99: <code>g_state_display.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>32-bit ARGB TrueColor Driver<br><small>32ビット TrueColor ドライバ</small></b></td>
+            <td>各色8ビット（256階調）＋8ビットアルファチャンネルによる1677万色フルカラー描画。</td>
+            <td>色深度: 32bpp (ARGB8888)<br>C99: <code>g_state_display.checks[3]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>2. マルチディスプレイとGPUアクセラレーション (Multi-Monitor & VirtIO-GPU)</h2>
+      <p>
+        複数モニタの空間配置およびハードウェア仮想化GPUアクセラレーションの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Multi-monitor desktop topology extensions and VirtIO-GPU 2D surface blitting acceleration."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Multi-Monitor Desktop Topology<br><small>マルチモニタ空間トポロジ</small></b></td>
+            <td>プライマリモニタの右側または上部にセカンダリモニタを論理配置し、デスクトップ領域を拡張します。</td>
+            <td>トポロジ: 左右／上下デュアルサーフェス<br>C99: <code>g_state_display.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>VirtIO-GPU 2D Surface Blitter<br><small>VirtIO-GPU ハードウェア描画</small></b></td>
+            <td>矩形塗りつぶし・ビットマップ転送をホストGPU側へオフロードし、描画負荷を低減します。</td>
+            <td>ドライバ: <code>src/drivers/virtio_gpu.c</code><br>C99: <code>g_state_display.checks[5]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>Screen resolution and refresh rate per monitor</li>
-        <li>HiDPI / Retina integer and fractional scaling</li>
-        <li>Multi-monitor spatial arrangement drag-to-configure</li>
-        <li>ICC colour profile assignment per display</li>
-        <li>Night mode / colour temperature schedule</li>
-        <li>VirtIO GPU surface configuration</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        画面表示設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] 解像度・色深度</b></td>
+            <td>1024×768 (VESA)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 解像度・色深度</b></td>
+            <td>1280×800 (16:10)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 解像度・色深度</b></td>
+            <td>1920×1080 (1080p)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 解像度・色深度</b></td>
+            <td>32-bit TrueColor</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 出力・GPU</b></td>
+            <td>Multi-Monitor Topology</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 出力・GPU</b></td>
+            <td>VirtIO-GPU Blitter</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_display.checks[5]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Workbench.html">🗄️ Workbench</a>
-        <a href="../apps/Cassette.html">📼 Cassette</a>
+        <a href="Desktop.html">🖥️ デスクトップ設定</a>
+        <a href="Appearance.html">🎨 外観設定</a>
+        <a href="../apps/Workbench.html">🗄️ ワークベンチ</a>
       </div>
     </div>
   </div>
@@ -75,14 +230,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +252,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +268,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

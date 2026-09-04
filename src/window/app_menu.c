@@ -822,7 +822,7 @@ WND* app_menu_create_about_dialog(const char *app_name, const char *jp_title,
     snprintf(data->desc, sizeof(data->desc), "%s", desc ? desc : "BTRON Application");
     snprintf(data->attribution, sizeof(data->attribution), "%s", attribution ? attribution : "Brought to B-System by 5HT");
 
-    WND *wnd = opn_wnd(data->title_full, x, y, 520, 270,
+    WND *wnd = opn_wnd(data->title_full, x, y, 420, 170,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (wnd) {
         wnd->user_data = (VW)(uintptr_t)data;

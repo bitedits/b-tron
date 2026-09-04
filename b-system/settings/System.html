@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System – システム | B-System Settings</title>
-  <meta name="description" content="System Plane info, real-time status and light maintenance.">
+  <title>System – システム情報 | B-System Specification</title>
+  <meta name="description" content="BTRON3 SPEC 3.20仕様準拠カーネル情報、マルチアーキテクチャCPUサポート、SMPマルチプロセッシング状態、物理RAM割り当て状態を表示・管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -19,42 +19,155 @@
   </nav>
 
   <div class="setting-hero">
-    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/26A1.svg" alt="⚡" width="64" height="64"></div>
-    <h1>System</h1>
-    <div class="setting-hero-badge">システム</div>
-    <div class="subtitle">System Plane info, real-time status and light maintenance</div>
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/2699.svg" alt="⚙️" width="64" height="64"></div>
+    <h1>システム情報 (System)</h1>
+    <div class="setting-hero-badge">BTRON 3.20 カーネル · SMP マルチコア · 物理メモリマップ · CPUアーキテクチャ</div>
+    <div class="subtitle">カーネル仕様、プリエンプティブSMPコア構成、物理メモリ配置、CPUアーキテクチャ情報の技術仕様<br><span style="font-size:0.9em; opacity:0.85;">"Kernel execution state, preemptive symmetric multiprocessing cores, and physical address space maps."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>System</strong> — System Plane info, real-time status and light maintenance.
+      <strong>システム情報（System）</strong> — BTRON3 SPEC 3.20仕様準拠カーネル情報、マルチアーキテクチャCPUサポート、SMPマルチプロセッシング状態、物理RAM割り当て状態を表示・管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Operating system kernel status: architecture versioning, SMP scheduling topology, and memory management statistics."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        BTRON3 SPEC 3.20仕様準拠カーネル情報、マルチアーキテクチャCPUサポート、SMPマルチプロセッシング状態、物理RAM割り当て状態を表示・管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Operating system kernel status: architecture versioning, SMP scheduling topology, and memory management statistics."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>System Plane info, real-time status and light maintenance.</p>
-      <div class="setting-desc-jp">System Planeカーネルバージョン情報、μITRONリアルタイムタスク負荷監視、メモリヒープおよびオブジェクトストレージ簡易メンテナンス。</div>
+      <h2>1. カーネルアーキテクチャとマルチプロセッシング (Kernel Architecture & SMP)</h2>
+      <p>
+        OSカーネルバージョン、プロセッサアーキテクチャ、物理メモリ容量の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Core kernel build identifiers, hardware architecture abstractions, and active memory allocation metrics."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>B-System 3.20 (BTRON3 Cleanroom Implementation)<br><small>BTRON3 3.20 準拠カーネル</small></b></td>
+            <td>坂村健博士提唱のBTRON3 Specification 3.20に完全準拠したクリーンルーム実装カーネル。</td>
+            <td>カーネル仕様: BTRON3 Ver 3.20<br>C99: <code>g_state_system.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>Multi-Arch CPU Support (ARMv7, x86_64, PC-98)<br><small>マルチアーキテクチャ対応</small></b></td>
+            <td>ARM Cortex-A7/A53、x86_64 PC/AT、NEC PC-9801/9821アーキテクチャへ同一ソースコードからビルド対応。</td>
+            <td>ターゲット: ARM32 / x86_64 / PC-98<br>C99: <code>g_state_system.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>SMP Multiprocessing: 4 Active Preemptive Cores<br><small>4コア対称型マルチプロセッシング</small></b></td>
+            <td>4基のCPUコアに対してプリエンプティブタスクスケジューラを稼働させ、負荷分散を実現します。</td>
+            <td>スケジューラ: 優先度駆動プリエンプティブ<br>C99: <code>g_state_system.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>Physical RAM Status: 1024 MB (874 MB Free)<br><small>物理メモリ管理状態</small></b></td>
+            <td>1024MBの物理RAMをページング管理し、カーネルおよびアプリケーションへ動的割り当てを行います。</td>
+            <td>メモリプール: <code>src/kernel/memory.c</code><br>C99: <code>g_state_system.checks[3]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>System Plane kernel and VE OS.1 version information</li>
-        <li>μITRON real-time task load monitor (per-task CPU graph)</li>
-        <li>Memory heap and object storage usage summary</li>
-        <li>TAD Cabinet integrity check and compact</li>
-        <li>Startup items and daemon management</li>
-        <li>Crash log viewer linked to Real Body journal</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        システム情報が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] カーネル・ハードウェア</b></td>
+            <td>B-System 3.20 Kernel</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_system.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] カーネル・ハードウェア</b></td>
+            <td>Multi-Arch Support</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_system.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] カーネル・ハードウェア</b></td>
+            <td>SMP Multiprocessing</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_system.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] カーネル・ハードウェア</b></td>
+            <td>Physical RAM Status</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_system.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Preferences.html">⚙️ Preferences</a>
-        <a href="../apps/Terminal.html">💻 Terminal</a>
+        <a href="Display.html">🖥️ 画面表示設定</a>
+        <a href="Security.html">🔒 保全設定</a>
+        <a href="Terminal.html">💻 端末設定</a>
       </div>
     </div>
   </div>
@@ -75,14 +188,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +210,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +226,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html" class="active">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

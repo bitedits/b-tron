@@ -3,84 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Browser – ネイティブTADブラウザ＆HTMLプラグイン | B-System</title>
-  <meta name="description" content="High-performance Native TAD Document Browser with modular HTML-to-TAD import and rendering plugin architecture.">
+  <title>Browser – ブラウザ | B-System Specification</title>
+  <meta name="description" content="ブラウザ（Browser）は、B-SystemのOS仕様書や電子書籍などのTADドキュメントを閲覧・探索する標準ハイパーテキストリーダーです。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Browser</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F310.svg" alt="🌐" width="64" height="64"></div>
-    <h1>Browser</h1>
-    <div class="app-hero-badge">ネイティブTADブラウザ</div>
-    <div class="subtitle">Native TAD Document Browser with Modular HTML-to-TAD Plugin (TAD API)</div>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F310.svg" alt="🌐" width="64" height="64"></div>
+    <h1>ブラウザ (Browser)</h1>
+    <div class="setting-hero-badge">TADハイパーテキスト閲覧 · 履歴スタック · 図形描画 · リンク解決</div>
+    <div class="subtitle">BTRON3 仕様準拠 TAD ハイパーテキスト・電子ブックドキュメントブラウザ<br><span style="font-size:0.9em; opacity:0.85;">"Native hypermedia TAD document reader supporting fusen navigation, vector graphics, and history stacks."</span></div>
   </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"Pure, deterministic TAD hypermedia viewing at native speed — modular HTML import and rendering delivered via an extensible plugin filter."</strong></div>
-    <div class="section">
-      <h2>Overview</h2>
-      <p>High-performance native BTRON document browser engineered specifically for the <strong>TRON Application Databus (TAD)</strong>. Implemented in <code>src/apps/tad_browser.c</code>, Browser is optimized for navigating native TAD hypermedia networks, rendering vector graphics, embedded Real Bodies, and fusen link trees with zero overhead. Recognizing that modern web browsers suffer from massive complexity and bloat, B-System decouples web browsing into a <strong>modular HTML-to-TAD Plugin Filter</strong> (<code>src/apps/browser_html_plugin.c</code>, <code>scripts/html2tad.exs</code>). When accessing web content, the plugin converts HTML4/CSS on the fly into clean, native BTRON3 binary TAD segments, keeping the core browser lean, secure, and crash-proof.</p>
-      <div class="app-desc-jp"><b>ブラウザ：</b> BTRON3 TAD（TRON Application Databus）仕様に完全準拠した超高速ネイティブ文書ブラウザ。実体コードは <code>src/apps/tad_browser.c</code>（TAD描画・ハイパーメディア閲覧エンジン）および <code>src/apps/browser_html_plugin.c</code>（HTML→TAD変換プラグイン）で構成。コアエンジンを純粋なTADバイナリ処理に特化させることで、極限の軽快さと堅牢性を確保。Web（HTML）の閲覧・取り込みは拡張「HTMLプラグイン／フィルター」として分離され、WebページをリアルタイムにネイティブTAD実身バイナリへと自動コンパイルして表示。Web上の情報を永続的かつ編集可能なTAD知識資産として取り込みます。</div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>ブラウザ（Browser）</strong> — ブラウザ（Browser）は、B-SystemのOS仕様書や電子書籍などのTADドキュメントを閲覧・探索する標準ハイパーテキストリーダーです。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Document viewer rendering native TAD binary fusen records, embedded PNG/GIF figures, and interactive link graphs."
+      </span>
     </div>
+
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/tad_browser.c</code>（ネイティブTADドキュメントブラウザ・セグメントパーサー）</li>
-        <li>拡張プラグイン基盤：<code>src/apps/browser_html_plugin.c</code>（HTML4/CSS→TAD実身変換フィルター）</li>
-        <li>TADハイパーメディア（実身・仮身・ベクター図形・インライン画像）の超高速レンダリング</li>
-        <li>WebページのワンクリックTAD実身化（永続ローカルアーカイブ＆リンク切れ防止）</li>
-        <li>コアエンジンからのWebブラウザ肥大化（JavaScript脆弱性等）の完全排除による高信頼性</li>
-        <li>T-Editorへのシームレスな編集ハンドオフとCabinetへの自動カタログ登録</li>
-        <li>BTRON3 SPEC 3.20およびNASA JPL安全基準を満たすクリーンルームC99実装</li>
-      </ul>
+      <h2>概要 (Overview)</h2>
+      <p>
+        ブラウザ（Browser）は、B-SystemのOS仕様書や電子書籍などのTADドキュメントを閲覧・探索する標準ハイパーテキストリーダーです。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Document viewer rendering native TAD binary fusen records, embedded PNG/GIF figures, and interactive link graphs."</span>
+      </p>
     </div>
+
     <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Traditional web browsers are monolithic multi-gigabyte applications that crash easily and cannot integrate with native OS hypermedia databases.</li>
-        <li>Separating the fast native TAD viewing engine from the HTML conversion plugin keeps workstation operations completely deterministic.</li>
-        <li>Web research is automatically converted into permanent, searchable TAD Real Bodies instead of ephemeral browser tabs.</li>
-      </ul>
-    </div>
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Browser が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td>Classic B-TRON WebView (heavy monolithic HTML engine)</td>
-            <td>Lean C99 native TAD core with modular HTML-to-TAD plugin filter for maximum speed and security</td>
-            <td rowspan="2">Researchers, technical archivists, hypermedia authors, developers</td>
+            <td><b>ファイル (File)</b></td>
+            <td>ドキュメントを開く、リロード、TADファイル情報、閉じる</td>
+            <td><code>src/apps/tad_browser.c</code></td>
           </tr>
           <tr>
-            <td>Ephemeral Web Browsers (Chrome / Firefox tabs)</td>
-            <td>Converts web findings into permanent, linkable TAD Real Bodies stored in Cabinet</td>
+            <td><b>移動 (Go)</b></td>
+            <td>戻る（Back）、進む（Forward）、ホーム、履歴一覧</td>
+            <td><code>history_stack[]</code> 探索</td>
+          </tr>
+          <tr>
+            <td><b>表示 (View)</b></td>
+            <td>等倍表示、文字拡大/縮小、折り返し幅自動調整</td>
+            <td>マルチ言語ラインリフロー</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
           </tr>
         </tbody>
       </table>
     </div>
+
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Open native TAD documents, books, and specifications directly in Browser at blazing speed.</li>
-        <li>When navigating to an external HTTP/HTML URL, the <code>browser_html_plugin</code> automatically fetches and converts markup into TAD segments.</li>
-        <li>Browse the rendered TAD page with full vector fidelity and active hyperlink fusens.</li>
-        <li>Click <b>Save to Cabinet</b> to retain the page as an editable TAD Real Body for research in Notebook or Clarity.</li>
-      </ol>
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Browser アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>履歴スタックナビゲーション</b></td>
+            <td>ブラウジング履歴を完全管理。戻る・進むボタンおよびAlt+Left/Rightによる高速ページ遷移。</td>
+            <td><code>history_idx</code> スタックポインタ</td>
+          </tr>
+          <tr>
+            <td><b>インライン図形レンダリング</b></td>
+            <td>GIF/PNGラスター画像およびTADベクトル図形プリミティブ（TS_FPRIM）の高速デコード描画。</td>
+            <td><code>src/graphics/gif_dec.c</code></td>
+          </tr>
+          <tr>
+            <td><b>多言語自動リフロー</b></td>
+            <td>日本語、英語、ウクライナ語キリル文字の動的テキスト折り返しとビューポート再計算。</td>
+            <td><code>tad_browser_paint</code> リフロー</td>
+          </tr>
+          <tr>
+            <td><b>不変ドキュメント分離</b></td>
+            <td>複数ウィンドウ間でドキュメントコンテキストを完全分離（メモリ独立性保証）。</td>
+            <td>SPEC 3.20 準拠</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="TEditor.html">✍️ 文書編集</a>
+        <a href="Cabinet.html">📁 キャビネット</a>
+        <a href="../settings/Media.html">📁 メディア設定</a>
+      </div>
     </div>
   </div>
-    <footer class="app-footer">
+
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -93,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html" class="active">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html" class="active">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -130,10 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

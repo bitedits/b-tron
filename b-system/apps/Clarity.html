@@ -3,94 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clarity – DTP組版出版＆チベットPecha・和式伝統判型 | B-System</title>
-  <meta name="description" content="QuarkXPress-class professional publishing system with dynamic Cabinet TAD source gathering, TeX Mode, Horizontal Tibetan Pecha layout, and First-Class Native Japanese Legacy Paper Formats.">
+  <title>Clarity – 電子帳票 | B-System Specification</title>
+  <meta name="description" content="プロフェッショナルDTP組版、日本固有伝統14判型、チベット横長Pecha経典、TeX数理組版エンジンの技術仕様。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Clarity</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4F0.svg" alt="📰" width="64" height="64"></div>
-    <h1>Clarity</h1>
-    <div class="app-hero-badge">DTP組版出版 · 伝統出版文化保全</div>
-    <div class="subtitle">QuarkXPress-Class Publishing &amp; Cabinet Link Aggregator with Native TeX, Horizontal Pecha (དཔེ་ཆ་) &amp; Japanese Legacy Formats (和装本・和式伝統判型)</div>
-  </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"QuarkXPress 4.0 class professional publishing — multi-column geometric frames, dynamic TAD Cabinet source gathering, native TeX Mode, Horizontal Tibetan Pecha (དཔེ་ཆ་) layout, and complete Japanese legacy vertical paper formats."</strong></div>
-    
-    <div class="section">
-      <h2>Overview</h2>
-      <p>Professional desktop publishing (DTP) and high-precision page layout engine engineered to surpass QuarkXPress 4.0 and advanced publishing suites. Implemented in <code>src/apps/clarity.c</code> and powered by its dedicated mathematical and cultural macro engine <code>src/apps/clarity_tex.c</code>, Clarity delivers geometric multi-column text frames, arbitrary polygon runaround, master pages, baseline grids, and millipoint typography control.</p>
-      
-      <p>Clarity serves as a <strong>First-Class Cultural Preservation Engine</strong> for two distinct Asian typography traditions — <strong>Tibetan</strong> and <strong>Japanese</strong>:</p>
-      <ul>
-        <li><strong>Horizontal Pecha Mode (དཔེ་ཆ་ · Tibetan Sacred Manuscripts):</strong> Authentic elongated horizontal loose-leaf geometry with ceremonial red/black double borders (lcags-ri), marginal folio markers (sna-chen / sna-chung), Tibetan numeral pagination (tshig-grangs), and interlinear root/commentary layout (mchan-'grel).</li>
-        <li><strong>Native Japanese Legacy Paper Formats &amp; Vertical Typesetting (和式伝統判型＆縦書き和装本):</strong> Native support for all historic Japanese paper standards (美濃判, 半紙, 四六判, 菊判, 新書判, 文庫判, 大奉書, 大福帳, 短冊, 色紙, 懐紙, 折本, 巻子本, 和装本袋綴じ) with precise vertical right-to-left flow (縦書き), ruby (ルビ), inline double-column notes (割注), line-breaking rules (禁則処理), and multi-line heading spans (行取り).</li>
-      </ul>
 
-      <div class="app-desc-jp"><b>クラリティ（Clarity）：</b> QuarkXPress 4.0やAdobe InDesignの高度組版機能を融合した、プロフェッショナル向けDTP出版・組版環境。実体コードはDTP組版コンポジター（<code>src/apps/clarity.c</code>）およびTeX数理・伝統マクロエンジン（<code>src/apps/clarity_tex.c</code>）で構成。<br><br>
-      最大の特長は、キャビネットTADソース動的集約とTeXモードに加え、<b>「チベット伝統Pecha（དཔེ་ཆ་）横長判型」</b>および<b>「日本固有伝統判型（和装本・縦書き組版）」</b>を第一級（First-Class）文化保全機能として完全宣言・実装している点です：<br><br>
-      <b>1. チベットPecha横長判型モード（Horizontal Pecha Mode）：</b> チベット大蔵経（Kangyur/Tengyur）やデルゲ版（Derge）の横長非綴じ経典（560×110mm、650×140mm等）に完全準拠。朱黒二重枠（lcags-ri）、余白葉番号（tshig-grangs）、左余白表題（sna-chen）、本文・割注二段解説（mchan-'grel）を自動組版。<br>
-      <b>2. 日本固有伝統判型＆縦書き組版（Japanese Legacy Paper Formats）：</b> 江戸時代以来の和紙寸法および近代出版判型（美濃判、半紙、四六判、菊判、新書判、文庫判、大奉書、大福帳、短冊、色紙、懐紙、折本、巻子本、和装本袋綴じ）を完全網羅。右から左への縦書き行送り、ルビ（振り仮名）、割注、禁則処理、縦中横、行取りをミリポイント単位で精密制御します。</div>
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4D6.svg" alt="📖" width="64" height="64"></div>
+    <h1>電子帳票 (Clarity)</h1>
+    <div class="setting-hero-badge">DTP組版エンジン · 伝統和紙判型 · チベットPecha · TeX数理組版 · 縦書き</div>
+    <div class="subtitle">DTP出版組版環境、和式伝統14判型、チベット横長Pecha、TeX数理組版の技術仕様<br><span style="font-size:0.9em; opacity:0.85;">"Professional DTP publishing compositor: authentic Japanese legacy paper formats, Tibetan horizontal Pecha loose-leaf geometry, and TeX mathematical typesetting."</span></div>
+  </div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>電子帳票（Clarity）</strong> — B-Systemにおける高度出版・帳票組版環境。キャビネットTAD動的集約、和装本縦書き、チベット横長Pecha、TeX数式組版を統括するコンポジター仕様。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Publishing layout engine orchestrating dynamic TAD asset aggregation, vertical East-Asian typesetting, sacred Tibetan Pecha margins, and camera-ready PDF export."
+      </span>
     </div>
 
+    <!-- 概要 -->
     <div class="section">
-      <h2>Native Japanese Legacy Paper Formats Catalog (日本固有伝統判型一覧)</h2>
+      <h2>概要 (Overview)</h2>
+      <p>
+        クラリティ（<code>src/apps/clarity.c</code>, <code>src/apps/clarity_tex.c</code>）は、QuarkXPressやInDesign水準の組版機能を純C99で実装したDTP出版環境です。キャビネット内の原稿・表計算・作図実身を紙面上へリアルタイム連動させる動的集約機構に加え、東洋文化圏の伝統出版文化を保全する「日本固有伝統14判型（縦書き和装本）」および「チベットPecha（དཔེ་ཆ་）横長経典」を第一級組版規格として標準実装しています。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Clarity integrates professional DTP composition with cultural publishing preservation: native East-Asian vertical typography and Tibetan loose-leaf woodblock manuscripts."</span>
+      </p>
+
+      <div class="setting-desc-jp">
+        <b>基本操作体系 (Operational Specifications)：</b><br>
+        ・<b>[ファイル (File)]</b>：新規組版帳票作成、TAD原稿リンク、PostScript/PDF出力、トンボ付きCMYK分版。<br>
+        ・<b>[判型 (Format)]</b>：近代国際規格（A/B判）および日本伝統14判型（美濃判・半紙・四六判・短冊・和装本等）の選択。<br>
+        ・<b>[Pecha (དཔེ་ཆ་)]</b>：チベット横長経典モード（デルゲ版・大蔵経判・朱黒二重枠lcags-ri・余白葉番号設定）。<br>
+        ・<b>[数理 (TeX)]</b>：LaTeX数式混植、<code>\pecha</code>、<code>\tategaki</code>組版マクロのリアルタイムレンダリング。
+      </div>
+    </div>
+
+    <!-- 1. DTP組版エンジンとTeX数理組版 -->
+    <div class="section">
+      <h2>1. DTP組版エンジンとTeX数理組版 (DTP Layout Engine &amp; TeX Integration)</h2>
+      <p>
+        マルチメディアTAD実身の動的集約パイプラインおよびLaTeX数理組版エンジンの動作仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Dynamic TAD document aggregation architecture, TeX mathematical formula composition, and camera-ready PostScript/PDF export."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>伝統判型 (Japanese Format)</th><th>寸法 (Dimensions)</th><th>用途・出版文化的位置づけ (Cultural Publishing Usage)</th></tr></thead>
+        <thead>
+          <tr>
+            <th>機能・コンポーネント名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>TAD実身動的集約<br>(Dynamic Asset Linking)</b></td>
+            <td>T-Editor文書、Matrix表計算、Clarity作図などの外部実身を紙面枠へ直接リンク。元データ更新時に紙面を自動再計算。</td>
+            <td><code>src/apps/clarity.c</code><br>実身参照ポインタ: <code>TAD_FUSEN_VOBJ</code></td>
+          </tr>
+          <tr>
+            <td><b>TeX数式組版エンジン<br>(LaTeX Math Compositor)</b></td>
+            <td>インラインおよび別行立て数式（積分、分数、行列等）をピクセル完全な高品質ベクトルグリフとして混植。</td>
+            <td><code>src/apps/clarity_tex.c</code><br>TeX FSM パーサー / 数理テーブル</td>
+          </tr>
+          <tr>
+            <td><b>高精度縦書き組版<br>(Vertical Typography)</b></td>
+            <td>右から左への縦書き行送り、ルビ（振り仮名）、割注、縦中横、行取り、禁則処理をミリポイント単位で精密制御。</td>
+            <td>JIS X 4051 日本語組版処理準拠<br>ミリポイント (mpt) 単位グリッド</td>
+          </tr>
+          <tr>
+            <td><b>CMYK分版・カメラレディ<br>(Camera-Ready Export)</b></td>
+            <td>トンボ（Crop marks）、ブリード（裁ち落とし幅 3mm）、CMYK 4色プロセス分版に対応したPostScript/PDFバイナリ生成。</td>
+            <td>PostScript Level 3 / PDF 1.7 出力<br>CMYK 色分解パイプライン</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2. 日本固有伝統判型一覧 -->
+    <div class="section">
+      <h2>2. 日本固有伝統判型仕様 (Native Japanese Legacy Paper Formats)</h2>
+      <p>
+        江戸時代以来の和紙寸法および近代文芸出版における主要14判型の寸法・用途仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Exhaustive geometric and cultural catalog of 14 traditional Japanese paper standards from historical Mino-ban to Shiroku literary formats."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>伝統判型</th>
+            <th>規格寸法 (Dimensions)</th>
+            <th>用途・出版文化的位置づけ (Cultural &amp; Publishing Purpose)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
             <td><b>美濃判 (Mino-ban)</b></td>
             <td>273 × 394 mm</td>
-            <td>江戸時代公用紙・和装本標準判型。美濃和紙の規格寸法であり、歴史的文書・古典籍の最高峰規格。</td>
+            <td>江戸時代公用紙・古典籍標準判型。美濃和紙規格であり、歴史的公文書・典籍の最高峰。</td>
           </tr>
           <tr>
             <td><b>半紙 (Hanshi)</b></td>
             <td>242 × 333 mm</td>
-            <td>和装本・書道・古典草双紙の伝統規格。日本文化における最も親しまれた手書き原稿・木版刷り用紙。</td>
+            <td>和装本・書道・古典草双紙の伝統規格。日本文化で最も広く親しまれた木版刷り用紙。</td>
           </tr>
           <tr>
             <td><b>四六判 (Shiroku-ban)</b></td>
             <td>127 × 188 mm</td>
-            <td>近代日本文芸単行本・小説の標準規格（美濃判を四六に断裁した寸法に由来）。最も格調高い単行本判型。</td>
+            <td>近代日本文芸単行本・小説の標準規格（美濃判を四六断裁）。格調高い書籍判型。</td>
           </tr>
           <tr>
             <td><b>菊判 (Kiku-ban)</b></td>
             <td>150 × 218 mm</td>
-            <td>学術専門書、文芸雑誌、評論集、美術書の代表的判型（輸入洋紙「菊花紋」規格由来）。</td>
+            <td>学術専門書、文芸雑誌、評論集、美術書の代表的判型（菊花紋洋紙規格由来）。</td>
           </tr>
           <tr>
             <td><b>新書判 (Shinsho-ban)</b></td>
             <td>105 × 173 mm</td>
-            <td>教養新書、ノンフィクション、コミックス単行本の黄金比判型。軽快な持ち運びと高い可読性を両立。</td>
+            <td>教養新書、ノンフィクション、コミックス単行本の黄金比判型。高い可読性と携帯性。</td>
           </tr>
           <tr>
             <td><b>文庫判 (Bunko-ban)</b></td>
             <td>105 × 148 mm</td>
-            <td>岩波文庫・新潮文庫以来のポケット文学規格（A6相当）。手のひらに収まる国民的出版フォーマット。</td>
+            <td>岩波文庫・新潮文庫以来の国民的ポケット文学規格（A6相当）。</td>
           </tr>
           <tr>
             <td><b>大奉書 (Hōsho-ban)</b></td>
             <td>394 × 530 mm</td>
-            <td>最高級公用文書、宮中令達、浮世絵版画（錦絵）の伝統規格。極上の風合いを持つ大判格式紙。</td>
+            <td>最高級公用文書、宮中令達、浮世絵錦絵の伝統規格。極上の風合いを持つ大判格式紙。</td>
           </tr>
           <tr>
             <td><b>大福帳 (Daifukuchō-ban)</b></td>
             <td>160 × 240 mm</td>
-            <td>江戸・明治期の商人勘定帳・台帳様式。縦長勘定綴じの伝統的ビジネス記録判型。</td>
+            <td>江戸・明治期の商人勘定台帳様式。縦長勘定綴じの伝統的ビジネス記録判型。</td>
           </tr>
           <tr>
             <td><b>短冊 (Tanzaku-ban)</b></td>
             <td>60 × 363 mm</td>
-            <td>俳句・短歌の詠進専用の極細縦長短冊判型。一行〜二行の雅やかな縦書き配置に最適化。</td>
+            <td>俳句・短歌詠進専用の極細縦長判型。一行〜二行の雅やかな縦書き配置に最適化。</td>
           </tr>
           <tr>
             <td><b>色紙 (Shikishi-ban)</b></td>
@@ -105,34 +166,45 @@
           <tr>
             <td><b>折本 (Orihon)</b></td>
             <td>80 × 260 mm (可変)</td>
-            <td>蛇腹（アコーディオン）折りの仏教経典・年表・祝詞集。連続する紙面が折り畳まれた伝統装丁。</td>
+            <td>蛇腹（アコーディオン）折りの仏教経典・年表・祝詞集。連続紙面が折り畳まれた装丁。</td>
           </tr>
           <tr>
             <td><b>巻子本 (Kansubon)</b></td>
-            <td>280 × 1200+ mm (巻物)</td>
-            <td>絵巻物・歴史古文書の巻物形式。水平に広がりながら右から左へ縦書き段落が展開。</td>
+            <td>280 × 1200+ mm</td>
+            <td>絵巻物・歴史古文書の巻物形式。水平に広がりながら右から左へ縦書き段落が連続展開。</td>
           </tr>
           <tr>
-            <td><b>和装本・袋綴じ (Wasōbon Fukurotoji)</b></td>
+            <td><b>和装本・袋綴じ (Fukurotoji)</b></td>
             <td>180 × 250 mm</td>
-            <td>一枚の紙を二つ折りにして外側に折り目を向け、背を四つ目綴じ（四穴）で糸留めする伝統装丁規格。</td>
+            <td>一枚の紙を二つ折りにして外側に折り目を向け、背を四つ目綴じで糸留めする伝統装丁。</td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- 3. チベット横長Pecha経典組版仕様 -->
     <div class="section">
-      <h2>Tibetan Horizontal Pecha Specifications (チベットPecha横長判型仕様)</h2>
+      <h2>3. チベット横長Pecha経典組版仕様 (Tibetan Horizontal Pecha Specifications)</h2>
+      <p>
+        チベット仏教大蔵経（Kangyur/Tengyur）およびデルゲ版木版経典の横長非綴じ組版仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Geometric layouts, ceremonial double borders (lcags-ri), folio indexing, and interlinear root/commentary (mchan-'grel) for Tibetan loose-leaf manuscripts."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Pecha 規格 (Pecha Standard)</th><th>寸法 (Dimensions)</th><th>用途・伝統的写本形式 (Manuscript &amp; Woodblock Tradition)</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Pecha 規格</th>
+            <th>規格寸法 (Dimensions)</th>
+            <th>用途・写本形式 (Manuscript &amp; Woodblock Tradition)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
             <td><b>Rinchen Terdzö (大蔵経・宝庫判)</b></td>
             <td>650 × 140 mm</td>
-            <td>大宝蔵（リンチェン・テルズ）等、チベット密教大著述・儀軌集の大判長方形木版経典。</td>
+            <td>大宝蔵（リンチェン・テルズ）等、密教大著述・儀軌集の大判長方形木版経典。</td>
           </tr>
           <tr>
-            <td><b>Kangyur / Tengyur (仏説・論疏標準判)</b></td>
+            <td><b>Kangyur / Tengyur (標準経典判)</b></td>
             <td>560 × 110 mm</td>
             <td>デルゲ版・北京版チベット大蔵経の標準寸法。横長非綴じ葉（Loose-Leaf）形式。</td>
           </tr>
@@ -150,34 +222,62 @@
       </table>
     </div>
 
+    <!-- 4. 出版ワークフロー -->
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/apps/clarity.c</code>（DTPコンポジター・伝統判型エンジン）</li>
-        <li>TeX数式＆伝統マクロ：<code>src/apps/clarity_tex.c</code>（LaTeX数理組版、\pecha、\tategakiマクロ）</li>
-        <li>日本固有伝統判型14種（美濃判・半紙・四六判・菊判・文庫判・短冊・和装本袋綴じ等）完全宣言</li>
-        <li>チベット横長Pecha判型（デルゲ版・大蔵経判・朱黒二重枠lcags-ri・余白葉番号・割注mchan）完全対応</li>
-        <li>高精度縦書き組版（ルビ、割注、禁則処理、縦中横、行取り）のミリポイント制御</li>
-        <li>キャビネットTADソース動的集約（原稿・表計算・作図の更新を紙面へリアルタイム自動連動）</li>
-        <li>CMYK分版、トンボ・ブリード裁ち落とし対応のカメラレディPostScript/PDF出力</li>
-        <li>NASA JPLおよびBTRON3 SPEC 3.20規格に準拠したクリーンルームC99実装</li>
-      </ul>
+      <h2>4. 出版ワークフロー (Typical Publishing Workflow)</h2>
+      <p>
+        原稿リンクから印刷所入稿用PDF生成までの典型的な出版組版シーケンス。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive multi-cultural publishing pipeline spanning Tibetan Pecha, Japanese vertical novels, and academic TeX documents."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>出版モード</th>
+            <th>組版手順と機能連携 (Workflow Sequence)</th>
+            <th>出力形式 (Export Target)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>チベットPecha組版</b></td>
+            <td>Pecha Mode（560×110mm）を選択。Cabinetからチベット語TAD原稿をリンクし、朱黒二重枠（lcags-ri）と左余白表題（sna-chen）を適用して木版レイアウトを出力。</td>
+            <td>木版風 PDF / EPS</td>
+          </tr>
+          <tr>
+            <td><b>和装本・文芸組版</b></td>
+            <td>和装本モード（四六判 縦書き）を選択。T-Editor原稿を流し込み、ルビ・割注・禁則処理を適用してリアルタイムに縦書き段組をプレビュー。</td>
+            <td>四六判 / 袋綴じ PDF</td>
+          </tr>
+          <tr>
+            <td><b>学術TeX論文</b></td>
+            <td>論文モードでTeX数式（積分・分数・行列）を混植し、Reviewの査読注釈実身（<code>pdf_tad_anno.c</code>）を参考文献として自動連動。</td>
+            <td>学術 PDF / PostScript</td>
+          </tr>
+          <tr>
+            <td><b>印刷所入稿</b></td>
+            <td>トンボ（Crop marks）および3mm裁ち落とし幅付きの高解像度CMYK分版データをワンクリックで生成。</td>
+            <td>カメラレディ CMYK PDF</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Typical Cultural Publishing Workflow</h2>
-      <ol class="workflow-list">
-        <li><b>チベットPecha組版：</b> Clarityで「Pecha Mode (Kangyur 560×110mm)」を選択。Cabinetからチベット語TAD原稿をリンクし、朱黒二重枠（lcags-ri）と左余白表題（sna-chen）を設定して木版風レイアウトを出力。</li>
-        <li><b>和装本・文学単行本組版：</b> 「和装本モード（四六判 縦書き）」を選択。T-Editorで執筆された章原稿を流し込み、ルビ・割注・禁則処理を適用してリアルタイムに縦書き段組をプレビュー。</li>
-        <li><b>学術TeX出版：</b> 論文モードでTeX数式（\int, \frac, 行列）を混植し、Reviewの査読注釈実身（<code>pdf_tad_anno.c</code>）を参考文献として自動連動。</li>
-        <li><b>印刷所入稿：</b> トンボ（Crop marks）付きの高解像度CMYK PostScript / PDFをワンクリックで生成。</li>
-      </ol>
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="TEditor.html">✍️ 文書編集 (TEditor)</a>
+        <a href="Matrix.html">📊 表計算 (Matrix)</a>
+        <a href="Cabinet.html">📁 キャビネット (Cabinet)</a>
+        <a href="Review.html">🔍 差分校正 (Review)</a>
+      </div>
     </div>
   </div>
+
   <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -190,19 +290,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html" class="active">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -227,10 +327,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

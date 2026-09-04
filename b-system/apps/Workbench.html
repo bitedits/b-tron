@@ -3,98 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workbench – デスクトップ＆メニュー | B-System</title>
-  <meta name="description" content="Spatial desktop canvas and central root menu for B-System BTRON. Pure C99 workspace manager and application launcher inspired by CTWM and Haiku Deskbar.">
+  <title>Workbench – ワークベンチ | B-System Specification</title>
+  <meta name="description" content="ワークベンチ（Workbench）は、BTRONの実身・仮身ネットワークを直接操作する空間デスクトップ環境。ファイルツリーを排し、文書中心の直感的なハイパーメディア操作を提供します。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
 <body>
-
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Workbench</span>
   </nav>
 
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F5C4.svg" alt="🗄️" width="64" height="64"></div>
-    <h1>Workbench</h1>
-    <div class="app-hero-badge">空間デスクトップ＆メニュー</div>
-    <div class="subtitle">Spatial Desktop &amp; System Menu (CTWM / Haiku Heritage)</div>
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F5A5.svg" alt="🗄️" width="64" height="64"></div>
+    <h1>ワークベンチ (Workbench)</h1>
+    <div class="setting-hero-badge">空間デスクトップ · 実身・仮身操作 · ウィンドウ管理 · タスクバー</div>
+    <div class="subtitle">BTRON3 3.20仕様に基づく空間ハイパーメディアデスクトップ環境<br><span style="font-size:0.9em; opacity:0.85;">"Spatial hypermedia desktop environment adhering to the BTRON3 Specification 3.20."</span></div>
   </div>
 
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
 
     <div class="tagline-card">
-      <strong>"Minimalist spatial desktop and instant root menu</strong> — pure C99 workspace manager and application launcher in the spirit of CTWM and Haiku Deskbar."
+      <strong>ワークベンチ（Workbench）</strong> — ワークベンチ（Workbench）は、BTRONの実身・仮身ネットワークを直接操作する空間デスクトップ環境。ファイルツリーを排し、文書中心の直感的なハイパーメディア操作を提供します。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Document-centric desktop shell providing direct manipulation of Real and Virtual Objects without hierarchical directory paths."
+      </span>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Spatial desktop canvas and central system root menu inspired by CTWM's workspace manager and the Haiku / BeOS Deskbar. Implemented as a pure C99 system application backed by <code>src/desktop/main.c</code> (main launcher and event loop), <code>src/desktop/desktop.c</code> (desktop compositor and screen device manager), and <code>src/desktop/tracker.c</code> (Haiku-style START [BTRON] button, root menu launcher, and active window/task tracker), directly interfacing with the BTRON window manager (<code>btron/wnd.h</code>), display primitives (<code>btron/dp.h</code>), and event loop (<code>btron/event.h</code>). Rather than acting as a file manager — a role fulfilled exclusively by Cabinet and Commander — Workbench provides the desktop backdrop, spatial window management, multi-workspace virtual desktops, process task switching, and instantaneous root menu launching.</p>
-      <div class="app-desc-jp"><b>ワークベンチ：</b> CTWMのルートメニューやHaiku Deskbarの即応性を継承した、純粋C99製デスクトップ＆システムメニュー。実体コードは <code>src/desktop/main.c</code>（メインランチャー＆イベントループ）、<code>src/desktop/desktop.c</code>（デスクトップコンポジタ＆背景描画）、および <code>src/desktop/tracker.c</code>（Haiku流 START [BTRON] ボタン・ルートメニュー＆タスク追跡モジュール）で構成。ファイルやオブジェクトの管理はキャビネット・エクスプローラー（Cabinet）が担うため、ワークベンチ自身はファイルマネージャではなく、空間デスクトップキャンバス、仮想ワークスペース切り替え、タスク管理、および階層型ルートメニューの提供に特化。</div>
+      <h2>概要 (Overview)</h2>
+      <p>
+        ワークベンチ（Workbench）は、BTRONの実身・仮身ネットワークを直接操作する空間デスクトップ環境。ファイルツリーを排し、文書中心の直感的なハイパーメディア操作を提供します。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Document-centric desktop shell providing direct manipulation of Real and Virtual Objects without hierarchical directory paths."</span>
+      </p>
     </div>
 
     <div class="section">
-      <h2>Key Features &amp; Architecture</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/desktop/main.c</code>（メインランチャー、イベントループ、サブシステム初期化）</li>
-        <li>実体コード実装：<code>src/desktop/desktop.c</code>（デスクトップコンポジタ、背景描画、画面デバイス管理）</li>
-        <li>実体コード実装：<code>src/desktop/tracker.c</code>（Haiku流 START [BTRON] ボタン、ルートメニュー、タスク追跡）</li>
-        <li>CTWM風ルートメニュー＆Haiku Deskbarスタイルの高速階層型アプリケーションランチャー</li>
-        <li>純粋C99システム設計（超軽量・低レイテンシ・極小メモリフットプリント、NASA JPL検証済み）</li>
-        <li>仮想ワークスペース管理（マルチデスクトップ切り替え）</li>
-        <li>アクティブウィンドウ一覧・タスク切り替えおよびウィンドウ配置制御</li>
-        <li>Cabinet、Terminal、T-Editor、各種アクセサリへのワンクリック即座アクセス</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Monolithic desktop shells frequently combine the desktop canvas, root menus, file indexing, and document authoring into a bloated single process.</li>
-        <li>Separating the desktop and menu orchestration (Workbench) from the object/cabinet manager (Cabinet) ensures the system shell remains uncrashable, instantaneous to initialize, and purely focused on window management.</li>
-        <li>Delivers the lightning-fast, keyboard-and-mouse-friendly feel of CTWM and Haiku Deskbar on modern TRON workstations.</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Workbench が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td>Monolithic Desktop Shells (bundled file manager + desktop)</td>
-            <td>Dedicated pure C99 Desktop &amp; Menu; zero bloat, instant startup, clean separation from Cabinet</td>
-            <td rowspan="2">Power users, system administrators, developers needing a fast, keyboard-friendly workspace shell</td>
+            <td><b>ファイル (File)</b></td>
+            <td>新規実身作成、キャビネット起動、文書インポート、ワークスペース保存</td>
+            <td><code>mcre_men</code>, <code>src/desktop/desktop.c</code></td>
           </tr>
           <tr>
-            <td>Cluttered Window Managers</td>
-            <td>Clean virtual workspaces, task management, and unified root/deskbar menus</td>
+            <td><b>編集 (Edit)</b></td>
+            <td>仮身の複製、実身リンク作成、移動、ゴミ箱への破棄</td>
+            <td>実身・仮身参照カウント制御</td>
+          </tr>
+          <tr>
+            <td><b>表示 (View)</b></td>
+            <td>アイコン整列（32px/64px）、リスト表示切替、グリッド吸着ON/OFF</td>
+            <td><code>appearance_get_icon_size()</code></td>
+          </tr>
+          <tr>
+            <td><b>ウィンドウ (Window)</b></td>
+            <td>重ねて表示（カスケード）、並べて表示（タイル）、最小化、全非表示</td>
+            <td><code>src/desktop/global_menu.c</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Boot into B-System — Workbench renders the desktop canvas and initializes the system root menu and Deskbar in microseconds.</li>
-        <li>Click anywhere on the desktop or press the menu key to trigger the CTWM/Haiku-style root launcher menu.</li>
-        <li>Launch Cabinet to browse Real Body cabinets and documents, or launch Terminal for shell operations.</li>
-        <li>Switch smoothly between virtual workspaces to organize active tasks and windows.</li>
-        <li>Use the window list in the menu to jump directly to minimized or covered windows.</li>
-      </ol>
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Workbench アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>実身・仮身操作モデル</b></td>
+            <td>実身（データ実体）へのポインタである仮身（リンク）を空間配置。実身の重複複製なしに多重参照可能。</td>
+            <td>ハイパーメディアポインタ構造 (<code>TAD_FUSEN_VOBJ</code>)</td>
+          </tr>
+          <tr>
+            <td><b>ウィンドウマネージャ</b></td>
+            <td>タイトルバー、クローズボタン、3D二重ベベル枠、リサイズハンドル、コンパクトスライディングタブ対応。</td>
+            <td><code>src/window/wnd.c</code>, <code>rsz_wnd</code></td>
+          </tr>
+          <tr>
+            <td><b>グローバルシステムメニュー</b></td>
+            <td>画面最上部の固定メニューバー。システム管理、実身・仮身操作、道具箱、日本語カレンダー常駐。</td>
+            <td><code>src/desktop/global_menu.c</code></td>
+          </tr>
+          <tr>
+            <td><b>デスクバー (Tracker)</b></td>
+            <td>画面隅のタスクバーと常駐アプレットトレイ。全アプリの起動とアクティブタスク切替。</td>
+            <td><code>src/desktop/tracker.c</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Cabinet.html">📁 キャビネット</a>
+        <a href="TEditor.html">✍️ 文書編集</a>
+        <a href="../settings/Desktop.html">🖥️ デスクトップ設定</a>
+      </div>
     </div>
   </div>
 
-      <footer class="app-footer">
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -107,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -144,11 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

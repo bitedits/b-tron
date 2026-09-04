@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security – セキュリティ | B-System Settings</title>
-  <meta name="description" content="Permissions, capability overview and access controls.">
+  <title>Security – 保全設定 | B-System Specification</title>
+  <meta name="description" content="実身のアクセス制御（ACL）、ネットワークタスクの仮想アドレス空間隔離、カーネルDMAポート保護、実行可能バイナリの暗号学的整合性検証を管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -19,42 +19,155 @@
   </nav>
 
   <div class="setting-hero">
-    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F6E1.svg" alt="🛡️" width="64" height="64"></div>
-    <h1>Security</h1>
-    <div class="setting-hero-badge">セキュリティ</div>
-    <div class="subtitle">Permissions, capability overview and access controls</div>
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F512.svg" alt="🔒" width="64" height="64"></div>
+    <h1>保全設定 (Security)</h1>
+    <div class="setting-hero-badge">実身ACL · アドレス空間隔離 · 特権リング · ハッシュ検証</div>
+    <div class="subtitle">実身アクセス制御リスト（ACL）、タスク特権リング、ポート保護、実行可能実身検証の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Capability isolation models, Real Body access control lists, and kernel memory protection boundaries."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Security</strong> — Permissions, capability overview and access controls.
+      <strong>保全設定（Security）</strong> — 実身のアクセス制御（ACL）、ネットワークタスクの仮想アドレス空間隔離、カーネルDMAポート保護、実行可能バイナリの暗号学的整合性検証を管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "System security subsystem: mandatory access control for Real Bodies, memory domain sandboxing, and binary cryptographic integrity verification."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        実身のアクセス制御（ACL）、ネットワークタスクの仮想アドレス空間隔離、カーネルDMAポート保護、実行可能バイナリの暗号学的整合性検証を管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"System security subsystem: mandatory access control for Real Bodies, memory domain sandboxing, and binary cryptographic integrity verification."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Permissions, capability overview and access controls.</p>
-      <div class="setting-desc-jp">seL4ケイパビリティアクセス権限一覧、実身・仮身の改ざん防止アクセス制御、VirtIOサンドボックス隔離レベル設定。</div>
+      <h2>1. アクセス制御とアドレス空間保護 (Access Control & Memory Isolation)</h2>
+      <p>
+        実身オブジェクトのパーミッション強制およびタスク実行ドメインの保護仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Real Object ACL enforcement and memory page protection rings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Real Body Read/Write Access Control Lists (ACL)<br><small>実身ACL強制アクセス制御</small></b></td>
+            <td>実身ごとに定義された読込・書込・実行パーミッションビットをファイルシステム層で厳格に照合します。</td>
+            <td>制御: <code>FS_ACL_READ | FS_ACL_WRITE</code><br>C99: <code>g_state_security.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>Isolate Network Tasks in Restricted Address Space<br><small>ネットワークタスク空間隔離</small></b></td>
+            <td>外部通信を行うタスクを制限付き仮想アドレス空間（サンドボックス）へ隔離し、他タスクのメモリ破壊を防止します。</td>
+            <td>保護: MMU ページテーブル権限ビット<br>C99: <code>g_state_security.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>Restrict Direct Hardware Port & DMA Access to Kernel<br><small>ハードウェア直接制御制限</small></b></td>
+            <td>I/Oポート直接アクセスおよびDMA制御をRing 0特権カーネルタスクのみに制限します。</td>
+            <td>特権レベル: Ring 0 (Kernel Supervisor)<br>C99: <code>g_state_security.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>Cryptographic Hash Verification for Executable TAD<br><small>実行可能実身ハッシュ検証</small></b></td>
+            <td>実行可能バイナリを含むTAD実身の起動時に暗号ハッシュを検証し、改ざんを防止します。</td>
+            <td>アルゴリズム: SHA-256 整合性チェック<br>C99: <code>g_state_security.checks[3]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>seL4 capability permission matrix per application</li>
-        <li>Real Body and Virtual Body tamper-protection access control</li>
-        <li>VirtIO sandbox isolation level per app (none / restricted / full)</li>
-        <li>User authentication: passphrase, hardware key, biometric</li>
-        <li>Encrypted storage volume management</li>
-        <li>Audit log: all capability grants stored as Real Bodies</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        保全設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] アクセス・保護</b></td>
+            <td>Real Body ACL Enforcement</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_security.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] アクセス・保護</b></td>
+            <td>Network Task Isolation</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_security.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] アクセス・保護</b></td>
+            <td>Hardware I/O Restriction</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_security.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] アクセス・保護</b></td>
+            <td>Executable Hash Verification</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_security.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Preferences.html">⚙️ Preferences</a>
-        <a href="../apps/Commander.html">🗂️ Commander</a>
+        <a href="Network.html">🌐 通信網設定</a>
+        <a href="System.html">⚙️ システム情報</a>
+        <a href="Terminal.html">💻 端末設定</a>
       </div>
     </div>
   </div>
@@ -75,14 +188,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +210,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +226,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html" class="active">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

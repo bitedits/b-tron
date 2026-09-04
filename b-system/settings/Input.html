@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input – 入力環境 | B-System Settings</title>
-  <meta name="description" content="Keyboard layouts, key repeat and full MOZC + TRON Code configuration.">
+  <title>Input – 入力環境設定 | B-System Specification</title>
+  <meta name="description" content="キーボード配列（JIS/US）、キーリピート開始遅延および連打速度、ポインティングデバイスの加速度特性を管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,196 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/2328.svg" alt="⌨️" width="64" height="64"></div>
-    <h1>Input</h1>
-    <div class="setting-hero-badge">入力環境</div>
-    <div class="subtitle">Keyboard layouts, key repeat and full MOZC + TRON Code configuration</div>
+    <h1>入力環境設定 (Input)</h1>
+    <div class="setting-hero-badge">キーボード配列 · キーリピート · ポインタ加速 · ホイール制御</div>
+    <div class="subtitle">キーボードハードウェア配列、リピート速度、ポインタ加速度曲線の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Keyboard matrix hardware mappings, repeat rate latency registers, and pointer acceleration dynamics."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Input</strong> — Keyboard layouts, key repeat and full MOZC + TRON Code configuration.
+      <strong>入力環境設定（Input）</strong> — キーボード配列（JIS/US）、キーリピート開始遅延および連打速度、ポインティングデバイスの加速度特性を管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Input peripheral subsystem: scan code mapping, key repeat timing parameters, and ballistic mouse acceleration curves."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        キーボード配列（JIS/US）、キーリピート開始遅延および連打速度、ポインティングデバイスの加速度特性を管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Input peripheral subsystem: scan code mapping, key repeat timing parameters, and ballistic mouse acceleration curves."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Keyboard layouts, key repeat and full MOZC + TRON Code configuration.</p>
-      <div class="setting-desc-jp">TRONキーボード配列・親指シフト・JIS/US配列切替、キーリピート速度、Mozc TIPかな漢字変換エンジン統計モデル、TRONコード直接入力モードの完全カスタマイズ。</div>
+      <h2>1. キーボードハードウェア配列とリピート特性 (Keyboard Layout & Repeat)</h2>
+      <p>
+        接続されたキーボードのスキャンコード変換テーブルおよびキーリピート動作の設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Keyboard scan-code translation tables and hardware repeat timing registers."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>JIS 106/109-key Japanese Layout<br><small>JIS 日本語配列</small></b></td>
+            <td>OADG/JIS標準106/109キー配列。無変換・変換・かなキーを正しくマッピングします。</td>
+            <td>マッピング: <code>src/drivers/keyboard.c</code><br>C99: <code>g_state_input.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>US-ASCII 101/104-key ANSI Layout<br><small>US 英語配列</small></b></td>
+            <td>ANSI 101/104キー英語配列。記号キー位置（@, :, [, ]等）を標準英語配列へ適合させます。</td>
+            <td>マッピング: US ANSI Scan Code<br>C99: <code>g_state_input.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>Hardware Key Repeat (30 cps)<br><small>高速キーリピート</small></b></td>
+            <td>キー長押し時の連続入力速度を毎秒30文字（30 characters per second）に設定します。</td>
+            <td>リピート周波数: 30 Hz<br>C99: <code>g_state_input.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>Key Repeat Latency: Short (250 ms)<br><small>リピート開始遅延 短縮</small></b></td>
+            <td>キー押下からリピート開始までの待機時間を短縮（250ms）し、軽快な操作感を実現します。</td>
+            <td>開始遅延: 250 ms<br>C99: <code>g_state_input.checks[3]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>2. ポインティングデバイス制御 (Pointer Dynamics & Scroll Wheels)</h2>
+      <p>
+        マウス・タッチパッドの移動加速度およびスクロールホイールの回転方向設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Pointer ballistic acceleration multiplier and optical wheel delta inversion parameters."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Pointer Acceleration: Smooth Curve<br><small>ポインタ滑らか加速</small></b></td>
+            <td>マウス移動速度に応じた動的加速曲線を適用し、微細な位置決めと素早い画面横断を両立します。</td>
+            <td>加速係数: 1.5× ノンリニア曲線<br>C99: <code>g_state_input.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>Invert Scroll Wheel Direction<br><small>ホイール回転方向反転</small></b></td>
+            <td>マウスホイールの上下スクロール方向を反転（ナチュラルスクロール動作）させます。</td>
+            <td>ホイール増分: <code>-delta</code> 変換<br>C99: <code>g_state_input.checks[5]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>TRON keyboard, Oyayubi-shift, JIS, and US layout selection</li>
-        <li>Key repeat rate and initial delay</li>
-        <li>Mozc TIP statistical model: Google NGram, user dictionary</li>
-        <li>TRON Code direct input mode configuration</li>
-        <li>Mouse pointer speed, scroll direction, and gesture bindings</li>
-        <li>Input device hot-plug detection (VirtIO HID)</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        入力環境設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] キーボード</b></td>
+            <td>JIS 106/109-key Layout</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] キーボード</b></td>
+            <td>US-ASCII 101/104-key</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] キーボード</b></td>
+            <td>Key Repeat (30 cps)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] キーボード</b></td>
+            <td>Repeat Delay (250 ms)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] マウス・ポインタ</b></td>
+            <td>Pointer Acceleration</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] マウス・ポインタ</b></td>
+            <td>Invert Scroll Wheel</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_input.checks[5]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/TEditor.html">✍️ T-Editor</a>
-        <a href="../apps/Preferences.html">⚙️ Preferences</a>
+        <a href="Language.html">🈴 言語設定</a>
+        <a href="Terminal.html">💻 端末設定</a>
+        <a href="../apps/TEditor.html">✍️ 文書編集</a>
       </div>
     </div>
   </div>
@@ -75,14 +230,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +252,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +268,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

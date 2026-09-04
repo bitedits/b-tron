@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal – 端末・通信 | B-System Settings</title>
-  <meta name="description" content="Console colours, font size, scrollback buffer, cursor style and background transparency.">
+  <title>Terminal – 端末設定 | B-System Specification</title>
+  <meta name="description" content="GTermコンソール端末のカラーテーマ、ビットマップフォント寸法、スクロールバック履歴行数、カーソル描画様式、背景透過減光率を管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,177 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4BB.svg" alt="💻" width="64" height="64"></div>
-    <h1>Terminal</h1>
-    <div class="setting-hero-badge">端末・通信</div>
-    <div class="subtitle">Console colours, font size, scrollback buffer, cursor &amp; encoding</div>
+    <h1>端末設定 (Terminal)</h1>
+    <div class="setting-hero-badge">カラーパレット · フォント寸法 · スクロールバックバッファ · カーソル様式</div>
+    <div class="subtitle">端末コンソール配色テーマ、フォントサイズ、スクロールバック履歴、透過率の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Terminal emulator rendering parameters: ANSI color matrices, raster font sizes, and scrollback ring buffers."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Terminal</strong> — Console colours, font size, scrollback buffer, cursor style and background transparency.
+      <strong>端末設定（Terminal）</strong> — GTermコンソール端末のカラーテーマ、ビットマップフォント寸法、スクロールバック履歴行数、カーソル描画様式、背景透過減光率を管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Terminal emulator configuration: ANSI 16-color palettes, proportional font metrics, scrollback ring buffers, and alpha dimming factors."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        GTermコンソール端末のカラーテーマ、ビットマップフォント寸法、スクロールバック履歴行数、カーソル描画様式、背景透過減光率を管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Terminal emulator configuration: ANSI 16-color palettes, proportional font metrics, scrollback ring buffers, and alpha dimming factors."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Terminal emulation, console colors, typography, scrollback buffer depth and session preferences conforming to B-right/V and Chokanji workstation console specifications.</p>
-      <div class="setting-desc-jp">端末・通信環境設定：B-right/Vおよび超漢字仕様に準拠した端末エミュレータ（gterm）の配色テーマ（グリーン、アンバー、白黒、BTRON青、ライト）、文字フォントサイズ（12/16/20px）、スクロールバック履歴行数、カーソル形状および背景透過度の統合管理。</div>
+      <h2>1. カラーテーマとフォント寸法 (Color Themes & Font Metrics)</h2>
+      <p>
+        端末画面の文字色・背景色パレットおよび12/16/20pxビットマップフォントの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"ANSI terminal color schemes and monospace raster font dimension parameters."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Matrix Green / Amber CRT / White / Cyan / Light<br><small>端末カラーテーマ (5種類)</small></b></td>
+            <td>グリーンCRT（Matrix Green）、アンバーCRT、白黒、BTRON青、ライト用紙から単一選択します。</td>
+            <td>設定値: <code>TERM_THEME_GREEN</code> .. <code>LIGHT</code><br>C99: <code>TerminalConfig.theme</code></td>
+          </tr>
+          <tr>
+            <td><b>Font Sizing: 12px / 16px / 20px<br><small>フォント表示寸法</small></b></td>
+            <td>小 12px (32行×100桁)、標準 16px (24行×80桁)、大 20px (18行×64桁) から端末フォントを選択します。</td>
+            <td>設定値: <code>TERM_FONT_12</code>, <code>16</code>, <code>20</code><br>C99: <code>TerminalConfig.font_size</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>2. スクロール履歴、カーソル様式、透過率 (Scrollback, Cursor & Transparency)</h2>
+      <p>
+        リングバッファスクロールバック行数、カーソル形状、ウィンドウ背景透過率の設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Scrollback line capacity, hardware cursor shapes, and window surface opacity levels."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Scrollback Lines: 100 / 300 / 1000<br><small>スクロールバック履歴行数</small></b></td>
+            <td>端末の出力履歴行数を100行、300行（標準）、1000行から選択します。</td>
+            <td>バッファ: <code>TerminalConfig.scrollback_lines</code><br>実装: <code>src/apps/gterm.c</code></td>
+          </tr>
+          <tr>
+            <td><b>Cursor Style: Underline / Block / Bar<br><small>カーソル描画様式</small></b></td>
+            <td>下線型 (_)、ブロック型 (█)、バー型 (|) から点滅カーソル形状を選択します。</td>
+            <td>設定値: <code>TERM_CURSOR_UNDERLINE</code> .. <code>BAR</code><br>C99: <code>TerminalConfig.cursor_style</code></td>
+          </tr>
+          <tr>
+            <td><b>Window Transparency: Opaque / 80% / 60%<br><small>背景透過減光率</small></b></td>
+            <td>不透明 (100%)、20%減光 (80%)、40%減光 (60%) から端末背景の透過度を設定します。</td>
+            <td>設定値: <code>TERM_TRANSPARENCY_OPAQUE</code> .. <code>60</code><br>C99: <code>TerminalConfig.transparency</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>配色テーマ (Colour Schemes): Matrix Green, Amber CRT, High-Contrast White, BTRON Cyan on Navy, Paper Light</li>
-        <li>フォントサイズ (Font Sizes): Compact 12px (32x100), Standard 16px (24x80), Large 20px (18x64)</li>
-        <li>スクロール履歴 (Scrollback Buffer): 100 lines, 300 lines (default), 1000 lines</li>
-        <li>カーソル形状 (Cursor Style): Classic Underline (_), Solid Block (█), Vertical Bar (|)</li>
-        <li>背景透過度 (Dimming &amp; Transparency): 100% Solid, 80% Dimmed (default), 60% Dimmed</li>
-        <li>文字コード (Encoding): TRON Multilingual Planes, UTF-8 native</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        端末設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] テーマ・フォント</b></td>
+            <td>Terminal Theme</td>
+            <td>Matrix Green (0)</td>
+            <td>5種類ラジオ選択</td>
+            <td><code>TerminalConfig.theme</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] テーマ・フォント</b></td>
+            <td>Font Size</td>
+            <td>標準 16px (1)</td>
+            <td>12px / 16px / 20px</td>
+            <td><code>TerminalConfig.font_size</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 履歴・カーソル</b></td>
+            <td>Scrollback Lines</td>
+            <td>300行 (標準)</td>
+            <td>100 / 300 / 1000行</td>
+            <td><code>TerminalConfig.scrollback_lines</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 履歴・カーソル</b></td>
+            <td>Cursor Style</td>
+            <td>アンダーライン (0)</td>
+            <td>下線 / ブロック / バー</td>
+            <td><code>TerminalConfig.cursor_style</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 履歴・カーソル</b></td>
+            <td>Transparency</td>
+            <td>不透明 (100%)</td>
+            <td>100% / 80% / 60%</td>
+            <td><code>TerminalConfig.transparency</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準に戻す ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>cfg->theme = 0, font = 1, etc.</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と端末再描画</td>
+            <td><code>gterm_apply_config()</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Terminal.html">💻 Terminal</a>
-        <a href="../apps/Preferences.html">⚙️ Preferences</a>
+        <a href="../apps/Terminal.html">💻 端末</a>
+        <a href="Input.html">⌨️ 入力環境設定</a>
+        <a href="Appearance.html">🎨 外観設定</a>
       </div>
     </div>
   </div>
@@ -62,31 +198,62 @@
   <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Settings</span>
+      <span class="site-name">Settings Folder</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
-        <h4>System Settings</h4>
+        <h4>System</h4>
         <ul>
-          <li><a href="Appearance.html">Appearance</a></li>
-          <li><a href="Desktop.html">Desktop</a></li>
-          <li><a href="Display.html">Display</a></li>
-          <li><a href="Input.html">Input</a></li>
-          <li><a href="Language.html">Language</a></li>
-          <li><a href="Terminal.html" class="active">Terminal</a></li>
+            <li><a href="../apps/Workbench.html">Workbench</a></li>
+            <li><a href="../apps/Terminal.html">Terminal</a></li>
+            <li><a href="../apps/Commander.html">Commander</a></li>
+            <li><a href="../apps/Calculator.html">Calculator</a></li>
+            <li><a href="../apps/Clock.html">Clock</a></li>
+            <li><a href="../apps/Mail.html">Mail</a></li>
+            <li><a href="../apps/Preferences.html">Preferences</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
-        <h4>Hardware &amp; Network</h4>
+        <h4>TAD</h4>
         <ul>
-          <li><a href="Sound.html">Sound</a></li>
-          <li><a href="Network.html">Network</a></li>
-          <li><a href="Media.html">Media</a></li>
-          <li><a href="Security.html">Security</a></li>
-          <li><a href="System.html">System</a></li>
+            <li><a href="../apps/Cabinet.html">Cabinet</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
+            <li><a href="../apps/Matrix.html">Matrix</a></li>
+            <li><a href="../apps/Clarity.html">Clarity</a></li>
+            <li><a href="../apps/Browser.html">Browser</a></li>
+            <li><a href="../apps/Notebook.html">Notebook</a></li>
+            <li><a href="../apps/Review.html">Review</a></li>
+            <li><a href="../apps/Chat.html">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="../apps/Cassette.html">Cassette</a></li>
+            <li><a href="../apps/Paint.html">Paint</a></li>
+            <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="Appearance.html">Appearance</a></li>
+            <li><a href="Desktop.html">Desktop</a></li>
+            <li><a href="Input.html">Input</a></li>
+            <li><a href="Language.html">Language</a></li>
+            <li><a href="Sound.html">Sound</a></li>
+            <li><a href="Network.html">Network</a></li>
+            <li><a href="Display.html">Display</a></li>
+            <li><a href="Media.html">Media</a></li>
+            <li><a href="System.html">System</a></li>
+            <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html" class="active">Terminal</a></li>
         </ul>
       </div>
     </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
 </html>

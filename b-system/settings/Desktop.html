@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Desktop – デスクトップ | B-System Settings</title>
-  <meta name="description" content="Workbench behaviour, icon layout, navigation mode and backgrounds.">
+  <title>Desktop – デスクトップ設定 | B-System Specification</title>
+  <meta name="description" content="ワークベンチデスクトップの空間配置モデル、実身アイコンの自動整列グリッド、壁紙描画、マルチワークスペースを管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,185 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F5A5.svg" alt="🖥️" width="64" height="64"></div>
-    <h1>Desktop</h1>
-    <div class="setting-hero-badge">デスクトップ</div>
-    <div class="subtitle">Workbench behaviour, icon layout, navigation mode and backgrounds</div>
+    <h1>デスクトップ設定 (Desktop)</h1>
+    <div class="setting-hero-badge">ワークベンチ環境 · 実身スナップグリッド · 自動整列 · 多重作業空間</div>
+    <div class="subtitle">ワークベンチ空間挙動、実身配置グリッド、壁紙描画、マルチワークスペースの設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Spatial filing parameters, hypermedia real-object alignment matrices, and multi-workspace desktop topologies."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Desktop</strong> — Workbench behaviour, icon layout, navigation mode and backgrounds.
+      <strong>デスクトップ設定（Desktop）</strong> — ワークベンチデスクトップの空間配置モデル、実身アイコンの自動整列グリッド、壁紙描画、マルチワークスペースを管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Desktop space management: configuring real-object Euclidean snap grids, background plates, and multi-workspace contexts."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        ワークベンチデスクトップの空間配置モデル、実身アイコンの自動整列グリッド、壁紙描画、マルチワークスペースを管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Desktop space management: configuring real-object Euclidean snap grids, background plates, and multi-workspace contexts."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Workbench behaviour, icon layout, navigation mode and backgrounds.</p>
-      <div class="setting-desc-jp">ワークベンチ（Workbench）の空間挙動、実身アイコンの自動整列グリッド、ナビゲーションモード（空間型／リスト型）、壁紙および作業スペースの設定。</div>
+      <h2>1. 実身スナップグリッドと自動整列 (Spatial Snap Grid & Auto-Arrange)</h2>
+      <p>
+        デスクトップ上に配置される実身・仮身アイコンの吸着グリッドおよび自動整列パラメータの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Euclidean snap grid thresholds and automated spatial reordering for pinned Real and Virtual Objects."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Enable Spatial Real Object Snap Grid<br><small>実身スナップグリッド有効化</small></b></td>
+            <td>アイコン移動時に最寄りのグリッド交点へ自動吸着し、整然とした配置を維持します。</td>
+            <td>グリッド間隔: X=32px, Y=32px<br>C99: <code>g_state_desktop.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>Auto-Arrange Pinned Workbench V-Objects<br><small>仮身アイコン自動整列</small></b></td>
+            <td>新規作成またはピン留めされた仮身アイコンを左上から順に空きスロットへ自動配置します。</td>
+            <td>整列アルゴリズム: 左上基点ラスタースキャン<br>C99: <code>g_state_desktop.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>Draw Shadow Plate on Pinned Icons<br><small>アイコン影板描画</small></b></td>
+            <td>デスクトップアイコンの下部に半透明の影板を描画し、背景画像上の視認性を確保します。</td>
+            <td>影板色: <code>COLOR_DKGRAY</code> (透過合成)<br>C99: <code>g_state_desktop.checks[2]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>2. 壁紙および作業空間管理 (Wallpaper & Multi-Workspace)</h2>
+      <p>
+        背景プレートの描画モードおよび複数の独立した作業空間（ワークベンチ 1〜4）の設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Background surface rendering modes and virtual workspace switching contexts for multi-task isolation."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Enable Active Wallpaper Background Plate<br><small>アクティブ壁紙描画</small></b></td>
+            <td>単色背景（<code>COLOR_TEAL</code>等）の代わりに、指定されたTADグラフィックス実身を背景として展開します。</td>
+            <td>背景エンジン: TAD図形描画プリミティブ<br>C99: <code>g_state_desktop.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>Show Multi-Workspace Desktop Selector<br><small>多重ワークスペースセレクタ</small></b></td>
+            <td>画面隅にワークベンチ1〜4の切替プレートを表示し、作業コンテキストを瞬時に切り替えます。</td>
+            <td>空間数: 最大4面独立コンテキスト<br>C99: <code>g_state_desktop.checks[4]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>Spatial vs list-mode navigation default</li>
-        <li>Icon snap grid size and auto-arrange rules</li>
-        <li>Named workspace management (create, rename, archive)</li>
-        <li>Live wallpaper: static image or Cassette video Real Body</li>
-        <li>Icon miniature size and hover-preview delay</li>
-        <li>Multi-monitor workspace mapping</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        デスクトップ設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] グリッド整列</b></td>
+            <td>Spatial Snap Grid</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_desktop.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] グリッド整列</b></td>
+            <td>Auto-Arrange V-Objects</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_desktop.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] グリッド整列</b></td>
+            <td>Draw Shadow Plate</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_desktop.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 壁紙・空間</b></td>
+            <td>Active Wallpaper Plate</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_desktop.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] 壁紙・空間</b></td>
+            <td>Multi-Workspace Selector</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_desktop.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Workbench.html">🗄️ Workbench</a>
-        <a href="../apps/Cassette.html">📼 Cassette</a>
+        <a href="../apps/Workbench.html">🗄️ ワークベンチ</a>
+        <a href="../apps/Cabinet.html">📁 キャビネット</a>
+        <a href="Appearance.html">🎨 外観設定</a>
+        <a href="Display.html">📺 画面表示設定</a>
       </div>
     </div>
   </div>
@@ -75,14 +219,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +241,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +257,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

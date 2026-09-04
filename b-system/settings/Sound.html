@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sound – サウンド | B-System Settings</title>
-  <meta name="description" content="Devices, per-app volume and Cassette audio routing.">
+  <title>Sound – 音響設定 | B-System Specification</title>
+  <meta name="description" content="マスター音量、システムチャイム音、オーディオ出力デバイス（VirtIO-Sound / BCM2835 PWM）、PCMサンプリングレート、DSPバッファ遅延を管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,196 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F50A.svg" alt="🔊" width="64" height="64"></div>
-    <h1>Sound</h1>
-    <div class="setting-hero-badge">サウンド</div>
-    <div class="subtitle">Audio devices, per-app volume and Cassette audio routing</div>
+    <h1>音響設定 (Sound)</h1>
+    <div class="setting-hero-badge">VirtIO-Sound · 48kHz/16-bit PCM · 低遅延DSP · BCM2835 PWM</div>
+    <div class="subtitle">マスター音量、PCMサンプリングレート、DSPバッファ遅延、オーディオデバイス出力の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Real-time audio DSP pipeline parameters, 48kHz PCM sample rates, and low-latency DMA buffer rings."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Sound</strong> — Devices, per-app volume and Cassette audio routing.
+      <strong>音響設定（Sound）</strong> — マスター音量、システムチャイム音、オーディオ出力デバイス（VirtIO-Sound / BCM2835 PWM）、PCMサンプリングレート、DSPバッファ遅延を管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Audio hardware abstraction subsystem: volume attenuation registers, event sound dispatch, sampling clocks, and ring-buffer latency parameters."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        マスター音量、システムチャイム音、オーディオ出力デバイス（VirtIO-Sound / BCM2835 PWM）、PCMサンプリングレート、DSPバッファ遅延を管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Audio hardware abstraction subsystem: volume attenuation registers, event sound dispatch, sampling clocks, and ring-buffer latency parameters."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Devices, per-app volume and Cassette audio routing.</p>
-      <div class="setting-desc-jp">オーディオ入出力デバイス切替、アプリ個別音量バランス、Cassette低遅延パイプラインのリアルタイム・オーディオルーター設定。</div>
+      <h2>1. マスターオーディオ出力と出力デバイス (Master Output & Audio Devices)</h2>
+      <p>
+        システム全体の音声出力レベルおよび使用するハードウェアデバイスドライバの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Master volume attenuation registers and hardware audio sink routing."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Master Audio Output (85% / -3.5 dB Headroom)<br><small>マスター音声出力</small></b></td>
+            <td>システムマスター音量を適正なヘッドルーム（85% / -3.5dB）に設定し、クリッピング歪みを防止します。</td>
+            <td>減衰率: -3.5 dB<br>C99: <code>g_state_sound.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>Enable System Event Chimes & Bell Sounds<br><small>システムイベント効果音</small></b></td>
+            <td>ウィンドウ警告、ターミナルベル（BEL）、エラー発生時の電子音を有効化します。</td>
+            <td>効果音: PCM サイン波チャイム<br>C99: <code>g_state_sound.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>VirtIO-Sound / Intel HDA Sink Driver<br><small>VirtIO-Sound / Intel HDA</small></b></td>
+            <td>QEMU仮想化環境およびPCハードウェア向けIntel HDA / VirtIO-Soundドライバを出力先に指定します。</td>
+            <td>ドライバ: <code>src/drivers/virtio_sound.c</code><br>C99: <code>g_state_sound.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>BCM2835 PWM Audio Driver Output<br><small>BCM2835 PWM オーディオ</small></b></td>
+            <td>Raspberry Pi等のARMベアメタル環境向けPWMオーディオコントローラを出力先に指定します。</td>
+            <td>ドライバ: <code>src/drivers/bcm2835_sound.c</code><br>C99: <code>g_state_sound.checks[3]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <h2>2. サンプリングレートと低遅延バッファ (Sampling Rates & DSP Latency)</h2>
+      <p>
+        オーディオサンプリングクロックおよびリアルタイムDSPバッファサイズの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"PCM clock frequencies and low-latency DMA ring-buffer sample dimensions."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Audio Sample Rate: 48,000 Hz / 16-bit Stereo<br><small>48kHz / 16ビット ステレオ PCM</small></b></td>
+            <td>スタジオ品質の48kHzサンプリング周波数・16ビット量子化ステレオPCM形式で音声を出力します。</td>
+            <td>フォーマット: 48,000 Hz, 16-bit, 2ch<br>C99: <code>g_state_sound.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>Low-Latency Buffer: 128 samples (2.6 ms DSP)<br><small>超低遅延バッファ (128サンプル)</small></b></td>
+            <td>DMAバッファ長を128サンプル（2.6ms遅延）に設定し、リアルタイム音声合成の追従性を高めます。</td>
+            <td>バッファ遅延: 2.66 ms<br>C99: <code>g_state_sound.checks[5]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>Default output and input device selection (VirtIO Audio)</li>
-        <li>Per-application volume mixer</li>
-        <li>Cassette low-latency audio router: channel routing and DSP bypass</li>
-        <li>System alert sounds: custom Real Body audio assignment</li>
-        <li>μITRON real-time audio priority scheduling</li>
-        <li>MIDI device configuration for Music app</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        音響設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] 音量・デバイス</b></td>
+            <td>Master Audio Output</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_sound.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 音量・デバイス</b></td>
+            <td>System Event Chimes</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_sound.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 音量・デバイス</b></td>
+            <td>VirtIO-Sound / Intel HDA</td>
+            <td>有効 (TRUE)</td>
+            <td>ラジオボタン</td>
+            <td><code>g_state_sound.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 音量・デバイス</b></td>
+            <td>BCM2835 PWM Output</td>
+            <td>有効 (TRUE)</td>
+            <td>ラジオボタン</td>
+            <td><code>g_state_sound.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] クロック・バッファ</b></td>
+            <td>48kHz / 16-bit Stereo</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_sound.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>[2] クロック・バッファ</b></td>
+            <td>Low-Latency 128 samples</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_sound.checks[5]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Cassette.html">📼 Cassette</a>
-        <a href="../apps/Music.html">🎵 Music</a>
+        <a href="../apps/Cassette.html">📼 カセット</a>
+        <a href="../apps/Music.html">🎵 音楽演奏</a>
+        <a href="Media.html">📁 メディア設定</a>
       </div>
     </div>
   </div>
@@ -75,14 +230,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +252,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +268,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

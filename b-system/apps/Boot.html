@@ -1,262 +1,270 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bootloader – ブートマネージャ | B-System</title>
-  <meta name="description"
-    content="Haiku-quality graphical & terminal boot manager for B-System BTRON — ARM MMIO, x86_64 UEFI SMP, and PC-98">
+  <title>Boot – ブート設定 | B-System Specification</title>
+  <meta name="description" content="ダイレクトMultiboot機構、ハードウェア実値検出、x86_64 UEFI SMP、ARM MMIO、NEC PC-98ブートアーキテクチャの技術仕様。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
 </head>
-
 <body>
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
-    <span class="current">Bootloader</span>
+    <span class="current">Boot</span>
   </nav>
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F3BF.svg" alt="🎿" width="64" height="64"></div>
-    <h1>Bootloader</h1>
-    <div class="app-hero-badge">ブートマネージャ</div>
-    <div class="subtitle">Boot TRON Images · ARM · x86_64 · PC-98</div>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F680.svg" alt="🚀" width="64" height="64"></div>
+    <h1>ブート設定 (Boot)</h1>
+    <div class="setting-hero-badge">ダイレクトMultiboot · ハードウェア実値検出 · x86_64 UEFI SMP · ARM MMIO · NEC PC-98</div>
+    <div class="subtitle">マルチアーキテクチャ起動制御、ハードウェア探索パイプライン、カーネル実行マトリクスの技術仕様<br><span style="font-size:0.9em; opacity:0.85;">"Architectural specification of single-stage Multiboot loading, zero-mock hardware discovery, and multi-target kernel orchestration."</span></div>
   </div>
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
-    <div class="tagline-card"><strong>"The first time you turn on a machine should feel like a ceremony, not a gamble —
-        Bootloader makes every boot a deliberate, beautiful act."</strong></div>
 
-    <div class="section">
-      <h2>Overview</h2>
-      <p>Cleanroom multi-architecture boot manager implemented in <code>src/kernel/core_boot.c</code>, <code>src/kernel/core_smp.c</code>, and validated by <code>src/apps/test_ski.c</code>. Combines Haiku's aesthetic grace and NetBSD's boot infrastructure
-        reliability. Supports Raspberry Pi 1–5 (ARM MMIO via <code>src/drivers/bcm283x/boot/boot_arm_stub.c</code>), x86_64 UEFI SMP (ACPI MADT), and NEC PC-9801/PC-9821 VM (<code>src/drivers/pc98/boot/boot_pc98.c</code>) with live command-line editing and multi-core affinity allocation.</p>
-      <div class="app-desc-jp"><b>スキー・ブートローダー（Bootloader）：</b>
-        B-Systemの公式ブートマネージャ実装（<code>src/kernel/core_boot.c</code>, <code>src/apps/test_ski.c</code>）。Haiku流の洗練されたUI造形美とNetBSD水準の堅牢なブートマネージャ品質を融合。Raspberry Pi 1〜5（ARM MMIO）、x86_64 UEFI SMP（ACPI MADT AP起動）、そしてNEC PC-98（i386/i486/Pentium リアルモード）の3大ハードウェアアーキテクチャを統合サポートします。</div>
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>ブート設定（Boot）</strong> — B-Systemの多重ハードウェア起動シーケンスおよびハードウェア実値探索パイプラインを統括するブートマネージャ仕様。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Unified multi-architecture boot manager: single-stage ELF deployment, hardware probing, and preemptive SMP core rendezvous."
+      </span>
     </div>
 
-    <!-- ── Screenshot ────────────────────────────────────────────── -->
+    <!-- 概要 -->
     <div class="section">
-      <h2>Screenshot</h2>
-      <div style="text-align: center; margin: 1.2rem 0;">
-        <img src="../img/boot.png" alt="Bootloader Interactive Interface"
-          style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,93,162,0.3); box-shadow: 0 8px 24px rgba(255,93,162,0.15);">
-        <p style="font-size: 0.88rem; color: #6b4f7e; margin-top: 0.6rem; font-style: italic; text-align: center;">
-          Bootloader (🎿) multi-architecture boot manager running on QEMU x86_64 UEFI SMP with live target selector,
-          CPU core scaling, and interactive command line editor.
-        </p>
-      </div>
-    </div>
+      <h2>概要 (Overview)</h2>
+      <p>
+        B-Systemブートマネージャ（<code>src/kernel/core_boot.c</code>, <code>src/apps/test_ski.c</code>）は、従来の多段階チェーンローダー（MBR/VBR）を廃止し、ダイレクトMultiboot単一ステージ読み込みを採用しています。Raspberry Pi（ARM MMIO）、x86_64 UEFI SMP（ACPI MADT）、NEC PC-98（i386 リアルモード）の各アーキテクチャに対し、固定モックを排したハードウェア実値探索（CPU MSR、IO-APIC、HPET、PC-98ポート）を行い、カーネルエントリポイントへ制御を委譲します。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"B-System boot manager implements single-stage Multiboot ELF loading without fragile MBR/VBR chainloaders, dispatching across ARM, x86_64 UEFI, and PC-98 targets."</span>
+      </p>
 
-    <div class="section">
-      <h2>Key Features</h2>
-      <ul class="app-features-list">
-        <li>Direct Multiboot Single-Stage Loading (<code>core_boot.c</code>) — Eliminates fragile legacy 2-stage MBR/VBR chainloaders; incorporates Multiboot 1 header (<code>0x1BADB002</code>) loaded at 1 MB directly into protected/long mode by QEMU and modern hypervisors</li>
-        <li>Live Hardware Query Pipeline (Zero Mocks) — Subsystems self-report true physical attributes via <code>btron/core.h</code> hooks: CPU MSRs (<code>IA32_APIC_BASE 0x1B</code>), CPUID feature leaves, IO-APIC MMIO redirection depth, HPET femtosecond period counters, and PC-98 I/O ports (<code>0xF2</code> A20, <code>0x21/0xA1</code> PIC IMR)</li>
-        <li>Polymorphic Kernel Core Delegation — <code>core_boot.c</code> acts as a pure sequence orchestrator (<code>btron_core_banner()</code>, <code>btron_core_init()</code>, <code>btron_core_mem_log()</code>, <code>btron_core_hfds_log()</code>, <code>vesa_probe_log()</code>), delegating hardware queries cleanly to machine-specific drivers</li>
-        <li>Ski Interactive Boot Menu — Dual mode: Graphical BTRON glyph canvas and ANSI terminal with keyboard
-          navigation (<code>[↑/↓]</code>, <code>[W/S]</code>), inline command line editing (<code>[E]</code>), and
-          multi-core CPU affinity control (<code>[+]</code>/<code>[-]</code>)</li>
-        <li>ARM MMIO Boot Drivers (Raspberry Pi 1, 2, 3, 4, 5) — Native VideoCore Mailbox initialization (Channel 8
-          properties), PL011 UART console mirror, DWC2 USB / SMSC9118 Ethernet stubs, and BCM2712 / RP1 south-bridge ABI
-          mappings for Pi 5</li>
-        <li>x86_64 UEFI SMP (<code>core_smp.c</code>) — Cleanroom UEFI implementation: GOP framebuffer discovery, ACPI
-          6.5 XSDT/MADT parser, LAPIC MMIO (<code>0xFEE00000</code>), 16-bit AP trampoline at <code>0x9000</code>, and
-          INIT-SIPI-SIPI multi-core rendezvous</li>
-        <li>Authentic PC-98 i386 Real-Mode Boot (<code>boot_pc98.c</code>) — Full NEC PC-9801/PC-9821 support: planar
-          VRAM text splash at <code>0xA0000/0xA2000</code>, INT 1Ah RTC clock reads, INT 2Fh BTRON protocol handshake,
-          A20 gate activation via port <code>0xF2</code>, and 32-bit Protected Mode transition</li>
-        <li>Multi-OS & Unikernel Card Registry — Instant boot targets for B-System BTRON3, T-Kernel 2.0, seL4
-          Microkernel, NetBSD 11.0 (smolBSD MICROVM), PC-98 Linux 7.1, NEC V30 os8088, NuttX 12.0, FreeRTOS, and
-          Erlang/OCaml unikernels</li>
-        <li>Emergency T-Monitor Fallback — Direct failover to low-level T-Monitor shell (<code>[S]</code>) upon kernel
-          fault or invalid device tree configuration</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Boot Architecture: Direct Multiboot &amp; Hardware Discovery</h2>
-      <p>Unlike conventional PC operating systems that rely on complex two-stage stage1/stage2 boot blocks (e.g. GRUB MBR/VBR), B-System uses a <strong>direct Multiboot-compliant single-stage binary architecture</strong>. The compiled ELF image (<code>btron-uchida.elf</code> or <code>btron-morris.elf</code>) is directly loaded by hypervisors and firmware into RAM at <code>1 MB</code>.</p>
-      <div class="app-desc-jp"><b>2ステージ・ローダーの撤廃とダイレクトMultiboot機構：</b>
-        従来の2段階ローダー（MBR/VBRステージ1→ステージ2）を介さず、<code>core_boot.c</code> 内のMultibootヘッダ（<code>0x1BADB002</code>）によりファームウェア/QEMUから1MBメモリ空間へ直接展開。固定モック文字列を排除し、MSRレジスタ（<code>0x1B</code>）、CPUID、IO-APIC、HPET、およびPC-98固有ポート（<code>0xF2</code>）からハードウェア実値を直接読み出して起動シーケンスを進行します。</div>
-    </div>
-
-    <!-- ── Consolidated Supported Kernels Table ──────────────────── -->
-    <div class="section">
-      <h2>Supported Kernels &amp; Execution Matrix</h2>
-      <p>B-System provides seven purpose-built kernel targets spanning host-level POSIX emulation, cloud-native VirtIO virtualization, physical bare-metal ARM microcontrollers, x86_64 UEFI SMP multicore workstations, and vintage Japanese NEC PC-98 architecture. Every target is fully buildable via the top-level <code>Makefile</code> and honors the pioneers who established the foundations of open real-time computing and operating systems.</p>
-
-      <div style="margin-top: 1rem;">
-        <table class="market-table" style="width: 100%; table-layout: auto;">
-          <thead>
-            <tr>
-              <th style="width: 14%;">Target</th>
-              <th style="width: 26%;">Kernel Name Impint</th>
-              <th style="width: 26%;">Arch &amp; Platform</th>
-              <th style="width: 15%;">uCode</th>
-              <th style="width: 19%;">Tribute</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><br><span class="app-badge">posix</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">posix-host</small></td>
-              <td>POSIX User-Space<br><small style="color: #6b4f7e;">macOS / Linux / BSD (SDL2)</small></td>
-              <td>Cleanroom TRON</td>
-              <td><strong>Hiroaki Takada</strong><br><small style="color: #6b4f7e;">TOPPERS / ITRON</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge teal">qemu</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">arm-qemu-virtio</small></td>
-              <td>ARMv7 Cortex-A7<br><small style="color: #6b4f7e;">QEMU VirtIO 1.4 GPU/Tablet</small></td>
-              <td>Cleanroom TRON</td>
-              <td><strong>Hiroshi Tokita</strong><br><small style="color: #6b4f7e;">VirtIO Driver Pioneer</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge pink">arm-elf</span><br><span class="app-badge" style="margin-top: 4px; font-size: 0.72rem;">kernel</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">armv7-bcm2836-yoko <br> tkernel-host</small></td>
-              <td>ARMv7 Bare-Metal &amp; Host SDL2<br><small style="color: #6b4f7e;">Raspberry Pi 2B (BCM2836) / Host Testbed</small></td>
-              <td>T-Kernel 2.0</td>
-              <td><strong>Takahiro Yokobayashi</strong><br><small style="color: #6b4f7e;">Baremetal Pi Port &amp; Host Engine</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge gold">sakamura</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">sakamura-tkernel-virtio</small></td>
-              <td>QEMU VirtIO Desktop<br><small style="color: #6b4f7e;">Cho-Kanji HMI (Display/Kbd/Mouse)</small></td>
-              <td>T-Kernel 2.0</td>
-              <td><strong>Ken Sakamura</strong><br><small style="color: #6b4f7e;">Father of TRON</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge">uefi</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">x86_64-uefi-smp</small></td>
-              <td>x86_64 UEFI SMP<br><small style="color: #6b4f7e;">ACPI MADT / LAPIC / GOP</small></td>
-              <td>T-Kernel 2.0</td>
-              <td><strong>Kota Uchida</strong><br><small style="color: #6b4f7e;">MikanOS</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge teal">pc98</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">i386-pc98</small></td>
-              <td>NEC PC-9801/9821 VM<br><small style="color: #6b4f7e;">i386 Real/Prot · Planar VRAM</small></td>
-              <td>T-Kernel 2.0</td>
-              <td><strong>Awe Morris</strong><br><small style="color: #6b4f7e;">zedBSD PC-98 Pioneer</small></td>
-            </tr>
-            <tr>
-              <td><br><span class="app-badge pink">arm64-elf</span></td>
-              <td><strong>B-System/BTRON3 3.20</strong><br><small style="color: #6b4f7e;">aarch64-bcm2711-yoko</small></td>
-              <td>AArch64 Bare-Metal<br><small style="color: #6b4f7e;">Raspberry Pi 4B (BCM2711)</small></td>
-              <td>T-Kernel 2.0</td>
-              <td><strong>Takahiro Yokobayashi</strong><br><small style="color: #6b4f7e;">64-bit T-Kernel Pioneer</small></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="app-desc-jp"><b>マルチターゲット統合カーネルマトリクス：</b>
-        B-Systemは開発ホスト（macOS/Linux POSIX）での超高速テストから、クラウド／QEMU VirtIO仮想化、実機Raspberry Pi 2B/4Bのベアメタル起動、最新のx86_64 UEFI SMPマルチコアワークステーション、そして伝統的なNEC PC-98シリーズの実機／エミュレータ起動までを単一コードベースで統合。各カーネルは日本のオペレーティングシステム史および組み込みリアルタイム技術を切り拓いた先駆者たちへのオマージュとして設計されています。</div>
-    </div>
-
-    <!-- ── Purpose and Architectural Features ─────────────────────── -->
-    <div class="section">
-      <h2>Purpose &amp; Architectural Features of Supported Kernels</h2>
-      <p>Each kernel target serves an essential architectural niche within the B-System operating system lineage, ranging from instant workstation debugging to safety-critical hardware control:</p>
-      <ul class="app-features-list">
-        <li><strong>Target 0: POSIX Microkernel Desktop (<code>btron-posix</code> / <code>make run-posix</code>)</strong> —
-          <em>Purpose:</em> Zero-overhead host development, testing, and continuous integration without virtualization.
-          <em>Features:</em> Bridges μITRON real-time task management (<code>cre_tsk</code>, <code>sta_tsk</code>, <code>slp_tsk</code>, <code>wup_tsk</code>, semaphores) onto native POSIX threads (<code>pthreads</code>). Routes BTRON Display Primitives (DP) vector and raster calls into an SDL2 window buffer, delivering instant sub-second desktop boot and test verification on macOS, Linux, and BSD.</li>
-
-        <li><strong>Target 1: QEMU VirtIO Desktop (<code>btron-qemu.elf</code> / <code>make run-qemu</code>)</strong> —
-          <em>Purpose:</em> Standardized hypervisor-agnostic cloud virtualization and portable testing.
-          <em>Features:</em> Built around the paravirtualized VirtIO 1.4 specification on ARM Cortex-A7 (QEMU <code>virt</code>). Implements MMIO-based VirtIO GPU display drivers, VirtIO Tablet absolute pointer input, VirtIO Serial Console, and VirtIO Net network adapters, liberating the TRON desktop from proprietary SoC peripheral hardware locks.</li>
-
-        <li><strong>Target 2: Raspberry Pi 2B Bare-Metal &amp; Host Engine (<code>btron-arm-baremetal.elf</code> / <code>make run-kernel</code> &amp; <code>btron-tkernel.elf</code> / <code>make kernel</code>)</strong> —
-          <em>Purpose:</em> Direct bare-metal real-time execution on 32-bit ARM silicon without an intermediate OS, paired with an instant SDL2 host simulation testbed.
-          <em>Features:</em> The bare-metal ELF boots natively on Broadcom BCM2836 (Cortex-A7 quad-core), configuring the VideoCore IV GPU Mailbox property channel (Channel 8) for 32-bit truecolor linear framebuffer rendering, programming the ARM Generic Interrupt Controller (GIC), managing hardware MMU page tables, and interfacing with PL011 UART. The companion host executable (<code>btron-tkernel.elf</code>) maps the complete T-Kernel 2.0 task scheduler, semaphore, and mailbox primitives onto the host display compositor with pixel-accurate ARGB8888 rendering for rapid prototyping.</li>
-
-        <li><strong>Target 3: Sakamura T-Kernel 2.0 Desktop (<code>btron-sakamura.elf</code> / <code>make run-sakamura</code>)</strong> —
-          <em>Purpose:</em> The canonical reference workstation pairing Sakamura's formal T-Kernel 2.0 real-time kernel with the authentic BTRON3 Human-Machine Interface (HMI).
-          <em>Features:</em> Boots into the iconic Cho-Kanji teal workspace, featuring dual-bordered retro window managers, window z-ordering, live event queues, multilingual TRON code glyph engines, and the legendary Real Object / Virtual Object (実身／仮身) hyper-data filing system.</li>
-
-        <li><strong>Target 4: x86_64 UEFI SMP Workstation (<code>btron-uchida.elf</code> / <code>make run-uefi</code>)</strong> —
-          <em>Purpose:</em> Modern 64-bit PC workstation and hypervisor boot without legacy BIOS dependencies.
-          <em>Features:</em> Loads via Multiboot single-stage entry directly at <code>1 MB</code> into long mode. Performs native ACPI 6.5 table traversal (XSDT/MADT), discovers linear framebuffers via UEFI Graphics Output Protocol (GOP), configures Local APIC (LAPIC at <code>0xFEE00000</code>) and I/O-APIC registers, executes a 16-bit real-mode AP trampoline at physical memory <code>0x9000</code>, and orchestrates INIT-SIPI-SIPI multi-core scheduling and core scaling.</li>
-
-        <li><strong>Target 5: NEC PC-9801 / PC-9821 VM (<code>btron-morris.elf</code> / <code>make run-pc98</code>)</strong> —
-          <em>Purpose:</em> Authentic retrocomputing execution on Japan's legendary standard personal computer platform.
-          <em>Features:</em> Interfaces directly with NEC PC-98 planar VRAM text and graphics planes (<code>0xA0000</code> / <code>0xA2000</code>), programs the NEC Graphic Display Controller (GDC), handles INT 1Ah RTC real-time clock queries, supports the INT 2Fh BTRON protocol handshake, triggers the PC-98 A20 gate via I/O port <code>0xF2</code>, initializes the master/slave 8259A PICs, and smoothly transitions from 16-bit real mode into 32-bit protected mode.</li>
-
-        <li><strong>Target 6: Raspberry Pi 4B AArch64 Bare-Metal (<code>btron-aarch64-baremetal.elf</code> / <code>make run-yoko</code>)</strong> —
-          <em>Purpose:</em> Next-generation 64-bit bare-metal ARM computing for modern embedded workstations and edge nodes.
-          <em>Features:</em> Targets the Broadcom BCM2711 (Cortex-A72 quad-core). Boots cleanly in ARMv8 AArch64 Exception Level 1/2, establishes 4-level 64-bit virtual memory translation paging (TTBR0/TTBR1), interfaces with the VideoCore VI mailbox, and scales T-Kernel 2.0 preemptive task scheduling across high-frequency 64-bit multicore clusters.</li>
-      </ul>
-    </div>
-
-    <!-- ── Pioneer Tributes & Naming Lineage ───────────────────────── -->
-    <div class="section">
-      <h2>Pioneer Tributes &amp; Kernel Naming Lineage</h2>
-      <p>Operating systems do not emerge in isolation—they stand upon decades of dedicated research, architectural vision, and community craft. In B-System, every kernel target carries the name of a pioneering architect whose contributions to TRON, real-time microkernels, open-source firmware, and computer preservation are commemorated here.</p>
-      <br>
-      <div class="tagline-card">
-        <strong>Dr. Ken Sakamura (坂村 健) — Target 3: <code>sakamura</code></strong><br>
-        <em>Professor Emeritus, The University of Tokyo · Dean of INIAD, Toyo University · Chair of TRON Forum · ITU150 Award Laureate</em><br><br>
-        In 1984, Dr. Ken Sakamura founded the <strong>TRON Project</strong> (The Real-time Operating system Nucleus) with an audacious philosophy: <em>"Open Architecture"</em> and <em>"Ubiquitous Computing"</em>—long before either term entered popular vocabulary. Dr. Sakamura envisioned computers embedded in everyday objects communicating collaboratively, and he insisted that TRON specifications remain free, royalty-free, and open to all manufacturers. He designed the fundamental architectures: <strong>ITRON</strong> (embedded real-time microkernel, today the most deployed RTOS in human history with billions of running instances), <strong>BTRON</strong> (business workstation with the revolutionary Real Object / Virtual Object hypermedia model), <strong>CTRON</strong> (telecom communications), and later <strong>T-Kernel</strong>.<br>
-        In recognition of his foundational impact on global telecommunications and computing alongside Bill Gates, Robert Kahn, Thomas Wiegand, and Tim Berners-Lee, Dr. Sakamura was awarded the prestigious <strong>ITU150 Award</strong> by the United Nations International Telecommunication Union in 2015. Target 3 (<code>sakamura</code>) honors the father of TRON by preserving his pristine T-Kernel 2.0 and Cho-Kanji workstation design.
-      </div>
-
-      <div class="tagline-card">
-        <strong>Prof. Hiroaki Takada (高田 広章) — Target 0: <code>posix</code></strong><br>
-        <em>Professor at Nagoya University · Founder &amp; Chairman of the TOPPERS Project · Lead Architect of Open ITRON</em><br><br>
-        Prof. Hiroaki Takada has been the foremost champion of open-source real-time operating systems in Japan. Through the creation of the <strong>TOPPERS Project</strong> (Toyohashi Open Platform for Embedded Real-time Systems), Prof. Takada led the development of world-class, production-grade open-source implementations of μITRON and OSEK/AUTOSAR specifications (including TOPPERS/JSP, TOPPERS/HRP, and TOPPERS/FMP for multicore processors). Crucially, Prof. Takada pioneered techniques for hosting ITRON task schedulers inside standard POSIX and Linux host environments, enabling generations of university students and automotive engineers to simulate, debug, and develop real-time systems on ordinary PCs without costly specialized hardware in-circuit emulators. Target 0 (<code>posix</code> / <code>Takada</code>) is a direct tribute to this legacy, mapping μITRON onto host POSIX threads.
-      </div>
-
-      <div class="tagline-card">
-        <strong>Takahiro Yokobayashi (横林 貴広) — Targets 2 &amp; 6: <code>arm-elf</code> / <code>kernel</code> &amp; <code>arm64-elf</code></strong><br>
-        <em>Master Embedded Systems Engineer · Architect of the Bare-Metal Raspberry Pi T-Kernel 2.0 &amp; T2EX Port</em><br><br>
-        Bringing an industrial-grade real-time operating system to bare-metal consumer hardware requires deep mastery of low-level assembly, clock trees, cache coherency, and peripheral MMIO registers. Takahiro Yokobayashi achieved the monumental engineering feat of porting Sakamura's official <strong>T-Kernel 2.0</strong> and <strong>T2EX</strong> (T-Kernel 2.0 Extended Extension) directly to the Raspberry Pi family (BCM2835, BCM2836 Pi 2B, BCM2837 Pi 3, and BCM2711 Pi 4B). His open contributions—authoring the startup assembly (<code>icrt0.S</code>), system timers, interrupt dispatcher, VideoCore mailbox drivers, and PL011 UART console subsystems—transformed the Raspberry Pi into an authentic, accessible bare-metal TRON workstation for experimenters and students around the globe. Targets 2 and 6 (<code>arm-elf</code> / <code>btron-tkernel.elf</code> and <code>arm64-elf</code> / <code>Yokobayashi</code>) stand as an enduring tribute to his hardware craftsmanship.
-      </div>
-
-      <div class="tagline-card">
-        <strong>Kota Uchida (内田 公太) — Target 4: <code>uefi</code></strong><br>
-        <em>Author of 『ゼロからのOS自作入門』 ("Developing an OS from Scratch") · Creator of MikanOS · Modern UEFI OS Pioneer</em><br><br>
-        For decades, operating system education was chained to archaic 16-bit IBM PC BIOS interrupts, MBR bootsectors, and legacy VGA text modes. Kota Uchida revolutionized Japanese operating system craftsmanship by writing the acclaimed textbook <em>"Developing an OS from Scratch"</em> and creating <strong>MikanOS</strong>. Uchida-san demonstrated how modern bare-metal systems can cleanly boot through 64-bit UEFI firmware, utilize linear Graphics Output Protocol (GOP) framebuffers, communicate via xHCI USB host controllers, and handle multicore SMP scheduling without any legacy BIOS crutches. Target 4 (<code>uefi</code> / <code>btron-uchida.elf</code>) honors Kota Uchida by implementing a cleanroom 64-bit UEFI SMP kernel with ACPI MADT parsing and multi-core AP trampoline initialization.
-      </div>
-
-      <div class="tagline-card">
-        <strong>Hiroshi Tokita (常田 浩) — Target 1: <code>qemu</code></strong><br>
-        <em>Embedded Systems Architect · Open-Source RTOS &amp; VirtIO Contributor to TOPPERS, Zephyr, and NuttX</em><br><br>
-        Hiroshi Tokita has been an indispensable force in bridging Japanese RTOS standards with modern international open-source hypervisors and virtualization stacks. Through extensive contributions to TOPPERS, the Zephyr Project, and Apache NuttX, Tokita-san pioneered modern QEMU board virtual targets and VirtIO device driver frameworks for embedded microkernels. His efforts proved that real-time operating systems can achieve microsecond determinism while leveraging cloud hypervisors and standardized paravirtualized I/O. Target 1 (<code>qemu</code> / <code>Tokita</code>) honors Hiroshi Tokita by pairing cleanroom TRON graphics with standard VirtIO GPU and Tablet peripherals.
-      </div>
-
-      <div class="tagline-card">
-        <strong>Awe Morris (森 あえ) — Target 5: <code>pc98</code></strong><br>
-        <em>Systems Craftsman &amp; Firmware Architect · PS5 Boot Firmware &amp; NPU Compiler Architect · zedBSD PC-98 Port · Suika Engine</em><br><br>
-        A self-taught systems craftsman of rare breadth and humility, Awe Morris embodies the genuine hacker ethos of Japanese computing. Driven by a lifelong passion for computer science from early youth, his deep intuition for low-level architecture led to early breakthroughs in distributed memory systems and high-performance computing. Over more than two decades of versatile engineering, Morris has made quiet yet foundational contributions across the technological landscape — spanning parallelizing compilers, FPGA AI acceleration, creative tools like the Suika engine, next-generation NPU architectures, and mission-critical (PS5) boot firmware R&amp;D at Sony Interactive Entertainment (SIE).<br><br>
-        In Japanese operating system and retrocomputing history, Morris is revered for his seminal work porting <strong>zedBSD</strong> to the NEC PC-9801/PC-9821. His meticulous documentation of planar VRAM architectures, port <code>0xF2</code> gating, and timing-sensitive hardware quirks laid indispensable groundwork for modern PC-98 emulation and hypervisor support. Giving back warmly by mentoring aspiring programmers in the community, Target 5 (<code>pc98</code> / <code>btron-morris.elf</code>) stands as a heartfelt tribute to his quiet brilliance, technical integrity, and enduring devotion to classic computing.
+      <div class="setting-desc-jp">
+        <b>Ski インタラクティブ操作仕様 (Interactive Keyboard Bindings)：</b><br>
+        ・<b>[↑ / ↓] または [W / S]</b>：起動ターゲット（OS／カーネル）のカーソル移動。<br>
+        ・<b>[E]</b>：起動コマンドライン引数（コンソールボーレート、ルートFS等）のインライン編集。<br>
+        ・<b>[+] / [-]</b>：割り当てCPUコア数の動的スケーリング。<br>
+        ・<b>[Enter]</b>：選択ターゲットの起動実行（SMP環境ではAPコアのSIPI整列後にジャンプ）。<br>
+        ・<b>[S]</b>：緊急低レベルT-Monitorデバッグシェルへの直接フォールバック。
       </div>
     </div>
 
+    <!-- 1. マルチブート構造と起動機構 -->
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Within 50 ms of system power-on, Bootloader activates the native display (GOP on UEFI, VideoCore mailbox
-          on Pi, planar VRAM on PC-98).</li>
-        <li>The Ski menu presents available operating systems, unikernels, and hardware targets — use <code>[↑/↓]</code>
-          or <code>[W/S]</code> to highlight an entry.</li>
-        <li>Press <code>[E]</code> to customize boot arguments (e.g., console baud rate, root filesystem, memory limits)
-          or press <code>[+]</code>/<code>[-]</code> to scale allocated CPU cores.</li>
-        <li>Press <code>[Enter]</code> to boot — on SMP systems, Ski coordinates all AP cores via LAPIC SIPI sequences
-          before leaping into the kernel entry point.</li>
-        <li>Boot handoff completes and control transfers seamlessly to the selected operating system kernel and BTRON
-          workstation shell.</li>
-      </ol>
+      <h2>1. マルチブート構造と起動機構 (Direct Multiboot &amp; Hardware Discovery)</h2>
+      <p>
+        ファームウェアから1MBメモリ空間への単一ステージ展開およびハードウェア実値探索パイプラインの仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Single-stage Multiboot 1 execution model (0x1BADB002) and direct hardware register query pipeline."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>機構・パイプライン名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>ダイレクト Multiboot 単一ステージ<br>(Single-Stage Multiboot)</b></td>
+            <td>2段階MBR/VBRローダーを完全撤廃。ELFバイナリ（<code>0x1BADB002</code>ヘッダ）をハイパーバイザおよびファームウェアが1MB物理RAMへ直接展開。</td>
+            <td><code>src/kernel/core_boot.c</code><br>Multiboot 1 Header (<code>0x1BADB002</code>)<br>配置アドレス: <code>0x00100000</code> (1 MB)</td>
+          </tr>
+          <tr>
+            <td><b>ハードウェア実値探索<br>(Zero-Mock Probing)</b></td>
+            <td>固定モック文字列を排し、CPU MSR、CPUIDリーフ、IO-APIC MMIO、HPETカウンタ、PC-98固有ポートからハードウェア属性を直接取得。</td>
+            <td><code>btron/core.h</code> フック<br>MSR: <code>IA32_APIC_BASE (0x1B)</code><br>I/O: <code>0xF2</code> (A20), <code>0x21/0xA1</code> (PIC)</td>
+          </tr>
+          <tr>
+            <td><b>ポリモーフィックカーネル委譲<br>(Polymorphic Delegation)</b></td>
+            <td><code>core_boot.c</code> がシーケンス調停役となり、ハードウェア初期化およびメモリログ出力をプラットフォーム別ドライバへ透過委譲。</td>
+            <td><code>btron_core_banner()</code><br><code>btron_core_init()</code><br><code>btron_core_mem_log()</code></td>
+          </tr>
+          <tr>
+            <td><b>緊急 T-Monitor フォールバック<br>(T-Monitor Fallback)</b></td>
+            <td>デバイスツリー異常またはカーネルフォールト発生時、低レベルROMモニタ（T-Monitor）へ自動退避し、システムデバッグを継続。</td>
+            <td>キーコード: <code>[S]</code><br><code>tmonitor_entry()</code> デバッグベクタ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2. アーキテクチャ別ブートドライバ -->
+    <div class="section">
+      <h2>2. アーキテクチャ別ブートドライバ (Multi-Architecture Boot Drivers)</h2>
+      <p>
+        各ターゲットハードウェアプラットフォームに対応した専用ブートドライバの実装仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Target-specific boot driver implementations across x86_64 UEFI, ARM MMIO, and legacy NEC PC-9801/21 hardware."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>ターゲットアーキテクチャ</th>
+            <th>起動シーケンスと初期化挙動 (Boot Sequence)</th>
+            <th>ドライバ・レジスタ仕様 (Driver &amp; Register Specs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>x86_64 UEFI SMP<br>(Modern Workstation)</b></td>
+            <td>UEFI GOPリニアフレームバッファ取得、ACPI 6.5 MADT解析、LAPIC MMIO初期化、<code>0x9000</code>の16ビットAPトランポリン経由INIT-SIPI-SIPIマルチコア整列。</td>
+            <td><code>src/kernel/core_smp.c</code><br>LAPIC MMIO: <code>0xFEE00000</code><br>AP Trampoline: <code>0x00009000</code></td>
+          </tr>
+          <tr>
+            <td><b>ARM MMIO<br>(Raspberry Pi 1–5)</b></td>
+            <td>VideoCore Mailbox Channel 8プロパティ取得、PL011 UARTコンソールミラー、DWC2 USB/SMSC9118初期化、Pi 5 (BCM2712/RP1) south-bridge ABIマッピング。</td>
+            <td><code>src/drivers/bcm283x/boot/boot_arm_stub.c</code><br>Mailbox Channel 8 (Tag Interface)<br>PL011 UART MMIO</td>
+          </tr>
+          <tr>
+            <td><b>NEC PC-98<br>(i386 Real-Mode Boot)</b></td>
+            <td>プレナーVRAMテキスト初期化、INT 1Ah RTC時刻読出、INT 2Fh BTRONプロトコルハンドシェイク、ポート<code>0xF2</code>によるA20ゲート開放、32ビット保護モード移行。</td>
+            <td><code>src/drivers/pc98/boot/boot_pc98.c</code><br>VRAM: <code>0xA0000 / 0xA2000</code><br>A20 Gate Port: <code>0xF2</code></td>
+          </tr>
+          <tr>
+            <td><b>POSIX ホストエミュレーション<br>(macOS / Linux / BSD)</b></td>
+            <td>ホスト環境でのSDL2サーフェス展開、POSIXスレッドによる仮想リアルタイムタスク管理、共有メモリバッファ接続。</td>
+            <td><code>src/kernel/core_posix.c</code><br>SDL2 Video / Event Loop<br>POSIX pthread / shm</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. カーネル実行マトリクス -->
+    <div class="section">
+      <h2>3. カーネル実行マトリクス (Supported Kernels &amp; Execution Matrix)</h2>
+      <p>
+        B-Systemがサポートする全7種類のカーネルビルドターゲットおよび技術仕様マトリクス。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive execution matrix of all seven purpose-built kernel targets spanning host emulation, cloud VirtIO, bare-metal ARM, UEFI SMP, and vintage PC-98."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>ターゲット</th>
+            <th>カーネル識別名</th>
+            <th>アーキテクチャ・プラットフォーム</th>
+            <th>マイクロコード・仕様</th>
+            <th>技術的先駆者</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="app-badge">posix</span></td>
+            <td><b>B-System/BTRON3 3.20</b><br><small>posix-host</small></td>
+            <td>POSIX ユーザ空間<br><small>macOS / Linux / BSD (SDL2)</small></td>
+            <td>Cleanroom TRON</td>
+            <td><b>高田 広章 (Hiroaki Takada)</b><br><small>TOPPERS / ITRON</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge teal">qemu</span></td>
+            <td><b>B-System/BTRON3 3.20</b><br><small>arm-qemu-virtio</small></td>
+            <td>ARMv7 Cortex-A7<br><small>QEMU VirtIO 1.4 GPU/Tablet</small></td>
+            <td>Cleanroom TRON</td>
+            <td><b>常田 浩 (Hiroshi Tokita)</b><br><small>VirtIO Driver Pioneer</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge pink">arm-elf</span></td>
+            <td><b>B-System/BTRON3 3.20</b><br><small>armv7-bcm2836-yoko</small></td>
+            <td>ARM Cortex-A7/A53<br><small>Raspberry Pi 2/3 (Bare-Metal)</small></td>
+            <td>T-Kernel 2.0 Host</td>
+            <td><b>横山 孝典 (Takanori Yokoyama)</b><br><small>T-Kernel Core Architect</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge purple">uefi</span></td>
+            <td><b>B-System/BTRON3 3.20</b><br><small>x86_64-uefi-smp</small></td>
+            <td>x86_64 SMP Workstation<br><small>64-bit UEFI GOP / ACPI MADT</small></td>
+            <td>Cleanroom TRON</td>
+            <td><b>内田 公太 (Kota Uchida)</b><br><small>MikanOS / UEFI OS Pioneer</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge amber">pc98</span></td>
+            <td><b>B-System/BTRON3 3.20</b><br><small>i386-pc98-plane</small></td>
+            <td>NEC PC-9801 / PC-9821<br><small>i386 Real/Protected Mode</small></td>
+            <td>Cleanroom TRON</td>
+            <td><b>森 あえ (Awe Morris)</b><br><small>zedBSD PC-98 Architect</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge green">kernel</span></td>
+            <td><b>T-Kernel 2.0 Extended</b><br><small>tkernel-host-ext</small></td>
+            <td>ARMv7 / x86_64 Dual<br><small>T-Engine Reference Target</small></td>
+            <td>T-Kernel Spec 2.0</td>
+            <td><b>坂村 健 (Ken Sakamura)</b><br><small>TRON Project Founder</small></td>
+          </tr>
+          <tr>
+            <td><span class="app-badge blue">host</span></td>
+            <td><b>B-System Native SDK</b><br><small>native-dev-toolchain</small></td>
+            <td>Host C99 Toolchain<br><small>TAD Binary Compiler Suite</small></td>
+            <td>Host Tools</td>
+            <td><b>5HT (Synrc Research)</b><br><small>B-System Architecture</small></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. 起動ワークフロー -->
+    <div class="section">
+      <h2>4. 起動ワークフロー (Typical Boot Workflow)</h2>
+      <p>
+        システム電源投入からBTRONデスクトップ環境立ち上げまでの標準シーケンス。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard five-phase execution pipeline from cold power-on display activation to BTRON workstation shell handoff."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>フェーズ</th>
+            <th>処理内容 (Execution Stage)</th>
+            <th>所要時間・制御レジスタ (Timing &amp; Registers)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Phase 1: ディスプレイ初期化</b></td>
+            <td>電源投入後、ネイティブディスプレイ（UEFI GOP、Pi VideoCore Mailbox、PC-98 プレナーVRAM）を即時アクティブ化。</td>
+            <td>T &lt; 50 ms<br>フレームバッファアドレス確定</td>
+          </tr>
+          <tr>
+            <td><b>Phase 2: Ski ターゲット選択</b></td>
+            <td>利用可能なOS・カーネル・ハードウェアターゲットを一覧表示。キーボード（<code>[↑/↓]</code>, <code>[W/S]</code>）による選択待機。</td>
+            <td>インタラクティブ UI<br>デフォルト待機: 3 秒</td>
+          </tr>
+          <tr>
+            <td><b>Phase 3: 引数・コア数調整</b></td>
+            <td><code>[E]</code>キーでコマンドライン引数を編集、<code>[+]</code>/<code>[-]</code>キーで割り当てCPUコア数をスケール。</td>
+            <td>引数バッファ: <code>boot_args[]</code><br>コア数: <code>smp_core_count</code></td>
+          </tr>
+          <tr>
+            <td><b>Phase 4: SMP コア整列</b></td>
+            <td><code>[Enter]</code>押下時、BSPコアがLAPIC SIPIシーケンスを発行して全APコアを整列させ、カーネルエントリへジャンプ。</td>
+            <td>INIT-SIPI-SIPI シーケンス<br>ベクタ: <code>0x00009000</code></td>
+          </tr>
+          <tr>
+            <td><b>Phase 5: BTRON ハンドオフ</b></td>
+            <td>ブートハンドオフ完了後、選択されたカーネルおよびBTRONワークステーション空間（<code>src/desktop/desktop.c</code>）へ制御移譲。</td>
+            <td><code>btron_main()</code><br>デスクトップ描画開始</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 関連コンポーネント -->
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Workbench.html">🗄️ ワークベンチ (Workbench)</a>
+        <a href="Terminal.html">💻 端末 (Terminal)</a>
+        <a href="../settings/System.html">⚙️ システム情報 (System)</a>
+        <a href="../settings/Display.html">📺 画面表示設定 (Display)</a>
+      </div>
     </div>
   </div>
-      <footer class="app-footer">
+
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -269,19 +277,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html" class="active">Bootloader</a></li>
+            <li><a href="Boot.html" class="active">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -291,6 +299,7 @@
             <li><a href="Cassette.html">Cassette</a></li>
             <li><a href="Paint.html">Paint</a></li>
             <li><a href="Music.html">Music</a></li>
+            <li><a href="MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -306,11 +315,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
 </body>
-
 </html>

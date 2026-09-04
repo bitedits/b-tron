@@ -3,270 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Matrix – 表計算・マトリクス | B-System</title>
-  <meta name="description" content="The Excel replacement with native TAD abilities — high-speed formula grid, vector charting, and live cell-embedded Real Bodies.">
+  <title>Matrix – 表計算 | B-System Specification</title>
+  <meta name="description" content="表計算（Matrix）は、B-Systemの仕様に準拠したC99実装アプリケーション。実身・仮身セルリンクおよび動的数式評価を備えた多次元スプレッドシート。">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
   <link rel="stylesheet" href="./apps.css">
-  <style>
-    .apl-sample-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-      margin-top: 1.2rem;
-    }
-    .apl-sample-card {
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid rgba(255, 93, 162, 0.3);
-      border-radius: 12px;
-      padding: 1.4rem 1.6rem;
-      box-shadow: 0 4px 20px rgba(107, 79, 126, 0.08);
-      backdrop-filter: blur(8px);
-    }
-    .apl-sample-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .apl-sample-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #3b1d5a;
-      margin: 0;
-    }
-    .apl-sample-badge {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.2rem 0.6rem;
-      border-radius: 6px;
-      background: #fdf2f8;
-      color: #be185d;
-      border: 1px solid #fbcfe8;
-    }
-    .apl-sample-desc {
-      font-size: 0.9rem;
-      color: #5c4570;
-      margin-bottom: 0.9rem;
-      line-height: 1.6;
-    }
-    .apl-code-box {
-      background: #181124;
-      color: #f3f0f7;
-      font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
-      font-size: 0.95rem;
-      padding: 1rem 1.2rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      line-height: 1.6;
-      border-left: 4px solid #ff5da2;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .apl-code-box .cmt { color: #8e7c9f; font-style: italic; }
-    .apl-code-box .sym { color: #ffd166; font-weight: bold; }
-    .apl-code-box .var { color: #06d6a0; }
-    .apl-code-box .kw  { color: #ff5da2; font-weight: bold; }
-    .apl-code-box .fn  { color: #4cc9f0; }
-    .apl-formula-tag {
-      margin-top: 0.75rem;
-      font-size: 0.85rem;
-      color: #4a3560;
-      background: rgba(255, 93, 162, 0.1);
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      display: inline-block;
-      font-family: monospace;
-      font-weight: 600;
-    }
-  </style>
 </head>
 <body>
-
-  <nav class="app-nav">
+  <nav class="setting-nav">
     <a href="../../b-system.html">B-System</a>
     <span class="sep">/</span>
-    <a href="../../b-system.html#apps">Applications</a>
+    <a href="../../b-system.html#apps-section">Applications</a>
     <span class="sep">/</span>
     <span class="current">Matrix</span>
   </nav>
 
-  <div class="app-hero">
-    <div class="app-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4CA.svg" alt="📊" width="64" height="64"></div>
-    <h1>Matrix</h1>
-    <div class="app-hero-badge">表計算・APL数理解析</div>
-    <div class="subtitle">High-Performance Spreadsheet with Native APL Array Engine &amp; NYSE/Nasdaq Analytics</div>
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F4CA.svg" alt="📊" width="64" height="64"></div>
+    <h1>表計算 (Matrix)</h1>
+    <div class="setting-hero-badge">表計算 · BTRON3 3.20 準拠 · C99 実装</div>
+    <div class="subtitle">Matrix アプリケーションの機能仕様および内部構造<br><span style="font-size:0.9em; opacity:0.85;">"Functional and architectural specification of the Matrix application component."</span></div>
   </div>
 
-  <div class="app-content">
-    <a href="../../b-system.html#apps" class="back-link">← Back to B-System Applications</a>
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
 
     <div class="tagline-card">
-      <strong>"The universal Excel replacement with native APL array analytics</strong> — ultra-dense vector processing for NYSE/Nasdaq quantitative modeling, live cell-embedded Real Bodies, and multi-dimensional TAD data streams."
+      <strong>表計算（Matrix）</strong> — 表計算（Matrix）は、B-Systemの仕様に準拠したC99実装アプリケーション。実身・仮身セルリンクおよび動的数式評価を備えた多次元スプレッドシート。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Official technical specification for the Matrix application within the B-System operating environment."
+      </span>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>High-performance spreadsheet and quantitative modeling workstation engineered as a modern replacement for Microsoft Excel, Lotus 1-2-3, and Bloomberg analytics terminals, deeply integrated with an <strong>APL (Kenneth Eugene Iverson) array engine</strong> and the BTRON TAD hypermedia architecture. Implemented in pure C99 over Display Primitives (<code>src/graphics/dp_core.c</code>) and the TAD API (<code>include/btron/vobj.h</code>, <code>tad_browser.h</code>), Matrix combines the intuitive grid interface of traditional spreadsheets with the peerless mathematical density of Kenneth Iverson's APL notation (<code>⍴</code>, <code>⍳</code>, <code>+.×</code>, <code>⌹</code>, <code>+/</code>). Designed for Wall Street quantitative analysts, NYSE/Nasdaq market-makers, scientific researchers, and financial engineers, Matrix processes millions of streaming tick records, high-frequency order books, volatility surfaces, and multi-asset covariance matrices with SIMD vector efficiency. What makes Matrix truly unique is its TAD hypermedia foundation: any cell can embed a live TAD Real Body, and dynamic APL analytical matrices link directly into T-Editor executive briefings and Clarity DTP publications as self-updating Virtual Bodies.</p>
-      <div class="app-desc-jp"><b>マトリクス：</b> Microsoft ExcelやLotus 1-2-3、さらにはBloomberg端末の解析機能を継承・進化させた、新世代の超高速表計算＆数理モデリング環境。最大の特徴は、金融工学やクオンツ運用の頂点に君臨する <b>APL（A Programming Language）配列処理エンジン</b> の完全ネイティブ統合です。純粋C99製グラフィックス基盤（<code>src/graphics/dp_core.c</code>）およびTAD API（<code>include/btron/vobj.h</code>、<code>tad_browser.h</code>）に直結。TRON多言語文字システムが持つAPL記号プレーン（<code>⍴</code>、<code>⍳</code>、<code>+.×</code>、<code>⌹</code>、<code>+/</code> 等）を駆使し、NYSEやNasdaqの高頻度ティックデータ（Tick Tape）、板情報（Level 2 Order Book）、ボラティリティ・サーフェス、ポートフォリオ共分散行列をわずか数文字の極小コードで瞬時に超並列ベクトル計算。各セルはTAD実身（Real Body）を保持可能で、リアルタイムな市場ストリームのインライン格納や、T-Editor報告書・Clarity組版紙面への更新連動型仮身（Virtual Body）埋め込みを完全サポートします。</div>
+      <h2>概要 (Overview)</h2>
+      <p>
+        表計算（Matrix）は、B-Systemの仕様に準拠したC99実装アプリケーション。実身・仮身セルリンクおよび動的数式評価を備えた多次元スプレッドシート。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Official technical specification for the Matrix application within the B-System operating environment."</span>
+      </p>
     </div>
 
     <div class="section">
-      <h2>Key Features &amp; Implementation</h2>
-      <ul class="app-features-list">
-        <li>実体コード実装：<code>src/graphics/dp_core.c</code>（高速セルグリッド描画、ベクターチャート、スクロールプレーン）</li>
-        <li>APL配列エンジン統合：ケネス・アイバーソン流の多次元配列記法（内積 <code>+.×</code>、逆行列 <code>⌹</code>、縮約 <code>+/</code>、走査 <code>+\</code>）による超高速クオンツ計算</li>
-        <li>NYSE / Nasdaq 高頻度データ解析：ミリ秒単位のティックストリーム、VWAP計算、オーダーブック板情報深度解析</li>
-        <li>ブラック・ショールズ方程式＆Greeks計算：オプション価格、ボラティリティ・スマイル、VaRリスク行列の即座算出</li>
-        <li>TRON Code APL記号プレーン：フォントエンジン直結のAPL特殊記号（<code>⍴</code>, <code>⍳</code>, <code>↑</code>, <code>↓</code>, <code>⌈</code>, <code>⌊</code>）入力・表示</li>
-        <li>Microsoft Excel完全置換：セル番地（A1..Z100）、数式バー、オートフィル、複数シート管理</li>
-        <li>網羅的関数ライブラリ：算術（SUM, ROUND）、統計（AVERAGE, STDEV）、検索（VLOOKUP, INDEX/MATCH）、財務（NPV, IRR）、論理（IF, AND, OR）</li>
-        <li>高精度ベクターグラフ：折れ線・棒グラフ・ローソク足チャート（Candlestick）・散布図をDisplay Primitives経由でベクター描画</li>
-        <li>セル内TAD実身埋め込み：任意のセルに音声注釈、画像、別TAD文書を実身としてインライン格納</li>
-        <li>リアルタイム外部TAD参照：<code>=APL_FEED("NASDAQ:NVDA", "1s")</code> によるリアルタイム相場データの動的抽出</li>
-        <li>T-Editor / Clarity連動：解析表やチャートを仮身（Virtual Body）としてドラッグ＆ドロップし、報告書上で自動連動更新</li>
-        <li>双方向ファイル互換：Excel (.xlsx, .xls)、CSV、TSV、Q/KDBデータ形式、およびBTRON3バイナリTADセグメントの入出力</li>
-    </div>
-
-    <div class="section">
-      <h2>APL Power Analytics Code Samples (NYSE / Nasdaq Quantitative Suite)</h2>
-      <p>Matrix natively embeds an optimized APL array runtime. Instead of writing cumbersome multi-line VBA macros or managing slow external Python bridges, Wall Street quant desks and financial engineers execute concise, SIMD-vectorized Iverson APL expressions directly inside spreadsheet cells. Below are authentic APL analytics scripts running natively inside Matrix:</p>
-
-      <div class="apl-sample-grid">
-
-        <!-- Sample 1: VWAP -->
-        <div class="apl-sample-card">
-          <div class="apl-sample-header">
-            <h3 class="apl-sample-title">1. Real-Time Volume-Weighted Average Price (VWAP)</h3>
-            <span class="apl-sample-badge">Nasdaq ITCH Execution</span>
-          </div>
-          <div class="apl-sample-desc">
-            Calculates the continuous Volume-Weighted Average Price across 1,000,000 incoming execution tick trades streamed directly from the exchange tape. In Excel this causes workbook freeze; in Matrix APL it computes in 1.2 microseconds.
-          </div>
-          <div class="apl-code-box">
-<span class="var">VWAP</span> ← (<span class="sym">+/</span> <span class="var">P</span> <span class="sym">×</span> <span class="var">V</span>) <span class="sym">÷</span> (<span class="sym">+/</span> <span class="var">V</span>)
-<span class="var">RollingVWAP</span> ← { (<span class="sym">+/</span> <span class="var">⍵</span>[1;] <span class="sym">×</span> <span class="var">⍵</span>[2;]) <span class="sym">÷</span> (<span class="sym">+/</span> <span class="var">⍵</span>[2;]) }<span class="sym">¨</span> 60<span class="sym">,/</span>[2] <span class="var">Tape</span>
-          </div>
-          <div class="apl-formula-tag">Matrix Cell Formula: =APL("{(+/P×V)÷+/V}", Prices!A2:A1000000, Volumes!B2:B1000000)</div>
-        </div>
-
-        <!-- Sample 2: 20-Day Rolling Volatility -->
-        <div class="apl-sample-card">
-          <div class="apl-sample-header">
-            <h3 class="apl-sample-title">2. 20-Day Annualized Realized Volatility</h3>
-            <span class="apl-sample-badge">NYSE S&amp;P 500 Risk</span>
-          </div>
-          <div class="apl-sample-desc">
-            Computes daily logarithmic returns from closing prices and derives rolling 20-day annualized historical volatility (scaled by √252 trading days) using sliding window reduction.
-          </div>
-          <div class="apl-code-box">
-<span class="var">R</span> ← 2 <span class="sym">⍟/</span> <span class="sym">⌽</span> <span class="var">P</span>
-<span class="var">Vol</span> ← { (252<span class="sym">*</span>0.5) <span class="sym">×</span> ((<span class="sym">+/</span> (<span class="var">⍵</span> <span class="sym">-</span> (<span class="sym">+/</span><span class="var">⍵</span>)<span class="sym">÷⍴</span><span class="var">⍵</span>)<span class="sym">*</span>2) <span class="sym">÷</span> (<span class="sym">⍴</span><span class="var">⍵</span> <span class="sym">-</span> 1))<span class="sym">*</span>0.5 }<span class="sym">¨</span> 20<span class="sym">,/</span> <span class="var">R</span>
-          </div>
-          <div class="apl-formula-tag">Matrix Cell Formula: =APL_VOLATILITY(ClosePrices!C2:C500, 20, 252)</div>
-        </div>
-
-        <!-- Sample 3: Portfolio Covariance & Min-Variance -->
-        <div class="apl-sample-card">
-          <div class="apl-sample-header">
-            <h3 class="apl-sample-title">3. Multi-Asset Covariance &amp; Minimum Variance Weights</h3>
-            <span class="apl-sample-badge">Markowitz Optimization</span>
-          </div>
-          <div class="apl-sample-desc">
-            Takes an $N \times T$ historical return matrix across 50 Nasdaq-100 equities. Centering, outer product, matrix multiplication (<code>+.×</code>), and matrix inversion (<code>⌹</code>) compute optimal asset allocation weights in 3 lines of APL.
-          </div>
-          <div class="apl-code-box">
-<span class="var">Dev</span> ← <span class="var">R</span> <span class="sym">-</span> ((<span class="sym">+/</span><span class="var">R</span>) <span class="sym">÷ ⍴</span>[2]<span class="var">R</span>) <span class="sym">∘.×</span> (<span class="sym">⍴</span>[2]<span class="var">R</span>)<span class="sym">⍴</span>1
-<span class="var">Cov</span> ← (<span class="var">Dev</span> <span class="sym">+.× ⍉</span><span class="var">Dev</span>) <span class="sym">÷</span> (<span class="sym">⍴</span>[2]<span class="var">R</span> <span class="sym">-</span> 1)
-<span class="var">InvCovOnes</span> ← <span class="sym">⌹</span><span class="var">Cov</span> <span class="sym">+.×</span> (<span class="sym">⍴</span>[1]<span class="var">R</span>)<span class="sym">⍴</span>1
-<span class="var">Weights</span>    ← <span class="var">InvCovOnes</span> <span class="sym">÷</span> (<span class="sym">+/</span> <span class="var">InvCovOnes</span>)
-          </div>
-          <div class="apl-formula-tag">Matrix Cell Formula: =APL("InvCovOnes÷+/InvCovOnes ⊣ InvCovOnes←⌹Cov+.×(⍴[1]R)⍴1", ReturnsRange!B2:BA252)</div>
-        </div>
-
-        <!-- Sample 4: Black-Scholes Greeks -->
-        <div class="apl-sample-card">
-          <div class="apl-sample-header">
-            <h3 class="apl-sample-title">4. Vectorized Black-Scholes Options Pricing &amp; Greeks</h3>
-            <span class="apl-sample-badge">Derivatives Surface</span>
-          </div>
-          <div class="apl-sample-desc">
-            Evaluates call option prices and delta Greeks simultaneously across an entire array of strike prices $K$ for high-beta equities (e.g. NVDA, AAPL). SIMD execution evaluates 10,000 contract strikes in parallel without loops.
-          </div>
-          <div class="apl-code-box">
-<span class="var">d1</span> ← ((<span class="sym">⍟</span> <span class="var">S</span> <span class="sym">÷</span> <span class="var">K</span>) <span class="sym">+</span> (<span class="var">r</span> <span class="sym">+</span> 0.5 <span class="sym">×</span> <span class="var">σ</span><span class="sym">*</span>2) <span class="sym">×</span> <span class="var">T</span>) <span class="sym">÷</span> (<span class="var">σ</span> <span class="sym">×</span> <span class="var">T</span><span class="sym">*</span>0.5)
-<span class="var">d2</span> ← <span class="var">d1</span> <span class="sym">-</span> <span class="var">σ</span> <span class="sym">×</span> <span class="var">T</span><span class="sym">*</span>0.5
-<span class="var">N</span> ← { 0.5 <span class="sym">×</span> 1 <span class="sym">+</span> (2<span class="sym">÷○</span>1)<span class="sym">*</span>0.5 <span class="sym">× +/</span>((¯1<span class="sym">*</span><span class="var">⍵</span>) <span class="sym">×</span> (<span class="var">x</span><span class="sym">*</span>(1<span class="sym">+</span>2<span class="sym">×</span><span class="var">⍵</span>)) <span class="sym">÷</span> (1<span class="sym">+</span>2<span class="sym">×</span><span class="var">⍵</span>) <span class="sym">×</span> !<span class="var">⍵</span>)<span class="sym">⊣</span><span class="var">⍵</span>←<span class="sym">⍳</span>12 }
-<span class="var">Delta</span>      ← <span class="var">N</span> <span class="var">d1</span>
-<span class="var">CallPrices</span> ← (<span class="var">S</span> <span class="sym">×</span> <span class="var">Delta</span>) <span class="sym">-</span> (<span class="var">K</span> <span class="sym">×</span> (<span class="sym">*</span> ¯1 <span class="sym">×</span> <span class="var">r</span> <span class="sym">×</span> <span class="var">T</span>) <span class="sym">×</span> <span class="var">N</span> <span class="var">d2</span>)
-          </div>
-          <div class="apl-formula-tag">Matrix Cell Formula: =APL_BS_CALL(B1, C2:C100, B2, B3, B4)</div>
-        </div>
-
-        <!-- Sample 5: Nasdaq L2 Order Book Imbalance -->
-        <div class="apl-sample-card">
-          <div class="apl-sample-header">
-            <h3 class="apl-sample-title">5. Nasdaq Level 2 Order Book Depth Imbalance (OBI)</h3>
-            <span class="apl-sample-badge">Microstructure Alpha</span>
-          </div>
-          <div class="apl-sample-desc">
-            Aggregates top 5 bid and ask limit order book tiers from Nasdaq ITCH messages, calculating instantaneous depth imbalance and micro-price to predict short-term trade fills.
-          </div>
-          <div class="apl-code-box">
-<span class="var">OBI</span> ← (<span class="sym">+/</span> <span class="var">BidQty</span>[<span class="sym">⍳</span>5] <span class="sym">-</span> <span class="var">AskQty</span>[<span class="sym">⍳</span>5]) <span class="sym">÷</span> (<span class="sym">+/</span> <span class="var">BidQty</span>[<span class="sym">⍳</span>5] <span class="sym">+</span> <span class="var">AskQty</span>[<span class="sym">⍳</span>5])
-<span class="var">W</span>       ← <span class="sym">÷ ⍳</span>5
-<span class="var">MicroPx</span> ← ((<span class="sym">+/</span> <span class="var">BidPx</span>[<span class="sym">⍳</span>5]<span class="sym">×</span><span class="var">BidQty</span>[<span class="sym">⍳</span>5]<span class="sym">×</span><span class="var">W</span>) <span class="sym">+</span> (<span class="sym">+/</span> <span class="var">AskPx</span>[<span class="sym">⍳</span>5]<span class="sym">×</span><span class="var">AskQty</span>[<span class="sym">⍳</span>5]<span class="sym">×</span><span class="var">W</span>)) <span class="sym">÷</span> (<span class="sym">+/</span> (<span class="var">BidQty</span>[<span class="sym">⍳</span>5]<span class="sym">+</span><span class="var">AskQty</span>[<span class="sym">⍳</span>5])<span class="sym">×</span><span class="var">W</span>)
-          </div>
-          <div class="apl-formula-tag">Matrix Cell Formula: =APL("OBI", ITCH_BOOK!A2:E10)</div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>Why the Market Needs It</h2>
-      <ul class="app-features-list">
-        <li>Traditional spreadsheets (Excel, Google Sheets) choke on high-throughput NYSE and Nasdaq tick data, forcing quant teams to maintain fragile external Python/C++ pipelines.</li>
-        <li>Financial analysts are trapped in cumbersome, slow VBA loops or nested lookup formulas that are replaced by a single line of vector APL (e.g. <code>(+/P)÷⍴P</code> for moving averages, <code>X+.×Y</code> for portfolio weights).</li>
-        <li>Matrix bridges the gap between spreadsheet usability and Wall Street array programming: quant desks get the power of APL and KDB/Q with native TAD Real Body embeddings and zero memory overhead.</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Replaces / Normalises</h2>
+      <h2>1. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Matrix が提供する標準メニューバー構造および操作体系の仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Standard menu bar hierarchy and interactive command bindings."</span>
+      </p>
       <table class="market-table">
-        <thead><tr><th>Classic Product</th><th>B-System Advantage</th><th>Target Users</th></tr></thead>
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td>Microsoft Excel / Bloomberg Analytics Terminal</td>
-            <td>Instant 2D calculation grid plus native APL array processor for sub-millisecond NYSE/Nasdaq tick analytics and risk matrices</td>
-            <td rowspan="2">Quantitative traders, financial analysts, portfolio managers, risk officers, actuarial scientists, market makers</td>
+            <td><b>ファイル (File)</b></td>
+            <td>新規作成、開く、保存、閉じる</td>
+            <td><code>src/apps/matrix.c</code></td>
           </tr>
           <tr>
-            <td>Slow VBA Macros &amp; Isolated Data Silos</td>
-            <td>Concise Iverson APL vector operations (SIMD efficiency) and live TAD Virtual Body linking to T-Editor and Clarity publications</td>
+            <td><b>編集 (Edit)</b></td>
+            <td>元に戻す、切り取り、コピー、貼り付け</td>
+            <td>クリップボード連携</td>
+          </tr>
+          <tr>
+            <td><b>操作 (Action)</b></td>
+            <td>メイン機能実行、パラメータ設定</td>
+            <td>内部状態ディスパッチ</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 420×170px）</td>
+            <td><code>app_menu_create_about_dialog</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <h2>Typical Workflow</h2>
-      <ol class="workflow-list">
-        <li>Open a market analytics sheet in Matrix and connect a live NYSE or Nasdaq tick stream via <code>=APL_FEED("NYSE:SPY", "100ms")</code>.</li>
-        <li>Compute volume-weighted average price (VWAP) and rolling volatility across 1,000,000 trades with a single APL array formula.</li>
-        <li>Formulate a Black-Scholes Greeks sensitivity matrix using native APL matrix multiplication (<code>X+.×Y</code>) and inversion (<code>⌹</code>).</li>
-        <li>Embed the real-time APL risk surface and candlestick chart directly into an executive investment memorandum in T-Editor as a live Virtual Body.</li>
-        <li>When market trades execute on NYSE/Nasdaq, the calculations in Matrix and the embedded tables in T-Editor automatically update in real time.</li>
-        <li>Export the quantitative model to Excel (.xlsx), Q/KDB table format, or archive it as a permanent TAD Real Body in Cabinet.</li>
-      </ol>
+      <h2>2. 機能仕様とアーキテクチャ (Functional &amp; Architecture Specifications)</h2>
+      <p>
+        Matrix アプリケーションの内部構造、データモデル、およびシステムコール仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Internal architectural components, memory models, and system call bindings."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>コンポーネント・機能名</th>
+            <th>動作概要と機能仕様 (Functional Specification)</th>
+            <th>技術仕様・C99構造体 (C99 Implementation)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>アーキテクチャ</b></td>
+            <td>BTRON3 Specification 3.20に完全準拠したC99クリーンルーム実装。</td>
+            <td><code>src/apps/matrix.c</code></td>
+          </tr>
+          <tr>
+            <td><b>メニューシステム</b></td>
+            <td>3DベベルおよびModern Flat Cardメニューバーに完全対応。</td>
+            <td><code>APP_MENU_BAR</code></td>
+          </tr>
+          <tr>
+            <td><b>メモリ管理</b></td>
+            <td>不変ドキュメントコンテキスト分離とリソースの自動解放。</td>
+            <td><code>user_data</code> コンテキスト</td>
+          </tr>
+          <tr>
+            <td><b>イベント処理</b></td>
+            <td>マウス座標、キーボードショートカット、ウィンドウリサイズイベントの処理。</td>
+            <td><code>event_handler</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Workbench.html">🗄️ ワークベンチ</a>
+        <a href="Cabinet.html">📁 キャビネット</a>
+        <a href="TEditor.html">✍️ 文書編集</a>
+      </div>
     </div>
   </div>
 
-      <footer class="app-footer">
+  <footer class="app-footer">
     <div class="app-footer-top">
       <a href="../../b-system.html">← B-System</a>
-      <span class="site-name">B-System Applications</span>
+      <span class="site-name">Applications</span>
     </div>
     <div class="app-footer-grid">
       <div class="app-footer-col">
@@ -279,19 +147,19 @@
             <li><a href="Clock.html">Clock</a></li>
             <li><a href="Mail.html">Mail</a></li>
             <li><a href="Preferences.html">Preferences</a></li>
-            <li><a href="Boot.html">Bootloader</a></li>
+            <li><a href="Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="Cabinet.html">Cabinet</a></li>
-            <li><a href="TEditor.html">T-Editor</a></li>
+            <li><a href="TEditor.html">TEditor</a></li>
             <li><a href="Matrix.html" class="active">Matrix</a></li>
             <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Notebook.html">Notebook</a></li>
             <li><a href="Review.html">Review</a></li>
-            <li><a href="Browser.html">Browser</a></li>
             <li><a href="Chat.html">Chat</a></li>
         </ul>
       </div>
@@ -316,11 +184,11 @@
             <li><a href="../settings/Media.html">Media</a></li>
             <li><a href="../settings/System.html">System</a></li>
             <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; TAD Hypermedia Knowledge Plane</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appearance – 外観 | B-System Settings</title>
-  <meta name="description" content="Themes, colours, window style, icons, fonts and animation level.">
+  <title>Appearance – 外観設定 | B-System Specification</title>
+  <meta name="description" content="デスクトップテーマ、32×32/64×64アイコン幾何学、メニュー描画様式、多言語フォントエンジンの技術仕様。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,278 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F3A8.svg" alt="🎨" width="64" height="64"></div>
-    <h1>Appearance</h1>
-    <div class="setting-hero-badge">外観</div>
-    <div class="subtitle">Themes, colours, window style, icons, fonts and animation level</div>
+    <h1>外観設定 (Appearance)</h1>
+    <div class="setting-hero-badge">グラフィックス設定 · アイコン幾何学 · メニュー構造 · 多言語フォント</div>
+    <div class="subtitle">デスクトップ環境、アイコン表示寸法、メニュー描画様式、多言語フォントエンジンの設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Technical specification of B-System visual parameters: display color palettes, icon grid metrics, dual menu rendering models, and multilingual glyph rasterization."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Appearance</strong> — Themes, colours, window style, icons, fonts and animation level.
+      <strong>外観設定（Appearance）</strong> — B-Systemのグラフィカル環境パラメータを管理する設定アプレット。操作仕様およびC99内部データ構造の技術的定義。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "System-wide visual parameter management: runtime configuration of frame buffers, icon Euclidean geometries, and C99 graphics driver state."
+      </span>
     </div>
 
+    <!-- 概要 -->
     <div class="section">
-      <h2>Overview</h2>
-      <p>Themes, colours, window style, icons, fonts and animation level.</p>
-      <div class="setting-desc-jp">デスクトップテーマ、配色パレット、坂村クラシックスタイル／モダンウィンドウスタイル、アイコンセット、明朝・ゴシックフォント指定、UIアニメーション速度の調整。</div>
+      <h2>概要 (Overview)</h2>
+      <p>
+        外観アプレット（<code>src/settings/appearance.c</code>）は、デスクトップ全体のカラーテーマ、アイコン表示寸法、メニュー立体表現、多言語フォント描画エンジンを一元管理します。設定更新時は「適用（Apply）」により、<code>redraw_all_windows()</code> を通じて開いているすべてのウィンドウおよびデスクトップ空間へリアルタイムに変更が反映されます。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"The visual configuration console of B-System: synchronizing color palettes, Euclidean grid metrics, and window bevels across all active tasks."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷設定（64×64アイコン、超漢字3Dメニュー、全テーマ・描画フラグ有効）に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、すべての画面・ウィンドウを即座に再描画（<code>redraw_all_windows()</code>）します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
+    <!-- 1. システムテーマと配色 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>Theme selector: Sakamura Classic, Modern Glass, or High-Contrast</li>
-        <li>Per-app colour palette overrides stored as Real Bodies</li>
-        <li>Icon set switching (BTRON standard, minimal, custom)</li>
-        <li>Typeface assignment: Mincho / Gothic / Mixed for UI and documents</li>
-        <li>Animation speed: Off / Reduced / Full</li>
-        <li>Accent colour picker with live preview in Workbench</li>
-      </ul>
+      <h2>1. システムテーマと配色設定 (System Themes &amp; Color Palettes)</h2>
+      <p>
+        画面表示環境に応じたカラーパレットおよびウィンドウ立体枠影の設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Display color palette mapping: classic desktop chrome, dark-mode terminal contrast, and high-legibility ambient illumination."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>テーマ名・配色識別子</th>
+            <th>画面構成と視覚仕様 (Visual Specification)</th>
+            <th>技術仕様・C99定義 (C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Teal Classic<br>(標準ティール)</b></td>
+            <td>深緑基調の伝統的デスクトップ背景。超漢字・BTRON標準ワークスペース配色。長時間の文書編集において眼精疲労を最小限に抑制。</td>
+            <td><code>COLOR_TEAL</code>: <code>#008080</code> (RGB 0, 128, 128)<br><code>DesktopColor = COLOR_TEAL</code></td>
+          </tr>
+          <tr>
+            <td><b>Dark Navy<br>(ダークネイビー)</b></td>
+            <td>深紺のダークモード背景。高コントラスト暗色テーマ。暗所環境での視認性向上とディスプレイ消費電力の低減。</td>
+            <td><code>COLOR_DKNAVY</code>: <code>#0A192F</code> (RGB 10, 25, 47)<br><code>DesktopColor = COLOR_DKNAVY</code></td>
+          </tr>
+          <tr>
+            <td><b>Dark Amber<br>(ダークアンバー)</b></td>
+            <td>クラシック琥珀端末風の暖色系暗色背景。夜間作業に適した高品位コントラスト。</td>
+            <td><code>COLOR_DKAMBER</code>: <code>#1A1000</code> (RGB 26, 16, 0)<br><code>DesktopColor = COLOR_DKAMBER</code></td>
+          </tr>
+          <tr>
+            <td><b>ベゼル枠影<br>(Bezel &amp; Shadow)</b></td>
+            <td>立体感のあるウィンドウベゼル描画。枠外周に1ピクセルの明暗境界線を生成し、アクティブウィンドウを際立たせる視覚効果。</td>
+            <td><code>COLOR_LTGRAY</code>: <code>#D0D0D0</code><br><code>COLOR_DKGRAY</code>: <code>#404040</code><br>2段立体ベベル描画アルゴリズム</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 2. アイコン表示サイズ -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>2. アイコン表示サイズ幾何学 (Icon Sizing: 32×32 / 64×64)</h2>
+      <p>
+        ワークベンチ（デスクトップ）やキャビネット（ファイル管理）で表示されるピクトグラムの大きさを選択します。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Euclidean icon grid layout switching: dense 32-pixel indexing for high-resolution displays versus standard 64-pixel touch and desktop targets."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>寸法識別子・選択肢</th>
+            <th>表示仕様とレイアウト挙動 (Layout Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical Geometry)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>32×32 ピクセル<br>(コンパクト表示)</b></td>
+            <td>高解像度ディスプレイや大量ファイル一覧に適した省スペースレイアウト。キャビネット内のグリッド間隔を自動圧縮し、一覧性を最大化。</td>
+            <td><code>BTRON_ICON_SIZE_32 = 32</code><br>Cabinetグリッド: 96×72 px<br>Control Panel窓高: 520 px</td>
+          </tr>
+          <tr>
+            <td><b>64×64 ピクセル<br>(標準表示・出荷時)</b></td>
+            <td>視認性に優れた標準ピクトグラム表示。グラフィカルな実身・仮身アイコンの細部描画を維持し、直感的なタッチ・マウス操作を実現。</td>
+            <td><code>BTRON_ICON_SIZE_64 = 64</code><br>Cabinetグリッド: 110×104 px<br>Control Panel窓高: 660 px</td>
+          </tr>
+          <tr>
+            <td><b>ウィンドウヘッダ固定仕様<br>(Header Icon Policy)</b></td>
+            <td>全設定ウィンドウおよびアプリのタイトルバー内左端アプリアイコンは、全体サイズ設定に関わらず常に32×32pxで統一描画。</td>
+            <td><code>draw_setting_gif_icon_scaled()</code><br>固定ヘッダバウンディング: 32×32 px</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. メニュー描画様式 -->
+    <div class="section">
+      <h2>3. メニュー描画様式 (Menu Style: Classic 3D / Modern Card)</h2>
+      <p>
+        システム全体のメニューバー、プルダウン、デスクバー（Tracker）の描画アルゴリズムを指定します。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Dual menu rendering models: classic Chokanji 4-sided beveled surfaces versus modern card overlays with alpha drop-shadow."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>メニュー様式</th>
+            <th>視覚的特徴と描画動作 (Rendering Specification)</th>
+            <th>技術仕様・C99定義 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>超漢字 3D ベベル<br>(Classic 3D)</b></td>
+            <td>伝統的なBTRONおよび超漢字スタイルの立体ベベルメニュー。4辺の明暗境界線による浮き出し効果。クラシックな操作感。</td>
+            <td><code>APP_MENU_STYLE_CLASSIC_3D</code><br><code>app_menu_set_global_style(0)</code><br>外周4辺ベベル描画パイプライン</td>
+          </tr>
+          <tr>
+            <td><b>Modern Flat Card<br>(モダンカード)</b></td>
+            <td>1ピクセルの洗練された外枠境界線と3ピクセルの滑らかなドロップシャドウを合成する現代的フラットデザイン。</td>
+            <td><code>APP_MENU_STYLE_MODERN_CARD</code><br><code>app_menu_set_global_style(1)</code><br>枠線: <code>COLOR_DKGRAY</code> + 3px 影</td>
+          </tr>
+          <tr>
+            <td><b>全システム波及仕様<br>(Global Propagation)</b></td>
+            <td>設定変更は、アプリケーション固有メニュー（<code>APP_MENU_BAR</code>）、画面上部固定グローバルシステムメニュー、デスクバー（Tracker）へ一括適用。</td>
+            <td><code>app_menu_get_global_style()</code><br><code>global_menu.c</code> / <code>tracker.c</code> 連携</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. 文字・フォント描画 -->
+    <div class="section">
+      <h2>4. 文字・フォント描画 (Typography &amp; Multi-Language)</h2>
+      <p>
+        TRON多言語文字体系（第1面〜第16面）およびUnicode多言語フォントのレンダリングエンジン設定。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"TRON 16-plane multilingual font rasterizer: subpixel anti-aliasing, smoothing, and complex script stacking (Tibetan Jomolhari)."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Visual Specification)</th>
+            <th>技術仕様・フォント面 (Font Plane Specs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>TRON 多言語文字面<br>(16-Plane Glyph)</b></td>
+            <td>JIS第1〜第4水準漢字、GT書体、トンパ文字、変体仮名、歴史的文字セットを網羅するTRON多言語フォント面デコーダ。</td>
+            <td>TRONコード第1〜第16面デコーダ<br><code>font_manager_render_char()</code></td>
+          </tr>
+          <tr>
+            <td><b>チベット文字スタック<br>(Tibetan Unicode)</b></td>
+            <td>Jomolhari Unicodeフォントを用いた古典チベット語の縦方向結合スタック（Subjoined consonants）と母音記号の精密合成描画。</td>
+            <td>Jomolhari TrueType Rasterizer<br>Wylie/EWTS 子音スタック自動結合</td>
+          </tr>
+          <tr>
+            <td><b>サブピクセル描画<br>(Font Smoothing)</b></td>
+            <td>液晶ディスプレイにおけるフォント輪郭のスムージング処理。微小サイズ文字の可読性を大幅に向上。</td>
+            <td>サブピクセルアンチエイリアシング<br>8-bit グレースケールマスク合成</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5. 全設定パラメータ仕様一覧 -->
+    <div class="section">
+      <h2>5. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        外観設定アプレットが提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="2"><b>[1] 配色・枠影</b></td>
+            <td>デスクトップ背景色 (Radio)</td>
+            <td>Teal (深緑)</td>
+            <td>Teal / Navy / Amber</td>
+            <td><code>DesktopColor</code> (<code>COLOR_TEAL</code>)</td>
+          </tr>
+          <tr>
+            <td>立体ベゼル枠影 (Checkbox)</td>
+            <td>有効 (Checked)</td>
+            <td>有効 (1) / 無効 (0)</td>
+            <td><code>g_appearance.bezel_shadow</code></td>
+          </tr>
+          <tr>
+            <td rowspan="3"><b>[2] アイコン</b></td>
+            <td>アイコン表示サイズ (Radio)</td>
+            <td>64×64 (標準)</td>
+            <td>32×32 / 64×64</td>
+            <td><code>appearance_set_icon_size()</code></td>
+          </tr>
+          <tr>
+            <td>グリッド自動吸着 (Checkbox)</td>
+            <td>有効 (Checked)</td>
+            <td>有効 (1) / 無効 (0)</td>
+            <td><code>g_appearance.grid_snap</code></td>
+          </tr>
+          <tr>
+            <td>タイトルバーアイコン (固定)</td>
+            <td>32×32 (固定)</td>
+            <td>32×32 固定規約</td>
+            <td><code>draw_setting_gif_icon_scaled()</code></td>
+          </tr>
+          <tr>
+            <td rowspan="2"><b>[3] メニュー</b></td>
+            <td>メニュー描画様式 (Radio)</td>
+            <td>超漢字 3D (立体)</td>
+            <td>超漢字 3D / モダンカード</td>
+            <td><code>app_menu_set_global_style()</code></td>
+          </tr>
+          <tr>
+            <td>メニュー半透明影 (Checkbox)</td>
+            <td>有効 (Checked)</td>
+            <td>有効 (1) / 無効 (0)</td>
+            <td><code>g_appearance.menu_shadow</code></td>
+          </tr>
+          <tr>
+            <td rowspan="3"><b>[4] フォント</b></td>
+            <td>標準書体 (Dropdown)</td>
+            <td>明朝体 (Mincho)</td>
+            <td>明朝 / ゴシック / Jomolhari</td>
+            <td><code>g_appearance.system_font</code></td>
+          </tr>
+          <tr>
+            <td>文字スムージング (Checkbox)</td>
+            <td>有効 (Checked)</td>
+            <td>有効 (1) / 無効 (0)</td>
+            <td><code>g_appearance.font_smoothing</code></td>
+          </tr>
+          <tr>
+            <td>チベット語スタック合成 (Checkbox)</td>
+            <td>有効 (Checked)</td>
+            <td>有効 (1) / 無効 (0)</td>
+            <td><code>g_appearance.tibetan_stacking</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 関連コンポーネント -->
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/Workbench.html">🗄️ Workbench</a>
-        <a href="../apps/TEditor.html">✍️ T-Editor</a>
+        <a href="Desktop.html">🖥️ デスクトップ設定 (Desktop)</a>
+        <a href="Display.html">📺 画面表示設定 (Display)</a>
+        <a href="Language.html">🈴 言語設定 (Language)</a>
+        <a href="../apps/Workbench.html">🗄️ ワークベンチ (Workbench)</a>
+        <a href="../apps/Cabinet.html">📁 キャビネット (Cabinet)</a>
+        <a href="../apps/Preferences.html">⚙️ 環境設定ハブ (Preferences)</a>
       </div>
     </div>
   </div>
@@ -68,55 +305,55 @@
       <div class="app-footer-col">
         <h4>System</h4>
         <ul>
-            <li><a href="../apps/Workbench.html">Workbench</a></li>
-            <li><a href="../apps/Terminal.html">Terminal</a></li>
-            <li><a href="../apps/Commander.html">Commander</a></li>
-            <li><a href="../apps/Calculator.html">Calculator</a></li>
-            <li><a href="../apps/Clock.html">Clock</a></li>
-            <li><a href="../apps/Mail.html">Mail</a></li>
-            <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+          <li><a href="../apps/Workbench.html">Workbench</a></li>
+          <li><a href="../apps/Terminal.html">Terminal</a></li>
+          <li><a href="../apps/Commander.html">Commander</a></li>
+          <li><a href="../apps/Calculator.html">Calculator</a></li>
+          <li><a href="../apps/Clock.html">Clock</a></li>
+          <li><a href="../apps/Mail.html">Mail</a></li>
+          <li><a href="../apps/Preferences.html">Preferences</a></li>
+          <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
-            <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
-            <li><a href="../apps/Matrix.html">Matrix</a></li>
-            <li><a href="../apps/Clarity.html">Clarity</a></li>
-            <li><a href="../apps/Browser.html">Browser</a></li>
-            <li><a href="../apps/Notebook.html">Notebook</a></li>
-            <li><a href="../apps/Review.html">Review</a></li>
-            <li><a href="../apps/Chat.html">Chat</a></li>
+          <li><a href="../apps/Cabinet.html">Cabinet</a></li>
+          <li><a href="../apps/TEditor.html">TEditor</a></li>
+          <li><a href="../apps/Matrix.html">Matrix</a></li>
+          <li><a href="../apps/Clarity.html">Clarity</a></li>
+          <li><a href="../apps/Browser.html">Browser</a></li>
+          <li><a href="../apps/Notebook.html">Notebook</a></li>
+          <li><a href="../apps/Review.html">Review</a></li>
+          <li><a href="../apps/Chat.html">Chat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>Media</h4>
         <ul>
-            <li><a href="../apps/Cassette.html">Cassette</a></li>
-            <li><a href="../apps/Paint.html">Paint</a></li>
-            <li><a href="../apps/Music.html">Music</a></li>
+          <li><a href="../apps/Cassette.html">Cassette</a></li>
+          <li><a href="../apps/Paint.html">Paint</a></li>
+          <li><a href="../apps/Music.html">Music</a></li>
+          <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>Settings</h4>
         <ul>
-            <li><a href="Appearance.html" class="active">Appearance</a></li>
-            <li><a href="Desktop.html">Desktop</a></li>
-            <li><a href="Input.html">Input</a></li>
-            <li><a href="Language.html">Language</a></li>
-            <li><a href="Sound.html">Sound</a></li>
-            <li><a href="Network.html">Network</a></li>
-            <li><a href="Display.html">Display</a></li>
-            <li><a href="Media.html">Media</a></li>
-            <li><a href="System.html">System</a></li>
-            <li><a href="Security.html">Security</a></li>
+          <li><a href="Appearance.html" class="active">Appearance</a></li>
+          <li><a href="Desktop.html">Desktop</a></li>
+          <li><a href="Input.html">Input</a></li>
+          <li><a href="Language.html">Language</a></li>
+          <li><a href="Sound.html">Sound</a></li>
+          <li><a href="Network.html">Network</a></li>
+          <li><a href="Display.html">Display</a></li>
+          <li><a href="Media.html">Media</a></li>
+          <li><a href="System.html">System</a></li>
+          <li><a href="Security.html">Security</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>

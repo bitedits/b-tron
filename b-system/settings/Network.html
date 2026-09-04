@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Network – ネットワーク | B-System Settings</title>
-  <meta name="description" content="Interfaces, XMPP accounts and basic connectivity.">
+  <title>Network – 通信網設定 | B-System Specification</title>
+  <meta name="description" content="ネットワークデバイス（VirtIO-Net/Ethernet）、IPv4 DHCP、IPv6 SLAAC、DNS名前解決、XMPP分散通信パラメータを管理する設定アプレット。">
   <link rel="stylesheet" href="../../index.css">
   <link rel="stylesheet" href="./settings.css">
   <link rel="stylesheet" href="../apps/apps.css">
@@ -20,41 +20,166 @@
 
   <div class="setting-hero">
     <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F310.svg" alt="🌐" width="64" height="64"></div>
-    <h1>Network</h1>
-    <div class="setting-hero-badge">ネットワーク</div>
-    <div class="subtitle">Interfaces, XMPP accounts and basic connectivity</div>
+    <h1>通信網設定 (Network)</h1>
+    <div class="setting-hero-badge">VirtIO-Net · IPv4/IPv6 · DHCP/DNS · XMPP分散通信</div>
+    <div class="subtitle">ネットワークインターフェース、IPv4/IPv6スタック、DNSリゾルバ、分散タスク通信の設定仕様<br><span style="font-size:0.9em; opacity:0.85;">"Network interface registers, dual-stack IPv4/IPv6 sockets, DNS resolvers, and distributed task messaging."</span></div>
   </div>
 
   <div class="setting-content">
-    <a href="../../b-system.html#settings-section" class="back-link">← Back to Settings Folder</a>
+    <a href="../../b-system.html#settings-section" class="back-link">← 設定フォルダ (Settings Folder Index)</a>
 
     <div class="tagline-card">
-      <strong>Network</strong> — Interfaces, XMPP accounts and basic connectivity.
+      <strong>通信網設定（Network）</strong> — ネットワークデバイス（VirtIO-Net/Ethernet）、IPv4 DHCP、IPv6 SLAAC、DNS名前解決、XMPP分散通信パラメータを管理する設定アプレット。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Network stack subsystem: packet driver configuration, dynamic IP leasing, address translation, and real-time socket endpoints."
+      </span>
+    </div>
+
+    <!-- 概要 -->
+    <div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        ネットワークデバイス（VirtIO-Net/Ethernet）、IPv4 DHCP、IPv6 SLAAC、DNS名前解決、XMPP分散通信パラメータを管理する設定アプレット。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Network stack subsystem: packet driver configuration, dynamic IP leasing, address translation, and real-time socket endpoints."</span>
+      </p>
+      
+      <div class="setting-desc-jp">
+        <b>基本操作仕様 (Operational Specifications)：</b><br>
+        ・<b>[標準 (Default)]</b>：工場出荷時の初期設定に復元します。<br>
+        ・<b>[適用 (Apply)]</b>：設定変更を確定し、システム状態へ反映します。<br>
+        ・<b>[閉じる (Close)]</b>：設定ウィンドウを破棄します（<code>cls_wnd()</code>）。
+      </div>
     </div>
 
     <div class="section">
-      <h2>Overview</h2>
-      <p>Interfaces, XMPP accounts and basic connectivity.</p>
-      <div class="setting-desc-jp">VirtIO-Netネットワークインターフェース、XMPP分散通信アカウント、IP/DNS設定、ローカルピアツーピア連携。</div>
+      <h2>1. ネットワークインターフェースとIPスタック (Interfaces & Protocol Stacks)</h2>
+      <p>
+        物理・仮想NICドライバおよびIPv4/IPv6デュアルスタックの設定仕様。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Ethernet interface driver bindings and dual-stack IP address negotiation."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>設定項目・機能名</th>
+            <th>動作概要と視覚仕様 (Functional Specification)</th>
+            <th>技術仕様・幾何学構造 (Technical / C99 Definition)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Enable Primary Interface (eth0 / VirtIO-Net)<br><small>主要通信ポート有効化</small></b></td>
+            <td>イーサネットコントローラ（VirtIO-Netまたは物理NIC）をアクティブ化し、パケット送受信を開始します。</td>
+            <td>デバイス: <code>eth0</code> (VirtIO-Net)<br>C99: <code>g_state_network.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>Automatic IPv4 Configuration via DHCP<br><small>IPv4 DHCP 自動取得</small></b></td>
+            <td>DHCPサーバーからIPv4アドレス、サブネットマスク、デフォルトゲートウェイを自動ネゴシエーションします。</td>
+            <td>プロトコル: DHCP DISCOVER/OFFER<br>C99: <code>g_state_network.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>Static IPv6 Stateless Autoconfiguration (SLAAC)<br><small>IPv6 SLAAC アドレス自動生成</small></b></td>
+            <td>ルーター広告（RA）プレフィックスに基づき、リンクローカルおよびグローバルIPv6アドレスをステートレス生成します。</td>
+            <td>プロトコル: ICMPv6 Router Discovery<br>C99: <code>g_state_network.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>Primary Domain Name System Resolver<br><small>DNS リゾルバ</small></b></td>
+            <td>ホスト名・ドメイン名をIPアドレスへ変換するリゾルバサーバー（1.1.1.1 / 8.8.8.8）を指定します。</td>
+            <td>ポート: UDP 53<br>C99: <code>g_state_network.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>Enable Distributed Task Communication & XMPP<br><small>BTRON分散通信・XMPP</small></b></td>
+            <td>ノード間での実身共有およびXMPPプロトコルによる分散メッセージングパイプラインを有効化します。</td>
+            <td>サービス: <code>src/apps/chat.c</code><br>C99: <code>g_state_network.checks[4]</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 全設定パラメータ仕様一覧 -->
     <div class="section">
-      <h2>Configuration Options</h2>
-      <ul class="setting-features">
-        <li>VirtIO-Net interface configuration (DHCP / static IP)</li>
-        <li>DNS resolver and search domain settings</li>
-        <li>XMPP account management for Mail &amp; Chat</li>
-        <li>Local peer-to-peer TAD sharing (Bonjour-style discovery)</li>
-        <li>Proxy and VPN settings</li>
-        <li>Firewall capability rules (seL4 network access control)</li>
-      </ul>
+      <h2>3. 全設定パラメータ仕様一覧 (Configuration Parameter Specifications)</h2>
+      <p>
+        通信網設定が提供するすべての設定要素、初期値、およびC99内部シンボル。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive parameter specification table: indexing all UI widget states, factory defaults, and underlying C99 data symbols."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>パラメータ名 / UI要素</th>
+            <th>標準値 (Default)</th>
+            <th>設定値 / 選択肢</th>
+            <th>C99 内部変数・シンボル</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>[1] 通信・IPスタック</b></td>
+            <td>Primary Interface (eth0)</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_network.checks[0]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 通信・IPスタック</b></td>
+            <td>IPv4 DHCP Auto</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_network.checks[1]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 通信・IPスタック</b></td>
+            <td>IPv6 SLAAC</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_network.checks[2]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 通信・IPスタック</b></td>
+            <td>DNS Resolver</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_network.checks[3]</code></td>
+          </tr>
+          <tr>
+            <td><b>[1] 通信・IPスタック</b></td>
+            <td>Distributed Task & XMPP</td>
+            <td>有効 (TRUE)</td>
+            <td>チェックボックス</td>
+            <td><code>g_state_network.checks[4]</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 標準 (Default) ]</td>
+            <td>—</td>
+            <td>初期設定へ復元</td>
+            <td><code>全フラグTRUEリセット</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 適用 (Apply) ]</td>
+            <td>—</td>
+            <td>変更確定と再描画</td>
+            <td><code>is_dirty = FALSE, redraw_all_windows()</code></td>
+          </tr>
+          <tr>
+            <td><b>アクション制御</b></td>
+            <td>[ 閉じる (Close) ]</td>
+            <td>—</td>
+            <td>ウィンドウ破棄</td>
+            <td><code>cls_wnd(wnd)</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- 関連コンポーネント -->
     <div class="section">
-      <h2>Related Applications</h2>
+      <h2>関連コンポーネント (Related Components)</h2>
       <div class="related-apps">
-        <a href="../apps/MailChat.html">💬 Mail &amp; Chat</a>
-        <a href="../apps/Browser.html">🌐 Browser</a>
+        <a href="../apps/Chat.html">💬 対話通信</a>
+        <a href="../apps/Mail.html">📧 電子メール</a>
+        <a href="Security.html">🔒 保全設定</a>
       </div>
     </div>
   </div>
@@ -75,14 +200,14 @@
             <li><a href="../apps/Clock.html">Clock</a></li>
             <li><a href="../apps/Mail.html">Mail</a></li>
             <li><a href="../apps/Preferences.html">Preferences</a></li>
-            <li><a href="../apps/Boot.html">Bootloader</a></li>
+            <li><a href="../apps/Boot.html">Boot</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
         <h4>TAD</h4>
         <ul>
             <li><a href="../apps/Cabinet.html">Cabinet</a></li>
-            <li><a href="../apps/TEditor.html">T-Editor</a></li>
+            <li><a href="../apps/TEditor.html">TEditor</a></li>
             <li><a href="../apps/Matrix.html">Matrix</a></li>
             <li><a href="../apps/Clarity.html">Clarity</a></li>
             <li><a href="../apps/Browser.html">Browser</a></li>
@@ -97,6 +222,7 @@
             <li><a href="../apps/Cassette.html">Cassette</a></li>
             <li><a href="../apps/Paint.html">Paint</a></li>
             <li><a href="../apps/Music.html">Music</a></li>
+            <li><a href="../apps/MailChat.html">MailChat</a></li>
         </ul>
       </div>
       <div class="app-footer-col">
@@ -112,11 +238,11 @@
             <li><a href="Media.html">Media</a></li>
             <li><a href="System.html">System</a></li>
             <li><a href="Security.html">Security</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
         </ul>
       </div>
     </div>
-    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Settings</div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
   </footer>
-
 </body>
 </html>
