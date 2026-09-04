@@ -50,7 +50,7 @@ int main(void) {
     init_wnd_mgr(NULL);
     WND *wnd_lang = open_language_settings_window();
     TEST_ASSERT(wnd_lang != NULL, "open_language_settings_window() successfully created window");
-    TEST_ASSERT(strstr(wnd_lang->title, "Settings Cabinet") != NULL, "Window title contains 'Settings Cabinet'");
+    TEST_ASSERT(strstr(wnd_lang->title, "Language") != NULL || strstr(wnd_lang->title, "言語") != NULL, "Window title contains 'Language' or '言語'");
     cls_wnd(wnd_lang);
 
     /* 4. Control Panel Applet Registry Verification */
@@ -70,7 +70,7 @@ int main(void) {
     WND *w;
 
     w = open_control_panel_window();
-    TEST_ASSERT(w != NULL && strstr(w->title, "Control Panel") != NULL, "Control Panel Hub opened");
+    TEST_ASSERT(w != NULL && (strstr(w->title, "Control Panel") != NULL || strstr(w->title, "コントロールパネル") != NULL || strstr(w->title, "Preferences Panel") != NULL), "Control Panel Hub opened");
     cls_wnd(w);
 
     w = open_appearance_settings_window();

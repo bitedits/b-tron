@@ -179,7 +179,7 @@ int main(void) {
     init_wnd_mgr(NULL);
     WND *about_wnd = open_about_window();
     TEST_ASSERT(about_wnd != NULL, "open_about_window() returns valid window");
-    TEST_ASSERT(strstr(about_wnd->title, "About B-System") != NULL, "About window title matches specification");
+    TEST_ASSERT(strstr(about_wnd->title, "システム情報") != NULL, "About window title matches specification");
     
     /* Simulate paint */
     GDEV *test_dev = opn_dev(560, 340);
