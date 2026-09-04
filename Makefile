@@ -109,7 +109,6 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/apps/tad_browser.c   \
                        src/apps/gterm.c \
               src/apps/t_editor.c      \
-              src/apps/gterm.c         \
               src/apps/audio_player.c  \
               src/apps/chat.c          \
               src/apps/chat_xml.c      \
@@ -226,9 +225,7 @@ COMMON_NO_SDL_SRCS = \
     src/apps/vobj_manager.c \
     src/apps/tad_browser.c \
                        src/apps/gterm.c \
-                       src/apps/gterm.c \
     src/apps/t_editor.c    \
-    src/apps/gterm.c       \
     src/settings/language.c \
     src/settings/appearance.c \
     src/settings/terminal.c \
