@@ -360,11 +360,28 @@ Consequently, for the SMP UEFI edition of B-System, the introduction of \textbf{
 \section{Subsystem Process Isolation in BTRON 3.20}
 \label{sec:isolation_plan}
 
-We conclude that the optimal compromise for B-System 3.20 is not a purist user-space microkernel, but a \textbf{Capability-Gated Ring-Partitioned Architecture}. In this model:
+We conclude that the optimal compromise for B-System 3.20 is not a purist user-space microkernel, but a \textbf{Capability-Gated Ring-Partitioned Architecture}. In this model, core real-time interrupt routing and the graphics blitting pipeline reside in Ring~0, while distinct OS subsystem managers are encapsulated within isolated Ring~3 virtual address spaces.
+
+\subsection{Subsystem Partitioning and Actual Code Components}
+In classical T-Kernel and BTRON implementations (\texttt{src/kernel/subsystem.c}), system extensions are registered dynamically through Subsystem Control Blocks (\texttt{SSYCB}) and invoked via Extended SVC handlers (\texttt{svchdr})~\cite{btron3spec}. In the B-System UEFI SMP kernel, these classical components are decoupled into distinct protection domains:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Virtual Object Manager (\texttt{vobjmgr}):} Located in \texttt{src/vobject/} and \texttt{src/apps/vobj\_manager.c} with public interface \texttt{include/btron/omgr.h} and \texttt{vobj.h}. Manages the fundamental Real Object / Virtual Object (\ja{実身}/\ja{仮身}) hyper-data network, Fusen link pointers, and metadata records. Running \texttt{vobjmgr} in an isolated Ring~3 process with its own PML4 root ensures that corrupted object records or cyclic link traversals cannot destabilize the kernel or other tasks.
+    \item \textbf{Font Manager (\texttt{fontmgr}):} Located in \texttt{src/font/font\_mgr.c} with interface \texttt{include/btron/font\_mgr.h}. Manages multi-script font definitions (\texttt{FDEF}) across Mincho, Gothic, Marugo, and Tibetan glyph dictionaries (\texttt{jis\_fonts.h}, \texttt{tibetan\_fonts.h}). Glyphs are rasterized inside \texttt{fontmgr}'s private address space and published to client application spaces via read-only shared physical memory frames (\texttt{PAGE\_USER | PAGE\_PRESENT}), eliminating IPC data copying.
+    \item \textbf{TCP/IP Network Stack (\texttt{tcpip}):} Located in \texttt{src/kernel/tcpip.c} and \texttt{src/drivers/net/} with interface \texttt{include/btron/tcpip.h}. Manages BSD socket primitives (\texttt{SOCK\_STREAM}, \texttt{SOCK\_DGRAM}), IP routing, ARP tables, and VirtIO-Net descriptor rings. Running the network stack in Ring~3 isolates untrusted network packets; malformed packets or buffer overruns in protocol decoding are sandboxed without triggering a kernel panic.
+    \item \textbf{Hierarchical File/Data Set (\texttt{hfds}):} Located in \texttt{src/kernel/fs\_record.c} with interface \texttt{include/btron/file.h}. Controls physical block layouts, directory trees, and system TAD files (\texttt{BTRON3\_SPEC.TAD}, \texttt{T\_KERNEL\_20.TAD}). Faulty disk blocks or file-table corruption are contained within the storage process.
+    \item \textbf{Window Manager (\texttt{wndmgr}):} Located in \texttt{src/window/wnd\_mgr.c} with interface \texttt{include/btron/wnd.h}. Maintains window trees, clipping regions, and focus state, dispatching drawing requests to Display Primitives via shared memory command buffers.
+    \item \textbf{Text Input Primitives / IME (\texttt{tipmgr}):} Located in \texttt{src/tip/} with interface \texttt{include/btron/tip.h} and \texttt{mozc\_engine.h}. Executes statistical Kana-Kanji conversion using the Mozc engine (\texttt{MOZC\_DICT.DAT}) in an isolated heap.
+    \item \textbf{Display Primitives Engine (\texttt{dp}):} Located in \texttt{src/graphics/} with interface \texttt{include/btron/dp.h}. In accordance with the lessons of Windows NT 4.0 (Section~\ref{sec:graphics_dilemma}), \texttt{dp} remains in Ring~0 or directly mapped video frames to sustain sub-microsecond blitting throughput.
+\end{itemize}
+
+\subsection{Mapping \texttt{tk\_def\_ssy} to Lock-Free Actor Queues}
+In standard T-Kernel, subsystems register via \texttt{tk\_def\_ssy(ID ssid, const T\_DSSY *pk\_dssy)}. Under B-System SMP, this interface is preserved but augmented:
 \begin{enumerate}[leftmargin=*]
-    \item The Core Kernel, Local APIC interrupt dispatchers, and high-speed Display Primitives (DP) rendering engine reside in Ring~0.
-    \item User Applications, the Hierarchical File/Data Set (HFDS) storage daemon, and network protocol stacks execute in isolated Ring~3 process address spaces.
-    \item IPC between Ring~3 processes and the kernel leverages the zero-switch Erlang-style MPSC lock-free queues established in Section~\ref{sec:erlang}.
+    \item When a subsystem registers, the kernel allocates an isolated \texttt{SMP\_TASK} entry with a dedicated PML4 root (\texttt{cr3\_phys}) and an inbound MPSC queue (\texttt{ipc\_queue}).
+    \item Client system calls specifying a subsystem function code are dispatched via x86\_64 \texttt{syscall}.
+    \item The kernel maps client request parameters into a 32-byte message node (\texttt{btron\_msg\_t}) and enqueues it atomically via \texttt{CMPXCHG8} into the target subsystem's queue without triggering scheduler preemption.
+    \item The target subsystem, executing on a designated core, pops the request in a non-blocking C loop, achieving complete memory isolation with near-zero latency.
 \end{enumerate}
 
 %-------------------------------------------------------------------------

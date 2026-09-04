@@ -161,7 +161,58 @@ A frequent design error in microkernel advocacy is placing the **Graphical Subsy
 
 ---
 
-## 5. Minimal-Change Implementation Plan for `core_smp.c`
+## 5. Subsystem Isolation Matrix: Real BTRON Components
+
+In B-System, the classical TRON subsystem architecture (`src/kernel/subsystem.c`) manages extended services via subsystem control blocks (`SSYCB`) and extended service call routines (`svchdr`). In the UEFI SMP edition, these subsystems are partitioned across hardware protection rings:
+
+```
+  Privilege Level              Subsystems & Daemon Processes                         Isolation Boundary
+  ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  Ring 0 (Supervisor)          • core_smp (Kernel Core, LAPIC/IO-APIC Scheduler)     Shared Higher-Half PML4
+                               • dp (Display Primitives 2D Engine, src/graphics/)    Direct Framebuffer / MMIO
+                               • devmgr (Low-Level Hardware Devices, core_boot.c)    Ring 0 Interrupt Handlers
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Ring 3 (Isolated User Mode)  • vobjmgr (Virtual/Real Object Manager, src/vobject/) Private PML4 (CR3_VOBJ)
+                               • fontmgr (Font Rendering Cache, src/font/)           Private PML4 (CR3_FONT)
+                               • tcpip (TCP/IP Network Stack, src/kernel/tcpip.c)    Private PML4 (CR3_NET)
+                               • hfds (Hierarchical File/Data Set, fs_record.c)      Private PML4 (CR3_HFDS)
+                               • wndmgr (Window Management Server, src/window/)      Private PML4 (CR3_WND)
+                               • tipmgr (Text Input / Mozc IME, src/tip/)            Private PML4 (CR3_TIP)
+                               • User Applications (gterm, tad_browser, chat, etc.)  Private PML4 per App
+```
+
+### Detailed Component Isolation Specifications
+
+| Subsystem Name | Source Code Locations | Header Interface | Privilege Ring | Isolation Strategy & Failure Containment |
+| :--- | :--- | :--- | :--- | :--- |
+| **`vobjmgr`** *(Virtual Object Manager)* | `src/vobject/`, `src/apps/vobj_manager.c` | `include/btron/omgr.h`, `include/btron/vobj.h` | **Ring 3** | Manages Jitsushin (実身) Real Objects and Kashin (仮身) Virtual Object links. Runs in private address space `CR3_VOBJ`. Corruption of Fusen links or metadata does not compromise the kernel; requests are serviced via lock-free MPSC queues. |
+| **`fontmgr`** *(Font Manager)* | `src/font/`, `src/font/font_mgr.c`, `jis_fonts.c`, `tibetan_fonts.c` | `include/btron/font_mgr.h`, `jis_fonts.h`, `tibetan_fonts.h` | **Ring 3** | Parses font definition headers (`FDEF`) and caches glyph rasters for Mincho, Gothic, Marugo, and Tibetan scripts. Rendered glyph bitmaps are shared read-only with clients via mapped physical memory frames (`PAGE_USER \| PAGE_PRESENT`), avoiding data copy. |
+| **`tcpip`** *(Network Stack)* | `src/kernel/tcpip.c`, `src/drivers/net/` | `include/btron/tcpip.h` | **Ring 3** | Handles Berkeley sockets (`SOCK_STREAM`, `SOCK_DGRAM`), IPv4/IPv6 packet decoding, and ARP routing. Communicates with VirtIO-Net rings via isolated DMA buffers. Untrusted packet exploits or buffer overflows are sandboxed; a crash restarts `tcpip` without a kernel panic. |
+| **`hfds`** *(Hierarchical File/Data Set)* | `src/kernel/fs_record.c`, `src/kernel/core_boot.c` | `include/btron/file.h`, `include/btron/core.h` | **Ring 3** | Manages block-level storage, directory records, and persistent TAD files (`BTRON3_SPEC.TAD`, `T_KERNEL_20.TAD`). Faulty disk blocks or filesystem corruption are contained within the storage process. |
+| **`wndmgr`** *(Window Manager)* | `src/window/`, `src/window/wnd_mgr.c`, `wnd_event.c` | `include/btron/wnd.h` | **Ring 3** | Maintains window trees, clipping rectangles, focus chains, and titlebar decorations. Window coordinates and dirty regions are dispatched to the DP graphics engine via shared-memory command rings. |
+| **`tipmgr`** *(Text Input / IME)* | `src/tip/`, `src/apps/clarity.c` | `include/btron/tip.h`, `include/btron/mozc_engine.h` | **Ring 3** | Executes statistical Kana-Kanji conversion using the Mozc dictionary engine (`MOZC_DICT.DAT`) and Tibetan Wylie conversion. Memory-intensive Viterbi graph evaluations run in an isolated heap. |
+| **`devmgr`** *(Device Manager)* | `src/kernel/dev_mgr.c` | `include/btron/device.h` | **Ring 0 / Ring 3** | Core port I/O and interrupt dispatchers reside in Ring 0; non-critical device protocol decoders run in Ring 3 containers with capability-restricted port access (`IOPL`). |
+| **`dp`** *(Display Primitives)* | `src/graphics/`, `src/graphics/dp_core.c` | `include/btron/dp.h` | **Ring 0** | High-performance 2D drawing engine (lines, rectangles, polygons, blits). Retained in Ring 0 / direct shared-memory mapping to avert the historical Windows NT 3.51 LPC performance collapse. |
+
+### Mapping T-Kernel Subsystem Registration (`tk_def_ssy`) to SMP
+
+In classic T-Kernel (`src/kernel/subsystem.c`), subsystems are registered via:
+```c
+ER tk_def_ssy(ID ssid, const T_DSSY *pk_dssy);
+```
+In B-System UEFI SMP:
+1. When a subsystem registers with `tk_def_ssy`, the kernel assigns it an isolated task ID (`tskid`), allocates a dedicated PML4 root (`cr3_phys`), and initializes its lock-free inbound MPSC queue (`ipc_queue`).
+2. Client applications invoke subsystem APIs via fast `SYSCALL` instructions.
+3. The kernel's system call dispatcher inspects the target subsystem ID (`ssid`) and translates the request into an atomic lock-free enqueue into the target subsystem's MPSC queue:
+   ```c
+   /* Atomic enqueue to target subsystem without scheduler preemption */
+   btron_mpsc_enqueue(&s_smp_tasks[target_idx].ipc_queue, msg);
+   ```
+4. Subsystems running on dedicated cores consume requests in pure non-blocking C loops, achieving full hardware memory isolation with sub-microsecond message dispatch latency.
+
+---
+
+## 6. Minimal-Change Implementation Plan for `core_smp.c`
 
 To introduce hardware process isolation into `src/kernel/core_smp.c` while maintaining full $\mu$ITRON API compatibility (`cre_tsk`, `sta_tsk`, `wup_tsk`, `cre_sem`):
 
@@ -223,7 +274,7 @@ btron_enter_ring3:
 
 ---
 
-## 6. Scientific References
+## 7. Scientific References
 
 For full mathematical proofs, formal latency models, and historical analysis, refer to the accompanying scientific papers in this repository:
 
