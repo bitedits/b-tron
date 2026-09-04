@@ -919,7 +919,7 @@ static void paint_t_editor(WND *wnd, GDEV *dev) {
         int x = text_x_start;
         while (*p && x < dev->width - 16) {
             int consumed = 0;
-            TC code = utf8_to_tc(p, &consumed);
+            (void)utf8_to_tc(p, &consumed);
             int step = (consumed > 0 ? consumed : 1);
 
             /* Selection check */
