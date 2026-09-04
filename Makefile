@@ -107,6 +107,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/desktop/main.c       \
               src/apps/vobj_manager.c  \
               src/apps/tad_browser.c   \
+                       src/apps/gterm.c \
               src/apps/t_editor.c      \
               src/apps/gterm.c         \
               src/apps/audio_player.c  \
@@ -224,6 +225,8 @@ COMMON_NO_SDL_SRCS = \
     src/desktop/global_menu.c \
     src/apps/vobj_manager.c \
     src/apps/tad_browser.c \
+                       src/apps/gterm.c \
+                       src/apps/gterm.c \
     src/apps/t_editor.c    \
     src/apps/gterm.c       \
     src/settings/language.c \
@@ -824,6 +827,7 @@ CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
                        src/apps/vobj_manager.c \
                        src/apps/t_editor.c \
                        src/apps/tad_browser.c \
+                       src/apps/gterm.c \
                        src/apps/audio_player.c \
                        src/apps/chat.c \
                        src/apps/chat_xml.c \
@@ -850,3 +854,4 @@ screenshots: $(CAPTURE_SCREENS_BIN)
 	@echo "=========================================================="
 	@./$(CAPTURE_SCREENS_BIN)
 	@python3 scripts/raw_to_png.py
+	@python3 scripts/populate_doc_screens.py
