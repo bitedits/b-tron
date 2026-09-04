@@ -408,9 +408,9 @@ void fb_set_palette(void) {
 
     for (int i = 0; i < 12; i++) {
         ctrl[0x200] = (uint8_t)i;
-        ctrl[0x214] = palette_entries[i][0];
-        ctrl[0x214] = palette_entries[i][1];
-        ctrl[0x214] = palette_entries[i][2];
+        ctrl[0x210] = palette_entries[i][0];
+        ctrl[0x210] = palette_entries[i][1];
+        ctrl[0x210] = palette_entries[i][2];
     }
 }
 
@@ -419,8 +419,8 @@ void m68k_fb_init(void) {
     s_fb.height = 600;
     s_fb.depth = 8;
     s_fb.bytes_per_pixel = 1;
-    s_fb.stride = 800;
-    s_fb.vram = (volatile uint8_t*)MACFB_VRAM_BASE;
+    s_fb.stride = 832;   /* NuBus DAFB 800x600 mode uses 832-byte stride */
+    s_fb.vram = (volatile uint8_t*)(MACFB_VRAM_BASE + 0x0E00); /* NuBus header offset 0x0E00 */
     s_fb.ctrl = (volatile uint8_t*)MACFB_CTRL_BASE;
 
     fb_set_palette();
@@ -958,7 +958,7 @@ void render_system_window(void) {
     fb_fill_rect(wx + 13, wy + 14, 6, 2, C32_DKGRAY, PAL_DKGRAY);
 
     /* Title text */
-    fb_draw_string_shadow(wx + 34, wy + 7, "BTRON3 68040 Workstation — Macintosh Quadra 800", C32_WHITE, PAL_WHITE);
+    fb_draw_string_shadow(wx + 34, wy + 7, "BTRON3 68040 Workstation - Macintosh Quadra 800", C32_WHITE, PAL_WHITE);
 
     /* Zoom box (Top right) */
     fb_draw_3d_panel(wx + ww - 28, wy + 7, 16, 16, 0);
@@ -1024,8 +1024,17 @@ void render_system_window(void) {
         num[1] = '\0';
         fb_draw_string(cx + 20,  row_y, num, C32_NAVY, PAL_NAVY, 0, 0, 1);
         fb_draw_string(cx + 60,  row_y, task_table[t].name, C32_BLACK, PAL_BLACK, 0, 0, 1);
-        num[0] = '0' + task_table[t].pri;
-        fb_draw_string(cx + 225, row_y, num, C32_DKGRAY, PAL_DKGRAY, 0, 0, 1);
+
+        char pri_str[8];
+        if (task_table[t].pri >= 10) {
+            pri_str[0] = '0' + (task_table[t].pri / 10);
+            pri_str[1] = '0' + (task_table[t].pri % 10);
+            pri_str[2] = '\0';
+        } else {
+            pri_str[0] = '0' + task_table[t].pri;
+            pri_str[1] = '\0';
+        }
+        fb_draw_string(cx + 225, row_y, pri_str, C32_DKGRAY, PAL_DKGRAY, 0, 0, 1);
 
         uint32_t state_color = (t == 0) ? C32_GREEN : ((t == 1 || t == 4) ? C32_NAVY : C32_DKGRAY);
         uint8_t  state_pal   = (t == 0) ? PAL_GREEN : ((t == 1 || t == 4) ? PAL_NAVY : PAL_DKGRAY);
