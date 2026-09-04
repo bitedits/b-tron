@@ -607,36 +607,33 @@ static int adb_poll_devices(GDEV *screen) {
 
     /* Check if ADB has data waiting: bit 3 of ORB (vADBInt) is active low (0) */
     if ((via1[VIA_REG_ORB] & 0x08) == 0) {
-        uint8_t buf[8];
-        int count = 0;
+        /* Byte 0 (dev_cmd) is already in Shift Register from autopoll */
+        uint8_t dev_cmd = via1[VIA_REG_SR];
 
-        for (int i = 0; i < 4; i++) {
-            uint8_t st = (i % 2 == 0) ? 0x10 : 0x20;
-            via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | st;
-            buf[count++] = via1[VIA_REG_SR];
-            if (via1[VIA_REG_ORB] & 0x08) {
-                break;
-            }
-        }
-        /* Return to IDLE state (0x30) */
+        /* Transition to EVEN (0x10) to read Byte 1 */
+        via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x10;
+        uint8_t b1 = via1[VIA_REG_SR];
+
+        /* Transition to ODD (0x20) to read Byte 2 */
+        via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x20;
+        uint8_t b2 = via1[VIA_REG_SR];
+
+        /* Return to IDLE state (0x30) to unblock ADB autopoll */
         via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x30;
 
-        if (count >= 3) {
-            uint8_t dev_cmd = buf[0];
-            uint8_t dev_addr = (dev_cmd >> 4) & 0x0F;
+        uint8_t dev_addr = (dev_cmd >> 4) & 0x0F;
 
-            if (dev_addr == 3 || dev_cmd == 0x3C) {
-                /* ADB Mouse Packet */
-                uint8_t b1 = buf[1];
-                uint8_t b2 = buf[2];
-                BOOL btn_down = ((b1 & 0x80) == 0);
+        if (dev_addr == 3 || dev_cmd == 0x3C) {
+            /* ADB Mouse Packet */
+            BOOL btn_down = ((b1 & 0x80) == 0);
 
-                int8_t dy_raw = (int8_t)(b1 & 0x7F);
-                if (dy_raw & 0x40) dy_raw -= 0x80;
+            int8_t dy_raw = (int8_t)(b1 & 0x7F);
+            if (dy_raw & 0x40) dy_raw |= 0x80;
 
-                int8_t dx_raw = (int8_t)(b2 & 0x7F);
-                if (dx_raw & 0x40) dx_raw -= 0x80;
+            int8_t dx_raw = (int8_t)(b2 & 0x7F);
+            if (dx_raw & 0x40) dx_raw |= 0x80;
 
+            if (dx_raw != 0 || dy_raw != 0) {
                 s_mouse_x += dx_raw;
                 s_mouse_y += dy_raw;
                 if (s_mouse_x < 0) s_mouse_x = 0;
@@ -644,38 +641,36 @@ static int adb_poll_devices(GDEV *screen) {
                 if (s_mouse_y < 0) s_mouse_y = 0;
                 if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
 
-                if (dx_raw != 0 || dy_raw != 0) {
-                    handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
-                    activity = 1;
-                }
+                handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                activity = 1;
+            }
 
-                static BOOL s_last_mouse_btn = FALSE;
-                if (btn_down != s_last_mouse_btn) {
-                    s_last_mouse_btn = btn_down;
-                    handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, btn_down);
+            static BOOL s_last_mouse_btn = FALSE;
+            if (btn_down != s_last_mouse_btn) {
+                s_last_mouse_btn = btn_down;
+                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, btn_down);
+                activity = 1;
+            }
+        } else if (dev_addr == 2 || dev_cmd == 0x2C) {
+            /* ADB Keyboard Packet */
+            uint8_t sc = b1;
+            static int s_adb_shift = 0;
+            if (sc == 0x38) {
+                s_adb_shift = 1;
+            } else if (sc == 0xB8) {
+                s_adb_shift = 0;
+            } else if (!(sc & 0x80)) {
+                char ch = mac_keycode_to_ascii(sc, s_adb_shift);
+                if (ch) {
+                    EVT ev;
+                    ev.type = EV_KEY_DOWN;
+                    ev.key = (UW)ch;
+                    ev.pos.x = s_mouse_x;
+                    ev.pos.y = s_mouse_y;
+                    ev.button = 0;
+                    ev.data = 0;
+                    snd_evt(&ev);
                     activity = 1;
-                }
-            } else if (dev_addr == 2 || dev_cmd == 0x2C) {
-                /* ADB Keyboard Packet */
-                uint8_t sc = buf[1];
-                static int s_adb_shift = 0;
-                if (sc == 0x38) {
-                    s_adb_shift = 1;
-                } else if (sc == 0xB8) {
-                    s_adb_shift = 0;
-                } else if (!(sc & 0x80)) {
-                    char ch = mac_keycode_to_ascii(sc, s_adb_shift);
-                    if (ch) {
-                        EVT ev;
-                        ev.type = EV_KEY_DOWN;
-                        ev.key = (UW)ch;
-                        ev.pos.x = s_mouse_x;
-                        ev.pos.y = s_mouse_y;
-                        ev.button = 0;
-                        ev.data = 0;
-                        snd_evt(&ev);
-                        activity = 1;
-                    }
                 }
             }
         }
@@ -822,24 +817,26 @@ void m68k_kernel_main(void) {
             char c = scc_getc();
             if (c == 0x1B) {
                 /* ANSI escape sequence */
+                int wait_tries = 200;
+                while (!scc_has_char() && --wait_tries > 0) m68k_delay_cycles(20);
                 if (scc_has_char() && scc_getc() == '[') {
-                    char dir = scc_getc();
-                    if (dir == 'A') s_mouse_y = (s_mouse_y > 10) ? s_mouse_y - 16 : 10;
-                    else if (dir == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
-                    else if (dir == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
-                    else if (dir == 'D') s_mouse_x = (s_mouse_x > 10) ? s_mouse_x - 16 : 10;
-                    handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
-                    need_redraw = 1;
+                    wait_tries = 200;
+                    while (!scc_has_char() && --wait_tries > 0) m68k_delay_cycles(20);
+                    if (scc_has_char()) {
+                        char dir = scc_getc();
+                        if (dir == 'A') s_mouse_y = (s_mouse_y > 10) ? s_mouse_y - 16 : 10;
+                        else if (dir == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
+                        else if (dir == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
+                        else if (dir == 'D') s_mouse_x = (s_mouse_x > 10) ? s_mouse_x - 16 : 10;
+                        handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                        need_redraw = 1;
+                    }
                 }
-            } else if (c == ' ' || c == '\r' || c == '\n') {
-                /* Click on current mouse position */
-                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, TRUE);
-                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, FALSE);
-                need_redraw = 1;
             } else {
                 /* Key event to active window */
+                if (c == '\r') c = '\n';
                 ev.type = EV_KEY_DOWN;
-                ev.key = (UW)c;
+                ev.key = (UW)(uint8_t)c;
                 ev.pos.x = s_mouse_x;
                 ev.pos.y = s_mouse_y;
                 ev.button = 0;
