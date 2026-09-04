@@ -113,65 +113,81 @@ static void paint_terminal_settings(WND *wnd, GDEV *dev) {
     fill_rec(dev, &r, COLOR_WHITE);
     drw_rec(dev, &r);
 
-    /* Header Bar: Settings window icon is ALWAYS 32x32 */
+    /* ── Header Bar: icon is ALWAYS 32x32 ────────────────────────── */
     RECT hdr = { 0, 0, dev->width, 40 };
     fill_rec(dev, &hdr, COLOR_LTGRAY);
     drw_lin(dev, 0, 40, dev->width, 40);
     draw_setting_gif_icon_scaled(dev, "terminal", 6, 4, 32, 32);
-
-    drw_tc_string(dev, 44, 4, "Terminal Settings – 端末・通信環境設定", COLOR_BLACK, COLOR_LTGRAY);
-    drw_tc_string(dev, 44, 22, "B-System Workstation Console, VT100 Emulator & Colours", COLOR_DKGRAY, COLOR_LTGRAY);
+    drw_tc_string(dev, 46, 6,  "Terminal Settings – 端末・通信環境設定",           COLOR_BLACK, COLOR_LTGRAY);
+    drw_tc_string(dev, 46, 22, "B-System Workstation Console, VT100 Emulator & Colours", COLOR_DKGRAY, COLOR_LTGRAY);
 
     TERMINAL_SETTINGS *cfg = &g_state_terminal.local_cfg;
 
-    /* Section 1: 配色テーマ (Color Theme) */
-    RECT sec1 = { 10, 48, dev->width - 10, 118 };
+    /* Layout constants */
+    H M    = 12;          /* outer horizontal margin */
+    H P    = 10;          /* inner padding inside group box */
+    H LH   = 20;          /* radio row height */
+    H GAP  = 14;          /* vertical gap between sections */
+    H HDR_H = 40;         /* header bar height */
+    H LBL_OVERLAP = 8;    /* how many px the label sits above the box top */
+
+    /* ── Section 1: 配色テーマ (Colour Theme) ─────────────────── */
+    H s1_top = HDR_H + GAP + LBL_OVERLAP;   /* 64 */
+    H s1_bot = s1_top + P + LH * 3 + P;     /* 64 + 10 + 60 + 10 = 144 */
+    RECT sec1 = { M, s1_top, dev->width - M, s1_bot };
     fill_rec(dev, &sec1, COLOR_WHITE);
     drw_rec(dev, &sec1);
-    drw_tc_string(dev, 18, 42, " [1] 配色テーマ (Colour Theme) ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, M + P - 2, s1_top - LBL_OVERLAP, " [1] 配色テーマ (Colour Theme) ", COLOR_NAVY, COLOR_WHITE);
 
-    paint_ui_radio(dev, 20, 60, "グリーン (Matrix Green)", cfg->theme == TERM_THEME_GREEN, FALSE);
-    paint_ui_radio(dev, 230, 60, "アンバー (Amber CRT)", cfg->theme == TERM_THEME_AMBER, FALSE);
-    paint_ui_radio(dev, 20, 80, "白黒 (White on Black)", cfg->theme == TERM_THEME_WHITE, FALSE);
-    paint_ui_radio(dev, 230, 80, "BTRON青 (Cyan on Navy)", cfg->theme == TERM_THEME_CYAN, FALSE);
-    paint_ui_radio(dev, 20, 100, "ライト (Paper Light)", cfg->theme == TERM_THEME_LIGHT, FALSE);
+    paint_ui_radio(dev, M + P, s1_top + P,            "グリーン (Matrix Green)",  cfg->theme == TERM_THEME_GREEN, FALSE);
+    paint_ui_radio(dev, dev->width / 2, s1_top + P,   "アンバー (Amber CRT)",     cfg->theme == TERM_THEME_AMBER, FALSE);
+    paint_ui_radio(dev, M + P, s1_top + P + LH,       "白黒 (White on Black)",    cfg->theme == TERM_THEME_WHITE, FALSE);
+    paint_ui_radio(dev, dev->width / 2, s1_top + P + LH, "BTRON青 (Cyan on Navy)",cfg->theme == TERM_THEME_CYAN,  FALSE);
+    paint_ui_radio(dev, M + P, s1_top + P + LH * 2,   "ライト (Paper Light)",     cfg->theme == TERM_THEME_LIGHT, FALSE);
 
-    /* Section 2: 文字サイズ (Font Size) */
-    RECT sec2 = { 10, 126, dev->width - 10, 180 };
+    /* ── Section 2: 文字サイズ (Font Size) ────────────────────── */
+    H s2_top = s1_bot + GAP + LBL_OVERLAP;  /* 144 + 14 + 8 = 166 */
+    H s2_bot = s2_top + P + LH + P;         /* 166 + 10 + 20 + 10 = 206 */
+    RECT sec2 = { M, s2_top, dev->width - M, s2_bot };
     fill_rec(dev, &sec2, COLOR_WHITE);
     drw_rec(dev, &sec2);
-    drw_tc_string(dev, 18, 120, " [2] 文字・行間 (Font Size) ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, M + P - 2, s2_top - LBL_OVERLAP, " [2] 文字・行間 (Font Size) ", COLOR_NAVY, COLOR_WHITE);
 
-    paint_ui_radio(dev, 20, 138, "小 12px (32行×100桁)", cfg->font_size == TERM_FONT_12, FALSE);
-    paint_ui_radio(dev, 200, 138, "標準 16px (24行×80桁)", cfg->font_size == TERM_FONT_16, FALSE);
-    paint_ui_radio(dev, 380, 138, "大 20px (18行×64桁)", cfg->font_size == TERM_FONT_20, FALSE);
+    H col3 = (dev->width - 2 * M - 2 * P) / 3;  /* third-column step */
+    paint_ui_radio(dev, M + P,             s2_top + P, "小 12px (32行×100桁)",  cfg->font_size == TERM_FONT_12, FALSE);
+    paint_ui_radio(dev, M + P + col3,      s2_top + P, "標準 16px (24行×80桁)", cfg->font_size == TERM_FONT_16, FALSE);
+    paint_ui_radio(dev, M + P + col3 * 2,  s2_top + P, "大 20px (18行×64桁)",  cfg->font_size == TERM_FONT_20, FALSE);
 
-    /* Section 3: スクロール履歴・カーソル (Scrollback & Cursor) */
-    RECT sec3 = { 10, 188, dev->width - 10, 260 };
+    /* ── Section 3: スクロール履歴・カーソル (Scrollback & Cursor) ─────── */
+    H s3_top = s2_bot + GAP + LBL_OVERLAP;  /* 206 + 14 + 8 = 228 */
+    H s3_bot = s3_top + P + LH * 2 + P;     /* 228 + 10 + 40 + 10 = 288 */
+    RECT sec3 = { M, s3_top, dev->width - M, s3_bot };
     fill_rec(dev, &sec3, COLOR_WHITE);
     drw_rec(dev, &sec3);
-    drw_tc_string(dev, 18, 182, " [3] 履歴・カーソル (Scrollback & Cursor) ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, M + P - 2, s3_top - LBL_OVERLAP, " [3] 履歴・カーソル (Scrollback & Cursor) ", COLOR_NAVY, COLOR_WHITE);
 
-    paint_ui_radio(dev, 20, 200, "履歴 100行", cfg->scrollback_lines == 100, FALSE);
-    paint_ui_radio(dev, 160, 200, "履歴 300行 (標準)", cfg->scrollback_lines == 300, FALSE);
-    paint_ui_radio(dev, 340, 200, "履歴 1000行 (大)", cfg->scrollback_lines == 1000, FALSE);
+    paint_ui_radio(dev, M + P,             s3_top + P,       "履歴 100行",           cfg->scrollback_lines == 100,  FALSE);
+    paint_ui_radio(dev, M + P + col3,      s3_top + P,       "履歴 300行 (標準)",    cfg->scrollback_lines == 300,  FALSE);
+    paint_ui_radio(dev, M + P + col3 * 2,  s3_top + P,       "履歴 1000行 (大)",    cfg->scrollback_lines == 1000, FALSE);
+    paint_ui_radio(dev, M + P,             s3_top + P + LH,  "カーソル下線 (_)",    cfg->cursor_style == TERM_CURSOR_UNDERLINE, FALSE);
+    paint_ui_radio(dev, M + P + col3,      s3_top + P + LH,  "ブロックカーソル (█)",cfg->cursor_style == TERM_CURSOR_BLOCK,     FALSE);
+    paint_ui_radio(dev, M + P + col3 * 2,  s3_top + P + LH,  "バーカーソル (|)",    cfg->cursor_style == TERM_CURSOR_BAR,       FALSE);
 
-    paint_ui_radio(dev, 20, 226, "カーソル下線 (_)", cfg->cursor_style == TERM_CURSOR_UNDERLINE, FALSE);
-    paint_ui_radio(dev, 200, 226, "ブロックカーソル (█)", cfg->cursor_style == TERM_CURSOR_BLOCK, FALSE);
-
-    /* Section 4: 画面透過度 (Dimming / Transparency) */
-    RECT sec4 = { 10, 268, dev->width - 10, 326 };
+    /* ── Section 4: 画面透過度 (Transparency) ──────────────────── */
+    H s4_top = s3_bot + GAP + LBL_OVERLAP;  /* 288 + 14 + 8 = 310 */
+    H s4_bot = s4_top + P + LH + P;         /* 310 + 10 + 20 + 10 = 350 */
+    RECT sec4 = { M, s4_top, dev->width - M, s4_bot };
     fill_rec(dev, &sec4, COLOR_WHITE);
     drw_rec(dev, &sec4);
-    drw_tc_string(dev, 18, 262, " [4] 背景透過・減光 (Background Transparency) ", COLOR_NAVY, COLOR_WHITE);
+    drw_tc_string(dev, M + P - 2, s4_top - LBL_OVERLAP, " [4] 背景透過・減光 (Background Transparency) ", COLOR_NAVY, COLOR_WHITE);
 
-    paint_ui_radio(dev, 20, 280, "不透明 (100% Opaque)", cfg->transparency == TERM_TRANSPARENCY_OPAQUE, FALSE);
-    paint_ui_radio(dev, 200, 280, "20%減光 (80% Dimmed)", cfg->transparency == TERM_TRANSPARENCY_80, FALSE);
-    paint_ui_radio(dev, 380, 280, "40%減光 (60% Dimmed)", cfg->transparency == TERM_TRANSPARENCY_60, FALSE);
+    paint_ui_radio(dev, M + P,             s4_top + P, "不透明 (100% Opaque)",  cfg->transparency == TERM_TRANSPARENCY_OPAQUE, FALSE);
+    paint_ui_radio(dev, M + P + col3,      s4_top + P, "20%減光 (80% Dimmed)",  cfg->transparency == TERM_TRANSPARENCY_80,     FALSE);
+    paint_ui_radio(dev, M + P + col3 * 2,  s4_top + P, "40%減光 (60% Dimmed)",  cfg->transparency == TERM_TRANSPARENCY_60,     FALSE);
 
-    /* Action Buttons */
-    paint_ui_button(dev, dev->width - 240, dev->height - 34, 110, 24, "標準に戻す", FALSE);
-    paint_ui_button(dev, dev->width - 120, dev->height - 34, 110, 24, "適用 (Apply)", FALSE);
+    /* ── Action Buttons ─────────────────────────────────────── */
+    paint_ui_button(dev, dev->width - 240, dev->height - 36, 110, 26, "標準に戻す",    FALSE);
+    paint_ui_button(dev, dev->width - 122, dev->height - 36, 110, 26, "適用 (Apply)",  FALSE);
 }
 
 static void handle_terminal_settings_event(WND *wnd, const EVT *evt) {
@@ -240,7 +256,7 @@ WND* open_terminal_settings_window(void) {
     g_state_terminal.is_dirty = FALSE;
 
     H win_w = 540;
-    H win_h = 420;
+    H win_h = 450;   /* 40px header + 4 sections×(~80px) + 14px gaps×3 + 36px buttons + margins */
     WND *wnd = opn_wnd("Terminal Settings (端末・通信環境設定)",
                        (1280 - win_w) / 2 + 20, (800 - win_h) / 2 + 20, win_w, win_h,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
