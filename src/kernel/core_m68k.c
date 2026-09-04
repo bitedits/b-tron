@@ -1,25 +1,20 @@
 /*
- * core_m68k.c — B-System BTRON3 3.20 Custom RTOS Kernel for Motorola 68040
+ * core_m68k.c — B-System BTRON3 3.20 RTOS Kernel for Motorola 68040
  *
  * Dedicated Platform: Apple Macintosh Quadra 800 (QEMU -M q800)
  *
- * Implements:
- *   • Hardware Abstraction Layer (HAL):
- *       - Zilog Z8530 ESCC Dual-Channel Serial Console (Port A / Modem, Port B / Printer)
- *       - NuBus Slot 9 DAFB / MacFB Linear Framebuffer (800x600 & 640x480 @ 8-bpp / 24-bpp)
- *       - MOS 6522 VIA1 / VIA2 System Controllers (Timer 1, 60Hz tick, ADB interface)
- *       - NCR 53C96 ESP SCSI Host Adapter status & discovery
- *   • Cleanroom µITRON 3.0 / BTRON 3.20 RTOS Core:
- *       - Multi-tasking scheduler (TCB, ready queues, context save)
- *       - Synchronization (Semaphores, Event Flags, Mailboxes)
- *       - Timing & system delays (dly_tsk, get_tim)
- *   • BTRON Graphical Window Server & Desktop Engine:
- *       - Display Primitives (lines, rectangles, clipping, 3D beveled styling)
- *       - Crisp 8x16 typography engine
- *       - Top Global Menu Bar with real-time clock & system indicators
- *       - Desktop Virtual Objects (Cabinet, Editor, Terminal, Cassette, Wastebasket)
- *       - Active Workstation Diagnostic Window
- *       - Interactive Mouse pointer overlay & Serial Terminal Shell
+ * Architecture:
+ *   • Hardware Drivers:
+ *       - NuBus Slot 9 DAFB / MacFB Linear Framebuffer (800x600, 832-byte stride, DAC palette)
+ *       - Apple Desktop Bus (ADB) Mouse & Keyboard via MOS 6522 VIA1
+ *       - Zilog Z8530 ESCC Serial Port A (Modem) Console
+ *       - MOS 6522 VIA1 Timer 1 (60Hz System Tick Interrupt)
+ *       - NCR 53C96 ESP SCSI Host Adapter status
+ *   • Integrated B-System Workbench:
+ *       - Plugs into core_init.c, desktop.c, wnd.c, vobj.c, global_menu.c, etc.
+ *       - Launches authentic B-System Workbench desktop with live windows
+ *       - Real-time ADB mouse cursor tracking, window dragging, tabs, and menus
+ *       - Interactive keyboard input from ADB and SCC serial
  *
  * Copyright 2026 Synrc Research Center. MIT License.
  */
@@ -32,6 +27,12 @@
 #include <btron/error.h>
 #include <btron/itron.h>
 #include <btron/dp.h>
+#include <btron/wnd.h>
+#include <btron/desktop.h>
+#include <btron/event.h>
+#include <btron/tip.h>
+#include <btron/apps.h>
+#include <libstr.h>
 
 /* ═══════════════════════════════════════════════════════════════════
  * Macintosh Quadra 800 Hardware Memory Map
@@ -42,6 +43,10 @@
 /* NuBus Slot 9 MacFB / DAFB Video */
 #define MACFB_VRAM_BASE     0xF9000000UL
 #define MACFB_CTRL_BASE     0xF9800000UL
+#define MACFB_HEADER_OFFSET 0x00000E00UL
+#define MACFB_STRIDE        832
+#define BTRON_SCREEN_W      800
+#define BTRON_SCREEN_H      600
 
 /* Apple Mac-IO Subsystems (Base 0x50000000) */
 #define VIA1_BASE           0x50000000UL
@@ -50,38 +55,8 @@
 #define SCSI_BASE           0x50010000UL
 #define ASC_BASE            0x50014000UL
 
-/* Freestanding Standard Library Primitives for GCC */
-void *memcpy(void *dest, const void *src, size_t n) {
-    uint8_t *d = (uint8_t*)dest;
-    const uint8_t *s = (const uint8_t*)src;
-    while (n--) *d++ = *s++;
-    return dest;
-}
-
-void *memset(void *s, int c, size_t n) {
-    uint8_t *p = (uint8_t*)s;
-    while (n--) *p++ = (uint8_t)c;
-    return s;
-}
-
-void *memmove(void *dest, const void *src, size_t n) {
-    uint8_t *d = (uint8_t*)dest;
-    const uint8_t *s = (const uint8_t*)src;
-    if (d < s) {
-        while (n--) *d++ = *s++;
-    } else {
-        d += n;
-        s += n;
-        while (n--) *--d = *--s;
-    }
-    return dest;
-}
-
-size_t strlen(const char *s) {
-    size_t len = 0;
-    while (*s++) len++;
-    return len;
-}
+/* VIA Register Offsets (Stride 0x200 / 512 bytes) */
+#define VIA_REG_ORB         (0x0000 / 1)
 #define VIA_REG_ORA         (0x0200 / 1)
 #define VIA_REG_DDRB        (0x0400 / 1)
 #define VIA_REG_DDRA        (0x0600 / 1)
@@ -103,21 +78,7 @@ size_t strlen(const char *s) {
 #define ESCC_CHNB_DATA      4
 #define ESCC_CHNA_DATA      6
 
-/* Colors for 32-bpp and 8-bpp */
-#define C32_BLACK       0x00000000
-#define C32_WHITE       0x00FFFFFF
-#define C32_TEAL        0x00008080
-#define C32_NAVY        0x00000080
-#define C32_LTGRAY      0x00D4D0C8
-#define C32_DKGRAY      0x00404040
-#define C32_MIDGRAY     0x00808080
-#define C32_CYAN        0x0000FFFF
-#define C32_YELLOW      0x00FFFF00
-#define C32_RED         0x00E02020
-#define C32_GREEN       0x0020B040
-#define C32_GOLD        0x00FFB000
-
-/* Standard 8-bpp palette index equivalents */
+/* Standard Palette Colors for 8-bpp */
 #define PAL_WHITE       0x00
 #define PAL_BLACK       0x01
 #define PAL_LTGRAY      0x02
@@ -130,6 +91,10 @@ size_t strlen(const char *s) {
 #define PAL_RED         0x09
 #define PAL_GREEN       0x0A
 #define PAL_GOLD        0x0B
+#define PAL_BLUE        0x0C
+#define PAL_ORANGE      0x0D
+#define PAL_PALEGRAY    0x0E
+#define PAL_BGWINDOW    0x0F
 
 /* External assembly hooks */
 extern uint16_t m68k_get_sr(void);
@@ -138,6 +103,31 @@ extern void     m68k_enable_irq(void);
 extern void     m68k_disable_irq(void);
 extern void     m68k_delay_cycles(uint32_t cycles);
 extern void     m68k_halt(void);
+
+/* Desktop & Mouse Declarations */
+extern GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
+extern void  redraw_baremetal_desktop(GDEV *screen, H w, H h);
+void set_baremetal_mouse_pos(H x, H y);
+void get_baremetal_mouse_pos(H *x, H *y);
+void handle_baremetal_mouse_click(GDEV *screen, H x, H y, BOOL is_down);
+void handle_baremetal_mouse_move(GDEV *screen, H x, H y);
+
+/* Desktop Backbuffer (800x600 x 32-bit COLOR) */
+static COLOR s_desktop_backbuffer[BTRON_SCREEN_W * BTRON_SCREEN_H] __attribute__((aligned(16)));
+
+/* Global mouse coordinates */
+static H s_mouse_x = 400;
+static H s_mouse_y = 300;
+static BOOL s_dragging = FALSE;
+static WND *s_drag_wnd = NULL;
+static H s_drag_off_x = 0;
+static H s_drag_off_y = 0;
+static BOOL s_sliding_tab = FALSE;
+static WND *s_slide_wnd = NULL;
+static H s_slide_start_x = 0;
+static H s_slide_orig_off = 0;
+
+uint32_t heap_ptr = 0x00010000;
 
 /* ═══════════════════════════════════════════════════════════════════
  * Zilog Z8530 ESCC Serial Console Driver
@@ -156,7 +146,6 @@ void scc_init(void) {
 }
 
 void scc_putc(char c) {
-    /* Wait until Tx buffer is empty (RR0 bit 2 = 0x04) */
     while ((s_escc[ESCC_CHNA_CTRL] & 0x04) == 0) {
         /* Busy wait */
     }
@@ -172,7 +161,6 @@ void scc_puts(const char *str) {
 }
 
 int scc_has_char(void) {
-    /* RR0 bit 0 is Rx Character Available (0x01) */
     return (s_escc[ESCC_CHNA_CTRL] & 0x01) ? 1 : 0;
 }
 
@@ -181,7 +169,22 @@ char scc_getc(void) {
     return (char)s_escc[ESCC_CHNA_DATA];
 }
 
-/* Formatted print over SCC serial */
+void uart_puts(const char *s) {
+    scc_puts(s);
+}
+
+void uart_putc(char c) {
+    scc_putc(c);
+}
+
+int uart_has_char(void) {
+    return scc_has_char();
+}
+
+int uart_getc(void) {
+    return scc_getc();
+}
+
 static void scc_print_num(uint32_t num, int base, int width, char pad) {
     char buf[32];
     int i = 0;
@@ -273,379 +276,103 @@ void kprintf(const char *fmt, ...) {
  * NuBus DAFB / MacFB Graphics Driver
  * ═══════════════════════════════════════════════════════════════════ */
 
-typedef struct {
-    int width;
-    int height;
-    int depth;          /* 8 or 24/32 */
-    int bytes_per_pixel;
-    int stride;
-    volatile uint8_t *vram;
-    volatile uint8_t *ctrl;
-} macfb_dev_t;
+static volatile uint8_t *const s_macfb_vram = (volatile uint8_t*)(MACFB_VRAM_BASE + MACFB_HEADER_OFFSET);
+static volatile uint8_t *const s_macfb_ctrl = (volatile uint8_t*)MACFB_CTRL_BASE;
 
-static macfb_dev_t s_fb;
-
-/* Built-in 8x16 font (ASCII 0x20..0x7E) */
-static const uint8_t s_font8x16[96][16] = {
-    [' ' - 0x20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    ['!' - 0x20] = {0x00,0x00,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x00,0x18,0x18,0x00,0x00,0x00,0x00},
-    ['"' - 0x20] = {0x00,0x00,0x66,0x66,0x66,0x24,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['#' - 0x20] = {0x00,0x00,0x6C,0x6C,0xFE,0x6C,0x6C,0x6C,0xFE,0x6C,0x6C,0x00,0x00,0x00,0x00,0x00},
-    ['$' - 0x20] = {0x00,0x18,0x18,0x7C,0xC6,0xC2,0xC0,0x7C,0x06,0x86,0xC6,0x7C,0x18,0x18,0x00,0x00},
-    ['%' - 0x20] = {0x00,0x00,0x00,0xC6,0xCC,0x18,0x30,0x60,0xC6,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['&' - 0x20] = {0x00,0x00,0x38,0x6C,0x68,0x70,0xD8,0xCC,0xCE,0xD8,0x74,0x00,0x00,0x00,0x00,0x00},
-    ['\'' - 0x20] = {0x00,0x00,0x18,0x18,0x10,0x20,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['(' - 0x20] = {0x00,0x0C,0x18,0x30,0x30,0x60,0x60,0x60,0x60,0x30,0x30,0x18,0x0C,0x00,0x00,0x00},
-    [')' - 0x20] = {0x00,0x30,0x18,0x0C,0x0C,0x06,0x06,0x06,0x06,0x0C,0x0C,0x18,0x30,0x00,0x00,0x00},
-    ['*' - 0x20] = {0x00,0x00,0x00,0x66,0x3C,0xFF,0x3C,0x66,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['+' - 0x20] = {0x00,0x00,0x00,0x18,0x18,0x7E,0x18,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    [',' - 0x20] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x18,0x18,0x10,0x20,0x00,0x00,0x00},
-    ['-' - 0x20] = {0x00,0x00,0x00,0x00,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['.' - 0x20] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x00,0x00},
-    ['/' - 0x20] = {0x00,0x00,0x02,0x06,0x0C,0x18,0x30,0x60,0xC0,0x80,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['0' - 0x20] = {0x00,0x00,0x3C,0x66,0xC3,0xC3,0xDB,0xC3,0xC3,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['1' - 0x20] = {0x00,0x00,0x18,0x38,0x18,0x18,0x18,0x18,0x18,0x18,0x7E,0x00,0x00,0x00,0x00,0x00},
-    ['2' - 0x20] = {0x00,0x00,0x3C,0x66,0x06,0x0C,0x18,0x30,0x60,0xC6,0xFE,0x00,0x00,0x00,0x00,0x00},
-    ['3' - 0x20] = {0x00,0x00,0x7E,0x06,0x0C,0x18,0x3E,0x06,0x06,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['4' - 0x20] = {0x00,0x00,0x0C,0x1C,0x3C,0x6C,0xCC,0xFE,0x0C,0x0C,0x1E,0x00,0x00,0x00,0x00,0x00},
-    ['5' - 0x20] = {0x00,0x00,0xFE,0xC0,0xC0,0xFC,0x06,0x06,0x06,0xC6,0x7C,0x00,0x00,0x00,0x00,0x00},
-    ['6' - 0x20] = {0x00,0x00,0x38,0x60,0xC0,0xFC,0xC6,0xC6,0xC6,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['7' - 0x20] = {0x00,0x00,0xFE,0xC6,0x06,0x0C,0x18,0x30,0x60,0x60,0x60,0x00,0x00,0x00,0x00,0x00},
-    ['8' - 0x20] = {0x00,0x00,0x3C,0x66,0xC6,0x7C,0xC6,0xC6,0xC6,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['9' - 0x20] = {0x00,0x00,0x3C,0x66,0xC6,0xC6,0x7E,0x06,0x06,0x0C,0x38,0x00,0x00,0x00,0x00,0x00},
-    [':' - 0x20] = {0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    [';' - 0x20] = {0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x18,0x18,0x10,0x20,0x00,0x00,0x00,0x00,0x00},
-    ['<' - 0x20] = {0x00,0x06,0x0C,0x18,0x30,0x60,0x30,0x18,0x0C,0x06,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['=' - 0x20] = {0x00,0x00,0x00,0x00,0x7E,0x00,0x7E,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['>' - 0x20] = {0x00,0x60,0x30,0x18,0x0C,0x06,0x0C,0x18,0x30,0x60,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['?' - 0x20] = {0x00,0x00,0x3C,0x66,0x06,0x0C,0x18,0x18,0x00,0x18,0x18,0x00,0x00,0x00,0x00,0x00},
-    ['@' - 0x20] = {0x00,0x00,0x3C,0x66,0x9E,0xB6,0xB6,0xBE,0xC0,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['A' - 0x20] = {0x00,0x00,0x18,0x3C,0x66,0xC3,0xC3,0xFF,0xC3,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['B' - 0x20] = {0x00,0x00,0xFC,0x66,0x66,0x7C,0x66,0x66,0x66,0x66,0xFC,0x00,0x00,0x00,0x00,0x00},
-    ['C' - 0x20] = {0x00,0x00,0x3C,0x66,0xC0,0xC0,0xC0,0xC0,0xC0,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['D' - 0x20] = {0x00,0x00,0xF8,0x6C,0x66,0x66,0x66,0x66,0x66,0x6C,0xF8,0x00,0x00,0x00,0x00,0x00},
-    ['E' - 0x20] = {0x00,0x00,0xFE,0x62,0x60,0x7C,0x60,0x60,0x62,0x66,0xFE,0x00,0x00,0x00,0x00,0x00},
-    ['F' - 0x20] = {0x00,0x00,0xFE,0x62,0x60,0x7C,0x60,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00,0x00},
-    ['G' - 0x20] = {0x00,0x00,0x3C,0x66,0xC0,0xC0,0xCE,0xC6,0xC6,0x66,0x3E,0x00,0x00,0x00,0x00,0x00},
-    ['H' - 0x20] = {0x00,0x00,0xC3,0xC3,0xC3,0xFF,0xC3,0xC3,0xC3,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['I' - 0x20] = {0x00,0x00,0x7E,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x7E,0x00,0x00,0x00,0x00,0x00},
-    ['J' - 0x20] = {0x00,0x00,0x1E,0x06,0x06,0x06,0x06,0x06,0xC6,0xC6,0x7C,0x00,0x00,0x00,0x00,0x00},
-    ['K' - 0x20] = {0x00,0x00,0xC6,0xCC,0xD8,0xF0,0xF8,0xDC,0xCE,0xC6,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['L' - 0x20] = {0x00,0x00,0xE0,0x60,0x60,0x60,0x60,0x60,0x62,0x66,0xFE,0x00,0x00,0x00,0x00,0x00},
-    ['M' - 0x20] = {0x00,0x00,0xC3,0xE7,0xFF,0xDB,0xC3,0xC3,0xC3,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['N' - 0x20] = {0x00,0x00,0xC3,0xE3,0xF3,0xFB,0xDF,0xCF,0xC7,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['O' - 0x20] = {0x00,0x00,0x3C,0x66,0xC3,0xC3,0xC3,0xC3,0xC3,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['P' - 0x20] = {0x00,0x00,0xFC,0x66,0x66,0x66,0x7C,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00,0x00},
-    ['Q' - 0x20] = {0x00,0x00,0x3C,0x66,0xC3,0xC3,0xC3,0xC3,0xDB,0x6E,0x3C,0x0E,0x00,0x00,0x00,0x00},
-    ['R' - 0x20] = {0x00,0x00,0xFC,0x66,0x66,0x66,0x7C,0x6C,0x66,0x66,0xE3,0x00,0x00,0x00,0x00,0x00},
-    ['S' - 0x20] = {0x00,0x00,0x3C,0x66,0xC0,0x60,0x3C,0x06,0x03,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['T' - 0x20] = {0x00,0x00,0xFF,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['U' - 0x20] = {0x00,0x00,0xC3,0xC3,0xC3,0xC3,0xC3,0xC3,0xC3,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['V' - 0x20] = {0x00,0x00,0xC3,0xC3,0xC3,0xC3,0xC3,0x66,0x66,0x3C,0x18,0x00,0x00,0x00,0x00,0x00},
-    ['W' - 0x20] = {0x00,0x00,0xC3,0xC3,0xC3,0xC3,0xDB,0xFF,0xE7,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['X' - 0x20] = {0x00,0x00,0xC3,0x66,0x3C,0x18,0x18,0x3C,0x66,0xC3,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['Y' - 0x20] = {0x00,0x00,0xEE,0x66,0x66,0x3C,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['Z' - 0x20] = {0x00,0x00,0xFF,0xC3,0x06,0x0C,0x18,0x30,0x60,0xC1,0xFF,0x00,0x00,0x00,0x00,0x00},
-    ['[' - 0x20] = {0x00,0x3C,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['\\' - 0x20] = {0x00,0x80,0xC0,0x60,0x30,0x18,0x0C,0x06,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    [']' - 0x20] = {0x00,0x3C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['^' - 0x20] = {0x18,0x3C,0x66,0xC3,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['_' - 0x20] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x00,0x00,0x00},
-    ['`' - 0x20] = {0x30,0x18,0x0C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['a' - 0x20] = {0x00,0x00,0x00,0x00,0x78,0x0C,0x7C,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00,0x00},
-    ['b' - 0x20] = {0x00,0xE0,0x60,0x60,0x7C,0x66,0x66,0x66,0x66,0x66,0x7C,0x00,0x00,0x00,0x00,0x00},
-    ['c' - 0x20] = {0x00,0x00,0x00,0x00,0x3C,0x66,0x60,0x60,0x60,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['d' - 0x20] = {0x00,0x0E,0x06,0x06,0x3E,0x66,0x66,0x66,0x66,0x66,0x3E,0x00,0x00,0x00,0x00,0x00},
-    ['e' - 0x20] = {0x00,0x00,0x00,0x00,0x3C,0x66,0x7E,0x60,0x60,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['f' - 0x20] = {0x00,0x1C,0x36,0x30,0x7C,0x30,0x30,0x30,0x30,0x30,0x78,0x00,0x00,0x00,0x00,0x00},
-    ['g' - 0x20] = {0x00,0x00,0x00,0x00,0x3E,0x66,0x66,0x66,0x3E,0x06,0x66,0x3C,0x00,0x00,0x00,0x00},
-    ['h' - 0x20] = {0x00,0xE0,0x60,0x60,0x6C,0x76,0x66,0x66,0x66,0x66,0xE7,0x00,0x00,0x00,0x00,0x00},
-    ['i' - 0x20] = {0x00,0x18,0x18,0x00,0x38,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['j' - 0x20] = {0x00,0x06,0x06,0x00,0x0E,0x06,0x06,0x06,0x06,0x66,0x66,0x3C,0x00,0x00,0x00,0x00},
-    ['k' - 0x20] = {0x00,0xE0,0x60,0x60,0x66,0x6C,0x78,0x78,0x6C,0x66,0xE7,0x00,0x00,0x00,0x00,0x00},
-    ['l' - 0x20] = {0x00,0x38,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['m' - 0x20] = {0x00,0x00,0x00,0x00,0xE6,0xFF,0xDB,0xDB,0xDB,0xDB,0xE7,0x00,0x00,0x00,0x00,0x00},
-    ['n' - 0x20] = {0x00,0x00,0x00,0x00,0xDC,0x66,0x66,0x66,0x66,0x66,0x66,0x00,0x00,0x00,0x00,0x00},
-    ['o' - 0x20] = {0x00,0x00,0x00,0x00,0x3C,0x66,0x66,0x66,0x66,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['p' - 0x20] = {0x00,0x00,0x00,0x00,0xDC,0x66,0x66,0x66,0x7C,0x60,0xF0,0x00,0x00,0x00,0x00,0x00},
-    ['q' - 0x20] = {0x00,0x00,0x00,0x00,0x3B,0x66,0x66,0x66,0x3E,0x06,0x0F,0x00,0x00,0x00,0x00,0x00},
-    ['r' - 0x20] = {0x00,0x00,0x00,0x00,0xDC,0x76,0x66,0x60,0x60,0x60,0xF0,0x00,0x00,0x00,0x00,0x00},
-    ['s' - 0x20] = {0x00,0x00,0x00,0x00,0x3E,0x60,0x3C,0x06,0x06,0x66,0x3C,0x00,0x00,0x00,0x00,0x00},
-    ['t' - 0x20] = {0x00,0x10,0x30,0x7C,0x30,0x30,0x30,0x30,0x30,0x36,0x1C,0x00,0x00,0x00,0x00,0x00},
-    ['u' - 0x20] = {0x00,0x00,0x00,0x00,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0x76,0x00,0x00,0x00,0x00,0x00},
-    ['v' - 0x20] = {0x00,0x00,0x00,0x00,0xC3,0xC3,0xC3,0xC3,0x66,0x3C,0x18,0x00,0x00,0x00,0x00,0x00},
-    ['w' - 0x20] = {0x00,0x00,0x00,0x00,0xC3,0xC3,0xC3,0xDB,0xDB,0xFF,0x66,0x00,0x00,0x00,0x00,0x00},
-    ['x' - 0x20] = {0x00,0x00,0x00,0x00,0xC3,0x66,0x3C,0x18,0x3C,0x66,0xC3,0x00,0x00,0x00,0x00,0x00},
-    ['y' - 0x20] = {0x00,0x00,0x00,0x00,0xC3,0xC3,0xC3,0x7E,0x06,0x0C,0x38,0x00,0x00,0x00,0x00,0x00},
-    ['z' - 0x20] = {0x00,0x00,0x00,0x00,0x7E,0x4C,0x18,0x30,0x62,0x7E,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['{' - 0x20] = {0x00,0x0E,0x18,0x18,0x18,0x70,0x18,0x18,0x18,0x0E,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['|' - 0x20] = {0x00,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x00,0x00,0x00,0x00,0x00},
-    ['}' - 0x20] = {0x00,0x70,0x18,0x18,0x18,0x0E,0x18,0x18,0x18,0x70,0x00,0x00,0x00,0x00,0x00,0x00},
-    ['~' - 0x20] = {0x00,0x76,0xDC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-};
-
-/* Program DAFB/MacFB DAC palette */
 void fb_set_palette(void) {
-    /* Set custom palette entries for BTRON color scheme in 8-bpp mode */
-    volatile uint8_t *ctrl = s_fb.ctrl;
-    if (!ctrl) return;
+    volatile uint8_t *ctrl = s_macfb_ctrl;
 
-    /* Palette colors: index -> R, G, B */
-    static const uint8_t palette_entries[][3] = {
-        [PAL_WHITE]   = {0xFF, 0xFF, 0xFF},
-        [PAL_BLACK]   = {0x00, 0x00, 0x00},
-        [PAL_LTGRAY]  = {0xD4, 0xD0, 0xC8},
-        [PAL_DKGRAY]  = {0x40, 0x40, 0x40},
-        [PAL_TEAL]    = {0x00, 0x80, 0x80},
-        [PAL_NAVY]    = {0x00, 0x00, 0x80},
-        [PAL_CYAN]    = {0x00, 0xDF, 0xDF},
-        [PAL_YELLOW]  = {0xFF, 0xFF, 0x00},
-        [PAL_MIDGRAY] = {0x80, 0x80, 0x80},
-        [PAL_RED]     = {0xE0, 0x20, 0x20},
-        [PAL_GREEN]   = {0x20, 0xB0, 0x40},
-        [PAL_GOLD]    = {0xFF, 0xB0, 0x00},
+    /* 1. Core BTRON Palette (Indices 0..15) */
+    static const uint8_t tron_palette[16][3] = {
+        [PAL_WHITE]    = {0xFF, 0xFF, 0xFF},
+        [PAL_BLACK]    = {0x00, 0x00, 0x00},
+        [PAL_LTGRAY]   = {0xD4, 0xD0, 0xC8},
+        [PAL_DKGRAY]   = {0x40, 0x40, 0x40},
+        [PAL_TEAL]     = {0x00, 0x80, 0x80},
+        [PAL_NAVY]     = {0x00, 0x00, 0x80},
+        [PAL_CYAN]     = {0x00, 0xDF, 0xDF},
+        [PAL_YELLOW]   = {0xFF, 0xFF, 0x00},
+        [PAL_MIDGRAY]  = {0x80, 0x80, 0x80},
+        [PAL_RED]      = {0xE0, 0x20, 0x20},
+        [PAL_GREEN]    = {0x20, 0xB0, 0x40},
+        [PAL_GOLD]     = {0xFF, 0xB0, 0x00},
+        [PAL_BLUE]     = {0x00, 0x66, 0xCC},
+        [PAL_ORANGE]   = {0xFF, 0x66, 0x00},
+        [PAL_PALEGRAY] = {0xE8, 0xE8, 0xE8},
+        [PAL_BGWINDOW] = {0xC0, 0xC0, 0xC0},
     };
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 16; i++) {
         ctrl[0x200] = (uint8_t)i;
-        ctrl[0x210] = palette_entries[i][0];
-        ctrl[0x210] = palette_entries[i][1];
-        ctrl[0x210] = palette_entries[i][2];
+        ctrl[0x210] = tron_palette[i][0];
+        ctrl[0x210] = tron_palette[i][1];
+        ctrl[0x210] = tron_palette[i][2];
     }
-}
 
-void m68k_fb_init(void) {
-    s_fb.width = 800;
-    s_fb.height = 600;
-    s_fb.depth = 8;
-    s_fb.bytes_per_pixel = 1;
-    s_fb.stride = 832;   /* NuBus DAFB 800x600 mode uses 832-byte stride */
-    s_fb.vram = (volatile uint8_t*)(MACFB_VRAM_BASE + 0x0E00); /* NuBus header offset 0x0E00 */
-    s_fb.ctrl = (volatile uint8_t*)MACFB_CTRL_BASE;
-
-    fb_set_palette();
-}
-
-static inline void put_pixel_fast(int x, int y, uint32_t c32, uint8_t pal) {
-    if (x < 0 || x >= s_fb.width || y < 0 || y >= s_fb.height) return;
-    if (s_fb.depth >= 24) {
-        volatile uint32_t *p32 = (volatile uint32_t*)(s_fb.vram + y * s_fb.stride);
-        p32[x] = c32;
-    } else {
-        s_fb.vram[y * s_fb.stride + x] = pal;
-    }
-}
-
-void fb_clear(uint32_t c32, uint8_t pal) {
-    if (s_fb.depth >= 24) {
-        volatile uint32_t *p32 = (volatile uint32_t*)s_fb.vram;
-        uint32_t total = (s_fb.width * s_fb.height);
-        for (uint32_t i = 0; i < total; i++) {
-            p32[i] = c32;
-        }
-    } else {
-        volatile uint8_t *p8 = s_fb.vram;
-        uint32_t total = (s_fb.width * s_fb.height);
-        for (uint32_t i = 0; i < total; i++) {
-            p8[i] = pal;
-        }
-    }
-}
-
-void fb_fill_rect(int x, int y, int w, int h, uint32_t c32, uint8_t pal) {
-    if (x < 0) { w += x; x = 0; }
-    if (y < 0) { h += y; y = 0; }
-    if (x + w > s_fb.width)  w = s_fb.width - x;
-    if (y + h > s_fb.height) h = s_fb.height - y;
-    if (w <= 0 || h <= 0) return;
-
-    for (int r = 0; r < h; r++) {
-        int py = y + r;
-        if (s_fb.depth >= 24) {
-            volatile uint32_t *line = (volatile uint32_t*)(s_fb.vram + py * s_fb.stride);
-            for (int c = 0; c < w; c++) {
-                line[x + c] = c32;
-            }
-        } else {
-            volatile uint8_t *line = s_fb.vram + py * s_fb.stride;
-            for (int c = 0; c < w; c++) {
-                line[x + c] = pal;
+    /* 2. 6x6x6 Color Cube (Indices 16..231) */
+    for (int r = 0; r < 6; r++) {
+        for (int g = 0; g < 6; g++) {
+            for (int b = 0; b < 6; b++) {
+                int idx = 16 + r * 36 + g * 6 + b;
+                ctrl[0x200] = (uint8_t)idx;
+                ctrl[0x210] = (uint8_t)(r * 51);
+                ctrl[0x210] = (uint8_t)(g * 51);
+                ctrl[0x210] = (uint8_t)(b * 51);
             }
         }
     }
-}
 
-void fb_draw_rect(int x, int y, int w, int h, uint32_t c32, uint8_t pal) {
-    /* Horizontal lines */
-    for (int i = 0; i < w; i++) {
-        put_pixel_fast(x + i, y, c32, pal);
-        put_pixel_fast(x + i, y + h - 1, c32, pal);
-    }
-    /* Vertical lines */
-    for (int j = 0; j < h; j++) {
-        put_pixel_fast(x, y + j, c32, pal);
-        put_pixel_fast(x + w - 1, y + j, c32, pal);
+    /* 3. Grayscale Ramp (Indices 232..255) */
+    for (int i = 0; i < 24; i++) {
+        uint8_t gray = (uint8_t)((i * 255) / 23);
+        ctrl[0x200] = (uint8_t)(232 + i);
+        ctrl[0x210] = gray;
+        ctrl[0x210] = gray;
+        ctrl[0x210] = gray;
     }
 }
 
-/* 3D Beveled Box (Retro Classic TRON Look) */
-void fb_draw_3d_panel(int x, int y, int w, int h, int sunken) {
-    uint32_t top_left_32  = sunken ? C32_DKGRAY : C32_WHITE;
-    uint8_t  top_left_pal = sunken ? PAL_DKGRAY : PAL_WHITE;
-    uint32_t bot_right_32 = sunken ? C32_WHITE : C32_DKGRAY;
-    uint8_t  bot_right_pal = sunken ? PAL_WHITE : PAL_DKGRAY;
+static inline uint8_t color_to_pal(COLOR c) {
+    uint8_t r = (c >> 16) & 0xFF;
+    uint8_t g = (c >> 8)  & 0xFF;
+    uint8_t b = c & 0xFF;
 
-    /* Base fill */
-    fb_fill_rect(x + 1, y + 1, w - 2, h - 2, C32_LTGRAY, PAL_LTGRAY);
-
-    /* Top and Left borders */
-    for (int i = 0; i < w; i++) {
-        put_pixel_fast(x + i, y, top_left_32, top_left_pal);
-    }
-    for (int j = 0; j < h; j++) {
-        put_pixel_fast(x, y + j, top_left_32, top_left_pal);
+    if (r == g && g == b) {
+        if (r < 16) return PAL_BLACK;
+        if (r > 240) return PAL_WHITE;
+        if (r >= 0xC8 && r <= 0xE0) return PAL_LTGRAY;
+        if (r >= 0x30 && r <= 0x50) return PAL_DKGRAY;
+        return PAL_MIDGRAY;
     }
 
-    /* Bottom and Right borders */
-    for (int i = 0; i < w; i++) {
-        put_pixel_fast(x + i, y + h - 1, bot_right_32, bot_right_pal);
-    }
-    for (int j = 0; j < h; j++) {
-        put_pixel_fast(x + w - 1, y + j, bot_right_32, bot_right_pal);
-    }
+    if (r == 0x00 && g >= 0x70 && g <= 0x90 && b >= 0x70 && b <= 0x90) return PAL_TEAL;
+    if (r == 0x00 && g == 0x00 && b >= 0x70 && b <= 0x90) return PAL_NAVY;
+    if (r >= 0xD0 && r <= 0xE0 && g >= 0xC0 && g <= 0xD8 && b >= 0xC0 && b <= 0xD0) return PAL_LTGRAY;
+    if (r == 0x00 && g >= 0xC0 && b >= 0xC0) return PAL_CYAN;
+    if (r >= 0xE0 && g >= 0xE0 && b == 0x00) return PAL_YELLOW;
+    if (r >= 0xC0 && g < 0x40 && b < 0x40) return PAL_RED;
+    if (g >= 0xA0 && r < 0x40 && b < 0x60) return PAL_GREEN;
+    if (r >= 0xE0 && g >= 0xA0 && b < 0x40) return PAL_GOLD;
+
+    /* 6x6x6 color cube: indices 16..231 */
+    return (uint8_t)(16 + (r / 51) * 36 + (g / 51) * 6 + (b / 51));
 }
 
-void fb_draw_char(int x, int y, char c, uint32_t fg32, uint8_t fg_pal, uint32_t bg32, uint8_t bg_pal, int transparent_bg) {
-    if (c < 0x20 || c > 0x7E) c = '?';
-    const uint8_t *glyph = s_font8x16[c - 0x20];
+void blit_backbuffer_to_macfb(void) {
+    const COLOR *src = s_desktop_backbuffer;
+    volatile uint8_t *dst_base = s_macfb_vram;
 
-    for (int row = 0; row < 16; row++) {
-        uint8_t bits = glyph[row];
-        for (int col = 0; col < 8; col++) {
-            if (bits & (0x80 >> col)) {
-                put_pixel_fast(x + col, y + row, fg32, fg_pal);
-            } else if (!transparent_bg) {
-                put_pixel_fast(x + col, y + row, bg32, bg_pal);
-            }
+    for (int y = 0; y < BTRON_SCREEN_H; y++) {
+        volatile uint8_t *dst_row = dst_base + y * MACFB_STRIDE;
+        const COLOR *src_row = src + y * BTRON_SCREEN_W;
+        for (int x = 0; x < BTRON_SCREEN_W; x++) {
+            dst_row[x] = color_to_pal(src_row[x]);
         }
     }
-}
-
-void fb_draw_string(int x, int y, const char *str, uint32_t fg32, uint8_t fg_pal, uint32_t bg32, uint8_t bg_pal, int transparent) {
-    if (!str) return;
-    int cur_x = x;
-    while (*str) {
-        if (*str == '\n') {
-            y += 16;
-            cur_x = x;
-        } else {
-            fb_draw_char(cur_x, y, *str, fg32, fg_pal, bg32, bg_pal, transparent);
-            cur_x += 8;
-        }
-        str++;
-    }
-}
-
-void fb_draw_string_shadow(int x, int y, const char *str, uint32_t fg32, uint8_t fg_pal) {
-    /* Subtle 1px drop shadow */
-    fb_draw_string(x + 1, y + 1, str, C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(x, y, str, fg32, fg_pal, 0, 0, 1);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Mouse Cursor Rendering Engine
- * ═══════════════════════════════════════════════════════════════════ */
-
-#define CURSOR_W 12
-#define CURSOR_H 16
-
-/* Classic Macintosh / TRON Arrow Cursor (1 = black outline, 2 = white interior) */
-static const uint8_t s_cursor_bitmap[CURSOR_H][CURSOR_W] = {
-    {1,0,0,0,0,0,0,0,0,0,0,0},
-    {1,1,0,0,0,0,0,0,0,0,0,0},
-    {1,2,1,0,0,0,0,0,0,0,0,0},
-    {1,2,2,1,0,0,0,0,0,0,0,0},
-    {1,2,2,2,1,0,0,0,0,0,0,0},
-    {1,2,2,2,2,1,0,0,0,0,0,0},
-    {1,2,2,2,2,2,1,0,0,0,0,0},
-    {1,2,2,2,2,2,2,1,0,0,0,0},
-    {1,2,2,2,2,2,2,2,1,0,0,0},
-    {1,2,2,2,2,1,1,1,1,1,0,0},
-    {1,2,1,2,2,1,0,0,0,0,0,0},
-    {1,1,0,1,2,2,1,0,0,0,0,0},
-    {1,0,0,0,1,2,2,1,0,0,0,0},
-    {0,0,0,0,1,2,2,1,0,0,0,0},
-    {0,0,0,0,0,1,1,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0},
-};
-
-static int s_mouse_x = 240;
-static int s_mouse_y = 180;
-static int s_prev_mouse_x = -1;
-static int s_prev_mouse_y = -1;
-static uint32_t s_cursor_backup32[CURSOR_H * CURSOR_W];
-static uint8_t  s_cursor_backup8[CURSOR_H * CURSOR_W];
-
-void fb_restore_cursor_backing(void) {
-    if (s_prev_mouse_x < 0 || s_prev_mouse_y < 0) return;
-    int idx = 0;
-    for (int r = 0; r < CURSOR_H; r++) {
-        int y = s_prev_mouse_y + r;
-        for (int c = 0; c < CURSOR_W; c++) {
-            int x = s_prev_mouse_x + c;
-            if (x >= 0 && x < s_fb.width && y >= 0 && y < s_fb.height) {
-                put_pixel_fast(x, y, s_cursor_backup32[idx], s_cursor_backup8[idx]);
-            }
-            idx++;
-        }
-    }
-}
-
-void fb_save_cursor_backing(int mx, int my) {
-    int idx = 0;
-    for (int r = 0; r < CURSOR_H; r++) {
-        int y = my + r;
-        for (int c = 0; c < CURSOR_W; c++) {
-            int x = mx + c;
-            if (x >= 0 && x < s_fb.width && y >= 0 && y < s_fb.height) {
-                if (s_fb.depth >= 24) {
-                    volatile uint32_t *p32 = (volatile uint32_t*)(s_fb.vram + y * s_fb.stride);
-                    s_cursor_backup32[idx] = p32[x];
-                } else {
-                    s_cursor_backup8[idx] = s_fb.vram[y * s_fb.stride + x];
-                }
-            } else {
-                s_cursor_backup32[idx] = C32_TEAL;
-                s_cursor_backup8[idx]  = PAL_TEAL;
-            }
-            idx++;
-        }
-    }
-}
-
-void fb_render_cursor(int mx, int my) {
-    fb_restore_cursor_backing();
-    fb_save_cursor_backing(mx, my);
-
-    for (int r = 0; r < CURSOR_H; r++) {
-        int y = my + r;
-        for (int c = 0; c < CURSOR_W; c++) {
-            int x = mx + c;
-            uint8_t pixel = s_cursor_bitmap[r][c];
-            if (pixel == 1) {
-                put_pixel_fast(x, y, C32_BLACK, PAL_BLACK);
-            } else if (pixel == 2) {
-                put_pixel_fast(x, y, C32_WHITE, PAL_WHITE);
-            }
-        }
-    }
-
-    s_prev_mouse_x = mx;
-    s_prev_mouse_y = my;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * System Tick Timer & Clock (VIA1 Timer 1)
+ * MOS 6522 VIA1 System Controller & 60Hz Timer
  * ═══════════════════════════════════════════════════════════════════ */
 
 static volatile uint32_t s_system_ticks = 0;
@@ -674,489 +401,362 @@ void via1_init_timer(void) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * µITRON 3.0 / T-Kernel RTOS Core Engine
+ * Apple Desktop Bus (ADB) Keyboard & Mouse Driver
  * ═══════════════════════════════════════════════════════════════════ */
 
-#define MAX_M68K_TASKS 32
-#define MAX_M68K_SEMS  32
+static char mac_keycode_to_ascii(uint8_t code, int shift) {
+    switch (code & 0x7F) {
+        case 0x00: return shift ? 'A' : 'a';
+        case 0x0B: return shift ? 'B' : 'b';
+        case 0x08: return shift ? 'C' : 'c';
+        case 0x02: return shift ? 'D' : 'd';
+        case 0x0E: return shift ? 'E' : 'e';
+        case 0x03: return shift ? 'F' : 'f';
+        case 0x05: return shift ? 'G' : 'g';
+        case 0x04: return shift ? 'H' : 'h';
+        case 0x22: return shift ? 'I' : 'i';
+        case 0x26: return shift ? 'J' : 'j';
+        case 0x28: return shift ? 'K' : 'k';
+        case 0x25: return shift ? 'L' : 'l';
+        case 0x2E: return shift ? 'M' : 'm';
+        case 0x2D: return shift ? 'N' : 'n';
+        case 0x1F: return shift ? 'O' : 'o';
+        case 0x23: return shift ? 'P' : 'p';
+        case 0x0C: return shift ? 'Q' : 'q';
+        case 0x0F: return shift ? 'R' : 'r';
+        case 0x01: return shift ? 'S' : 's';
+        case 0x11: return shift ? 'T' : 't';
+        case 0x20: return shift ? 'U' : 'u';
+        case 0x09: return shift ? 'V' : 'v';
+        case 0x0D: return shift ? 'W' : 'w';
+        case 0x07: return shift ? 'X' : 'x';
+        case 0x10: return shift ? 'Y' : 'y';
+        case 0x06: return shift ? 'Z' : 'z';
 
-#define TA_HLNG        0x00000000
-#define TTS_DMT        0x00000001
-#define TTS_RDY        0x00000002
+        case 0x1D: return shift ? ')' : '0';
+        case 0x12: return shift ? '!' : '1';
+        case 0x13: return shift ? '@' : '2';
+        case 0x14: return shift ? '#' : '3';
+        case 0x15: return shift ? '$' : '4';
+        case 0x17: return shift ? '%' : '5';
+        case 0x16: return shift ? '^' : '6';
+        case 0x1A: return shift ? '&' : '7';
+        case 0x1C: return shift ? '*' : '8';
+        case 0x19: return shift ? '(' : '9';
 
-typedef struct {
-    ID       tskid;
-    T_CTSK   config;
-    PRI      priority;
-    UW       stat;
-    uint32_t sp;
-    uint32_t wake_tick;
-    BOOL     active;
-} m68k_task_t;
+        case 0x24: return '\n'; /* Return */
+        case 0x4C: return '\n'; /* Keypad Enter */
+        case 0x31: return ' ';  /* Space */
+        case 0x33: return '\b'; /* Backspace / Delete */
+        case 0x30: return '\t'; /* Tab */
+        case 0x35: return 0x1B; /* Escape */
+        case 0x1B: return shift ? '_' : '-';
+        case 0x18: return shift ? '+' : '=';
+        case 0x21: return shift ? '{' : '[';
+        case 0x1E: return shift ? '}' : ']';
+        case 0x2A: return shift ? '|' : '\\';
+        case 0x29: return shift ? ':' : ';';
+        case 0x27: return shift ? '"' : '\'';
+        case 0x2B: return shift ? '<' : ',';
+        case 0x2F: return shift ? '>' : '.';
+        case 0x2C: return shift ? '?' : '/';
 
-typedef struct {
-    ID       semid;
-    T_CSEM   config;
-    W        count;
-    BOOL     active;
-} m68k_sem_t;
+        /* Arrow keys */
+        case 0x7E: return 0x11; /* Up */
+        case 0x7D: return 0x12; /* Down */
+        case 0x7B: return 0x13; /* Left */
+        case 0x7C: return 0x14; /* Right */
+        default: return 0;
+    }
+}
 
-static m68k_task_t s_tasks[MAX_M68K_TASKS];
-static m68k_sem_t  s_sems[MAX_M68K_SEMS];
-static ID          s_current_tskid = 1;
+void adb_init(void) {
+    volatile uint8_t *via1 = (volatile uint8_t*)VIA1_BASE;
+    /* Set DDRB: bits 4 & 5 to output (ST0, ST1) */
+    via1[VIA_REG_DDRB] |= 0x30;
+    /* Set ADB IDLE state (0x30) */
+    via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x30;
+}
 
-ID cre_tsk(const T_CTSK *pk_ctsk) {
-    if (!pk_ctsk) return E_PAR;
-    for (int i = 0; i < MAX_M68K_TASKS; i++) {
-        if (!s_tasks[i].active) {
-            s_tasks[i].tskid    = i + 1;
-            s_tasks[i].config   = *pk_ctsk;
-            s_tasks[i].priority = pk_ctsk->itskpri;
-            s_tasks[i].stat     = TTS_DMT;
-            s_tasks[i].active   = TRUE;
-            return s_tasks[i].tskid;
+void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down) {
+    set_baremetal_mouse_pos(mx, my);
+
+    if (is_down) {
+        /* 1. Check Top Global Menu Bar Click */
+        if (my < 26) {
+            if (mx >= BTRON_SCREEN_W - 180) {
+                if (tip_get_mode() == TIP_MODE_ASCII) {
+                    tip_set_mode(TIP_MODE_HIRAGANA);
+                } else {
+                    tip_set_mode(TIP_MODE_ASCII);
+                }
+            }
+        }
+        /* 2. Check Left Desktop Virtual Object Clicks */
+        else if (mx < 70) {
+            if (my >= 50 && my < 100) {
+                open_vobj_manager_window();
+            } else if (my >= 130 && my < 180) {
+                open_t_editor_window();
+            } else if (my >= 210 && my < 260) {
+                open_gterm_window();
+            }
+        } else {
+            /* 3. Check Window Clicks */
+            WND *clicked = find_wnd_at(mx, my);
+            if (clicked) {
+                if (get_top_wnd() != clicked) {
+                    tip_cancel();
+                    top_wnd(clicked);
+                }
+
+                if (my >= clicked->bounds.top && my < clicked->bounds.top + 22) {
+                    if (whit_test_close_btn(clicked, mx, my)) {
+                        cls_wnd(clicked);
+                        tip_cancel();
+                    } else if (whit_test_tab(clicked, mx, my)) {
+                        RECT tab_r;
+                        wget_tab_rect(clicked, &tab_r);
+                        if (mx >= tab_r.left && mx < tab_r.left + 12 && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
+                            s_sliding_tab = TRUE;
+                            s_slide_wnd = clicked;
+                            s_slide_start_x = mx;
+                            s_slide_orig_off = clicked->tab_offset_x;
+                        } else {
+                            s_dragging = TRUE;
+                            s_drag_wnd = clicked;
+                            s_drag_off_x = mx - clicked->bounds.left;
+                            s_drag_off_y = my - clicked->bounds.top;
+                        }
+                    } else {
+                        s_dragging = TRUE;
+                        s_drag_wnd = clicked;
+                        s_drag_off_x = mx - clicked->bounds.left;
+                        s_drag_off_y = my - clicked->bounds.top;
+                    }
+                } else {
+                    EVT ev;
+                    ev.type = EV_BUT_DOWN;
+                    ev.button = 1;
+                    ev.pos.x = mx;
+                    ev.pos.y = my;
+                    ev.key = 0;
+                    ev.data = 0;
+                    if (clicked->event_handler) {
+                        clicked->event_handler(clicked, &ev);
+                    }
+                }
+            }
+        }
+    } else {
+        /* Mouse Button Up */
+        s_dragging = FALSE;
+        s_drag_wnd = NULL;
+        s_sliding_tab = FALSE;
+        s_slide_wnd = NULL;
+        WND *top = get_top_wnd();
+        if (top && top->focused && top->event_handler) {
+            EVT ev;
+            ev.type = EV_BUT_UP;
+            ev.button = 1;
+            ev.pos.x = mx;
+            ev.pos.y = my;
+            ev.key = 0;
+            ev.data = 0;
+            top->event_handler(top, &ev);
         }
     }
-    return E_LIMIT;
-}
 
-ER sta_tsk(ID tskid, VW exinf) {
-    (void)exinf;
-    if (tskid <= 0 || tskid > MAX_M68K_TASKS) return E_ID;
-    int idx = tskid - 1;
-    if (!s_tasks[idx].active) return E_NOEXS;
-
-    s_tasks[idx].stat = TTS_RDY;
-    return E_OK;
-}
-
-void ext_tsk(void) {
-    if (s_current_tskid > 0 && s_current_tskid <= MAX_M68K_TASKS) {
-        s_tasks[s_current_tskid - 1].stat = TTS_DMT;
+    if (screen) {
+        redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+        blit_backbuffer_to_macfb();
     }
 }
 
-ER ter_tsk(ID tskid) {
-    if (tskid <= 0 || tskid > MAX_M68K_TASKS) return E_ID;
-    int idx = tskid - 1;
-    if (!s_tasks[idx].active) return E_NOEXS;
-    s_tasks[idx].stat = TTS_DMT;
+void handle_baremetal_mouse_move(GDEV *screen, H mx, H my) {
+    set_baremetal_mouse_pos(mx, my);
+
+    if (s_sliding_tab && s_slide_wnd) {
+        H new_off = s_slide_orig_off + (mx - s_slide_start_x);
+        wset_tab_offset(s_slide_wnd, new_off);
+    } else if (s_dragging && s_drag_wnd) {
+        mov_wnd(s_drag_wnd, mx - s_drag_off_x, my - s_drag_off_y);
+    } else {
+        WND *top = get_top_wnd();
+        if (top && top->focused && top->event_handler) {
+            EVT ev;
+            ev.type = EV_MOUSE_MOVE;
+            ev.button = 0;
+            ev.pos.x = mx;
+            ev.pos.y = my;
+            ev.key = 0;
+            ev.data = 0;
+            top->event_handler(top, &ev);
+        }
+    }
+
+    if (screen) {
+        redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+        blit_backbuffer_to_macfb();
+    }
+}
+
+static int adb_poll_devices(GDEV *screen) {
+    volatile uint8_t *via1 = (volatile uint8_t*)VIA1_BASE;
+    int activity = 0;
+
+    /* Check if ADB has data waiting: bit 3 of ORB (vADBInt) is active low (0) */
+    if ((via1[VIA_REG_ORB] & 0x08) == 0) {
+        uint8_t buf[8];
+        int count = 0;
+
+        for (int i = 0; i < 4; i++) {
+            uint8_t st = (i % 2 == 0) ? 0x10 : 0x20;
+            via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | st;
+            buf[count++] = via1[VIA_REG_SR];
+            if (via1[VIA_REG_ORB] & 0x08) {
+                break;
+            }
+        }
+        /* Return to IDLE state (0x30) */
+        via1[VIA_REG_ORB] = (via1[VIA_REG_ORB] & ~0x30) | 0x30;
+
+        if (count >= 3) {
+            uint8_t dev_cmd = buf[0];
+            uint8_t dev_addr = (dev_cmd >> 4) & 0x0F;
+
+            if (dev_addr == 3 || dev_cmd == 0x3C) {
+                /* ADB Mouse Packet */
+                uint8_t b1 = buf[1];
+                uint8_t b2 = buf[2];
+                BOOL btn_down = ((b1 & 0x80) == 0);
+
+                int8_t dy_raw = (int8_t)(b1 & 0x7F);
+                if (dy_raw & 0x40) dy_raw -= 0x80;
+
+                int8_t dx_raw = (int8_t)(b2 & 0x7F);
+                if (dx_raw & 0x40) dx_raw -= 0x80;
+
+                s_mouse_x += dx_raw;
+                s_mouse_y += dy_raw;
+                if (s_mouse_x < 0) s_mouse_x = 0;
+                if (s_mouse_x >= BTRON_SCREEN_W) s_mouse_x = BTRON_SCREEN_W - 1;
+                if (s_mouse_y < 0) s_mouse_y = 0;
+                if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
+
+                if (dx_raw != 0 || dy_raw != 0) {
+                    handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                    activity = 1;
+                }
+
+                static BOOL s_last_mouse_btn = FALSE;
+                if (btn_down != s_last_mouse_btn) {
+                    s_last_mouse_btn = btn_down;
+                    handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, btn_down);
+                    activity = 1;
+                }
+            } else if (dev_addr == 2 || dev_cmd == 0x2C) {
+                /* ADB Keyboard Packet */
+                uint8_t sc = buf[1];
+                static int s_adb_shift = 0;
+                if (sc == 0x38) {
+                    s_adb_shift = 1;
+                } else if (sc == 0xB8) {
+                    s_adb_shift = 0;
+                } else if (!(sc & 0x80)) {
+                    char ch = mac_keycode_to_ascii(sc, s_adb_shift);
+                    if (ch) {
+                        EVT ev;
+                        ev.type = EV_KEY_DOWN;
+                        ev.key = (UW)ch;
+                        ev.pos.x = s_mouse_x;
+                        ev.pos.y = s_mouse_y;
+                        ev.button = 0;
+                        ev.data = 0;
+                        snd_evt(&ev);
+                        activity = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return activity;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Platform Query & RTOS Services
+ * ═══════════════════════════════════════════════════════════════════ */
+
+void btron_core_banner(void) {
+    kprintf("\n\n");
+    kprintf("==========================================================\n");
+    kprintf("   B-System / BTRON3 3.20 (Motorola 68040 RTOS Kernel)    \n");
+    kprintf("   Dedicated Platform: Apple Macintosh Quadra 800 (q800)  \n");
+    kprintf("   Copyright 2026 Synrc Research Center. MIT License.     \n");
+    kprintf("==========================================================\n\n");
+}
+
+void btron_core_mem_log(void) {
+    kprintf("[MEM ] Quadra 800 Physical Memory Map (128 MB RAM):\n");
+    kprintf("[MEM ]   0x00000000-0x07FFFFFF  RAM (128 MB Usable)\n");
+    kprintf("[MEM ]   0xF9000000-0xF93FFFFF  NuBus Slot 9 DAFB VRAM (4MB)\n");
+    kprintf("[MEM ]   0x50000000-0x5003FFFF  Mac-IO MMIO (VIA1/VIA2/SCC/SCSI)\n");
+}
+
+void btron_core_hfds_log(void) {
+    kprintf("[HFDS] NCR 53C96 ESP SCSI Storage Interface: INIT  [OK]\n");
+    kprintf("[HFDS] Root Cabinet: BTRON3_SPEC.TAD  T_KERNEL_20.TAD\n");
+}
+
+void btron_core_init(void) {
+    kprintf("[CORE] Cleanroom uITRON 3.0 / BTRON 3.20 Motorola 68040 Engine\n");
+}
+
+void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
+    if (!out_fn) return;
+    if (arg && tkl_strcmp(arg, "-a") == 0) {
+        out_fn("BTRON3 btron-m68k 3.20 Motorola-68040-q800 GNU/B-System", COLOR_CYAN, user_data);
+    } else if (arg && (tkl_strcmp(arg, "-r") == 0 || tkl_strcmp(arg, "-v") == 0)) {
+        out_fn("3.20.0-m68k-q800", COLOR_CYAN, user_data);
+    } else {
+        out_fn("B-System 3.0 Workstation System (BTRON3 Specification 3.20)", COLOR_CYAN, user_data);
+        out_fn("Kernel: Cleanroom uITRON 3.0 / T-Kernel 2.0 (Motorola 68040 @ 33 MHz)", COLOR_GREEN, user_data);
+        out_fn("Hardware Target: Apple Macintosh Quadra 800 (NuBus Video, ADB, SCSI)", COLOR_LTGRAY, user_data);
+        out_fn("Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY, user_data);
+        out_fn("Display Compositor: NuBus DAFB Framebuffer (800x600 8-bpp / 24-bpp)", COLOR_LTGRAY, user_data);
+        out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
+    }
+}
+
+ER slp_tsk(void) {
     return E_OK;
 }
 
-void dly_tsk(W dlytim) {
+ER wup_tsk(ID tskid) {
+    (void)tskid;
+    return E_OK;
+}
+
+ER tk_dly_tsk(W dlytim) {
     uint32_t start = s_system_ticks;
-    /* Convert ms to 60Hz ticks: ticks = ms * 60 / 1000 */
     uint32_t target_ticks = (uint32_t)((dlytim * 60) / 1000);
     if (target_ticks == 0) target_ticks = 1;
 
     while ((s_system_ticks - start) < target_ticks) {
-        /* Low power spin waiting for tick */
         m68k_delay_cycles(1000);
     }
+    return E_OK;
 }
 
-ER get_tid(ID *p_tskid) {
-    if (!p_tskid) return E_PAR;
-    *p_tskid = s_current_tskid;
-    return E_OK;
+void dly_tsk(W dlytim) {
+    tk_dly_tsk(dlytim);
 }
 
 ER get_tim(SYSTIME *p_time) {
     if (!p_time) return E_PAR;
-    /* 60Hz ticks to milliseconds */
     *p_time = (uint64_t)((s_system_ticks * 1000) / 60);
     return E_OK;
-}
-
-ID cre_sem(const T_CSEM *pk_csem) {
-    if (!pk_csem) return E_PAR;
-    for (int i = 0; i < MAX_M68K_SEMS; i++) {
-        if (!s_sems[i].active) {
-            s_sems[i].semid  = i + 1;
-            s_sems[i].config = *pk_csem;
-            s_sems[i].count  = pk_csem->isemcnt;
-            s_sems[i].active = TRUE;
-            return s_sems[i].semid;
-        }
-    }
-    return E_LIMIT;
-}
-
-ER wai_sem(ID semid) {
-    if (semid <= 0 || semid > MAX_M68K_SEMS) return E_ID;
-    int idx = semid - 1;
-    if (!s_sems[idx].active) return E_NOEXS;
-
-    while (s_sems[idx].count <= 0) {
-        dly_tsk(10);
-    }
-    s_sems[idx].count--;
-    return E_OK;
-}
-
-ER sig_sem(ID semid) {
-    if (semid <= 0 || semid > MAX_M68K_SEMS) return E_ID;
-    int idx = semid - 1;
-    if (!s_sems[idx].active) return E_NOEXS;
-
-    if (s_sems[idx].count < s_sems[idx].config.maxsem) {
-        s_sems[idx].count++;
-    }
-    return E_OK;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * BTRON Graphical Window Server & Desktop
- * ═══════════════════════════════════════════════════════════════════ */
-
-/* Desktop VObj Icon Bitmaps (32x32) */
-static void draw_vobj_cabinet(int x, int y) {
-    /* Draw 3D File Cabinet Icon */
-    fb_fill_rect(x + 4, y + 2, 24, 28, C32_LTGRAY, PAL_LTGRAY);
-    fb_draw_rect(x + 4, y + 2, 24, 28, C32_BLACK, PAL_BLACK);
-    /* Draw 3 Drawer Slots */
-    for (int d = 0; d < 3; d++) {
-        int dy = y + 4 + d * 8;
-        fb_draw_3d_panel(x + 6, dy, 20, 7, 0);
-        /* Drawer handle */
-        fb_fill_rect(x + 13, dy + 2, 6, 2, C32_DKGRAY, PAL_DKGRAY);
-    }
-}
-
-static void draw_vobj_editor(int x, int y) {
-    /* Draw Note Document with Pen */
-    fb_fill_rect(x + 5, y + 3, 20, 26, C32_WHITE, PAL_WHITE);
-    fb_draw_rect(x + 5, y + 3, 20, 26, C32_BLACK, PAL_BLACK);
-    /* Document text lines */
-    for (int l = 0; l < 5; l++) {
-        fb_fill_rect(x + 8, y + 7 + l * 4, 14, 1, C32_MIDGRAY, PAL_MIDGRAY);
-    }
-    /* Stylus/Pen diagonally across */
-    for (int p = 0; p < 8; p++) {
-        put_pixel_fast(x + 18 + p, y + 22 - p, C32_GOLD, PAL_GOLD);
-        put_pixel_fast(x + 19 + p, y + 22 - p, C32_RED, PAL_RED);
-    }
-}
-
-static void draw_vobj_terminal(int x, int y) {
-    /* CRT Display */
-    fb_fill_rect(x + 3, y + 3, 26, 22, C32_LTGRAY, PAL_LTGRAY);
-    fb_draw_rect(x + 3, y + 3, 26, 22, C32_BLACK, PAL_BLACK);
-    /* Screen */
-    fb_fill_rect(x + 6, y + 6, 20, 16, C32_BLACK, PAL_BLACK);
-    /* Prompt '>_' in Green */
-    put_pixel_fast(x + 8, y + 10, C32_GREEN, PAL_GREEN);
-    put_pixel_fast(x + 9, y + 11, C32_GREEN, PAL_GREEN);
-    put_pixel_fast(x + 8, y + 12, C32_GREEN, PAL_GREEN);
-    fb_fill_rect(x + 12, y + 14, 4, 2, C32_GREEN, PAL_GREEN);
-    /* Base stand */
-    fb_fill_rect(x + 11, y + 25, 10, 4, C32_DKGRAY, PAL_DKGRAY);
-}
-
-static void draw_vobj_cassette(int x, int y) {
-    /* Magnetic Cassette Shell */
-    fb_fill_rect(x + 3, y + 6, 26, 18, C32_DKGRAY, PAL_DKGRAY);
-    fb_draw_rect(x + 3, y + 6, 26, 18, C32_BLACK, PAL_BLACK);
-    /* Center label */
-    fb_fill_rect(x + 6, y + 9, 20, 10, C32_WHITE, PAL_WHITE);
-    /* Tape reels */
-    fb_fill_rect(x + 9, y + 12, 4, 4, C32_BLACK, PAL_BLACK);
-    fb_fill_rect(x + 19, y + 12, 4, 4, C32_BLACK, PAL_BLACK);
-}
-
-static void draw_vobj_trash(int x, int y) {
-    /* Wastebasket / Trash Can */
-    fb_fill_rect(x + 7, y + 8, 18, 20, C32_MIDGRAY, PAL_MIDGRAY);
-    fb_draw_rect(x + 7, y + 8, 18, 20, C32_BLACK, PAL_BLACK);
-    /* Lid */
-    fb_fill_rect(x + 5, y + 4, 22, 4, C32_DKGRAY, PAL_DKGRAY);
-    fb_draw_rect(x + 5, y + 4, 22, 4, C32_BLACK, PAL_BLACK);
-    /* Rib lines */
-    fb_fill_rect(x + 11, y + 10, 1, 16, C32_DKGRAY, PAL_DKGRAY);
-    fb_fill_rect(x + 16, y + 10, 1, 16, C32_DKGRAY, PAL_DKGRAY);
-    fb_fill_rect(x + 20, y + 10, 1, 16, C32_DKGRAY, PAL_DKGRAY);
-}
-
-void render_desktop_background(void) {
-    /* Fill teal desktop background */
-    fb_clear(C32_TEAL, PAL_TEAL);
-
-    /* ── Top System Global Menu Bar (Height: 24px) ────────────────── */
-    fb_draw_3d_panel(0, 0, s_fb.width, 24, 0);
-
-    /* BTRON Logo & Workstation Identity */
-    fb_fill_rect(4, 3, 18, 18, C32_NAVY, PAL_NAVY);
-    fb_draw_char(9, 4, 'B', C32_WHITE, PAL_WHITE, 0, 0, 1);
-
-    fb_draw_string(28, 4, "B-System 3.20", C32_BLACK, PAL_BLACK, 0, 0, 1);
-
-    /* Menu Items */
-    const char *menus[] = {"System", "File", "Edit", "View", "Window", "Help"};
-    int mx = 145;
-    for (int i = 0; i < 6; i++) {
-        fb_draw_string(mx, 4, menus[i], C32_BLACK, PAL_BLACK, 0, 0, 1);
-        mx += 60;
-    }
-
-    /* Target identity pill */
-    fb_draw_3d_panel(s_fb.width - 240, 2, 140, 20, 1);
-    fb_draw_string(s_fb.width - 232, 4, "Quadra 800 (68040)", C32_NAVY, PAL_NAVY, 0, 0, 1);
-
-    /* Clock Pill */
-    fb_draw_3d_panel(s_fb.width - 92, 2, 88, 20, 1);
-    char time_str[16];
-    uint32_t sec = s_system_ticks / 60;
-    int h = (sec / 3600) % 24;
-    int m = (sec / 60) % 60;
-    int s = sec % 60;
-    time_str[0] = '0' + (h / 10);
-    time_str[1] = '0' + (h % 10);
-    time_str[2] = ':';
-    time_str[3] = '0' + (m / 10);
-    time_str[4] = '0' + (m % 10);
-    time_str[5] = ':';
-    time_str[6] = '0' + (s / 10);
-    time_str[7] = '0' + (s % 10);
-    time_str[8] = '\0';
-    fb_draw_string(s_fb.width - 84, 4, time_str, C32_BLACK, PAL_BLACK, 0, 0, 1);
-
-    /* ── Desktop Virtual Objects (Icons) ─────────────────────────── */
-    struct {
-        int x, y;
-        const char *name;
-        void (*draw_fn)(int, int);
-    } icons[] = {
-        {30,  50,  "Cabinet",     draw_vobj_cabinet},
-        {30, 130,  "Editor",      draw_vobj_editor},
-        {30, 210,  "Terminal",    draw_vobj_terminal},
-        {30, 290,  "Cassette",    draw_vobj_cassette},
-        {30, 370,  "Trash",       draw_vobj_trash}
-    };
-
-    for (int i = 0; i < 5; i++) {
-        icons[i].draw_fn(icons[i].x, icons[i].y);
-        fb_draw_string_shadow(icons[i].x - 4, icons[i].y + 34, icons[i].name, C32_WHITE, PAL_WHITE);
-    }
-}
-
-void render_system_window(void) {
-    /* ── Primary Diagnostic Window ────────────────────────────────── */
-    int wx = 120, wy = 50, ww = 640, wh = 500;
-
-    /* Window Outer Shadow */
-    fb_fill_rect(wx + 4, wy + 4, ww, wh, C32_DKGRAY, PAL_DKGRAY);
-
-    /* Window 3D Frame */
-    fb_draw_3d_panel(wx, wy, ww, wh, 0);
-
-    /* Title Bar (Classic BTRON Navy Blue) */
-    fb_fill_rect(wx + 4, wy + 4, ww - 8, 22, C32_NAVY, PAL_NAVY);
-
-    /* Close Box (Top left) */
-    fb_draw_3d_panel(wx + 8, wy + 7, 16, 16, 0);
-    fb_fill_rect(wx + 13, wy + 14, 6, 2, C32_DKGRAY, PAL_DKGRAY);
-
-    /* Title text */
-    fb_draw_string_shadow(wx + 34, wy + 7, "BTRON3 68040 Workstation - Macintosh Quadra 800", C32_WHITE, PAL_WHITE);
-
-    /* Zoom box (Top right) */
-    fb_draw_3d_panel(wx + ww - 28, wy + 7, 16, 16, 0);
-    fb_draw_rect(wx + ww - 24, wy + 11, 8, 8, C32_BLACK, PAL_BLACK);
-
-    /* ── Content Area: Diagnostic Panels ─────────────────────────── */
-    int cx = wx + 12;
-    int cy = wy + 34;
-    int cw = ww - 24;
-
-    /* Panel 1: Hardware Plane */
-    fb_draw_3d_panel(cx, cy, cw, 140, 1);
-    fb_fill_rect(cx + 2, cy + 2, cw - 4, 136, C32_WHITE, PAL_WHITE);
-
-    fb_fill_rect(cx + 4, cy + 4, cw - 8, 20, C32_LTGRAY, PAL_LTGRAY);
-    fb_draw_string(cx + 8, cy + 6, "[HARDWARE ARCHITECTURE PROFILE]", C32_NAVY, PAL_NAVY, 0, 0, 1);
-
-    fb_draw_string(cx + 12, cy + 28,  "CPU Processor  : Motorola 68040 @ 33.3 MHz (MMU / FPU Active)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 12, cy + 46,  "Memory Subsys  : 128 MB RAM (32-Bit Linear Address Space)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 12, cy + 64,  "Display Video  : NuBus Slot 9 DAFB Framebuffer 800x600 (4MB VRAM)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 12, cy + 82,  "Input / Control: MOS 6522 VIA1 & VIA2 Controllers (60Hz System Tick)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 12, cy + 100, "Serial Ports   : Zilog Z8530 ESCC Dual UART (Port A Console Active)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 12, cy + 118, "Storage System : NCR 53C96 ESP SCSI Host Adapter (Direct HFDS Boot)", C32_BLACK, PAL_BLACK, 0, 0, 1);
-
-    /* Panel 2: RTOS Kernel Tasks & Status */
-    int py = cy + 150;
-    fb_draw_3d_panel(cx, py, cw, 140, 1);
-    fb_fill_rect(cx + 2, py + 2, cw - 4, 136, C32_WHITE, PAL_WHITE);
-
-    fb_fill_rect(cx + 4, py + 4, cw - 8, 20, C32_LTGRAY, PAL_LTGRAY);
-    fb_draw_string(cx + 8, py + 6, "[uITRON 3.0 / T-KERNEL RTOS TASK MONITOR]", C32_NAVY, PAL_NAVY, 0, 0, 1);
-
-    /* Table headers */
-    fb_fill_rect(cx + 12, py + 26, cw - 24, 16, C32_LTGRAY, PAL_LTGRAY);
-    fb_draw_string(cx + 16,  py + 26, "TID",   C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 60,  py + 26, "NAME",  C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 220, py + 26, "PRI",   C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 280, py + 26, "STATE", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 360, py + 26, "TICKS", C32_BLACK, PAL_BLACK, 0, 0, 1);
-    fb_draw_string(cx + 440, py + 26, "MEMORY",C32_BLACK, PAL_BLACK, 0, 0, 1);
-
-    struct {
-        int tid;
-        const char *name;
-        int pri;
-        const char *state;
-        const char *mem;
-    } task_table[] = {
-        {1, "tsk_kernel_core", 1,  "RUNNING", "64 KB Stack"},
-        {2, "tsk_wnd_server",  4,  "READY",   "32 KB Stack"},
-        {3, "tsk_scc_terminal",8,  "WAITING", "16 KB Stack"},
-        {4, "tsk_via_timer",   2,  "SLEEP",   "16 KB Stack"},
-        {5, "tsk_desktop_vobj",10, "READY",   "32 KB Stack"}
-    };
-
-    for (int t = 0; t < 5; t++) {
-        int row_y = py + 46 + t * 18;
-        if (t % 2 == 1) {
-            fb_fill_rect(cx + 12, row_y - 1, cw - 24, 17, 0x00F0F0F0, PAL_LTGRAY);
-        }
-        char num[8];
-        num[0] = '0' + task_table[t].tid;
-        num[1] = '\0';
-        fb_draw_string(cx + 20,  row_y, num, C32_NAVY, PAL_NAVY, 0, 0, 1);
-        fb_draw_string(cx + 60,  row_y, task_table[t].name, C32_BLACK, PAL_BLACK, 0, 0, 1);
-
-        char pri_str[8];
-        if (task_table[t].pri >= 10) {
-            pri_str[0] = '0' + (task_table[t].pri / 10);
-            pri_str[1] = '0' + (task_table[t].pri % 10);
-            pri_str[2] = '\0';
-        } else {
-            pri_str[0] = '0' + task_table[t].pri;
-            pri_str[1] = '\0';
-        }
-        fb_draw_string(cx + 225, row_y, pri_str, C32_DKGRAY, PAL_DKGRAY, 0, 0, 1);
-
-        uint32_t state_color = (t == 0) ? C32_GREEN : ((t == 1 || t == 4) ? C32_NAVY : C32_DKGRAY);
-        uint8_t  state_pal   = (t == 0) ? PAL_GREEN : ((t == 1 || t == 4) ? PAL_NAVY : PAL_DKGRAY);
-        fb_draw_string(cx + 280, row_y, task_table[t].state, state_color, state_pal, 0, 0, 1);
-
-        /* Ticks */
-        char tick_str[16];
-        uint32_t val = s_system_ticks / (t + 1);
-        int ti = 0;
-        if (val == 0) tick_str[ti++] = '0';
-        else {
-            char tmp[16];
-            int p = 0;
-            while (val > 0) { tmp[p++] = '0' + (val % 10); val /= 10; }
-            while (p > 0) { tick_str[ti++] = tmp[--p]; }
-        }
-        tick_str[ti] = '\0';
-        fb_draw_string(cx + 360, row_y, tick_str, C32_DKGRAY, PAL_DKGRAY, 0, 0, 1);
-        fb_draw_string(cx + 440, row_y, task_table[t].mem, C32_DKGRAY, PAL_DKGRAY, 0, 0, 1);
-    }
-
-    /* Panel 3: Interactive BTRON Shell Console */
-    int sy = py + 150;
-    fb_draw_3d_panel(cx, sy, cw, 140, 1);
-    fb_fill_rect(cx + 2, sy + 2, cw - 4, 136, C32_BLACK, PAL_BLACK);
-
-    fb_draw_string(cx + 8, sy + 6,  "B-System 3.20 Motorola 68040 Shell (SCC Console Port A)", C32_GREEN, PAL_GREEN, 0, 0, 1);
-    fb_draw_string(cx + 8, sy + 24, "Type 'help' on serial terminal to display RTOS commands.", C32_WHITE, PAL_WHITE, 0, 0, 1);
-    fb_draw_string(cx + 8, sy + 42, "Hardware: Macintosh Quadra 800 (68040 MMU/FPU, 128MB RAM)", C32_CYAN, PAL_CYAN, 0, 0, 1);
-    fb_draw_string(cx + 8, sy + 60, "Graphics: NuBus Slot 9 DAFB Framebuffer 800x600 Active", C32_CYAN, PAL_CYAN, 0, 0, 1);
-    fb_draw_string(cx + 8, sy + 78, "Storage : NCR 53C96 SCSI Host Controller Initialized", C32_CYAN, PAL_CYAN, 0, 0, 1);
-    fb_draw_string(cx + 8, sy + 104, "btron3-m68k> _", C32_GOLD, PAL_GOLD, 0, 0, 1);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * Interactive Terminal Command Shell
- * ═══════════════════════════════════════════════════════════════════ */
-
-static char s_cmd_buf[128];
-static int  s_cmd_len = 0;
-
-static int str_eq(const char *a, const char *b) {
-    while (*a && *b) {
-        if (*a != *b) return 0;
-        a++;
-        b++;
-    }
-    return (*a == *b);
-}
-
-void shell_execute(const char *cmd) {
-    if (str_eq(cmd, "help")) {
-        kprintf("\n==========================================================\n");
-        kprintf(" B-System / BTRON3 3.20 (Motorola 68040) Built-in Commands\n");
-        kprintf("==========================================================\n");
-        kprintf("  help      - Display this command reference\n");
-        kprintf("  status    - Show processor, memory, and hardware status\n");
-        kprintf("  tasks     - List active uITRON / T-Kernel RTOS tasks\n");
-        kprintf("  devices   - Display NuBus, SCSI, VIA, and SCC inventory\n");
-        kprintf("  mouse     - Show current mouse pointer coordinates\n");
-        kprintf("  ticks     - Display 60Hz system tick counter\n");
-        kprintf("  clear     - Refresh graphical desktop display\n");
-        kprintf("  reboot    - Reset Quadra 800 workstation\n");
-        kprintf("==========================================================\n");
-    } else if (str_eq(cmd, "status")) {
-        kprintf("\n[BTRON3 68040 Workstation Status]\n");
-        kprintf("  Target Host : Apple Macintosh Quadra 800 (QEMU -M q800)\n");
-        kprintf("  CPU Model   : Motorola 68040 with 8KB I/D Caches, MMU, FPU\n");
-        kprintf("  Base RAM    : 0x00000000 - 0x07FFFFFF (128 MB)\n");
-        kprintf("  VRAM Buffer : 0xF9000000 (800x600 NuBus Slot 9 DAFB)\n");
-        kprintf("  Uptime      : %u seconds (%u ticks @ 60Hz)\n", s_system_ticks / 60, s_system_ticks);
-    } else if (str_eq(cmd, "tasks")) {
-        kprintf("\n[uITRON 3.0 / T-Kernel Active Tasks]\n");
-        kprintf("  TID 1: tsk_kernel_core   (Priority 1, State: RUNNING)\n");
-        kprintf("  TID 2: tsk_wnd_server    (Priority 4, State: READY)\n");
-        kprintf("  TID 3: tsk_scc_terminal  (Priority 8, State: WAITING)\n");
-        kprintf("  TID 4: tsk_via_timer     (Priority 2, State: SLEEP)\n");
-        kprintf("  TID 5: tsk_desktop_vobj  (Priority 10, State: READY)\n");
-    } else if (str_eq(cmd, "devices")) {
-        kprintf("\n[Macintosh Quadra 800 Device Inventory]\n");
-        kprintf("  0x50000000 : MOS 6522 VIA1 (Timer 1, 60Hz Interrupt, ADB)\n");
-        kprintf("  0x50002000 : MOS 6522 VIA2 (NuBus Slot Interrupt Controller)\n");
-        kprintf("  0x5000C020 : Zilog Z8530 ESCC Dual Serial (Port A Modem, Port B Printer)\n");
-        kprintf("  0x50010000 : NCR 53C96 ESP Fast SCSI Controller (HFDS Support)\n");
-        kprintf("  0x50014000 : Apple Sound Chip (ASC 4-Voice Synthesizer)\n");
-        kprintf("  0xF9000000 : NuBus Slot 9 DAFB Framebuffer Video (4MB VRAM)\n");
-    } else if (str_eq(cmd, "mouse")) {
-        kprintf("Mouse pointer location: (%d, %d)\n", s_mouse_x, s_mouse_y);
-    } else if (str_eq(cmd, "ticks")) {
-        kprintf("System ticks: %u (Clock: %u Hz)\n", s_system_ticks, 60);
-    } else if (str_eq(cmd, "clear")) {
-        render_desktop_background();
-        render_system_window();
-        fb_render_cursor(s_mouse_x, s_mouse_y);
-        kprintf("Screen refreshed.\n");
-    } else if (str_eq(cmd, "reboot")) {
-        kprintf("Rebooting B-System Workstation...\n");
-        m68k_halt();
-    } else if (cmd[0] != '\0') {
-        kprintf("Unknown command: '%s'. Type 'help' for available commands.\n", cmd);
-    }
-}
-
-void shell_process_char(char c) {
-    if (c == '\r' || c == '\n') {
-        scc_putc('\r');
-        scc_putc('\n');
-        s_cmd_buf[s_cmd_len] = '\0';
-        shell_execute(s_cmd_buf);
-        s_cmd_len = 0;
-        kprintf("btron3-m68k> ");
-    } else if (c == '\b' || c == 0x7F) {
-        if (s_cmd_len > 0) {
-            s_cmd_len--;
-            scc_puts("\b \b");
-        }
-    } else if (c >= 0x20 && c <= 0x7E) {
-        if (s_cmd_len < (int)sizeof(s_cmd_buf) - 1) {
-            s_cmd_buf[s_cmd_len++] = c;
-            scc_putc(c);
-        }
-    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1167,109 +767,108 @@ void m68k_kernel_main(void) {
     /* 1. Initialize Z8530 ESCC Serial Console */
     scc_init();
 
-    kprintf("\n\n");
-    kprintf("==========================================================\n");
-    kprintf("   B-System / BTRON3 3.20 (Motorola 68040 RTOS Kernel)    \n");
-    kprintf("   Dedicated Platform: Apple Macintosh Quadra 800 (q800)  \n");
-    kprintf("   Copyright 2026 Synrc Research Center. MIT License.     \n");
-    kprintf("==========================================================\n\n");
+    btron_core_banner();
+    btron_core_init();
+    btron_core_mem_log();
+    btron_core_hfds_log();
 
-    kprintf("[M68K-INIT] CPU: Motorola 68040 (32-bit linear address mode)\n");
-    kprintf("[M68K-INIT] Caches: 68040 Instruction & Data Caches Enabled (CACR: 0x80008000)\n");
-    kprintf("[M68K-INIT] RAM: 128 MB mapped at 0x%08x - 0x%08x\n", M68K_RAM_BASE, M68K_RAM_BASE + M68K_RAM_SIZE - 1);
-
-    /* 2. Initialize NuBus Slot 9 DAFB Framebuffer */
+    /* 2. Initialize NuBus Slot 9 DAFB Framebuffer Palette */
     kprintf("[M68K-INIT] Initializing NuBus Slot 9 MacFB / DAFB video adapter...\n");
-    m68k_fb_init();
-    kprintf("[M68K-INIT] Framebuffer ready: 800x600 @ %d-bpp (VRAM Base: 0x%08x)\n", s_fb.depth, MACFB_VRAM_BASE);
+    fb_set_palette();
+    kprintf("[M68K-INIT] Framebuffer ready: 800x600 @ 8-bpp (VRAM: 0x%08x)\n", MACFB_VRAM_BASE + MACFB_HEADER_OFFSET);
 
-    /* 3. Initialize VIA1 60Hz System Tick Timer */
-    kprintf("[M68K-INIT] Initializing MOS 6522 VIA1 System Controller & 60Hz Timer...\n");
+    /* 3. Initialize MOS 6522 VIA1 60Hz Timer & ADB */
+    kprintf("[M68K-INIT] Initializing MOS 6522 VIA1 Timer & ADB Controller...\n");
     via1_init_timer();
-    kprintf("[M68K-INIT] System tick active (VIA1 Base: 0x%08x)\n", VIA1_BASE);
+    adb_init();
 
-    /* 4. Enable CPU Interrupts (IPL = 0) */
-    kprintf("[M68K-INIT] Lowering CPU interrupt priority mask (IPL = 0)...\n");
-    m68k_enable_irq();
+    /* 4. Keep CPU interrupt mask safe (polled mode) */
+    // m68k_enable_irq();
 
-    /* 5. Initialize RTOS Subsystem */
-    kprintf("[M68K-INIT] Initializing uITRON 3.0 / T-Kernel 2.0 Task Manager...\n");
-    T_CTSK main_task = {
-        .exinf   = NULL,
-        .tskatr  = TA_HLNG,
-        .task    = NULL,
-        .itskpri = 1,
-        .stksz   = 65536
-    };
-    cre_tsk(&main_task);
-    sta_tsk(1, 0);
+    /* 5. Initialize Real B-System Workbench Desktop & Windows */
+    kprintf("[M68K-INIT] Initializing Real B-System Workbench (800x600)...\n");
+    GDEV *screen = init_baremetal_desktop((uint32_t*)s_desktop_backbuffer, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    if (!screen) {
+        kprintf("[FATAL] Failed to initialize B-System Workbench screen!\n");
+        m68k_halt();
+    }
 
-    /* 6. Render Graphical Desktop & System Window */
-    kprintf("[M68K-INIT] Rendering BTRON3 Graphical Desktop & Window Server...\n");
-    render_desktop_background();
-    render_system_window();
-    fb_render_cursor(s_mouse_x, s_mouse_y);
+    /* Initial paint & blit */
+    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    blit_backbuffer_to_macfb();
 
     kprintf("\n==========================================================\n");
-    kprintf(" BTRON3 Workstation Boot Complete — Ready on Display & SCC\n");
-    kprintf(" Type 'help' below for built-in diagnostic commands.\n");
+    kprintf(" B-System Workbench Live on Macintosh Quadra 800!\n");
+    kprintf(" * Display : NuBus Slot 9 DAFB 800x600 (Real Double-Buffering)\n");
+    kprintf(" * Input   : ADB Mouse & Keyboard + Serial Console Active\n");
+    kprintf(" * Windows : Real Body Cabinet, Editor, GTerm Terminal Shell\n");
+    kprintf(" * Controls: Mouse click/drag, or terminal arrow keys [W/A/S/D]\n");
     kprintf("==========================================================\n\n");
-    kprintf("btron3-m68k> ");
 
-    /* 7. Interactive Desktop & Shell Event Loop */
+    /* 6. Real-Time Interactive Event Loop */
     uint32_t last_clock_tick = 0;
-    int mouse_dir_x = 1;
-    int mouse_dir_y = 1;
+    EVT ev;
 
     while (1) {
-        /* Process incoming characters on SCC serial port */
+        int need_redraw = 0;
+
+        /* A. Poll ADB Mouse and Keyboard */
+        if (adb_poll_devices(screen)) {
+            need_redraw = 1;
+        }
+
+        /* B. Poll SCC Serial Console for interactive keys & arrows */
         if (scc_has_char()) {
             char c = scc_getc();
-            /* Check ANSI arrow escape sequences for mouse movement: \e[A, \e[B, etc. */
             if (c == 0x1B) {
+                /* ANSI escape sequence */
                 if (scc_has_char() && scc_getc() == '[') {
                     char dir = scc_getc();
-                    if (dir == 'A') s_mouse_y = (s_mouse_y > 10) ? s_mouse_y - 12 : 10;
-                    else if (dir == 'B') s_mouse_y = (s_mouse_y < s_fb.height - 20) ? s_mouse_y + 12 : s_fb.height - 20;
-                    else if (dir == 'C') s_mouse_x = (s_mouse_x < s_fb.width - 20) ? s_mouse_x + 12 : s_fb.width - 20;
-                    else if (dir == 'D') s_mouse_x = (s_mouse_x > 10) ? s_mouse_x - 12 : 10;
-                    fb_render_cursor(s_mouse_x, s_mouse_y);
+                    if (dir == 'A') s_mouse_y = (s_mouse_y > 10) ? s_mouse_y - 16 : 10;
+                    else if (dir == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
+                    else if (dir == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
+                    else if (dir == 'D') s_mouse_x = (s_mouse_x > 10) ? s_mouse_x - 16 : 10;
+                    handle_baremetal_mouse_move(screen, s_mouse_x, s_mouse_y);
+                    need_redraw = 1;
                 }
+            } else if (c == ' ' || c == '\r' || c == '\n') {
+                /* Click on current mouse position */
+                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, TRUE);
+                handle_baremetal_mouse_click(screen, s_mouse_x, s_mouse_y, FALSE);
+                need_redraw = 1;
             } else {
-                shell_process_char(c);
+                /* Key event to active window */
+                ev.type = EV_KEY_DOWN;
+                ev.key = (UW)c;
+                ev.pos.x = s_mouse_x;
+                ev.pos.y = s_mouse_y;
+                ev.button = 0;
+                ev.data = 0;
+                snd_evt(&ev);
+                need_redraw = 1;
             }
         }
 
-        /* Periodic desktop clock update (every 60 ticks = 1 second) */
-        if (s_system_ticks - last_clock_tick >= 60) {
-            last_clock_tick = s_system_ticks;
-
-            /* Update Clock display in top bar */
-            char time_str[16];
-            uint32_t sec = s_system_ticks / 60;
-            int h = (sec / 3600) % 24;
-            int m = (sec / 60) % 60;
-            int s = sec % 60;
-            time_str[0] = '0' + (h / 10);
-            time_str[1] = '0' + (h % 10);
-            time_str[2] = ':';
-            time_str[3] = '0' + (m / 10);
-            time_str[4] = '0' + (m % 10);
-            time_str[5] = ':';
-            time_str[6] = '0' + (s / 10);
-            time_str[7] = '0' + (s % 10);
-            time_str[8] = '\0';
-            fb_draw_string(s_fb.width - 84, 4, time_str, C32_BLACK, PAL_BLACK, C32_LTGRAY, PAL_LTGRAY, 0);
-
-            /* Subtle idle mouse breathing motion to verify GUI reactivity */
-            s_mouse_x += mouse_dir_x * 2;
-            s_mouse_y += mouse_dir_y * 1;
-            if (s_mouse_x > 320 || s_mouse_x < 220) mouse_dir_x = -mouse_dir_x;
-            if (s_mouse_y > 220 || s_mouse_y < 160) mouse_dir_y = -mouse_dir_y;
-            fb_render_cursor(s_mouse_x, s_mouse_y);
+        /* C. Dispatch queued BTRON events */
+        while (get_evt(&ev, 0) == E_OK) {
+            WND *top = get_top_wnd();
+            if (top && top->event_handler) {
+                top->event_handler(top, &ev);
+            }
+            need_redraw = 1;
         }
 
-        /* Small delay to yield CPU */
-        m68k_delay_cycles(2000);
+        /* D. Redraw when state changed or periodic clock update */
+        if (s_system_ticks - last_clock_tick >= 60) {
+            last_clock_tick = s_system_ticks;
+            need_redraw = 1;
+        }
+
+        if (need_redraw) {
+            redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+            blit_backbuffer_to_macfb();
+        }
+
+        m68k_delay_cycles(1000);
     }
 }

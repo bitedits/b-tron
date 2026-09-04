@@ -445,7 +445,12 @@ test-pc98: $(PC98_TARGET)
 M68K_TARGET     = btron-m68k.elf
 M68K_LD_SCRIPT  = src/kernel/m68k_q800.ld
 M68K_CFLAGS     = -O2 -Wall -Wextra -std=c99 -mcpu=68040 -ffreestanding -nostdlib -DBTRON_TARGET=7 -DBTRON_M68K_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel
-M68K_OBJS       = src/kernel/boot_m68k.m68k.o src/kernel/core_m68k.m68k.o
+M68K_STARTUP    = src/kernel/core_m68k.c
+M68K_SRCS       = $(M68K_STARTUP)          \
+                  src/kernel/core_init.c   \
+                  src/kernel/libstr.c      \
+                  $(COMMON_NO_SDL_SRCS)
+M68K_OBJS       = src/kernel/boot_m68k.m68k.o $(M68K_SRCS:.c=.m68k.o)
 
 %.m68k.o: %.s
 	$(M68K_CC) -mcpu=68040 -c $< -o $@

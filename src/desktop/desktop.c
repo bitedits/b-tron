@@ -283,8 +283,12 @@ void redraw_baremetal_desktop(GDEV *screen, H w, H h) {
     __asm__ volatile("dsb sy" : : : "memory");
 #elif defined(__arm__)
     __asm__ volatile("dsb" : : : "memory");
-#else
+#elif defined(__m68k__)
+    __asm__ volatile("nop" : : : "memory");
+#elif defined(__x86_64__) || defined(__i386__)
     __asm__ volatile("mfence" : : : "memory");
+#else
+    __asm__ volatile("" : : : "memory");
 #endif
 }
 
