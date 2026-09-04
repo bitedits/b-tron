@@ -799,3 +799,54 @@ clean:
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
 	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true
+
+
+# ===================================================================
+# Automated Headless Window Screenshot Capture Pipeline
+# ===================================================================
+CAPTURE_SCREENS_BIN = capture_screens
+CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
+                       src/settings/language.c \
+                       src/settings/control_panel.c \
+                       src/settings/appearance.c \
+                       src/settings/desktop.c \
+                       src/settings/display.c \
+                       src/settings/input.c \
+                       src/settings/sound.c \
+                       src/settings/network.c \
+                       src/settings/media.c \
+                       src/settings/security.c \
+                       src/settings/system.c \
+                       src/settings/terminal.c \
+                       src/desktop/global_menu.c \
+                       src/desktop/about.c \
+                       src/desktop/tracker.c \
+                       src/apps/vobj_manager.c \
+                       src/apps/t_editor.c \
+                       src/apps/tad_browser.c \
+                       src/apps/audio_player.c \
+                       src/apps/chat.c \
+                       src/apps/chat_xml.c \
+                       src/tip/tip_ife.c \
+                       src/tip/mozc_kkc.c \
+                       src/tip/wylie.c \
+                       src/tip/tibetan_dict.c \
+                       src/font/troncode.c \
+                       src/font/jis_fonts.c \
+                       src/font/tibetan_fonts.c \
+                       src/window/wnd.c \
+                       src/window/app_menu.c \
+                       src/graphics/dp_core.c \
+                       src/tip/tip_vobj.c
+
+CAPTURE_SCREENS_OBJS = $(CAPTURE_SCREENS_SRCS:.c=.test.o)
+
+$(CAPTURE_SCREENS_BIN): $(CAPTURE_SCREENS_OBJS)
+	$(CC) $(CAPTURE_SCREENS_OBJS) -o $@ $(LDFLAGS) -lm -lz
+
+screenshots: $(CAPTURE_SCREENS_BIN)
+	@echo "=========================================================="
+	@echo " Generating Isolated Window Screenshots from C99 Source..."
+	@echo "=========================================================="
+	@./$(CAPTURE_SCREENS_BIN)
+	@python3 scripts/raw_to_png.py
