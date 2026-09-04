@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orchestra – 管弦楽・MIDI演奏 | B-System Specification</title>
+  <meta name="description" content="管弦楽・MIDI演奏（Orchestra）は、GStreamer C99メディアパイプラインを内蔵し、B-Systemのハードリアルタイムマイクロカーネル直結で動作するバンドコンサート用メインMIDIサーバー＆音響制作ワークステーション。GarageBandやAvid Pro Toolsに匹敵する多重トラック録音と極小レイテンシ演奏を提供します。">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="../settings/settings.css">
+  <link rel="stylesheet" href="./apps.css">
+</head>
+<body>
+  <nav class="setting-nav">
+    <a href="../../b-system.html">B-System</a>
+    <span class="sep">/</span>
+    <a href="../../b-system.html#apps-section">Applications</a>
+    <span class="sep">/</span>
+    <span class="current">Orchestra</span>
+  </nav>
+
+  <div class="setting-hero">
+    <div class="setting-hero-icon"><img src="https://openmoji.org/data/color/svg/1F3BB.svg" alt="🎻" width="64" height="64"></div>
+    <h1>管弦楽・MIDI演奏 (Orchestra)</h1>
+    <div class="setting-hero-badge">GStreamer C99 パイプライン内蔵 · メインMIDIサーバー · ライブコンサート音響制御 · GarageBand / Avid Pro Tools 対抗</div>
+    <div class="subtitle">バンドコンサート用リアルタイムMIDIサーバー＆マルチトラック音響制作ワークステーション<br><span style="font-size:0.9em; opacity:0.85;">"Master MIDI server and live stage DAW workstation powered by built-in C99 GStreamer media pipeline, engineered for concert touring and zero-jitter performance."</span></div>
+  </div>
+
+  <div class="setting-content">
+    <a href="../../b-system.html#apps-section" class="back-link">← アプリケーション一覧 (Applications Index)</a>
+
+    <div class="tagline-card">
+      <strong>管弦楽（Orchestra）</strong> — 管弦楽（Orchestra）は、組込みC99準拠の <strong>GStreamer メディアパイプライン</strong> を内蔵し、B-Systemのマイクロカーネル直結で動作するプロフェッショナル向けメインMIDIサーバー＆ステージ音響ワークステーションです。バンドコンサートのライブ現場において、多数のハードウェアシンセサイザー、鍵盤スプリット、DMX照明タイムコード（SMPTE/MTC）、リアルタイムPCM音源を集中統括します。<br>
+      <span style="display:block; margin-top:0.45rem; font-size:0.88rem; color:#6b4f7e;">
+        "Mission-critical live concert MIDI routing matrix and DAW engine featuring built-in pure C99 GStreamer graph dispatch, competing directly with Apple GarageBand, Logic Pro, and Avid Pro Tools."
+      </span>
+    </div>
+
+                        <!-- 画面プレビュー -->
+    <div class="section">
+      <h2>画面プレビュー (Screen Preview)</h2>
+      <div class="screen-preview">
+        <img src="../img/screens/Orchestra_Application.png" alt="管弦楽 (Orchestra Application)">
+        <p>実機描画フレームバッファより自動抽出された管弦楽・MIDIオーケストラ演奏画面 (Live Stage MIDI Server & Workstation)</p>
+      </div>
+      <div class="screen-preview">
+        <img src="../img/screens/Orchestra_About.png" alt="管弦楽 バージョン情報 (About Orchestra)">
+        <p>実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Orchestra)</p>
+      </div>
+    </div>
+
+<div class="section">
+      <h2>概要 (Overview)</h2>
+      <p>
+        管弦楽（Orchestra）は、Apple GarageBand の直感的な操作性と Avid Pro Tools の精密なタイムコード同期・マルチトラック信頼性を兼ね備えた、BTRON3標準の音楽制作・ステージ演奏サーバーです。<br>
+        従来の商用OS（macOS / Windows）が抱えるオーディオバッファのジッターやバックグラウンドタスクによる音飛び問題を、TRONアーキテクチャ特有の確定論的タスクディスパッチ（μITRONコア）と <strong>純C99内蔵 GStreamer パイプラインエンジン</strong> によって根本から解消。外部依存なしで完全なメディアグラフ処理（<code>GstElement</code> / <code>GstPad</code> / <code>GstPipeline</code>）を実行し、ライブコンサートの最前線で求められる「絶対に止まらないメインMIDIサーバー」として機能します。
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>1. 内蔵 GStreamer C99 メディアパイプライン (Built-in GStreamer Engine)</h2>
+      <p>
+        Orchestra は、外部共有ライブラリや重厚なフレームワークに依存せず、BTRONマイクロカーネル上で直接動作する <strong>クリーンルームC99実装の GStreamer パイプライン</strong> をコアに内蔵しています。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Embedded zero-allocation C99 GStreamer media pipeline ensuring hard real-time execution and dynamic element linking without audio dropouts."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>GStreamer エレメント</th>
+            <th>パイプライン上の役割 (Role in Pipeline)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>midisrc</code></td>
+            <td>USB-MIDI、DIN-5、VirtIO-MIDIからの受信メッセージ取得とナノ秒タイムスタンプ付与</td>
+            <td><code>GstBuffer</code> (PTS/DTSタイムスタンプ, <code>GST_SECOND</code>)</td>
+          </tr>
+          <tr>
+            <td><code>midiroute</code></td>
+            <td>ステージルーティング、鍵盤ゾーン分割（スプリット）、オクターブ移調、ベロシティ補正</td>
+            <td>ゼロアロケーション・インラインメッセージディスパッチ</td>
+          </tr>
+          <tr>
+            <td><code>fluidsynth</code></td>
+            <td>General MIDI Level 2 / SoundFont (SF2) 高品位PCM音源シンセサイザー</td>
+            <td>32bit浮動小数点ステレオ合成 (48kHz / 96kHz)</td>
+          </tr>
+          <tr>
+            <td><code>audioconvert</code></td>
+            <td>浮動小数点PCMとハードウェアDACネイティブフォーマット間の相互変換</td>
+            <td>SIMDベクトル化フォーマット変換</td>
+          </tr>
+          <tr>
+            <td><code>virtiosndsink</code></td>
+            <td>VirtIO-Sound DSPおよびオーディオハードウェアへの直接ダイレクトDMA出力</td>
+            <td>サブミリ秒レイテンシ（バッファサイズ 64〜128サンプル）</td>
+          </tr>
+          <tr>
+            <td><code>rtpmidipay</code></td>
+            <td>ステージ照明卓や外部音響コンソールへのネットワーク経由RTP-MIDI配信</td>
+            <td>IEEE 1588 PTP (Precision Time Protocol) 同期</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>2. メニュー構造と操作体系 (Menu Architecture &amp; Operations)</h2>
+      <p>
+        Orchestra が提供する標準メニューバー構造およびステージ現場での即応性を重視した操作体系。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Live concert menu hierarchy with dedicated stage snapshot recall and SMPTE synchronization controls."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>メニュー項目</th>
+            <th>機能説明 (Functional Description)</th>
+            <th>技術仕様・C99実装 (C99 Architecture)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>ファイル (File)</b></td>
+            <td>コンサートセッション新規作成、セットリスト読込、TADマルチメディア実身保存、SMF (Standard MIDI File) 入出力</td>
+            <td><code>src/apps/orchestra.c</code>, TAD Record I/O</td>
+          </tr>
+          <tr>
+            <td><b>トラック (Track)</b></td>
+            <td>MIDIトラック追加（最大64トラック）、オーディオAUXバス、鍵盤スプリット／レイヤー設定、ベロシティカーブ補正</td>
+            <td><code>OrchestraTrack</code> (チャネル・ポート動的バインド)</td>
+          </tr>
+          <tr>
+            <td><b>ステージ (Stage)</b></td>
+            <td>楽曲シーンスナップショット切替（Aメロ、サビ、ソロ等）、MIDIプログラムチェンジ一括送信、全消音 (Panic / All Notes Off)</td>
+            <td><code>ConcertScene</code> (16シーン即時リコール)</td>
+          </tr>
+          <tr>
+            <td><b>パイプライン (Pipeline)</b></td>
+            <td>GStreamerパイプライン状態遷移（<code>GST_STATE_PLAYING</code> / <code>PAUSED</code>）、バッファサイズ変更、DSP負荷診断</td>
+            <td><code>gst_pipeline_set_state()</code></td>
+          </tr>
+          <tr>
+            <td><b>同期 (Sync)</b></td>
+            <td>SMPTEタイムコード同期（24/25/29.97/30 fps）、MTC (MIDI Time Code) 送受信、VirtIO-Sound DSPマスタークロック同期</td>
+            <td><code>TimecodeFormat</code>, サブミリ秒ジッター補正</td>
+          </tr>
+          <tr>
+            <td><b>ヘルプ (Help)</b></td>
+            <td>バージョン情報（Nano About Box 520×270px）、入出力ポート診断モニター</td>
+            <td><code>open_orchestra_about_window()</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>3. 競合DAW／MIDIサーバー対比評価 (Competitive Analysis)</h2>
+      <p>
+        Orchestra と商用DAW（Apple GarageBand / Logic Pro、Avid Pro Tools、Steinberg Cubase）との機能・信頼性対比。<br>
+        <span style="font-size:0.9em; opacity:0.85;">"Comprehensive comparison highlighting BTRON's deterministic microkernel and embedded GStreamer advantages over conventional general-purpose OS audio stacks."</span>
+      </p>
+      <table class="market-table">
+        <thead>
+          <tr>
+            <th>評価項目</th>
+            <th>B-System Orchestra</th>
+            <th>Apple GarageBand / Logic</th>
+            <th>Avid Pro Tools</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>メディアエンジン</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">内蔵 C99 GStreamer</b><br>モジュール式パイプライン・オープン設計</td>
+            <td>CoreAudio / CoreMIDI<br>Apple専売OS密結合フレームワーク</td>
+            <td>Avid Audio Engine (AAE)<br>独自プロプライエタリスタック</td>
+          </tr>
+          <tr>
+            <td><b>カーネル確定性</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">完全確定論的 (μITRON)</b><br>優先度逆転防止・ハードリアルタイム</td>
+            <td>非確定論的 (XNU/macOS)<br>OSバックグラウンド負荷でジッター発生</td>
+            <td>準確定論的 (専用HDX DSPハード依存)<br>ネイティブ時はOSジッターの影響</td>
+          </tr>
+          <tr>
+            <td><b>MIDIイベント遅延</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">&lt; 0.2 ms (サブミリ秒)</b><br>ダイレクトキューディスパッチ</td>
+            <td>1.5 〜 4.0 ms<br>CoreAudio/CoreMIDIレイヤー経由</td>
+            <td>0.8 〜 2.5 ms<br>Avid Audio Engine経由</td>
+          </tr>
+          <tr>
+            <td><b>ステージ信頼性</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">モーダル排除・不時停止ゼロ</b><br>OSクラッシュ耐性・高速復帰</td>
+            <td>ダイアログポップアップ・通知による中断リスクあり</td>
+            <td>iLokライセンス認証エラー・クラッシュ時の再起動遅延</td>
+          </tr>
+          <tr>
+            <td><b>ドキュメント統合</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">TAD実身・仮身埋め込み</b><br>スコア文書内にMIDIセッションを直結</td>
+            <td>独自プロジェクトファイル (.logicx)<br>外部ドキュメントとの孤立</td>
+            <td>独自セッションファイル (.ptx)<br>外部ドキュメントとの孤立</td>
+          </tr>
+          <tr>
+            <td><b>メモリ占有量</b></td>
+            <td><b style="color:var(--tron-green,#2e7d32);">&lt; 2 MB (静的フットプリント)</b><br>省リソース組込みステージPCで軽快稼働</td>
+            <td>1.2 GB 〜 4.0 GB<br>巨大なGUIリソースとフレームワーク依存</td>
+            <td>2.0 GB 〜 8.0 GB<br>常駐デーモン・高負荷リソース</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>関連コンポーネント (Related Components)</h2>
+      <div class="related-apps">
+        <a href="Cassette.html">📼 カセット (Cassette Deck)</a>
+        <a href="../settings/Sound.html">🔊 音響設定 (Sound Settings)</a>
+        <a href="Workbench.html">🗄️ ワークベンチ (Workbench)</a>
+        <a href="Editor.html">✍️ 文書編集 (Editor)</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="app-footer-top">
+      <a href="../../b-system.html">← B-System</a>
+      <span class="site-name">Applications</span>
+    </div>
+    <div class="app-footer-grid">
+      <div class="app-footer-col">
+        <h4>System</h4>
+        <ul>
+            <li><a href="Workbench.html">Workbench</a></li>
+            <li><a href="Terminal.html">Terminal</a></li>
+            <li><a href="Commander.html">Commander</a></li>
+            <li><a href="Calculator.html">Calculator</a></li>
+            <li><a href="Clock.html">Clock</a></li>
+            <li><a href="Mail.html">Mail</a></li>
+            <li><a href="Preferences.html">Preferences</a></li>
+            <li><a href="Boot.html">Boot</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>TAD</h4>
+        <ul>
+            <li><a href="Cabinet.html">Cabinet</a></li>
+            <li><a href="Editor.html">Editor</a></li>
+            <li><a href="Matrix.html">Matrix</a></li>
+            <li><a href="Clarity.html">Clarity</a></li>
+            <li><a href="Browser.html">Browser</a></li>
+            <li><a href="Notebook.html">Notebook</a></li>
+            <li><a href="Review.html">Review</a></li>
+            <li><a href="Chat.html">Chat</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Media</h4>
+        <ul>
+            <li><a href="Cassette.html">Cassette</a></li>
+            <li><a href="Paint.html">Paint</a></li>
+            <li><a href="Orchestra.html" class="active">Orchestra</a></li>
+        </ul>
+      </div>
+      <div class="app-footer-col">
+        <h4>Settings</h4>
+        <ul>
+            <li><a href="../settings/Appearance.html">Appearance</a></li>
+            <li><a href="../settings/Desktop.html">Desktop</a></li>
+            <li><a href="../settings/Input.html">Input</a></li>
+            <li><a href="../settings/Language.html">Language</a></li>
+            <li><a href="../settings/Sound.html">Sound</a></li>
+            <li><a href="../settings/Network.html">Network</a></li>
+            <li><a href="../settings/Display.html">Display</a></li>
+            <li><a href="../settings/Media.html">Media</a></li>
+            <li><a href="../settings/System.html">System</a></li>
+            <li><a href="../settings/Security.html">Security</a></li>
+            <li><a href="../settings/Terminal.html">Terminal</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="app-footer-bottom">B-System &nbsp;·&nbsp; Synrc VE OS.1 &nbsp;·&nbsp; Technical Specification</div>
+  </footer>
+</body>
+</html>

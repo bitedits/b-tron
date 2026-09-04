@@ -35,6 +35,7 @@ WND* open_control_panel_window(void)    { return NULL; }
 WND* open_t_editor_window(void)         { return NULL; }
 WND* open_gterm_window(void)            { return NULL; }
 WND* open_audio_player_window(void)     { return NULL; }
+WND* open_orchestra_window(void)        { return NULL; }
 WND* open_display_settings_window(void) { return NULL; }
 WND* launch_beos_chat(void)             { return NULL; }
 

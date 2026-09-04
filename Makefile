@@ -110,6 +110,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/apps/gterm.c         \
               src/apps/t_editor.c      \
               src/apps/audio_player.c  \
+              src/apps/orchestra.c     \
               src/apps/chat.c          \
               src/apps/chat_xml.c      \
               src/settings/language.c  \
@@ -827,6 +828,7 @@ CAPTURE_SCREENS_SRCS = src/tools/capture_screens.c \
                        src/apps/tad_browser.c \
                        src/apps/gterm.c \
                        src/apps/audio_player.c \
+                       src/apps/orchestra.c \
                        src/apps/chat.c \
                        src/apps/chat_xml.c \
                        src/tip/tip_ife.c \

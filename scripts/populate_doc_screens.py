@@ -151,6 +151,18 @@ APPS_MAP = {
             "alt": "カセット (Cassette Application)"
         }
     ],
+    "Orchestra.html": [
+        {
+            "screen": "../img/screens/Orchestra_Application.png",
+            "caption": "実機描画フレームバッファより自動抽出された管弦楽・MIDIオーケストラ演奏画面 (Live Stage MIDI Server & Workstation)",
+            "alt": "管弦楽 (Orchestra Application)"
+        },
+        {
+            "screen": "../img/screens/Orchestra_About.png",
+            "caption": "実機描画フレームバッファより自動抽出された透過バージョン情報ダイアログ (About Orchestra)",
+            "alt": "管弦楽 バージョン情報 (About Orchestra)"
+        }
+    ],
     "Preferences.html": [
         {
             "screen": "../img/screens/Preferences_Settings.png",

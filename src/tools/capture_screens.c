@@ -40,12 +40,14 @@ extern WND* open_vobj_manager_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_tad_browser_window(const char *filepath, const char *title);
 extern WND* open_audio_player_window(void);
+extern WND* open_orchestra_window(void);
 extern WND* open_gterm_window(void);
 extern WND* open_about_window(void);
 extern WND* open_teditor_about_window(void);
 extern WND* open_vobj_about_window(void);
 extern WND* open_tad_browser_about_window(void);
 extern WND* open_gterm_about_window(void);
+extern WND* open_orchestra_about_window(void);
 
 /* Forward declarations for GTerm internals */
 typedef struct GTermState GTermState;
@@ -273,6 +275,14 @@ int main(int argc, char **argv) {
             dump_window_rect(dev, w_cas, "/tmp/btron_raw_screens/Cassette_Application.raw");
         }
 
+        /* Orchestra Application Window (Live Stage DAW / MIDI Server) */
+        reset_isolation_state(dev);
+        WND *w_orch = open_orchestra_window();
+        if (w_orch) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_orch, "/tmp/btron_raw_screens/Orchestra_Application.raw");
+        }
+
         /* Chat Application Window (Strict Single Roster Window) */
         reset_isolation_state(dev);
         WND *w_cht = open_isolated_chat_roster();
@@ -319,6 +329,14 @@ int main(int argc, char **argv) {
         if (w_abt_term) {
             redraw_all_windows();
             dump_window_rect(dev, w_abt_term, "/tmp/btron_raw_screens/Terminal_About.raw");
+        }
+
+        /* Orchestra About Box (Isolated) */
+        reset_isolation_state(dev);
+        WND *w_abt_orch = open_orchestra_about_window();
+        if (w_abt_orch) {
+            redraw_all_windows();
+            dump_window_rect(dev, w_abt_orch, "/tmp/btron_raw_screens/Orchestra_About.raw");
         }
     }
 

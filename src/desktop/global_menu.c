@@ -32,6 +32,7 @@ __attribute__((weak)) WND* open_control_panel_window(void);
 __attribute__((weak)) WND* open_t_editor_window(void);
 __attribute__((weak)) WND* open_gterm_window(void);
 __attribute__((weak)) WND* open_audio_player_window(void);
+__attribute__((weak)) WND* open_orchestra_window(void);
 __attribute__((weak)) WND* open_about_window(void);
 __attribute__((weak)) WND* open_display_settings_window(void);
 #else
@@ -40,6 +41,7 @@ extern WND* open_control_panel_window(void);
 extern WND* open_t_editor_window(void);
 extern WND* open_gterm_window(void);
 extern WND* open_audio_player_window(void);
+extern WND* open_orchestra_window(void);
 extern WND* open_about_window(void);
 extern WND* open_display_settings_window(void);
 #endif
@@ -67,12 +69,13 @@ static GMenuHeader g_headers[GMENU_HEADER_COUNT] = {
     {
         .title = "システム(S)",
         .rect = { 92, 2, 196, 23 },
-        .item_count = 8,
+        .item_count = 9,
         .items = {
             { "システム情報 (About B-System...)", "Alt+?", GMENU_CMD_SYS_ABOUT, FALSE, FALSE, TRUE },
             { "環境設定 (Settings Cabinet...)",  "Alt+P", GMENU_CMD_SYS_SETTINGS, FALSE, FALSE, TRUE },
             { "---", "", GMENU_CMD_NONE, TRUE, FALSE, FALSE },
             { "音響機器 (Audio Cassette...)",   "", GMENU_CMD_SYS_AUDIO, FALSE, FALSE, TRUE },
+            { "管弦楽演奏 (Orchestra DAW...)",   "", GMENU_CMD_SYS_ORCHESTRA, FALSE, FALSE, TRUE },
             { "画面表示 (Display Settings...)",  "", GMENU_CMD_SYS_DISPLAY, FALSE, FALSE, TRUE },
             { "---", "", GMENU_CMD_NONE, TRUE, FALSE, FALSE },
             { "デスクトップ再起動 (Restart)",     "", GMENU_CMD_SYS_RESTART, FALSE, FALSE, TRUE },
@@ -363,6 +366,9 @@ static void global_menu_execute_cmd(int cmd) {
             break;
         case GMENU_CMD_SYS_AUDIO:
             if (open_audio_player_window) open_audio_player_window();
+            break;
+        case GMENU_CMD_SYS_ORCHESTRA:
+            if (open_orchestra_window) open_orchestra_window();
             break;
         case GMENU_CMD_SYS_DISPLAY:
             if (open_display_settings_window) open_display_settings_window();

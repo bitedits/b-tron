@@ -767,7 +767,7 @@ static void paint_about_dialog(WND *wnd, GDEV *dev) {
         drw_lin(dev, sep_x + 6, hsep_y, card.right - 10, hsep_y);
 
         drw_tc_string(dev, text_x, hsep_y + 8,  data->attribution, COLOR_BLACK, 0x00000000);
-        drw_tc_string(dev, text_x, hsep_y + 26, "B-System BTRON3 3.20 \xc2\xb7 T-Kernel 2.0 \xc2\xb7 TRON IEEE 1394",
+        drw_tc_string(dev, text_x, hsep_y + 26, "B-System BTRON3 3.20 — T-Kernel 2.0 — TRON ITRON BTRON HMI NET-TRON",
                       COLOR_DKGRAY, 0x00000000);
     }
 
