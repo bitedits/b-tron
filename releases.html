@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Releases &amp; Development History — B-System (BTRON3 3.20)</title>
-    <meta name="description" content="Official Alpha 1 release announcement and comprehensive 280-commit, 21-session development history log of the B-System BTRON cleanroom operating system.">
+    <meta name="description" content="Official Alpha 1 release announcement and comprehensive 348-commit, 25-session development history log of the B-System BTRON cleanroom operating system.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet">
@@ -260,11 +260,11 @@
             </h1>
             <p class="hero-subtitle" style="text-align: center; margin: 0 auto; max-width: 760px; line-height: 1.75;">
                 BTRON3 3.20準拠 クリーンルームOS<strong>「B-System Alpha 1」</strong>公式アナウンス。<br>
-                初コミットから完成までの全<strong>280コミット</strong>・<strong>21セッション</strong>（約71.7時間）の開発全記録。
+                初コミットから完成までの全<strong>348コミット</strong>・<strong>25セッション</strong>（約94.9時間）の開発全記録。
             </p>
             <div style="margin-top: 1.6rem; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;">
                 <a href="#alpha-1-announcement" class="pdf-badge" style="background: linear-gradient(135deg, #ff2d95, #c026d3); color:white; box-shadow: 0 4px 14px rgba(255, 45, 149, 0.35);">🌸 Alpha 1 公開アナウンス</a>
-                <a href="#development-history" class="pdf-badge" style="background: linear-gradient(135deg, #0057b7, #008080); color:white; box-shadow: 0 4px 14px rgba(0, 87, 183, 0.35);">📜 12日間の開発全記録（ログ）</a>
+                <a href="#development-history" class="pdf-badge" style="background: linear-gradient(135deg, #0057b7, #008080); color:white; box-shadow: 0 4px 14px rgba(0, 87, 183, 0.35);">📜 14日間の開発全記録（ログ）</a>
                 <a href="conformance.html" class="pdf-badge">📊 90% 適合性検証</a>
                 <a href="b-system.html" class="pdf-badge">🖥️ アプリケーション仕様</a>
             </div>
@@ -280,15 +280,15 @@
                 <div class="stat-label">初版公開<br><small style="font-size:0.72rem; font-weight:500;">Initial Release</small></div>
             </div>
             <div class="stat-card">
-                <div class="stat-num">280</div>
+                <div class="stat-num">348</div>
                 <div class="stat-label">総コミット数<br><small style="font-size:0.72rem; font-weight:500;">Git Commits</small></div>
             </div>
             <div class="stat-card">
-                <div class="stat-num">21</div>
+                <div class="stat-num">25</div>
                 <div class="stat-label">作業セッション<br><small style="font-size:0.72rem; font-weight:500;">Dev Sessions</small></div>
             </div>
             <div class="stat-card">
-                <div class="stat-num">~71.7 h</div>
+                <div class="stat-num">~94.9 h</div>
                 <div class="stat-label">実稼働開発時間<br><small style="font-size:0.72rem; font-weight:500;">Active Dev Time</small></div>
             </div>
             <div class="stat-card">
@@ -319,14 +319,14 @@
 
             <div class="feature-box">
                 <h3 style="margin-top: 0; color: #ff2d95;">Alpha 1 の主な機能と到達点（Release Highlights）</h3>
-                <p style="margin-bottom: 0.5rem; color: #4a3560;">12日間にわたる集中的なシステム開発を結実させ、単一コードベースから完全に再現可能なリリースパッケージを構築しました：</p>
+                <p style="margin-bottom: 0.5rem; color: #4a3560;">14日間にわたる集中的なシステム開発を結実させ、単一コードベースから完全に再現可能なリリースパッケージを構築しました：</p>
                 <ul>
                     <li><strong>7大ハードウェア＆ハイパーバイザー統合対応：</strong> 単一のBSD Makefileから、開発ホスト（macOS/Linux POSIX）、ARM QEMU VirtIO、Raspberry Pi 2B実機ベアメタル、坂村T-Kernel 2.0、x86_64 UEFI SMPマルチコアワークステーション、NEC PC-9801/PC-9821 VM、そして64ビットAArch64 Raspberry Pi 4Bまでを統合起動。</li>
                     <li><strong>ダイレクトMultiboot単一段階ローディング：</strong> 脆弱な2段階MBR/VBRチェーンローダーを撤廃し、Multiboot 1ヘッダー（<code>0x1BADB002</code>）によりファームウェア／QEMUから1MB空間へ直接展開。</li>
                     <li><strong>本物の「実身／仮身」ハイパーデータエンジン：</strong> 文書内にキャビネット内の実身（Real Body）へのポインタ（仮身・Virtual Body）を無制限に埋め込める坂村ハイパーメディア構造を忠実に実装。</li>
-                    <li><strong>Mozc TIPネイティブ日本語入力環境：</strong> Google Mozcのかな漢字変換エンジン（<code>mozc_kkc.c</code>）およびTIP（Text Input Primitives / IFE）を内蔵し、F10キーによる英数・ひらがな・カタカナ変換をサポート。</li>
-                    <li><strong>14種のコンシューマアプリ＆8種の設定パネル：</strong> ワークベンチ、端末（<code>gterm</code>）、コマンダー、電卓、時計、環境設定、ブートマネージャ（🎿）、Editor、Clarity、Notebook, Review、ブラウザ、メール＆チャット（XMPP）、Cassette、ペイント、音楽の全14アプリを完備。</li>
-                    <li><strong>4大公式TAD電子書籍を標準同梱：</strong> BTRON3仕様書、T-Kernel 2.0、B-Free OS（1994年）、B-System（2026年）の全4冊を同梱。Elixirバッチコンパイラ（<code>html2tad.exs</code>）により106仕様文書からバイナリTAD（<code>.tad</code>）を自動生成。</li>
+                    <li><strong>Mozc TIPネイティブ日本語入力環境＆チベット語入力：</strong> Google Mozcのかな漢字変換エンジン（<code>mozc_kkc.c</code>）、TRON Text Input Primitives（TIP/IFE）、およびチベット文字EWTS Wylie入力メソッド・形態素辞書を内蔵。</li>
+                    <li><strong>15種のコンシューマアプリ＆10種の設定パネル：</strong> ワークベンチ、端末（<code>gterm</code>）、コマンダー、電卓、時計、環境設定（10大アプレット）、ブートマネージャ（🎿）、Editor、Clarity、Notebook、Review、ブラウザ、メール＆チャット（XMPP）、Cassette（3ヘッドHi-Fiデッキ）、ペイント、管弦楽・MIDI演奏ワークステーション（Orchestra）の全15アプリを完備。</li>
+                    <li><strong>4大公式TAD電子書籍を標準同梱：</strong> BTRON3仕様書、T-Kernel 2.0、B-Free OS（1994年）、B-System（2026年）の全4冊を同梱。Elixirバッチコンパイラ（<code>html2tad.exs</code>）により111仕様文書からバイナリTAD（<code>.tad</code>）を自動生成。</li>
                     <li><strong>適合性テスト90%合格：</strong> 370項目（全410検証項目中90.2%）の仕様要件およびシステムコールが自動検証スイートで完全通過。未実装サブシステムはE_NOSPTを誠実に返し、仕様境界を明示。</li>
                 </ul>
             </div>
@@ -357,8 +357,8 @@ $ make verify</pre>
         <section id="development-history" style="margin-top: 4rem;">
             <h2>第2部：初コミットからの全開発記録<br><span style="font-size: 0.72em; font-weight: 600; color: #6b4f7e; font-family: var(--jp-font);">エンジニアリング・ログ (Development History Log)</span></h2>
             <p style="font-size: 1.05rem; line-height: 1.8; color: #3b2a47;">
-                B-Systemは、<strong>マキシム・ソハツキー</strong>（Maxim Sokhatsky / Namdak Tonpa / 5HT）により、2026年8月22日から9月2日までの12日間にわたる集中的な開発スプリントで設計・実装されました。
-                計<strong>280コミット</strong>、<strong>21セッション</strong>（実稼働<strong>約71.7時間</strong>）にわたり、何もない空のGitツリーから複数アーキテクチャ対応の仕様完全準拠OSへと進化を遂げました。
+                B-Systemは、<strong>マキシム・ソハツキー</strong>（Maxim Sokhatsky / Namdak Tonpa / 5HT）により、2026年8月22日から9月4日までの14日間にわたる集中的な開発スプリントで設計・実装されました。
+                計<strong>348コミット</strong>、<strong>25セッション</strong>（実稼働<strong>約94.9時間</strong>）にわたり、何もない空のGitツリーから複数アーキテクチャ対応の仕様完全準拠OSへと進化を遂げました。
             </p>
             <br>
             <!-- Seven Phases -->
@@ -446,10 +446,46 @@ $ make verify</pre>
                 </p>
             </div>
 
-            <!-- Complete 21-Session Table -->
-            <h3 style="margin-top: 3rem;">セッション詳細開発ログ（Complete 21-Session Engineering Log）</h3>
+            <div class="phase-card">
+                <span class="phase-badge">Phase 8 · チベット語多言語化・Hi-Fi音響・設定キャビネット (Tibetan Multilingual, Hi-Fi Cassette &amp; Settings)</span>
+                <div class="phase-header">
+                    <h3 class="phase-title">8. 多言語TRON-Code、カセット音響、設定キャビネット統合 (Tibetan, Audio Deck &amp; Settings Cabinet · Commits 281–307 · Sept 3)</h3>
+                    <span class="phase-meta">Sessions 22–23 · 実動約12.9時間 · +15,460 / -2,533 lines</span>
+                </div>
+                <p style="color: #4a3560; line-height: 1.7;">
+                    国際化とマルチメディアの飛躍的拡張。TRON多言語文字体系（TRON-Code第1面）を拡張し、16×16ドットのチベット文字（U-chen書体）ビットマップフォント（<code>tibetan_fonts.c</code>）、EWTS Wylie入力メソッド（<code>wylie.c</code>）、チベット語形態素辞書、および般若心経チベット語テキストを完全搭載。TIP入力フロントエンドにて英数・かな・カナ・チベット語の即時ローテーションを確立しました。
+                    さらに、SONY TC-K777ESの設計思想を継承した「カセット（Cassette）」ステレオオーディオデッキ（<code>audio_player.c</code>）を実装（3ヘッド・デュアルキャプスタン、Type I-IV磁気テープセレクター、ドルビーB/C NR・HX Pro、物理テープ回転シミュレーション、16セグメントVUメーター）。外観・表示・入力・通信網・音響など10大独立アプレットからなる「環境設定コントロールパネル（Settings Cabinet）」と、Nyan Catアニメーション付きシステム情報ダイアログ（<code>about.c</code>）、TADブラウザの自動改行エンジンを完備しました。
+                </p>
+            </div>
+
+            <div class="phase-card">
+                <span class="phase-badge">Phase 9 · グローバルメニュー・共通メニューエンジン・レトロアイコン体系 (Global Menu &amp; App Menu Architecture)</span>
+                <div class="phase-header">
+                    <h3 class="phase-title">9. デスクトップ大統合と共通メニュー基盤 (Global Menu Bar &amp; Deduplicated App Menus · Commits 308–323 · Sept 4)</h3>
+                    <span class="phase-meta">Session 24 · 実動約3.2時間 · +6,106 / -720 lines</span>
+                </div>
+                <p style="color: #4a3560; line-height: 1.7;">
+                    TRON HMI仕様に完全準拠した全画面トップシステムメニューバー「［BTRON］グローバルメニュー」（<code>global_menu.c</code>）を構築。BeOS Deskbar着想の階層ポップアップ、流体追従ホバー（Fluid Tracking）、キーボードショートカット（Alt+? / Alt+P / Alt+O / F12）、および日本語時計・カレンダー表示を実装。
+                    あわせて、Editor、Browser、Cabinet、Terminal等で重複していたメニュー実装を全廃し、Classic 3DベベルとModern Flat Cardの双方を動的切替可能な「共通アプリケーションメニュー基盤」（<code>app_menu.c</code>）を新設。全アプリ共通のNano Aboutダイアログ生成機構と、32×32ドットのレトロGIF/PNGアイコンセット群（<code>assets/icons/</code>）を網羅しました。
+                </p>
+            </div>
+
+            <div class="phase-card">
+                <span class="phase-badge">Phase 10 · 自動画面キャプチャ・Orchestra演奏サーバー・DocOps大展開 (Headless Capturer &amp; Orchestra Live MIDI Server)</span>
+                <div class="phase-header">
+                    <h3 class="phase-title">10. 実機フレーム抽出・Orchestra・DocOps自動化 (Automated Screen Capture &amp; Live MIDI Server · Commits 324–348 · Sept 4)</h3>
+                    <span class="phase-meta">Session 25 · 実動約7.1時間 · +8,323 / -2,338 lines</span>
+                </div>
+                <p style="color: #4a3560; line-height: 1.7;">
+                    ヘッドレスGDEV描画フレームバッファから透過ウィンドウ境界をピクセルパーフェクトに直接抽出する自動画面撮影ツール（<code>capture_screens.c</code>、<code>raw_to_png.py</code>、<code>populate_doc_screens.py</code>）をパイプライン化。全15大アプリと10設定パネルの透過PNGスクリーンショットおよび孤立メニュー展開画面、Aboutボックスを単一コマンドで抽出・HTML文書へ自動注入するDocOps基盤を確立。
+                    音楽アプリを大規模刷新し、内蔵C99 GStreamerメディアパイプライン（外部依存ゼロ）、32ポートMIDIルーティングマトリクス、SMPTE/MTCマスタークロック、ステージシーン即時切替を備えたプロフェッショナル向け「管弦楽（Orchestra）」ライブMIDI演奏サーバー（<code>orchestra.c</code>）を投入（Apple GarageBand / Logic Pro / Avid Pro Toolsに匹敵する確定論的リアルタイム性能）。さらにGeneral Punctuation領域のホモトピー的符号化定理（Theorem 1: $(\phi^{-1} \circ \phi)(S) = S$）を証明・実装し、全約物文字の不可逆化・左亀甲括弧化問題を根本解消しました。
+                </p>
+            </div>
+
+            <!-- Complete 25-Session Table -->
+            <h3 style="margin-top: 3rem;">セッション詳細開発ログ（Complete 25-Session Engineering Log）</h3>
             <p style="color: #4a3560; line-height: 1.7;">
-                12日間の開発スプリントにおける全作業セッション、実施時間帯、実働時間、コミット範囲、および各セッションで実装された主要サブシステムの一覧：
+                14日間の開発スプリントにおける全作業セッション、実施時間帯、実働時間、コミット範囲、および各セッションで実装された主要サブシステムの一覧：
             </p>
 
             <div class="session-table-wrapper">
@@ -610,6 +646,34 @@ $ make verify</pre>
                             <td>~2.6 h <small style="color: #704b75;">(11 commits)</small></td>
                             <td><code>01957ec..ed92f3b</code></td>
                             <td>Final Alpha 1 stabilization: Hardware logging rework, 64-bit AArch64 Pi 4B target (<code>core_arm64.c</code>), unified 7-target kernel matrix, and historical pioneer tributes.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session 22</strong></td>
+                            <td>2026-09-03 00:00 – 02:54</td>
+                            <td>~2.9 h <small style="color: #704b75;">(16 commits)</small></td>
+                            <td><code>59e792c..bb38b30</code></td>
+                            <td>Awe Morris PC-98 tribute integration, releases history documentation, modern responsive index page layout, Deskbar tracker menu refinements, Matrix spreadsheet, Cabinet real body explorer, and macOS QEMU window upscaling.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session 23</strong></td>
+                            <td>2026-09-03 13:55 – 23:54</td>
+                            <td>~10.0 h <small style="color: #704b75;">(11 commits)</small></td>
+                            <td><code>65f3ed2..3788ce3</code></td>
+                            <td>Multilingual TRON-Code expansion: 16x16 Tibetan U-chen font (<code>tibetan_fonts.c</code>), EWTS Wylie input method (<code>wylie.c</code>), dictionary, Heart Sutra; SONY TC-K777ES Precision Hi-Fi Cassette Deck (<code>audio_player.c</code>) with animated rotating spools &amp; VU meters; 10 modular Settings Cabinet applets; Animated About B-System dialog with Nyan Cat tribute; Dave Cutler NT microkernel tribute; TAD Browser word wrap.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session 24</strong></td>
+                            <td>2026-09-04 00:30 – 03:41</td>
+                            <td>~3.2 h <small style="color: #704b75;">(16 commits)</small></td>
+                            <td><code>add97a1..60a2de5</code></td>
+                            <td>BTRON Global Menu Bar &amp; Japanese Deskbar (<code>global_menu.c</code>) with cascading dropdowns, fluid hover tracking, Alt+? / Alt+P accelerators; Common Application Menu Subsystem (<code>app_menu.c</code>) supporting Classic 3D and Modern Flat Card styles; Nano About dialog generator; authentic 32x32 retro GIF/PNG icon set across all apps (<code>assets/icons/</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session 25</strong></td>
+                            <td>2026-09-04 12:41 – 19:45</td>
+                            <td>~7.1 h <small style="color: #704b75;">(25 commits)</small></td>
+                            <td><code>9f36ada..588415b</code></td>
+                            <td>Automated Headless Window Screenshot Capture Pipeline (<code>capture_screens.c</code>, <code>raw_to_png.py</code>, <code>populate_doc_screens.py</code>) generating transparent ARGB window frames; Orchestra Live Stage MIDI Server &amp; Workstation (<code>orchestra.c</code>) with zero-dependency C99 GStreamer media pipeline &amp; 32-port routing; Theorem 1 homotopical punctuation encoding fix; isolated About box captures across all applications.</td>
                         </tr>
                     </tbody>
                 </table>

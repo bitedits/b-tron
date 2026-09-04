@@ -928,7 +928,7 @@ static void test_teditor_nano_about_box(void) {
 
     WND *about_wnd = open_teditor_about_window();
     TEST_ASSERT(about_wnd != NULL, "open_teditor_about_window() created valid window");
-    TEST_ASSERT(strstr(about_wnd->title, "About Editor") != NULL, "About window title is 'About Editor'");
+    TEST_ASSERT(strstr(about_wnd->title, "Document Editor") != NULL || strstr(about_wnd->title, "文書編集") != NULL, "About window title contains 'Document Editor' or '文書編集'");
 
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;

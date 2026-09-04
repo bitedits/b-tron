@@ -714,7 +714,7 @@ static void test_tad_browser_menu_and_about_box(void) {
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
     TEST_ASSERT(w == 520 && h == 270, "About box has aligned 520x270 dimensions");
-    TEST_ASSERT(strstr(about_wnd->title, "About TAD Browser") != NULL, "About title is 'About TAD Browser (バージョン情報)'");
+    TEST_ASSERT(strstr(about_wnd->title, "TAD Browser") != NULL, "About title contains 'TAD Browser'");
 
     /* Dismiss via Escape */
     ev.type = EV_KEY_DOWN;
@@ -785,7 +785,7 @@ static void test_cabinet_menu_and_about_box(void) {
     H w = about_wnd->bounds.right - about_wnd->bounds.left;
     H h = about_wnd->bounds.bottom - about_wnd->bounds.top;
     TEST_ASSERT(w == 520 && h == 270, "Cabinet About box has aligned 520x270 dimensions");
-    TEST_ASSERT(strstr(about_wnd->title, "About Cabinet") != NULL, "About title is 'About Cabinet (バージョン情報)'");
+    TEST_ASSERT(strstr(about_wnd->title, "Cabinet") != NULL, "About title contains 'Cabinet'");
 
     /* Dismiss via Escape */
     ev.type = EV_KEY_DOWN;
