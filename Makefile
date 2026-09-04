@@ -123,6 +123,7 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               src/settings/media.c \
               src/settings/security.c \
               src/settings/system.c    \
+              src/settings/terminal.c  \
               src/hmi/hmi_core.c       \
               src/hmi/hmi_switch.c     \
               src/hmi/hmi_selector.c   \
@@ -227,6 +228,7 @@ COMMON_NO_SDL_SRCS = \
     src/apps/gterm.c       \
     src/settings/language.c \
     src/settings/appearance.c \
+    src/settings/terminal.c \
     $(IME_SRCS)
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
@@ -682,6 +684,7 @@ TEST_SETTINGS_SRCS = src/settings/test_language_settings.c \
                      src/settings/media.c \
                      src/settings/security.c \
                      src/settings/system.c \
+                     src/settings/terminal.c \
                      src/tip/tip_ife.c \
                      src/tip/mozc_kkc.c \
                      src/tip/wylie.c \

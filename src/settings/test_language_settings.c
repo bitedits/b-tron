@@ -56,7 +56,7 @@ int main(void) {
     /* 4. Control Panel Applet Registry Verification */
     printf("\n[TEST GROUP 4] Control Panel Applet Registry\n");
     int count = settings_get_app_count();
-    TEST_ASSERT(count == 10, "Control panel registers exactly 10 settings applets");
+    TEST_ASSERT(count == 11, "Control panel registers exactly 11 settings applets");
 
     for (int i = 1; i <= count; i++) {
         const SETTINGS_APP_INFO *info = settings_get_app_info((SETTINGS_APP_ID)i);
@@ -166,7 +166,7 @@ int main(void) {
 
     WND *w_cp32 = open_control_panel_window();
     TEST_ASSERT(w_cp32 != NULL, "Control Panel opened with 32x32 icon setting");
-    TEST_ASSERT((w_cp32->bounds.bottom - w_cp32->bounds.top) == 460, "Control Panel height is 460 in 32x32 mode");
+    TEST_ASSERT((w_cp32->bounds.bottom - w_cp32->bounds.top) == 520, "Control Panel height is 520 in 32x32 mode");
     cls_wnd(w_cp32);
 
     appearance_set_icon_size(BTRON_ICON_SIZE_64);
@@ -174,7 +174,7 @@ int main(void) {
 
     WND *w_cp64 = open_control_panel_window();
     TEST_ASSERT(w_cp64 != NULL, "Control Panel opened with 64x64 icon setting");
-    TEST_ASSERT((w_cp64->bounds.bottom - w_cp64->bounds.top) == 580, "Control Panel height is 580 in 64x64 mode");
+    TEST_ASSERT((w_cp64->bounds.bottom - w_cp64->bounds.top) == 660, "Control Panel height is 660 in 64x64 mode");
     cls_wnd(w_cp64);
 
     /* Test Appearance setting radio button clicks */

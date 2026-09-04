@@ -11,6 +11,7 @@
 #include <btron/event.h>
 #include <btron/tip.h>
 #include <btron/language_settings.h>
+#include <btron/terminal_settings.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +29,7 @@ typedef enum {
     SETTINGS_APP_MEDIA,
     SETTINGS_APP_SECURITY,
     SETTINGS_APP_SYSTEM,
+    SETTINGS_APP_TERMINAL,
     SETTINGS_APP_COUNT
 } SETTINGS_APP_ID;
 
@@ -56,6 +58,7 @@ WND* open_network_settings_window(void);
 WND* open_media_settings_window(void);
 WND* open_security_settings_window(void);
 WND* open_system_settings_window(void);
+WND* open_terminal_settings_window(void);
 
 /* Global Appearance Preferences: Icon Display Size */
 typedef enum {

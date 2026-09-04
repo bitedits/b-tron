@@ -50,7 +50,8 @@ static const SETTINGS_APP_INFO g_app_registry[] = {
     { "network",    "Network",    "通信網",       "[NET]", "Interfaces, DHCP, DNS, VirtIO-Net & XMPP",             open_network_settings_window },
     { "security",   "Security",   "保全・権限",   "[SEC]", "Permissions, real-object ACLs & capability isolation", open_security_settings_window },
     { "sound",      "Sound",      "音響・音声",   "[SND]", "Audio devices, Cassette routing & master volume",      open_sound_settings_window },
-    { "system",     "System",     "基本情報",     "[SYS]", "System Plane info, kernel tasks, memory & SMP",        open_system_settings_window }
+    { "system",     "System",     "基本情報",     "[SYS]", "System Plane info, kernel tasks, memory & SMP",        open_system_settings_window },
+    { "terminal",   "Terminal",   "端末・通信",   "[TRM]", "Console colours, font size, scrollback buffer, cursor & encoding", open_terminal_settings_window }
 };
 
 #define APP_REGISTRY_COUNT (sizeof(g_app_registry) / sizeof(g_app_registry[0]))
@@ -486,7 +487,7 @@ static void handle_control_panel_event(WND *wnd, const EVT *evt) {
 WND* open_control_panel_window(void) {
     g_ctrl_panel.selected_index = 0;
     BTRON_ICON_SIZE sz = appearance_get_icon_size();
-    int win_h = (sz == BTRON_ICON_SIZE_32) ? 460 : 580;
+    int win_h = (sz == BTRON_ICON_SIZE_32) ? 520 : 660;
     WND *wnd = opn_wnd("Settings Cabinet - SONY Control Panel (環境設定キャビネット)",
                        (1280 - 680) / 2, (800 - win_h) / 2 < 0 ? 0 : (800 - win_h) / 2, 680, win_h,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);

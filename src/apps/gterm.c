@@ -4,6 +4,9 @@
 #include <btron/event.h>
 #include <btron/tip.h>
 #include <btron/apps.h>
+#include <btron/app_menu.h>
+#include <btron/terminal_settings.h>
+#include <btron/settings.h>
 
 #if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
 #include <stdio.h>
@@ -57,7 +60,46 @@ static inline char* gterm_strstr(const char *haystack, const char *needle) {
 #define GTERM_MAX_ROWS     32
 #define GTERM_HIST_MAX     300
 #define GTERM_CMD_HIST_MAX 32
-#define COLOR_TERM_BG      0xCC000000 /* 20% dimmed background (0xCC instead of 0xFF) across all modes */
+
+/* ── Terminal Menu Command IDs ──────────────────────────────────────────── */
+typedef enum {
+    /* ファイル(F) */
+    TCMD_FILE_NEW_TERM  = 1,
+    TCMD_FILE_SAVE_LOG  = 2,
+    TCMD_FILE_CLOSE     = 3,
+    /* 編集(E) */
+    TCMD_EDIT_COPY      = 10,
+    TCMD_EDIT_PASTE     = 11,
+    TCMD_EDIT_CLEAR     = 12,
+    TCMD_EDIT_CANCEL    = 13,
+    TCMD_EDIT_SELECT_ALL= 14,
+    /* 表示(V) - Font Size */
+    TCMD_VIEW_FONT_12   = 20,
+    TCMD_VIEW_FONT_16   = 21,
+    TCMD_VIEW_FONT_20   = 22,
+    /* 表示(V) - Color Themes */
+    TCMD_VIEW_COL_GREEN = 25,
+    TCMD_VIEW_COL_AMBER = 26,
+    TCMD_VIEW_COL_WHITE = 27,
+    TCMD_VIEW_COL_CYAN  = 28,
+    TCMD_VIEW_COL_LIGHT = 29,
+    /* 表示(V) - Transparency */
+    TCMD_VIEW_TRANS_100 = 31,
+    TCMD_VIEW_TRANS_80  = 32,
+    TCMD_VIEW_TRANS_60  = 33,
+    /* 端末(T) */
+    TCMD_TERM_RESET     = 40,
+    TCMD_TERM_HIST_100  = 41,
+    TCMD_TERM_HIST_300  = 42,
+    TCMD_TERM_HIST_1000 = 43,
+    TCMD_TERM_CUR_LINE  = 44,
+    TCMD_TERM_CUR_BLOCK = 45,
+    TCMD_TERM_CUR_BAR   = 46,
+    TCMD_TERM_SETTINGS  = 47,
+    /* ヘルプ(H) */
+    TCMD_HELP_CMDS      = 50,
+    TCMD_HELP_ABOUT     = 51
+} GTERM_CMD;
 
 typedef struct {
     char lines[GTERM_HIST_MAX][GTERM_MAX_COLS + 1];
@@ -72,9 +114,22 @@ typedef struct {
     char cmd_history[GTERM_CMD_HIST_MAX][256];
     int cmd_hist_count;
     int cmd_hist_idx;
+
+    /* In-Window Application Menu */
+    APP_MENU_BAR menu_bar;
+
+    /* Live display settings (synced from global TERMINAL_SETTINGS) */
+    COLOR fg_color;        /* Foreground text colour */
+    COLOR bg_color;        /* Background colour (includes alpha) */
+    int   font_size;       /* Row height: 12, 16, or 20 */
+    int   cursor_style;    /* 0=underline, 1=block, 2=bar */
+    int   transparency;    /* 0=opaque, 1=80%, 2=60% */
+    int   scrollback_max;  /* Max scroll-back lines */
 } GTermState;
 
 void gterm_append_line(GTermState *st, const char *text, COLOR col);
+static void gterm_init_menu_bar(GTermState *st);
+static void gterm_apply_settings(GTermState *st);
 
 static int gterm_calc_text_pixel_width(const char *str) {
     if (!str) return 0;
@@ -99,9 +154,103 @@ static int gterm_calc_text_pixel_width(const char *str) {
     return w;
 }
 
+/* ── Apply global TERMINAL_SETTINGS into GTermState live fields ─────────── */
+static void gterm_apply_settings(GTermState *st) {
+    TERMINAL_SETTINGS cfg;
+    terminal_get_settings(&cfg);
+
+    st->font_size      = (int)cfg.font_size;
+    st->cursor_style   = (int)cfg.cursor_style;
+    st->transparency   = (int)cfg.transparency;
+    st->scrollback_max = cfg.scrollback_lines;
+
+    /* Derive colours from theme */
+    switch (cfg.theme) {
+        case TERM_THEME_GREEN:
+            st->fg_color = 0xFF22C55E;
+            st->bg_color = terminal_get_effective_bg(&cfg);
+            break;
+        case TERM_THEME_AMBER:
+            st->fg_color = 0xFFF59E0B;
+            st->bg_color = terminal_get_effective_bg(&cfg);
+            break;
+        case TERM_THEME_CYAN:
+            st->fg_color = 0xFF38BDF8;
+            st->bg_color = terminal_get_effective_bg(&cfg);
+            break;
+        case TERM_THEME_LIGHT:
+            st->fg_color = 0xFF0F172A;
+            st->bg_color = terminal_get_effective_bg(&cfg);
+            break;
+        default: /* TERM_THEME_WHITE */
+            st->fg_color = 0xFFFFFFFF;
+            st->bg_color = terminal_get_effective_bg(&cfg);
+            break;
+    }
+}
+
+/* ── Initialise the in-window 5-header menu bar ─────────────────────────── */
+static void gterm_init_menu_bar(GTermState *st) {
+    app_menu_init(&st->menu_bar, APP_MENU_STYLE_CLASSIC_3D);
+
+    /* ファイル(F) */
+    int h0 = app_menu_add_header(&st->menu_bar, "ファイル(F)", 104);
+    app_menu_add_item(&st->menu_bar, h0, "新規端末 (New Terminal)",   "Ctrl+N", TCMD_FILE_NEW_TERM, TRUE);
+    app_menu_add_item(&st->menu_bar, h0, "ログ保存 (Save Log)",       "Ctrl+S", TCMD_FILE_SAVE_LOG, TRUE);
+    app_menu_add_separator(&st->menu_bar, h0);
+    app_menu_add_item(&st->menu_bar, h0, "閉じる (Close)",             "Ctrl+W", TCMD_FILE_CLOSE,    TRUE);
+
+    /* 編集(E) */
+    int h1 = app_menu_add_header(&st->menu_bar, "編集(E)", 72);
+    app_menu_add_item(&st->menu_bar, h1, "コピー (Copy)",              "Ctrl+C", TCMD_EDIT_COPY,      TRUE);
+    app_menu_add_item(&st->menu_bar, h1, "貼り付け (Paste)",           "Ctrl+V", TCMD_EDIT_PASTE,     TRUE);
+    app_menu_add_separator(&st->menu_bar, h1);
+    app_menu_add_item(&st->menu_bar, h1, "画面消去 (Clear Screen)",    "Ctrl+L", TCMD_EDIT_CLEAR,     TRUE);
+    app_menu_add_item(&st->menu_bar, h1, "入力取消 (Cancel Line)",     "Ctrl+U", TCMD_EDIT_CANCEL,    TRUE);
+    app_menu_add_item(&st->menu_bar, h1, "すべて選択 (Select All)",    "Ctrl+A", TCMD_EDIT_SELECT_ALL,TRUE);
+
+    /* 表示(V) */
+    int h2 = app_menu_add_header(&st->menu_bar, "表示(V)", 72);
+    app_menu_add_item(&st->menu_bar, h2, "フォント小 12px",            "",       TCMD_VIEW_FONT_12,   TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "フォント標準 16px",          "",       TCMD_VIEW_FONT_16,   TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "フォント大 20px",            "",       TCMD_VIEW_FONT_20,   TRUE);
+    app_menu_add_separator(&st->menu_bar, h2);
+    app_menu_add_item(&st->menu_bar, h2, "配色：グリーン (Green)",     "",       TCMD_VIEW_COL_GREEN, TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "配色：アンバー (Amber)",     "",       TCMD_VIEW_COL_AMBER, TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "配色：白黒 (White)",         "",       TCMD_VIEW_COL_WHITE, TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "配色：BTRON青 (Cyan)",       "",       TCMD_VIEW_COL_CYAN,  TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "配色：ライト (Light)",       "",       TCMD_VIEW_COL_LIGHT, TRUE);
+    app_menu_add_separator(&st->menu_bar, h2);
+    app_menu_add_item(&st->menu_bar, h2, "不透明 (100% Opaque)",       "",       TCMD_VIEW_TRANS_100, TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "20%減光 (80% Dimmed)",       "",       TCMD_VIEW_TRANS_80,  TRUE);
+    app_menu_add_item(&st->menu_bar, h2, "40%減光 (60% Dimmed)",       "",       TCMD_VIEW_TRANS_60,  TRUE);
+
+    /* 端末(T) */
+    int h3 = app_menu_add_header(&st->menu_bar, "端末(T)", 72);
+    app_menu_add_item(&st->menu_bar, h3, "端末リセット (Reset)",       "",       TCMD_TERM_RESET,     TRUE);
+    app_menu_add_separator(&st->menu_bar, h3);
+    app_menu_add_item(&st->menu_bar, h3, "履歴 100行",                 "",       TCMD_TERM_HIST_100,  TRUE);
+    app_menu_add_item(&st->menu_bar, h3, "履歴 300行 (標準)",          "",       TCMD_TERM_HIST_300,  TRUE);
+    app_menu_add_item(&st->menu_bar, h3, "履歴 1000行 (大)",           "",       TCMD_TERM_HIST_1000, TRUE);
+    app_menu_add_separator(&st->menu_bar, h3);
+    app_menu_add_item(&st->menu_bar, h3, "カーソル下線 (_)",           "",       TCMD_TERM_CUR_LINE,  TRUE);
+    app_menu_add_item(&st->menu_bar, h3, "ブロックカーソル (█)",       "",       TCMD_TERM_CUR_BLOCK, TRUE);
+    app_menu_add_item(&st->menu_bar, h3, "バーカーソル (|)",           "",       TCMD_TERM_CUR_BAR,   TRUE);
+    app_menu_add_separator(&st->menu_bar, h3);
+    app_menu_add_item(&st->menu_bar, h3, "端末環境設定 (Settings)...", "",       TCMD_TERM_SETTINGS,  TRUE);
+
+    /* ヘルプ(H) */
+    int h4 = app_menu_add_header(&st->menu_bar, "ヘルプ(H)", 88);
+    app_menu_add_item(&st->menu_bar, h4, "コマンド一覧 (Commands)",   "?",      TCMD_HELP_CMDS,      TRUE);
+    app_menu_add_item(&st->menu_bar, h4, "端末について (About)",       "",       TCMD_HELP_ABOUT,     TRUE);
+}
+
 static void gterm_init_banner(GTermState *st) {
     memset(st, 0, sizeof(GTermState));
     strncpy(st->prompt, "btron:/> ", sizeof(st->prompt) - 1);
+
+    /* Load initial display settings from global TERMINAL_SETTINGS store */
+    gterm_apply_settings(st);
 
     gterm_append_line(st, "+==================================================+", COLOR_CYAN);
     gterm_append_line(st, "| B-System 3.0 Workstation Shell (gterm)           |", COLOR_WHITE);
@@ -596,10 +745,136 @@ static char get_ascii_char_with_shift(UW key, uint16_t mod) {
     return (char)key;
 }
 
+/* ── Dispatch a GTERM_CMD from the menu to update live terminal state ────── */
+static void gterm_dispatch_cmd(WND *wnd, GTermState *st, int cmd) {
+    TERMINAL_SETTINGS cfg;
+    terminal_get_settings(&cfg);
+
+    switch ((GTERM_CMD)cmd) {
+        /* ── ファイル ─────────────────────────────── */
+        case TCMD_FILE_NEW_TERM:
+            open_gterm_window();
+            return;
+        case TCMD_FILE_SAVE_LOG:
+            gterm_append_line(st, "[gterm] Log save: not yet implemented", COLOR_YELLOW);
+            return;
+        case TCMD_FILE_CLOSE:
+            cls_wnd(wnd);
+            return;
+
+        /* ── 編集 ─────────────────────────────────── */
+        case TCMD_EDIT_CLEAR:
+            st->total_lines = 0;
+            return;
+        case TCMD_EDIT_CANCEL:
+            st->input_buf[0] = '\0';
+            st->input_len = 0;
+            tip_cancel();
+            return;
+        case TCMD_EDIT_SELECT_ALL:
+        case TCMD_EDIT_COPY:
+        case TCMD_EDIT_PASTE:
+            /* clipboard stubs — host integration TBD */
+            return;
+
+        /* ── 表示: Font Size ──────────────────────── */
+        case TCMD_VIEW_FONT_12: st->font_size = 12; cfg.font_size = TERM_FONT_12; terminal_set_settings(&cfg); return;
+        case TCMD_VIEW_FONT_16: st->font_size = 16; cfg.font_size = TERM_FONT_16; terminal_set_settings(&cfg); return;
+        case TCMD_VIEW_FONT_20: st->font_size = 20; cfg.font_size = TERM_FONT_20; terminal_set_settings(&cfg); return;
+
+        /* ── 表示: Colour Themes ──────────────────── */
+        case TCMD_VIEW_COL_GREEN:
+            cfg.theme = TERM_THEME_GREEN; cfg.fg_color = 0xFF22C55E;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_COL_AMBER:
+            cfg.theme = TERM_THEME_AMBER; cfg.fg_color = 0xFFF59E0B;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_COL_WHITE:
+            cfg.theme = TERM_THEME_WHITE; cfg.fg_color = 0xFFFFFFFF;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_COL_CYAN:
+            cfg.theme = TERM_THEME_CYAN; cfg.fg_color = 0xFF38BDF8;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_COL_LIGHT:
+            cfg.theme = TERM_THEME_LIGHT; cfg.fg_color = 0xFF0F172A;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+
+        /* ── 表示: Transparency ───────────────────── */
+        case TCMD_VIEW_TRANS_100:
+            cfg.transparency = TERM_TRANSPARENCY_OPAQUE;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_TRANS_80:
+            cfg.transparency = TERM_TRANSPARENCY_80;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+        case TCMD_VIEW_TRANS_60:
+            cfg.transparency = TERM_TRANSPARENCY_60;
+            terminal_set_settings(&cfg); gterm_apply_settings(st); return;
+
+        /* ── 端末 ─────────────────────────────────── */
+        case TCMD_TERM_RESET:
+            st->total_lines = 0;
+            gterm_init_banner(st);
+            gterm_execute_cmd(wnd, st, "ver");
+            return;
+        case TCMD_TERM_HIST_100:  st->scrollback_max = 100;  cfg.scrollback_lines = 100;  terminal_set_settings(&cfg); return;
+        case TCMD_TERM_HIST_300:  st->scrollback_max = 300;  cfg.scrollback_lines = 300;  terminal_set_settings(&cfg); return;
+        case TCMD_TERM_HIST_1000: st->scrollback_max = 1000; cfg.scrollback_lines = 1000; terminal_set_settings(&cfg); return;
+        case TCMD_TERM_CUR_LINE:  st->cursor_style = 0; cfg.cursor_style = TERM_CURSOR_UNDERLINE; terminal_set_settings(&cfg); return;
+        case TCMD_TERM_CUR_BLOCK: st->cursor_style = 1; cfg.cursor_style = TERM_CURSOR_BLOCK;     terminal_set_settings(&cfg); return;
+        case TCMD_TERM_CUR_BAR:   st->cursor_style = 2; cfg.cursor_style = TERM_CURSOR_BAR;       terminal_set_settings(&cfg); return;
+        case TCMD_TERM_SETTINGS:
+            open_terminal_settings_window();
+            return;
+
+        /* ── ヘルプ ───────────────────────────────── */
+        case TCMD_HELP_CMDS:
+            shell_execute_cmd("help", gterm_shell_out, st, wnd);
+            return;
+        case TCMD_HELP_ABOUT:
+            app_menu_create_about_dialog("gterm", "端末",
+                "B-System Terminal Emulator (VT100 / TRON Console)",
+                "Brought to B-System by 5HT",
+                300, 200);
+            return;
+        default:
+            return;
+    }
+}
+
 static void handle_gterm_event(WND *wnd, const EVT *evt) {
     if (!wnd || !evt) return;
     GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
     if (!st) return;
+
+    /* Compute relative coordinates (inside client, accounting for border+title) */
+    H rel_x = evt->pos.x - (wnd->bounds.left + 4);
+    H rel_y = evt->pos.y - (wnd->bounds.top  + 26);
+
+    /* ── Mouse Move: forward to menu bar ─────────────────────────────────── */
+    if (evt->type == EV_MOUSE_MOVE) {
+        if (st->menu_bar.header_count > 0) {
+            app_menu_handle_mouse_move(&st->menu_bar, rel_x, rel_y);
+        }
+        return;
+    }
+
+    /* ── Mouse Down: menu first, then terminal area ───────────────────────── */
+    if (evt->type == EV_BUT_DOWN) {
+        if (st->menu_bar.header_count > 0) {
+            int cmd = 0, sub_idx = -1;
+            if (app_menu_handle_mouse_down(&st->menu_bar, rel_x, rel_y, &cmd, &sub_idx)) {
+                if (cmd != 0) {
+                    gterm_dispatch_cmd(wnd, st, cmd);
+                }
+                return;
+            }
+        }
+        /* Click in terminal canvas — close any open menu */
+        if (st->menu_bar.active_menu >= 0) {
+            app_menu_close(&st->menu_bar);
+        }
+        return;
+    }
 
     if (evt->type == EV_KEY_DOWN) {
         char commit_buf[128] = "";
@@ -702,47 +977,68 @@ static void paint_gterm(WND *wnd, GDEV *dev) {
     GTermState *st = (GTermState*)(uintptr_t)wnd->user_data;
     if (!st) return;
 
-    /* Black Terminal Screen Background across full window canvas (20% dimmed) */
+    /* Initialise menu bar on first paint */
+    if (st->menu_bar.header_count == 0) {
+        gterm_init_menu_bar(st);
+    }
+
+    /* Determine effective colours and row height from live settings */
+    COLOR eff_bg = st->bg_color ? st->bg_color : 0xCC000000;
+    COLOR eff_fg = st->fg_color ? st->fg_color : 0xFFFFFFFF;
+    int   row_h  = (st->font_size >= 12 && st->font_size <= 20) ? st->font_size : 16;
+
+    /* ── 1. Full-window background ─────────────────────────────────────── */
     RECT r = { 0, 0, dev->width, dev->height };
-    fill_rec(dev, &r, COLOR_TERM_BG);
+    fill_rec(dev, &r, eff_bg);
 
-    /* Visual Mode Indicator in Terminal Header */
-    const char *mode_tag = (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[Mode: JP (あ) | F10: Switch]" :
-                           ((tip_get_mode() == TIP_MODE_KATAKANA) ? "[Mode: JP (ア) | F10: Switch]" :
-                            "[Mode: EN (A) | F10: Switch]");
-    drw_tc_string(dev, dev->width - 240, 6, mode_tag, COLOR_CYAN, COLOR_TERM_BG);
+    /* ── 2. In-Window Menu Bar (y = 0..APP_MENU_BAR_HEIGHT) ───────────── */
+    app_menu_set_right_text(&st->menu_bar,
+        (tip_get_mode() == TIP_MODE_HIRAGANA) ? "[JP あ | F10]"
+      : (tip_get_mode() == TIP_MODE_KATAKANA) ? "[JP ア | F10]"
+      :                                          "[EN A | F10]");
+    app_menu_paint_bar(&st->menu_bar, dev);
 
-    int row_h = 16;
-    int max_disp_rows = (dev->height - 40) / row_h;
-    if (max_disp_rows < 5) max_disp_rows = 5;
+    /* ── 3. Terminal Canvas (starts below menu bar) ────────────────────── */
+    int canvas_top = APP_MENU_BAR_HEIGHT + 2;   /* 2px separator gap */
+    int max_disp_rows = (dev->height - canvas_top - row_h - 4) / row_h;
+    if (max_disp_rows < 3) max_disp_rows = 3;
 
     int start_line = 0;
     if (st->total_lines > max_disp_rows) {
         start_line = st->total_lines - max_disp_rows;
     }
 
-    int y = 24;
+    int y = canvas_top + 2;
     for (int i = start_line; i < st->total_lines; i++) {
         COLOR col = st->line_cols[i];
-        if (col == 0) col = COLOR_WHITE;
-        drw_tc_string(dev, 8, y, st->lines[i], col, COLOR_TERM_BG);
+        if (col == 0) col = eff_fg;
+        drw_tc_string(dev, 8, y, st->lines[i], col, eff_bg);
         y += row_h;
     }
 
-    /* Draw Active Prompt Line with Cursor and TIP Inline Preview */
+    /* ── 4. Prompt line with TIP inline preview and cursor ─────────────── */
     char prompt_line[300];
     snprintf(prompt_line, sizeof(prompt_line), "%s%s", st->prompt, st->input_buf);
-    drw_tc_string(dev, 8, y, prompt_line, COLOR_WHITE, COLOR_TERM_BG);
+    drw_tc_string(dev, 8, y, prompt_line, eff_fg, eff_bg);
 
     int prompt_pixel_w = 8 + gterm_calc_text_pixel_width(prompt_line);
     if (wnd->focused && tip_get_state() != TIP_STATE_IDLE) {
         char comp_buf[128];
         tip_get_converted_text(comp_buf, sizeof(comp_buf));
         BOOL is_dotted = (tip_get_state() == TIP_STATE_PRECOMP);
-        drw_tc_string_underlined(dev, prompt_pixel_w, y, comp_buf, COLOR_CYAN, COLOR_TERM_BG, is_dotted);
+        drw_tc_string_underlined(dev, prompt_pixel_w, y, comp_buf, COLOR_CYAN, eff_bg, is_dotted);
         tip_set_caret_pos(wnd->bounds.left + prompt_pixel_w, wnd->bounds.top + y);
     } else if (wnd->focused) {
-        drw_tc_string(dev, prompt_pixel_w, y, "_", COLOR_WHITE, COLOR_TERM_BG);
+        /* Cursor shape: underline '_', block '█', or bar '|' */
+        const char *cursor_glyph = (st->cursor_style == 1) ? "\xe2\x96\x88" /* █ */
+                                 : (st->cursor_style == 2) ? "|"
+                                 :                            "_";
+        drw_tc_string(dev, prompt_pixel_w, y, cursor_glyph, eff_fg, eff_bg);
+    }
+
+    /* ── 5. Dropdown overlay (drawn on top of everything) ──────────────── */
+    if (st->menu_bar.active_menu >= 0) {
+        app_menu_paint_dropdown(&st->menu_bar, dev);
     }
 }
 
