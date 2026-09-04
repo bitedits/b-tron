@@ -53,6 +53,20 @@
       </div>
     </div>
 
+        <!-- ── Screenshot ────────────────────────────────────────────── -->
+    <div class="section">
+      <h2>Screenshot</h2>
+      <div style="text-align: center; margin: 1.2rem 0;">
+        <img src="../img/boot.png" alt="Bootloader Interactive Interface"
+          style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,93,162,0.3); box-shadow: 0 8px 24px rgba(255,93,162,0.15);">
+        <p style="font-size: 0.88rem; color: #6b4f7e; margin-top: 0.6rem; font-style: italic; text-align: center;">
+          Bootloader (🎿) multi-architecture boot manager running on QEMU x86_64 UEFI SMP with live target selector,
+          CPU core scaling, and interactive command line editor.
+        </p>
+      </div>
+    </div>
+
+    
     <!-- 1. マルチブート構造と起動機構 -->
     <div class="section">
       <h2>1. マルチブート構造と起動機構 (Direct Multiboot &amp; Hardware Discovery)</h2>
@@ -133,6 +147,7 @@
       </table>
     </div>
 
+
     <!-- 3. カーネル実行マトリクス -->
     <div class="section">
       <h2>3. カーネル実行マトリクス (Supported Kernels &amp; Execution Matrix)</h2>
@@ -140,68 +155,72 @@
         B-Systemがサポートする全7種類のカーネルビルドターゲットおよび技術仕様マトリクス。<br>
         <span style="font-size:0.9em; opacity:0.85;">"Comprehensive execution matrix of all seven purpose-built kernel targets spanning host emulation, cloud VirtIO, bare-metal ARM, UEFI SMP, and vintage PC-98."</span>
       </p>
-      <table class="market-table">
-        <thead>
-          <tr>
-            <th>ターゲット</th>
-            <th>カーネル識別名</th>
-            <th>アーキテクチャ・プラットフォーム</th>
-            <th>マイクロコード・仕様</th>
-            <th>技術的先駆者</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="app-badge">posix</span></td>
-            <td><b>B-System/BTRON3 3.20</b><br><small>posix-host</small></td>
-            <td>POSIX ユーザ空間<br><small>macOS / Linux / BSD (SDL2)</small></td>
-            <td>Cleanroom TRON</td>
-            <td><b>高田 広章 (Hiroaki Takada)</b><br><small>TOPPERS / ITRON</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge teal">qemu</span></td>
-            <td><b>B-System/BTRON3 3.20</b><br><small>arm-qemu-virtio</small></td>
-            <td>ARMv7 Cortex-A7<br><small>QEMU VirtIO 1.4 GPU/Tablet</small></td>
-            <td>Cleanroom TRON</td>
-            <td><b>常田 浩 (Hiroshi Tokita)</b><br><small>VirtIO Driver Pioneer</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge pink">arm-elf</span></td>
-            <td><b>B-System/BTRON3 3.20</b><br><small>armv7-bcm2836-yoko</small></td>
-            <td>ARM Cortex-A7/A53<br><small>Raspberry Pi 2/3 (Bare-Metal)</small></td>
-            <td>T-Kernel 2.0 Host</td>
-            <td><b>横山 孝典 (Takanori Yokoyama)</b><br><small>T-Kernel Core Architect</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge purple">uefi</span></td>
-            <td><b>B-System/BTRON3 3.20</b><br><small>x86_64-uefi-smp</small></td>
-            <td>x86_64 SMP Workstation<br><small>64-bit UEFI GOP / ACPI MADT</small></td>
-            <td>Cleanroom TRON</td>
-            <td><b>内田 公太 (Kota Uchida)</b><br><small>MikanOS / UEFI OS Pioneer</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge amber">pc98</span></td>
-            <td><b>B-System/BTRON3 3.20</b><br><small>i386-pc98-plane</small></td>
-            <td>NEC PC-9801 / PC-9821<br><small>i386 Real/Protected Mode</small></td>
-            <td>Cleanroom TRON</td>
-            <td><b>森 あえ (Awe Morris)</b><br><small>zedBSD PC-98 Architect</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge green">kernel</span></td>
-            <td><b>T-Kernel 2.0 Extended</b><br><small>tkernel-host-ext</small></td>
-            <td>ARMv7 / x86_64 Dual<br><small>T-Engine Reference Target</small></td>
-            <td>T-Kernel Spec 2.0</td>
-            <td><b>坂村 健 (Ken Sakamura)</b><br><small>TRON Project Founder</small></td>
-          </tr>
-          <tr>
-            <td><span class="app-badge blue">host</span></td>
-            <td><b>B-System Native SDK</b><br><small>native-dev-toolchain</small></td>
-            <td>Host C99 Toolchain<br><small>TAD Binary Compiler Suite</small></td>
-            <td>Host Tools</td>
-            <td><b>5HT (Synrc Research)</b><br><small>B-System Architecture</small></td>
-          </tr>
-        </tbody>
-      </table>
+
+<div style="margin-top: 1rem;">
+        <table class="market-table" style="width: 100%; table-layout: auto;">
+          <thead>
+            <tr>
+              <th style="width: 15%;">ターゲット</th>
+              <th style="width: 20%;">カーネル識別名</th>
+              <th style="width: 20%;">アーキテクチャ・プラットフォーム</th>
+              <th style="width: 10%;">マイクロコード・仕様</th>
+              <th style="width: 70%;">技術的先駆者</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><br><span class="app-badge">posix</span></td>
+              <td><small style="color: #6b4f7e;">posix-host</small></td>
+              <td>POSIX User-Space<br><small style="color: #6b4f7e;">macOS / Linux / BSD (SDL2)</small></td>
+              <td>Cleanroom TRON</td>
+              <td><strong>高田 広章 (Hiroaki Takada)</strong><br><small style="color: #6b4f7e;">TOPPERS / ITRON</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge teal">qemu</span></td>
+              <td><small style="color: #6b4f7e;">arm-qemu-virtio</small></td>
+              <td>ARMv7 Cortex-A7<br><small style="color: #6b4f7e;">QEMU VirtIO 1.4 GPU/Tablet</small></td>
+              <td>Cleanroom TRON</td>
+              <td><strong>常田 浩 (Hiroshi Tokita)</strong><br><small style="color: #6b4f7e;">VirtIO Driver Pioneer</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge pink">arm-elf</span><br><span class="app-badge" style="margin-top: 4px; font-size: 0.72rem;">kernel</span></td>
+              <td><small style="color: #6b4f7e;">armv7-bcm2836-yoko <br> tkernel-host</small></td>
+              <td>ARMv7 Bare-Metal &amp; Host SDL2<br><small style="color: #6b4f7e;">Raspberry Pi 2B (BCM2836) / Host Testbed</small></td>
+              <td>T-Kernel 2.0</td>
+              <td><strong>たかひろ 横林 (Takahiro Yokobayashi)</strong><br><small style="color: #6b4f7e;">Baremetal Pi Port &amp; Host Engine</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge gold">sakamura</span></td>
+              <td><small style="color: #6b4f7e;">sakamura-tkernel-virtio</small></td>
+              <td>QEMU VirtIO Desktop<br><small style="color: #6b4f7e;">Cho-Kanji HMI (Display/Kbd/Mouse)</small></td>
+              <td>T-Kernel 2.0</td>
+              <td><strong>坂村 健 (Ken Sakamura)</strong><br><small style="color: #6b4f7e;">Father of TRON</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge">uefi</span></td>
+              <td><small style="color: #6b4f7e;">x86_64-uefi-smp</small></td>
+              <td>x86_64 UEFI SMP<br><small style="color: #6b4f7e;">ACPI MADT / LAPIC / GOP</small></td>
+              <td>T-Kernel 2.0</td>
+              <td><strong>内田 公太 (Kota Uchida)</strong><br><small style="color: #6b4f7e;">MikanOS</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge teal">pc98</span></td>
+              <td><small style="color: #6b4f7e;">i386-pc98</small></td>
+              <td>NEC PC-9801/9821 VM<br><small style="color: #6b4f7e;">i386 Real/Prot · Planar VRAM</small></td>
+              <td>T-Kernel 2.0</td>
+              <td><strong>森 あえ (Awe Morris)</strong><br><small style="color: #6b4f7e;">zedBSD PC-98 Pioneer</small></td>
+            </tr>
+            <tr>
+              <td><br><span class="app-badge pink">arm64-elf</span></td>
+              <td><small style="color: #6b4f7e;">aarch64-bcm2711-yoko</small></td>
+              <td>AArch64 Bare-Metal<br><small style="color: #6b4f7e;">Raspberry Pi 4B (BCM2711)</small></td>
+              <td>T-Kernel 2.0</td>
+              <td><strong>横山 孝典 (Takanori Yokoyama)</strong><br><small style="color: #6b4f7e;">T-Kernel Core Architect</small></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
 
     <!-- 4. 起動ワークフロー -->

@@ -874,7 +874,7 @@ static void render_figure_diagram(GDEV *dev, const TAD_SPAN *s, const RECT *cvs)
             }
             break;
 
-        case 7: /* ── Type 7: SONY TC-K777ES Stereo Audio Deck & Controls ── */
+        case 7: /* ── Type 7:  Stereo Audio Deck & Controls ── */
             {
                 RECT deck = { cvs->left + 10, cvs->top + 6, cvs->left + 170, cvs->bottom - 6 };
                 fill_rec(dev, &deck, COLOR_BLACK);
@@ -882,7 +882,7 @@ static void render_figure_diagram(GDEV *dev, const TAD_SPAN *s, const RECT *cvs)
                 drw_tc_string(dev, deck.left + 12, mid_y - 8, "(◎)", COLOR_WHITE, 0);
                 drw_lin(dev, deck.left + 40, mid_y, deck.right - 40, mid_y);
                 drw_tc_string(dev, deck.right - 40, mid_y - 8, "(◎)", COLOR_WHITE, 0);
-                drw_tc_string(dev, deck.left + 24, deck.bottom - 16, "SONY TC-K777ES", COLOR_LTGRAY, 0);
+                drw_tc_string(dev, deck.left + 24, deck.bottom - 16, "TC-K Deck", COLOR_LTGRAY, 0);
 
                 int m_x = deck.right + 15;
                 int m_w = cvs->right - m_x - 10;

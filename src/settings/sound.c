@@ -200,7 +200,7 @@ WND* open_sound_settings_window(void) {
     memset(&g_state_sound, 0, sizeof(AppletState_sound));
     for (int i = 0; i < 6; i++) g_state_sound.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Sound (音響・音声)",
+    WND *wnd = opn_wnd("音響・音声 (Sound)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

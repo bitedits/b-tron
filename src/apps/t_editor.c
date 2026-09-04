@@ -665,7 +665,7 @@ static void teditor_execute_menu_cmd(TEditor *ed, WND *wnd, int cmd, int sub_idx
 }
 
 WND* open_teditor_about_window(void) {
-    return app_menu_create_about_dialog("Editor", "文書編集",
+    return app_menu_create_about_dialog("Document Editor", "文書編集",
                                         "Cleanroom BTRON Word Processor",
                                         "Brought to B-System by 5HT",
                                         240, 160);
@@ -1028,7 +1028,7 @@ WND* open_t_editor_window_with_file(const char *filepath) {
     teditor_init_menu_bar(ed);
 
     char title[128];
-    snprintf(title, sizeof(title), "Editor - %s", ed->filename);
+    snprintf(title, sizeof(title), "編集者 (Editor) \"%s\" ", ed->filename);
 
     WND *wnd = opn_wnd(title, 220, 50, 760, 480,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);

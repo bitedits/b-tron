@@ -842,7 +842,7 @@ WND* open_vobj_manager_window(void) {
     if (g_cabinet.item_count == 0) {
         cabinet_init_defaults(&g_cabinet);
     }
-    WND *wnd = opn_wnd("B-System Cabinet Explorer (実身キャビネット)", 80, 60, 560, 360,
+    WND *wnd = opn_wnd("実身キャビネット (Cabinet Explorer)", 80, 60, 560, 360,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_RESIZE | WND_ATTR_BORDER);
     if (wnd) {
         wnd->paint = paint_vobj_manager;

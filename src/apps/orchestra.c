@@ -927,7 +927,7 @@ WND* open_orchestra_window(void) {
     H win_x = (1280 - win_w) / 2;
     H win_y = (800 - win_h) / 2;
 
-    g_orchestra_wnd = opn_wnd("管弦楽・MIDI (Orchestra MIDI Server)",
+    g_orchestra_wnd = opn_wnd("管弦楽・(Orchestra MIDI Server)",
                               win_x, win_y, win_w, win_h,
                               WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!g_orchestra_wnd) return NULL;
@@ -942,7 +942,7 @@ WND* open_orchestra_window(void) {
 /* About Window Creator for Orchestra */
 WND* open_orchestra_about_window(void) {
     return app_menu_create_about_dialog("Orchestra", "管弦楽・MIDI演奏",
-        "Built-in GStreamer Live MIDI Server (BTRON3 3.20)",
+        "Built-in GStreamer Live MIDI Server",
         "Brought to B-System by 5HT",
         240, 160);
 }

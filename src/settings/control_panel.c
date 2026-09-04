@@ -488,7 +488,7 @@ WND* open_control_panel_window(void) {
     g_ctrl_panel.selected_index = 0;
     BTRON_ICON_SIZE sz = appearance_get_icon_size();
     int win_h = (sz == BTRON_ICON_SIZE_32) ? 520 : 660;
-    WND *wnd = opn_wnd("Settings Cabinet - SONY Control Panel (環境設定キャビネット)",
+    WND *wnd = opn_wnd("環境設定コントロールパネル (Preferences Panel)",
                        (1280 - 680) / 2, (800 - win_h) / 2 < 0 ? 0 : (800 - win_h) / 2, 680, win_h,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

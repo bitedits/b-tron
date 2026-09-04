@@ -200,7 +200,7 @@ WND* open_desktop_settings_window(void) {
     memset(&g_state_desktop, 0, sizeof(AppletState_desktop));
     for (int i = 0; i < 6; i++) g_state_desktop.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Desktop (デスクトップ)",
+    WND *wnd = opn_wnd("デスクトップ設定 (Desktop Settings)",
                        80, 45, 640, 430,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

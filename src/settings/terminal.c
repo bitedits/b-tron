@@ -296,7 +296,7 @@ WND* open_terminal_settings_window(void) {
 
     H win_w = 540;
     H win_h = 450;   /* 40px header + 4 sections×(~80px) + 14px gaps×3 + 36px buttons + margins */
-    WND *wnd = opn_wnd("Terminal Settings (端末・通信環境設定)",
+    WND *wnd = opn_wnd("端末・通信環境設定 (Terminal Settings)",
                        (1280 - win_w) / 2 + 20, (800 - win_h) / 2 + 20, win_w, win_h,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

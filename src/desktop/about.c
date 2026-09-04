@@ -476,7 +476,7 @@ WND* open_about_window(void) {
     g_about_state.people_page = 0;
     g_about_state.animation_enabled = TRUE;
 
-    WND *wnd = opn_wnd("About B-System - SONY BTRON Workstation (システム情報)",
+    WND *wnd = opn_wnd("システム情報 (System Information)",
                        100, 70, 580, 360,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

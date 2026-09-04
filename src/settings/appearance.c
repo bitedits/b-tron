@@ -271,7 +271,7 @@ WND* open_appearance_settings_window(void) {
     memset(&g_state_appearance, 0, sizeof(AppletState_appearance));
     for (int i = 0; i < 7; i++) g_state_appearance.checks[i] = TRUE;
 
-    WND *wnd = opn_wnd("Appearance (外観)",
+    WND *wnd = opn_wnd("外観設定 (Appearance Settings)",
                        80, 45, 640, 440,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;

@@ -839,8 +839,8 @@ static void gterm_dispatch_cmd(WND *wnd, GTermState *st, int cmd) {
 }
 
 WND* open_gterm_about_window(void) {
-    return app_menu_create_about_dialog("gterm", "端末",
-        "B-System Terminal Emulator (VT100 / TRON Console)",
+    return app_menu_create_about_dialog("gterm", "ターミナル",
+        "B-System Terminal Emulator (VT100/TRON Console)",
         "Brought to B-System by 5HT",
         300, 200);
 }
@@ -1061,7 +1061,7 @@ WND* open_gterm_window(void) {
     H y = 160 + (s_gterm_spawn_count % 6) * 24;
     s_gterm_spawn_count++;
 
-    WND *wnd = opn_wnd("B-System Terminal (gterm)", x, y, 560, 360,
+    WND *wnd = opn_wnd("端末 (Terminal)", x, y, 560, 360,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER | WND_ATTR_RESIZE);
     if (wnd) {
         GTermState *st = (GTermState*)calloc(1, sizeof(GTermState));

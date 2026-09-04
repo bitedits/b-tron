@@ -824,8 +824,8 @@ WND* app_menu_create_about_dialog(const char *app_name, const char *jp_title,
     AboutDialogData *data = (AboutDialogData*)calloc(1, sizeof(AboutDialogData));
     if (!data) return NULL;
 
-    snprintf(data->title_full, sizeof(data->title_full), "About %s (%s)", app_name, jp_title ? jp_title : "バージョン情報");
-    snprintf(data->app_name, sizeof(data->app_name), "%s 3.20 (%s)", app_name, jp_title ? jp_title : "バージョン情報");
+    snprintf(data->title_full, sizeof(data->title_full), "%s (%s)", jp_title ? jp_title : "バージョン情報", app_name);
+    snprintf(data->app_name, sizeof(data->app_name), "%s 3.20 (%s)", jp_title ? jp_title : "バージョン情報", app_name);
     snprintf(data->desc, sizeof(data->desc), "%s", desc ? desc : "BTRON Application");
     snprintf(data->attribution, sizeof(data->attribution), "%s", attribution ? attribution : "Brought to B-System by 5HT");
 

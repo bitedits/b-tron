@@ -1,8 +1,8 @@
 /*
  * B-System (BTRON 3.20) Cassette Audio Deck: audio_player.c
- * Classic SONY TC-K777ES Precision Hi-Fi Stereo Cassette Deck.
+ * Classic Precision Hi-Fi Stereo Cassette Deck.
  *
- * SONY Precision Industrial Design with SONY_* color palette,
+ * Precision Industrial Design with SONY_* color palette,
  * Digital Audio LED/VFD Screen, Cassette Tape Type Selectors (Type I - IV),
  * Dolby B-C NR & HX Pro badges, Dual-Channel Segmented Peak VU Meters,
  * and animated dual rotating tape spools with variable tape pack thickness.
@@ -524,8 +524,8 @@ static void audio_deck_paint(WND *wnd, GDEV *dev) {
     drw_lin(dev, 0, 48, dev->width, 48);
 
     /* SONY Brand & High-End Deck Badges */
-    drw_tc_string(dev, 14, 8, "S O N Y", SONY_COL_TEXT_WHITE, SONY_COL_HEADER);
-    drw_tc_string(dev, 80, 8, "|  TC-K777ES STEREO CASSETTE DECK (ステレオカセットデッキ)",
+    drw_tc_string(dev, 14, 8, "NISSAN", SONY_COL_TEXT_WHITE, SONY_COL_HEADER);
+    drw_tc_string(dev, 80, 8, "STEREO CASSETTE DECK (ステレオカセットデッキ)",
                   SONY_COL_GOLD, SONY_COL_HEADER);
     drw_tc_string(dev, 14, 24, "PRECISION AUDIO LAB: 3-HEAD / DUAL CAPSTAN DIRECT DRIVE SILENT MECHANISM",
                   SONY_COL_TEXT_SILVER, SONY_COL_HEADER);
@@ -708,7 +708,7 @@ WND* open_audio_player_window(void) {
     H win_x = (1280 - win_w) / 2;
     H win_y = (800 - win_h) / 2;
 
-    g_audio_wnd = opn_wnd("【SONY】TC-K777ES ステレオカセットデッキ (Cassette Deck)",
+    g_audio_wnd = opn_wnd("ステレオカセットデッキ (Cassette Deck)",
                           win_x, win_y, win_w, win_h,
                           WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!g_audio_wnd) return NULL;
@@ -723,7 +723,7 @@ WND* open_audio_player_window(void) {
 /* About Window Creator for Cassette Deck */
 WND* open_cassette_about_window(void) {
     return app_menu_create_about_dialog("Cassette", "カセットデッキ",
-        "SONY TC-K777ES 3-Head Dual Capstan Stereo Cassette Deck",
+        "3-Head Dual Capstan Stereo Cassette Deck",
         "Brought to B-System by 5HT",
         240, 160);
 }

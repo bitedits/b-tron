@@ -212,7 +212,7 @@ WND* open_language_settings_window(void) {
     tip_get_key_settings(&g_lang_settings.current_config);
     g_lang_settings.saved_config = g_lang_settings.current_config;
 
-    WND *wnd = opn_wnd("Settings Cabinet - Language & IME Preferences",
+    WND *wnd = opn_wnd("BTRONの言語と入力方法の設定 (Language and IME Settings)",
                        80, 50, 640, 420,
                        WND_ATTR_TITLE | WND_ATTR_CLOSE | WND_ATTR_BORDER);
     if (!wnd) return NULL;
