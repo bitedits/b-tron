@@ -590,7 +590,7 @@ void btron_core_init(void) {
 void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg) {
     if (!out_fn) return;
     if (arg && tkl_strcmp(arg, "-a") == 0) {
-        out_fn("BTRON3 btron-m68k 3.20 (m68k-q800) Motorola-68040 Fumihiko Itagaki GNU/B-System", COLOR_CYAN, user_data);
+        out_fn("BTRON3 btron-m68k 3.20 (m68k-q800) Motorola-68040 Fumihiko Itagaki", COLOR_CYAN, user_data);
     } else if (arg && (tkl_strcmp(arg, "-r") == 0 || tkl_strcmp(arg, "-v") == 0)) {
         out_fn("3.20.0-m68k-q800", COLOR_CYAN, user_data);
     } else {

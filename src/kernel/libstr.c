@@ -107,7 +107,11 @@ typedef struct HeapBlock {
     uint8_t pad[16];
 } __attribute__((aligned(16))) HeapBlock;
 
+#if !defined(_RPI_BCM283x_) && !defined(__arm__) && !defined(__aarch64__)
 static uint8_t s_heap_pool[1024 * 1024 * 16] __attribute__((aligned(16)));
+#else
+static uint8_t s_heap_pool[64] __attribute__((aligned(16)));
+#endif
 static size_t  s_heap_offset = 0;
 static HeapBlock *s_heap_head = NULL;
 

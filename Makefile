@@ -4,11 +4,11 @@
 # Targets & Kernels:
 #   posix         B-System/BTRON3 3.20 (posix-hosted) Hiroaki Takada — Cleanroom TRON Kernel [Target 0]
 #   qemu          B-System/BTRON3 3.20 (arm-qemu-virtio) Hiroshi Tokita — Cleanroom TRON Kernel [Target 1]
-#   arm-elf       B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0 [Target 2]
 #   sakamura      B-System/BTRON3 3.20 (sakamura-tkernel-virtio) Ken Sakamura — T-Kernel 2.0 [Target 3]
+#   arm-elf       B-System/BTRON3 3.20 (armv7-bcm2836) Takahiro Yokobayashi — T-Kernel 2.0 [Target 2]
 #   uefi          B-System/BTRON3 3.20 (x86_64-uefi-smp) Kota Uchida — T-Kernel 2.0 [Target 4]
 #   pc98          B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 [Target 5]
-#   arm64-elf     B-System/BTRON3 3.20 (aarch64-bcm2711-yoko) Takahiro Yokobayashi — T-Kernel 2.0 [Target 6]
+#   arm64-elf     B-System/BTRON3 3.20 (aarch64-bcm2711) Takanori Yokoyama — T-Kernel 2.0 [Target 6]
 #   m68k          B-System/BTRON3 3.20 (m68k-q800) Motorola 68040 — Cleanroom TRON Kernel [Target 7]
 #
 # Run Commands:

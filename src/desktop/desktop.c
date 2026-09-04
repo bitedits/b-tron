@@ -311,6 +311,7 @@ GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h) {
     WND *w_cli = open_gterm_window();
     if (w_cli) top_wnd(w_cli);
 
+    /* Initial paint to backbuffer (caller blits to GPU VRAM after this returns) */
     redraw_baremetal_desktop(screen, w, h);
     return screen;
 }

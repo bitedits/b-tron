@@ -1,6 +1,6 @@
 /*
  * B-TRON Real-Time Kernel: Bare-Metal AArch64 / BCM2711 Boot & Initialization (core_arm64.c)
- * Dedicated Target 6: BTRON_YOKOBAYASHI_AARCH64 (Raspberry Pi 4B, Cortex-A72, AArch64)
+ * Dedicated Target 6: BTRON_YOKOYAMA_AARCH64 (Raspberry Pi 4B, Cortex-A72, AArch64)
  */
 
 #include <btron/desktop.h>
@@ -26,7 +26,7 @@ extern void uart_puts(const char *s);
 extern void tkernel_init_subsystems(int full_suite);
 
 void btron_core_banner(void) {
-    yoko_puts("B-System/BTRON3 3.20 (aarch64-bcm2711-yoko) Takahiro Yokobayashi — T-Kernel 2.0\n");
+    yoko_puts("B-System/BTRON3 3.20 (aarch64-bcm2711) Takanori Yokoyama — T-Kernel 2.0\n");
     yoko_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
     yoko_puts("[BOOT] Machine: Raspberry Pi 4B / BCM2711  AArch64 Cortex-A72  T-Kernel 2.0\n\n");
 }

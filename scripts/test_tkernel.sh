@@ -37,7 +37,9 @@ echo "[CI-TEST] Running QEMU ($QEMU_BIN) for $ELF_PATH..."
 QEMU_PID=$!
 
 # Allow boot sequence and subsystem initialization
-sleep 1.5
+# ARM QEMU emulation is slow for GIF icon decode during desktop init;
+# 12 seconds is sufficient for a full boot + initial render pass.
+sleep 12
 
 # Gracefully terminate QEMU
 kill -TERM "$QEMU_PID" 2>/dev/null || true

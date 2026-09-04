@@ -25,6 +25,7 @@ ER init_desktop(H width, H height);
 ER init_desktop_vram(H width, H height, COLOR *vram_ptr);
 void run_desktop_loop(void);
 void render_desktop_background(GDEV *dev);
+void render_system_panel(GDEV *dev);
 BOOL desktop_handle_click(H x, H y);
 BTRON_DESKTOP* get_btron_desktop(void);
 GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);

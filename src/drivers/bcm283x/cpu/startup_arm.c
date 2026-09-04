@@ -106,8 +106,8 @@ void uart_hex32(uint32_t v) {
  *   - GPU framebuffer at ~0x300000 (3MB)
  * 16MB gives us 1GB - 16MB = ~1008MB of headroom on the far side.
  */
-#define HEAP_BASE ((uintptr_t)0x01000000)  /* 16 MB */
-#define HEAP_LIMIT ((uintptr_t)0x02000000) /* 32 MB — 16MB pool */
+#define HEAP_BASE ((uintptr_t)0x02000000)  /* 32 MB — clear of all text, data, and BSS */
+#define HEAP_LIMIT ((uintptr_t)0x38000000) /* 896 MB — safely below VideoCore GPU FB (~961MB) */
 uintptr_t heap_ptr = 0; /* initialized in btron_main before first use */
 #include <libstr.h>
 
@@ -584,6 +584,14 @@ void _start(void) {
         "isb\n\t"
         "mov r0, #(1 << 30)\n\t"
         "vmsr fpexc, r0\n\t"
+        "ldr r0, =__bss_start\n\t"
+        "ldr r1, =__bss_end\n\t"
+        "mov r2, #0\n\t"
+        "4: cmp r0, r1\n\t"
+        "bge 5f\n\t"
+        "str r2, [r0], #4\n\t"
+        "b 4b\n\t"
+        "5:\n\t"
         "bl btron_main\n\t"
         "3: wfe\n\t"
         "b 3b\n\t"
