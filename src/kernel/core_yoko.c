@@ -234,6 +234,11 @@ static int usb_poll_devices(GDEV *screen) {
     usb_kbd_report_t kbd_rep;
     if (dwc2_poll_keyboard(&kbd_rep) > 0) {
         uint8_t scancode = kbd_rep.keys[0];
+        uart_puts("[EVT] USB Kbd report: scancode=");
+        uart_hex32(scancode);
+        uart_puts(" mod=");
+        uart_hex32(kbd_rep.modifiers);
+        uart_puts("\n");
         if (scancode != 0) {
             uint32_t k = dwc2_usb_to_btron_key(scancode, kbd_rep.modifiers);
             if (k != 0) {
@@ -267,6 +272,14 @@ static int usb_poll_devices(GDEV *screen) {
     /* 2. Poll USB HID Mouse from DWC2 */
     usb_mouse_report_t mouse_rep;
     if (dwc2_poll_mouse(&mouse_rep) > 0) {
+        uart_puts("[EVT] USB Mouse report: dx=");
+        uart_hex32((uint32_t)(int32_t)mouse_rep.dx);
+        uart_puts(" dy=");
+        uart_hex32((uint32_t)(int32_t)mouse_rep.dy);
+        uart_puts(" btns=");
+        uart_hex32(mouse_rep.buttons);
+        uart_puts("\n");
+
         if (mouse_rep.dx != 0 || mouse_rep.dy != 0) {
             s_mouse_x += (H)mouse_rep.dx;
             s_mouse_y += (H)mouse_rep.dy;

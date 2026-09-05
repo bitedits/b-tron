@@ -45,7 +45,7 @@ void btron_core_hfds_log(void) {
 }
 
 void btron_core_init(void) {
-    yoko_puts("[CORE] Yokobayashi T-Kernel 2.0 Engine (AArch64)  BTRON_YOKOBAYASHI_AARCH64\n");
+    yoko_puts("[CORE] Yokoyama T-Kernel 2.0 Engine (AArch64)  BTRON_YOKOYAMA_AARCH64\n");
     tkernel_init_subsystems(1);
 }
 

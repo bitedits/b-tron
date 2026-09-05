@@ -86,6 +86,8 @@ static bool     g_kbd_attached      = false;
 static bool     g_mouse_attached    = false;
 static uint8_t  g_last_kbd_key      = 0;
 static uint8_t  g_last_mouse_btns   = 0;
+static uint8_t  g_kbd_addr          = 1;
+static uint8_t  g_mouse_addr        = 2;
 
 /* DMA buffers — 16-byte aligned */
 static usb_kbd_report_t   g_kbd_dma_buf   __attribute__((aligned(16)));
@@ -263,9 +265,9 @@ static void dwc2_queue_kbd_in(void)
     dwc2_write(DWC2_HCINTMSK(1), HCINT_XFRC | HCINT_NAK | HCINT_CHH);
     dwc2_write(DWC2_HCDMA(1),    (uint32_t)(uintptr_t)&g_kbd_dma_buf);
     dwc2_write(DWC2_HCTSIZ(1),   (g_kbd_pid << 29) | (1u << 19) | 8u);
-    /* Ch1: Dev=1 EP=1 IN Interrupt MPS=8 */
+    /* Ch1: Dev=g_kbd_addr EP=1 IN Interrupt MPS=8 */
     uint32_t hcchar = (1u << 31) | (1u << 15) | (3u << 18)
-                    | (1u << 22) | (1u << 11) | 8u;
+                    | ((uint32_t)g_kbd_addr << 22) | (1u << 11) | 8u;
     dwc2_write(DWC2_HCCHAR(1), hcchar);
     g_kbd_chan_active = true;
 }
@@ -276,9 +278,9 @@ static void dwc2_queue_mouse_in(void)
     dwc2_write(DWC2_HCINTMSK(2), HCINT_XFRC | HCINT_NAK | HCINT_CHH);
     dwc2_write(DWC2_HCDMA(2),    (uint32_t)(uintptr_t)&g_mouse_dma_buf);
     dwc2_write(DWC2_HCTSIZ(2),   (g_mouse_pid << 29) | (1u << 19) | 4u);
-    /* Ch2: Dev=2 EP=1 IN Interrupt MPS=4 */
+    /* Ch2: Dev=g_mouse_addr EP=1 IN Interrupt MPS=4 */
     uint32_t hcchar = (1u << 31) | (1u << 15) | (3u << 18)
-                    | (2u << 22) | (1u << 11) | 4u;
+                    | ((uint32_t)g_mouse_addr << 22) | (1u << 11) | 4u;
     dwc2_write(DWC2_HCCHAR(2), hcchar);
     g_mouse_chan_active = true;
 }
@@ -373,22 +375,66 @@ int dwc2_init(void)
     uart_puts("[DWC2] HPRT0=0x"); uart_hex32(dwc2_read(DWC2_HPRT0)); uart_puts("\n");
     uart_puts("[DWC2] GINTSTS=0x"); uart_hex32(dwc2_read(DWC2_GINTSTS)); uart_puts("\n");
 
-    /* ── 11. Enumerate USB HID keyboard → address 1 ── */
-    uart_puts("[DWC2] Enumerating keyboard (addr=1, Boot Protocol)...\n");
-    if (dwc2_enumerate_hid(1, 0) == 0) {
-        g_kbd_attached = true;
-    } else {
-        uart_puts("[DWC2] Kbd enumeration failed — polling anyway\n");
-        g_kbd_attached = true;
-    }
+    /* ── 11. Enumerate root device & downstream devices ── */
+    uart_puts("[DWC2] Setting root device addr=1...\n");
+    if (dwc2_ctrl_out(0, 0x00, USB_REQ_SET_ADDRESS, 1, 0, 0) == 0) {
+        delay_cycles(20000);
+        dwc2_ctrl_out(1, 0x00, USB_REQ_SET_CONFIGURATION, 1, 0, 0);
+        delay_cycles(5000);
 
-    /* ── 12. Enumerate USB HID mouse → address 2 ── */
-    uart_puts("[DWC2] Enumerating mouse (addr=2, Boot Protocol)...\n");
-    if (dwc2_enumerate_hid(2, 0) == 0) {
-        g_mouse_attached = true;
+        /* Test if device 1 is a USB Hub by sending SET_FEATURE(PORT_POWER, port=1) */
+        /* bmRequestType=0x23 (Class, Other/Port), bRequest=3 (SET_FEATURE), wValue=8 (PORT_POWER), wIndex=1 */
+        int is_hub = (dwc2_ctrl_out(1, 0x23, 3, 8, 1, 0) == 0);
+
+        if (is_hub) {
+            uart_puts("[DWC2] USB Hub detected! Powering ports & enumerating devices...\n");
+            /* Power port 2 */
+            dwc2_ctrl_out(1, 0x23, 3, 8, 2, 0);
+            delay_cycles(50000);
+
+            /* Reset Hub Port 1 (Keyboard) */
+            uart_puts("[DWC2] Resetting Hub Port 1 (Keyboard)...\n");
+            dwc2_ctrl_out(1, 0x23, 3, 4 /* PORT_RESET */, 1, 0);
+            delay_cycles(200000);
+
+            /* Enumerate Keyboard at address 2 */
+            uart_puts("[DWC2] Enumerating keyboard (addr=2, Boot Protocol)...\n");
+            if (dwc2_enumerate_hid(2, 0) == 0) {
+                g_kbd_attached = true;
+                g_kbd_addr = 2;
+            } else {
+                g_kbd_attached = true;
+                g_kbd_addr = 2;
+            }
+
+            /* Reset Hub Port 2 (Mouse) */
+            uart_puts("[DWC2] Resetting Hub Port 2 (Mouse)...\n");
+            dwc2_ctrl_out(1, 0x23, 3, 4 /* PORT_RESET */, 2, 0);
+            delay_cycles(200000);
+
+            /* Enumerate Mouse at address 3 */
+            uart_puts("[DWC2] Enumerating mouse (addr=3, Boot Protocol)...\n");
+            if (dwc2_enumerate_hid(3, 0) == 0) {
+                g_mouse_attached = true;
+                g_mouse_addr = 3;
+            } else {
+                g_mouse_attached = true;
+                g_mouse_addr = 3;
+            }
+        } else {
+            /* Direct device (no hub attached) */
+            uart_puts("[DWC2] Direct device detected on root port\n");
+            dwc2_ctrl_out(1, 0x21, 0x0B, 0, 0, 0); /* SET_PROTOCOL Boot */
+            dwc2_ctrl_out(1, 0x21, 0x0A, 0, 0, 0); /* SET_IDLE */
+            g_kbd_attached = true;
+            g_kbd_addr = 1;
+        }
     } else {
-        uart_puts("[DWC2] Mouse enumeration failed — polling anyway\n");
+        uart_puts("[DWC2] Root device enumeration failed — polling anyway\n");
+        g_kbd_attached = true;
+        g_kbd_addr = 1;
         g_mouse_attached = true;
+        g_mouse_addr = 2;
     }
 
     /* ── 13. Prime initial interrupt IN requests ── */
