@@ -28,7 +28,7 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k \
-        html2tad tad_bin test test-kernel test-yoko test-m68k \
+        html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k \
         test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
         run-posix run-qemu run-kernel run-yoko run-yoko4 run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k debug-virtio debug-gdb clean
 
@@ -626,6 +626,14 @@ test-yoko: $(ARM64_TARGET)
 	@echo " Mode    : automated CI test (headless, serial validation)"
 	@echo "=========================================================="
 	@bash scripts/test_arm64.sh
+
+test-yoko4: $(ARM64_TARGET)
+	@echo "=========================================================="
+	@echo " Testing T-Kernel on QEMU Raspberry Pi 4B (BCM2711)"
+	@echo " Machine : raspi4b  |  CPU: Cortex-A72 / AArch64  |  RAM: 2G"
+	@echo " Mode    : automated CI test (headless, serial validation)"
+	@echo "=========================================================="
+	@bash scripts/test_arm64_rpi4.sh
 
 # ═══════════════════════════════════════════════════════════════════
 # Debug
