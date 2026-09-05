@@ -52,5 +52,7 @@ uint32_t *ps2_gs_get_framebuffer(void);
 void ps2_gs_flip(void);
 void ps2_gs_putpixel(int x, int y, uint32_t color);
 void ps2_gs_fill_rect(int x, int y, int w, int h, uint32_t color);
+void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t color);
+void ps2_gs_draw_cursor(int x, int y);
 
 #endif /* PS2_GS_H */

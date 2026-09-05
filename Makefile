@@ -32,7 +32,7 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
 
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k ps2 mips \
-        html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k test-mips \
+        html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k test-mips test-ps2 \
         test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
         run-posix run-qemu run-kernel run-yoko run-yoko4 run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k run-ps2 run-mips debug-virtio debug-gdb clean
 
@@ -593,6 +593,9 @@ run-ps2: $(PS2_TARGET)
 	    echo "[ERROR] PCSX2 not found at $(PCSX2_BIN)"; \
 	    exit 1; \
 	fi
+
+test-ps2: $(PS2_TARGET) $(PS2_ISO)
+	@./scripts/test_ps2.sh
 
 # ═══════════════════════════════════════════════════════════════════
 # Bare-Metal MIPS Malta / Magnum Kernel (mips / QEMU) [Target 9]

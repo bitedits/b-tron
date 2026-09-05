@@ -15,7 +15,6 @@
 .global _start
 .global ps2_delay_cycles
 .global ps2_halt
-.global ps2_sio_putc_raw
 
 .extern ps2_kernel_main
 .extern __bss_start
@@ -67,10 +66,6 @@ ps2_delay_cycles:
     jr      $ra
     nop
 
-/* ps2_sio_putc_raw(char c) */
-ps2_sio_putc_raw:
-    jr      $ra
-    nop
 
 /* ps2_set_gs_crt(int16_t interlace, int16_t pal_ntsc, int16_t field) */
 .global ps2_set_gs_crt
