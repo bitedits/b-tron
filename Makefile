@@ -514,7 +514,7 @@ test-m68k: $(M68K_TARGET)
 # ═══════════════════════════════════════════════════════════════════
 # Sony PlayStation 2 Emotion Engine Kernel (ps2 / PCSX2) [Target 8]
 # ═══════════════════════════════════════════════════════════════════
-AUTO_GUI       ?= 0
+AUTO_GUI       ?= 1
 PS2_TARGET     = btron-ps2.elf
 PS2_ISO        = btron-ps2.iso
 PS2_LD_SCRIPT  = src/drivers/ps2/ps2.ld

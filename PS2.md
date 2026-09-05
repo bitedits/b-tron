@@ -43,8 +43,9 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 - **Stack Pointer**: `0x01FF0000` (top of 32 MB RDRAM with 64 KB safety headroom).
 - **Display Controller**: Graphics Synthesizer (GS) with 4 MB embedded DRAM (eDRAM).
 - **Graphics Pipeline**: DMAC Channel 2 (GIF) Host-to-Local image blitting (`BITBLTBUF`, `TRXPOS`, `TRXREG`, `TRXDIR`).
-- **Video Timing**: 640 x 448 @ 32-bpp RGBA with hardware VSync retrace (Standard NTSC Interlaced Field Mode).
-- **Input Channels**: DualShock 2 Pad, OHCI USB Keyboard/Mouse, and EE SIO0 UART console.
+- **Video Timing**: 800 x 600 @ 32-bpp RGBA Non-Interlaced Progressive Scan (GS VESA Mode 0x2B, 60Hz).
+- **GUI Loading Modes**: Automatic direct Graphical Desktop (`AUTO_GUI=1`, default) or Two-Stage boot with Stage 1 text console (`AUTO_GUI=0`).
+- **Input Channels**: DualShock 2 Pad, Sony / OHCI USB Keyboard & Mouse (`HID Keyboard` / `HID Mouse`), and EE SIO0 UART console.
 
 ### Driver Files
 
