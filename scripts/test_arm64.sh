@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+#
+# Automated CI / Regression Test Runner for B-TRON on QEMU Raspberry Pi 3B (AArch64).
+# Pure Bash / POSIX toolchain implementation.
+#
+set -euo pipefail
+
+QEMU_BIN="qemu-system-aarch64"
+if ! command -v "$QEMU_BIN" >/dev/null 2>&1; then
+    echo "[ERROR] qemu-system-aarch64 not found in PATH."
+    exit 1
+fi
+
+ELF_PATH="btron-aarch64-baremetal.elf"
+if [ ! -f "$ELF_PATH" ]; then
+    echo "[CI-TEST] Building $ELF_PATH..."
+    make "$ELF_PATH" >/dev/null 2>&1 || make arm64-elf
+fi
+
+LOG_FILE=$(mktemp /tmp/qemu_arm64_XXXXXX.log)
+trap 'rm -f "$LOG_FILE"' EXIT
+
+echo "[CI-TEST] Running QEMU ($QEMU_BIN) for $ELF_PATH on raspi3b..."
+
+# Launch QEMU in background writing to log file
+("$QEMU_BIN" \
+    -M raspi3b \
+    -m 1G \
+    -device usb-kbd -device usb-mouse \
+    -display none \
+    -kernel "$ELF_PATH" \
+    -serial stdio > "$LOG_FILE" 2>&1) &
+QEMU_PID=$!
+
+# Allow boot sequence and subsystem initialization (6 seconds is plenty)
+sleep 6
+
+# Gracefully terminate QEMU
+kill -TERM "$QEMU_PID" 2>/dev/null || true
+wait "$QEMU_PID" 2>/dev/null || true
+
+echo "=========================================================="
+echo " QEMU AArch64 Bare-Metal Boot Output:"
+echo "=========================================================="
+cat "$LOG_FILE"
+
+# Verify all critical hardware & kernel subsystems initialized
+MARKERS=(
+    "B-System/BTRON3 3.20 (aarch64-bcm2837) Takanori Yokoyama — T-Kernel 2.0"
+    "Machine: Raspberry Pi 3B / BCM2837  AArch64 Cortex-A53  T-Kernel 2.0"
+    "Yokoyama T-Kernel 2.0 Engine (AArch64)"
+    "Initializing Video Display Framebuffer"
+    "ScreenDrv"
+    "KbPdDrv"
+    "LowKbPdDrv"
+    "DWC2 USB 2.0 init"
+    "USB Hub detected! Powering ports & enumerating devices..."
+    "Resetting Hub Port 1 (Keyboard)..."
+    "Resetting Hub Port 2 (Mouse)..."
+    "Live Multi-Window Desktop & Pointer initialized in Video VRAM"
+    "Sakamura B-System 3.0 Interactive Keyboard & Mouse Active"
+    "B-System Workbench Live on Raspberry Pi 3B (AArch64)!"
+)
+
+for marker in "${MARKERS[@]}"; do
+    if ! grep -Fq "$marker" "$LOG_FILE"; then
+        echo ""
+        echo "[FAIL] CI Test Failed: Missing expected output marker: '$marker'"
+        exit 1
+    fi
+done
+
+echo ""
+echo "[PASS] All Bare-Metal AArch64 T-Kernel 2.0 / DWC2 USB / VRAM subsystems verified successfully!"
+exit 0
