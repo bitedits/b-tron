@@ -522,11 +522,13 @@ PS2_CFLAGS     = -O2 -Wall -Wextra -std=c99 -ffreestanding -nostdlib \
                  -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores -Isrc/drivers/ps2
 PS2_STARTUP    = src/cores/core_ps2.c
 PS2_SRCS       = $(PS2_STARTUP)           \
+                 src/cores/core_init.c    \
                  src/drivers/ps2/ps2_gs.c \
                  src/drivers/ps2/ps2_sio.c \
                  src/drivers/ps2/ps2_pad.c \
                  src/drivers/ps2/ps2_usb.c \
-                 src/kernel/libstr.c
+                 src/kernel/libstr.c      \
+                 $(COMMON_NO_SDL_SRCS)
 PS2_OBJS       = src/drivers/ps2/boot_ps2.ps2.o $(PS2_SRCS:.c=.ps2.o)
 
 %.ps2.o: %.s

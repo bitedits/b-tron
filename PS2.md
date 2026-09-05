@@ -153,27 +153,36 @@ For setups without physical USB keyboards, the PS2 port integrates an interactiv
 
 ---
 
-### 2.4 Multi-Window Desktop Application Suite
+### 2.4 Full B-System Workbench Desktop & Compositor
 
-`core_ps2.c` delivers a complete, multi-window B-System workstation desktop rendered directly through GIF DMA primitives:
+The PS2 cleanroom port integrates the **full, authentic B-System Graphical Workbench** matching the Motorola 68040 Macintosh Quadra 800 port and the unified specification in [`EVENTING.md`](file:///Users/tonpa/depot/bitedits/btron/EVENTING.md):
 
-1. **Window 1: Workbench System & RTOS Monitor**
-   - Live display of CPU architecture (R5900 Little-Endian), 32 MB RDRAM memory pool, 4 MB eDRAM VRAM layout, active RTOS tasks (`ps2_idle`, `ps2_desktop`, `ps2_shell`), and real-time scheduler state.
-2. **Window 2: B-Editor (Interactive Text Editor)**
-   - Authentic multi-line text editor with full editing buffer and dynamic caret (`_`).
-   - True cursor navigation: Left/Right, Home (start of line), End (end of line), Up/Down (maintaining column position across line boundaries).
-   - In-place text insertion at cursor with automatic buffer shifting.
-   - Deletion: Backspace (`0x08`/`0x7F`) and Forward Delete (`BTRON_KEY_DELETE`).
-   - Typing input supported simultaneously from USB keyboard, DualShock 2 OSK, and SIO0 serial terminal.
-3. **Window 3: TAD Cabinet & Real Object Browser**
-   - Visual file and virtual object manager displaying BTRON record headers (`Readme.tad`, `System/`, `Editor.app`, `Settings.app`, `BootSound.snd`, `Cabinet.vobj`).
-4. **Window 4: Control Panel / System Settings**
-   - Real-time display configuration (640x448 NTSC, CT32 RGBA, VSync status, DualShock 2 status, USB status, and current TIP/IME language setting).
-
-#### Window Focus & Navigation
-- **Click-to-Focus**: Clicking anywhere inside a window's bounds raises it to the foreground (`s_active_window`).
-- **Menu Bar**: Top 24px bar includes application menus and the top-right Japanese TIP badge. Clicking the badge cycles input modes immediately.
-- **Status Bar**: Bottom 20px bar displays system readiness, mouse coordinates, and navigation guidance.
+1. **Desktop Background & Real Body Icons** ([`src/desktop/desktop.c`](file:///Users/tonpa/depot/bitedits/btron/src/desktop/desktop.c)):
+   - Authentic BTRON Teal background (`0x008080`) with retro dot-grid wallpaper pattern.
+   - Five standard Real Body / Virtual Object desktop icons:
+     - `実身・仮身` (Cabinet / Real Body Store)
+     - `基本エディタ` (T-Editor)
+     - `端末シェル` (GTerm Shell)
+     - `音響機器` (Audio Player)
+     - `会話通信` (Chat)
+   - Double-clicking or clicking any icon launches its full application window.
+2. **Authentic Window Manager** ([`src/window/wnd.c`](file:///Users/tonpa/depot/bitedits/btron/src/window/wnd.c)):
+   - Complete hit-testing and z-order elevation (`top_wnd`).
+   - 16x16 diagonal hatch corner resize grip in bottom-right corner.
+   - Compact sliding titlebar tab dragging and tab offset adjustment.
+   - Close button (`[X]`) and client area event routing.
+3. **Global System Deskbar & Dropdown Menus** ([`src/desktop/global_menu.c`](file:///Users/tonpa/depot/bitedits/btron/src/desktop/global_menu.c)):
+   - Top menu bar with `［BTRON］`, `システム(S)`, `実身・仮身(O)`, `ウィンドウ(W)`, `道具・文字(T)`.
+   - Japanese calendar plate with authentic Kanji weekday indicators (`日/月/火/水/木/金/土`).
+   - Mozc / TIP input method badge toggling (`[ ASC ]`, `[ あ ]`, `[ ア ]`, `[ བོད ]`).
+4. **Tracker Start Menu** ([`src/desktop/tracker.c`](file:///Users/tonpa/depot/bitedits/btron/src/desktop/tracker.c)):
+   - Haiku-style root application and window tracker menu toggled via gamepad `Start` button or clicking `［BTRON］`.
+5. **Real BTRON Applications**:
+   - VObject Manager (`src/apps/vobj_manager.c`), T-Editor (`src/apps/t_editor.c`), GTerm (`src/apps/gterm.c`), and Control Panel (`src/settings/control_panel.c`).
+6. **Double-Buffered GIF DMA Blitter**:
+   - Renders directly to a 32-bit ARGB backbuffer (`s_desktop_backbuffer`).
+   - `blit_backbuffer_to_ps2fb()` translates ARGB to native GS CT32 RGBA little-endian format.
+   - `ps2_gs_flush()` streams the full 640x448 display to GS 4MB eDRAM via DMAC Channel 2.
 
 ---
 
@@ -185,22 +194,21 @@ The SIO0 UART console (`115200 8N1`) provides an interactive debugging shell wit
 |:---|:---|
 | `help` | List all available shell commands. |
 | `info` | Display hardware specifications, CPU frequency, and memory layout. |
-| `apps` | List all desktop applications and identify currently focused window. |
-| `open <app>` | Open or focus an application (`workbench`, `editor`, `tad`, `settings`). |
-| `focus <1-4>` | Directly focus window 1, 2, 3, or 4. |
+| `apps` | List all available desktop applications. |
+| `open <app>` | Launch an application window (`cabinet`, `editor`, `terminal`, `sound`, `chat`, `settings`). |
 | `tip [mode]` | Switch TIP/IME mode (`ascii`, `hira`, `kata`, `tibetan`) or cycle if no argument. |
 | `tasks` | Dump active RTOS task table and stack pointers. |
-| `mem` | Display physical RDRAM, kernel image, and VRAM memory usage. |
+| `mem` | Display physical RDRAM, kernel heap (8 MB), and VRAM memory usage. |
 | `desktop` | Force an immediate full-screen redraw of the Workbench desktop. |
-| `status` | Show mouse `(x, y)`, active window ID, TIP mode, and event queue count. |
+| `status` | Show mouse `(x, y)` and active TIP mode. |
 | `mouse <x> <y>` | Set absolute mouse cursor coordinates. |
 | `move <dx> <dy>` | Displace mouse cursor relative to current position. |
 | `click [1\|2]` | Simulate left (1) or right (2) mouse button click. |
 | `key <char>` | Inject a single keystroke into the active window. |
 | `type <text>` | Inject an entire text string sequentially into the active window. |
-| `osk` | Toggle DualShock 2 On-Screen Software Keyboard. |
 | `pad <hex> [lx ly]` | Inject simulated DualShock 2 controller state. |
 | `reboot` | Halt the Emotion Engine. |
+
 
 
 ---

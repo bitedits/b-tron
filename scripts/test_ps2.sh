@@ -101,6 +101,30 @@ assert_check "Symbol 'ps2_usb_process_keyboard_report' exists" \
 assert_check "Symbol 'ps2_usb_inject_keyboard' exists" \
     "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_inject_keyboard$'"
 
+assert_check "Symbol 'init_baremetal_desktop' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]init_baremetal_desktop$'"
+
+assert_check "Symbol 'workbench_init' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]workbench_init$'"
+
+assert_check "Symbol 'workbench_process_event' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]workbench_process_event$'"
+
+assert_check "Symbol 'workbench_render' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]workbench_render$'"
+
+assert_check "Symbol 'global_menu_init' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]global_menu_init$'"
+
+assert_check "Symbol 'open_vobj_manager_window' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]open_vobj_manager_window$'"
+
+assert_check "Symbol 'open_t_editor_window' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]open_t_editor_window$'"
+
+assert_check "Symbol 'open_gterm_window' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]open_gterm_window$'"
+
 # 5. Check Instruction Encoding for Emotion Engine MIPS-III Compatibility
 # Emotion Engine R5900 does not support MIPS32r2 opcodes like seb, seh, ins, ext
 assert_check "Zero invalid MIPS32r2 opcodes (seb, seh, ins, ext)" \
