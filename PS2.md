@@ -2,8 +2,6 @@
 
 This document is the technical porting reference for kernel and driver developers working on the **Sony PlayStation 2 (Emotion Engine)** and **Bare-Metal MIPS (QEMU Malta & Magnum)** targets of the B-System operating system.
 
----
-
 ## 1. Architectural Principles: Image > Core > Kernel
 
 Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to the 3-tier **Cleanroom** architecture:
@@ -28,14 +26,15 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 ```
 
 ### Cleanroom Philosophy
-- **Zero Proprietary SDKs**: 100% cleanroom implementation. No proprietary Sony headers (`sifrpc.h`, etc.), no Sony libraries, and no copyrighted code.
-- **Direct Hardware Access**: Privileged MMIO registers for the Graphics Synthesizer (GS), SIO, and MIPS CP0 status/timer registers are driven directly.
 
----
+- **Zero Proprietary SDKs**: 100% cleanroom implementation. No proprietary Sony headers (`sifrpc.h`, etc.), no Sony libraries, and no copyrighted code.
+
+- **Direct Hardware Access**: Privileged MMIO registers for the Graphics Synthesizer (GS), SIO, and MIPS CP0 status/timer registers are driven directly.
 
 ## 2. Target 8: Sony PlayStation 2 (`make run-ps2`)
 
 ### Hardware Overview
+
 - **CPU**: Sony Emotion Engine (EE) MIPS R5900 (MIPS-III little-endian 64-bit core with 128-bit SIMD vector units @ 294.912 MHz).
 - **RAM**: 32 MB RDRAM (Physical addresses `0x00000000` to `0x02000000`).
 - **Load Address**: `0x00100000` (1 MB mark into physical RAM, standard PS2 homebrew entry).
@@ -43,6 +42,7 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 - **Display Controller**: Graphics Synthesizer (GS) with 4 MB embedded DRAM (eDRAM).
 
 ### Driver Files
+
 | File | Role |
 |:---|:---|
 | [`src/drivers/ps2/boot_ps2.s`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/boot_ps2.s) | EE reset vector, `$gp` and `$sp` setup, unrolled BSS wipe, jumps to `ps2_kernel_main`. |
@@ -53,16 +53,20 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 | [`src/cores/core_ps2.c`](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_ps2.c) | Platform core adapter: renders B-System Workbench desktop, handles system ticks, and runs executive loop. |
 
 ### Architecture & Compiler Details
+
 - **Architecture**: The Emotion Engine R5900 implements **MIPS-III** with Sony 128-bit multimedia extensions.
 - **Compiler Flags**: `-march=mips3 -mabi=32` is strictly required. Compiling with `mips32r2` causes the compiler to emit instructions unsupported by the R5900 (such as `seb` / sign-extend-byte), which trip Coprocessor / TLB exceptions in PCSX2.
 - **Register Addressing**: GS privileged registers are mapped directly into user space at `0x12000000` (CSR @ `0x12001000`).
 
 ### Running with PCSX2
+
 PCSX2 supports both direct ELF execution and virtual CD/DVD disc images:
+
 - **Direct ELF (`make run-ps2`)** [Recommended]: Executes `btron-ps2.elf` directly using PCSX2's native Host filesystem (`-elf`). This completely bypasses optical drive/disc formatting issues and eliminates "No Image" errors.
 - **Disc ISO (`make run-ps2 ISO=1`)**: Boots `btron-ps2.iso` via virtual CDVD (`-fastboot`).
 
 ### Building & Running PS2
+
 ```bash
 # Build ELF and packaged ISO:
 make ps2
@@ -74,22 +78,24 @@ make run-ps2
 make run-ps2 ISO=1
 ```
 
----
-
 ## 3. Target 9: Bare-Metal MIPS (`make run-mips`)
 
 ### Hardware Overview
+
 B-System supports two QEMU MIPS platforms:
+
 1. **MIPS Malta Core LV** (Default):
    - QEMU target: `qemu-system-mipsel -M malta -cpu 24Kf`
    - Memory: 256 MB RAM mapped into KSEG0 at `0x80000000`.
    - Entry point: `0x80100000`.
    - Console: Standard NS16550 UART at ISA COM1 physical `0x180003F8` / KSEG1 `0xB80003F8` (115200 8N1).
+
 2. **MIPS Magnum R4000** (Legacy Jazz Workstation):
    - QEMU target: `qemu-system-mips64el -M magnum -bios ./ntprom.raw -m 64M`
    - Requires `./ntprom.raw` ARC firmware image in the repository root.
 
 ### Driver Files
+
 | File | Role |
 |:---|:---|
 | [`src/drivers/mips/boot_mips.s`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/mips/boot_mips.s) | Reset entry point, sets up `$sp = 0x81F00000` in KSEG0, unrolled BSS wipe, jumps to `mips_kernel_main`. |
@@ -99,6 +105,7 @@ B-System supports two QEMU MIPS platforms:
 | [`scripts/test_mips.sh`](file:///Users/tonpa/depot/bitedits/btron/scripts/test_mips.sh) | Automated headless CI test runner checking boot markers in QEMU Malta. |
 
 ### Building & Running MIPS
+
 ```bash
 # Build MIPS kernel ELF:
 make mips
@@ -112,8 +119,6 @@ make run-mips MAGNUM=1
 # Automated headless regression test:
 make test-mips
 ```
-
----
 
 ## 4. Cross-Compilation Toolchain
 
@@ -143,8 +148,6 @@ You do not need to install an external GCC cross-compiler. The standard LLVM/Cla
    llvm-objdump -d btron-mips.elf | head -n 40
    ```
 
----
-
 ## 5. Developer Quick Reference
 
 | Command | Action | Platform / Output |
@@ -157,3 +160,7 @@ You do not need to install an external GCC cross-compiler. The standard LLVM/Cla
 | `make test-mips` | Run automated CI test | Headless validation of all 8 kernel boot markers |
 | `make test` | Run full test suite | Validates all 12 B-System test suites (100% pass) |
 | `make clean` | Clean all outputs | Removes all `.elf`, `.iso`, `.o`, and test binaries |
+
+# Credits
+
+* Namdak Tonpa and Grok 4.5
