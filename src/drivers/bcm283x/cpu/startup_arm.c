@@ -43,10 +43,23 @@
 #define PL011_IMSC    14  /* 0x38/4 */
 #define PL011_FR_TXFF (1u << 5)
 #define PL011_FR_BUSY (1u << 3)
+uintptr_t g_mmio_base = 0x3f000000UL;
 
-static volatile uint32_t * const pl011 = (volatile uint32_t*)(uintptr_t)PL011_BASE;
+#define pl011 ((volatile uint32_t*)(g_mmio_base + 0x00201000UL))
 
 void uart_init(void) {
+#if defined(__aarch64__)
+    uint64_t midr;
+    __asm__ volatile("mrs %0, midr_el1" : "=r"(midr));
+    uint32_t part = (midr >> 4) & 0xFFF;
+    if (part == 0xD08) {
+        /* Cortex-A72: Raspberry Pi 4B (BCM2711) */
+        g_mmio_base = 0xfe000000UL;
+    } else {
+        /* Cortex-A53 / Cortex-A7: Raspberry Pi 3B / 2B */
+        g_mmio_base = 0x3f000000UL;
+    }
+#endif
     /* Disable UART */
     pl011[PL011_CR] = 0;
     /* Wait for UART to finish transmitting */
@@ -459,9 +472,10 @@ static volatile uint32_t mbox[36] __attribute__((aligned(16)));
 uint32_t *g_pi_fb_ptr = NULL;
 
 uint32_t* init_pi_framebuffer(uint32_t w, uint32_t h) {
-    volatile uint32_t *status_reg = (volatile uint32_t*)(uintptr_t)(MBOX_BASE_ADDR + MBOX_STATUS);
-    volatile uint32_t *write_reg  = (volatile uint32_t*)(uintptr_t)(MBOX_BASE_ADDR + MBOX_WRITE);
-    volatile uint32_t *read_reg   = (volatile uint32_t*)(uintptr_t)(MBOX_BASE_ADDR + MBOX_READ);
+    uintptr_t mbox_base = g_mmio_base + 0x0000b880UL;
+    volatile uint32_t *status_reg = (volatile uint32_t*)(mbox_base + MBOX_STATUS);
+    volatile uint32_t *write_reg  = (volatile uint32_t*)(mbox_base + MBOX_WRITE);
+    volatile uint32_t *read_reg   = (volatile uint32_t*)(mbox_base + MBOX_READ);
 
     mbox[0] = 35 * 4;
     mbox[1] = 0;

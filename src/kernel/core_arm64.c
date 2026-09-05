@@ -38,19 +38,13 @@
 #include <dwc2.h>
 
 /* ═══════════════════════════════════════════════════════════════════
- * Raspberry Pi 3B (BCM2837 AArch64) Hardware Memory Map
+ * Dynamic Hardware Memory Map (Pi 3B: 0x3F000000, Pi 4B: 0xFE000000)
  * ═══════════════════════════════════════════════════════════════════ */
-#define RP3B_RAM_BASE       0x00000000UL
-#define RP3B_RAM_SIZE       (1024 * 1024 * 1024ULL)  /* 1 GB */
-
-/* BCM2837 MMIO Peripherals (QEMU raspi3b maps at 0x3F000000) */
-#ifndef BCM2837_PERIPH_BASE
-#define BCM2837_PERIPH_BASE 0x3F000000UL
-#endif
-#define PL011_BASE          0x3F201000UL
-#define MBOX_BASE_ADDR      0x3F00B880UL
-#define DWC2_BASE           0x3F980000UL
-#define TIMER_BASE          0x3F003000UL
+extern uintptr_t g_mmio_base;
+#define PL011_BASE          (g_mmio_base + 0x00201000UL)
+#define MBOX_BASE_ADDR      (g_mmio_base + 0x0000B880UL)
+#define DWC2_BASE           (g_mmio_base + 0x00980000UL)
+#define TIMER_BASE          (g_mmio_base + 0x00003000UL)
 
 /* Kernel Heap Boundaries */
 #define HEAP_BASE           ((uintptr_t)0x01000000)  /* 16 MB */

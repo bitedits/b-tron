@@ -20,7 +20,8 @@
 #if defined(QEMU_RASPI2B)
 #define BCM283X_PERIPH_BASE  0x20000000u  /* QEMU raspi2b: BCM2835 map */
 #elif defined(__aarch64__)
-#define BCM283X_PERIPH_BASE  0x3F000000u  /* Pi 3/AArch64 */
+extern uintptr_t g_mmio_base;
+#define BCM283X_PERIPH_BASE  g_mmio_base  /* Dynamic Pi 3B (0x3F000000) or Pi 4B (0xFE000000) */
 #elif defined(_RPI_BCM283x_)
 #define BCM283X_PERIPH_BASE  0x3F000000u  /* Real Pi 2B BCM2836 hardware */
 #else
