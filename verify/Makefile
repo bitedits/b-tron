@@ -27,7 +27,7 @@ VERIFY_SRCS = btron_verify.c \
               suite/v_font_mgr.c \
               suite/v_tcpip.c \
               suite/v_omgr.c \
-              ../src/kernel/core_posix.c \
+              ../src/cores/core_posix.c \
               ../src/kernel/ipc_msg.c \
               ../src/kernel/proc_mgr.c \
               ../src/kernel/mem_mgr.c \

@@ -25,7 +25,7 @@
 #   debug-gdb     QEMU + GDB stub on Pi 2B
 
 CC ?= gcc
-CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
+CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
 
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k \
         html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k \
@@ -55,7 +55,7 @@ else
 endif
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
-BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
+BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel -Isrc/cores
 ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 -mno-unaligned-access \
                -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
                $(BCM_INC)
@@ -141,32 +141,32 @@ COMMON_SRCS = src/graphics/dp_core.c   \
               $(IME_SRCS)
 
 # ── POSIX build (Target 0) ────────────────────────────────────────
-POSIX_STARTUP = src/kernel/core_posix.c
+POSIX_STARTUP = src/cores/core_posix.c
 POSIX_SRCS    = $(POSIX_STARTUP)        \
                 src/drivers/virtio/virtio.c \
-                src/kernel/core_init.c  \
+                src/cores/core_init.c  \
                 $(COMMON_SRCS)
 
 # ── QEMU VirtIO build (Target 1) ─────────────────────────────────
-QEMU_STARTUP = src/kernel/core_virtio.c
+QEMU_STARTUP = src/cores/core_virtio.c
 QEMU_SRCS    = $(QEMU_STARTUP)          \
                src/drivers/virtio/virtio.c \
-               src/kernel/core_init.c   \
+               src/cores/core_init.c   \
                $(COMMON_SRCS)
 
 # ── X86_64 / EMT64 UEFI build (Target 4) ────────────────────────
-UEFI_STARTUP = src/kernel/core_boot.c src/kernel/core_smp.c
+UEFI_STARTUP = src/cores/core_boot.c src/cores/core_smp.c
 UEFI_SRCS    = $(UEFI_STARTUP)          \
-               src/kernel/core_init.c   \
+               src/cores/core_init.c   \
                src/kernel/libstr.c      \
                src/drivers/vesa/vesa.c  \
                $(COMMON_NO_SDL_SRCS)
 
 # ── NEC PC-98 build (Target 5) ──────────────────────────────────
-PC98_STARTUP = src/kernel/core_pc98.c src/drivers/pc98/boot/boot_pc98.c
+PC98_STARTUP = src/cores/core_pc98.c src/drivers/pc98/boot/boot_pc98.c
 PC98_SRCS    = $(PC98_STARTUP)          \
-               src/kernel/core_boot.c   \
-               src/kernel/core_init.c   \
+               src/cores/core_boot.c   \
+               src/cores/core_init.c   \
                src/kernel/libstr.c      \
                src/drivers/vesa/vesa.c  \
                $(COMMON_NO_SDL_SRCS)
@@ -204,9 +204,9 @@ TKERNEL_SAKAMURA_SRCS = \
     src/kernel/version.c      \
     src/kernel/libstr.c
 
-TKERNEL_SRCS = src/kernel/core_tkernel.c \
+TKERNEL_SRCS = src/cores/core_tkernel.c \
                src/drivers/virtio/virtio.c \
-               src/kernel/core_init.c     \
+               src/cores/core_init.c     \
                $(TKERNEL_SAKAMURA_SRCS)   \
                $(COMMON_SRCS)
 
@@ -250,8 +250,8 @@ COMMON_NO_SDL_SRCS = \
 
 BAREMETAL_STARTUP  = src/drivers/bcm283x/cpu/startup_arm.c
 BAREMETAL_LD       = src/drivers/bcm283x/cpu/link.ld
-ARM32_BAREMETAL_SRCS = src/kernel/core_init.c src/kernel/core_yoko.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
-ARM64_BAREMETAL_SRCS = src/kernel/core_init.c src/kernel/core_arm64.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM32_BAREMETAL_SRCS = src/cores/core_init.c src/cores/core_yoko.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
+ARM64_BAREMETAL_SRCS = src/cores/core_init.c src/cores/core_arm64.c $(TKERNEL_SAKAMURA_SRCS) $(ARCH_BCM_SRCS) $(BAREMETAL_STARTUP) $(COMMON_NO_SDL_SRCS)
 
 # ── Object lists ─────────────────────────────────────────────────
 POSIX_OBJS   = $(POSIX_SRCS:.c=.posix.o)
@@ -276,7 +276,7 @@ DEFAULT_TARGET = btron
 
 TKERNEL_INC = -D_RPI_BCM283x_ -DTYPE_RPI=2 \
               -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast \
-              -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
+              -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel -Isrc/cores
 
 all: posix qemu kernel sakamura uefi pc98
 
@@ -332,6 +332,9 @@ kernel: tad_bin $(TKERNEL_TARGET)
 	@echo " Sakamura T-Kernel 2.0 Engine built: $(TKERNEL_TARGET)"
 	@echo "=========================================================="
 
+src/cores/%.tkernel.o: src/cores/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
+
 src/kernel/%.tkernel.o: src/kernel/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
 
@@ -350,6 +353,9 @@ sakamura: tad_bin $(SAKAMURA_TARGET)
 	@echo " Sakamura T-Kernel 2.0 Engine (UART/VirtIO Mode) built: $(SAKAMURA_TARGET)"
 	@echo "=========================================================="
 
+src/cores/%.sakamura.o: src/cores/%.c
+	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
+
 src/kernel/%.sakamura.o: src/kernel/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
 
@@ -364,7 +370,7 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 
 # ── X86_64 / EMT64 UEFI SMP QEMU Kernel (Honoring Kota Uchida) ───
 UEFI_LD     = src/kernel/uefi_qemu.ld
-UEFI_CFLAGS = -O2 -Wall -Wextra -std=c99 -mno-sse -mno-mmx -mno-sse2 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel
+UEFI_CFLAGS = -O2 -Wall -Wextra -std=c99 -mno-sse -mno-mmx -mno-sse2 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
 
 %.uefi.o: %.c
 	$(X86_CC) $(UEFI_CFLAGS) -c $< -o $@
@@ -449,14 +455,14 @@ test-pc98: $(PC98_TARGET)
 # Motorola 68040 Macintosh Quadra 800 Kernel (q800)
 # ═══════════════════════════════════════════════════════════════════
 M68K_TARGET     = btron-m68k.elf
-M68K_LD_SCRIPT  = src/kernel/m68k_q800.ld
-M68K_CFLAGS     = -O2 -Wall -Wextra -std=c99 -mcpu=68040 -ffreestanding -nostdlib -DBTRON_TARGET=7 -DBTRON_M68K_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel
-M68K_STARTUP    = src/kernel/core_m68k.c
+M68K_LD_SCRIPT  = src/drivers/m68k/m68k_q800.ld
+M68K_CFLAGS     = -O2 -Wall -Wextra -std=c99 -mcpu=68040 -ffreestanding -nostdlib -DBTRON_TARGET=7 -DBTRON_M68K_TARGET -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
+M68K_STARTUP    = src/cores/core_m68k.c
 M68K_SRCS       = $(M68K_STARTUP)          \
-                  src/kernel/core_init.c   \
+                  src/cores/core_init.c   \
                   src/kernel/libstr.c      \
                   $(COMMON_NO_SDL_SRCS)
-M68K_OBJS       = src/kernel/boot_m68k.m68k.o $(M68K_SRCS:.c=.m68k.o)
+M68K_OBJS       = src/drivers/m68k/boot_m68k.m68k.o $(M68K_SRCS:.c=.m68k.o)
 
 %.m68k.o: %.s
 	$(M68K_CC) -mcpu=68040 -c $< -o $@
@@ -709,7 +715,7 @@ html2tad:
 # Native TAD Document Browser & Cabinet Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_TAD_SRCS = src/apps/test_tad_browser.c src/apps/tad_browser.c src/apps/vobj_manager.c src/window/app_menu.c \
-                src/settings/appearance.c \
+                src/settings/appearance.c src/graphics/icons_bundle.c \
                 src/tip/mozc_kkc.c src/font/troncode.c src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_vobj.c \
                 src/window/wnd.c src/graphics/dp_core.c
 TEST_TAD_OBJS = $(TEST_TAD_SRCS:.c=.test.o)
@@ -810,7 +816,7 @@ test-settings: $(TEST_SETTINGS_BIN)
 # BTRON Global System Menu (Chokanji & Haiku) Test Suite
 # ═══════════════════════════════════════════════════════════════════
 TEST_GMENU_SRCS = src/desktop/test_global_menu.c src/desktop/global_menu.c src/desktop/tracker.c \
-                  src/window/app_menu.c \
+                  src/window/app_menu.c src/graphics/icons_bundle.c \
                   src/desktop/about.c src/window/wnd.c src/graphics/dp_core.c src/font/troncode.c \
                   src/font/jis_fonts.c src/font/tibetan_fonts.c src/tip/tip_ife.c src/tip/mozc_kkc.c \
                   src/tip/wylie.c src/tip/tibetan_dict.c src/tip/tip_vobj.c
@@ -854,7 +860,7 @@ test: test-kernel test-tad test-editor test-chat test-mozc test-wylie test-hmi t
 # ═══════════════════════════════════════════════════════════════════
 # Ski Bootloader & Multi-Arch Boot Driver Test Suite
 # ═══════════════════════════════════════════════════════════════════
-TEST_SKI_SRCS = src/apps/test_ski.c  src/kernel/core_smp.c \
+TEST_SKI_SRCS = src/apps/test_ski.c  src/cores/core_smp.c \
                 src/drivers/pc98/boot/boot_pc98.c src/drivers/bcm283x/boot/boot_arm_stub.c
 TEST_SKI_OBJS = $(TEST_SKI_SRCS:.c=.test.o)
 TEST_SKI_BIN  = test_ski

@@ -1,43 +1,45 @@
 # B-System (BTRON 3.20) Kernel Porting Guide & BSP Specification
 
-## 1. Overview & Architectural Principles
+## 1. Overview & Architectural Principles: The 3-Tier Layering
 
 The B-System (BTRON 3.20 Specification) Workstation Operating System is designed for portable execution across diverse CPU architectures and hardware targets—ranging from classic 32-bit CISC workstations (Motorola 68040 Macintosh Quadra 800) to modern 32-bit and 64-bit RISC microcomputers (ARMv7 Cortex-A7, AArch64 Cortex-A72).
 
-Every bare-metal BSP (Board Support Package) kernel follows a standardized cleanroom architecture:
+Every target follows a standardized **`Image > Core > Kernel`** 3-tier cleanroom architecture:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   B-System Cleanroom Kernel Contract                   │
-├────────────────────────────────┬───────────────────────────────────────┤
-│ 1. Platform Hardware Drivers   │ Display FB, Keyboard, Mouse, UART, RTC│
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 2. RTOS Executive & Memory     │ uITRON 3.0 / Sakamura T-Kernel 2.0    │
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 3. System Event Queue          │ snd_evt() / get_evt() (event.c)       │
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 4. Workbench Event Coordinator │ workbench_process_event()             │
-├────────────────────────────────┼───────────────────────────────────────┤
-│ 5. Double-Buffered Compositor  │ Backbuffer -> blit_backbuffer_to_fb() │
-└────────────────────────────────┴───────────────────────────────────────┘
+│                        Image (Final Run Target)                        │
+│   btron-posix, btron-arm-baremetal.elf, btron-aarch64-baremetal.elf    │
+├────────────────────────────────────────────────────────────────────────┤
+│                       Cores (src/cores/) Layer                         │
+│  Board / Machine Integration: Memory Maps, GPU Framebuffer, Bus I/O    │
+│  core_yoko.c, core_arm64.c, core_m68k.c, core_posix.c, core_boot.c    │
+├────────────────────────────────────────────────────────────────────────┤
+│                       Kernel (src/kernel/) Layer                       │
+│  Pure Portable RTOS Executive: uITRON 3.0 / Sakamura T-Kernel 2.0      │
+│  Tasks, Semaphores, Mutexes, Mailboxes, Eventflags, Timers, Libstr     │
+├────────────────────────────────────────────────────────────────────────┤
+│                       Drivers (src/drivers/) Layer                     │
+│  Silicon & Bus Drivers: bcm283x (DWC2, PL011, VC Mailbox), m68k (ADB) │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-By strictly separating platform-specific I/O polling from desktop windowing logic, **all window management, dragging, sliding tabs, desktop icons, drop-down menus, and Japanese Mozc/TIP IME operate identically on every port with zero duplicated code.**
+By strictly separating platform-specific cores from kernel primitives and desktop windowing logic, **all window management, dragging, sliding tabs, desktop icons, drop-down menus, and Japanese Mozc/TIP IME operate identically on every port with zero duplicated code.**
 
 ---
 
 ## 2. Architecture & Target Matrix
 
-| Target ID | Architecture | Typical Hardware / VM | Kernel Entry File | Video Mode | Input Subsystem |
+| Target ID | Architecture | Typical Hardware / VM | Core Entry File | Video Mode | Input Subsystem |
 |:---|:---|:---|:---|:---|:---|
-| **Target 0** | POSIX / Hosted | Linux / macOS Host | `src/kernel/core_posix.c` | Host SDL2 Window | SDL2 Events |
-| **Target 1** | ARM32 VirtIO | QEMU ARM VirtIO | `src/kernel/core_virtio.c` | VirtIO GPU | VirtIO Input |
-| **Target 2** | ARMv7 AArch32 | Raspberry Pi 2B (BCM2836) | `src/kernel/core_yoko.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
-| **Target 3** | Sakamura VirtIO | QEMU VirtIO T-Kernel | `src/kernel/core_tkernel.c` | VirtIO GPU | VirtIO Input |
-| **Target 4** | x86_64 UEFI | PC / QEMU x86_64 SMP | `src/kernel/core_boot.c` | VESA / GOP FB | PS/2 + Serial |
-| **Target 5** | i386 PC-98 | NEC PC-9801 / PC-9821 | `src/kernel/core_pc98.c` | 640x400 Plane FB | PC-98 Bus Mouse + Kbd |
-| **Target 6** | AArch64 | Raspberry Pi 3B (BCM2837) & 4B (BCM2711) | `src/kernel/core_arm64.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
-| **Target 7** | M68K CISC | Apple Mac Quadra 800 | `src/kernel/core_m68k.c` | NuBus DAFB 800x600 8bpp | ADB (VIA1) + Z8530 ESCC |
+| **Target 0** | POSIX / Hosted | Linux / macOS Host | `src/cores/core_posix.c` | Host SDL2 Window | SDL2 Events |
+| **Target 1** | ARM32 VirtIO | QEMU ARM VirtIO | `src/cores/core_virtio.c` | VirtIO GPU | VirtIO Input |
+| **Target 2** | ARMv7 AArch32 | Raspberry Pi 2B (BCM2836) | `src/cores/core_yoko.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
+| **Target 3** | Sakamura VirtIO | QEMU VirtIO T-Kernel | `src/cores/core_tkernel.c` | VirtIO GPU | VirtIO Input |
+| **Target 4** | x86_64 UEFI | PC / QEMU x86_64 SMP | `src/cores/core_boot.c` | VESA / GOP FB | PS/2 + Serial |
+| **Target 5** | i386 PC-98 | NEC PC-9801 / PC-9821 | `src/cores/core_pc98.c` | 640x400 Plane FB | PC-98 Bus Mouse + Kbd |
+| **Target 6** | AArch64 | Raspberry Pi 3B (BCM2837) & 4B (BCM2711) | `src/cores/core_arm64.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
+| **Target 7** | M68K CISC | Apple Mac Quadra 800 | `src/cores/core_m68k.c` | NuBus DAFB 800x600 8bpp | ADB (VIA1) + Z8530 ESCC |
 
 ---
 
@@ -196,19 +198,19 @@ Interrupt IN endpoints in USB (Keyboard & Mouse) require periodic polling accord
 ## 7. Canonical Reference Implementations
 
 When developing or reviewing a port, refer to these canonical implementations:
-1. **[src/kernel/core_m68k.c](file:///Users/tonpa/depot/bitedits/btron/src/kernel/core_m68k.c)**:
+1. **[src/cores/core_m68k.c](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_m68k.c)**:
    - Motorola 68040 CISC architecture
    - Apple Macintosh Quadra 800 hardware
    - NuBus DAFB 800x600 8-bpp palette with `color_to_pal()` quantization
    - MOS 6522 VIA1 60Hz hardware timer & Apple Desktop Bus (ADB) keyboard/mouse
    - Zilog Z8530 ESCC Serial UART console
-2. **[src/kernel/core_yoko.c](file:///Users/tonpa/depot/bitedits/btron/src/kernel/core_yoko.c)**:
+2. **[src/cores/core_yoko.c](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_yoko.c)**:
    - ARMv7-A 32-bit RISC architecture
    - Raspberry Pi 2B (BCM2836) hardware
    - VideoCore Mailbox GPU 1024x768 32-bpp truecolor framebuffer
    - Synopsys DWC2 USB 2.0 host controller (Hub + USB keyboard + USB mouse)
    - ARM PrimeCell PL011 UART serial console
-3. **[src/kernel/core_arm64.c](file:///Users/tonpa/depot/bitedits/btron/src/kernel/core_arm64.c)**:
+3. **[src/cores/core_arm64.c](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_arm64.c)**:
    - AArch64 64-bit RISC architecture
    - Raspberry Pi 4B (BCM2711) hardware
    - 64-bit clean pointers and barrier operations (`dsb sy`)
