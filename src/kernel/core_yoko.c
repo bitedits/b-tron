@@ -223,6 +223,17 @@ ER get_tim(SYSTIME *p_time) {
  * Synopsys DWC2 USB Keyboard & Mouse Driver
  * ═══════════════════════════════════════════════════════════════════ */
 
+static inline uint16_t usb_to_btron_modifiers(uint8_t usb_mod) {
+    uint16_t bmod = BTRON_KMOD_NONE;
+    if (usb_mod & 0x01) bmod |= BTRON_KMOD_LCTRL;
+    if (usb_mod & 0x02) bmod |= BTRON_KMOD_LSHIFT;
+    if (usb_mod & 0x04) bmod |= BTRON_KMOD_LALT;
+    if (usb_mod & 0x10) bmod |= BTRON_KMOD_RCTRL;
+    if (usb_mod & 0x20) bmod |= BTRON_KMOD_RSHIFT;
+    if (usb_mod & 0x40) bmod |= BTRON_KMOD_RALT;
+    return bmod;
+}
+
 static uint8_t g_prev_mouse_btns = 0;
 static uint8_t g_prev_kbd_scancode = 0;
 
@@ -234,18 +245,14 @@ static int usb_poll_devices(GDEV *screen) {
     usb_kbd_report_t kbd_rep;
     if (dwc2_poll_keyboard(&kbd_rep) > 0) {
         uint8_t scancode = kbd_rep.keys[0];
-        uart_puts("[EVT] USB Kbd report: scancode=");
-        uart_hex32(scancode);
-        uart_puts(" mod=");
-        uart_hex32(kbd_rep.modifiers);
-        uart_puts("\n");
+        uint16_t bmod = usb_to_btron_modifiers(kbd_rep.modifiers);
         if (scancode != 0) {
             uint32_t k = dwc2_usb_to_btron_key(scancode, kbd_rep.modifiers);
             if (k != 0) {
                 EVT ev;
                 ev.type   = EV_KEY_DOWN;
                 ev.key    = k;
-                ev.data   = (VW)(uintptr_t)kbd_rep.modifiers;
+                ev.data   = (VW)(uintptr_t)bmod;
                 ev.pos.x  = s_mouse_x;
                 ev.pos.y  = s_mouse_y;
                 ev.button = 0;
@@ -272,14 +279,6 @@ static int usb_poll_devices(GDEV *screen) {
     /* 2. Poll USB HID Mouse from DWC2 */
     usb_mouse_report_t mouse_rep;
     if (dwc2_poll_mouse(&mouse_rep) > 0) {
-        uart_puts("[EVT] USB Mouse report: dx=");
-        uart_hex32((uint32_t)(int32_t)mouse_rep.dx);
-        uart_puts(" dy=");
-        uart_hex32((uint32_t)(int32_t)mouse_rep.dy);
-        uart_puts(" btns=");
-        uart_hex32(mouse_rep.buttons);
-        uart_puts("\n");
-
         if (mouse_rep.dx != 0 || mouse_rep.dy != 0) {
             s_mouse_x += (H)mouse_rep.dx;
             s_mouse_y += (H)mouse_rep.dy;
@@ -450,108 +449,63 @@ void btron_main(void) {
 
     uart_puts("[QEMU-ARM] Live Multi-Window Desktop & Pointer initialized in Video VRAM.\n");
 
-    /* Enable SGR 1006 ANSI Xterm Mouse Tracking in Terminal */
-    uart_puts("\033[?1000h\033[?1006h");
-
     uart_puts("\n==========================================================\n");
     uart_puts(" Sakamura B-System 3.0 Interactive Keyboard & Mouse Active\n");
-    uart_puts(" Live Windows: Terminal Shell, Editor, Real Body Cabinet\n");
-    uart_puts(" Display Resolution: 1024x768 32-bpp Framebuffer VRAM\n");
-    uart_puts(" USB HID: DWC2 Keyboard & Mouse Polling Active\n");
-    uart_puts(" Mouse: Classic B-System Cursor tracking, Click, and Drag\n");
-    uart_puts(" Keyboard Controls:\n");
-    uart_puts("   Tab            - Cycle focused window (Terminal <-> Editor <-> Cabinet)\n");
-    uart_puts("   Shift+Arrows   - Move mouse cursor smoothly (Up/Down/Left/Right)\n");
-    uart_puts("   Shift+Enter    - Mouse Left-Click at current cursor position\n");
-    uart_puts("   F10            - Switch Japanese Mozc (あ) <-> Direct English (A)\n");
-    uart_puts("   F6/F7/F8/F9    - Transliterate (Hiragana/Katakana/Halfwidth/Alpha)\n");
+    uart_puts(" B-System Workbench Live on Raspberry Pi 2B (ARMv7)!\n");
+    uart_puts(" * Display : VideoCore GPU Mailbox FB 1024x768 32-bpp\n");
+    uart_puts(" * Input   : USB Keyboard & Mouse + PL011 Serial Active\n");
+    uart_puts(" * Windows : Real Body Cabinet, Editor, GTerm Terminal Shell\n");
+    uart_puts(" * Controls: Mouse click/drag, or terminal arrow keys [W/A/S/D]\n");
     uart_puts("==========================================================\n\n");
 
     /* 7. Real-Time Interactive Event Loop */
     uint32_t last_clock_tick = 0;
+    uint32_t last_usb_poll = 0;
     EVT ev;
 
     while (1) {
         int need_redraw = 0;
-        s_system_ticks++;
 
-        /* A. Poll DWC2 USB Keyboard and Mouse */
-        if (usb_poll_devices(screen)) {
-            need_redraw = 1;
+        /* Hardware time in microseconds from BCM283x System Timer */
+        uint32_t now_us = *(volatile uint32_t*)(TIMER_BASE + 0x04);
+        s_system_ticks = now_us / 16666; /* 60Hz tick counter */
+
+        /* A. Poll DWC2 USB Keyboard and Mouse at 100Hz (~10ms) */
+        if (now_us - last_usb_poll >= 10000) {
+            last_usb_poll = now_us;
+            if (usb_poll_devices(screen)) {
+                need_redraw = 1;
+            }
         }
 
         /* B. Poll PL011 UART Serial Console for interactive keys & arrows */
         if (uart_has_char()) {
             int c = uart_getc();
             if (c == 0x1B) {
-                /* ANSI escape sequence handling */
-                int wait_tries = 200;
+                /* ANSI escape sequence */
+                int wait_tries = 2000;
                 while (!uart_has_char() && --wait_tries > 0) {
-                    for (volatile int d = 0; d < 20; d++) __asm__ volatile("nop");
+                    for (volatile int d = 0; d < 50; d++) __asm__ volatile("nop");
                 }
-                if (uart_has_char()) {
-                    int c2 = uart_getc();
-                    if (c2 == '[') {
-                        wait_tries = 200;
-                        while (!uart_has_char() && --wait_tries > 0) {
-                            for (volatile int d = 0; d < 20; d++) __asm__ volatile("nop");
-                        }
-                        if (uart_has_char()) {
-                            int c3 = uart_getc();
-
-                            /* SGR 1006 mouse sequence: \033[<btn;X;YM / \033[<btn;X;Ym */
-                            if (c3 == '<') {
-                                int btn = 0, px = 0, py = 0;
-                                int state = 0;
-                                char term = 0;
-                                while (uart_has_char()) {
-                                    int ch = uart_getc();
-                                    if (ch >= '0' && ch <= '9') {
-                                        if (state == 0) btn = btn * 10 + (ch - '0');
-                                        else if (state == 1) px = px * 10 + (ch - '0');
-                                        else if (state == 2) py = py * 10 + (ch - '0');
-                                    } else if (ch == ';') {
-                                        state++;
-                                    } else if (ch == 'M' || ch == 'm') {
-                                        term = (char)ch;
-                                        break;
-                                    }
-                                }
-                                s_mouse_x = (H)((px - 1) * BTRON_SCREEN_W / 80);
-                                s_mouse_y = (H)((py - 1) * BTRON_SCREEN_H / 24);
-                                if (s_mouse_x < 0) s_mouse_x = 0;
-                                if (s_mouse_x >= BTRON_SCREEN_W) s_mouse_x = BTRON_SCREEN_W - 1;
-                                if (s_mouse_y < 0) s_mouse_y = 0;
-                                if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
-
-                                if (term == 'M') {
-                                    if (btn == 0) {
-                                        EVT mev; mev.type = EV_BUT_DOWN; mev.button = 1; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
-                                    } else if (btn == 32) {
-                                        EVT mev; mev.type = EV_MOUSE_MOVE; mev.button = 0; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
-                                    }
-                                } else if (term == 'm') {
-                                    if (btn == 0) {
-                                        EVT mev; mev.type = EV_BUT_UP; mev.button = 1; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
-                                    }
-                                }
-                                need_redraw = 1;
-                            } else {
-                                /* Arrow navigation */
-                                if (c3 == 'A') s_mouse_y = (s_mouse_y > 16) ? s_mouse_y - 16 : 10;
-                                else if (c3 == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
-                                else if (c3 == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
-                                else if (c3 == 'D') s_mouse_x = (s_mouse_x > 16) ? s_mouse_x - 16 : 10;
-                                EVT mev;
-                                mev.type   = EV_MOUSE_MOVE;
-                                mev.pos.x  = s_mouse_x;
-                                mev.pos.y  = s_mouse_y;
-                                mev.button = 0;
-                                mev.data   = 0;
-                                snd_evt(&mev);
-                                need_redraw = 1;
-                            }
-                        }
+                if (uart_has_char() && uart_getc() == '[') {
+                    wait_tries = 2000;
+                    while (!uart_has_char() && --wait_tries > 0) {
+                        for (volatile int d = 0; d < 50; d++) __asm__ volatile("nop");
+                    }
+                    if (uart_has_char()) {
+                        int dir = uart_getc();
+                        if (dir == 'A') s_mouse_y = (s_mouse_y > 16) ? s_mouse_y - 16 : 10;
+                        else if (dir == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
+                        else if (dir == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
+                        else if (dir == 'D') s_mouse_x = (s_mouse_x > 16) ? s_mouse_x - 16 : 10;
+                        EVT mev;
+                        mev.type   = EV_MOUSE_MOVE;
+                        mev.pos.x  = s_mouse_x;
+                        mev.pos.y  = s_mouse_y;
+                        mev.button = 0;
+                        mev.data   = 0;
+                        snd_evt(&mev);
+                        need_redraw = 1;
                     }
                 }
             } else {
@@ -574,7 +528,7 @@ void btron_main(void) {
             need_redraw = 1;
         }
 
-        /* D. Redraw when state changed or periodic clock update */
+        /* D. Redraw when state changed or periodic clock update (1 Hz) */
         if (s_system_ticks - last_clock_tick >= 60) {
             last_clock_tick = s_system_ticks;
             need_redraw = 1;
@@ -585,6 +539,6 @@ void btron_main(void) {
             blit_backbuffer_to_fb(gpu_fb);
         }
 
-        for (volatile int d = 0; d < 1000; d++) __asm__ volatile("nop");
+        for (volatile int d = 0; d < 200; d++) __asm__ volatile("nop");
     }
 }

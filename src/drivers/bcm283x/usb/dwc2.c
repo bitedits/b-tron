@@ -85,6 +85,7 @@ static bool     g_dwc2_initialized  = false;
 static bool     g_kbd_attached      = false;
 static bool     g_mouse_attached    = false;
 static uint8_t  g_last_kbd_key      = 0;
+static uint8_t  g_last_kbd_mod      = 0;
 static uint8_t  g_last_mouse_btns   = 0;
 static uint8_t  g_kbd_addr          = 1;
 static uint8_t  g_mouse_addr        = 2;
@@ -535,8 +536,10 @@ int dwc2_poll_keyboard(usb_kbd_report_t *report)
         *report = g_kbd_dma_buf;
         g_kbd_pid = (g_kbd_pid == PID_DATA0) ? PID_DATA1 : PID_DATA0;
 
-        bool changed = (report->keys[0] != g_last_kbd_key);
+        bool changed = (report->keys[0] != g_last_kbd_key ||
+                        report->modifiers != g_last_kbd_mod);
         g_last_kbd_key = report->keys[0];
+        g_last_kbd_mod = report->modifiers;
 
         dwc2_queue_kbd_in();
         return changed ? 1 : 0;
@@ -545,7 +548,7 @@ int dwc2_poll_keyboard(usb_kbd_report_t *report)
     if (hcint & (HCINT_NAK | HCINT_CHH)) {
         dwc2_write(DWC2_HCINT(1), HCINT_ALL);
         g_kbd_chan_active = false;
-        dwc2_queue_kbd_in();
+        /* Do not re-queue immediately on NAK; will be queued on next poll interval */
     }
 
     return 0;
@@ -583,7 +586,7 @@ int dwc2_poll_mouse(usb_mouse_report_t *report)
     if (hcint & (HCINT_NAK | HCINT_CHH)) {
         dwc2_write(DWC2_HCINT(2), HCINT_ALL);
         g_mouse_chan_active = false;
-        dwc2_queue_mouse_in();
+        /* Do not re-queue immediately on NAK; will be queued on next poll interval */
     }
 
     return 0;
