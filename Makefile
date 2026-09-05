@@ -369,7 +369,7 @@ $(SAKAMURA_TARGET): $(SAKAMURA_OBJS)
 	$(CC) $(SAKAMURA_OBJS) -o $@ $(LDFLAGS) $(SDL_LIBS)
 
 # ── X86_64 / EMT64 UEFI SMP QEMU Kernel (Honoring Kota Uchida) ───
-UEFI_LD     = src/kernel/uefi_qemu.ld
+UEFI_LD     = src/drivers/uefi/uefi_qemu.ld
 UEFI_CFLAGS = -O2 -Wall -Wextra -std=c99 -mno-sse -mno-mmx -mno-sse2 -DBTRON_TARGET=4 -DBTRON_UEFI_TARGET -DBTRON_SMP -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
 
 %.uefi.o: %.c
