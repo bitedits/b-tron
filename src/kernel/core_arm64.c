@@ -317,15 +317,33 @@ static int usb_poll_devices(GDEV *screen) {
  * ═══════════════════════════════════════════════════════════════════ */
 
 void btron_core_banner(void) {
-    uart_puts("B-System/BTRON3 3.20 (aarch64-bcm2837) Takanori Yokoyama — T-Kernel 2.0\n");
-    uart_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
-    uart_puts("[BOOT] Machine: Raspberry Pi 3B / BCM2837  AArch64 Cortex-A53  T-Kernel 2.0\n\n");
+    uint64_t midr = 0;
+    __asm__ volatile("mrs %0, midr_el1" : "=r"(midr));
+    uint32_t part = (midr >> 4) & 0xFFF;
+    if (part == 0xD08) {
+        uart_puts("B-System/BTRON3 3.20 (aarch64-bcm2711) Takanori Yokoyama — T-Kernel 2.0\n");
+        uart_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
+        uart_puts("[BOOT] Machine: Raspberry Pi 4B / BCM2711  AArch64 Cortex-A72  T-Kernel 2.0\n\n");
+    } else {
+        uart_puts("B-System/BTRON3 3.20 (aarch64-bcm2837) Takanori Yokoyama — T-Kernel 2.0\n");
+        uart_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
+        uart_puts("[BOOT] Machine: Raspberry Pi 3B / BCM2837  AArch64 Cortex-A53  T-Kernel 2.0\n\n");
+    }
 }
 
 void btron_core_mem_log(void) {
-    uart_puts("[MEM ] BCM2837 Physical Memory Map (Pi 3B, 1 GB RAM):\n");
-    uart_puts("[MEM ]   0x00000000-0x3EFFFFFF  RAM (Usable 1008 MB)\n");
-    uart_puts("[MEM ]   0x3F000000-0x3FFFFFFF  Peripherals / VideoCore Mailbox / MMIO (16 MB)\n");
+    uint64_t midr = 0;
+    __asm__ volatile("mrs %0, midr_el1" : "=r"(midr));
+    uint32_t part = (midr >> 4) & 0xFFF;
+    if (part == 0xD08) {
+        uart_puts("[MEM ] BCM2711 Physical Memory Map (Pi 4B, 2 GB / 4 GB RAM):\n");
+        uart_puts("[MEM ]   0x00000000-0xFCFFFFFF  RAM (Usable 4048 MB)\n");
+        uart_puts("[MEM ]   0xFD000000-0xFFFFFFFF  Peripherals / PCIe / MMIO (48 MB)\n");
+    } else {
+        uart_puts("[MEM ] BCM2837 Physical Memory Map (Pi 3B, 1 GB RAM):\n");
+        uart_puts("[MEM ]   0x00000000-0x3EFFFFFF  RAM (Usable 1008 MB)\n");
+        uart_puts("[MEM ]   0x3F000000-0x3FFFFFFF  Peripherals / VideoCore Mailbox / MMIO (16 MB)\n");
+    }
     uart_puts("[MEM ] Heap: 0x01000000-0x1B000000 (432 MB Kernel Heap)\n");
 }
 
