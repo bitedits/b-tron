@@ -42,8 +42,8 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 - **Load Address**: `0x00100000` (1 MB mark into physical RAM, standard PS2 homebrew entry).
 - **Stack Pointer**: `0x01FF0000` (top of 32 MB RDRAM with 64 KB safety headroom).
 - **Display Controller**: Graphics Synthesizer (GS) with 4 MB embedded DRAM (eDRAM).
-- **Graphics Pipeline**: DMAC Channel 2 (GIF) packet submission for 2D `PRIM_SPRITE` rasterization.
-- **Video Timing**: 640 x 480 @ 32-bpp RGBA with hardware VSync retrace and double buffering.
+- **Graphics Pipeline**: DMAC Channel 2 (GIF) Host-to-Local image blitting (`BITBLTBUF`, `TRXPOS`, `TRXREG`, `TRXDIR`).
+- **Video Timing**: 640 x 448 @ 32-bpp RGBA with hardware VSync retrace (Standard NTSC Interlaced Field Mode).
 - **Input Channels**: DualShock 2 Pad, OHCI USB Keyboard/Mouse, and EE SIO0 UART console.
 
 ### Driver Files
@@ -53,7 +53,8 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 | [`src/drivers/ps2/boot_ps2.s`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/boot_ps2.s) | EE reset vector, `$gp` and `$sp` setup, unrolled BSS wipe, BIOS syscall wrappers (`SetGsCrt`, `PutIMR`), jumps to `ps2_kernel_main`. |
 | [`src/drivers/ps2/ps2.ld`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2.ld) | Memory layout script linking `.text` at `0x00100000`. |
 | [`src/drivers/ps2/ps2_gs.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.h) | Privileged GS registers (`0x12000000`: `PMODE`, `SMODE2`, `DISPFB1`, `DISPLAY1`, `CSR`) and GIF DMA registers (`0x1000A000`). |
-| [`src/drivers/ps2/ps2_gs.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.c) | Hardware display initialization, VSync synchronization (`ps2_gs_vsync`), tear-free double buffering (`ps2_gs_swap_buffers`), GIF DMA sprite rasterizer (`ps2_gs_draw_rect`), and hardware cursor overlay/erasure. |
+| [`src/drivers/ps2/ps2_gs.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.c) | Hardware display initialization, VSync synchronization (`ps2_gs_vsync`), Host-to-Local GIF DMA blitter (`ps2_gs_flush`), uncached KSEG1 RDRAM framebuffer, and non-destructive cursor restoration. |
+| [`src/drivers/ps2/ps2_font.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_font.h) | 8x8 ASCII bitmap font table (128 characters) for crisp, authentic BTRON UI text rendering. |
 | [`src/drivers/ps2/ps2_sio.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.h) & [`.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.c) | Cleanroom SIO0 hardware UART driver (`0x1000F180` / `KPUTCHAR`). |
 | [`src/drivers/ps2/ps2_pad.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_pad.h) & [`.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_pad.c) | Cleanroom DualShock 2 controller driver: analog stick velocity integration, deadband filtering, button edge detection, and event mapping. |
 | [`src/drivers/ps2/ps2_usb.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_usb.h) & [`.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_usb.c) | Cleanroom USB Open Host Controller Interface (OHCI) driver (`0xBF801600`) and standard USB HID Boot Protocol keyboard/mouse decoders. |
@@ -62,19 +63,33 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 
 ---
 
-### 2.1 Hardware VSync Retrace & Double Buffering
+### 2.1 Graphics Synthesizer (GS) Framebuffer Architecture
 
-The PlayStation 2 Graphics Synthesizer contains 4 MB of ultra-high-bandwidth embedded DRAM (eDRAM). In standard 640x480 CT32 mode (32 bits per pixel), each frame buffer requires `640 * 480 * 4 = 1,228,800` bytes (150 eDRAM pages of 8192 bytes each).
+The PlayStation 2 Graphics Synthesizer contains 4 MB of ultra-high-bandwidth embedded DRAM (eDRAM). Memory inside eDRAM is structured into **pages** (2048 32-bit words = 8192 bytes) and **blocks** (64 words = 256 bytes) with non-linear column-interleaved pixel swizzling.
 
-B-System configures two distinct page regions within eDRAM:
-- **Front Buffer Page (`FBP0 = 0`)**: Displayed by PCRTC (`GS_DISPFB1`).
-- **Back Buffer Page (`FBP1 = 160`)**: Targeted by the drawing engine (`GS_FRAME_1`).
+#### The Host-to-Local GIF DMA Blitter Architecture
+Rather than rendering individual primitives through the GS rasterizer (which is prone to sub-pixel rounding errors, page-boundary clipping bugs, and high DMA packet overhead), B-System uses the hardware **Host-to-Local Blitter**:
 
-#### Synchronization Flow (`ps2_gs_swap_buffers`)
-1. **Vertical Blank Acknowledge**: Writes `1ULL << 3` to `GS_CSR` (`0x12001000`) to clear any pending VSync interrupt, then polls bit 3 until the GS enters vertical retrace.
-2. **PCRTC Display Flip**: Updates `GS_DISPFB1` to point to the freshly rendered buffer.
-3. **GIF Drawing Target Flip**: Dispatches a lightweight 2-QW GIF DMA packet over DMAC Channel 2 updating `GS_REG_FRAME_1` (`0x4C`) to the opposite page for subsequent draw calls.
-4. **Result**: 100% tear-free, rock-solid 60.0 FPS presentation.
+1. **Uncached RDRAM Backing Store (`ps2_fb_memory`)**:
+   - The CPU maintains a linear 640 x 448 x 32-bpp frame buffer in RDRAM (`71,680` quadwords = `1,146,880` bytes).
+   - All drawing functions (`ps2_gs_draw_rect`, `ps2_draw_char`, `ps2_gs_putpixel`) write through an uncached KSEG1 pointer (`0xA0xxxxxx`), bypassing the EE L1 Data Cache so RDRAM is always 100% coherent before DMA transfers.
+2. **GS Transmission Setup Packet (`ps2_gs_flush`)**:
+   - A 5-QW setup packet primes the GS:
+     - `BITBLTBUF (0x50)`: `DBA = 0`, `DBW = 10` (640 / 64), `DPSM = GS_PSM_CT32 (0)`.
+     - `TRXPOS (0x51)`: `DSAX = 0, DSAY = 0`.
+     - `TRXREG (0x52)`: `RRW = 640, RRH = 448`.
+     - `TRXDIR (0x53)`: `0` (Host $\rightarrow$ Local eDRAM).
+3. **Hardware Swizzling on Arrival**:
+   - `ps2_fb_memory` is streamed via DMAC Channel 2 in 8 chunks of 8,960 quadwords with `GIFTAG(FLG = IMAGE)`.
+   - The GS internal blitter automatically and correctly swizzles linear RDRAM pixels into eDRAM pages and blocks on arrival.
+4. **Verified NTSC Video Timings**:
+   - `ps2_set_gs_crt(1, 2, 0)`: Interlaced, NTSC, Field mode.
+   - `PMODE = 0xFF63ULL`: Circuit 1 + Circuit 2 enabled, `SLBG = 0` (Framebuffer output selected).
+   - `SMODE2 = 0x01ULL`: Interlaced, Field mode.
+   - `DISPFB1` & `DISPFB2 = 0x1400ULL`: Base address page 0 (`FBP = 0`), buffer width 10 blocks (`FBW = 10`), 32-bit RGBA (`PSM = 0`).
+   - `DISPLAY1` & `DISPLAY2 = 0x001bf9ff0983227cULL`: $DX=636$, $DY=50$, $MAGH=3$ (4x), $MAGV=1$ (2x), $DW=2559$, $DH=447$.
+5. **Non-Destructive Cursor Restoration**:
+   - Mouse cursor drawing backs up background pixels into `cursor_saved[16 * 16]`. Erasing the cursor restores the exact original background pixels with zero smearing or artifacts.
 
 ---
 
@@ -127,7 +142,7 @@ The cleanroom driver (`ps2_usb.c`):
 3. **Window 3: TAD Cabinet & Real Object Browser**
    - Visual file and virtual object manager displaying BTRON record headers (`Readme.tad`, `System/`, `Editor.app`, `Settings.app`, `BootSound.snd`, `Cabinet.vobj`).
 4. **Window 4: Control Panel / System Settings**
-   - Real-time display configuration (640x480 NTSC, CT32 RGBA, VSync status, DualShock 2 status, USB status, and current TIP/IME language setting).
+   - Real-time display configuration (640x448 NTSC, CT32 RGBA, VSync status, DualShock 2 status, USB status, and current TIP/IME language setting).
 
 #### Window Focus & Navigation
 - **Click-to-Focus**: Clicking anywhere inside a window's bounds raises it to the foreground (`s_active_window`).
