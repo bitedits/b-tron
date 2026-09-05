@@ -71,8 +71,21 @@ static int s_active_menu    = 0;
 static int s_tip_mode = TIP_MODE_ASCII;
 
 /* B-Editor Text Buffer */
-static char s_editor_buf[256] = "Welcome to B-System Editor on PlayStation 2!\nCleanroom BTRON3 3.20 port.\nType here with keyboard...";
+static char s_editor_buf[512] = "Welcome to B-System Editor on PlayStation 2!\nCleanroom BTRON3 3.20 port.\nType here with keyboard...";
 static int  s_editor_len = 98;
+static int  s_editor_cursor = 98;
+
+/* DualShock 2 On-Screen Software Keyboard (OSK) State */
+static int s_osk_visible = 0;
+static int s_osk_row = 1;
+static int s_osk_col = 0;
+
+static const char * const s_osk_layout[4][10] = {
+    { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" },
+    { "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" },
+    { "A", "S", "D", "F", "G", "H", "J", "K", "L", "RET" },
+    { "Z", "X", "C", "V", "B", "N", "M", "SPC", "DEL", "ESC" }
+};
 
 /* Mouse Pointer Coordinates */
 static int ps2_mouse_x = 320;
@@ -269,6 +282,48 @@ static void draw_wnd_workbench(int active)
     ps2_draw_string(tx, ty + 144,"Status       : B-System Real-Time Executive Active", PS2_COLOR_GREEN, 0);
 }
 
+static void draw_osk_panel(int ox, int oy, int ow)
+{
+    int oh = 110;
+    /* Panel shadow & background */
+    ps2_gs_fill_rect(ox + 3, oy + 3, ow, oh, PS2_COLOR_DARKGRAY);
+    ps2_gs_fill_rect(ox, oy, ow, oh, PS2_COLOR_LIGHTGRAY);
+    ps2_gs_fill_rect(ox, oy, ow, 1, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(ox, oy + oh - 1, ow, 1, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(ox, oy, 1, oh, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(ox + ow - 1, oy, 1, oh, PS2_COLOR_GRAY);
+
+    /* OSK Title Bar */
+    ps2_gs_fill_rect(ox + 1, oy + 1, ow - 2, 16, PS2_COLOR_TITLEBAR);
+    ps2_draw_string(ox + 8, oy + 4, "On-Screen Keyboard [DualShock 2 Pad / TIP Keypad]", PS2_COLOR_WHITE, 0);
+
+    /* 4 Rows x 10 Columns of Keys */
+    int key_w = (ow - 20) / 10;
+    int key_h = 16;
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 10; c++) {
+            int kx = ox + 10 + c * key_w;
+            int ky = oy + 22 + r * 18;
+            int is_selected = (r == s_osk_row && c == s_osk_col);
+
+            uint32_t bg_col = is_selected ? PS2_COLOR_ACCENT : PS2_COLOR_WHITE;
+            uint32_t text_col = is_selected ? PS2_COLOR_WHITE : PS2_COLOR_BLACK;
+
+            ps2_gs_fill_rect(kx, ky, key_w - 2, key_h, bg_col);
+            ps2_gs_fill_rect(kx, ky, key_w - 2, 1, PS2_COLOR_GRAY);
+            ps2_gs_fill_rect(kx, ky + key_h - 1, key_w - 2, 1, PS2_COLOR_GRAY);
+
+            const char *label = s_osk_layout[r][c];
+            int text_offset = (key_w - 2 - (int)tkl_strlen(label) * 8) / 2;
+            if (text_offset < 2) text_offset = 2;
+            ps2_draw_string(kx + text_offset, ky + 4, label, text_col, 0);
+        }
+    }
+
+    /* Legend */
+    ps2_draw_string(ox + 10, oy + oh - 14, "D-Pad: Move | Cross: Select | Square: Backspace | L2/R2: Hide OSK", PS2_COLOR_DARKGRAY, 0);
+}
+
 /* Window 2: B-Editor (Interactive Text Editor) */
 static void draw_wnd_editor(int active)
 {
@@ -283,9 +338,27 @@ static void draw_wnd_editor(int active)
     int tx = x + 20, ty = y + 48;
     ps2_draw_string(tx, ty, s_editor_buf, PS2_COLOR_BLACK, 0);
 
+    /* Calculate 2D position (col, line) of caret from s_editor_cursor */
+    int cur_col = 0, cur_line = 0;
+    for (int i = 0; i < s_editor_cursor && i < s_editor_len; i++) {
+        if (s_editor_buf[i] == '\n') {
+            cur_line++;
+            cur_col = 0;
+        } else {
+            cur_col++;
+        }
+    }
+
     /* Caret indicator if active */
     if (active) {
-        ps2_draw_string(tx + (s_editor_len % 50) * 8, ty + 40, "_", PS2_COLOR_ACCENT, 0);
+        int cx = tx + cur_col * 8;
+        int cy = ty + cur_line * 10;
+        ps2_draw_string(cx, cy, "_", PS2_COLOR_ACCENT, 0);
+    }
+
+    /* On-Screen Keyboard if visible */
+    if (s_osk_visible) {
+        draw_osk_panel(x + 16, y + h - 130, w - 32);
     }
 }
 
@@ -476,26 +549,165 @@ static void ps2_click_mouse(int button)
     snd_evt(&ev);
 }
 
+/* ── Editor Buffer Operations ───────────────────────────────────── */
+static void ps2_editor_insert_char(char c)
+{
+    if (s_editor_len >= (int)sizeof(s_editor_buf) - 2) return;
+    if (s_editor_cursor < 0) s_editor_cursor = 0;
+    if (s_editor_cursor > s_editor_len) s_editor_cursor = s_editor_len;
+
+    for (int i = s_editor_len; i > s_editor_cursor; i--) {
+        s_editor_buf[i] = s_editor_buf[i - 1];
+    }
+    s_editor_buf[s_editor_cursor] = c;
+    s_editor_cursor++;
+    s_editor_len++;
+    s_editor_buf[s_editor_len] = '\0';
+}
+
+static void ps2_editor_backspace(void)
+{
+    if (s_editor_cursor <= 0 || s_editor_len <= 0) return;
+    for (int i = s_editor_cursor - 1; i < s_editor_len - 1; i++) {
+        s_editor_buf[i] = s_editor_buf[i + 1];
+    }
+    s_editor_cursor--;
+    s_editor_len--;
+    s_editor_buf[s_editor_len] = '\0';
+}
+
+static void ps2_editor_delete_fwd(void)
+{
+    if (s_editor_cursor >= s_editor_len || s_editor_len <= 0) return;
+    for (int i = s_editor_cursor; i < s_editor_len - 1; i++) {
+        s_editor_buf[i] = s_editor_buf[i + 1];
+    }
+    s_editor_len--;
+    s_editor_buf[s_editor_len] = '\0';
+}
+
+static void ps2_editor_move_left(void)
+{
+    if (s_editor_cursor > 0) s_editor_cursor--;
+}
+
+static void ps2_editor_move_right(void)
+{
+    if (s_editor_cursor < s_editor_len) s_editor_cursor++;
+}
+
+static void ps2_editor_move_home(void)
+{
+    while (s_editor_cursor > 0 && s_editor_buf[s_editor_cursor - 1] != '\n') {
+        s_editor_cursor--;
+    }
+}
+
+static void ps2_editor_move_end(void)
+{
+    while (s_editor_cursor < s_editor_len && s_editor_buf[s_editor_cursor] != '\n') {
+        s_editor_cursor++;
+    }
+}
+
+static void ps2_editor_move_up(void)
+{
+    int line_start = s_editor_cursor;
+    while (line_start > 0 && s_editor_buf[line_start - 1] != '\n') {
+        line_start--;
+    }
+    int col = s_editor_cursor - line_start;
+    if (line_start == 0) {
+        s_editor_cursor = 0;
+        return;
+    }
+    int prev_line_end = line_start - 1;
+    int prev_line_start = prev_line_end;
+    while (prev_line_start > 0 && s_editor_buf[prev_line_start - 1] != '\n') {
+        prev_line_start--;
+    }
+    int prev_line_len = prev_line_end - prev_line_start;
+    if (col > prev_line_len) col = prev_line_len;
+    s_editor_cursor = prev_line_start + col;
+}
+
+static void ps2_editor_move_down(void)
+{
+    int line_start = s_editor_cursor;
+    while (line_start > 0 && s_editor_buf[line_start - 1] != '\n') {
+        line_start--;
+    }
+    int col = s_editor_cursor - line_start;
+
+    int line_end = s_editor_cursor;
+    while (line_end < s_editor_len && s_editor_buf[line_end] != '\n') {
+        line_end++;
+    }
+    if (line_end >= s_editor_len) {
+        s_editor_cursor = s_editor_len;
+        return;
+    }
+    int next_line_start = line_end + 1;
+    int next_line_end = next_line_start;
+    while (next_line_end < s_editor_len && s_editor_buf[next_line_end] != '\n') {
+        next_line_end++;
+    }
+    int next_line_len = next_line_end - next_line_start;
+    if (col > next_line_len) col = next_line_len;
+    s_editor_cursor = next_line_start + col;
+}
+
 /* Dispatch keyboard event */
 static void ps2_inject_key(UW keycode)
 {
-    /* If B-Editor is active and valid printable key or backspace, update buffer */
+    /* If B-Editor is active, handle editing and navigation keys */
     if (s_active_window == WND_EDITOR) {
         if (keycode == 0x08 || keycode == 0x7F) { /* Backspace */
-            if (s_editor_len > 0) {
-                s_editor_buf[--s_editor_len] = '\0';
-                ps2_draw_workbench();
-            }
-        } else if (keycode >= 0x20 && keycode <= 0x7E && s_editor_len < (int)sizeof(s_editor_buf) - 2) {
-            s_editor_buf[s_editor_len++] = (char)keycode;
-            s_editor_buf[s_editor_len] = '\0';
+            ps2_editor_backspace();
             ps2_draw_workbench();
-        } else if (keycode == 0x0A || keycode == 0x0D) { /* Enter */
-            if (s_editor_len < (int)sizeof(s_editor_buf) - 2) {
-                s_editor_buf[s_editor_len++] = '\n';
-                s_editor_buf[s_editor_len] = '\0';
-                ps2_draw_workbench();
-            }
+        } else if (keycode == BTRON_KEY_DELETE) {
+            ps2_editor_delete_fwd();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_LEFT) {
+            ps2_editor_move_left();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_RIGHT) {
+            ps2_editor_move_right();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_UP) {
+            ps2_editor_move_up();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_DOWN) {
+            ps2_editor_move_down();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_HOME) {
+            ps2_editor_move_home();
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_END) {
+            ps2_editor_move_end();
+            ps2_draw_workbench();
+        } else if (keycode == 0x0A || keycode == 0x0D || keycode == BTRON_KEY_RETURN) { /* Enter */
+            ps2_editor_insert_char('\n');
+            ps2_draw_workbench();
+        } else if (keycode == BTRON_KEY_HENKAN || keycode == BTRON_KEY_HK_TOGGLE) {
+            s_tip_mode = (s_tip_mode + 1) % 4;
+            ps2_draw_workbench();
+            ps2_kprintf("[PS2-INPUT] IME Mode toggled -> %d\n", s_tip_mode);
+        } else if (keycode == BTRON_KEY_MUHENKAN) {
+            s_tip_mode = TIP_MODE_ASCII;
+            ps2_draw_workbench();
+            ps2_kprintf("[PS2-INPUT] ASCII Mode selected\n");
+        } else if (keycode == BTRON_KEY_HIRAGANA) {
+            s_tip_mode = TIP_MODE_HIRAGANA;
+            ps2_draw_workbench();
+            ps2_kprintf("[PS2-INPUT] Hiragana Mode selected\n");
+        } else if (keycode == BTRON_KEY_KATAKANA) {
+            s_tip_mode = TIP_MODE_KATAKANA;
+            ps2_draw_workbench();
+            ps2_kprintf("[PS2-INPUT] Katakana Mode selected\n");
+        } else if (keycode >= 0x20 && keycode <= 0x7E) {
+            ps2_editor_insert_char((char)keycode);
+            ps2_draw_workbench();
         }
     }
 
@@ -524,6 +736,51 @@ void ps2_pad_on_button(uint16_t newly_pressed, uint16_t newly_released)
 {
     (void)newly_released;
 
+    /* L2 or R2 toggles DualShock 2 On-Screen Keyboard (OSK) */
+    if (newly_pressed & (PAD_L2 | PAD_R2)) {
+        s_osk_visible = !s_osk_visible;
+        ps2_draw_workbench();
+        ps2_kprintf("[PS2-PAD] OSK toggled -> visible=%d\n", s_osk_visible);
+    }
+
+    if (s_osk_visible) {
+        /* OSK Navigation Mode */
+        if (newly_pressed & PAD_UP)    { s_osk_row = (s_osk_row + 3) % 4; ps2_draw_workbench(); }
+        if (newly_pressed & PAD_DOWN)  { s_osk_row = (s_osk_row + 1) % 4; ps2_draw_workbench(); }
+        if (newly_pressed & PAD_LEFT)  { s_osk_col = (s_osk_col + 9) % 10; ps2_draw_workbench(); }
+        if (newly_pressed & PAD_RIGHT) { s_osk_col = (s_osk_col + 1) % 10; ps2_draw_workbench(); }
+
+        if (newly_pressed & PAD_CROSS) {
+            /* Type selected OSK key */
+            const char *key = s_osk_layout[s_osk_row][s_osk_col];
+            if (tkl_strcmp(key, "RET") == 0) {
+                ps2_inject_key(BTRON_KEY_RETURN);
+            } else if (tkl_strcmp(key, "SPC") == 0) {
+                ps2_inject_key(' ');
+            } else if (tkl_strcmp(key, "DEL") == 0) {
+                ps2_inject_key(0x08);
+            } else if (tkl_strcmp(key, "ESC") == 0) {
+                s_osk_visible = 0;
+                ps2_draw_workbench();
+            } else if (key[0] != '\0' && key[1] == '\0') {
+                ps2_inject_key((UW)(uint8_t)key[0]);
+            }
+        }
+        if (newly_pressed & PAD_SQUARE) {
+            ps2_inject_key(0x08); /* Backspace shortcut */
+        }
+        if (newly_pressed & PAD_CIRCLE) {
+            s_osk_visible = 0;    /* Close OSK */
+            ps2_draw_workbench();
+        }
+        if (newly_pressed & PAD_TRIANGLE) {
+            s_tip_mode = (s_tip_mode + 1) % 4;
+            ps2_draw_workbench();
+        }
+        return;
+    }
+
+    /* Standard Gamepad UI / Mouse Emulation Mode */
     if (newly_pressed & PAD_CROSS) {
         ps2_click_mouse(1); /* Left click */
     }
@@ -561,6 +818,7 @@ void ps2_pad_on_button(uint16_t newly_pressed, uint16_t newly_released)
     if (newly_pressed & PAD_RIGHT) { ps2_move_mouse(16, 0);  ps2_inject_key(BTRON_KEY_RIGHT); }
 }
 
+
 void ps2_usb_on_key(uint32_t btron_key, int down)
 {
     if (down) {
@@ -581,6 +839,7 @@ void ps2_usb_on_mouse(int dx, int dy, uint8_t buttons)
 static char cmd_buf[64];
 static int cmd_pos = 0;
 static int esc_state = 0;
+static int esc_num = 0;
 
 static void ps2_shell_exec(const char *cmd)
 {
@@ -599,7 +858,9 @@ static void ps2_shell_exec(const char *cmd)
         ps2_kprintf("  mouse <x> <y>   - Move cursor to absolute position (0..640, 0..480)\n");
         ps2_kprintf("  move <dx> <dy>  - Move cursor relative by (dx, dy)\n");
         ps2_kprintf("  click [1|2]     - Click Left (1) or Right (2) mouse button\n");
-        ps2_kprintf("  key <char>      - Inject key event into active window\n");
+        ps2_kprintf("  key <char>      - Inject single key event into active window\n");
+        ps2_kprintf("  type <text>     - Type string into active window\n");
+        ps2_kprintf("  osk             - Toggle DualShock 2 On-Screen Keyboard\n");
         ps2_kprintf("  pad <hex> [lx ly] - Simulate DualShock 2 controller state\n");
         ps2_kprintf("  reboot          - Halt/Reset the Emotion Engine\n");
     } else if (tkl_strcmp(cmd, "info") == 0) {
@@ -687,6 +948,17 @@ static void ps2_shell_exec(const char *cmd)
         char ch = cmd[4];
         ps2_inject_key((UW)(uint8_t)ch);
         ps2_kprintf("[PS2-INPUT] Injected key: '%c' (0x%02X)\n", ch, (uint8_t)ch);
+    } else if (tkl_strncmp(cmd, "type ", 5) == 0) {
+        const char *p = cmd + 5;
+        while (*p) {
+            ps2_inject_key((UW)(uint8_t)*p);
+            p++;
+        }
+        ps2_kprintf("[PS2-INPUT] Typed string into active window\n");
+    } else if (tkl_strcmp(cmd, "osk") == 0) {
+        s_osk_visible = !s_osk_visible;
+        ps2_draw_workbench();
+        ps2_kprintf("[PS2-UI] OSK visibility toggled: %d\n", s_osk_visible);
     } else if (tkl_strncmp(cmd, "pad ", 4) == 0) {
         /* Parse hex button mask e.g. "pad bfff" */
         uint16_t btns = 0xFFFF;
@@ -730,7 +1002,7 @@ static void ps2_shell_poll(void)
         int c = ps2_sio_getc();
         if (c < 0) break;
 
-        /* ANSI Escape Sequence State Machine for Arrow Keys */
+        /* ANSI Escape Sequence State Machine for Navigation Keys */
         if (esc_state == 0) {
             if (c == 0x1B) { /* ESC */
                 esc_state = 1;
@@ -744,24 +1016,51 @@ static void ps2_shell_poll(void)
                 esc_state = 0;
             }
         } else if (esc_state == 2) {
-            esc_state = 0;
             if (c == 'A') {      /* Up Arrow */
+                esc_state = 0;
                 ps2_move_mouse(0, -16);
                 ps2_inject_key(BTRON_KEY_UP);
                 continue;
             } else if (c == 'B') { /* Down Arrow */
+                esc_state = 0;
                 ps2_move_mouse(0, 16);
                 ps2_inject_key(BTRON_KEY_DOWN);
                 continue;
             } else if (c == 'C') { /* Right Arrow */
+                esc_state = 0;
                 ps2_move_mouse(16, 0);
                 ps2_inject_key(BTRON_KEY_RIGHT);
                 continue;
             } else if (c == 'D') { /* Left Arrow */
+                esc_state = 0;
                 ps2_move_mouse(-16, 0);
                 ps2_inject_key(BTRON_KEY_LEFT);
                 continue;
+            } else if (c == 'H') { /* Home */
+                esc_state = 0;
+                ps2_inject_key(BTRON_KEY_HOME);
+                continue;
+            } else if (c == 'F') { /* End */
+                esc_state = 0;
+                ps2_inject_key(BTRON_KEY_END);
+                continue;
+            } else if (c >= '0' && c <= '9') {
+                esc_num = c - '0';
+                esc_state = 3;
+                continue;
+            } else {
+                esc_state = 0;
             }
+        } else if (esc_state == 3) {
+            esc_state = 0;
+            if (c == '~') {
+                if (esc_num == 1)      ps2_inject_key(BTRON_KEY_HOME);
+                else if (esc_num == 3) ps2_inject_key(BTRON_KEY_DELETE);
+                else if (esc_num == 4) ps2_inject_key(BTRON_KEY_END);
+                else if (esc_num == 5) ps2_inject_key(BTRON_KEY_PGUP);
+                else if (esc_num == 6) ps2_inject_key(BTRON_KEY_PGDN);
+            }
+            continue;
         }
 
         /* Standard character and line editing */
@@ -784,6 +1083,7 @@ static void ps2_shell_poll(void)
         }
     }
 }
+
 
 void ps2_kernel_main(void)
 {

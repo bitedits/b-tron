@@ -7,7 +7,7 @@ set -euo pipefail
 
 ELF="btron-ps2.elf"
 ISO="btron-ps2.iso"
-READELF="mipsel-linux-gnu-readelf"
+READELF="mipsel-linux-gnu-readelf -W"
 OBJDUMP="mipsel-linux-gnu-objdump"
 
 echo "=========================================================="
@@ -91,6 +91,15 @@ assert_check "Symbol 'ps2_usb_init' exists" \
 
 assert_check "Symbol 'ps2_usb_poll' exists" \
     "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_poll$'"
+
+assert_check "Symbol 'ps2_usb_hid_to_btron_key' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_hid_to_btron_key$'"
+
+assert_check "Symbol 'ps2_usb_process_keyboard_report' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_process_keyboard_report$'"
+
+assert_check "Symbol 'ps2_usb_inject_keyboard' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_inject_keyboard$'"
 
 # 5. Check Instruction Encoding for Emotion Engine MIPS-III Compatibility
 # Emotion Engine R5900 does not support MIPS32r2 opcodes like seb, seh, ins, ext

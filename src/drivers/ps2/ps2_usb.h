@@ -43,9 +43,39 @@
 #define OHCI_PORT_PES           (1 << 1)    /* Port Enable Status */
 #define OHCI_PORT_PRS           (1 << 4)    /* Port Reset Status */
 
+#include <btron/event.h>
+
+#ifndef BTRON_KEY_INSERT
+#define BTRON_KEY_INSERT        0x40000049
+#endif
+#ifndef BTRON_KEY_PGUP
+#define BTRON_KEY_PGUP          BTRON_KEY_PAGE_UP
+#endif
+#ifndef BTRON_KEY_PGDN
+#define BTRON_KEY_PGDN          BTRON_KEY_PAGE_DOWN
+#endif
+#ifndef BTRON_KEY_HENKAN
+#define BTRON_KEY_HENKAN        0x4000008A
+#endif
+#ifndef BTRON_KEY_MUHENKAN
+#define BTRON_KEY_MUHENKAN      0x4000008B
+#endif
+#ifndef BTRON_KEY_HIRAGANA
+#define BTRON_KEY_HIRAGANA      BTRON_KEY_F6
+#endif
+#ifndef BTRON_KEY_KATAKANA
+#define BTRON_KEY_KATAKANA      BTRON_KEY_F7
+#endif
+#ifndef BTRON_KEY_HK_TOGGLE
+#define BTRON_KEY_HK_TOGGLE     0x40000088
+#endif
+
 /* Public API */
 void ps2_usb_init(void);
 void ps2_usb_poll(void);
+uint32_t ps2_usb_hid_to_btron_key(uint8_t mod, uint8_t code);
+void ps2_usb_process_keyboard_report(const uint8_t report[8]);
+void ps2_usb_process_mouse_report(const uint8_t report[4]);
 void ps2_usb_inject_keyboard(uint8_t mod, uint8_t keycode);
 void ps2_usb_inject_mouse(uint8_t buttons, int8_t dx, int8_t dy);
 

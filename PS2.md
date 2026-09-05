@@ -117,17 +117,39 @@ btron-ps2> pad bfff 128 128
 
 ---
 
-### 2.3 USB Subsystem (OHCI Host Controller)
+### 2.3 Keyboard & USB Subsystem (`ps2_usb`)
 
 The PlayStation 2 motherboard includes two USB 1.1 ports driven by an Open Host Controller Interface (OHCI) block at `0x1F801600` (uncached KSEG1: `0xBF801600`).
 
-The cleanroom driver (`ps2_usb.c`):
+The cleanroom driver (`ps2_usb.c` and `ps2_usb.h`):
 - Verifies controller presence by checking `HcRevision` (`0x10` or `0x11`).
 - Transitions the host controller state machine to `OHCI_CTRL_HCFS_OPER` (Operational).
 - Monitors `HcRhPortStatus[0]` and `HcRhPortStatus[1]` for port connection status (`OHCI_PORT_CCS`).
-- Implements standard USB HID Boot Protocol parsers:
-  - **Keyboard (8-byte report)**: Translates standard HID scan codes (modifiers + keycodes) to B-TRON character events.
-  - **Mouse (3-byte / 4-byte report)**: Extracts relative displacements `(dx, dy)` and button states (Left, Right, Middle) and injects `EV_MOUSE_MOVE` and `EV_BUT_DOWN` events.
+- **Standard 8-Byte USB HID Keyboard Decoder**:
+  - Differential key state tracking across 6-key rollover reports (`s_prev_keys[6]`).
+  - Converts modifiers (Shift, Ctrl, Alt, GUI) and USB HID usage IDs into standard BTRON keycodes.
+  - Full alphanumeric and symbol support with Caps Lock state management.
+  - Function keys F1–F12, navigation cluster (`Home`, `End`, `PageUp`, `PageDown`, `Insert`, `Delete`, Arrows).
+  - Keypad numbers and arithmetic operators.
+  - Authentic Japanese keyboard keys: `Henkan` (Convert), `Muhenkan` (Cancel), `Hiragana/Katakana` toggle.
+- **Mouse Subsystem**:
+  - Decodes 3-byte / 4-byte reports: relative displacements `(dx, dy)` and button bitmask (Left, Right, Middle).
+  - Injects `EV_MOUSE_MOVE` and `EV_BUT_DOWN` / `EV_BUT_UP` events directly into the B-System event queue.
+
+#### DualShock 2 On-Screen Software Keyboard (OSK)
+For setups without physical USB keyboards, the PS2 port integrates an interactive on-screen software keyboard overlay directly into B-Editor:
+- **Toggle**: Pressing `L2` or `R2` on the gamepad (or executing `osk` in the shell) displays a $10 \times 4$ on-screen keyboard panel inside B-Editor.
+- **Layout**:
+  - Row 0: `1 2 3 4 5 6 7 8 9 0`
+  - Row 1: `Q W E R T Y U I O P`
+  - Row 2: `A S D F G H J K L RET`
+  - Row 3: `Z X C V B N M SPC DEL ESC`
+- **Gamepad Controls**:
+  - `D-Pad (Up, Down, Left, Right)`: Navigate active key cell with high-contrast accent highlight.
+  - `Cross (✕)`: Type selected character into the document.
+  - `Square (□)`: Quick Backspace shortcut.
+  - `Circle (◯)`: Close OSK.
+  - `Triangle (△)`: Cycle TIP / IME input mode.
 
 ---
 
@@ -138,7 +160,11 @@ The cleanroom driver (`ps2_usb.c`):
 1. **Window 1: Workbench System & RTOS Monitor**
    - Live display of CPU architecture (R5900 Little-Endian), 32 MB RDRAM memory pool, 4 MB eDRAM VRAM layout, active RTOS tasks (`ps2_idle`, `ps2_desktop`, `ps2_shell`), and real-time scheduler state.
 2. **Window 2: B-Editor (Interactive Text Editor)**
-   - Authentic text editor with full editing buffer, typing support from keyboard/SIO0, backspace deletion, and animated caret indicator (`_`).
+   - Authentic multi-line text editor with full editing buffer and dynamic caret (`_`).
+   - True cursor navigation: Left/Right, Home (start of line), End (end of line), Up/Down (maintaining column position across line boundaries).
+   - In-place text insertion at cursor with automatic buffer shifting.
+   - Deletion: Backspace (`0x08`/`0x7F`) and Forward Delete (`BTRON_KEY_DELETE`).
+   - Typing input supported simultaneously from USB keyboard, DualShock 2 OSK, and SIO0 serial terminal.
 3. **Window 3: TAD Cabinet & Real Object Browser**
    - Visual file and virtual object manager displaying BTRON record headers (`Readme.tad`, `System/`, `Editor.app`, `Settings.app`, `BootSound.snd`, `Cabinet.vobj`).
 4. **Window 4: Control Panel / System Settings**
@@ -153,7 +179,7 @@ The cleanroom driver (`ps2_usb.c`):
 
 ### 2.5 SIO0 Interactive Shell Commands
 
-The SIO0 UART console (`115200 8N1`) provides an interactive debugging shell:
+The SIO0 UART console (`115200 8N1`) provides an interactive debugging shell with full ANSI terminal escape sequence handling (`\e[A/B/C/D`, `\e[H`, `\e[F`, `\e[3~`, `\e[5~`, `\e[6~`):
 
 | Command | Action |
 |:---|:---|
@@ -170,9 +196,12 @@ The SIO0 UART console (`115200 8N1`) provides an interactive debugging shell:
 | `mouse <x> <y>` | Set absolute mouse cursor coordinates. |
 | `move <dx> <dy>` | Displace mouse cursor relative to current position. |
 | `click [1\|2]` | Simulate left (1) or right (2) mouse button click. |
-| `key <char>` | Inject a keystroke into the active window. |
+| `key <char>` | Inject a single keystroke into the active window. |
+| `type <text>` | Inject an entire text string sequentially into the active window. |
+| `osk` | Toggle DualShock 2 On-Screen Software Keyboard. |
 | `pad <hex> [lx ly]` | Inject simulated DualShock 2 controller state. |
 | `reboot` | Halt the Emotion Engine. |
+
 
 ---
 
