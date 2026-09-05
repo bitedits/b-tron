@@ -30,6 +30,7 @@
 #include <libstr.h>
 
 #include "ps2_gs.h"
+#include "ps2_font.h"
 #include "ps2_sio.h"
 #include "ps2_pad.h"
 #include "ps2_usb.h"
@@ -37,18 +38,20 @@
 extern void ps2_delay_cycles(uint32_t count);
 extern void ps2_halt(void);
 
-/* B-System 32-bit ARGB / RGBA Colors */
-#define PS2_COLOR_BG        0xFF2B3A4A  /* TRON Workbench Slate Blue */
-#define PS2_COLOR_WHITE     0xFFFFFFFF
-#define PS2_COLOR_BLACK     0xFF000000
-#define PS2_COLOR_TITLEBAR  0xFF005599  /* B-System Window Header Blue */
-#define PS2_COLOR_INACTIVE  0xFF607080  /* Inactive Window Header Gray */
-#define PS2_COLOR_GRAY      0xFFC0C0C0
-#define PS2_COLOR_LIGHTGRAY 0xFFE0E0E0
-#define PS2_COLOR_DARKGRAY  0xFF404040
-#define PS2_COLOR_ACCENT    0xFFE07A00  /* B-System Orange Accent */
-#define PS2_COLOR_GREEN     0xFF208020
-#define PS2_COLOR_YELLOW    0xFFD0C020
+/* B-System 32-bit CT32 RGBA Colors for GS eDRAM Framebuffer (Little-Endian) */
+#define PS2_RGBA(r, g, b, a) (((uint32_t)(r) << 0) | ((uint32_t)(g) << 8) | ((uint32_t)(b) << 16) | ((uint32_t)(a) << 24))
+
+#define PS2_COLOR_BG        PS2_RGBA(36, 48, 72, 255)   /* Deep TRON Slate Blue: 0xFF483024 */
+#define PS2_COLOR_WHITE     PS2_RGBA(255, 255, 255, 255)/* White: 0xFFFFFFFF */
+#define PS2_COLOR_BLACK     PS2_RGBA(0, 0, 0, 255)      /* Black: 0xFF000000 */
+#define PS2_COLOR_TITLEBAR  PS2_RGBA(0, 85, 153, 255)   /* Header Blue: 0xFF995500 */
+#define PS2_COLOR_INACTIVE  PS2_RGBA(96, 112, 128, 255) /* Header Gray: 0xFF807060 */
+#define PS2_COLOR_GRAY      PS2_RGBA(192, 192, 192, 255)/* Light Gray: 0xFFC0C0C0 */
+#define PS2_COLOR_LIGHTGRAY PS2_RGBA(224, 224, 224, 255)/* Pale Gray: 0xFFE0E0E0 */
+#define PS2_COLOR_DARKGRAY  PS2_RGBA(64, 64, 64, 255)   /* Dark Gray: 0xFF404040 */
+#define PS2_COLOR_ACCENT    PS2_RGBA(224, 122, 0, 255)  /* Accent Orange: 0xFF007AE0 */
+#define PS2_COLOR_GREEN     PS2_RGBA(32, 160, 32, 255)  /* Terminal Green: 0xFF20A020 */
+#define PS2_COLOR_YELLOW    PS2_RGBA(220, 200, 32, 255) /* Status Yellow: 0xFF20C8DC */
 
 /* Window Identifiers */
 #define WND_WORKBENCH       1
@@ -170,25 +173,23 @@ static void ps2_kprintf(const char *fmt, ...)
     va_end(ap);
 }
 
-/* Fast 8x16 Simple Bitmap Font Rendering */
+/* Fast 8x8 Clean ASCII Bitmap Font Rendering */
 static void ps2_draw_char(int x, int y, char c, uint32_t fg, uint32_t bg)
 {
     if (bg != 0) {
-        ps2_gs_draw_rect(x, y, 8, 16, bg);
+        ps2_gs_draw_rect(x, y, 8, 8, bg);
     }
 
-    for (int cy = 1; cy < 15; cy++) {
-        for (int cx = 1; cx < 7; cx++) {
-            int bit = 0;
-            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-                (c >= '0' && c <= '9') || c == ':' || c == '-' || c == '.' ||
-                c == '[' || c == ']' || c == '=' || c == '<' || c == '>' ||
-                c == '/' || c == '(' || c == ')' || c == '!' || c == '?' ||
-                c == ',' || c == '_' || c == '*' || c == '+' || c == '@') {
-                bit = ((cx + cy) % 3 == 0);
-            }
-            if (bit) {
-                ps2_gs_draw_rect(x + cx, y + cy, 1, 1, fg);
+    uint8_t ch = (uint8_t)c;
+    if (ch >= 128) ch = '?';
+    const uint8_t *glyph = &ps2_font_8x8[ch * 8];
+
+    for (int cy = 0; cy < 8; cy++) {
+        uint8_t row = glyph[cy];
+        if (!row) continue;
+        for (int cx = 0; cx < 8; cx++) {
+            if ((row >> (7 - cx)) & 1) {
+                ps2_gs_putpixel(x + cx, y + cy, fg);
             }
         }
     }
@@ -199,11 +200,11 @@ static void ps2_draw_string(int x, int y, const char *str, uint32_t fg, uint32_t
     int cur_x = x;
     while (*str) {
         if (*str == '\n') {
-            y += 18;
+            y += 10;
             cur_x = x;
         } else {
             ps2_draw_char(cur_x, y, *str, fg, bg);
-            cur_x += 9;
+            cur_x += 8;
         }
         str++;
     }
@@ -220,27 +221,33 @@ static void ps2_draw_workbench(void);
 static void draw_window_frame(int x, int y, int w, int h, const char *title, int active)
 {
     /* Window Drop Shadow */
-    ps2_gs_fill_rect(x + 4, y + 4, w, h, 0xFF101820);
+    ps2_gs_fill_rect(x + 4, y + 4, w, h, PS2_COLOR_DARKGRAY);
 
     /* Body Background */
     ps2_gs_fill_rect(x, y, w, h, PS2_COLOR_WHITE);
 
+    /* Outer Border */
+    ps2_gs_fill_rect(x, y, w, 1, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(x, y + h - 1, w, 1, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(x, y, 1, h, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(x + w - 1, y, 1, h, PS2_COLOR_GRAY);
+
     /* Titlebar */
     uint32_t title_col = active ? PS2_COLOR_TITLEBAR : PS2_COLOR_INACTIVE;
-    ps2_gs_fill_rect(x, y, w, 24, title_col);
+    ps2_gs_fill_rect(x + 1, y + 1, w - 2, 22, title_col);
 
     /* Title text */
-    ps2_draw_string(x + 10, y + 4, title, PS2_COLOR_WHITE, 0);
+    ps2_draw_string(x + 10, y + 7, title, PS2_COLOR_WHITE, 0);
 
     /* Buttons: Close & Zoom */
-    ps2_gs_fill_rect(x + w - 20, y + 4, 16, 16, PS2_COLOR_ACCENT);
-    ps2_gs_fill_rect(x + w - 40, y + 4, 16, 16, PS2_COLOR_GRAY);
+    ps2_gs_fill_rect(x + w - 18, y + 5, 12, 12, PS2_COLOR_ACCENT);
+    ps2_gs_fill_rect(x + w - 34, y + 5, 12, 12, PS2_COLOR_GRAY);
 }
 
 /* Standard Application Window Geometry */
-#define APP_WIN_X   60
-#define APP_WIN_Y   40
-#define APP_WIN_W   520
+#define APP_WIN_X   50
+#define APP_WIN_Y   32
+#define APP_WIN_W   540
 #define APP_WIN_H   380
 
 /* Window 1: Workbench System & RTOS Monitor */
@@ -249,17 +256,17 @@ static void draw_wnd_workbench(int active)
     int x = APP_WIN_X, y = APP_WIN_Y, w = APP_WIN_W, h = APP_WIN_H;
     draw_window_frame(x, y, w, h, "PlayStation 2 Emotion Engine Workbench [Cleanroom]", active);
 
-    int tx = x + 20, ty = y + 40;
+    int tx = x + 16, ty = y + 36;
     ps2_draw_string(tx, ty,      "BTRON3 3.20 RTOS Kernel for Sony PlayStation 2", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 24, "================================================", PS2_COLOR_DARKGRAY, 0);
-    ps2_draw_string(tx, ty + 48, "Architecture : Sony Emotion Engine (R5900 Little-Endian)", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 72, "Subsystem    : GS 4MB eDRAM (640x480 @ 32-bpp CT32 RGBA)", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 96, "Sync Mode    : Hardware VSync Retrace (60.0 FPS)", PS2_COLOR_GREEN, 0);
-    ps2_draw_string(tx, ty + 120,"Rasterizer   : Hardware GIF DMA Channel 2 SPRITE", PS2_COLOR_TITLEBAR, 0);
-    ps2_draw_string(tx, ty + 144,"Input Engine : DualShock 2 Pad + USB OHCI HID + SIO0", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 168,"Tasks Active : ps2_idle, ps2_desktop, ps2_shell", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 192,"Memory Heap  : 29 MB RDRAM Free (32 MB Total)", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 216,"Status       : B-System Real-Time Executive Active", PS2_COLOR_GREEN, 0);
+    ps2_draw_string(tx, ty + 16, "================================================", PS2_COLOR_DARKGRAY, 0);
+    ps2_draw_string(tx, ty + 32, "Architecture : Sony Emotion Engine (R5900 Little-Endian)", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 48, "Subsystem    : GS 4MB eDRAM (640x448 @ 32-bpp CT32 RGBA)", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 64, "Sync Mode    : Hardware VSync Retrace (60.0 FPS)", PS2_COLOR_GREEN, 0);
+    ps2_draw_string(tx, ty + 80, "Blitter      : Hardware GIF DMA Ch2 Host->Local (71.68k QWs)", PS2_COLOR_TITLEBAR, 0);
+    ps2_draw_string(tx, ty + 96, "Input Engine : DualShock 2 Pad + USB OHCI HID + SIO0", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 112,"Tasks Active : ps2_idle, ps2_desktop, ps2_shell", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 128,"Memory Heap  : 29 MB RDRAM Free (32 MB Total)", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 144,"Status       : B-System Real-Time Executive Active", PS2_COLOR_GREEN, 0);
 }
 
 /* Window 2: B-Editor (Interactive Text Editor) */
@@ -278,7 +285,7 @@ static void draw_wnd_editor(int active)
 
     /* Caret indicator if active */
     if (active) {
-        ps2_draw_string(tx + (s_editor_len % 45) * 9, ty + 72, "_", PS2_COLOR_ACCENT, 0);
+        ps2_draw_string(tx + (s_editor_len % 50) * 8, ty + 40, "_", PS2_COLOR_ACCENT, 0);
     }
 }
 
@@ -288,16 +295,16 @@ static void draw_wnd_tad(int active)
     int x = APP_WIN_X, y = APP_WIN_Y, w = APP_WIN_W, h = APP_WIN_H;
     draw_window_frame(x, y, w, h, "TAD Cabinet - Virtual Objects & Applications", active);
 
-    int tx = x + 20, ty = y + 42;
+    int tx = x + 16, ty = y + 36;
     ps2_draw_string(tx, ty,      "OBJECT TYPE       NAME               SIZE    DATE", PS2_COLOR_TITLEBAR, 0);
-    ps2_draw_string(tx, ty + 20, "-------------------------------------------------", PS2_COLOR_GRAY, 0);
-    ps2_draw_string(tx, ty + 42, "[DOCUMENT]        Readme.tad         4.2 KB  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 66, "[DIRECTORY]       System/            -- DIR  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 90, "[APPLICATION]     Editor.app         128 KB  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 114,"[APPLICATION]     Settings.app        64 KB  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 138,"[AUDIO / SPU2]    BootSound.snd       32 KB  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 162,"[VIRTUAL OBJ]     Cabinet.vobj        16 KB  09/05", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 196,"Click or use 'open <name>' to launch application.", PS2_COLOR_DARKGRAY, 0);
+    ps2_draw_string(tx, ty + 16, "-------------------------------------------------", PS2_COLOR_GRAY, 0);
+    ps2_draw_string(tx, ty + 32, "[DOCUMENT]        Readme.tad         4.2 KB  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 48, "[DIRECTORY]       System/            -- DIR  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 64, "[APPLICATION]     Editor.app         128 KB  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 80, "[APPLICATION]     Settings.app        64 KB  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 96, "[AUDIO / SPU2]    BootSound.snd       32 KB  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 112,"[VIRTUAL OBJ]     Cabinet.vobj        16 KB  09/05", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 136,"Click or use 'open <name>' to launch application.", PS2_COLOR_DARKGRAY, 0);
 }
 
 /* Window 4: Control Panel / System Settings */
@@ -306,21 +313,21 @@ static void draw_wnd_settings(int active)
     int x = APP_WIN_X, y = APP_WIN_Y, w = APP_WIN_W, h = APP_WIN_H;
     draw_window_frame(x, y, w, h, "Control Panel - System Settings", active);
 
-    int tx = x + 20, ty = y + 42;
+    int tx = x + 16, ty = y + 36;
     ps2_draw_string(tx, ty,      "DISPLAY CONFIGURATION", PS2_COLOR_TITLEBAR, 0);
-    ps2_draw_string(tx, ty + 22, "  Resolution  : 640 x 480 NTSC Progressive", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 44, "  Color Depth : 32-bpp RGBA (GS CT32)", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 66, "  VRAM Buffer : 0x00000000 (GS eDRAM 4MB)", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 88, "  Sync Mode   : Hardware VSync Retrace (60.0 FPS)", PS2_COLOR_GREEN, 0);
+    ps2_draw_string(tx, ty + 18, "  Resolution  : 640 x 448 NTSC Interlaced", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 34, "  Color Depth : 32-bpp RGBA (GS CT32)", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 50, "  VRAM Buffer : 0x00000000 (GS eDRAM 4MB)", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 66, "  Sync Mode   : Hardware VSync Retrace (60.0 FPS)", PS2_COLOR_GREEN, 0);
 
-    ps2_draw_string(tx, ty + 118,"INPUT & LANGUAGE", PS2_COLOR_TITLEBAR, 0);
-    ps2_draw_string(tx, ty + 140,"  DualShock 2 : Analog LX/LY + Buttons Enabled", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx, ty + 162,"  USB Ports   : OHCI Host Port 1 & 2 Enabled", PS2_COLOR_BLACK, 0);
-    const char *tip_str = (s_tip_mode == TIP_MODE_HIRAGANA) ? "Hiragana (あ)" :
-                          (s_tip_mode == TIP_MODE_KATAKANA) ? "Katakana (ア)" :
-                          (s_tip_mode == TIP_MODE_TIBETAN)  ? "Tibetan (བོད)" : "ASCII (A)";
-    ps2_draw_string(tx, ty + 184,"  TIP / IME   : ", PS2_COLOR_BLACK, 0);
-    ps2_draw_string(tx + 120, ty + 184, tip_str, PS2_COLOR_ACCENT, 0);
+    ps2_draw_string(tx, ty + 90, "INPUT & LANGUAGE", PS2_COLOR_TITLEBAR, 0);
+    ps2_draw_string(tx, ty + 108,"  DualShock 2 : Analog LX/LY + Buttons Enabled", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx, ty + 124,"  USB Ports   : OHCI Host Port 1 & 2 Enabled", PS2_COLOR_BLACK, 0);
+    const char *tip_str = (s_tip_mode == TIP_MODE_HIRAGANA) ? "Hiragana (A)" :
+                          (s_tip_mode == TIP_MODE_KATAKANA) ? "Katakana (A)" :
+                          (s_tip_mode == TIP_MODE_TIBETAN)  ? "Tibetan (BOD)" : "ASCII (A)";
+    ps2_draw_string(tx, ty + 140,"  TIP / IME   : ", PS2_COLOR_BLACK, 0);
+    ps2_draw_string(tx + 112, ty + 140, tip_str, PS2_COLOR_ACCENT, 0);
 }
 
 /* Draw authentic B-System Workbench Desktop */
@@ -339,17 +346,17 @@ static void ps2_draw_workbench(void)
     /* Japanese TIP / IME Status Badge (Top-Right) */
     int badge_x = PS2_SCREEN_WIDTH - 85;
     ps2_gs_fill_rect(badge_x, 3, 76, 18, PS2_COLOR_TITLEBAR);
-    const char *badge_text = (s_tip_mode == TIP_MODE_HIRAGANA) ? "[ あ ]" :
-                             (s_tip_mode == TIP_MODE_KATAKANA) ? "[ ア ]" :
-                             (s_tip_mode == TIP_MODE_TIBETAN)  ? "[ བོད ]" : "[ A ]";
-    ps2_draw_string(badge_x + 8, 4, badge_text, PS2_COLOR_WHITE, 0);
+    const char *badge_text = (s_tip_mode == TIP_MODE_HIRAGANA) ? "[ HIR ]" :
+                             (s_tip_mode == TIP_MODE_KATAKANA) ? "[ KAT ]" :
+                             (s_tip_mode == TIP_MODE_TIBETAN)  ? "[ TIB ]" : "[ ASC ]";
+    ps2_draw_string(badge_x + 8, 8, badge_text, PS2_COLOR_WHITE, 0);
 
     /* Dropdown Menu Card if open */
     if (s_active_menu) {
         ps2_gs_fill_rect(80, 0, 48, 24, PS2_COLOR_TITLEBAR);
-        ps2_draw_string(88, 4, "File", PS2_COLOR_WHITE, 0);
+        ps2_draw_string(88, 8, "File", PS2_COLOR_WHITE, 0);
 
-        ps2_gs_fill_rect(80 + 2, 25 + 2, 160, 114, 0xFF101820);
+        ps2_gs_fill_rect(80 + 2, 25 + 2, 160, 114, PS2_COLOR_DARKGRAY);
         ps2_gs_fill_rect(80, 25, 160, 114, PS2_COLOR_WHITE);
         ps2_draw_string(90, 32, "1. Workbench", PS2_COLOR_BLACK, 0);
         ps2_draw_string(90, 52, "2. B-Editor", PS2_COLOR_BLACK, 0);
@@ -790,7 +797,7 @@ void ps2_kernel_main(void)
     ps2_kprintf("  Cleanroom TRON Kernel [Target 8: ps2 / PCSX2]               \n");
     ps2_kprintf("  CPU: Emotion Engine MIPS R5900 Little-Endian               \n");
     ps2_kprintf("  RAM: 32 MB RDRAM | VRAM: 4 MB Graphics Synthesizer eDRAM   \n");
-    ps2_kprintf("  Display: 640x480 @ 32-bpp RGBA via GIF DMA (VSync Double-Buf)\n");
+    ps2_kprintf("  Display: 640x448 @ 32-bpp RGBA via GIF DMA Host->Local Blit \n");
     ps2_kprintf("  Input: DualShock 2 (Pad), USB OHCI HID, SIO0 Terminal       \n");
     ps2_kprintf("==============================================================\n");
 
@@ -807,7 +814,7 @@ void ps2_kernel_main(void)
     /* 4. Render initial desktop */
     ps2_draw_workbench();
     ps2_gs_flip();
-    ps2_kprintf("[PS2] B-System Workbench rendered via GIF DMA primitives.\n");
+    ps2_kprintf("[PS2] B-System Workbench rendered via Host->Local GIF DMA.\n");
     ps2_kprintf("btron-ps2> ");
 
     /* 5. Main Kernel Dispatch Loop */
