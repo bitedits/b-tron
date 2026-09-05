@@ -55,7 +55,7 @@ endif
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
-ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 \
+ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 -mno-unaligned-access \
                -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
                $(BCM_INC)
 ARM64_CFLAGS = -O2 -Wall -Wextra -std=c99 \

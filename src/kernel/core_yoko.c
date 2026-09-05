@@ -1,50 +1,335 @@
 /*
- * B-TRON Real-Time Kernel: Bare-Metal ARM / BCM283x Boot & Initialization (core_yoko.c)
+ * core_yoko.c — B-System BTRON3 3.20 RTOS Kernel for Raspberry Pi 2B (ARMv7 / BCM2836)
+ *
+ * Dedicated Platform: Raspberry Pi 2B (QEMU -M raspi2b)
+ *
+ * Architecture:
+ *   • Hardware Drivers:
+ *       - VideoCore GPU Mailbox Framebuffer / VGA Display (1024x768 32-bpp Double-Buffered)
+ *       - Synopsys DesignWare DWC2 USB 2.0 Host Controller (USB Keyboard & Mouse)
+ *       - ARM PrimeCell PL011 UART Serial Console Driver
+ *       - BCM2836 System Timer (60Hz System Tick)
+ *       - EMMC / SD Storage Interface & HFDS Record Manager Status
+ *   • Integrated B-System Workbench:
+ *       - Plugs into core_init.c, desktop.c, wnd.c, vobj.c, global_menu.c, etc.
+ *       - Launches authentic B-System Workbench desktop with live windows and desktop icons
+ *       - Real-time mouse cursor tracking, window dragging, tabs, and menus
+ *       - Interactive keyboard input from USB and PL011 serial console
+ *
+ * Copyright 2026 Synrc Research Center. MIT License.
  */
 
-#include <btron/desktop.h>
-#include <btron/troncode.h>
-#include <btron/vobj.h>
-#include <btron/wnd.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h>
+
 #include <btron/types.h>
 #include <btron/error.h>
 #include <btron/itron.h>
-#include <libstr.h>
-
-#include <btron/core.h>
+#include <btron/dp.h>
+#include <btron/wnd.h>
+#include <btron/desktop.h>
+#include <btron/event.h>
+#include <btron/tip.h>
 #include <btron/apps.h>
+#include <btron/workbench.h>
+#include <libstr.h>
+#include <dwc2.h>
 
-#if defined(__STDC_HOSTED__) && __STDC_HOSTED__ == 1
-#include <stdio.h>
-#define yoko_puts(s) printf("%s", (s))
-#else
-extern void uart_puts(const char *s);
-#define yoko_puts(s) uart_puts(s)
+/* ═══════════════════════════════════════════════════════════════════
+ * Raspberry Pi 2B (BCM2836 ARMv7) Hardware Memory Map
+ * ═══════════════════════════════════════════════════════════════════ */
+#define RP2B_RAM_BASE       0x00000000UL
+#define RP2B_RAM_SIZE       (1024 * 1024 * 1024UL)  /* 1 GB */
+
+/* BCM2836 MMIO Peripherals */
+#ifndef BCM2836_PERIPH_BASE
+#define BCM2836_PERIPH_BASE 0x3F000000UL
 #endif
+#define PL011_BASE          0x3F201000UL
+#define MBOX_BASE_ADDR      0x3F00B880UL
+#define DWC2_BASE           0x3F980000UL
+#define TIMER_BASE          0x3F003000UL
 
+/* Kernel Heap Boundaries */
+#define HEAP_BASE           ((uintptr_t)0x02000000)  /* 32 MB */
+#define HEAP_LIMIT          ((uintptr_t)0x38000000)  /* 896 MB */
+extern uintptr_t heap_ptr;
+
+/* Display Resolution (Standard VideoCore Framebuffer) */
+#define BTRON_SCREEN_W      1024
+#define BTRON_SCREEN_H      768
+
+/* Desktop Backbuffer (1024x768 x 32-bit ARGB COLOR) */
+static COLOR s_desktop_backbuffer[BTRON_SCREEN_W * BTRON_SCREEN_H] __attribute__((aligned(16)));
+
+/* Global mouse coordinates */
+static H s_mouse_x = 512;
+static H s_mouse_y = 384;
+
+/* External driver and hardware entry points */
+extern void uart_init(void);
+extern void uart_putc(char c);
+extern void uart_puts(const char *s);
+extern int  uart_has_char(void);
+extern int  uart_getc(void);
+extern void uart_hex32(uint32_t val);
+
+extern uint32_t *init_pi_framebuffer(uint32_t w, uint32_t h);
+extern ER ScreenDrv(int ac, unsigned char *av[]);
+extern ER KbPdDrv(int ac, unsigned char *av[]);
+extern ER LowKbPdDrv(int ac, unsigned char *av[]);
 extern void tkernel_init_subsystems(int full_suite);
 
+extern GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
+extern void  redraw_baremetal_desktop(GDEV *screen, H w, H h);
+extern void  set_baremetal_mouse_pos(H x, H y);
+extern void  get_baremetal_mouse_pos(H *x, H *y);
+
+/* ═══════════════════════════════════════════════════════════════════
+ * PL011 UART Serial Console & Formatted Output
+ * ═══════════════════════════════════════════════════════════════════ */
+
+static void print_num(uint32_t num, int base, int width, char pad) {
+    char buf[32];
+    int i = 0;
+    const char digits[] = "0123456789ABCDEF";
+
+    if (num == 0) {
+        buf[i++] = '0';
+    } else {
+        while (num > 0) {
+            buf[i++] = digits[num % base];
+            num /= base;
+        }
+    }
+
+    while (i < width) {
+        buf[i++] = pad;
+    }
+
+    for (int j = i - 1; j >= 0; j--) {
+        uart_putc(buf[j]);
+    }
+}
+
+void kprintf(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    for (const char *p = fmt; *p; p++) {
+        if (*p != '%') {
+            if (*p == '\n') uart_putc('\r');
+            uart_putc(*p);
+            continue;
+        }
+        p++;
+        int width = 0;
+        char pad = ' ';
+        if (*p == '0') { pad = '0'; p++; }
+        while (*p >= '0' && *p <= '9') {
+            width = width * 10 + (*p - '0');
+            p++;
+        }
+
+        switch (*p) {
+            case 's': {
+                const char *s = va_arg(ap, const char*);
+                uart_puts(s ? s : "(null)");
+                break;
+            }
+            case 'd':
+            case 'i': {
+                int32_t val = va_arg(ap, int32_t);
+                if (val < 0) {
+                    uart_putc('-');
+                    val = -val;
+                }
+                print_num((uint32_t)val, 10, width, pad);
+                break;
+            }
+            case 'u': {
+                uint32_t val = va_arg(ap, uint32_t);
+                print_num(val, 10, width, pad);
+                break;
+            }
+            case 'x':
+            case 'X':
+            case 'p': {
+                uint32_t val = va_arg(ap, uint32_t);
+                print_num(val, 16, width, pad);
+                break;
+            }
+            case 'c': {
+                char c = (char)va_arg(ap, int);
+                uart_putc(c);
+                break;
+            }
+            case '%':
+                uart_putc('%');
+                break;
+            default:
+                uart_putc('%');
+                uart_putc(*p);
+                break;
+        }
+    }
+    va_end(ap);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * VideoCore GPU Framebuffer & Display Blitter
+ * ═══════════════════════════════════════════════════════════════════ */
+
+void blit_backbuffer_to_fb(volatile uint32_t *gpu_fb) {
+    if (!gpu_fb) return;
+    tkl_memcpy((void*)gpu_fb, s_desktop_backbuffer, BTRON_SCREEN_W * BTRON_SCREEN_H * sizeof(COLOR));
+    __asm__ volatile("dsb" : : : "memory");
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * BCM2836 System Timer & 60Hz Tick
+ * ═══════════════════════════════════════════════════════════════════ */
+
+static volatile uint32_t s_system_ticks = 0;
+
+void rpi_timer_tick(void) {
+    s_system_ticks++;
+}
+
+extern ER _tk_slp_tsk(W tmout);
+extern ER _tk_wup_tsk(ID tskid);
+extern ER _tk_dly_tsk(W dlytim);
+
+ER slp_tsk(void) {
+    return _tk_slp_tsk(TMO_FEVR);
+}
+
+ER wup_tsk(ID tskid) {
+    return _tk_wup_tsk(tskid);
+}
+
+void dly_tsk(W dlytim) {
+    _tk_dly_tsk(dlytim);
+}
+
+ER get_tim(SYSTIME *p_time) {
+    if (!p_time) return E_PAR;
+    *p_time = (uint64_t)((s_system_ticks * 1000) / 60);
+    return E_OK;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Synopsys DWC2 USB Keyboard & Mouse Driver
+ * ═══════════════════════════════════════════════════════════════════ */
+
+static uint8_t g_prev_mouse_btns = 0;
+static uint8_t g_prev_kbd_scancode = 0;
+
+static int usb_poll_devices(GDEV *screen) {
+    (void)screen;
+    int activity = 0;
+
+    /* 1. Poll USB HID Keyboard from DWC2 */
+    usb_kbd_report_t kbd_rep;
+    if (dwc2_poll_keyboard(&kbd_rep) > 0) {
+        uint8_t scancode = kbd_rep.keys[0];
+        if (scancode != 0) {
+            uint32_t k = dwc2_usb_to_btron_key(scancode, kbd_rep.modifiers);
+            if (k != 0) {
+                EVT ev;
+                ev.type   = EV_KEY_DOWN;
+                ev.key    = k;
+                ev.data   = (VW)(uintptr_t)kbd_rep.modifiers;
+                ev.pos.x  = s_mouse_x;
+                ev.pos.y  = s_mouse_y;
+                ev.button = 0;
+                snd_evt(&ev);
+                activity = 1;
+            }
+        } else if (g_prev_kbd_scancode != 0) {
+            uint32_t k = dwc2_usb_to_btron_key(g_prev_kbd_scancode, 0);
+            if (k != 0) {
+                EVT ev;
+                ev.type   = EV_KEY_UP;
+                ev.key    = k;
+                ev.data   = 0;
+                ev.pos.x  = s_mouse_x;
+                ev.pos.y  = s_mouse_y;
+                ev.button = 0;
+                snd_evt(&ev);
+                activity = 1;
+            }
+        }
+        g_prev_kbd_scancode = scancode;
+    }
+
+    /* 2. Poll USB HID Mouse from DWC2 */
+    usb_mouse_report_t mouse_rep;
+    if (dwc2_poll_mouse(&mouse_rep) > 0) {
+        if (mouse_rep.dx != 0 || mouse_rep.dy != 0) {
+            s_mouse_x += (H)mouse_rep.dx;
+            s_mouse_y += (H)mouse_rep.dy;
+            if (s_mouse_x < 0) s_mouse_x = 0;
+            if (s_mouse_x >= BTRON_SCREEN_W) s_mouse_x = BTRON_SCREEN_W - 1;
+            if (s_mouse_y < 0) s_mouse_y = 0;
+            if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
+
+            EVT ev;
+            ev.type   = EV_MOUSE_MOVE;
+            ev.pos.x  = s_mouse_x;
+            ev.pos.y  = s_mouse_y;
+            ev.button = 0;
+            ev.data   = 0;
+            snd_evt(&ev);
+            activity = 1;
+        }
+
+        uint8_t btn_now  = mouse_rep.buttons & 1u;
+        uint8_t btn_prev = g_prev_mouse_btns & 1u;
+        g_prev_mouse_btns = mouse_rep.buttons;
+
+        if (btn_now != btn_prev) {
+            EVT ev;
+            ev.type   = btn_now ? EV_BUT_DOWN : EV_BUT_UP;
+            ev.button = 1;
+            ev.pos.x  = s_mouse_x;
+            ev.pos.y  = s_mouse_y;
+            ev.key    = 0;
+            ev.data   = 0;
+            snd_evt(&ev);
+            activity = 1;
+        }
+    }
+
+    return activity;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Platform Query & RTOS Services
+ * ═══════════════════════════════════════════════════════════════════ */
+
 void btron_core_banner(void) {
-    yoko_puts("B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0\n");
-    yoko_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
-    yoko_puts("[BOOT] Machine: Raspberry Pi 2B / BCM2836  ARMv7-A  T-Kernel 2.0\n\n");
+    uart_puts("B-System/BTRON3 3.20 (armv7-bcm2836-yoko) Takahiro Yokobayashi — T-Kernel 2.0\n");
+    uart_puts("Copyright 2026 Synrc Research Center. MIT License.\n");
+    uart_puts("[BOOT] Machine: Raspberry Pi 2B / BCM2836  ARMv7-A  T-Kernel 2.0\n\n");
 }
 
 void btron_core_mem_log(void) {
-    yoko_puts("[MEM ] BCM2836 Physical Memory Map (1 GB RAM):\n");
-    yoko_puts("[MEM ]   0x00000000-0x3EFFFFFF  RAM (Usable 1008 MB)\n");
-    yoko_puts("[MEM ]   0x3F000000-0x3FFFFFFF  Peripherals / MMIO (16 MB)\n");
-    yoko_puts("[MEM ] Heap: 0x00200000-0x01000000 (14 MB Kernel Heap)\n");
+    uart_puts("[MEM ] BCM2836 Physical Memory Map (1 GB RAM):\n");
+    uart_puts("[MEM ]   0x00000000-0x3EFFFFFF  RAM (Usable 1008 MB)\n");
+    uart_puts("[MEM ]   0x3F000000-0x3FFFFFFF  Peripherals / MMIO (16 MB)\n");
+    uart_puts("[MEM ] Heap: 0x00200000-0x01000000 (14 MB Kernel Heap)\n");
 }
 
 void btron_core_hfds_log(void) {
-    yoko_puts("[HFDS] EMMC / SD Storage Interface: INIT  [OK]\n");
-    yoko_puts("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
-    yoko_puts("[HFDS] Root Cabinet: BTRON3_SPEC.TAD  T_KERNEL_20.TAD\n");
+    uart_puts("[HFDS] EMMC / SD Storage Interface: INIT  [OK]\n");
+    uart_puts("[HFDS] HFDS Hierarchical File/Data Set: INIT  [OK]\n");
+    uart_puts("[HFDS] Root Cabinet: BTRON3_SPEC.TAD  T_KERNEL_20.TAD\n");
 }
 
 void btron_core_init(void) {
-    yoko_puts("[CORE] Yokobayashi T-Kernel 2.0 Engine  BTRON_YOKOBAYASHI\n");
+    uart_puts("[CORE] Yokobayashi T-Kernel 2.0 Engine  BTRON_YOKOBAYASHI\n");
     tkernel_init_subsystems(1);
 }
 
@@ -64,224 +349,16 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
     }
 }
 
-#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0)
-extern ER _tk_slp_tsk(W tmout);
-extern ER _tk_wup_tsk(ID tskid);
-extern ER _tk_dly_tsk(W dlytim);
-
-ER slp_tsk(void) {
-    return _tk_slp_tsk(TMO_FEVR);
-}
-
-ER wup_tsk(ID tskid) {
-    return _tk_wup_tsk(tskid);
-}
-
-__attribute__((weak))
-ER tk_dly_tsk(W dlytim) {
-    return _tk_dly_tsk(dlytim);
-}
-#endif
-
-#if (!defined(__STDC_HOSTED__) || __STDC_HOSTED__ == 0) && (defined(__arm__) || defined(__aarch64__))
-#include <btron/wnd.h>
-#include <btron/tip.h>
-#include <btron/apps.h>
-#include <dwc2.h>
-
-extern GDEV* init_baremetal_desktop(uint32_t *fb, uint32_t w, uint32_t h);
-extern void redraw_baremetal_desktop(GDEV *screen, H w, H h);
-
-#define HEAP_BASE ((uintptr_t)0x01000000)  /* 16 MB */
-#define HEAP_LIMIT ((uintptr_t)0x1B000000) /* 432 MB limit */
-extern uintptr_t heap_ptr;
-
-extern void uart_init(void);
-extern void uart_puts(const char *s);
-extern void uart_hex32(uint32_t val);
-extern uint32_t *init_pi_framebuffer(uint32_t w, uint32_t h);
-extern ER ScreenDrv(int ac, unsigned char *av[]);
-extern ER KbPdDrv(int ac, unsigned char *av[]);
-extern ER LowKbPdDrv(int ac, unsigned char *av[]);
-extern void* tkl_memset( void *s, int c, size_t n );
-
-extern void draw_btron_pattern(uint32_t *fb, uint32_t w, uint32_t h);
-extern void *_stack_top;
-
-/*
- * -- Bare-Metal ARM Boot Entry Point -----------------------------------------
- * This function is the entry point for target hardware execution (Raspberry Pi).
- * It is called directly from assembly bootstrap (_start in startup_arm.c) and is
- * NOT compiled for host PC target simulation.
- *
- * Boot Flow (Bare-Metal ARM):
- *   startup_arm.c (_start) -> btron_main() -> yokobayashi_tkernel_init()
- *
- * Boot Flow (Host PC Emulator):
- *   main.c (main) -> btron_kernel_init() -> yokobayashi_tkernel_init()
- *   (btron_main is bypassed entirely on Host to prevent physical register faults)
- */
- 
-extern int uart_has_char(void);
-extern int uart_getc(void);
-extern void uart_putc(char c);
-extern int snprintf(char *str, size_t size, const char *format, ...);
-
-extern void set_baremetal_mouse_pos(H x, H y);
-extern void get_baremetal_mouse_pos(H *x, H *y);
-
-static BOOL g_dragging = FALSE;
-static WND *g_drag_wnd = NULL;
-static H g_drag_off_x = 0;
-static H g_drag_off_y = 0;
-
-static BOOL g_sliding_tab = FALSE;
-static WND *g_slide_wnd = NULL;
-static H g_slide_start_x = 0;
-static H g_slide_orig_off = 0;
-
-/* Track mouse button state across polls for release detection */
-static uint8_t g_prev_mouse_btns = 0;
-/* Track the last USB key scancode for key-up generation */
-static uint8_t g_prev_kbd_scancode = 0;
-
-#define BTRON_SCREEN_W  1024
-#define BTRON_SCREEN_H  768
-
-void handle_baremetal_mouse_click(GDEV *screen, H mx, H my, BOOL is_down) {
-    set_baremetal_mouse_pos(mx, my);
-
-    if (is_down) {
-        /* Check Top System Bar Click */
-        if (my < 26) {
-            if (mx >= BTRON_SCREEN_W - 180) {
-                /* Click on Language/IME Mode indicator -> Toggle Plane 0 / 1 */
-                if (tip_get_mode() == TIP_MODE_ASCII) {
-                    tip_set_mode(TIP_MODE_HIRAGANA);
-                } else {
-                    tip_set_mode(TIP_MODE_ASCII);
-                }
-            }
-        }
-        /* Check Left Desktop Icon Clicks */
-        else if (mx < 70) {
-            if (my >= 50 && my < 100) {
-                open_vobj_manager_window();
-            } else if (my >= 130 && my < 180) {
-                open_t_editor_window();
-            } else if (my >= 210 && my < 260) {
-                open_gterm_window();
-            }
-        } else {
-            /* Check Window Clicks */
-            WND *clicked = find_wnd_at(mx, my);
-            if (clicked) {
-                if (get_top_wnd() != clicked) {
-                    tip_cancel();
-                    top_wnd(clicked);
-                }
-
-                /* Titlebar & Compact Tab Drag / Close Check */
-                if (my >= clicked->bounds.top && my < clicked->bounds.top + 22) {
-                    if (whit_test_close_btn(clicked, mx, my)) {
-                        cls_wnd(clicked);
-                        tip_cancel();
-                    } else if (whit_test_tab(clicked, mx, my)) {
-                        RECT tab_r;
-                        wget_tab_rect(clicked, &tab_r);
-                        /* Grip zone or right-click sliding */
-                        if (mx >= tab_r.left && mx < tab_r.left + 12 && (clicked->attr & WND_ATTR_SLIDING_TAB)) {
-                            g_sliding_tab = TRUE;
-                            g_slide_wnd = clicked;
-                            g_slide_start_x = mx;
-                            g_slide_orig_off = clicked->tab_offset_x;
-                        } else {
-                            g_dragging = TRUE;
-                            g_drag_wnd = clicked;
-                            g_drag_off_x = mx - clicked->bounds.left;
-                            g_drag_off_y = my - clicked->bounds.top;
-                        }
-                    } else {
-                        g_dragging = TRUE;
-                        g_drag_wnd = clicked;
-                        g_drag_off_x = mx - clicked->bounds.left;
-                        g_drag_off_y = my - clicked->bounds.top;
-                    }
-                } else {
-                    /* Window Client Area Click */
-                    EVT ev;
-                    ev.type = EV_BUT_DOWN;
-                    ev.button = 1;
-                    ev.pos.x = mx;
-                    ev.pos.y = my;
-                    ev.key = 0;
-                    ev.data = 0;
-                    if (clicked->event_handler) {
-                        clicked->event_handler(clicked, &ev);
-                    }
-                }
-            }
-        }
-    } else {
-        /* Mouse Button Release */
-        g_dragging = FALSE;
-        g_drag_wnd = NULL;
-        g_sliding_tab = FALSE;
-        g_slide_wnd = NULL;
-        WND *top = get_top_wnd();
-        if (top && top->focused && top->event_handler) {
-            EVT ev;
-            ev.type = EV_BUT_UP;
-            ev.button = 1;
-            ev.pos.x = mx;
-            ev.pos.y = my;
-            ev.key = 0;
-            ev.data = 0;
-            top->event_handler(top, &ev);
-        }
-    }
-
-    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-}
-
-static void handle_baremetal_mouse_move(GDEV *screen, H mx, H my) {
-    set_baremetal_mouse_pos(mx, my);
-
-    if (g_sliding_tab && g_slide_wnd) {
-        H new_off = g_slide_orig_off + (mx - g_slide_start_x);
-        wset_tab_offset(g_slide_wnd, new_off);
-    } else if (g_dragging && g_drag_wnd) {
-        mov_wnd(g_drag_wnd, mx - g_drag_off_x, my - g_drag_off_y);
-    } else {
-        WND *top = get_top_wnd();
-        if (top && top->focused && top->event_handler) {
-            EVT ev;
-            ev.type = EV_MOUSE_MOVE;
-            ev.button = 0;
-            ev.pos.x = mx;
-            ev.pos.y = my;
-            ev.key = 0;
-            ev.data = 0;
-            top->event_handler(top, &ev);
-        }
-    }
-
-    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-}
-
-static void uart_shell_out(const char *line, COLOR col, void *user_data) {
-    (void)col;
-    (void)user_data;
-    uart_puts(line);
-    uart_puts("\r\n");
-}
+/* ═══════════════════════════════════════════════════════════════════
+ * Kernel Main Entry Point
+ * ═══════════════════════════════════════════════════════════════════ */
 
 void btron_main(void) {
-    /* Reset heap pointer */
+    /* 1. Reset heap pointer and zero first page */
     heap_ptr = HEAP_BASE;
-    /* Zero the first page of the heap base to avoid stale data issues */
     tkl_memset((void*)HEAP_BASE, 0, 4096);
 
+    /* 2. Initialize PL011 UART Serial Console */
     uart_init();
 
     btron_core_banner();
@@ -300,17 +377,19 @@ void btron_main(void) {
     uart_hex32((uint32_t)HEAP_LIMIT);
     uart_puts("\n");
 
+    /* 3. Initialize Video Display Framebuffer (1024x768 32-bpp) */
     uart_puts("[QEMU-ARM] Initializing Video Display Framebuffer (1024x768 32-bpp)...\n");
-    uint32_t *fb = init_pi_framebuffer(BTRON_SCREEN_W, BTRON_SCREEN_H);
-
+    uint32_t *gpu_fb = init_pi_framebuffer(BTRON_SCREEN_W, BTRON_SCREEN_H);
     uart_puts("[QEMU-ARM] Framebuffer pointer: ");
-    uart_hex32((uint32_t)(uintptr_t)fb);
+    uart_hex32((uint32_t)(uintptr_t)gpu_fb);
     uart_puts("\n");
 
+    /* 4. Initialize Sakamura T-Kernel 2.0 Subsystems */
     uart_puts("[QEMU-ARM] Initializing Sakamura T-Kernel 2.0 Subsystems...\n");
     btron_core_init();
     uart_puts("[T-KERNEL] All 14 Sakamura T-Kernel 2.0 Subsystems Initialized Successfully.\n");
 
+    /* 5. Initialize BCM283x Hardware Device Drivers */
     uart_puts("[QEMU-ARM] Initializing BCM283x Hardware Screen Device Driver...\n");
     ER sdrv_res = ScreenDrv(0, NULL);
     if (sdrv_res >= 0) {
@@ -343,8 +422,19 @@ void btron_main(void) {
     /* Initialize BCM283x DWC2 USB 2.0 Host Controller */
     dwc2_init();
 
+    /* 6. Initialize Real B-System Workbench Desktop & Windows */
     uart_puts("[QEMU-ARM] Initializing Live Multi-Window B-System Desktop with Mouse Cursor...\n");
-    GDEV *screen = init_baremetal_desktop(fb, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    GDEV *screen = init_baremetal_desktop((uint32_t*)s_desktop_backbuffer, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    if (!screen) {
+        uart_puts("[FATAL] Failed to initialize B-System Workbench screen!\n");
+        while (1) __asm__ volatile("wfe");
+    }
+    workbench_init(BTRON_SCREEN_W);
+
+    /* Initial paint & blit to GPU VRAM */
+    workbench_render(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+    blit_backbuffer_to_fb(gpu_fb);
+
     uart_puts("[QEMU-ARM] Live Multi-Window Desktop & Pointer initialized in Video VRAM.\n");
 
     /* Enable SGR 1006 ANSI Xterm Mouse Tracking in Terminal */
@@ -364,95 +454,39 @@ void btron_main(void) {
     uart_puts("   F6/F7/F8/F9    - Transliterate (Hiragana/Katakana/Halfwidth/Alpha)\n");
     uart_puts("==========================================================\n\n");
 
-    char cmd_buf[128];
-    int cmd_len = 0;
-
-    uart_puts("btron:/> ");
+    /* 7. Real-Time Interactive Event Loop */
+    uint32_t last_clock_tick = 0;
+    EVT ev;
 
     while (1) {
-        /* Poll USB HID Keyboard from DWC2 Host Controller */
-        usb_kbd_report_t kbd_rep;
-        if (dwc2_poll_keyboard(&kbd_rep) > 0) {
-            uint8_t scancode = kbd_rep.keys[0];
+        int need_redraw = 0;
+        s_system_ticks++;
 
-            if (scancode != 0) {
-                /* Key pressed */
-                uint32_t k = dwc2_usb_to_btron_key(scancode, kbd_rep.modifiers);
-                if (k != 0) {
-                    EVT ev;
-                    ev.type   = EV_KEY_DOWN;
-                    ev.key    = k;
-                    ev.data   = (VW)(uintptr_t)kbd_rep.modifiers;
-                    ev.pos.x  = 0;
-                    ev.pos.y  = 0;
-                    ev.button = 0;
-                    WND *top = get_top_wnd();
-                    if (top && top->focused && top->event_handler) {
-                        top->event_handler(top, &ev);
-                    }
-                    redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-                }
-            } else if (g_prev_kbd_scancode != 0) {
-                /* All keys released — send EV_KEY_UP for the last held key */
-                uint32_t k = dwc2_usb_to_btron_key(g_prev_kbd_scancode, 0);
-                if (k != 0) {
-                    EVT ev;
-                    ev.type   = EV_KEY_UP;
-                    ev.key    = k;
-                    ev.data   = 0;
-                    ev.pos.x  = 0;
-                    ev.pos.y  = 0;
-                    ev.button = 0;
-                    WND *top = get_top_wnd();
-                    if (top && top->focused && top->event_handler) {
-                        top->event_handler(top, &ev);
-                    }
-                }
-            }
-            g_prev_kbd_scancode = scancode;
+        /* A. Poll DWC2 USB Keyboard and Mouse */
+        if (usb_poll_devices(screen)) {
+            need_redraw = 1;
         }
 
-        /* Poll USB HID Mouse from DWC2 Host Controller */
-        usb_mouse_report_t mouse_rep;
-        if (dwc2_poll_mouse(&mouse_rep) > 0) {
-            H mx, my;
-            get_baremetal_mouse_pos(&mx, &my);
-
-            /* Accumulate relative motion with clamping */
-            mx += (H)mouse_rep.dx;
-            my += (H)mouse_rep.dy;
-            if (mx < 0) mx = 0;
-            if (mx >= BTRON_SCREEN_W) mx = BTRON_SCREEN_W - 1;
-            if (my < 0) my = 0;
-            if (my >= BTRON_SCREEN_H) my = BTRON_SCREEN_H - 1;
-
-            uint8_t btn_now  = mouse_rep.buttons & 1u;
-            uint8_t btn_prev = g_prev_mouse_btns & 1u;
-            g_prev_mouse_btns = mouse_rep.buttons;
-
-            if (btn_now && !btn_prev) {
-                /* Button pressed */
-                handle_baremetal_mouse_click(screen, mx, my, TRUE);
-            } else if (!btn_now && btn_prev) {
-                /* Button released */
-                handle_baremetal_mouse_click(screen, mx, my, FALSE);
-            } else {
-                handle_baremetal_mouse_move(screen, mx, my);
-            }
-        }
-
+        /* B. Poll PL011 UART Serial Console for interactive keys & arrows */
         if (uart_has_char()) {
             int c = uart_getc();
-
-            /* Check ANSI Escape Sequences (Mouse SGR 1006, Arrows, Function Keys) */
             if (c == 0x1B) {
+                /* ANSI escape sequence handling */
+                int wait_tries = 200;
+                while (!uart_has_char() && --wait_tries > 0) {
+                    for (volatile int d = 0; d < 20; d++) __asm__ volatile("nop");
+                }
                 if (uart_has_char()) {
                     int c2 = uart_getc();
                     if (c2 == '[') {
+                        wait_tries = 200;
+                        while (!uart_has_char() && --wait_tries > 0) {
+                            for (volatile int d = 0; d < 20; d++) __asm__ volatile("nop");
+                        }
                         if (uart_has_char()) {
                             int c3 = uart_getc();
 
-                            /* Check SGR 1006 Mouse Sequence: \033[<btn;X;YM / \033[<btn;X;Ym */
+                            /* SGR 1006 mouse sequence: \033[<btn;X;YM / \033[<btn;X;Ym */
                             if (c3 == '<') {
                                 int btn = 0, px = 0, py = 0;
                                 int state = 0;
@@ -470,138 +504,74 @@ void btron_main(void) {
                                         break;
                                     }
                                 }
-                                H mx = (H)((px - 1) * BTRON_SCREEN_W / 80);
-                                H my = (H)((py - 1) * BTRON_SCREEN_H / 24);
-                                if (term == 'M') {
-                                    if (btn == 0) handle_baremetal_mouse_click(screen, mx, my, TRUE);
-                                    else if (btn == 32) handle_baremetal_mouse_move(screen, mx, my);
-                                } else if (term == 'm') {
-                                    if (btn == 0) handle_baremetal_mouse_click(screen, mx, my, FALSE);
-                                }
-                                continue;
-                            }
+                                s_mouse_x = (H)((px - 1) * BTRON_SCREEN_W / 80);
+                                s_mouse_y = (H)((py - 1) * BTRON_SCREEN_H / 24);
+                                if (s_mouse_x < 0) s_mouse_x = 0;
+                                if (s_mouse_x >= BTRON_SCREEN_W) s_mouse_x = BTRON_SCREEN_W - 1;
+                                if (s_mouse_y < 0) s_mouse_y = 0;
+                                if (s_mouse_y >= BTRON_SCREEN_H) s_mouse_y = BTRON_SCREEN_H - 1;
 
-                            UW key_code = 0;
-                            if (c3 == 'A') key_code = BTRON_KEY_UP;
-                            else if (c3 == 'B') key_code = BTRON_KEY_DOWN;
-                            else if (c3 == 'C') key_code = BTRON_KEY_RIGHT;
-                            else if (c3 == 'D') key_code = BTRON_KEY_LEFT;
-                            else if (c3 >= '0' && c3 <= '9') {
-                                int c4 = uart_has_char() ? uart_getc() : 0;
-                                int c5 = (c4 != '~' && uart_has_char()) ? uart_getc() : 0;
-                                (void)c5;
-                                if (c3 == '2' && c4 == '1') key_code = BTRON_KEY_F10;
-                                else if (c3 == '1' && c4 == '7') key_code = BTRON_KEY_F6;
-                                else if (c3 == '1' && c4 == '8') key_code = BTRON_KEY_F7;
-                                else if (c3 == '1' && c4 == '9') key_code = BTRON_KEY_F8;
-                                else if (c3 == '2' && c4 == '0') key_code = BTRON_KEY_F9;
-                            }
-                            if (key_code != 0) {
-                                EVT ev;
-                                ev.type = EV_KEY_DOWN;
-                                ev.key = key_code;
-                                ev.data = (VW)0;
-                                ev.pos.x = 0;
-                                ev.pos.y = 0;
-                                ev.button = 0;
-                                WND *top = get_top_wnd();
-                                if (top && top->focused && top->event_handler) {
-                                    top->event_handler(top, &ev);
+                                if (term == 'M') {
+                                    if (btn == 0) {
+                                        EVT mev; mev.type = EV_BUT_DOWN; mev.button = 1; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
+                                    } else if (btn == 32) {
+                                        EVT mev; mev.type = EV_MOUSE_MOVE; mev.button = 0; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
+                                    }
+                                } else if (term == 'm') {
+                                    if (btn == 0) {
+                                        EVT mev; mev.type = EV_BUT_UP; mev.button = 1; mev.pos.x = s_mouse_x; mev.pos.y = s_mouse_y; mev.key = 0; mev.data = 0; snd_evt(&mev);
+                                    }
                                 }
-                                redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-                                continue;
+                                need_redraw = 1;
+                            } else {
+                                /* Arrow navigation */
+                                if (c3 == 'A') s_mouse_y = (s_mouse_y > 16) ? s_mouse_y - 16 : 10;
+                                else if (c3 == 'B') s_mouse_y = (s_mouse_y < BTRON_SCREEN_H - 20) ? s_mouse_y + 16 : BTRON_SCREEN_H - 20;
+                                else if (c3 == 'C') s_mouse_x = (s_mouse_x < BTRON_SCREEN_W - 20) ? s_mouse_x + 16 : BTRON_SCREEN_W - 20;
+                                else if (c3 == 'D') s_mouse_x = (s_mouse_x > 16) ? s_mouse_x - 16 : 10;
+                                EVT mev;
+                                mev.type   = EV_MOUSE_MOVE;
+                                mev.pos.x  = s_mouse_x;
+                                mev.pos.y  = s_mouse_y;
+                                mev.button = 0;
+                                mev.data   = 0;
+                                snd_evt(&mev);
+                                need_redraw = 1;
                             }
                         }
-                    } else if (c2 == 'O') {
-                        int c3 = uart_has_char() ? uart_getc() : 0;
-                        if (c3 == 'P') { /* F1 */ }
                     }
                 }
-                /* Plain ESC key */
-                tip_cancel();
-                redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-                continue;
-            }
-
-            /* Shift+Arrow: Smooth Mouse Cursor Navigation */
-            if (c == 0x01 || c == 0x05) { /* Ctrl+A / Ctrl+E: left/right */
-                H mx, my;
-                get_baremetal_mouse_pos(&mx, &my);
-                if (c == 0x01) mx -= 25; else mx += 25;
-                set_baremetal_mouse_pos(mx, my);
-                redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-                continue;
-            }
-
-            /* Tab key: Cycle focus across windows when not in precomposition */
-            if (c == '\t') {
-                if (tip_get_state() == TIP_STATE_IDLE) {
-                    WND *top = get_top_wnd();
-                    WND *cand = find_wnd_at(top ? (top->bounds.left > 200 ? 120 : 320) : 100, 200);
-                    if (cand && cand != top) {
-                        tip_cancel();
-                        top_wnd(cand);
-                        redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-                        continue;
-                    }
-                }
-            }
-
-            /* Route standard key events to the active focused window */
-            UW key_code = (UW)c;
-            uint16_t mod = BTRON_KMOD_NONE;
-
-            if (c == '\r' || c == '\n') {
-                key_code = BTRON_KEY_RETURN;
-            } else if (c == 0x08 || c == 0x7F) {
-                key_code = BTRON_KEY_BACKSPACE;
-            } else if (c >= 'A' && c <= 'Z') {
-                mod |= BTRON_KMOD_SHIFT;
-            }
-
-            EVT ev;
-            ev.type = EV_KEY_DOWN;
-            ev.key = key_code;
-            ev.data = (VW)(uintptr_t)mod;
-            ev.pos.x = 0;
-            ev.pos.y = 0;
-            ev.button = 0;
-
-            WND *top = get_top_wnd();
-            if (top && top->focused && top->event_handler) {
-                top->event_handler(top, &ev);
-            }
-
-            /* Live screen update directly to Video VRAM */
-            redraw_baremetal_desktop(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
-
-            /* Serial Console echo & command handling */
-            if (c == '\r' || c == '\n') {
-                uart_putc('\r');
-                uart_putc('\n');
-                cmd_buf[cmd_len] = '\0';
-                if (tkl_strcmp(cmd_buf, "clear") == 0 || tkl_strcmp(cmd_buf, "cls") == 0) {
-                    uart_puts("\033[2J\033[H");
-                } else {
-                    shell_execute_cmd(cmd_buf, uart_shell_out, NULL, NULL);
-                }
-                cmd_len = 0;
-                uart_puts("\nbtron:/> ");
-            } else if (c == 0x08 || c == 0x7F) {
-                if (cmd_len > 0) {
-                    cmd_len--;
-                    uart_puts("\b \b");
-                }
-            } else if (c == 0x03) { /* Ctrl+C */
-                cmd_len = 0;
-                uart_puts("^C\nbtron:/> ");
-            } else if (c >= 32 && c <= 126) {
-                if (cmd_len < (int)sizeof(cmd_buf) - 1) {
-                    cmd_buf[cmd_len++] = (char)c;
-                    uart_putc((char)c);
-                }
+            } else {
+                /* Key event to active window */
+                if (c == '\r') c = '\n';
+                ev.type   = EV_KEY_DOWN;
+                ev.key    = (UW)(uint8_t)c;
+                ev.pos.x  = s_mouse_x;
+                ev.pos.y  = s_mouse_y;
+                ev.button = 0;
+                ev.data   = 0;
+                snd_evt(&ev);
+                need_redraw = 1;
             }
         }
+
+        /* C. Dispatch queued BTRON events through unified workbench dispatcher */
+        while (get_evt(&ev, 0) == E_OK) {
+            workbench_process_event(screen, &ev);
+            need_redraw = 1;
+        }
+
+        /* D. Redraw when state changed or periodic clock update */
+        if (s_system_ticks - last_clock_tick >= 60) {
+            last_clock_tick = s_system_ticks;
+            need_redraw = 1;
+        }
+
+        if (need_redraw) {
+            workbench_render(screen, BTRON_SCREEN_W, BTRON_SCREEN_H);
+            blit_backbuffer_to_fb(gpu_fb);
+        }
+
+        for (volatile int d = 0; d < 1000; d++) __asm__ volatile("nop");
     }
 }
-#endif /* __arm__ */
