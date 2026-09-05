@@ -447,10 +447,13 @@ void btron_main(void) {
     blit_backbuffer_to_fb(gpu_fb);
 
     uart_puts("[QEMU-ARM64] Live Multi-Window Desktop & Pointer initialized in Video VRAM.\n");
-
     uart_puts("\n==========================================================\n");
     uart_puts(" Sakamura B-System 3.0 Interactive Keyboard & Mouse Active\n");
-    uart_puts(" B-System Workbench Live on Raspberry Pi 3B (AArch64)!\n");
+    if (g_mmio_base == 0xFE000000UL) {
+        uart_puts(" B-System Workbench Live on Raspberry Pi 4B (AArch64)!\n");
+    } else {
+        uart_puts(" B-System Workbench Live on Raspberry Pi 3B (AArch64)!\n");
+    }
     uart_puts(" * Display : VideoCore GPU Mailbox FB 1024x768 32-bpp\n");
     uart_puts(" * Input   : USB Keyboard & Mouse + PL011 Serial Active\n");
     uart_puts(" * Windows : Real Body Cabinet, Editor, GTerm Terminal Shell\n");
