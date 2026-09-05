@@ -15,7 +15,8 @@
 #   run-posix     Boot POSIX Microkernel Desktop (btron-posix)
 #   run-qemu      Boot QEMU VirtIO Desktop (btron-qemu.elf)
 #   run-kernel    Boot Pi 2B ELF in QEMU (btron-arm-baremetal.elf, raspi2b with display)
-#   run-yoko      Boot Pi 4B AArch64 ELF in QEMU (btron-aarch64-baremetal.elf, raspi3b)
+#   run-yoko      Boot Pi 3B AArch64 ELF in QEMU (btron-aarch64-baremetal.elf, raspi3b)
+#   run-yoko4     Boot Pi 4B AArch64 ELF in QEMU (btron-aarch64-baremetal.elf, raspi4b)
 #   run-sakamura  Boot Sakamura T-Kernel 2.0 Desktop (btron-sakamura.elf, display, kbd, mouse)
 #   run-uefi      Boot x86_64 UEFI SMP in QEMU (btron-uchida.elf, aliases: run-eufi, run-uefu)
 #   run-pc98      Boot NEC PC-9801/PC-9821 VM in QEMU (btron-morris.elf)
@@ -27,9 +28,9 @@ CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel
 
 .PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k \
-        html2tad tad_bin test test-kernel test-m68k \
+        html2tad tad_bin test test-kernel test-yoko test-m68k \
         test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
-        run-posix run-qemu run-kernel run-yoko run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k debug-virtio debug-gdb clean
+        run-posix run-qemu run-kernel run-yoko run-yoko4 run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
@@ -58,7 +59,7 @@ BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel
 ARM_CFLAGS   = -O2 -Wall -Wextra -std=c99 -mno-unaligned-access \
                -D_RPI_BCM283x_ -DTYPE_RPI=2 -DBTRON_TARGET=2 -mfpu=vfpv4 -mfloat-abi=softfp \
                $(BCM_INC)
-ARM64_CFLAGS = -O2 -Wall -Wextra -std=c99 \
+ARM64_CFLAGS = -O2 -Wall -Wextra -std=c99 -mstrict-align \
                -D_RPI_BCM283x_ -DTYPE_RPI=3 -DBTRON_TARGET=6 \
                -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-unused-parameter \
                $(BCM_INC)
@@ -568,9 +569,9 @@ run-kernel: $(ARM32_TARGET)
 
 run-yoko: $(ARM64_TARGET)
 	@echo "=========================================================="
-	@echo " Launching T-Kernel AArch64 on QEMU Raspberry Pi (BCM2711)"
-	@echo " Honoring : Takahiro Yokobayashi (横林 貴広) — T-Kernel Pioneer"
-	@echo " Machine  : raspi3b  |  CPU: Cortex-A72 / AArch64  |  RAM: 1G"
+	@echo " Launching T-Kernel AArch64 on QEMU Raspberry Pi 3B (BCM2837)"
+	@echo " Honoring : Takanori Yokoyama (横山 孝徳) — T-Kernel Pioneer"
+	@echo " Machine  : raspi3b  |  CPU: Cortex-A53 / AArch64  |  RAM: 1G"
 	@echo " ELF      : $(ARM64_TARGET)"
 	@echo " Devices  : USB Keyboard, USB Mouse & VideoCore GPU Display"
 	@echo "=========================================================="
@@ -588,6 +589,28 @@ run-yoko: $(ARM64_TARGET)
 	    exit 1; \
 	fi
 
+run-yoko4: $(ARM64_TARGET)
+	@echo "=========================================================="
+	@echo " Launching T-Kernel AArch64 on QEMU Raspberry Pi 4B (BCM2711)"
+	@echo " Honoring : Takanori Yokoyama (横山 孝徳) — T-Kernel Pioneer"
+	@echo " Machine  : raspi4b  |  CPU: Cortex-A72 / AArch64  |  RAM: 2G"
+	@echo " ELF      : $(ARM64_TARGET)"
+	@echo " Devices  : USB Keyboard, USB Mouse & VideoCore GPU Display"
+	@echo "=========================================================="
+	@echo " INPUT CAPTURE:"
+	@echo "   Click inside the QEMU window to grab keyboard & mouse."
+	@echo "   Press Ctrl+Alt+G (macOS: Ctrl+Option+G) to release grab."
+	@echo "   Serial/UART input also works in THIS terminal window."
+	@echo "=========================================================="
+	@if command -v $(QEMU_AARCH64) >/dev/null 2>&1; then \
+	    $(QEMU_AARCH64) -M raspi4b -m 2G $(KERNEL_DISPLAY) \
+	        -device usb-kbd -device usb-mouse \
+	        -kernel $(ARM64_TARGET) -serial stdio; \
+	else \
+	    echo "[ERROR] $(QEMU_AARCH64) not found — install qemu-system-aarch64"; \
+	    exit 1; \
+	fi
+
 test-kernel: $(ARM32_TARGET)
 	@echo "=========================================================="
 	@echo " Testing T-Kernel on QEMU Raspberry Pi 2B (BCM2836)"
@@ -595,6 +618,14 @@ test-kernel: $(ARM32_TARGET)
 	@echo " Mode    : automated CI test (headless, serial validation)"
 	@echo "=========================================================="
 	@bash scripts/test_tkernel.sh
+
+test-yoko: $(ARM64_TARGET)
+	@echo "=========================================================="
+	@echo " Testing T-Kernel on QEMU Raspberry Pi 3B (BCM2837)"
+	@echo " Machine : raspi3b  |  CPU: Cortex-A53 / AArch64  |  RAM: 1G"
+	@echo " Mode    : automated CI test (headless, serial validation)"
+	@echo "=========================================================="
+	@bash scripts/test_arm64.sh
 
 # ═══════════════════════════════════════════════════════════════════
 # Debug

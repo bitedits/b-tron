@@ -36,7 +36,7 @@ By strictly separating platform-specific I/O polling from desktop windowing logi
 | **Target 3** | Sakamura VirtIO | QEMU VirtIO T-Kernel | `src/kernel/core_tkernel.c` | VirtIO GPU | VirtIO Input |
 | **Target 4** | x86_64 UEFI | PC / QEMU x86_64 SMP | `src/kernel/core_boot.c` | VESA / GOP FB | PS/2 + Serial |
 | **Target 5** | i386 PC-98 | NEC PC-9801 / PC-9821 | `src/kernel/core_pc98.c` | 640x400 Plane FB | PC-98 Bus Mouse + Kbd |
-| **Target 6** | AArch64 | Raspberry Pi 4B (BCM2711) | `src/kernel/core_arm64.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
+| **Target 6** | AArch64 | Raspberry Pi 3B (BCM2837) & 4B (BCM2711) | `src/kernel/core_arm64.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
 | **Target 7** | M68K CISC | Apple Mac Quadra 800 | `src/kernel/core_m68k.c` | NuBus DAFB 800x600 8bpp | ADB (VIA1) + Z8530 ESCC |
 
 ---

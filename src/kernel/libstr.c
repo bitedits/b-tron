@@ -59,8 +59,14 @@ char* tkl_strcpy(char *dst, const char *src) {
 
 char* tkl_strncpy(char *dst, const char *src, size_t n) {
     char *ret = dst;
-    while (n && (*dst++ = *src++)) n--;
-    while (n--) *dst++ = '\0';
+    volatile char *d = (volatile char *)dst;
+    while (n && *src) {
+        *d++ = *src++;
+        n--;
+    }
+    while (n--) {
+        *d++ = '\0';
+    }
     return ret;
 }
 
