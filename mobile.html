@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOMA – Japanese Mobile Architecture &amp; QEMU Fitness | B-System Technical Note</title>
+    <meta name="description" content="Formal evaluation of 2004–2009 FOMA handset SoCs (ARM9/ARM11/SuperH) against upstream QEMU machine models for cleanroom BTRON multi-architecture testing.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css?v=2">
+    <style>
+        :root {
+            --jp-font: 'Noto Sans JP', 'Inter', system-ui, -apple-system, sans-serif;
+            --mincho-font: 'Shippori Mincho', 'Noto Sans JP', serif;
+            --tron-teal: #008080;
+            --tron-teal-light: #e0f2f1;
+            --tron-blue: #0057b7;
+            --tron-indigo: #283593;
+            --tron-gold: #c59b27;
+            --card-border-glow: rgba(0, 128, 128, 0.25);
+        }
+
+        body {
+            font-family: var(--jp-font);
+            letter-spacing: 0.015em;
+        }
+
+        .jp-title {
+            font-family: var(--mincho-font);
+            letter-spacing: -0.01em;
+        }
+
+        .hero-banner-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(0, 87, 183, 0.12), rgba(0, 128, 128, 0.15));
+            border: 1px solid rgba(0, 128, 128, 0.35);
+            color: #0057b7;
+            padding: 0.4rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-lead-box {
+            max-width: 960px;
+            margin: 1.8rem auto 0 auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 93, 162, 0.25);
+            border-radius: 18px;
+            padding: 1.6rem 2.2rem;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(107, 79, 126, 0.08);
+        }
+
+        .hero-lead-box p {
+            color: #334155;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-lead-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .audit-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(10px);
+        }
+
+        .audit-card h3 {
+            color: var(--tron-indigo);
+            border-bottom: 2px solid var(--border, #e2e8f0);
+            padding-bottom: 0.6rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .conformance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+        }
+
+        .conformance-table th,
+        .conformance-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            vertical-align: top;
+        }
+
+        .conformance-table th {
+            background: rgba(0, 87, 183, 0.06);
+            color: var(--tron-blue);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .conformance-table tr:hover {
+            background: rgba(255, 93, 162, 0.03);
+        }
+
+        .badge-pass {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .badge-partial {
+            display: inline-block;
+            background: #fff8e1;
+            color: #f57f17;
+            border: 1px solid #ffe082;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .badge-fail {
+            display: inline-block;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .excellent { color: #2e7d32; font-weight: 700; }
+        .good      { color: #1565c0; font-weight: 700; }
+        .medium    { color: #f57f17; font-weight: 700; }
+        .poor      { color: #c62828; font-weight: 700; }
+
+        .model {
+            font-weight: 600;
+            color: var(--tron-blue);
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        .quote-box {
+            border-left: 4px solid var(--tron-blue);
+            padding: 1rem 1.5rem;
+            background: rgba(0, 87, 183, 0.04);
+            border-radius: 0 12px 12px 0;
+            margin: 1.5rem 0;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .legend-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .legend-item strong {
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.86em;
+        }
+
+        @media (max-width: 640px) {
+            .conformance-table {
+                font-size: 0.85rem;
+            }
+            .conformance-table th,
+            .conformance-table td {
+                padding: 0.6rem 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sticky">
+        <div class="nav-container">
+            <a href="index.html" class="logo"><img width="48" src="https://n2o.dev/img/synrc.svg" alt="Synrc Logo"></a>
+            <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open'); this.classList.toggle('open');">
+                <span class="hamburger"></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html">VirtIO</a></li>
+                <li><a href="conformance.html">Conformance Audit</a></li>
+                <li><a href="b-system.html">B-System OS</a></li>
+                <li><a href="releases.html">Releases</a></li>
+                <li><a href="mobile.html" class="active" style="color: var(--accent); font-weight:700;">FOMA</a></li>
+                <li><a href="https://github.com/bitedits/btron">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        <div class="hero-content">
+            <br>
+            <div class="hero-banner-tag">
+                <span>📱</span> FOMA 2004–2009 · ARM / SuperH Architecture Matrix
+            </div>
+            <h1 class="jp-title">FOMA 端末アーキテクチャと QEMU 適合性</h1>
+            <p class="hero-subtitle">2004–2009 年 FOMA 端末の SoC / 命令セットと upstream QEMU マシンモデルの対応評価<br>
+            <span style="font-size:0.92em; opacity:0.9;">Formal mapping of FOMA handset SoCs to QEMU CPU models for multi-architecture BTRON testing</span></p>
+
+            <div class="hero-lead-box">
+                <p>
+                    本技術ノートは、NTTドコモ FOMA シリーズ（2004–2009）の主要端末群について、搭載 SoC・命令セット・QEMU 適合度を体系的に整理したものである。B-System のマルチアーキテクチャ検証環境（VirtIO / bare-metal ARM）において、歴史的モバイル SoC の再現可能性を客観的に評価する。
+                </p>
+                <p>
+                    <span style="font-size:0.9em; opacity:0.85;">This note enumerates FOMA handset SoCs of the 2004–2009 period, their ISA characteristics, and the practical fitness of each against current upstream QEMU machine models. The evaluation supports cleanroom multi-architecture testing within the B-System / VirtIO environment.</span>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 4rem 1.5rem;">
+
+        <!-- Overview -->
+        <section class="audit-card">
+            <h3><span>概要 (Overview)</span></h3>
+            <p>
+                FOMA 端末は、当時の日本国内向け第3世代携帯電話規格に準拠した端末群である。搭載プロセッサは主に Texas Instruments OMAP 系列（ARM9 / ARM11）とルネサス SH-Mobile 系列（SuperH + 一部 ARM 共存）に二分される。QEMU の実用的なエミュレーション対象となるのは ARM コアを持つ機種に限られ、純 SuperH 構成は現時点の upstream では実質的に再現不能である。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin-top:0.8rem;">
+                FOMA handsets of this era fall into two principal SoC families: TI OMAP (ARMv5 / ARMv6) and Renesas SH-Mobile (SuperH, occasionally dual-core with ARM). Only the ARM cores possess practical upstream QEMU coverage; pure SuperH designs remain unsupported.
+            </p>
+
+            <div class="quote-box">
+                <b>評価原則：</b> 「Excellent / Good / Medium / Poor」の4段階は、QEMU の公式マシンモデル（<code class="mono">-M virt</code> およびレガシー ARM ボード）に対する命令セット一致度と、現実的なユーザーランド起動可能性を基準とする。SuperH のみの構成は常に Poor と判定する。
+            </div>
+        </section>
+
+        <!-- Main Matrix -->
+        <section class="audit-card" id="matrix">
+            <h3><span>端末グループ別 SoC / アーキテクチャ / QEMU 適合度一覧</span></h3>
+            <p>
+                下表は、代表的な FOMA 端末グループについて、SoC 名、命令セット、および QEMU 適合度を整理したものである。適合度の判定根拠は後続の凡例に示す。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin-top:0.6rem;">
+                The matrix below lists representative FOMA model groups, their SoCs, ISAs, and QEMU fitness ratings. Rating criteria appear in the legend that follows.
+            </p>
+
+            <table class="conformance-table">
+                <thead>
+                    <tr>
+                        <th>端末グループ (Model Group)</th>
+                        <th>SoC / CPU</th>
+                        <th>アーキテクチャ (Architecture)</th>
+                        <th style="text-align:center;">QEMU 適合度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="model">Fujitsu F900i / F900iT</td>
+                        <td>TI OMAP (161x)</td>
+                        <td>ARM9 (ARMv5)</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm926)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Fujitsu F901iC</td>
+                        <td>SH-Mobile3</td>
+                        <td>SuperH SH-3</td>
+                        <td style="text-align:center;"><span class="badge-fail">Poor</span> <span class="poor">(no SH)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Fujitsu F902i</td>
+                        <td>SH-Mobile</td>
+                        <td>SuperH</td>
+                        <td style="text-align:center;"><span class="badge-fail">Poor</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Fujitsu F903i</td>
+                        <td>SH-Mobile G1</td>
+                        <td>SuperH + ARM</td>
+                        <td style="text-align:center;"><span class="badge-partial">Medium</span> <span class="medium">(arm1136)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Fujitsu F905i</td>
+                        <td>SH-Mobile G2</td>
+                        <td>ARM1136 + SHX2</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm1136)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">NEC N900i / N901iC</td>
+                        <td>TI OMAP1610</td>
+                        <td>ARM9 (ARMv5)</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm926)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">NEC N902i</td>
+                        <td>TI OMAP</td>
+                        <td>ARM9</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">NEC N903i</td>
+                        <td>TI OMAP2430</td>
+                        <td>ARM1136 (ARMv6)</td>
+                        <td style="text-align:center;"><span class="badge-pass">Excellent</span> <span class="excellent">(arm1136)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Panasonic P900i–P903i</td>
+                        <td>TI OMAP (shared)</td>
+                        <td>ARM9 / ARM11</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good–Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Sharp SH900i</td>
+                        <td>TI OMAP1610</td>
+                        <td>ARM9</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm926)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Sharp SH903i</td>
+                        <td>TI OMAP2430</td>
+                        <td>ARM1136</td>
+                        <td style="text-align:center;"><span class="badge-pass">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Sharp SH903iTV / SH905i / SH-01A</td>
+                        <td>SH-Mobile G1/G2/G3</td>
+                        <td>ARM1136 + SuperH</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm1136)</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">905SH / 911SH</td>
+                        <td>Proprietary multimedia</td>
+                        <td>Mixed</td>
+                        <td style="text-align:center;"><span class="badge-partial">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Raku-Raku F880iES / F883i / F884i</td>
+                        <td>SH-Mobile G1</td>
+                        <td>ARM + SuperH</td>
+                        <td style="text-align:center;"><span class="badge-partial">Medium–Good</span></td>
+                    </tr>
+                    <tr>
+                        <td class="model">Raku-Raku F-01A</td>
+                        <td>SH-Mobile G series</td>
+                        <td>ARM1136 + SuperH</td>
+                        <td style="text-align:center;"><span class="badge-pass">Good</span> <span class="good">(arm1136)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Legend -->
+        <section class="audit-card">
+            <h3><span>適合度判定基準 (Fitness Legend)</span></h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <strong class="excellent">Excellent</strong>
+                    <code>-M virt -cpu arm1136</code> と高い命令セット一致を示し、実用的なユーザーランド起動が期待できる。
+                    <br><span style="font-size:0.88em; opacity:0.85;">Close match with upstream <code>arm1136</code>; practical userland boot feasible.</span>
+                </div>
+                <div class="legend-item">
+                    <strong class="good">Good</strong>
+                    <code>arm926</code> または <code>arm1136</code> で利用可能。周辺チップセットの完全再現は不要な場合に適する。
+                    <br><span style="font-size:0.88em; opacity:0.85;">Usable with <code>arm926</code> or <code>arm1136</code>; peripheral fidelity secondary.</span>
+                </div>
+                <div class="legend-item">
+                    <strong class="medium">Medium</strong>
+                    ARM コアは利用可能だが SuperH 副コアは未対応。デュアルコア端末では機能が制限される。
+                    <br><span style="font-size:0.88em; opacity:0.85;">ARM core usable; SuperH companion core unsupported.</span>
+                </div>
+                <div class="legend-item">
+                    <strong class="poor">Poor</strong>
+                    純 SuperH 構成。現時点の upstream QEMU に実用的なマシンモデルが存在しない。
+                    <br><span style="font-size:0.88em; opacity:0.85;">Pure SuperH → no practical upstream QEMU support.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Notes -->
+        <section class="audit-card">
+            <h3><span>技術的補足 (Technical Notes)</span></h3>
+            <p>
+                <b>ARM9 (ARMv5) 系統：</b> OMAP1610 / 161x 系は QEMU の <code class="mono">arm926</code> モデルで概ね再現可能である。キャッシュ・MMU 挙動は近似であり、厳密なサイクル正確性は保証されない。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin:0.6rem 0 1.2rem 0;">
+                ARM9 (ARMv5) devices map acceptably to QEMU’s <code class="mono">arm926</code>. Cache and MMU behaviour are approximate; cycle-accurate timing is not claimed.
+            </p>
+
+            <p>
+                <b>ARM1136 (ARMv6) 系統：</b> OMAP2430 および SH-Mobile G2/G3 の ARM コアは <code class="mono">-cpu arm1136</code> との親和性が高い。B-System の AArch32 テストターゲットとして有用である。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin:0.6rem 0 1.2rem 0;">
+                ARM1136 (ARMv6) cores (OMAP2430, SH-Mobile G2/G3 ARM side) align well with <code class="mono">-cpu arm1136</code> and serve as useful AArch32 test targets for B-System.
+            </p>
+
+            <p>
+                <b>SuperH の制限：</b> QEMU には歴史的に SuperH サポートが存在するが、SH-Mobile 特有の周辺装置（LCDC、キーマトリクス、FOMA モデム）は実装されておらず、実用的な FOMA 端末エミュレーションには至らない。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin:0.6rem 0 0 0;">
+                Although QEMU retains residual SuperH code, SH-Mobile-specific peripherals (LCDC, key matrix, FOMA modem) remain unimplemented; pure SuperH FOMA handsets are therefore rated Poor.
+            </p>
+        </section>
+
+        <!-- Relation to B-System -->
+        <section class="audit-card">
+            <h3><span>B-System マルチアーキテクチャ検証との関係</span></h3>
+            <p>
+                B-System は既に Raspberry Pi 2B/3B/4B（ARM）、x86_64 UEFI、NEC PC-98、MIPS などのターゲットを単一コードベースでサポートしている。本 FOMA 適合性表は、将来的にモバイル系 ARMv5/v6 ターゲットを追加する際の参照資料として位置付けられる。SuperH 純正構成は現状スコープ外とする。
+            </p>
+            <p style="font-size:0.9em; opacity:0.85; margin-top:0.8rem;">
+                B-System already unifies Raspberry Pi (ARM), x86_64 UEFI, NEC PC-98 and MIPS targets under a single tree. This FOMA matrix supplies reference data should mobile ARMv5/v6 targets be added; pure SuperH configurations remain outside current scope.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="footer-columns">
+            <div>
+                <h4>Synrc VE OS.1</h4>
+                <p>High-Assurance VirtIO Hypervisor</p>
+                <p>Deployment Platform for Unikernels</p>
+                <p>By <a rel="me" href="https://mathstodon.xyz/@5ht">5HT</a> in C99 &amp; Erlang/OTP</p>
+            </div>
+            <div>
+                <h4>Planes Architecture</h4>
+                <ul>
+                    <li><b>0. Bedrock:</b> Hypervision (seL4)</li>
+                    <li><b>1. Control:</b> CHIMERA, LAND, NET</li>
+                    <li><b>2. Security:</b> TPM 2.0, CA, AU, CM</li>
+                    <li><b>3. Service:</b> X11, WM, CHAT, MQTT</li>
+                    <li><b>4. Applications:</b> BPE, KVS, N2O</li>
+                    <li><b>5. Products:</b> Enterprise Suites</li>
+                </ul>
+            </div>
+            <div>
+                <h4>System Images</h4>
+                <ul>
+                    <li><a href="https://hv.synrc.com/system_alpine.html"><b>Alpine:</b> Musl, OpenRC, Landlock</a></li>
+                    <li><a href="https://hv.synrc.com/system_netbsd.html"><b>NetBSD:</b> Veriexec, Kauth, NPF</a></li>
+                    <li><a href="system_freebsd.html"><b>FreeBSD:</b> Capsicum, OpenZFS, Jails</a></li>
+                    <li><a href="index.html"><b>BTRON:</b> μITRON, DP, VOBJ</a></li>
+                    <li><a href="b-system.html"><b>B-System:</b> Consumer OS Architecture</a></li>
+                    <li><a href="https://hv.synrc.com/system_nuttx.html"><b>NuttX:</b> Skynet RT, POSIX, HAL</a></li>
+                    <li><a href="system_lk.html"><b>LK:</b> Little Kernel, BeOS, Zircon</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Whitepapers</h4>
+                <ul>
+                    <li><a href="btron-article.pdf">2026 BTRON Article</a></li>
+                    <li><a href="btron-tad.pdf">2026 BTRON TAD Browser &amp; Cabinet</a></li>
+                    <li><a href="btron-tip.pdf">2026 BTRON TIP IME Mozc</a></li>
+                    <li><a href="btron-hmi.pdf">2026 BTRON HMI Standards</a></li>
+                    <li><a href="btron-smp.pdf">2026 BTRON SMP Microkernel</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
