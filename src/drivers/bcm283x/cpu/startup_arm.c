@@ -162,87 +162,6 @@ void free(void *ptr) { Ifree(ptr); }
 void* IAmalloc(size_t sz, unsigned int attr) { (void)attr; return Imalloc(sz); }
 void IAfree(void *ptr, unsigned int attr) { (void)attr; (void)ptr; }
 
-#include <stdarg.h>
-
-int tkl_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
-    if (!str || size == 0) return 0;
-    size_t idx = 0;
-    const char *p = format;
-    while (*p && idx + 1 < size) {
-        if (*p != '%') {
-            str[idx++] = *p++;
-            continue;
-        }
-        p++; /* skip '%' */
-        int width = 0;
-        while (*p >= '0' && *p <= '9') {
-            width = width * 10 + (*p - '0');
-            p++;
-        }
-        if (*p == 's') {
-            const char *s = va_arg(ap, const char*);
-            if (!s) s = "(null)";
-            while (*s && idx + 1 < size) {
-                str[idx++] = *s++;
-            }
-            p++;
-        } else if (*p == 'd' || *p == 'u' || *p == 'x' || *p == 'X') {
-            char type = *p++;
-            int val = va_arg(ap, int);
-            char num_buf[32];
-            int n_idx = 0;
-            if (type == 'd' && val < 0) {
-                if (idx + 1 < size) str[idx++] = '-';
-                val = -val;
-            }
-            unsigned int uval = (unsigned int)val;
-            unsigned int base = (type == 'x' || type == 'X') ? 16 : 10;
-            if (uval == 0) {
-                num_buf[n_idx++] = '0';
-            } else {
-                while (uval > 0 && n_idx < 30) {
-                    int digit = uval % base;
-                    num_buf[n_idx++] = (digit < 10) ? ('0' + digit) : ((type == 'X' ? 'A' : 'a') + (digit - 10));
-                    uval /= base;
-                }
-            }
-            while (n_idx < width && idx + 1 < size) {
-                str[idx++] = ' ';
-                width--;
-            }
-            for (int i = n_idx - 1; i >= 0 && idx + 1 < size; i--) {
-                str[idx++] = num_buf[i];
-            }
-        } else if (*p == 'c') {
-            int ch = va_arg(ap, int);
-            if (idx + 1 < size) str[idx++] = (char)ch;
-            p++;
-        } else if (*p == '%') {
-            if (idx + 1 < size) str[idx++] = '%';
-            p++;
-        } else {
-            if (idx + 1 < size) str[idx++] = *p++;
-        }
-    }
-    str[idx] = '\0';
-    return (int)idx;
-}
-
-int tkl_snprintf(char *str, size_t size, const char *format, ...) {
-    va_list ap;
-    va_start(ap, format);
-    int ret = tkl_vsnprintf(str, size, format, ap);
-    va_end(ap);
-    return ret;
-}
-
-int snprintf(char *str, size_t size, const char *format, ...) {
-    va_list ap;
-    va_start(ap, format);
-    int ret = tkl_vsnprintf(str, size, format, ap);
-    va_end(ap);
-    return ret;
-}
 
 /* Bit manipulation primitives for T-Kernel scheduler */
 void BitSet(uint32_t *base, int offset) {
@@ -312,6 +231,11 @@ int GetSysConf(const uint8_t *name, int *val) { (void)name; if (val) val[0] = 0;
 int SDefDevice(const void *ddev, void *idev, void **sdi) {
     (void)ddev; (void)idev;
     if (sdi) *sdi = (void*)1;
+    return 0;
+}
+
+int ScreenDrv(int ac, unsigned char *av[]) {
+    (void)ac; (void)av;
     return 0;
 }
 

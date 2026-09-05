@@ -178,13 +178,8 @@ ARCH_BCM_SRCS = src/drivers/bcm283x/cpu/cache.c      \
                 src/drivers/bcm283x/cpu/cpu_calls.c  \
                 src/drivers/bcm283x/cpu/cpu_init.c   \
                 src/drivers/bcm283x/cpu/devinit.c    \
-                src/drivers/bcm283x/cpu/patch.c      \
                 src/drivers/bcm283x/cpu/power.c      \
                 src/drivers/bcm283x/cpu/tkdev_init.c \
-                src/drivers/bcm283x/screen/em1d512.c \
-                src/drivers/bcm283x/screen/conf.c    \
-                src/drivers/bcm283x/screen/common.c  \
-                src/drivers/bcm283x/screen/main.c    \
                 src/drivers/bcm283x/usb/dwc2.c
 
 TKERNEL_SAKAMURA_SRCS = \
@@ -343,9 +338,6 @@ src/kernel/%.tkernel.o: src/kernel/%.c
 src/drivers/bcm283x/cpu/%.tkernel.o: src/drivers/bcm283x/cpu/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
 
-src/drivers/bcm283x/screen/%.tkernel.o: src/drivers/bcm283x/screen/%.c
-	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
-
 %.tkernel.o: %.c
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DBTRON_TARGET=2 -c $< -o $@
 
@@ -362,9 +354,6 @@ src/kernel/%.sakamura.o: src/kernel/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
 
 src/drivers/bcm283x/cpu/%.sakamura.o: src/drivers/bcm283x/cpu/%.c
-	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
-
-src/drivers/bcm283x/screen/%.sakamura.o: src/drivers/bcm283x/screen/%.c
 	$(CC) $(CFLAGS) $(TKERNEL_INC) $(SDL_CFLAGS) -DBTRON_TARGET=3 -c $< -o $@
 
 %.sakamura.o: %.c
