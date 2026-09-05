@@ -74,9 +74,11 @@ void ps2_gs_wait_vsync(void)
     /* Clear VSINT status bit */
     GS_REG(GS_CSR_OFFSET) = (1ULL << 3);
 
-    /* Poll until VBlank start occurs */
-    while (!(GS_REG(GS_CSR_OFFSET) & (1ULL << 3))) {
-        /* Busy wait */
+    /* Poll until VBlank start occurs or timeout */
+    for (volatile int i = 0; i < 200000; i++) {
+        if (GS_REG(GS_CSR_OFFSET) & (1ULL << 3)) {
+            break;
+        }
     }
 }
 

@@ -10,6 +10,8 @@
 #   pc98          B-System/BTRON3 3.20 (i386-pc98) Awe Morris — T-Kernel 2.0 [Target 5]
 #   arm64-elf     B-System/BTRON3 3.20 (aarch64-bcm2711) Takanori Yokoyama — T-Kernel 2.0 [Target 6]
 #   m68k          B-System/BTRON3 3.20 (m68k-q800) Motorola 68040 — Cleanroom TRON Kernel [Target 7]
+#   ps2           B-System/BTRON3 3.20 (ps2-ee) Sony PlayStation 2 — Cleanroom TRON Kernel [Target 8]
+#   mips          B-System/BTRON3 3.20 (mips-malta) Bare-Metal MIPS — Cleanroom TRON Kernel [Target 9]
 #
 # Run Commands:
 #   run-posix     Boot POSIX Microkernel Desktop (btron-posix)
@@ -21,21 +23,26 @@
 #   run-uefi      Boot x86_64 UEFI SMP in QEMU (btron-uchida.elf, aliases: run-eufi, run-uefu)
 #   run-pc98      Boot NEC PC-9801/PC-9821 VM in QEMU (btron-morris.elf)
 #   run-m68k      Boot Motorola 68040 Macintosh Quadra 800 in QEMU (btron-m68k.elf)
+#   run-ps2       Boot Sony PlayStation 2 Emotion Engine in PCSX2 (btron-ps2.elf)
+#   run-mips      Boot Bare-Metal MIPS in QEMU Malta / Magnum (btron-mips.elf)
 #   test-kernel   Test Pi 2B ELF in QEMU (raspi2b, serial-only, headless)
 #   debug-gdb     QEMU + GDB stub on Pi 2B
 
 CC ?= gcc
 CFLAGS ?= -O2 -Wall -Wextra -std=c99 -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores
 
-.PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k \
-        html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k \
+.PHONY: all posix qemu kernel tkernel sakamura uefi pc98 arm-elf arm64-elf m68k ps2 mips \
+        html2tad tad_bin test test-kernel test-yoko test-yoko4 test-m68k test-mips \
         test-mozc test-editor test-hmi test-tad test-chat test-wylie verify \
-        run-posix run-qemu run-kernel run-yoko run-yoko4 run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k debug-virtio debug-gdb clean
+        run-posix run-qemu run-kernel run-yoko run-yoko4 run-sakamura run-uefi run-eufi run-uefu run-pc98 run-m68k run-ps2 run-mips debug-virtio debug-gdb clean
 
 QEMU_ARM     ?= qemu-system-arm
 QEMU_AARCH64 ?= qemu-system-aarch64
 QEMU_X86_64  ?= qemu-system-x86_64
 QEMU_M68K    ?= qemu-system-m68k
+QEMU_MIPS    ?= qemu-system-mipsel
+QEMU_MIPS64  ?= qemu-system-mips64el
+PCSX2_BIN    ?= /Applications/PCSX2.app/Contents/MacOS/PCSX2
 M68K_CC      ?= m68k-elf-gcc
 
 LLVM_CLANG := $(shell for p in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang /usr/lib/llvm-*/bin/clang clang; do if command -v "$$p" >/dev/null 2>&1; then echo "$$p"; break; fi; done)
@@ -53,6 +60,10 @@ else
     X86_CC ?= $(if $(shell command -v i686-elf-gcc 2>/dev/null),i686-elf-gcc -ffreestanding -nostdlib,$(if $(shell command -v clang 2>/dev/null),clang --target=i686-none-elf -ffreestanding -nostdlib,$(CC) -m32 -ffreestanding -nostdlib))
     X86_LD ?= $(if $(shell command -v i686-elf-ld 2>/dev/null),i686-elf-ld,$(if $(LLD_BIN),$(LLD_BIN) -m elf_i386,ld -m elf_i386))
 endif
+
+# MIPS / PS2 Freestanding (Target 8: PS2 EE, Target 9: Malta / Magnum)
+MIPS_CC ?= $(LLVM_CLANG) --target=mipsel-unknown-elf -march=mips32r2 -mabi=32 -ffreestanding -nostdlib
+MIPS_LD ?= $(if $(shell command -v mipsel-linux-gnu-ld 2>/dev/null),mipsel-linux-gnu-ld,$(LLD_BIN) -EL)
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
 BCM_INC      = -Iinclude -Iinclude/arch/bcm283x -Isrc/kernel -Isrc/cores
@@ -500,6 +511,135 @@ test-m68k: $(M68K_TARGET)
 	    -kernel $(M68K_TARGET) -serial stdio -display none
 
 # ═══════════════════════════════════════════════════════════════════
+# Sony PlayStation 2 Emotion Engine Kernel (ps2 / PCSX2) [Target 8]
+# ═══════════════════════════════════════════════════════════════════
+PS2_TARGET     = btron-ps2.elf
+PS2_ISO        = btron-ps2.iso
+PS2_LD_SCRIPT  = src/drivers/ps2/ps2.ld
+PS2_CFLAGS     = -O2 -Wall -Wextra -std=c99 -ffreestanding -nostdlib \
+                 -DBTRON_TARGET=8 -DBTRON_PS2_TARGET \
+                 -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores -Isrc/drivers/ps2
+PS2_STARTUP    = src/cores/core_ps2.c
+PS2_SRCS       = $(PS2_STARTUP)           \
+                 src/drivers/ps2/ps2_gs.c \
+                 src/drivers/ps2/ps2_sio.c \
+                 src/kernel/libstr.c
+PS2_OBJS       = src/drivers/ps2/boot_ps2.ps2.o $(PS2_SRCS:.c=.ps2.o)
+
+%.ps2.o: %.s
+	$(MIPS_CC) -c $< -o $@
+
+%.ps2.o: %.c
+	$(MIPS_CC) $(PS2_CFLAGS) -c $< -o $@
+
+ps2: $(PS2_TARGET) $(PS2_ISO)
+
+$(PS2_TARGET): $(PS2_OBJS) $(PS2_LD_SCRIPT)
+	@echo "=========================================================="
+	@echo " Building B-System PS2 Kernel: $@"
+	@echo "=========================================================="
+	$(MIPS_LD) -T $(PS2_LD_SCRIPT) $(PS2_OBJS) -o $@
+	@echo "[PS2-ELF] Built: $@"
+	@file $@
+
+$(PS2_ISO): $(PS2_TARGET)
+	@echo "=========================================================="
+	@echo " Packaging Bootable PS2 Disc ISO: $@"
+	@echo "=========================================================="
+	@rm -rf build/ps2_iso
+	@mkdir -p build/ps2_iso
+	@printf "BOOT2 = cdrom0:\\\\BTRON.ELF;1\r\nVER = 1.00\r\nVMODE = NTSC\r\n" > build/ps2_iso/SYSTEM.CNF
+	@cp $(PS2_TARGET) build/ps2_iso/BTRON.ELF
+	@if command -v hdiutil >/dev/null 2>&1; then \
+	    rm -f $@; \
+	    hdiutil makehybrid -iso -joliet -default-volume-name "BTRON3_PS2" -o $@ build/ps2_iso >/dev/null; \
+	elif command -v genisoimage >/dev/null 2>&1; then \
+	    genisoimage -o $@ -V "BTRON3_PS2" build/ps2_iso >/dev/null; \
+	elif command -v mkisofs >/dev/null 2>&1; then \
+	    mkisofs -o $@ -V "BTRON3_PS2" build/ps2_iso >/dev/null; \
+	elif command -v xorriso >/dev/null 2>&1; then \
+	    xorriso -as mkisofs -o $@ -V "BTRON3_PS2" build/ps2_iso >/dev/null 2>&1; \
+	fi
+	@rm -rf build/ps2_iso
+	@echo "[PS2-ISO] Packaged: $@"
+	@file $@
+
+run-ps2: $(PS2_ISO)
+	@echo "=========================================================="
+	@echo " Launching B-System PS2 on PCSX2 Emulator"
+	@echo " Machine  : Sony PlayStation 2 (Emotion Engine R5900)"
+	@echo " CPU      : 128-bit SIMD MIPS Core @ 294.912 MHz"
+	@echo " RAM      : 32 MB RDRAM | VRAM: 4 MB GS eDRAM"
+	@echo " Display  : Graphics Synthesizer 640x480 @ 32-bpp RGBA"
+	@echo " Disc ISO : $(PS2_ISO) (SYSTEM.CNF -> BTRON.ELF)"
+	@echo " Emulator : $(PCSX2_BIN)"
+	@echo "=========================================================="
+	@if [ -x "$(PCSX2_BIN)" ]; then \
+	    "$(PCSX2_BIN)" -fastboot $(CURDIR)/$(PS2_ISO); \
+	elif [ -d "/Applications/PCSX2.app" ]; then \
+	    open -a /Applications/PCSX2.app --args -fastboot $(CURDIR)/$(PS2_ISO); \
+	else \
+	    echo "[ERROR] PCSX2 not found at $(PCSX2_BIN)"; \
+	    exit 1; \
+	fi
+
+# ═══════════════════════════════════════════════════════════════════
+# Bare-Metal MIPS Malta / Magnum Kernel (mips / QEMU) [Target 9]
+# ═══════════════════════════════════════════════════════════════════
+MIPS_TARGET     = btron-mips.elf
+MIPS_LD_SCRIPT  = src/drivers/mips/mips_qemu.ld
+MIPS_CFLAGS     = -O2 -Wall -Wextra -std=c99 -ffreestanding -nostdlib \
+                  -DBTRON_TARGET=9 -DBTRON_MIPS_TARGET \
+                  -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores -Isrc/drivers/mips
+MIPS_STARTUP    = src/cores/core_mips.c
+MIPS_SRCS       = $(MIPS_STARTUP)             \
+                  src/drivers/mips/mips_uart.c \
+                  src/kernel/libstr.c
+MIPS_OBJS       = src/drivers/mips/boot_mips.mips.o $(MIPS_SRCS:.c=.mips.o)
+
+%.mips.o: %.s
+	$(MIPS_CC) -c $< -o $@
+
+%.mips.o: %.c
+	$(MIPS_CC) $(MIPS_CFLAGS) -c $< -o $@
+
+mips: $(MIPS_TARGET)
+
+$(MIPS_TARGET): $(MIPS_OBJS) $(MIPS_LD_SCRIPT)
+	@echo "=========================================================="
+	@echo " Building B-System MIPS Kernel: $@"
+	@echo "=========================================================="
+	$(MIPS_LD) -T $(MIPS_LD_SCRIPT) $(MIPS_OBJS) -o $@
+	@echo "[MIPS-ELF] Built: $@"
+	@file $@
+
+run-mips: $(MIPS_TARGET)
+	@echo "=========================================================="
+	@echo " Launching B-System MIPS Kernel on QEMU"
+	@echo " Machine  : MIPS Malta Core LV (-M malta)"
+	@echo " CPU      : MIPS 24Kf / 5KEc (Little-Endian)"
+	@echo " RAM      : 256 MB (KSEG0 Mapped)"
+	@echo " Console  : 16550 UART COM1 @ 0x180003F8 (stdio)"
+	@echo "=========================================================="
+	@if [ "$(MAGNUM)" = "1" ] && [ -f ntprom.raw ]; then \
+	    echo "[QEMU] Booting MIPS Magnum (-M magnum) with ntprom.raw BIOS..."; \
+	    $(QEMU_MIPS64) -M magnum -bios ./ntprom.raw -m 64M; \
+	elif command -v $(QEMU_MIPS) >/dev/null 2>&1; then \
+	    $(QEMU_MIPS) -M malta -cpu 24Kf -m 256M -kernel $(MIPS_TARGET) -nographic -monitor none; \
+	elif command -v $(QEMU_MIPS64) >/dev/null 2>&1; then \
+	    $(QEMU_MIPS64) -M malta -cpu 5KEc -m 256M -kernel $(MIPS_TARGET) -nographic -monitor none; \
+	else \
+	    echo "[ERROR] Neither $(QEMU_MIPS) nor $(QEMU_MIPS64) found"; \
+	    exit 1; \
+	fi
+
+test-mips: $(MIPS_TARGET)
+	@echo "=========================================================="
+	@echo " Testing B-System MIPS Kernel on QEMU Malta (Headless CI)"
+	@echo "=========================================================="
+	@bash scripts/test_mips.sh
+
+# ═══════════════════════════════════════════════════════════════════
 # Bare-Metal ARM32 ELF — BCM283x Pi 2B (Cortex-A7 / ARMv7 / BCM2836)
 # ═══════════════════════════════════════════════════════════════════
 arm-elf: tad_bin $(ARM32_TARGET)
@@ -899,9 +1039,9 @@ clean:
 	rm -f *.out
 	rm -rf tad_bin
 	rm -f $(POSIX_TARGET) $(QEMU_TARGET) $(TKERNEL_TARGET) $(SAKAMURA_TARGET) \
-	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(M68K_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN) $(TEST_GMENU_BIN)
+	      $(ARM32_TARGET) $(ARM64_TARGET) $(DEFAULT_TARGET) $(UEFI_TARGET) btron-uefi.elf $(PC98_TARGET) btron-pc98.elf $(M68K_TARGET) $(PS2_TARGET) $(PS2_ISO) $(MIPS_TARGET) $(TEST_MOZC_BIN) $(TEST_EDITOR_BIN) $(TEST_HMI_BIN) $(TEST_TAD_BIN) $(TEST_CHAT_BIN) $(TEST_SKI_BIN) $(TEST_GMENU_BIN)
 	find src tests -type f \( -name "*.posix.o" -o -name "*.qemu.o" \
-	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.m68k.o" -o -name "*.arm32.o" \
+	    -o -name "*.tkernel.o" -o -name "*.sakamura.o" -o -name "*.uefi.o" -o -name "*.pc98.o" -o -name "*.m68k.o" -o -name "*.ps2.o" -o -name "*.mips.o" -o -name "*.arm32.o" \
 	    -o -name "*.arm64.o" -o -name "*.test.o" -o -name "*.o" \) -delete 2>/dev/null || true
 
 

@@ -13,8 +13,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/* GS Privileged Registers (KSEG1 Uncached Address: 0x12000000 | 0xA0000000) */
-#define GS_BASE                 0x12000000UL
+/* GS Privileged Registers (KSEG1 Uncached Address: 0x12000000 | 0xA0000000 = 0xB2000000) */
+#define GS_BASE                 0xB2000000UL
 #define GS_REG(offset)          (*(volatile uint64_t *)((uintptr_t)(GS_BASE + (offset))))
 
 #define GS_PMODE_OFFSET         0x0000

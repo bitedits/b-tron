@@ -40,6 +40,8 @@ By strictly separating platform-specific cores from kernel primitives and deskto
 | **Target 5** | i386 PC-98 | NEC PC-9801 / PC-9821 | `src/cores/core_pc98.c` | 640x400 Plane FB | PC-98 Bus Mouse + Kbd |
 | **Target 6** | AArch64 | Raspberry Pi 3B (BCM2837) & 4B (BCM2711) | `src/cores/core_arm64.c` | Mailbox FB 1024x768 32bpp | DWC2 USB HID + PL011 UART |
 | **Target 7** | M68K CISC | Apple Mac Quadra 800 | `src/cores/core_m68k.c` | NuBus DAFB 800x600 8bpp | ADB (VIA1) + Z8530 ESCC |
+| **Target 8** | MIPS R5900 | Sony PlayStation 2 (PCSX2) | `src/cores/core_ps2.c` | GS Framebuffer 640x480 32bpp | EE SIO / BIOS Syscall TTY |
+| **Target 9** | MIPS-III/64 | QEMU Malta & Magnum | `src/cores/core_mips.c` | 16550 Serial Console | NS16550 UART (COM1 115200) |
 
 ---
 
@@ -214,6 +216,14 @@ When developing or reviewing a port, refer to these canonical implementations:
    - AArch64 64-bit RISC architecture
    - Raspberry Pi 4B (BCM2711) hardware
    - 64-bit clean pointers and barrier operations (`dsb sy`)
+4. **[src/cores/core_ps2.c](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_ps2.c)**:
+   - Sony PlayStation 2 Emotion Engine (R5900 MIPS-III little-endian)
+   - Cleanroom Graphics Synthesizer (GS) 640x480 32-bpp RGBA video driver
+   - SIO / EE BIOS syscall console output for PCSX2 emulator (`make run-ps2`)
+5. **[src/cores/core_mips.c](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_mips.c)**:
+   - Bare-metal MIPS architecture on QEMU Malta & Magnum
+   - NS16550 UART serial driver (`0x180003F8` ISA COM1)
+   - Interactive shell monitor and RTOS heartbeat (`make run-mips`)
 
 ---
 
