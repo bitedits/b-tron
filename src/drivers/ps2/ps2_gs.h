@@ -32,9 +32,9 @@
 #define GS_BUSDIR_OFFSET        0x1040
 #define GS_SIGBLID_OFFSET       0x1080
 
-/* Screen Dimensions */
+/* Screen Dimensions (Standard Sony PS2 NTSC Framebuffer) */
 #define PS2_SCREEN_WIDTH        640
-#define PS2_SCREEN_HEIGHT       480
+#define PS2_SCREEN_HEIGHT       448
 #define PS2_SCREEN_BPP          32
 #define PS2_SCREEN_PITCH        (PS2_SCREEN_WIDTH * (PS2_SCREEN_BPP / 8))
 
@@ -47,12 +47,16 @@
 /* Public API */
 void ps2_gs_init(uint32_t width, uint32_t height);
 void ps2_gs_set_bgcolor(uint8_t r, uint8_t g, uint8_t b);
+void ps2_gs_vsync(void);
 void ps2_gs_wait_vsync(void);
+void ps2_gs_swap_buffers(void);
+void ps2_gs_flush(void);
 uint32_t *ps2_gs_get_framebuffer(void);
 void ps2_gs_flip(void);
 void ps2_gs_putpixel(int x, int y, uint32_t color);
 void ps2_gs_fill_rect(int x, int y, int w, int h, uint32_t color);
 void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t color);
 void ps2_gs_draw_cursor(int x, int y);
+void ps2_gs_erase_cursor(int x, int y);
 
 #endif /* PS2_GS_H */

@@ -524,6 +524,8 @@ PS2_STARTUP    = src/cores/core_ps2.c
 PS2_SRCS       = $(PS2_STARTUP)           \
                  src/drivers/ps2/ps2_gs.c \
                  src/drivers/ps2/ps2_sio.c \
+                 src/drivers/ps2/ps2_pad.c \
+                 src/drivers/ps2/ps2_usb.c \
                  src/kernel/libstr.c
 PS2_OBJS       = src/drivers/ps2/boot_ps2.ps2.o $(PS2_SRCS:.c=.ps2.o)
 

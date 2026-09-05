@@ -74,6 +74,24 @@ assert_check "Symbol 'ps2_set_gs_crt' exists" \
 assert_check "Symbol 'ps2_gs_put_imr' exists" \
     "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_put_imr$'"
 
+assert_check "Symbol 'ps2_gs_vsync' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_vsync$'"
+
+assert_check "Symbol 'ps2_gs_swap_buffers' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_swap_buffers$'"
+
+assert_check "Symbol 'ps2_pad_init' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_pad_init$'"
+
+assert_check "Symbol 'ps2_pad_poll' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_pad_poll$'"
+
+assert_check "Symbol 'ps2_usb_init' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_init$'"
+
+assert_check "Symbol 'ps2_usb_poll' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_usb_poll$'"
+
 # 5. Check Instruction Encoding for Emotion Engine MIPS-III Compatibility
 # Emotion Engine R5900 does not support MIPS32r2 opcodes like seb, seh, ins, ext
 assert_check "Zero invalid MIPS32r2 opcodes (seb, seh, ins, ext)" \

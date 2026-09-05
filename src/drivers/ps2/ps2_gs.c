@@ -139,14 +139,50 @@ void ps2_gs_set_bgcolor(uint8_t r, uint8_t g, uint8_t b)
     GS_REG(GS_BGCOLOR_OFFSET) = ((uint64_t)r << 0) | ((uint64_t)g << 8) | ((uint64_t)b << 16);
 }
 
-void ps2_gs_wait_vsync(void)
+/* Framebuffer page tracking for hardware double buffering (0 and 160) */
+static uint32_t s_draw_fbp = 0;
+static uint32_t s_disp_fbp = 0;
+
+void ps2_gs_vsync(void)
 {
+    /* Clear GS CSR VSync interrupt (bit 3) */
     GS_REG(GS_CSR_OFFSET) = (1ULL << 3);
     for (volatile int i = 0; i < 200000; i++) {
         if (GS_REG(GS_CSR_OFFSET) & (1ULL << 3)) {
             break;
         }
     }
+}
+
+void ps2_gs_wait_vsync(void)
+{
+    ps2_gs_vsync();
+}
+
+void ps2_gs_swap_buffers(void)
+{
+    /* Wait for VSync before flipping to prevent tearing */
+    ps2_gs_vsync();
+
+    /* Swap page indices: FBP 0 <-> 160 */
+    uint32_t old_disp = s_disp_fbp;
+    s_disp_fbp = s_draw_fbp;
+    s_draw_fbp = (old_disp == 0) ? 160 : 0;
+
+    /* Update PCRTC display base to newly presented front buffer */
+    uint64_t dispfb = ((uint64_t)s_disp_fbp << 0) |
+                      ((uint64_t)(PS2_SCREEN_WIDTH / 64) << 9) |
+                      ((uint64_t)GS_PSM_CT32 << 15);
+    GS_REG(GS_DISPFB1_OFFSET) = dispfb;
+
+    /* Update GS FRAME_1 drawing target to back buffer via GIF DMA */
+    static uint64_t frame_pkt[2 * 2] __attribute__((aligned(16)));
+    uint64_t *p = (uint64_t *)UNCACHED(frame_pkt);
+    p[0] = (1ULL << 0) | (1ULL << 15) | (0ULL << 58) | (1ULL << 60);
+    p[1] = 0x0EULL;
+    p[2] = ((uint64_t)s_draw_fbp << 0) | ((uint64_t)(PS2_SCREEN_WIDTH / 64) << 16) | (0ULL << 24) | (0ULL << 32);
+    p[3] = 0x4CULL;
+    ps2_dma_gif_send(frame_pkt, 2);
 }
 
 uint32_t *ps2_gs_get_framebuffer(void)
@@ -159,22 +195,14 @@ void ps2_gs_flip(void)
     ps2_gs_wait_vsync();
 }
 
-/* Rasterize solid filled 2D rectangle via GS PRIM_SPRITE through GIF DMA */
-void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t argb)
+/* Low-level: rasterize solid filled 2D rectangle primitive directly to GS VRAM */
+static void ps2_gs_send_sprite(int x, int y, int w, int h, uint32_t argb)
 {
     if (x < 0) { w += x; x = 0; }
     if (y < 0) { h += y; y = 0; }
     if (x + w > PS2_SCREEN_WIDTH)  w = PS2_SCREEN_WIDTH - x;
     if (y + h > PS2_SCREEN_HEIGHT) h = PS2_SCREEN_HEIGHT - y;
     if (w <= 0 || h <= 0) return;
-
-    /* Keep CPU RDRAM framebuffer synchronized */
-    for (int j = y; j < y + h; j++) {
-        uint32_t *row = &ps2_fb_memory[j * PS2_SCREEN_WIDTH + x];
-        for (int i = 0; i < w; i++) {
-            row[i] = argb;
-        }
-    }
 
     static uint64_t draw_pkt[3 * 2] __attribute__((aligned(16)));
     uint64_t *p = (uint64_t *)UNCACHED(draw_pkt);
@@ -195,14 +223,34 @@ void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t argb)
     p[3] = (uint64_t)r | ((uint64_t)g << 8) | ((uint64_t)b << 16) | ((uint64_t)a << 24) | (0x3F800000ULL << 32);
 
     /* QW2: XYZ2 v0 (dw0) + XYZ2 v1 (dw1) (in 16ths of pixel, offset by 2048) */
-    int x0 = (x + 2048) << 4;
-    int y0 = (y + 2048) << 4;
-    int x1 = (x + w + 2048) << 4;
-    int y1 = (y + h + 2048) << 4;
-    p[4] = ((uint64_t)x0 << 0) | ((uint64_t)y0 << 16);
-    p[5] = ((uint64_t)x1 << 0) | ((uint64_t)y1 << 16);
+    uint32_t x0 = (uint32_t)(x + 2048) << 4;
+    uint32_t y0 = (uint32_t)(y + 2048) << 4;
+    uint32_t x1 = (uint32_t)(x + w + 2048) << 4;
+    uint32_t y1 = (uint32_t)(y + h + 2048) << 4;
+    p[4] = ((uint64_t)(x0 & 0xFFFF) << 0) | ((uint64_t)(y0 & 0xFFFF) << 16);
+    p[5] = ((uint64_t)(x1 & 0xFFFF) << 0) | ((uint64_t)(y1 & 0xFFFF) << 16);
 
     ps2_dma_gif_send(draw_pkt, 3);
+}
+
+/* Rasterize solid filled 2D rectangle and keep CPU RDRAM backing store updated */
+void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t argb)
+{
+    if (x < 0) { w += x; x = 0; }
+    if (y < 0) { h += y; y = 0; }
+    if (x + w > PS2_SCREEN_WIDTH)  w = PS2_SCREEN_WIDTH - x;
+    if (y + h > PS2_SCREEN_HEIGHT) h = PS2_SCREEN_HEIGHT - y;
+    if (w <= 0 || h <= 0) return;
+
+    /* Keep CPU RDRAM framebuffer synchronized */
+    for (int j = y; j < y + h; j++) {
+        uint32_t *row = &ps2_fb_memory[j * PS2_SCREEN_WIDTH + x];
+        for (int i = 0; i < w; i++) {
+            row[i] = argb;
+        }
+    }
+
+    ps2_gs_send_sprite(x, y, w, h, argb);
 }
 
 void ps2_gs_fill_rect(int x, int y, int w, int h, uint32_t color)
@@ -214,11 +262,11 @@ void ps2_gs_putpixel(int x, int y, uint32_t color)
 {
     if (x >= 0 && x < PS2_SCREEN_WIDTH && y >= 0 && y < PS2_SCREEN_HEIGHT) {
         ps2_fb_memory[y * PS2_SCREEN_WIDTH + x] = color;
-        ps2_gs_draw_rect(x, y, 1, 1, color);
+        ps2_gs_send_sprite(x, y, 1, 1, color);
     }
 }
 
-/* Draw 16x16 standard B-System arrow cursor */
+/* Draw 16x16 standard B-System arrow cursor directly to GS without corrupting RDRAM */
 void ps2_gs_draw_cursor(int x, int y)
 {
     static const uint16_t cursor_mask[16] = {
@@ -264,10 +312,38 @@ void ps2_gs_draw_cursor(int x, int y)
         uint16_t o = cursor_outline[cy];
         for (int cx = 0; cx < 16; cx++) {
             if ((o >> (15 - cx)) & 1) {
-                ps2_gs_draw_rect(x + cx, y + cy, 1, 1, 0xFF000000);
+                ps2_gs_send_sprite(x + cx, y + cy, 1, 1, 0xFF000000);
             } else if ((m >> (15 - cx)) & 1) {
-                ps2_gs_draw_rect(x + cx, y + cy, 1, 1, 0xFFFFFFFF);
+                ps2_gs_send_sprite(x + cx, y + cy, 1, 1, 0xFFFFFFFF);
             }
         }
     }
 }
+
+/* Erase cursor by restoring background pixels from RDRAM framebuffer */
+void ps2_gs_erase_cursor(int x, int y)
+{
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+
+    for (int cy = 0; cy < 16; cy++) {
+        int py = y + cy;
+        if (py >= PS2_SCREEN_HEIGHT) break;
+
+        int run_start = 0;
+        while (run_start < 16) {
+            int px = x + run_start;
+            if (px >= PS2_SCREEN_WIDTH) break;
+
+            uint32_t col = ps2_fb_memory[py * PS2_SCREEN_WIDTH + px];
+            int run_len = 1;
+            while (run_start + run_len < 16 && (px + run_len) < PS2_SCREEN_WIDTH &&
+                   ps2_fb_memory[py * PS2_SCREEN_WIDTH + px + run_len] == col) {
+                run_len++;
+            }
+            ps2_gs_send_sprite(px, py, run_len, 1, col);
+            run_start += run_len;
+        }
+    }
+}
+
