@@ -62,7 +62,8 @@ else
 endif
 
 # MIPS / PS2 Freestanding (Target 8: PS2 EE, Target 9: Malta / Magnum)
-MIPS_CC ?= $(LLVM_CLANG) --target=mipsel-unknown-elf -march=mips32r2 -mabi=32 -ffreestanding -nostdlib
+MIPS_CC     ?= $(LLVM_CLANG) --target=mipsel-unknown-elf -march=mips32r2 -mabi=32 -ffreestanding -nostdlib
+PS2_CC      ?= $(LLVM_CLANG) --target=mipsel-unknown-elf -march=mips3 -mabi=32 -ffreestanding -nostdlib
 MIPS_LD ?= $(if $(shell command -v mipsel-linux-gnu-ld 2>/dev/null),mipsel-linux-gnu-ld,$(LLD_BIN) -EL)
 
 # BCM283x bare-metal flags (TYPE_RPI=2 → BCM2836, Pi 2B, Cortex-A7)
@@ -527,10 +528,10 @@ PS2_SRCS       = $(PS2_STARTUP)           \
 PS2_OBJS       = src/drivers/ps2/boot_ps2.ps2.o $(PS2_SRCS:.c=.ps2.o)
 
 %.ps2.o: %.s
-	$(MIPS_CC) -c $< -o $@
+	$(PS2_CC) -c $< -o $@
 
 %.ps2.o: %.c
-	$(MIPS_CC) $(PS2_CFLAGS) -c $< -o $@
+	$(PS2_CC) $(PS2_CFLAGS) -c $< -o $@
 
 ps2: $(PS2_TARGET) $(PS2_ISO)
 
@@ -564,20 +565,30 @@ $(PS2_ISO): $(PS2_TARGET)
 	@echo "[PS2-ISO] Packaged: $@"
 	@file $@
 
-run-ps2: $(PS2_ISO)
+run-ps: run-ps2
+
+run-ps2: $(PS2_TARGET)
 	@echo "=========================================================="
 	@echo " Launching B-System PS2 on PCSX2 Emulator"
 	@echo " Machine  : Sony PlayStation 2 (Emotion Engine R5900)"
 	@echo " CPU      : 128-bit SIMD MIPS Core @ 294.912 MHz"
 	@echo " RAM      : 32 MB RDRAM | VRAM: 4 MB GS eDRAM"
 	@echo " Display  : Graphics Synthesizer 640x480 @ 32-bpp RGBA"
-	@echo " Disc ISO : $(PS2_ISO) (SYSTEM.CNF -> BTRON.ELF)"
+	@echo " Target   : $(if $(filter 1,$(ISO)),Disc ISO: $(PS2_ISO),Direct ELF: $(PS2_TARGET))"
 	@echo " Emulator : $(PCSX2_BIN)"
 	@echo "=========================================================="
 	@if [ -x "$(PCSX2_BIN)" ]; then \
-	    "$(PCSX2_BIN)" -fastboot $(CURDIR)/$(PS2_ISO); \
+	    if [ "$(ISO)" = "1" ]; then \
+	        "$(PCSX2_BIN)" -fastboot $(CURDIR)/$(PS2_ISO); \
+	    else \
+	        "$(PCSX2_BIN)" -fastboot $(CURDIR)/$(PS2_TARGET); \
+	    fi; \
 	elif [ -d "/Applications/PCSX2.app" ]; then \
-	    open -a /Applications/PCSX2.app --args -fastboot $(CURDIR)/$(PS2_ISO); \
+	    if [ "$(ISO)" = "1" ]; then \
+	        open -a /Applications/PCSX2.app --args -fastboot $(CURDIR)/$(PS2_ISO); \
+	    else \
+	        open -a /Applications/PCSX2.app --args -fastboot $(CURDIR)/$(PS2_TARGET); \
+	    fi; \
 	else \
 	    echo "[ERROR] PCSX2 not found at $(PCSX2_BIN)"; \
 	    exit 1; \

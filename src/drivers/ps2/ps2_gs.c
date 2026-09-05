@@ -12,6 +12,10 @@
 /* Static main memory framebuffer (640 x 480 @ 32-bpp = 1,228,800 bytes) */
 static uint32_t ps2_fb_memory[PS2_SCREEN_WIDTH * PS2_SCREEN_HEIGHT] __attribute__((aligned(128)));
 
+/* Cleanroom EE BIOS Syscall Prototypes implemented in boot_ps2.s */
+extern void ps2_set_gs_crt(int16_t interlace, int16_t pal_ntsc, int16_t field);
+extern void ps2_gs_put_imr(uint32_t mask);
+
 void ps2_gs_init(uint32_t width, uint32_t height)
 {
     (void)width;
@@ -21,23 +25,32 @@ void ps2_gs_init(uint32_t width, uint32_t height)
     GS_REG(GS_CSR_OFFSET) = (1ULL << 9); /* Reset GS */
     for (volatile int i = 0; i < 1000; i++) {}
 
-    /* 2. Setup PMODE: Enable Read Circuit 1, fixed alpha blending */
-    /* PMODE:
-     *   EN1 = 1 (bit 0)
-     *   EN2 = 0 (bit 1)
-     *   CRTMD = 1 (bit 2)
-     *   MMOD = 1 (bit 3)
-     *   AMOD = 1 (bit 4)
-     *   SLBG = 0 (bit 5)
-     *   ALP = 0xFF (bits 8-15)
+    /* 2. Unmask GS interrupts via BIOS syscall */
+    ps2_gs_put_imr(0xFF00);
+
+    /* 3. Configure PCRTC video mode via BIOS SetGsCrt syscall:
+     *    interlace = 1 (PS2_INTERLACED)
+     *    pal_ntsc  = 2 (PS2_NTSC)
+     *    field     = 1 (PS2_FRAME)
+     * This signals the PCSX2 display controller to initialize the 640x480 screen.
      */
-    GS_REG(GS_PMODE_OFFSET) = 0x0000FF1DULL;
+    ps2_set_gs_crt(1, 2, 1);
 
-    /* 3. Setup SMODE2: Non-interlaced, DTV 480p / NTSC progressive */
-    /* INT = 0, FFMD = 1, DPMS = 0 */
-    GS_REG(GS_SMODE2_OFFSET) = 0x00000002ULL;
+    /* 4. Setup PMODE:
+     *    EN1  = 1 (Circuit 1 enabled, bit 0)
+     *    EN2  = 0 (Circuit 2 disabled, bit 1)
+     *    CRTMD= 1 (bit 2)
+     *    MMOD = 1 (bit 5)
+     *    AMOD = 1 (bit 6)
+     *    SLBG = 1 (bit 7 - blend/show BGCOLOR)
+     *    ALP  = 0xFF (bits 8-15)
+     */
+    GS_REG(GS_PMODE_OFFSET) = 0xFFE5ULL;
 
-    /* 4. Setup DISPFB1:
+    /* 5. Setup SMODE2: Interlaced, Frame mode */
+    GS_REG(GS_SMODE2_OFFSET) = 0x00000003ULL;
+
+    /* 6. Setup DISPFB1:
      *   FBP  = 0 (GS local memory block 0)
      *   FBW  = 640 / 64 = 10 blocks (bits 9-14)
      *   PSM  = 0 (CT32 RGBA32, bits 15-19)
@@ -47,12 +60,12 @@ void ps2_gs_init(uint32_t width, uint32_t height)
     uint64_t dispfb = (0ULL << 0) | ((uint64_t)(PS2_SCREEN_WIDTH / 64) << 9) | ((uint64_t)GS_PSM_CT32 << 15);
     GS_REG(GS_DISPFB1_OFFSET) = dispfb;
 
-    /* 5. Setup DISPLAY1:
-     *   Standard NTSC / DTV display window coordinates:
-     *   DX = 636, DY = 50, MAGH = 3, MAGV = 0, DW = 2559, DH = 479
+    /* 7. Setup DISPLAY1:
+     *   Standard NTSC display window coordinates:
+     *   DX = 656, DY = 36, MAGH = 3, MAGV = 0, DW = 2559, DH = 479
      */
-    uint64_t dx = 636;
-    uint64_t dy = 50;
+    uint64_t dx = 656;
+    uint64_t dy = 36;
     uint64_t magh = 3;
     uint64_t magv = 0;
     uint64_t dw = 2559;
@@ -60,8 +73,8 @@ void ps2_gs_init(uint32_t width, uint32_t height)
     uint64_t display = (dx << 0) | (dy << 12) | (magh << 23) | (magv << 27) | (dw << 32) | (dh << 44);
     GS_REG(GS_DISPLAY1_OFFSET) = display;
 
-    /* 6. Default Background Color (Deep TRON Navy Blue: R=16, G=32, B=64) */
-    ps2_gs_set_bgcolor(16, 32, 64);
+    /* 8. Default Background Color (Deep TRON Navy Blue: R=16, G=32, B=64) */
+    ps2_gs_set_bgcolor(24, 48, 80);
 }
 
 void ps2_gs_set_bgcolor(uint8_t r, uint8_t g, uint8_t b)

@@ -45,42 +45,33 @@ Like all B-System workstation ports, the PS2 and MIPS targets adhere strictly to
 ### Driver Files
 | File | Role |
 |:---|:---|
-| [`src/drivers/ps2/boot_ps2.s`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/boot_ps2.s) | EE reset vector, CP0 interrupt disable, `$gp` and `$sp` setup, BSS wipe, EE BIOS syscall `0x75` (`ps2_sio_putc_raw`). |
+| [`src/drivers/ps2/boot_ps2.s`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/boot_ps2.s) | EE reset vector, `$gp` and `$sp` setup, unrolled BSS wipe, jumps to `ps2_kernel_main`. |
 | [`src/drivers/ps2/ps2.ld`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2.ld) | Memory layout script linking `.text` at `0x00100000`. |
-| [`src/drivers/ps2/ps2_gs.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.h) | Privileged GS register declarations (`PMODE`, `SMODE2`, `DISPFB1`, `DISPLAY1`, `CSR`). |
+| [`src/drivers/ps2/ps2_gs.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.h) | Privileged GS register declarations (`0x12000000`: `PMODE`, `SMODE2`, `DISPFB1`, `DISPLAY1`, `CSR`). |
 | [`src/drivers/ps2/ps2_gs.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_gs.c) | 640x480 @ 32-bpp progressive RGBA display init, VBlank synchronization, framebuffer management. |
-| [`src/drivers/ps2/ps2_sio.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.h) & [`.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.c) | Console output routed to PCSX2 terminal log window. |
+| [`src/drivers/ps2/ps2_sio.h`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.h) & [`.c`](file:///Users/tonpa/depot/bitedits/btron/src/drivers/ps2/ps2_sio.c) | Cleanroom console output. |
 | [`src/cores/core_ps2.c`](file:///Users/tonpa/depot/bitedits/btron/src/cores/core_ps2.c) | Platform core adapter: renders B-System Workbench desktop, handles system ticks, and runs executive loop. |
 
-### Disc Packaging (`btron-ps2.iso`)
-PlayStation 2 optical disc controllers (CDVD) and PCSX2 require an ISO filesystem containing a `SYSTEM.CNF` boot descriptor:
+### Architecture & Compiler Details
+- **Architecture**: The Emotion Engine R5900 implements **MIPS-III** with Sony 128-bit multimedia extensions.
+- **Compiler Flags**: `-march=mips3 -mabi=32` is strictly required. Compiling with `mips32r2` causes the compiler to emit instructions unsupported by the R5900 (such as `seb` / sign-extend-byte), which trip Coprocessor / TLB exceptions in PCSX2.
+- **Register Addressing**: GS privileged registers are mapped directly into user space at `0x12000000` (CSR @ `0x12001000`).
 
-```ini
-BOOT2 = cdrom0:\BTRON.ELF;1
-VER = 1.00
-VMODE = NTSC
-```
-
-Running `make ps2` automatically:
-1. Compiles and links `btron-ps2.elf`.
-2. Packages a bootable ISO9660 filesystem image `btron-ps2.iso` using `hdiutil makehybrid` (macOS) or `genisoimage` / `mkisofs` (Linux).
-
-### PCSX2 Configuration
-1. **Application Location**: `/Applications/PCSX2.app` (macOS Homebrew Cask).
-2. **BIOS Directory**: `~/Library/Application Support/PCSX2/bios/` (or `/Library/Application Support/PCSX2/bios/`).
-   - Place a valid PS2 BIOS dump (e.g. `scph39004.bin`, `ps2-0230a-20080220.bin`) into this directory.
-3. **First-Time Setup**:
-   - Open PCSX2 from Applications.
-   - Go to **Settings > BIOS** and select your placed BIOS.
-   - Under **Settings > Emulation**, verify **Fast Boot** is enabled.
+### Running with PCSX2
+PCSX2 supports both direct ELF execution and virtual CD/DVD disc images:
+- **Direct ELF (`make run-ps2`)** [Recommended]: Executes `btron-ps2.elf` directly using PCSX2's native Host filesystem (`-elf`). This completely bypasses optical drive/disc formatting issues and eliminates "No Image" errors.
+- **Disc ISO (`make run-ps2 ISO=1`)**: Boots `btron-ps2.iso` via virtual CDVD (`-fastboot`).
 
 ### Building & Running PS2
 ```bash
 # Build ELF and packaged ISO:
 make ps2
 
-# Launch in PCSX2:
+# Launch ELF directly in PCSX2 (No disc/image errors):
 make run-ps2
+
+# Or launch via ISO image:
+make run-ps2 ISO=1
 ```
 
 ---

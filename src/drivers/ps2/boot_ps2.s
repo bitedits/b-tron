@@ -29,14 +29,6 @@
 .align 4
 
 _start:
-    /* Disable interrupts in Coprocessor 0 Status register */
-    mfc0    $k0, $12            /* CP0 Status */
-    li      $k1, ~0x00010001    /* Clear ERL and IE */
-    and     $k0, $k0, $k1
-    mtc0    $k0, $12
-    nop
-    nop
-
     /* Initialize Global Pointer ($gp) and Stack Pointer ($sp) */
     la      $gp, _gp
     lui     $sp, 0x01FF
@@ -75,10 +67,23 @@ ps2_delay_cycles:
     jr      $ra
     nop
 
-/* ps2_sio_putc_raw(char c) via EE BIOS Syscall 0x75 / 0x3d if supported */
+/* ps2_sio_putc_raw(char c) */
 ps2_sio_putc_raw:
-    /* Syscall 0x75 (printf/sio_putc in PS2 EE BIOS) */
-    li      $v1, 0x75
+    jr      $ra
+    nop
+
+/* ps2_set_gs_crt(int16_t interlace, int16_t pal_ntsc, int16_t field) */
+.global ps2_set_gs_crt
+ps2_set_gs_crt:
+    li      $v1, 0x02           /* SetGsCrt syscall */
+    syscall
+    jr      $ra
+    nop
+
+/* ps2_gs_put_imr(uint32_t mask) */
+.global ps2_gs_put_imr
+ps2_gs_put_imr:
+    li      $v1, 0x71           /* GsPutIMR syscall */
     syscall
     jr      $ra
     nop
