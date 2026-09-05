@@ -125,6 +125,21 @@ assert_check "Symbol 'open_t_editor_window' exists" \
 assert_check "Symbol 'open_gterm_window' exists" \
     "$READELF -s $ELF | grep -E '[[:space:]]open_gterm_window$'"
 
+assert_check "Symbol 'launch_ps2_desktop_session' exists (Two-Stage GUI loader)" \
+    "$READELF -s $ELF | grep -E '[[:space:]]launch_ps2_desktop_session$'"
+
+assert_check "Symbol 'ps2_gs_text_puts' exists (Stage 1 Text Console)" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_text_puts$'"
+
+assert_check "Symbol 'ps2_gs_set_mode' exists (800x600 VESA Mode Switcher)" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_set_mode$'"
+
+assert_check "Symbol 'ps2_gs_get_width' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_get_width$'"
+
+assert_check "Symbol 'ps2_gs_get_height' exists" \
+    "$READELF -s $ELF | grep -E '[[:space:]]ps2_gs_get_height$'"
+
 # 5. Check Instruction Encoding for Emotion Engine MIPS-III Compatibility
 # Emotion Engine R5900 does not support MIPS32r2 opcodes like seb, seh, ins, ext
 assert_check "Zero invalid MIPS32r2 opcodes (seb, seh, ins, ext)" \

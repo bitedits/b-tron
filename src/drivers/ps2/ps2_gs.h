@@ -32,11 +32,16 @@
 #define GS_BUSDIR_OFFSET        0x1040
 #define GS_SIGBLID_OFFSET       0x1080
 
-/* Screen Dimensions (Standard Sony PS2 NTSC Framebuffer) */
-#define PS2_SCREEN_WIDTH        640
-#define PS2_SCREEN_HEIGHT       448
+/* Screen Dimensions (High-Resolution 800x600 @ 32-bpp VESA Framebuffer) */
+#define PS2_SCREEN_WIDTH        800
+#define PS2_SCREEN_HEIGHT       600
 #define PS2_SCREEN_BPP          32
 #define PS2_SCREEN_PITCH        (PS2_SCREEN_WIDTH * (PS2_SCREEN_BPP / 8))
+
+/* Video Modes */
+#define PS2_MODE_VESA_800X600   0       /* VESA 800x600 @ 60Hz Non-Interlaced Progressive (Default) */
+#define PS2_MODE_DTV_480P       1       /* DTV 480p 640x480 Progressive Scan */
+#define PS2_MODE_NTSC_448I      2       /* NTSC 640x448 Frame Mode Interlaced */
 
 /* GS Pixel Formats */
 #define GS_PSM_CT32             0x00    /* RGBA32 */
@@ -46,6 +51,9 @@
 
 /* Public API */
 void ps2_gs_init(uint32_t width, uint32_t height);
+void ps2_gs_set_mode(int mode);
+int  ps2_gs_get_width(void);
+int  ps2_gs_get_height(void);
 void ps2_gs_set_bgcolor(uint8_t r, uint8_t g, uint8_t b);
 void ps2_gs_vsync(void);
 void ps2_gs_wait_vsync(void);
@@ -59,4 +67,13 @@ void ps2_gs_draw_rect(int x, int y, int w, int h, uint32_t color);
 void ps2_gs_draw_cursor(int x, int y);
 void ps2_gs_erase_cursor(int x, int y);
 
+/* Text Mode Console (Stage 1) */
+void ps2_gs_text_init(void);
+void ps2_gs_text_clear(void);
+void ps2_gs_text_draw_char(int col, int row, char c, uint32_t fg, uint32_t bg);
+void ps2_gs_text_putc(char c, uint32_t fg, uint32_t bg);
+void ps2_gs_text_puts(const char *str, uint32_t fg);
+void ps2_gs_text_flush(void);
+
 #endif /* PS2_GS_H */
+

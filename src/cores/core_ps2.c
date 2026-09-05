@@ -90,12 +90,18 @@ void  free(void *p) { Ifree(p); }
 
 /* ── Framebuffer & Color Conversion ─────────────────────────────── */
 
-/* 32-bit BTRON Desktop Backbuffer (640x448 @ 32-bit ARGB COLOR) */
+/* ── Framebuffer & Color Conversion ─────────────────────────────── */
+
+/* 32-bit BTRON Desktop Backbuffer (800x600 @ 32-bit ARGB COLOR) */
 static COLOR s_desktop_backbuffer[PS2_SCREEN_WIDTH * PS2_SCREEN_HEIGHT] __attribute__((aligned(128)));
 
 /* Global Mouse Coordinates */
-static int s_mouse_x = 320;
-static int s_mouse_y = 224;
+static int s_mouse_x = 400;
+static int s_mouse_y = 300;
+static int s_gui_active = 0;
+
+/* Forward declaration */
+void launch_ps2_desktop_session(void);
 
 /* Translates BTRON ARGB (0xAARRGGBB) to PS2 GS CT32 RGBA (Byte 0=R, 1=G, 2=B, 3=A) */
 static void blit_backbuffer_to_ps2fb(void)
@@ -108,7 +114,16 @@ static void blit_backbuffer_to_ps2fb(void)
     }
 }
 
-/* ── Kernel Printf via SIO0 ─────────────────────────────────────── */
+/* Dual-output console character emitter (SIO0 UART + GS Framebuffer Text) */
+static void ps2_console_putc(char c)
+{
+    ps2_sio_putc(c);
+    if (!s_gui_active) {
+        ps2_gs_text_putc(c, 0xFFE0E0E0, 0xFF121B29);
+    }
+}
+
+/* ── Kernel Printf via SIO0 and GS Console ──────────────────────── */
 
 static void ps2_kprintf(const char *fmt, ...)
 {
@@ -116,7 +131,7 @@ static void ps2_kprintf(const char *fmt, ...)
     va_start(ap, fmt);
     while (*fmt) {
         if (*fmt != '%') {
-            ps2_sio_putc(*fmt++);
+            ps2_console_putc(*fmt++);
             continue;
         }
         fmt++;
@@ -125,11 +140,11 @@ static void ps2_kprintf(const char *fmt, ...)
         if (*fmt == 's') {
             const char *s = va_arg(ap, const char *);
             if (!s) s = "(null)";
-            ps2_sio_puts(s);
+            while (*s) ps2_console_putc(*s++);
         } else if (*fmt == 'd' || *fmt == 'i') {
             int val = va_arg(ap, int);
             if (val < 0) {
-                ps2_sio_putc('-');
+                ps2_console_putc('-');
                 val = -val;
             }
             char buf[16];
@@ -141,7 +156,7 @@ static void ps2_kprintf(const char *fmt, ...)
                     val /= 10;
                 }
             }
-            while (idx > 0) ps2_sio_putc(buf[--idx]);
+            while (idx > 0) ps2_console_putc(buf[--idx]);
         } else if (*fmt == 'u') {
             unsigned int val = va_arg(ap, unsigned int);
             char buf[16];
@@ -153,7 +168,7 @@ static void ps2_kprintf(const char *fmt, ...)
                     val /= 10;
                 }
             }
-            while (idx > 0) ps2_sio_putc(buf[--idx]);
+            while (idx > 0) ps2_console_putc(buf[--idx]);
         } else if (*fmt == 'x' || *fmt == 'X') {
             uint32_t val = va_arg(ap, uint32_t);
             char buf[16];
@@ -166,17 +181,22 @@ static void ps2_kprintf(const char *fmt, ...)
                     val >>= 4;
                 }
             }
-            while (idx > 0) ps2_sio_putc(buf[--idx]);
+            while (idx > 0) ps2_console_putc(buf[--idx]);
         } else if (*fmt == 'c') {
             char ch = (char)va_arg(ap, int);
-            ps2_sio_putc(ch);
+            ps2_console_putc(ch);
         } else if (*fmt == '%') {
-            ps2_sio_putc('%');
+            ps2_console_putc('%');
         }
         fmt++;
     }
     va_end(ap);
+
+    if (!s_gui_active) {
+        ps2_gs_text_flush();
+    }
 }
+
 
 /* ── Hardware Event Dispatchers ─────────────────────────────────── */
 
@@ -250,9 +270,13 @@ void ps2_pad_on_button(uint16_t newly_pressed, uint16_t newly_released)
         ps2_inject_key(BTRON_KEY_ESCAPE, 0);
     }
 
-    /* Start: Toggle Tracker Start Menu */
+    /* Start: Toggle Tracker Start Menu in GUI, or launch GUI from Stage 1 */
     if (newly_pressed & PAD_START) {
-        tracker_toggle_menu();
+        if (s_gui_active) {
+            tracker_toggle_menu();
+        } else {
+            launch_ps2_desktop_session();
+        }
     }
 
     /* Select: Cycle active window focus */
@@ -285,6 +309,12 @@ void ps2_pad_on_button(uint16_t newly_pressed, uint16_t newly_released)
 
 void ps2_usb_on_key(uint32_t btron_key, int down)
 {
+    if (s_gui_active && down) {
+        if (btron_key == BTRON_KEY_ESCAPE || btron_key == 'q' || btron_key == 'Q') {
+            s_gui_active = 0;
+            return;
+        }
+    }
     ps2_inject_key((UW)btron_key, down);
 }
 
@@ -303,7 +333,7 @@ void ps2_usb_on_mouse(int dx, int dy, uint8_t buttons)
     s_prev_btn = buttons;
 }
 
-/* ── Interactive SIO0 Shell ─────────────────────────────────────── */
+/* ── Interactive Shell (Stage 1 Console & Stage 2 GUI Shell) ────── */
 
 static char cmd_buf[64];
 static int cmd_pos = 0;
@@ -314,29 +344,57 @@ static void ps2_shell_exec(const char *cmd)
 {
     if (tkl_strcmp(cmd, "help") == 0) {
         ps2_kprintf("Available commands:\n");
-        ps2_kprintf("  help            - Display this command list\n");
-        ps2_kprintf("  info            - Display PS2 system and hardware specifications\n");
-        ps2_kprintf("  apps            - List all desktop applications\n");
-        ps2_kprintf("  open <app>      - Open app: cabinet, editor, terminal, sound, chat, settings\n");
-        ps2_kprintf("  tip [mode]      - Set or cycle TIP/IME (ascii, hira, kata, tibetan)\n");
-        ps2_kprintf("  tasks           - List active RTOS tasks\n");
-        ps2_kprintf("  mem             - Show memory breakdown\n");
-        ps2_kprintf("  desktop         - Force redraw of Workbench UI\n");
-        ps2_kprintf("  status          - Show mouse position, TIP mode, and system status\n");
-        ps2_kprintf("  mouse <x> <y>   - Move cursor to absolute position (0..640, 0..448)\n");
-        ps2_kprintf("  move <dx> <dy>  - Move cursor relative by (dx, dy)\n");
-        ps2_kprintf("  click [1|2]     - Click Left (1) or Right (2) mouse button\n");
-        ps2_kprintf("  key <char>      - Inject key event into active window\n");
-        ps2_kprintf("  type <text>     - Type string into active window\n");
+        ps2_kprintf("  desktop / startx - Launch authentic B-System 800x600 GUI session\n");
+        ps2_kprintf("  exit / console   - Exit GUI session and return to Stage 1 shell\n");
+        ps2_kprintf("  res              - Display active resolution and GS PCRTC mode\n");
+        ps2_kprintf("  help             - Display this command list\n");
+        ps2_kprintf("  info             - Display PS2 system and hardware specifications\n");
+        ps2_kprintf("  apps             - List all desktop applications\n");
+        ps2_kprintf("  open <app>       - Open app: cabinet, editor, terminal, sound, chat, settings\n");
+        ps2_kprintf("  tip [mode]       - Set or cycle TIP/IME (ascii, hira, kata, tibetan)\n");
+        ps2_kprintf("  tasks            - List active RTOS tasks\n");
+        ps2_kprintf("  mem              - Show memory breakdown\n");
+        ps2_kprintf("  status           - Show mouse position, TIP mode, and system status\n");
+        ps2_kprintf("  mouse <x> <y>    - Move cursor to absolute position (0..800, 0..600)\n");
+        ps2_kprintf("  move <dx> <dy>   - Move cursor relative by (dx, dy)\n");
+        ps2_kprintf("  click [1|2]      - Click Left (1) or Right (2) mouse button\n");
+        ps2_kprintf("  key <char>       - Inject key event into active window\n");
+        ps2_kprintf("  type <text>      - Type string into active window\n");
         ps2_kprintf("  pad <hex> [lx ly] - Simulate DualShock 2 controller state\n");
-        ps2_kprintf("  reboot          - Halt/Reset the Emotion Engine\n");
+        ps2_kprintf("  clear            - Clear console screen\n");
+        ps2_kprintf("  reboot           - Halt/Reset the Emotion Engine\n");
+    } else if (tkl_strcmp(cmd, "desktop") == 0 || tkl_strcmp(cmd, "startx") == 0 || tkl_strcmp(cmd, "gui") == 0) {
+        if (!s_gui_active) {
+            launch_ps2_desktop_session();
+        } else {
+            ps2_kprintf("[PS2] Desktop GUI is already active.\n");
+        }
+    } else if (tkl_strcmp(cmd, "exit") == 0 || tkl_strcmp(cmd, "console") == 0 || tkl_strcmp(cmd, "quit") == 0) {
+        if (s_gui_active) {
+            s_gui_active = 0;
+            return;
+        } else {
+            ps2_kprintf("[PS2] Already at Stage 1 console.\n");
+        }
+    } else if (tkl_strcmp(cmd, "res") == 0) {
+        ps2_kprintf("PS2 Graphics Synthesizer Display Status:\n");
+        ps2_kprintf("  Resolution : %dx%d @ 60Hz Non-Interlaced Progressive (1x)\n", PS2_SCREEN_WIDTH, PS2_SCREEN_HEIGHT);
+        ps2_kprintf("  Color Depth: 32-bpp RGBA (GS CT32)\n");
+        ps2_kprintf("  PCRTC Mode : VESA 800x600 (omode 0x2B, field 0)\n");
+        ps2_kprintf("  eDRAM Alloc: 1,920,000 bytes (FBW=13 / 832 px stride)\n");
+        ps2_kprintf("  GIF DMA Bus: 1.2 GB/s Host->Local (15 chunks x 8000 QWs)\n");
+    } else if (tkl_strcmp(cmd, "clear") == 0) {
+        if (!s_gui_active) {
+            ps2_gs_text_clear();
+            ps2_gs_text_flush();
+        }
     } else if (tkl_strcmp(cmd, "info") == 0) {
         ps2_kprintf("B-System / BTRON3 3.20 [Sony PlayStation 2 Cleanroom Port]\n");
         ps2_kprintf("  CPU     : Emotion Engine MIPS R5900 @ 294.912 MHz\n");
         ps2_kprintf("  Memory  : 32 MB RDRAM (0x00000000..0x01FFFFFF)\n");
-        ps2_kprintf("  Display : GS 4MB eDRAM (640x448 @ 32-bpp RGBA via GIF DMA)\n");
+        ps2_kprintf("  Display : GS 4MB eDRAM (800x600 @ 32-bpp RGBA VESA Progressive Scan)\n");
         ps2_kprintf("  Desktop : Authentic B-System Compositor with Real Body Icons\n");
-        ps2_kprintf("  Console : EE SIO0 UART @ 115200 8N1\n");
+        ps2_kprintf("  Console : EE SIO0 UART @ 115200 8N1 + GS Framebuffer Text\n");
         ps2_kprintf("  Cursor  : (%d, %d)\n", s_mouse_x, s_mouse_y);
     } else if (tkl_strcmp(cmd, "apps") == 0) {
         ps2_kprintf("Desktop Applications:\n");
@@ -391,8 +449,6 @@ static void ps2_shell_exec(const char *cmd)
     } else if (tkl_strcmp(cmd, "status") == 0) {
         ps2_kprintf("Mouse Cursor: (%d, %d)\n", s_mouse_x, s_mouse_y);
         ps2_kprintf("TIP Mode    : %s\n", tip_get_mode_str());
-    } else if (tkl_strcmp(cmd, "desktop") == 0) {
-        ps2_kprintf("[PS2] Desktop refreshed.\n");
     } else if (tkl_strncmp(cmd, "mouse ", 6) == 0) {
         int x = 0, y = 0;
         const char *p = cmd + 6;
@@ -465,7 +521,7 @@ static void ps2_shell_exec(const char *cmd)
     } else if (cmd[0] != '\0') {
         ps2_kprintf("Unknown command: '%s'. Type 'help' for commands.\n", cmd);
     }
-    ps2_kprintf("btron-ps2> ");
+    ps2_kprintf(s_gui_active ? "btron-ps2> " : "btron-ps2# ");
 }
 
 static void ps2_shell_poll(void)
@@ -554,23 +610,30 @@ static void ps2_shell_poll(void)
 
         /* Standard character and line editing */
         if (c == '\r' || c == '\n') {
-            ps2_sio_putc('\n');
+            ps2_console_putc('\n');
+            if (!s_gui_active) ps2_gs_text_flush();
             cmd_buf[cmd_pos] = '\0';
             ps2_shell_exec(cmd_buf);
             cmd_pos = 0;
         } else if (c == 0x08 || c == 0x7F) {
             if (cmd_pos > 0) {
                 cmd_pos--;
-                ps2_sio_puts("\b \b");
+                ps2_console_putc('\b');
+                if (!s_gui_active) ps2_gs_text_flush();
             }
-            ps2_inject_key(BTRON_KEY_BACKSPACE, 1);
-            ps2_inject_key(BTRON_KEY_BACKSPACE, 0);
+            if (s_gui_active) {
+                ps2_inject_key(BTRON_KEY_BACKSPACE, 1);
+                ps2_inject_key(BTRON_KEY_BACKSPACE, 0);
+            }
         } else if (c >= 0x20 && c <= 0x7E) {
-            ps2_inject_key((UW)(uint8_t)c, 1);
-            ps2_inject_key((UW)(uint8_t)c, 0);
+            if (s_gui_active) {
+                ps2_inject_key((UW)(uint8_t)c, 1);
+                ps2_inject_key((UW)(uint8_t)c, 0);
+            }
             if (cmd_pos < (int)sizeof(cmd_buf) - 1) {
                 cmd_buf[cmd_pos++] = (char)c;
-                ps2_sio_putc((char)c);
+                ps2_console_putc((char)c);
+                if (!s_gui_active) ps2_gs_text_flush();
             }
         }
     }
@@ -584,8 +647,9 @@ void btron_core_banner(void) {
     ps2_kprintf("  Cleanroom TRON Kernel [Target 8: ps2 / PCSX2]               \n");
     ps2_kprintf("  CPU: Emotion Engine MIPS R5900 Little-Endian               \n");
     ps2_kprintf("  RAM: 32 MB RDRAM (8 MB Kernel Heap Pool Allocated)          \n");
-    ps2_kprintf("  Display: 640x448 @ 32-bpp RGBA via GIF DMA Host->Local Blit \n");
-    ps2_kprintf("  Compositor: Full B-System Workbench with Desktop Icons      \n");
+    ps2_kprintf("  Display: 800x600 @ 32-bpp RGBA VESA Progressive Scan       \n");
+    ps2_kprintf("  Stage 1: Terminal Console Active (Type 'desktop' or 'startx')\n");
+    ps2_kprintf("  Stage 2: Full B-System Workbench GUI on demand              \n");
     ps2_kprintf("  Input: DualShock 2 (Pad), USB OHCI HID, SIO0 Terminal       \n");
     ps2_kprintf("==============================================================\n");
 }
@@ -617,7 +681,7 @@ void btron_core_print_ver(ShellOutputFn out_fn, void *user_data, const char *arg
         out_fn("Kernel: Cleanroom uITRON 3.0 / BTRON 3.20 (Emotion Engine R5900)", COLOR_GREEN, user_data);
         out_fn("Hardware Target: Sony PlayStation 2 (GS eDRAM, DualShock 2, OHCI USB)", COLOR_LTGRAY, user_data);
         out_fn("Build Timestamp: " __DATE__ " " __TIME__, COLOR_LTGRAY, user_data);
-        out_fn("Display Compositor: GIF DMA Host->Local Blitter (640x448 32-bpp CT32)", COLOR_LTGRAY, user_data);
+        out_fn("Display Compositor: GIF DMA Host->Local Blitter (800x600 32-bpp CT32)", COLOR_LTGRAY, user_data);
         out_fn("Japanese IME: B-System Mozc / TIP Kana-Kanji Conversion Subsystem", COLOR_LTGRAY, user_data);
     }
 }
@@ -636,40 +700,20 @@ ER tk_dly_tsk(W dlytim) {
     return E_OK;
 }
 
-/* ── Kernel Entry & Dispatch ────────────────────────────────────── */
+/* ── Stage 2: Authentic B-System Graphical Workbench Session ────── */
 
-void ps2_kernel_main(void)
+void launch_ps2_desktop_session(void)
 {
-    /* 1. Initialize Serial Console (SIO0) */
-    ps2_sio_init();
+    ps2_kprintf("\n[PS2] Switching to Authentic B-System 800x600 Workbench Desktop...\n");
 
-    ps2_kprintf("\n");
-    ps2_kprintf("==============================================================\n");
-    ps2_kprintf("  B-System / BTRON3 3.20 (Sony PlayStation 2 Emotion Engine)  \n");
-    ps2_kprintf("  Cleanroom TRON Kernel [Target 8: ps2 / PCSX2]               \n");
-    ps2_kprintf("  CPU: Emotion Engine MIPS R5900 Little-Endian               \n");
-    ps2_kprintf("  RAM: 32 MB RDRAM (8 MB Kernel Heap Pool Allocated)          \n");
-    ps2_kprintf("  Display: 640x448 @ 32-bpp RGBA via GIF DMA Host->Local Blit \n");
-    ps2_kprintf("  Compositor: Full B-System Workbench with Desktop Icons      \n");
-    ps2_kprintf("  Input: DualShock 2 (Pad), USB OHCI HID, SIO0 Terminal       \n");
-    ps2_kprintf("==============================================================\n");
+    s_gui_active = 1;
 
-    /* 2. Initialize Controllers & USB Subsystem */
-    ps2_kprintf("[PS2] Initializing DualShock 2 Pad & USB Host Controller...\n");
-    ps2_pad_init();
-    ps2_usb_init();
-
-    /* 3. Initialize Hardware Graphics Synthesizer and GIF DMA */
-    ps2_kprintf("[PS2] Initializing Graphics Synthesizer (GS)...\n");
-    ps2_gs_init(PS2_SCREEN_WIDTH, PS2_SCREEN_HEIGHT);
-    ps2_kprintf("[PS2] Graphics Synthesizer & GIF DMA initialized.\n");
-
-    /* 4. Initialize Real B-System Workbench Desktop & Windows */
-    ps2_kprintf("[PS2] Initializing Real B-System Workbench (640x448)...\n");
+    /* Initialize baremetal desktop screen */
     GDEV *screen = init_baremetal_desktop((uint32_t *)s_desktop_backbuffer, PS2_SCREEN_WIDTH, PS2_SCREEN_HEIGHT);
     if (!screen) {
         ps2_kprintf("[FATAL] Failed to initialize B-System Workbench screen!\n");
-        ps2_halt();
+        s_gui_active = 0;
+        return;
     }
     workbench_init(PS2_SCREEN_WIDTH);
 
@@ -678,14 +722,15 @@ void ps2_kernel_main(void)
     blit_backbuffer_to_ps2fb();
     ps2_gs_flush();
 
-    ps2_kprintf("[PS2] Real B-System Workbench rendered via Host->Local GIF DMA.\n");
+    ps2_kprintf("[PS2] Real B-System Workbench rendered via Host->Local GIF DMA (800x600).\n");
+    ps2_kprintf("[PS2] Controls: Mouse/Pad/Kbd. Type 'exit' in shell or press [Esc]/[Q] to return.\n");
     ps2_kprintf("btron-ps2> ");
 
-    /* 5. Real-Time Interactive Event Loop (EVENTING.md Coordinator) */
+    /* Interactive Event Loop */
     uint32_t ticks = 0;
     EVT ev;
 
-    while (1) {
+    while (s_gui_active) {
         int need_redraw = 0;
 
         ps2_pad_poll();
@@ -711,4 +756,50 @@ void ps2_kernel_main(void)
 
         ps2_delay_cycles(1000);
     }
+
+    /* Clean return to Stage 1 text console */
+    ps2_gs_text_clear();
+    ps2_kprintf("\n==============================================================\n");
+    ps2_kprintf("  [BTRON] Exited Graphical Desktop Session\n");
+    ps2_kprintf("  [BTRON] Returned to Stage 1 Terminal Console (800x600)\n");
+    ps2_kprintf("  Type 'desktop' or 'startx' to launch GUI session again.\n");
+    ps2_kprintf("==============================================================\n\n");
+    ps2_kprintf("btron-ps2# ");
 }
+
+/* ── Kernel Entry & Stage 1 Dispatch ────────────────────────────── */
+
+void ps2_kernel_main(void)
+{
+    /* 1. Initialize Serial Console (SIO0) */
+    ps2_sio_init();
+
+    /* 2. Initialize Controllers & USB Subsystem */
+    ps2_pad_init();
+    ps2_usb_init();
+
+    /* 3. Initialize Hardware Graphics Synthesizer and GIF DMA (800x600 VESA) */
+    ps2_gs_init(PS2_SCREEN_WIDTH, PS2_SCREEN_HEIGHT);
+
+    /* 4. Display System Banner on GS Screen & SIO0 */
+    btron_core_banner();
+    ps2_kprintf("\n");
+
+#if defined(BTRON_AUTO_GUI) && (BTRON_AUTO_GUI == 1)
+    ps2_kprintf("[BOOT] AUTO_GUI=1: Automatically launching B-System Desktop GUI...\n");
+    launch_ps2_desktop_session();
+#else
+    ps2_kprintf(" Type 'desktop' or 'startx' to launch VESA 800x600 GUI!\n");
+    ps2_kprintf(" Commands: help, info, res, apps, tasks, mem, desktop, startx, clear\n\n");
+    ps2_kprintf("btron-ps2# ");
+#endif
+
+    /* 5. Stage 1 Interactive Terminal Shell Loop */
+    while (1) {
+        ps2_pad_poll();
+        ps2_usb_poll();
+        ps2_shell_poll();
+        ps2_delay_cycles(2000);
+    }
+}
+

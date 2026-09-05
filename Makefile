@@ -514,11 +514,12 @@ test-m68k: $(M68K_TARGET)
 # ═══════════════════════════════════════════════════════════════════
 # Sony PlayStation 2 Emotion Engine Kernel (ps2 / PCSX2) [Target 8]
 # ═══════════════════════════════════════════════════════════════════
+AUTO_GUI       ?= 0
 PS2_TARGET     = btron-ps2.elf
 PS2_ISO        = btron-ps2.iso
 PS2_LD_SCRIPT  = src/drivers/ps2/ps2.ld
 PS2_CFLAGS     = -O2 -Wall -Wextra -std=c99 -ffreestanding -nostdlib \
-                 -DBTRON_TARGET=8 -DBTRON_PS2_TARGET \
+                 -DBTRON_TARGET=8 -DBTRON_PS2_TARGET -DBTRON_AUTO_GUI=$(AUTO_GUI) \
                  -Iinclude -Iinclude/drivers -Isrc/kernel -Isrc/cores -Isrc/drivers/ps2
 PS2_STARTUP    = src/cores/core_ps2.c
 PS2_SRCS       = $(PS2_STARTUP)           \
@@ -577,7 +578,8 @@ run-ps2: $(PS2_TARGET)
 	@echo " Machine  : Sony PlayStation 2 (Emotion Engine R5900)"
 	@echo " CPU      : 128-bit SIMD MIPS Core @ 294.912 MHz"
 	@echo " RAM      : 32 MB RDRAM | VRAM: 4 MB GS eDRAM"
-	@echo " Display  : Graphics Synthesizer 640x480 @ 32-bpp RGBA"
+	@echo " Display  : Graphics Synthesizer 800x600 @ 32-bpp RGBA (VESA)"
+	@echo " GUI Mode : $(if $(filter 1,$(AUTO_GUI)),Automatic Direct GUI,Two-Stage Console -> startx)"
 	@echo " Target   : $(if $(filter 1,$(ISO)),Disc ISO: $(PS2_ISO),Direct ELF: $(PS2_TARGET))"
 	@echo " Emulator : $(PCSX2_BIN)"
 	@echo "=========================================================="
